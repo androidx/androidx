@@ -4922,6 +4922,9 @@ final val androidx.compose.ui.main/androidx_compose_ui_main_DefaultIOSAppDelegat
 final val androidx.compose.ui.platform.accessibility/androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop // androidx.compose.ui.platform.accessibility/androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop|#static{}androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop|#static{}androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop|#static{}androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop[0]
 
 // Targets: [ios]
@@ -5118,6 +5121,9 @@ final fun androidx.compose.ui.main/defaultUIKitMain(kotlin/String, platform.UIKi
 
 // Targets: [ios]
 final fun androidx.compose.ui.platform.accessibility/androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform.accessibility/androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop_getter|androidx_compose_ui_platform_accessibility_AccessibilityScrollEventResult$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop_getter|androidx_compose_ui_platform_AccessibilityElementFocusMode_Focus$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop_getter|androidx_compose_ui_platform_AccessibilityElementFocusMode_KeepFocus$stableprop_getter(){}[0]

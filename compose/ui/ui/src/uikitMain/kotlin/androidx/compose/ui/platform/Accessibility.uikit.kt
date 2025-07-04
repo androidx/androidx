@@ -716,9 +716,16 @@ private sealed interface AccessibilityElementFocusMode {
     }
 
     /**
-     * Keeps focus at the element if present, or notify about significant changes on a screen
+     * Keeps focus on the element if present, or notify about significant changes on a screen.
      */
     data class KeepFocus(val key: AccessibilityElementKey) : AccessibilityElementFocusMode {
+        override val targetElementKey: AccessibilityElementKey = key
+    }
+
+    /**
+     * Changes focus on the element with the given [key].
+     */
+    data class Focus(val key: AccessibilityElementKey) : AccessibilityElementFocusMode {
         override val targetElementKey: AccessibilityElementKey = key
     }
 }
@@ -746,6 +753,7 @@ internal class AccessibilityMediator(
         private set
 
     var keyboardFocusedElementKey: AccessibilityElementKey? = null
+    private var forceFocusedElementKey: AccessibilityElementKey? = null
 
     /**
      * A set of node ids that had their bounds invalidated after the last sync.
@@ -987,7 +995,9 @@ internal class AccessibilityMediator(
      * Inserts new elements to [accessibilityElementsMap], updates the old ones, and removes the elements
      * that are not present in the tree anymore.
      */
-    private fun traverseSemanticsTree(rootNode: SemanticsNode): AccessibilityElement {
+    private fun traverseSemanticsTree(
+        rootNode: SemanticsNode
+    ): Pair<AccessibilityElement, AccessibilityElementKey?> {
         val presentIds = mutableSetOf<AccessibilityElementKey>()
 
         val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(rootNode.id)
@@ -998,6 +1008,7 @@ internal class AccessibilityMediator(
                 refocusKeyboardElementIfNeeded()
             }
         }
+        var focusedKey: AccessibilityElementKey? = null
 
         // 1. Flatten all children except nodes inside traversal groups to:
         // - have the same traversal order as on Android
@@ -1038,6 +1049,10 @@ internal class AccessibilityMediator(
             presentIds.add(node.semanticsKey)
 
             val frame = nodes[node.id]?.adjustedBounds?.toRect() ?: node.unclippedBoundsInWindow
+
+            if (node.unmergedConfig.getOrNull(SemanticsProperties.Focused) == true) {
+                focusedKey = node.semanticsKey
+            }
 
             fun makeSemanticsNode() = createOrUpdateAccessibilityElement(
                 node = AccessibilityNode.Semantics(
@@ -1097,7 +1112,7 @@ internal class AccessibilityMediator(
             isPresent
         }
 
-        return rootAccessibilityElement
+        return rootAccessibilityElement to focusedKey
     }
 
     /**
@@ -1110,10 +1125,18 @@ internal class AccessibilityMediator(
             "Root view must not be an accessibility element"
         }
 
-        root.element = traverseSemanticsTree(rootSemanticsNode)
+        val (element, focusedElementKey) = traverseSemanticsTree(rootSemanticsNode)
+        root.element = element
 
         accessibilityDebugLogger?.let {
             debugTraverse(it, view)
+        }
+
+        if (forceFocusedElementKey != focusedElementKey) {
+            forceFocusedElementKey = focusedElementKey
+            focusedElementKey?.let {
+                focusMode = AccessibilityElementFocusMode.Focus(it)
+            }
         }
 
         return updateFocusedElement()
@@ -1141,6 +1164,17 @@ internal class AccessibilityMediator(
 
                     NodesSyncResult(newFocusedElement, isScreenChange = true)
                 } else {
+                    NodesSyncResult(null, isScreenChange = false)
+                }
+            }
+
+            is AccessibilityElementFocusMode.Focus -> {
+                val element = accessibilityElementsMap[mode.key]
+                if (element != null && !CGRectIsEmpty(element.accessibilityFrame())) {
+                    focusMode = AccessibilityElementFocusMode.KeepFocus(mode.key)
+                    NodesSyncResult(element, isScreenChange = false)
+                } else {
+                    focusMode = AccessibilityElementFocusMode.None
                     NodesSyncResult(null, isScreenChange = false)
                 }
             }
