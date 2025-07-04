@@ -19,13 +19,10 @@ package androidx.compose.foundation.text.contextmenu.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-
-//TODO: remove this file
-// when this will be in JB fork
-// https://android.googlesource.com/platform/frameworks/support/+/d8bc9d81dffa35162626e45ee68d4a7e271c6ada
-
 @Composable
-internal expect fun ProvideDefaultPlatformTextContextMenuProviders(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-)
+internal actual fun ProvideDefaultPlatformTextContextMenuProviders(
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-7819
+}

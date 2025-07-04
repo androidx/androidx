@@ -16,46 +16,18 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.JPopupTextMenu
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItemWithComposableLeadingIcon
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import java.awt.Component
 import java.awt.MouseInfo
@@ -64,10 +36,6 @@ import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
 import javax.swing.event.PopupMenuEvent
 import javax.swing.event.PopupMenuListener
-
-// Design of basic representation is from Material specs:
-// https://material.io/design/interaction/states.html#hover
-// https://material.io/components/menus#specs
 
 /**
  * Representation of a context menu that is suitable for light themes of the application.
@@ -104,93 +72,42 @@ class DefaultContextMenuRepresentation(
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
         val status = state.status
         if (status is ContextMenuState.Status.Open) {
-            var focusManager: FocusManager? by mutableStateOf(null)
-            var inputModeManager: InputModeManager? by mutableStateOf(null)
-
-            Popup(
-                properties = PopupProperties(focusable = true),
-                onDismissRequest = { state.status = ContextMenuState.Status.Closed },
-                popupPositionProvider = rememberPopupPositionProviderAtPosition(
-                    positionPx = status.rect.center
-                ),
-                onKeyEvent = {
-                    if (it.type == KeyEventType.KeyDown) {
-                        when (it.key.nativeKeyCode) {
-                            java.awt.event.KeyEvent.VK_DOWN  -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Next)
-                                true
-                            }
-                            java.awt.event.KeyEvent.VK_UP -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Previous)
-                                true
-                            }
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
-                },
-            ) {
-                focusManager = LocalFocusManager.current
-                inputModeManager = LocalInputModeManager.current
-                Column(
-                    modifier = Modifier
-                        .shadow(8.dp)
-                        .background(backgroundColor)
-                        .padding(vertical = 4.dp)
-                        .width(IntrinsicSize.Max)
-                        .verticalScroll(rememberScrollState())
-
-                ) {
-                    items().forEach { item ->
-                        MenuItemContent(
-                            itemHoverColor = itemHoverColor,
-                            onClick = {
-                                state.status = ContextMenuState.Status.Closed
-                                item.onClick()
-                            }
-                        ) {
-                            BasicText(text = item.label, style = TextStyle(color = textColor))
-                        }
+            val session = remember(state) {
+                object : TextContextMenuSession {
+                    override fun close() {
+                        state.status = ContextMenuState.Status.Closed
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun MenuItemContent(
-    itemHoverColor: Color,
-    onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit
-) {
-    var hovered by remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier
-            .clickable(
-                onClick = onClick,
-            )
-            .onHover { hovered = it }
-            .background(if (hovered) itemHoverColor else Color.Transparent)
-            .fillMaxWidth()
-            // Preferred min and max width used during the intrinsic measurement.
-            .sizeIn(
-                minWidth = 112.dp,
-                maxWidth = 280.dp,
-                minHeight = 32.dp
-            )
-            .padding(
-                PaddingValues(
-                    horizontal = 16.dp,
-                    vertical = 0.dp
+            val components by remember {
+                derivedStateOf {
+                    items().map {
+                        TextContextMenuItemWithComposableLeadingIcon(
+                            key = it,
+                            label = it.label,
+                            enabled = true,
+                            onClick = { it.onClick() }
+                        )
+                    }
+                }
+            }
+            val colors = remember(backgroundColor, textColor, itemHoverColor) {
+                ContextMenuColors(
+                    backgroundColor = backgroundColor,
+                    textColor = textColor,
+                    iconColor = Color.Unspecified,
+                    disabledTextColor = Color.Unspecified,
+                    disabledIconColor = Color.Unspecified,
+                    hoverColor = itemHoverColor,
                 )
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        content()
+            }
+            DefaultOpenContextMenu(
+                session = session,
+                components = components,
+                popupPositionProvider = rememberPopupPositionProviderAtPosition(status.rect.center),
+                colors = colors,
+            )
+        }
     }
 }
 
@@ -244,18 +161,6 @@ class JPopupContextMenuRepresentation(
                 onDispose {
                     menu.isVisible = false
                 }
-            }
-        }
-    }
-}
-
-private fun Modifier.onHover(onHover: (Boolean) -> Unit) = pointerInput(Unit) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            when (event.type) {
-                PointerEventType.Enter -> onHover(true)
-                PointerEventType.Exit -> onHover(false)
             }
         }
     }

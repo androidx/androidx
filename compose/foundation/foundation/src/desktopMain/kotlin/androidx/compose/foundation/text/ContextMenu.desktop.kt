@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
@@ -27,9 +28,14 @@ import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.contextMenuOpenDetector
 import androidx.compose.foundation.internal.nativeClipboardHasText
 import androidx.compose.foundation.text.TextContextMenu.TextManager
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
+import androidx.compose.foundation.text.contextmenu.internal.ProvideDefaultPlatformTextContextMenuProviders
+import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuGestures
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.selection.SelectionAdjustment
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
@@ -44,8 +50,10 @@ import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalLocalization
+import androidx.compose.ui.platform.PlatformLocalization
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getSelectedText
 import java.awt.Component
 import javax.swing.JPopupMenu
@@ -53,45 +61,74 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
+/**
+ * Context menu area for [BasicTextField] (with [TextFieldValue] argument).
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal actual fun ContextMenuArea(
     manager: TextFieldSelectionManager,
     content: @Composable () -> Unit
 ) {
-    val state = remember { ContextMenuState() }
-    val textManager = remember(manager) { manager.textManager }
-    LocalTextContextMenu.current.Area(textManager, state, content)
+    if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+        ProvideDefaultPlatformTextContextMenuProviders(manager.contextMenuAreaModifier, content)
+    } else {
+        val state = remember { ContextMenuState() }
+        val textManager = remember(manager) { manager.textManager }
+        LocalTextContextMenu.current.Area(textManager, state, content)
+    }
 }
 
+/**
+ * Context menu area for [BasicTextField] (with [TextFieldState] argument).
+ */
 @Composable
 internal actual fun ContextMenuArea(
     selectionState: TextFieldSelectionState,
     enabled: Boolean,
     content: @Composable () -> Unit
 ) {
-    if (!enabled) {
-        content()
-        return
-    }
+    if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+        val modifier =
+            if (enabled) {
+                Modifier.textContextMenuGestures(
+                    onPreShowContextMenu = { selectionState.updateClipboardEntry() }
+                )
+            } else {
+                Modifier
+            }
+        ProvideDefaultPlatformTextContextMenuProviders(modifier, content)
+    } else {
+        if (!enabled) {
+            content()
+            return
+        }
 
-    val state = remember { ContextMenuState() }
-    val coroutineScope = rememberCoroutineScope()
-    val textManager = remember(selectionState, coroutineScope) {
-        selectionState.textManager(coroutineScope)
+        val state = remember { ContextMenuState() }
+        val coroutineScope = rememberCoroutineScope()
+        val textManager = remember(selectionState, coroutineScope) {
+            selectionState.textManager(coroutineScope)
+        }
+        LocalTextContextMenu.current.Area(textManager, state, content)
     }
-    LocalTextContextMenu.current.Area(textManager, state, content)
 }
 
+/**
+ * Context menu area for [SelectionContainer].
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal actual fun ContextMenuArea(
     manager: SelectionManager,
     content: @Composable () -> Unit
 ) {
-    val state = remember { ContextMenuState() }
-    val textManager = remember(manager) { manager.textManager }
-    LocalTextContextMenu.current.Area(textManager, state, content)
+    if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+        ProvideDefaultPlatformTextContextMenuProviders(manager.contextMenuAreaModifier, content)
+    } else {
+        val state = remember { ContextMenuState() }
+        val textManager = remember(manager) { manager.textManager }
+        LocalTextContextMenu.current.Area(textManager, state, content)
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -369,5 +406,29 @@ fun TextContextMenuArea(
             state.status = ContextMenuState.Status.Open(Rect(pointerPosition, 0f))
         },
         content = content
+    )
+}
+
+/**
+ * The default text context menu items.
+ *
+ * @param label The label of this item
+ */
+internal enum class DesktopTextContextMenuItems(val key: Any, val label: (PlatformLocalization) -> String) {
+    Cut(
+        key = TextContextMenuKeys.CutKey,
+        label = { it.cut },
+    ),
+    Copy(
+        key = TextContextMenuKeys.CopyKey,
+        label = { it.copy },
+    ),
+    Paste(
+        key = TextContextMenuKeys.PasteKey,
+        label = { it.paste },
+    ),
+    SelectAll(
+        key = TextContextMenuKeys.SelectAllKey,
+        label = { it.selectAll },
     )
 }

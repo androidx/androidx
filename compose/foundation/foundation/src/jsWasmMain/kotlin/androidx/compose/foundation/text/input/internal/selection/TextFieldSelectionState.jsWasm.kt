@@ -19,7 +19,9 @@ package androidx.compose.foundation.text.input.internal.selection
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerInputScope
+import kotlinx.coroutines.CoroutineScope
 
 /** Runs platform-specific text tap gestures logic. */
 internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
@@ -35,3 +37,9 @@ internal actual suspend fun PointerInputScope.getTextFieldSelectionGestures(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver
 ) = defaultTextFieldSelectionGestures(mouseSelectionObserver, textDragObserver)
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-8433/web-Adopt-new-context-menu-API
+internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
+    state: TextFieldSelectionState,
+    coroutineScope: CoroutineScope
+): Modifier = this

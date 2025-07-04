@@ -44,6 +44,7 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.isPrecisePointer
 import androidx.compose.foundation.text.selection.mouseSelectionBtf2
 import androidx.compose.foundation.text.selection.touchSelectionFirstPress
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -52,6 +53,7 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastAll
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -363,3 +365,9 @@ private class UIKitTextFieldTextDragObserver(
         textFieldSelectionState.updateHandleDragging(Handle.Cursor, currentDragPosition)
     }
 }
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-8431/iOS-Adopt-new-context-menu-API
+internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
+    state: TextFieldSelectionState,
+    coroutineScope: CoroutineScope
+): Modifier = this

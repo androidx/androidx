@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.selection
+package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.text.DesktopTextContextMenuItems
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Copy
@@ -29,20 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 
-/**
- * Magnification is not supported on desktop.
- */
-internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier = this
-
-/**
- * Whether the selection handle is in the visible bound of the TextField.
- */
-internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
-    isStartHandle: Boolean
-): Boolean = isSelectionHandleInVisibleBoundDefault(isStartHandle)
-
 internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
-    manager: TextFieldSelectionManager,
+    state: TextFieldSelectionState,
     coroutineScope: CoroutineScope,
 ): Modifier = addTextContextMenuComponentsWithLocalization { localization ->
     fun TextContextMenuBuilderScope.textFieldItem(
@@ -71,7 +59,7 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         }
     }
 
-    with(manager) {
+    with(state) {
         separator()
         textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
         textFieldSuspendItem(Copy, enabled = canCopy()) { copy(cancelSelection = false) }
