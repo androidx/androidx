@@ -1,8 +1,9 @@
 # Stubbed Projects
 
 ### List:
-- :annotation:annotation is stubbed by `:annotation:annotation-compatibility-stubs`, it depends on `androidx.annotation`
-- :collection:collection is stubbed by `:collection:collection-compatibility-stubs`, it depends on  `androidx.collection`
+- `:annotation:annotation` is stubbed by `:annotation:annotation-compatibility-stubs`, it depends on `androidx.annotation`
+- `:collection:collection` is stubbed by `:collection:collection-compatibility-stubs`, it depends on  `androidx.collection`
+- `:compose:runtime:runtime` is stubbed by `:compose:runtime:runtime-compatibility-stubs`, it depends on  `androidx.compose.runtime:runtime`mpose.runtime:runtime-annotation`
 
 ### Purpose
 The need for "stubbed projects" appeared in this PR - https://github.com/JetBrains/compose-multiplatform-core/pull/1819

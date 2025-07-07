@@ -42,8 +42,6 @@ val libraryToComponents = mapOf(
         ComposeComponent(":compose:material3:material3-window-size-class"),
         ComposeComponent(":compose:material3:material3-adaptive-navigation-suite"),
         ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
-        // TODO: It's published for all platforms by Google, so we don't need to re-publish it
-        ComposeComponent(":compose:runtime:runtime-annotation", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:ui:ui"),
         ComposeComponent(":compose:ui:ui-geometry"),
