@@ -382,6 +382,13 @@ internal class ComposeWindow(
         state.globalEvents.addDisposableEvent("blur") {
             lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         }
+
+        state.globalEvents.addDisposableEvent("visibilitychange") { event ->
+            lifecycle.handleLifecycleEvent(
+                if (documentIsVisible()) Lifecycle.Event.ON_START
+                else Lifecycle.Event.ON_STOP
+            )
+        }
     }
 
     init {
@@ -415,7 +422,10 @@ internal class ComposeWindow(
             )
         }
 
-        lifecycle.handleLifecycleEvent(if (document.hasFocus()) Lifecycle.Event.ON_RESUME else Lifecycle.Event.ON_START)
+        lifecycle.handleLifecycleEvent(
+            if (document.hasFocus()) Lifecycle.Event.ON_RESUME
+            else Lifecycle.Event.ON_START
+        )
     }
 
     fun resize(boxSize: IntSize) {
@@ -462,6 +472,13 @@ internal class ComposeWindow(
         event: TouchEvent,
         offset: Offset,
     ) {
+        // iOS Safari doesn't request focus when the page is shown,
+        // and the lifecycle doesn't trigger ON_RESUME.
+        // so, we decided to handle every touch
+        if (lifecycle.currentState != Lifecycle.State.RESUMED) {
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        }
+
         val inputModeManager = platformContext.inputModeManager
         if (inputModeManager.inputMode != InputMode.Touch) {
             inputModeManager.requestInputMode(InputMode.Touch)
@@ -580,6 +597,9 @@ internal class ComposeWindow(
         y = offsetY.toFloat()
     ) * density.density
 }
+
+//https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
+private fun documentIsVisible(): Boolean = js("document.visibilityState === 'visible'")
 
 private const val defaultCanvasElementId = "ComposeTarget"
 
