@@ -22,7 +22,9 @@ internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
     return a::class == b::class
 }
 
+private val markNow = TimeSource.Monotonic.markNow()
+
 internal actual fun currentTimeMillis(): Long {
-    return TimeSource.Monotonic.markNow().elapsedNow().inWholeMilliseconds
+    return markNow.elapsedNow().inWholeMilliseconds
 }
 
