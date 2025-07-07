@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WebTextInputService
 import androidx.compose.ui.platform.WebTextToolbar
 import androidx.compose.ui.platform.WindowInfoImpl
+import androidx.compose.ui.platform.accessibility.ComposeWebSemanticsListener
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeSceneDragAndDropNode
 import androidx.compose.ui.scene.ComposeScenePointer
@@ -60,10 +61,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.WebInteropContainer
-import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
-import androidx.compose.ui.unit.width
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropViewGroup
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
@@ -78,6 +77,7 @@ import kotlin.math.absoluteValue
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.coroutineScope
@@ -181,6 +181,8 @@ internal class DefaultWindowState(private val viewportContainer: Element) : Comp
 internal class ComposeWindow(
     private val canvas: HTMLCanvasElement,
     private val interopContainerElement: HTMLDivElement,
+    private val a11yContainerElement: HTMLDivElement?,
+    private val configuration: ComposeViewportConfiguration,
     content: @Composable () -> Unit,
     private val state: ComposeWindowState
 ) : LifecycleOwner, ViewModelStoreOwner {
@@ -235,6 +237,23 @@ internal class ComposeWindow(
         }
 
         override val textToolbar: TextToolbar = WebTextToolbar()
+
+        override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? =
+            if (configuration.isA11YEnabled) {
+                ComposeWebSemanticsListener(
+                    coroutineScope = MainScope(),
+                    webSemanticsRoot = a11yContainerElement?.apply {
+                        setAttribute("aria-label", "")
+                        setAttribute("role", "presentation")
+                        setAttribute("aria-live", "polite")
+                        id = "cmp_a11y_root"
+                        style.opacity = "0"
+                        style.setProperty("pointer-events", "none")
+                    } ?: error("a11yContainerElement must be provided"),
+                )
+            } else {
+                null
+            }
 
         override val textInputService = object : WebTextInputService() {
 
@@ -615,7 +634,7 @@ private const val defaultCanvasElementId = "ComposeTarget"
  * This can be turned off by setting [applyDefaultStyles] to false.
  */
 @ExperimentalComposeUiApi
-@Deprecated("CanvasBasedWindow doesn't support HTML interop via WebElementView API. Use ComposeViewport API instead")
+@Deprecated("CanvasBasedWindow doesn't support HTML interop via WebElementView API and it doesn't support A11Y feature. Use ComposeViewport API instead")
 fun CanvasBasedWindow(
     title: String? = null,
     canvasElementId: String = defaultCanvasElementId,
@@ -647,11 +666,18 @@ fun CanvasBasedWindow(
     val canvas = document.getElementById(canvasElementId)?.let { it as HTMLCanvasElement }
         ?: error("failed to find element with id '$canvasElementId'")
 
+    val configuration = ComposeViewportConfiguration().apply {
+        // No a11y support with deprecated CanvasBasedWindow API
+        isA11YEnabled = false
+    }
+
     ComposeWindow(
         canvas = canvas,
         // a detached container
         interopContainerElement = document.createElement("div") as HTMLDivElement,
+        a11yContainerElement = document.createElement("div") as HTMLDivElement,
         content = content,
+        configuration = configuration,
         state = if (requestResize == null) DefaultWindowState(document.documentElement!!) else ComposeWindowState.createFromLambda(requestResize)
     )
 }
@@ -665,10 +691,11 @@ fun CanvasBasedWindow(
 @ExperimentalComposeUiApi
 fun ComposeViewport(
     viewportContainerId: String,
+    configure: ComposeViewportConfiguration.() -> Unit = {},
     content: @Composable () -> Unit = { }
 ) {
     val canvasContainer = document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
-    ComposeViewport(canvasContainer, content)
+    ComposeViewport(canvasContainer, configure, content)
 }
 
 /**
@@ -680,10 +707,12 @@ fun ComposeViewport(
 @ExperimentalComposeUiApi
 fun ComposeViewport(
     viewportContainer: Element,
+    configure: ComposeViewportConfiguration.() -> Unit = {},
     content: @Composable () -> Unit = { }
 ) {
     val canvas = document.createElement("canvas") as HTMLCanvasElement
     canvas.setAttribute("tabindex", "0")
+    canvas.setAttribute("role", "generic")
 
     // Create a common container (parent html element) for canvas and the interop container
     // to position at the same place - the interop container is position at 0,0 relative to <canvas>.
@@ -705,10 +734,28 @@ fun ComposeViewport(
         left = "0"
     }
 
+
+    val configuration = ComposeViewportConfiguration().apply(configure)
+
+    val a11yContainerElement = if (configuration.isA11YEnabled) {
+        (document.createElement("div") as HTMLDivElement).also { a11yContainer ->
+            layerRoot.appendChild(a11yContainer)
+            a11yContainer.style.apply {
+                position = "absolute"
+                top = "0"
+                left = "0"
+            }
+        }
+    } else {
+        null
+    }
+
     ComposeWindow(
         canvas = canvas,
         interopContainerElement = interopContainerElement,
+        a11yContainerElement = a11yContainerElement,
         content = content,
+        configuration = configuration,
         state = DefaultWindowState(viewportContainer)
     )
 }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.window.ComposeViewport
+import androidx.compose.ui.window.ComposeViewportConfiguration
 import kotlin.coroutines.suspendCoroutine
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -39,8 +40,10 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget
+import org.w3c.dom.get
 
 /**
  * An interface with helper functions to initialise the tests
@@ -66,18 +69,32 @@ internal interface OnCanvasTests {
     }
 
     private fun resetCanvas() {
-        (getCanvasContainer() as CanReplaceChildren).replaceChildren()
+        (getContainer() as CanReplaceChildren).replaceChildren()
     }
 
-    private fun getCanvasContainer() = document.getElementById(containerId) ?: error("failed to get canvas with id ${containerId}")
+    private fun getContainer() = document.getElementById(containerId) ?: error("failed to get canvas with id ${containerId}")
+
+    private fun getAppRoot() = getContainer().children[0] as HTMLElement
+
+    fun getA11YContainer(): HTMLElement? {
+        return if (getAppRoot().children.length < 3) {
+            null
+        } else {
+            // The expected order is: canvas, interop container <div>, a11y container <div>
+            getAppRoot().children[2] as HTMLElement
+        }
+    }
 
     fun getCanvas(): HTMLCanvasElement {
-        val canvas = (getCanvasContainer().querySelector("canvas") as? HTMLCanvasElement) ?: error("failed to get canvas")
+        val canvas = (getAppRoot().querySelector("canvas") as? HTMLCanvasElement) ?: error("failed to get canvas")
         return canvas
     }
 
-    suspend fun createComposeWindow(content: @Composable () -> Unit) {
-        ComposeViewport(containerId, content = content)
+    suspend fun createComposeWindow(
+        configure: ComposeViewportConfiguration.() -> Unit = {},
+        content: @Composable () -> Unit
+    ) {
+        ComposeViewport(viewportContainerId = containerId, configure = configure, content = content)
 
         suspendCoroutine { continuation ->
             // This helps reduce the flakiness.
@@ -86,6 +103,28 @@ internal interface OnCanvasTests {
             // (it does so to let the event loop run / release the single thread)
             // I don't expect any issue from doing this, since a test will suspend and won't do anything.
             window.requestAnimationFrame { continuation.resumeWith(Result.success(it)) }
+        }
+    }
+
+    suspend fun awaitA11YChanges() {
+        val a11yContainer = getA11YContainer() ?: return
+
+        fun skipFramesUntil(condition: () -> Boolean, onTrue: () -> Unit) {
+            window.requestAnimationFrame {
+                if (!condition()) {
+                    skipFramesUntil(condition, onTrue)
+                } else {
+                    onTrue()
+                }
+            }
+        }
+
+        suspendCoroutine { continuation ->
+            val initialContent = a11yContainer.innerHTML
+            skipFramesUntil(
+                condition = { a11yContainer.innerHTML != initialContent },
+                onTrue = { continuation.resumeWith(Result.success(Unit)) }
+            )
         }
     }
 

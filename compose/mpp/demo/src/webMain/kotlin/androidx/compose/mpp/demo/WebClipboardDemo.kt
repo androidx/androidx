@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -45,7 +46,7 @@ fun WebClipboardDemo() {
         Row {
             TextField(textFieldState1)
             Spacer(modifier = Modifier.width(48.dp))
-            Button(onClick = {
+            Button(modifier = Modifier.testTag("copyButton"), onClick = {
                 coroutineScope.launch {
                     clipboard.setClipEntry(createClipEntryWithPlainText(textFieldState1.text.toString()))
                 }
@@ -59,7 +60,7 @@ fun WebClipboardDemo() {
         Row {
             TextField(textFieldState2)
             Spacer(modifier = Modifier.width(48.dp))
-            Button(onClick = {
+            Button(modifier = Modifier.testTag("pasteButton"), onClick = {
                 coroutineScope.launch {
                     val text = clipboard.getClipEntry().getPlainText() // uses readText, which is suppressed internal!
                     println("clipboard text: $text")

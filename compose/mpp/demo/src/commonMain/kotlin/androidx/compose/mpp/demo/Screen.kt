@@ -49,6 +49,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 sealed interface Screen {
@@ -204,7 +206,7 @@ private fun SelectionTopBar(
                         Spacer(Modifier.width(16.dp))
                     }
                     ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                        Text(title)
+                        Text(text = title, modifier = Modifier.semantics { heading() })
                     }
                 }
             }
