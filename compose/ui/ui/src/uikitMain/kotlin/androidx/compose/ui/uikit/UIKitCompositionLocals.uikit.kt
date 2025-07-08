@@ -17,6 +17,8 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
+import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 
 /**
@@ -27,4 +29,15 @@ import platform.UIKit.UIViewController
  */
 val LocalUIViewController = staticCompositionLocalOf<UIViewController> {
     error("CompositionLocal UIViewController not provided")
+}
+
+/**
+ * Public value to get top UIView of the current Compose window for library authors.
+ * This might be useful for adding extra UIKit views on top of Composable content.
+ * Please use it carefully and don't add or remove other views - check
+ * [androidx.compose.ui.interop.UIKitView] for those purposes.
+ */
+@ExperimentalComposeUiApi
+val LocalUIView = staticCompositionLocalOf<UIView> {
+    error("CompositionLocal UIView not provided")
 }

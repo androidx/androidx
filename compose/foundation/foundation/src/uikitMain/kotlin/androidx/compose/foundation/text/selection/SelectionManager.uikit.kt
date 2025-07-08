@@ -19,6 +19,10 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.text.TextContextMenuItem
+import androidx.compose.foundation.text.addTextContextMenuComponents
+import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +62,39 @@ internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modi
     }
 }
 
-// TODO https://youtrack.jetbrains.com/issue/CMP-7819
 internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
     selectionManager: SelectionManager
-): Modifier = this
+): Modifier = addTextContextMenuComponents {
+    fun TextContextMenuBuilderScope.selectionContainerItem(
+        key: Any,
+        enabled: Boolean,
+        closePredicate: (() -> Boolean)? = null,
+        onClick: () -> Unit
+    ) {
+        addComponent(
+            TextContextMenuItem(
+                key = key,
+                enabled = enabled,
+                onClick = {
+                    onClick()
+                    if (closePredicate?.invoke() != false) close()
+                })
+        )
+    }
+
+    with(selectionManager) {
+        separator()
+        selectionContainerItem(
+            key = TextContextMenuKeys.CopyKey,
+            enabled = isNonEmptySelection()
+        ) { copy() }
+        selectionContainerItem(
+            key = TextContextMenuKeys.SelectAllKey,
+            enabled = !isEntireContainerSelected(),
+            closePredicate = { !showToolbar || !isInTouchMode },
+        ) {
+            selectAll()
+        }
+        separator()
+    }
+}

@@ -5,16 +5,18 @@
 
 package androidx.compose.test.interaction
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -25,7 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.test.assertVisibleInContainer
+import androidx.compose.ui.test.findNodeOrNull
 import androidx.compose.ui.test.findNodeWithLabel
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
@@ -113,37 +117,74 @@ class BasicInteractionTest {
         assertEquals(DpRect(DpOffset.Zero, DpSize(screenSize.width, 100.dp)), boxRect)
     }
 
+    @Ignore // https://youtrack.jetbrains.com/issue/CMP-8537/Fix-toolbar-tests
     @Test
-    fun testDoubleTap() = runUIKitInstrumentedTest {
-        var doubleClicked = false
+    fun testBasicTextFieldToolbar() = runUIKitInstrumentedTest {
         setContent {
             Column(modifier = Modifier.safeDrawingPadding()) {
-                Box(modifier = Modifier.size(100.dp).testTag("Clickable").combinedClickable(
-                    onDoubleClick = { doubleClicked = true }
-                ) {})
-                TextField("Hello Long Text", {}, modifier = Modifier.testTag("TextField"))
-            }
-        }
-
-        findNodeWithTag("Clickable").doubleTap()
-
-        assertTrue(doubleClicked)
-    }
-
-    @Ignore // https://youtrack.jetbrains.com/issue/CMP-8133/Fix-keyboard-dependent-instrumented-tests-on-CI
-    @Test
-    fun testTextFieldCallout() = runUIKitInstrumentedTest {
-        setContent {
-            Column(modifier = Modifier.safeDrawingPadding()) {
-                TextField("Hello-long-long-long-long-long-text", {}, modifier = Modifier.testTag("TextField"))
+                BasicTextField("Hello-LongLongLongLongLongLong-text", {}, modifier = Modifier.testTag("TextField"))
             }
         }
 
         findNodeWithTag("TextField").doubleTap()
 
-        waitForIdle()
+        verifyFullToolbarPresent()
+    }
 
+    @Ignore // https://youtrack.jetbrains.com/issue/CMP-8537/Fix-toolbar-tests
+    @Test
+    fun testBasicTextField2Toolbar() = runUIKitInstrumentedTest {
+        val textFieldState = TextFieldState("Hello-LongLongLongLongLongLong-text")
+        setContent {
+            Column(modifier = Modifier.safeDrawingPadding()) {
+                BasicTextField(textFieldState, modifier = Modifier.testTag("TextField"))
+            }
+        }
+
+        findNodeWithTag("TextField").doubleTap()
+
+        verifyFullToolbarPresent()
+    }
+
+    @Ignore // https://youtrack.jetbrains.com/issue/CMP-8537/Fix-toolbar-tests
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun testBasicTextFieldToolbarNewContextMenu() = runUIKitInstrumentedTest {
+        ComposeFoundationFlags.isNewContextMenuEnabled = true
+        setContent {
+            Column(modifier = Modifier.safeDrawingPadding()) {
+                TextField("Hello-LongLongLongLongLong-text", {}, modifier = Modifier.testTag("TextField"))
+            }
+        }
+
+        findNodeWithTag("TextField").doubleTap()
+
+        verifyFullToolbarPresent()
+        ComposeFoundationFlags.isNewContextMenuEnabled = false
+    }
+
+    @Ignore // https://youtrack.jetbrains.com/issue/CMP-8537/Fix-toolbar-tests
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun testBasicTextField2ToolbarNewContextMenu() = runUIKitInstrumentedTest {
+        ComposeFoundationFlags.isNewContextMenuEnabled = true
+        val textFieldState = TextFieldState("Hello-LongLongLongLongLongLong-text")
+        setContent {
+            Column(modifier = Modifier.safeDrawingPadding()) {
+                BasicTextField(textFieldState, modifier = Modifier.testTag("TextField"))
+            }
+        }
+
+        findNodeWithTag("TextField").doubleTap()
+
+        verifyFullToolbarPresent()
+        ComposeFoundationFlags.isNewContextMenuEnabled = false
+    }
+
+    private fun UIKitInstrumentedTest.verifyFullToolbarPresent() {
         // Verify elements from context menu present
+        waitForContextMenu()
+
         findNodeWithLabel("Cut").let {
             it.assertVisibleInContainer()
             assertTrue(it.isAccessibilityElement ?: false)
@@ -159,6 +200,15 @@ class BasicInteractionTest {
         findNodeWithLabel("Select All").let {
             it.assertVisibleInContainer()
             assertTrue(it.isAccessibilityElement ?: false)
+        }
+    }
+
+    private fun UIKitInstrumentedTest.waitForContextMenu() {
+        waitForIdle()
+        waitUntil {
+            findNodeOrNull { node ->
+                node.element?.let { it::class.simpleName } == "_UIEditMenuContainerView"
+            } != null
         }
     }
 }

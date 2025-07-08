@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import androidx.compose.test.interaction.BasicInteractionTest
 import androidx.compose.xctest.setupXCTestSuite
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.XCTest.XCTestSuite
@@ -30,4 +31,5 @@ fun testSuite(): XCTestSuite = setupXCTestSuite(
     // Run test cases from a test
     // BasicInteractionTest::testTextFieldCallout,
     // LayersAccessibilityTest::testLayersAppearanceOrder
+    BasicInteractionTest::class
 )
