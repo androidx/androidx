@@ -59,7 +59,6 @@ import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -107,7 +106,6 @@ import platform.UIKit.accessibilityElements
 import platform.UIKit.accessibilityFrame
 import platform.UIKit.isAccessibilityElement
 import platform.UIKit.setAccessibilityElements
-import platform.darwin.NSInteger
 import platform.darwin.NSObject
 
 private val DUMMY_UI_ACCESSIBILITY_CONTAINER = NSObject()
@@ -361,19 +359,19 @@ private class AccessibilityRoot(
             field = value
             field?.setAccessibilityContainer(this)
             mediator.onScreenReaderActive(value != null)
+
+            setAccessibilityElements(value?.let { listOf(it) })
         }
 
-    override fun isAccessibilityElement(): Boolean = false
-
-    override fun accessibilityElementCount(): NSInteger = if (mediator.isEnabled) 1 else 0
-
-    override fun accessibilityElementAtIndex(index: NSInteger): Any? =
+    override fun accessibilityElements(): List<*> {
         if (mediator.isEnabled) {
             mediator.activateAccessibilityIfNeeded()
-            element
-        } else {
-            null
         }
+
+        return super.accessibilityElements()
+    }
+
+    override fun isAccessibilityElement(): Boolean = false
 
     override fun accessibilityContainer() = mediator.view
 
@@ -806,7 +804,9 @@ internal class AccessibilityMediator(
             // Will exit on CancellationException from within await on `invalidationChannel.receive()`
             // when [job] is cancelled
             while (true) {
+                hasPendingInvalidations = false
                 invalidationChannel.receive()
+                hasPendingInvalidations = true
 
                 // Estimated delay between the iOS Accessibility Engine sync intervals.
                 // There is no reason to post change notifications more frequently because the iOS
@@ -872,8 +872,8 @@ internal class AccessibilityMediator(
         cancelAccessibilityDisabling()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val hasPendingInvalidations: Boolean get() = !invalidationChannel.isEmpty
+    var hasPendingInvalidations: Boolean = false
+        private set
 
     private fun convertToAppWindowCGRect(rect: Rect): CValue<CGRect> {
         return view.convertRect(rect.toDpRect(view.density).asCGRect(), toView = null)
@@ -914,11 +914,16 @@ internal class AccessibilityMediator(
 
     fun onSemanticsChange() {
         accessibilityDebugLogger?.log("onSemanticsChange")
-        invalidationChannel.trySend(Unit)
+        invalidateSemanticsTree()
     }
 
     fun onLayoutChange(nodeId: Int) {
         accessibilityDebugLogger?.log("onLayoutChange (nodeId=$nodeId)")
+        invalidateSemanticsTree()
+    }
+
+    private fun invalidateSemanticsTree() {
+        hasPendingInvalidations = true
         invalidationChannel.trySend(Unit)
     }
 
@@ -958,7 +963,7 @@ internal class AccessibilityMediator(
 
             if (focusedNodesScrollableParentsIds != ids) {
                 focusedNodesScrollableParentsIds = ids
-                invalidationChannel.trySend(Unit)
+                invalidateSemanticsTree()
 
                 if (ids.isNotEmpty()) {
                     // Hack to fix an issue where iOS accessibility only reads the items visible
@@ -1321,7 +1326,7 @@ private fun debugTraverse(debugLogger: AccessibilityDebugLogger, accessibilityOb
 private fun debugContainmentChain(accessibilityObject: Any): String {
     val strings = mutableListOf<String>()
 
-    var currentObject = accessibilityObject as? Any
+    var currentObject = accessibilityObject as Any?
 
     while (currentObject != null) {
         when (val constCurrentObject = currentObject) {

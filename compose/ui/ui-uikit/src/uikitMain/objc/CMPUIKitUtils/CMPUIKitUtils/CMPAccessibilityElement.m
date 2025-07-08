@@ -109,6 +109,14 @@ NS_ASSUME_NONNULL_BEGIN
     return [super accessibilityElementAtIndex:index];
 }
 
+- (NSArray *)accessibilityElements {
+    return [super accessibilityElements];
+}
+
+- (void)setAccessibilityElements:(nullable NSArray *)accessibilityElements {
+    [super setAccessibilityElements:accessibilityElements];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
