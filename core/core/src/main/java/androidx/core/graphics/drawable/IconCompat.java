@@ -602,7 +602,7 @@ public class IconCompat extends CustomVersionedParcelable {
                     return new BitmapDrawable(context.getResources(),
                             BitmapFactory.decodeStream(is));
                 } catch (Exception e) {
-                    /* ignore */
+                    Log.e(TAG, "Unable to load image from URI: " + getUri(), e);
                 }
                 break;
             case TYPE_URI_ADAPTIVE_BITMAP:
@@ -617,7 +617,7 @@ public class IconCompat extends CustomVersionedParcelable {
                                         BitmapFactory.decodeStream(is), false));
                     }
                 } catch (Exception e) {
-                    /* ignore */
+                    Log.e(TAG, "Unable to load image from URI_ADAPTIVE_BITMAP: " + getUri(), e);
                 }
                 break;
         }
