@@ -446,6 +446,21 @@ final class androidx.collection/CircularIntArray { // androidx.collection/Circul
     final fun size(): kotlin/Int // androidx.collection/CircularIntArray.size|size(){}[0]
 }
 
+final class androidx.collection/DoubleDoublePair { // androidx.collection/DoubleDoublePair|null[0]
+    constructor <init>(kotlin/Double, kotlin/Double) // androidx.collection/DoubleDoublePair.<init>|<init>(kotlin.Double;kotlin.Double){}[0]
+
+    final val first // androidx.collection/DoubleDoublePair.first|{}first[0]
+        final fun <get-first>(): kotlin/Double // androidx.collection/DoubleDoublePair.first.<get-first>|<get-first>(){}[0]
+    final val second // androidx.collection/DoubleDoublePair.second|{}second[0]
+        final fun <get-second>(): kotlin/Double // androidx.collection/DoubleDoublePair.second.<get-second>|<get-second>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.collection/DoubleDoublePair.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.collection/DoubleDoublePair.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.collection/DoubleDoublePair.toString|toString(){}[0]
+    final inline fun component1(): kotlin/Double // androidx.collection/DoubleDoublePair.component1|component1(){}[0]
+    final inline fun component2(): kotlin/Double // androidx.collection/DoubleDoublePair.component2|component2(){}[0]
+}
+
 final class androidx.collection/LongLongPair { // androidx.collection/LongLongPair|null[0]
     constructor <init>(kotlin/Long, kotlin/Long) // androidx.collection/LongLongPair.<init>|<init>(kotlin.Long;kotlin.Long){}[0]
 

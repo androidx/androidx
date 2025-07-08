@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedClass: androidx.collection.DoubleDoublePair:
+    Added class androidx.collection.DoubleDoublePair
+
+
 AddedMethod: androidx.collection.FloatFloatPair#box-impl(long):
     Added method androidx.collection.FloatFloatPair.box-impl(long)
 AddedMethod: androidx.collection.FloatFloatPair#component1-impl(long):

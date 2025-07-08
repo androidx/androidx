@@ -125,4 +125,33 @@ class PairTest {
         assertEquals(3L, first)
         assertEquals(5L, second)
     }
+
+    @Test
+    fun doubleCreation() {
+        val pair = DoubleDoublePair(3.1, 4.6)
+        assertEquals(3.1, pair.first)
+        assertEquals(4.6, pair.second)
+    }
+
+    @Test
+    fun doubleEquality() {
+        val pair = DoubleDoublePair(3.1, 4.6)
+        val pairEqual = DoubleDoublePair(3.1, 4.6)
+        val pairUnequal1 = DoubleDoublePair(3.1, 5.0)
+        val pairUnequal2 = DoubleDoublePair(3.0, 4.6)
+        val pairUnequal3 = DoubleDoublePair(3.101, 4.601)
+
+        assertEquals(pair, pairEqual)
+        assertNotEquals(pair, pairUnequal1)
+        assertNotEquals(pair, pairUnequal2)
+        assertNotEquals(pair, pairUnequal3)
+    }
+
+    @Test
+    fun doubleDestructing() {
+        val pair = DoubleDoublePair(3.1, 4.6)
+        val (first, second) = pair
+        assertEquals(3.1, first)
+        assertEquals(4.6, second)
+    }
 }
