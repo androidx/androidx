@@ -378,7 +378,7 @@ internal class ComposeSceneMediator(
             }
         }
 
-    fun onScrollEvent(
+    private fun onScrollEvent(
         position: DpOffset,
         delta: DpOffset,
         event: UIEvent?,
@@ -407,7 +407,7 @@ internal class ComposeSceneMediator(
         )
     }
 
-    fun onHoverEvent(
+    private fun onHoverEvent(
         position: DpOffset,
         event: UIEvent?,
         eventKind: TouchesEventKind
@@ -434,7 +434,7 @@ internal class ComposeSceneMediator(
         )
     }
 
-    fun onCancelScroll() {
+    private fun onCancelScroll() {
         redrawer.ongoingInteractionEventsCount -= 1
         scene.cancelPointerInput()
     }
