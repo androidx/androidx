@@ -35,5 +35,7 @@ fun main() {
                 navController.bindToBrowserNavigation()
             }
         }
+
+        setupBackingTextAreaDebugHints()
     }
 }

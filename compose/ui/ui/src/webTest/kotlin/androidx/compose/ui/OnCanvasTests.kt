@@ -39,8 +39,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.ShadowRoot
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget
 import org.w3c.dom.get
@@ -74,7 +76,7 @@ internal interface OnCanvasTests {
 
     private fun getContainer() = document.getElementById(containerId) ?: error("failed to get canvas with id ${containerId}")
 
-    private fun getAppRoot() = getContainer().children[0] as HTMLElement
+    private fun getAppRoot() = getShadowRoot().children[0] as HTMLElement
 
     fun getA11YContainer(): HTMLElement? {
         return if (getAppRoot().children.length < 3) {
@@ -85,8 +87,11 @@ internal interface OnCanvasTests {
         }
     }
 
+    fun getShadowRoot(): ExtendedShadowRoot =
+        (getContainer().shadowRoot as? ExtendedShadowRoot) ?: error("failed to get shadowRoot")
+
     fun getCanvas(): HTMLCanvasElement {
-        val canvas = (getAppRoot().querySelector("canvas") as? HTMLCanvasElement) ?: error("failed to get canvas")
+        val canvas = (getShadowRoot().querySelector("canvas") as? HTMLCanvasElement) ?: error("failed to get canvas")
         return canvas
     }
 
@@ -195,4 +200,10 @@ private suspend fun awaitWithYield() {
     repeat(100) {
         yield()
     }
+}
+
+@JsName("ShadowRoot")
+internal external class ExtendedShadowRoot : ShadowRoot {
+
+    fun elementFromPoint(x: Double, y: Double): Element
 }

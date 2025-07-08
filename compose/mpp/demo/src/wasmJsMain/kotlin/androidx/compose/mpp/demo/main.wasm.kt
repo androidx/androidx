@@ -84,6 +84,7 @@ fun main() {
         }
 
     }
+    setupBackingTextAreaDebugHints()
 }
 
 private suspend fun loadResAsync(url: String): Deferred<ArrayBuffer> {

@@ -97,6 +97,9 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
 import org.w3c.dom.MediaQueryListEvent
+import org.w3c.dom.OPEN
+import org.w3c.dom.ShadowRootInit
+import org.w3c.dom.ShadowRootMode
 import org.w3c.dom.TouchEvent
 import org.w3c.dom.asList
 import org.w3c.dom.events.Event
@@ -257,18 +260,13 @@ internal class ComposeWindow(
 
         override val textInputService = object : WebTextInputService() {
 
-            override fun getOffset(rect: Rect): Offset {
-                val viewportRect = canvas.getBoundingClientRect()
-                val offsetX = viewportRect.left.toFloat().coerceAtLeast(0f) + (rect.left / density.density)
-                val offsetY = viewportRect.top.toFloat().coerceAtLeast(0f) + (rect.top / density.density)
-                return Offset(offsetX, offsetY)
-            }
+            override val backingDomInputContainer: HTMLElement
+                get() = interopContainerElement
 
             override fun getNewGeometryForBackingInput(rect: Rect): DpRect {
-                val viewportRect = canvas.getBoundingClientRect()
                 val dpRect = rect.toDpRect(density)
-                val left = viewportRect.left.toFloat() + dpRect.left.value
-                val top = viewportRect.top.toFloat() + dpRect.top.value
+                val left = dpRect.left.value
+                val top = dpRect.top.value
 
                 return DpRect(DpOffset(left.dp, top.dp), dpRect.size)
             }
@@ -703,6 +701,15 @@ fun ComposeViewport(
  *
  * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] Element.
  * This size of canvas is adjusted with the size of the container
+ *
+ * The current hierarchy:
+ * <viewportContainer.shadowDom>
+ *     <app root>
+ *         <canvas/>
+ *         <interop elements container/>
+ *         <a11y elements root/>
+ *     </app root>
+ * </viewportContainer.shadowDom>
  */
 @ExperimentalComposeUiApi
 fun ComposeViewport(
@@ -722,7 +729,8 @@ fun ComposeViewport(
         position = "relative"
     }
 
-    viewportContainer.appendChild(layerRoot)
+    val shadowRoot = viewportContainer.attachShadow(ShadowRootInit(ShadowRootMode.OPEN))
+    shadowRoot.appendChild(layerRoot)
     layerRoot.appendChild(canvas)
 
     val interopContainerElement = document.createElement("div") as HTMLDivElement

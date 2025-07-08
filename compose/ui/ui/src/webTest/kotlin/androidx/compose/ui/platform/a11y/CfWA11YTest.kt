@@ -334,7 +334,7 @@ class CfWA11YTest : OnCanvasTests {
         awaitIdle()
         awaitA11YChanges()
 
-        val textEl = document.getElementById("testText") as HTMLElement
+        val textEl = getShadowRoot().getElementById("testText") as HTMLElement
         assertEquals("Test", textEl.innerText)
 
 
@@ -462,7 +462,7 @@ class CfWA11YTest : OnCanvasTests {
         awaitIdle()
         awaitA11YChanges()
 
-        val button = document.getElementById("buttonTag") as? HTMLElement
+        val button = getShadowRoot().getElementById("buttonTag") as? HTMLElement
         assertNotNull(button)
         button.click()
         assertEquals(1, clickCounter)
@@ -471,7 +471,7 @@ class CfWA11YTest : OnCanvasTests {
         awaitIdle()
         awaitA11YChanges()
 
-        assertNull(document.getElementById("buttonTag"))
+        assertNull(getShadowRoot().getElementById("buttonTag"))
     }
 
     @Test
@@ -489,7 +489,7 @@ class CfWA11YTest : OnCanvasTests {
         awaitIdle()
         awaitA11YChanges()
 
-        val textField = document.getElementById("textFieldTag") as? HTMLElement
+        val textField = getShadowRoot().getElementById("textFieldTag") as? HTMLElement
         assertNotNull(textField)
 
         assertEquals("textbox", textField.getAttribute("role"))

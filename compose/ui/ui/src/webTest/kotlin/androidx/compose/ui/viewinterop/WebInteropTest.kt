@@ -64,13 +64,13 @@ class WebInteropTest : OnCanvasTests {
         }
 
 
-        var div = document.getElementById(divId) as HTMLDivElement?
+        var div = getShadowRoot().getElementById(divId) as HTMLDivElement?
         assertNull(div)
 
         showDiv.value = true
         awaitIdle()
 
-        div = document.getElementById(divId) as HTMLDivElement?
+        div = getShadowRoot().getElementById(divId) as HTMLDivElement?
         assertNotNull(div)
         assertTrue(div.isConnected)
         assertEquals("Text1", div.innerText)
@@ -173,9 +173,9 @@ class WebInteropTest : OnCanvasTests {
         }
         awaitIdle()
 
-        assertEquals("CANVAS", document.elementFromPoint(10.0, 10.0)!!.tagName)
-        assertEquals("DIV", document.elementFromPoint(50.0, 50.0)!!.tagName)
-        assertEquals("CANVAS", document.elementFromPoint(90.0, 90.0)!!.tagName)
+        assertEquals("CANVAS", getShadowRoot().elementFromPoint(10.0, 10.0).tagName)
+        assertEquals("DIV", getShadowRoot().elementFromPoint(50.0, 50.0).tagName)
+        assertEquals("CANVAS", getShadowRoot().elementFromPoint(90.0, 90.0).tagName)
     }
 }
 

@@ -70,19 +70,19 @@ class MouseTextInputTests: OnCanvasTests {
         awaitIdle()
         assertEquals(TextRange(0, 0), textRange.value)
 
-        val textArea = document.querySelector("textarea")
+        val textArea = getShadowRoot().querySelector("textarea")
         assertIs<HTMLTextAreaElement>(textArea)
 
         val textAreaRect = textArea.getBoundingClientRect()
         // Do a manual hit-test
-        val elementsAtPos = document.elementsFromPoint(
+        val elementsAtPos = getShadowRoot().elementFromPoint(
             textAreaRect.left + textAreaRect.width / 2 ,
             textAreaRect.top + textAreaRect.height / 2
         )
 
         // We expect the canvas to be on the top despite the coordinates match the textarea.
         // So it will be the first to process all the point inputs
-        assertEquals(canvas, elementsAtPos[0], "First element under mouse supposed to be canvas")
+        assertEquals(canvas, elementsAtPos, "First element under mouse supposed to be canvas")
         withContext(Dispatchers.Default) {
             delay(250) // to separate the mouse events
         }

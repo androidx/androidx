@@ -57,7 +57,7 @@ abstract class TextInputTests : OnCanvasTests {
 
     internal abstract suspend fun createTestInputState(): TestInputState
 
-    internal fun currentHtmlInput() = document.querySelector("textarea") as HTMLTextAreaElement
+    internal fun currentHtmlInput() = getShadowRoot().querySelector("textarea") as HTMLTextAreaElement
 
     internal suspend fun WebApplicationScope.createApplicationWithHolder(): TestInputState {
         val focusRequester = FocusRequester()
@@ -85,7 +85,7 @@ abstract class TextInputTests : OnCanvasTests {
 
     internal suspend fun WebApplicationScope.waitForHtmlInput(): HTMLTextAreaElement {
         while (true) {
-            val element = document.querySelector("textarea")
+            val element = getShadowRoot().querySelector("textarea")
             if (element is HTMLTextAreaElement) {
                 return element
             }
@@ -184,7 +184,7 @@ abstract class TextInputTests : OnCanvasTests {
     fun compositeInput() = runApplicationTest {
         val textFieldValue = createApplicationWithHolder()
 
-        val backingTextField = document.querySelector("textarea")
+        val backingTextField = getShadowRoot().querySelector("textarea")
         assertIs<HTMLTextAreaElement>(backingTextField)
 
         sendToHtmlInput(
