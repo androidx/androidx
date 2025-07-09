@@ -77,6 +77,26 @@ object ComposeUiFlags {
     @Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
 
     /**
+     * This flag enables an alternate approach to fixing the issues addressed by the
+     * [isViewFocusFixEnabled] flag.
+     */
+    @Suppress("MutableBareField")
+    @JvmField
+    var isBypassUnfocusableComposeViewEnabled: Boolean = true
+
+    /**
+     * This flag enables a fix for b/378570682. For API >=26. We attempt to manually find the next
+     * focusable item for 1-D focus search cases when Compose does not have any focusable content.
+     */
+    @Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
+
+    /**
+     * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
+     * when requestFocus is called, so we support this behavior in Compose too.
+     */
+    @Suppress("MutableBareField") @JvmField var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
+
+    /**
      * When an embedded view that is focused is removed from the hierarchy, it triggers a
      * requestFocus() which tries to re-assign focus before the previous composition is complete.
      * This flag enables a fix for this issue.

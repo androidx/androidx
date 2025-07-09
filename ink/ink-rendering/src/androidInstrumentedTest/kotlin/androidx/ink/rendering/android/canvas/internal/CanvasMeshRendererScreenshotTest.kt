@@ -16,7 +16,6 @@
 
 package androidx.ink.rendering.android.canvas.internal
 
-import android.os.Build
 import androidx.ink.rendering.android.canvas.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.captureToBitmap
@@ -33,7 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Emulator-based screenshot test of [CanvasMeshRenderer]. */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class CanvasMeshRendererScreenshotTest {

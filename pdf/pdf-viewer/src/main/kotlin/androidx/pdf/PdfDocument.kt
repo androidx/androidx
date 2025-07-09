@@ -290,24 +290,6 @@ public interface PdfDocument : Closeable {
         public override val cause: Throwable? = null,
     ) : CancellationException()
 
-    /**
-     * A [CancellationException] indicating that an attempt to start a background service was
-     * cancelled, typically due to Android's restrictions on starting services when the application
-     * is in the background.
-     *
-     * This exception is thrown to proactively manage scenarios where the system would otherwise
-     * throw a [android.app.BackgroundServiceStartNotAllowedException], allowing for more graceful
-     * handling within coroutines.
-     *
-     * @property message The detail message string.
-     * @property cause The original exception that have been caught.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class BackgroundServiceStartCancellationException(
-        public override val message: String = "Background service start cancelled",
-        public override val cause: Throwable? = null,
-    ) : CancellationException()
-
     /** Specifies the flags for loading pageInfo. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public class PageInfoFlags private constructor(public val value: Long) {

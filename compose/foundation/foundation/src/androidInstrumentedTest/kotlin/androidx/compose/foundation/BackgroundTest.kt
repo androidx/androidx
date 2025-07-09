@@ -544,7 +544,7 @@ class BackgroundTest {
     }
 
     @Test
-    fun rectangleShape_doesNotSetShapeSemanticsProperty() {
+    fun rectangleShape_setsShapeSemanticsProperty() {
         rule.setContent {
             SemanticParent {
                 Box(
@@ -557,7 +557,7 @@ class BackgroundTest {
 
         rule
             .onNodeWithTag(semanticsTag)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
     }
 
     @Test
@@ -610,7 +610,7 @@ class BackgroundTest {
         }
         rule
             .onNodeWithTag(semanticsTag)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
 
         rule.runOnIdle { shape = CircleShape }
 
@@ -639,7 +639,7 @@ class BackgroundTest {
 
         rule
             .onNodeWithTag(semanticsTag)
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
     }
 
     @Test

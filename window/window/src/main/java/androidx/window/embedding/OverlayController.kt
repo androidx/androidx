@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.callbackFlow
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class OverlayController
+public class OverlayController
 @VisibleForTesting
 internal constructor(private val backend: EmbeddingBackend) {
 
@@ -75,7 +75,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-    fun setOverlayAttributesCalculator(
+    public fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
         backend.setOverlayAttributesCalculator(calculator)
@@ -88,7 +88,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      *   than 6.
      */
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-    fun clearOverlayAttributesCalculator() {
+    public fun clearOverlayAttributesCalculator() {
         backend.clearOverlayAttributesCalculator()
     }
 
@@ -110,7 +110,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      *   than 6.
      */
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+    public fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         backend.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
 
@@ -130,13 +130,13 @@ internal constructor(private val backend: EmbeddingBackend) {
      * @return a [Flow] of [OverlayInfo] this [overlayTag] is associated with
      */
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-    fun overlayInfo(overlayTag: String): Flow<OverlayInfo> = callbackFlow {
+    public fun overlayInfo(overlayTag: String): Flow<OverlayInfo> = callbackFlow {
         val listener = Consumer { info: OverlayInfo -> trySend(info) }
         backend.addOverlayInfoCallback(overlayTag, Runnable::run, listener)
         awaitClose { backend.removeOverlayInfoCallback(listener) }
     }
 
-    companion object {
+    public companion object {
 
         internal const val OVERLAY_FEATURE_VERSION = 8
 
@@ -146,7 +146,7 @@ internal constructor(private val backend: EmbeddingBackend) {
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
-        fun getInstance(context: Context): OverlayController {
+        public fun getInstance(context: Context): OverlayController {
             val backend = EmbeddingBackend.getInstance(context)
             return OverlayController(backend)
         }

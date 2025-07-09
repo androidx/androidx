@@ -62,7 +62,7 @@ class FontShearTest {
             it.draw(
                 MockCanvas { x, y ->
                     assertThat(x).isEqualTo(0f)
-                    assertThat(y).isEqualTo(FontShearSpan.DEFAULT_FONT_SHEAR)
+                    assertThat(y).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
                 },
                 0f,
                 0f,
@@ -88,7 +88,7 @@ class FontShearTest {
         RotateLayoutRun(SHEARED, 0, SHEARED.length, PAINT).also {
             it.draw(
                 MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(FontShearSpan.DEFAULT_FONT_SHEAR)
+                    assertThat(x).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
                     assertThat(y).isEqualTo(0f)
                 },
                 0f,
@@ -115,7 +115,7 @@ class FontShearTest {
         TateChuYokoLayoutRun(SHEARED, 0, SHEARED.length, PAINT).also {
             it.draw(
                 MockCanvas { x, y ->
-                    assertThat(x).isEqualTo(FontShearSpan.DEFAULT_FONT_SHEAR)
+                    assertThat(x).isEqualTo(-FontShearSpan.DEFAULT_FONT_SHEAR)
                     assertThat(y).isEqualTo(0f)
                 },
                 0f,

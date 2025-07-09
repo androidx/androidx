@@ -32,7 +32,7 @@ import androidx.window.embedding.MatcherUtils.validateComponentName
  * then apply the rule based on the match result. This filter allows a wildcard symbol in the end or
  * instead of the package name, and a wildcard symbol in the end or instead of the class name.
  */
-class ActivityFilter
+public class ActivityFilter
 internal constructor(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
@@ -49,7 +49,7 @@ internal constructor(
      * If it is not `null`, the [ActivityFilter] will check the activity [Intent.getAction] besides
      * the component name. If it is `null`, [Intent.getAction] will be ignored.
      */
-    val intentAction: String?,
+    public val intentAction: String?,
 ) {
 
     /**
@@ -66,7 +66,7 @@ internal constructor(
      *   [ActivityFilter] will check the activity [Intent.getAction] besides the component name. If
      *   it is `null`, [Intent.getAction] will be ignored.
      */
-    constructor(
+    public constructor(
         componentName: ComponentName,
         intentAction: String?,
     ) : this(ActivityComponentInfo(componentName), intentAction)
@@ -81,7 +81,7 @@ internal constructor(
      *
      * @param intent the [Intent] to test against.
      */
-    fun matchesIntent(intent: Intent): Boolean {
+    public fun matchesIntent(intent: Intent): Boolean {
         val match =
             if (!isIntentMatching(intent, activityComponentInfo)) {
                 false
@@ -102,7 +102,7 @@ internal constructor(
      *
      * @param activity the [Activity] to test against.
      */
-    fun matchesActivity(activity: Activity): Boolean {
+    public fun matchesActivity(activity: Activity): Boolean {
         val match =
             isActivityMatching(activity, activityComponentInfo) &&
                 (intentAction == null || intentAction == activity.intent?.action)
@@ -114,7 +114,7 @@ internal constructor(
     }
 
     /** [ComponentName] that the [ActivityFilter] will use to match [Activity] and [Intent]. */
-    val componentName: ComponentName
+    public val componentName: ComponentName
         get() {
             return ComponentName(activityComponentInfo.packageName, activityComponentInfo.className)
         }

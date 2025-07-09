@@ -232,9 +232,10 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
     }
 }
 
+@SuppressLint("NewApi")
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class HeadlessWatchFaceClientScreenshotTest : HeadlessWatchFaceClientTestBase() {
     @get:Rule
     val screenshotRule: AndroidXScreenshotTestRule =

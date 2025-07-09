@@ -21,6 +21,7 @@ import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.binarycompatibilityvalidator.BinaryCompatibilityValidation
 import androidx.build.getSupportRootFolder
+import androidx.build.hasAndroidMultiplatformPlugin
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.metalava.MetalavaTasks
 import androidx.build.multiplatformExtension
@@ -29,6 +30,7 @@ import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
+import com.android.build.api.variant.KotlinMultiplatformAndroidVariant
 import com.android.build.api.variant.LibraryVariant
 import java.io.File
 import org.gradle.api.GradleException
@@ -37,6 +39,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmEnvironment
 import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
@@ -51,7 +54,8 @@ object JavaApiTaskConfig : ApiTaskConfig()
 
 object KmpApiTaskConfig : ApiTaskConfig()
 
-object AndroidMultiplatformApiTaskConfig : ApiTaskConfig()
+data class AndroidMultiplatformApiTaskConfig(val variant: KotlinMultiplatformAndroidVariant) :
+    ApiTaskConfig()
 
 fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
     if (!project.state.executed) {
@@ -146,11 +150,13 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 outputApiLocations,
             )
         } else if (config is AndroidMultiplatformApiTaskConfig) {
-            // Android Multiplatform does not currently support resources, so we generate a blank
-            // "api" file to make sure the check task breaks if there were tracked resources before
+            // If AGP KMP project does not enable resources, generate a blank "api" file to make
+            // sure the check task breaks if there were tracked resources before
             ResourceTasks.setupProject(
                 project,
-                project.provider { BlankApiRegularFile(project) },
+                config.variant.artifacts.get(SingleArtifact.PUBLIC_ANDROID_RESOURCES_LIST).orElse {
+                    File(project.getSupportRootFolder(), "buildSrc/blank-res-api/public.txt")
+                },
                 builtApiLocation,
                 outputApiLocations,
             )
@@ -174,7 +180,8 @@ internal fun Project.configureCompilationInputsAndManifest(
                 config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
         }
         is AndroidMultiplatformApiTaskConfig -> {
-            CompilationInputs.fromKmpAndroidTarget(project) to null
+            CompilationInputs.fromKmpAndroidTarget(project) to
+                config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
         }
         is KmpApiTaskConfig -> {
             CompilationInputs.fromKmpJvmTarget(project) to null
@@ -208,6 +215,7 @@ internal fun Project.createReleaseApiConfiguration(): Configuration {
                 // If this is a KMP project targeting android, make sure to select the android
                 // compilation and not a different jvm target compilation
                 multiplatformExtension?.let { extension ->
+                    // Captures when com.android.library plugin is applied in KMP project
                     if (
                         extension.targets.any { target ->
                             target.platformType == KotlinPlatformType.androidJvm
@@ -221,13 +229,20 @@ internal fun Project.createReleaseApiConfiguration(): Configuration {
                             KotlinPlatformType.androidJvm,
                         )
                     }
+                    // Captures when AGP KMP plugin is applied in KMP project
+                    if (project.hasAndroidMultiplatformPlugin()) {
+                        it.attributes.attribute(
+                            Attribute.of(
+                                "org.gradle.jvm.environment",
+                                TargetJvmEnvironment::class.java,
+                            ),
+                            objects.named(
+                                TargetJvmEnvironment::class.java,
+                                TargetJvmEnvironment.ANDROID,
+                            ),
+                        )
+                    }
                 }
             }
             .apply { project.dependencies.add(name, project.project(path)) }
-}
-
-internal class BlankApiRegularFile(project: Project) : RegularFile {
-    val file = File(project.getSupportRootFolder(), "buildSrc/blank-res-api/public.txt")
-
-    override fun getAsFile(): File = file
 }

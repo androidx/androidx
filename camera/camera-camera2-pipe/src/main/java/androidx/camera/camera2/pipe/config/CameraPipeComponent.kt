@@ -68,6 +68,8 @@ internal interface CameraPipeComponent {
 
     fun cameraBackends(): CameraBackends
 
+    fun cameraContext(): CameraContext
+
     fun cameraSurfaceManager(): CameraSurfaceManager
 
     fun cameraAudioRestrictionController(): AudioRestrictionController

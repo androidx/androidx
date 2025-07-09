@@ -25,7 +25,7 @@ import androidx.window.extensions.embedding.ActivityStack.Token
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-class ActivityStack
+public class ActivityStack
 internal constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
@@ -42,7 +42,7 @@ internal constructor(
      * process(es), [activitiesInProcess] will return an empty list, but this method will return
      * `false`.
      */
-    val isEmpty: Boolean,
+    public val isEmpty: Boolean,
     /** A token uniquely identifying this `ActivityStack`. */
     private val token: Token?,
 ) {
@@ -55,7 +55,7 @@ internal constructor(
      * @param isEmpty whether there is no [Activity] running in this [ActivityStack].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
+    public constructor(
         activitiesInProcess: List<Activity>,
         isEmpty: Boolean,
     ) : this(activitiesInProcess, isEmpty, token = null)
@@ -67,7 +67,7 @@ internal constructor(
     }
 
     /** Whether this [ActivityStack] contains the [activity]. */
-    operator fun contains(activity: Activity): Boolean {
+    public operator fun contains(activity: Activity): Boolean {
         return activitiesInProcess.contains(activity)
     }
 

@@ -32,7 +32,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_P
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_METERING_REPEATING_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_RESOLUTION_SELECTOR;
@@ -1114,6 +1113,12 @@ public final class ImageCapture extends UseCase {
         private boolean isRawSupported() {
             if (mCameraInfo instanceof CameraInfoInternal) {
                 CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) mCameraInfo;
+
+                if (!cameraInfoInternal.getAvailableCapabilities().contains(
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)) {
+                    return false;
+                }
+
                 return cameraInfoInternal.getSupportedOutputFormats().contains(RAW_SENSOR);
             }
 
@@ -2470,7 +2475,6 @@ public final class ImageCapture extends UseCase {
 
             setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
             setTargetClass(ImageCapture.class);
-            setMeteringRepeatingEnabled(true);
         }
 
         /**
@@ -2927,29 +2931,6 @@ public final class ImageCapture extends UseCase {
                 @NonNull ResolutionSelector resolutionSelector) {
             getMutableConfig().insertOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR,
                     resolutionSelector);
-            return this;
-        }
-
-        /**
-         * Sets whether the internal metering repeating session for the ImageCapture should be
-         * enabled.
-         *
-         * <p>By default, a repeating session will be added internally to handle focus and
-         * metering controls if there isn't a repeating session added explicitly, for example
-         * when a {@code ImageCapture} is the only bound use case.
-         *
-         * <p>Passing {@code false} to this method removes the metering repeating session.
-         * Disabling it can be useful if the extra session is not supported on the device.
-         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will throw an
-         * exception if called.
-         *
-         * @param enabled {@code true} to enabled the metering repeating session, otherwise
-         * {@code false}.
-         * @return The current {@code Builder}.
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public @NonNull Builder setMeteringRepeatingEnabled(boolean enabled) {
-            getMutableConfig().insertOption(OPTION_METERING_REPEATING_ENABLED, enabled);
             return this;
         }
 

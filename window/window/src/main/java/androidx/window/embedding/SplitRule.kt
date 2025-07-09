@@ -50,10 +50,10 @@ import kotlin.math.min
  * directions with different device states.
  *
  * @sample androidx.window.samples.embedding.splitWithOrientations
- * @see androidx.window.embedding.SplitPairRule
- * @see androidx.window.embedding.SplitPlaceholderRule
+ * @see SplitPairRule
+ * @see SplitPlaceholderRule
  */
-open class SplitRule
+public open class SplitRule
 internal constructor(
     tag: String? = null,
     /**
@@ -64,7 +64,7 @@ internal constructor(
      * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
      * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
-    @IntRange(from = 0) val minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    @IntRange(from = 0) public val minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
 
     /**
      * The smallest value of height of the parent task window when the split should be used, in DP.
@@ -78,7 +78,7 @@ internal constructor(
      * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
      * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
      */
-    @IntRange(from = 0) val minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    @IntRange(from = 0) public val minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
 
     /**
      * The smallest value of the smallest possible width of the parent task window in any rotation
@@ -89,7 +89,7 @@ internal constructor(
      * The default is [SPLIT_MIN_DIMENSION_DP_DEFAULT] if the app doesn't set.
      * [SPLIT_MIN_DIMENSION_ALWAYS_ALLOW] means to always allow split.
      */
-    @IntRange(from = 0) val minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
+    @IntRange(from = 0) public val minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
 
     /**
      * The largest value of the aspect ratio, expressed as `height / width` in decimal form, of the
@@ -106,7 +106,8 @@ internal constructor(
      * @see EmbeddingAspectRatio.ALWAYS_ALLOW
      * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
      */
-    val maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
+    public val maxAspectRatioInPortrait: EmbeddingAspectRatio =
+        SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
 
     /**
      * The largest value of the aspect ratio, expressed as `width / height` in decimal form, of the
@@ -123,7 +124,8 @@ internal constructor(
      * @see EmbeddingAspectRatio.ALWAYS_ALLOW
      * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
      */
-    val maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
+    public val maxAspectRatioInLandscape: EmbeddingAspectRatio =
+        SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
 
     /**
      * The default [SplitAttributes] to apply on the activity containers pair when the host task
@@ -132,7 +134,7 @@ internal constructor(
      *
      * It is set to split the host parent task vertically and equally by default.
      */
-    val defaultSplitAttributes: SplitAttributes,
+    public val defaultSplitAttributes: SplitAttributes,
 ) : EmbeddingRule(tag) {
 
     init {
@@ -144,34 +146,36 @@ internal constructor(
         )
     }
 
-    companion object {
+    public companion object {
         /**
          * When the min dimension is set to this value, it means to always allow split.
          *
          * @see SplitRule.minWidthDp
          * @see SplitRule.minSmallestWidthDp
          */
-        const val SPLIT_MIN_DIMENSION_ALWAYS_ALLOW = 0
+        public const val SPLIT_MIN_DIMENSION_ALWAYS_ALLOW: Int = 0
 
         /**
          * The default min dimension in DP for allowing split if it is not set by apps. The value
          * reflects [androidx.window.core.layout.WindowWidthSizeClass.MEDIUM].
          */
-        const val SPLIT_MIN_DIMENSION_DP_DEFAULT = 600
+        public const val SPLIT_MIN_DIMENSION_DP_DEFAULT: Int = 600
 
         /**
          * The default max aspect ratio for allowing split when the parent window is in portrait.
          *
          * @see SplitRule.maxAspectRatioInPortrait
          */
-        @JvmField val SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT = ratio(1.4f)
+        @JvmField
+        public val SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT: EmbeddingAspectRatio = ratio(1.4f)
 
         /**
          * The default max aspect ratio for allowing split when the parent window is in landscape.
          *
          * @see SplitRule.maxAspectRatioInLandscape
          */
-        @JvmField val SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT = ALWAYS_ALLOW
+        @JvmField
+        public val SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT: EmbeddingAspectRatio = ALWAYS_ALLOW
     }
 
     /**
@@ -187,7 +191,7 @@ internal constructor(
      * @see SplitPairRule.finishSecondaryWithPrimary
      * @see SplitPlaceholderRule.finishPrimaryWithPlaceholder
      */
-    class FinishBehavior
+    public class FinishBehavior
     private constructor(
         /** The description of this [FinishBehavior] */
         private val description: String,
@@ -203,19 +207,19 @@ internal constructor(
             return 31 * result + value
         }
 
-        companion object {
+        public companion object {
             /** Never finish the associated container. */
-            @JvmField val NEVER = FinishBehavior("NEVER", 0)
+            @JvmField public val NEVER: FinishBehavior = FinishBehavior("NEVER", 0)
             /**
              * Always finish the associated container independent of the current presentation mode.
              */
-            @JvmField val ALWAYS = FinishBehavior("ALWAYS", 1)
+            @JvmField public val ALWAYS: FinishBehavior = FinishBehavior("ALWAYS", 1)
             /**
              * Only finish the associated container when displayed adjacent to the one being
              * finished. Does not finish the associated one when containers are stacked on top of
              * each other.
              */
-            @JvmField val ADJACENT = FinishBehavior("ADJACENT", 2)
+            @JvmField public val ADJACENT: FinishBehavior = FinishBehavior("ADJACENT", 2)
 
             @JvmStatic
             internal fun getFinishBehaviorFromValue(

@@ -166,8 +166,11 @@ class FaceTrackingActivity : ComponentActivity() {
             ) {
                 Text("Face Tracking State: ${faceState.trackingState}")
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                Text("Average Confidence: ${faceState.confidence}")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier.padding(20.dp),
+            ) {
+                Text("Region Confidences: ")
                 for (region in FaceConfidenceRegionType.entries) {
                     Text(
                         "${region.name}: ${faceState.getConfidence(

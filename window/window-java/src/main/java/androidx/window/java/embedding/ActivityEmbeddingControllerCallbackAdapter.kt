@@ -37,7 +37,7 @@ import java.util.concurrent.Executor
  * @constructor creates a callback adapter of
  *   [ActivityEmbeddingController.embeddedActivityWindowInfo] flow API.
  */
-class ActivityEmbeddingControllerCallbackAdapter(
+public class ActivityEmbeddingControllerCallbackAdapter(
     private val controller: ActivityEmbeddingController
 ) {
     private val callbackToFlowAdapter = CallbackToFlowAdapter()
@@ -62,7 +62,7 @@ class ActivityEmbeddingControllerCallbackAdapter(
      *   to [EmbeddedActivityWindowInfo].
      */
     @RequiresWindowSdkExtension(6)
-    fun addEmbeddedActivityWindowInfoListener(
+    public fun addEmbeddedActivityWindowInfoListener(
         activity: Activity,
         executor: Executor,
         listener: Consumer<EmbeddedActivityWindowInfo>,
@@ -83,7 +83,9 @@ class ActivityEmbeddingControllerCallbackAdapter(
      * @param listener the previously registered [Consumer] to unregister.
      */
     @RequiresWindowSdkExtension(6)
-    fun removeEmbeddedActivityWindowInfoListener(listener: Consumer<EmbeddedActivityWindowInfo>) {
+    public fun removeEmbeddedActivityWindowInfoListener(
+        listener: Consumer<EmbeddedActivityWindowInfo>
+    ) {
         callbackToFlowAdapter.disconnect(listener)
     }
 }

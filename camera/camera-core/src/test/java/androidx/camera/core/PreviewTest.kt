@@ -129,6 +129,7 @@ class PreviewTest {
                 _: CameraThreadConfig?,
                 _: CameraSelector?,
                 _: Long?,
+                _: CameraXConfig?,
                 _: StreamSpecsCalculator ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(backCamera.cameraInfoInternal.cameraId) {

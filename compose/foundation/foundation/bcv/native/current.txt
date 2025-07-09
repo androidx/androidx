@@ -788,7 +788,7 @@ abstract class androidx.compose.foundation.pager/PagerState : androidx.compose.f
     open suspend fun scroll(androidx.compose.foundation/MutatePriority, kotlin.coroutines/SuspendFunction1<androidx.compose.foundation.gestures/ScrollScope, kotlin/Unit>) // androidx.compose.foundation.pager/PagerState.scroll|scroll(androidx.compose.foundation.MutatePriority;kotlin.coroutines.SuspendFunction1<androidx.compose.foundation.gestures.ScrollScope,kotlin.Unit>){}[0]
 }
 
-abstract class androidx.compose.foundation.shape/CornerBasedShape : androidx.compose.ui.graphics/Shape { // androidx.compose.foundation.shape/CornerBasedShape|null[0]
+abstract class androidx.compose.foundation.shape/CornerBasedShape : androidx.compose.ui.graphics/Interpolatable, androidx.compose.ui.graphics/Shape { // androidx.compose.foundation.shape/CornerBasedShape|null[0]
     constructor <init>(androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize) // androidx.compose.foundation.shape/CornerBasedShape.<init>|<init>(androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize){}[0]
 
     final val bottomEnd // androidx.compose.foundation.shape/CornerBasedShape.bottomEnd|{}bottomEnd[0]
@@ -804,6 +804,7 @@ abstract class androidx.compose.foundation.shape/CornerBasedShape : androidx.com
     abstract fun createOutline(androidx.compose.ui.geometry/Size, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/CornerBasedShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.LayoutDirection){}[0]
     final fun copy(androidx.compose.foundation.shape/CornerSize): androidx.compose.foundation.shape/CornerBasedShape // androidx.compose.foundation.shape/CornerBasedShape.copy|copy(androidx.compose.foundation.shape.CornerSize){}[0]
     final fun createOutline(androidx.compose.ui.geometry/Size, androidx.compose.ui.unit/LayoutDirection, androidx.compose.ui.unit/Density): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/CornerBasedShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;androidx.compose.ui.unit.LayoutDirection;androidx.compose.ui.unit.Density){}[0]
+    open fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.foundation.shape/CornerBasedShape.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
 }
 
 abstract class androidx.compose.foundation.text.contextmenu.data/TextContextMenuComponent { // androidx.compose.foundation.text.contextmenu.data/TextContextMenuComponent|null[0]
@@ -1063,6 +1064,7 @@ final class androidx.compose.foundation.shape/AbsoluteCutCornerShape : androidx.
     final fun createOutline(androidx.compose.ui.geometry/Size, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/AbsoluteCutCornerShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.LayoutDirection){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/AbsoluteCutCornerShape.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/AbsoluteCutCornerShape.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.foundation.shape/AbsoluteCutCornerShape.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.shape/AbsoluteCutCornerShape.toString|toString(){}[0]
 }
 
@@ -1073,6 +1075,7 @@ final class androidx.compose.foundation.shape/AbsoluteRoundedCornerShape : andro
     final fun createOutline(androidx.compose.ui.geometry/Size, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/AbsoluteRoundedCornerShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.LayoutDirection){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/AbsoluteRoundedCornerShape.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/AbsoluteRoundedCornerShape.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.foundation.shape/AbsoluteRoundedCornerShape.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.shape/AbsoluteRoundedCornerShape.toString|toString(){}[0]
 }
 
@@ -1083,6 +1086,7 @@ final class androidx.compose.foundation.shape/CutCornerShape : androidx.compose.
     final fun createOutline(androidx.compose.ui.geometry/Size, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/CutCornerShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.LayoutDirection){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/CutCornerShape.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/CutCornerShape.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.foundation.shape/CutCornerShape.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.shape/CutCornerShape.toString|toString(){}[0]
 }
 
@@ -1101,6 +1105,7 @@ final class androidx.compose.foundation.shape/RoundedCornerShape : androidx.comp
     final fun createOutline(androidx.compose.ui.geometry/Size, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.graphics/Outline // androidx.compose.foundation.shape/RoundedCornerShape.createOutline|createOutline(androidx.compose.ui.geometry.Size;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.unit.LayoutDirection){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/RoundedCornerShape.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/RoundedCornerShape.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.foundation.shape/RoundedCornerShape.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.foundation.shape/RoundedCornerShape.toString|toString(){}[0]
 }
 

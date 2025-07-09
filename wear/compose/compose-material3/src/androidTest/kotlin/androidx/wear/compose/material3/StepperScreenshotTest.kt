@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.test
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +27,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -51,8 +48,8 @@ import androidx.wear.compose.material3.StepperDefaults
 import androidx.wear.compose.material3.StepperDefaults.IconSize
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.goldenIdentifier
 import androidx.wear.compose.material3.setContentWithTheme
+import androidx.wear.compose.material3.verifyScreenshot
 import androidx.wear.compose.materialcore.RangeIcons
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -62,7 +59,7 @@ import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(TestParameterInjector::class)
 class StepperScreenshotTest {
     @get:Rule val rule = createComposeRule()
@@ -216,10 +213,7 @@ class StepperScreenshotTest {
         rule.onNodeWithTag("increase_icon", true).performTouchInput { down(center) }
         rule.waitForIdle()
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Test
@@ -251,10 +245,7 @@ class StepperScreenshotTest {
         rule.onNodeWithTag("decrease_icon", true).performTouchInput { down(center) }
         rule.waitForIdle()
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     private fun verifyScreenshot(screenSize: ScreenSize, content: @Composable () -> Unit) {
@@ -269,10 +260,7 @@ class StepperScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }
 

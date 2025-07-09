@@ -35,6 +35,7 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,7 +75,7 @@ fun listOfLabels(): List<String> {
 }
 
 @Composable
-fun EdgeButtonBelowLazyColumnDemo() {
+fun EdgeButtonBelowLazyColumnDemo(reverseLayout: Boolean) {
     val labels = listOfLabels()
     val selectedLabel = remember { mutableIntStateOf(0) }
     AdaptiveScreen {
@@ -89,7 +90,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
                         Modifier.scrollable(
                             state,
                             orientation = Orientation.Vertical,
-                            reverseDirection = true,
+                            reverseDirection = !reverseLayout,
                             // An overscroll effect should be applied to the EdgeButton for proper
                             // scrolling behavior.
                             overscrollEffect = rememberOverscrollEffect(),
@@ -108,6 +109,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = contentPadding,
                 horizontalAlignment = Alignment.CenterHorizontally,
+                reverseLayout = reverseLayout,
             ) {
                 items(labels.size) {
                     Card(
@@ -123,7 +125,7 @@ fun EdgeButtonBelowLazyColumnDemo() {
 }
 
 @Composable
-fun EdgeButtonBelowScalingLazyColumnDemo() {
+fun EdgeButtonBelowScalingLazyColumnDemo(reverseLayout: Boolean) {
     val labels = listOfLabels()
     val selectedLabel = remember { mutableIntStateOf(0) }
 
@@ -139,7 +141,7 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
                         Modifier.scrollable(
                             state,
                             orientation = Orientation.Vertical,
-                            reverseDirection = true,
+                            reverseDirection = !reverseLayout,
                             // An overscroll effect should be applied to the EdgeButton for proper
                             // scrolling behavior.
                             overscrollEffect = rememberOverscrollEffect(),
@@ -158,6 +160,7 @@ fun EdgeButtonBelowScalingLazyColumnDemo() {
                 autoCentering = null,
                 contentPadding = contentPadding,
                 horizontalAlignment = Alignment.CenterHorizontally,
+                reverseLayout = reverseLayout,
             ) {
                 items(labels.size) {
                     Card(
@@ -335,7 +338,7 @@ fun EdgeButtonConfigurableDemo() {
     var selectedColor by remember { mutableIntStateOf(0) }
     val types = listOf("Icon only" to 0, "Small Text" to 1, "Long Text" to 2)
     var selectedType by remember { mutableIntStateOf(0) }
-
+    var reverseLayout by remember { mutableStateOf(false) }
     AdaptiveScreen {
         val state = rememberScalingLazyListState()
         ScreenScaffold(
@@ -348,7 +351,7 @@ fun EdgeButtonConfigurableDemo() {
                         Modifier.scrollable(
                             state,
                             orientation = Orientation.Vertical,
-                            reverseDirection = true,
+                            reverseDirection = !reverseLayout,
                             // An overscroll effect should be applied to the EdgeButton for proper
                             // scrolling behavior.
                             overscrollEffect = rememberOverscrollEffect(),
@@ -387,24 +390,36 @@ fun EdgeButtonConfigurableDemo() {
                 autoCentering = null,
                 contentPadding = contentPadding,
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                reverseLayout = reverseLayout,
             ) {
+                selection(
+                    listOf("Normal" to false, "Reversed" to true),
+                    selected = { reverseLayout == (it == 1) },
+                    onSelect = { reverseLayout = it == 1 },
+                    label = "Layout",
+                    reverseLayout,
+                )
                 selection(
                     sizes,
                     selected = { selectedSize == it },
                     onSelect = { selectedSize = it },
                     label = "Size",
+                    reverseLayout,
                 )
                 selection(
                     colors,
                     selected = { selectedColor == it },
                     onSelect = { selectedColor = it },
                     label = "Color",
+                    reverseLayout,
                 )
                 selection(
                     types,
                     selected = { selectedType == it },
                     onSelect = { selectedType = it },
                     label = "Content",
+                    reverseLayout,
                 )
             }
         }
@@ -416,8 +431,9 @@ private fun <T> ScalingLazyListScope.selection(
     selected: (Int) -> Boolean,
     onSelect: (Int) -> Unit,
     label: String,
+    reverseLayout: Boolean,
 ) {
-    item { Text(label) }
+    if (!reverseLayout) item { Text(label) }
     items(items.size) { ix ->
         RadioButton(
             selected = selected(ix),
@@ -431,4 +447,5 @@ private fun <T> ScalingLazyListScope.selection(
             )
         }
     }
+    if (reverseLayout) item { Text(label) }
 }

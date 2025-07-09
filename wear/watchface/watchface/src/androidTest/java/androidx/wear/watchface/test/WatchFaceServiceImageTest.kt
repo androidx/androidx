@@ -130,7 +130,7 @@ public class ComplicationTapActivity : Activity() {
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 public class WatchFaceServiceImageTest {
 
     @get:Rule val mocks = MockitoJUnit.rule()

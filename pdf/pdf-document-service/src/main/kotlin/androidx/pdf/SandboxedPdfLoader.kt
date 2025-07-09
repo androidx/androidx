@@ -20,6 +20,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RestrictTo
+import androidx.pdf.service.PdfDocumentServiceImpl
+import androidx.pdf.service.connect.PdfSandboxHandleImpl
 import androidx.pdf.service.connect.PdfServiceConnection
 import androidx.pdf.service.connect.PdfServiceConnectionImpl
 import java.io.IOException
@@ -126,7 +128,7 @@ public class SandboxedPdfLoader(
             ?: throw IOException("Failed to open PDF file")
     }
 
-    private companion object {
+    public companion object {
         private fun resolveCoroutineContext(coroutineContext: CoroutineContext): CoroutineContext {
             return when {
                 coroutineContext[Job] != null -> error("coroutineContext may not contain a Job")
@@ -134,6 +136,26 @@ public class SandboxedPdfLoader(
                     coroutineContext + Dispatchers.IO
                 else -> coroutineContext
             }
+        }
+
+        /**
+         * Prepares sandboxing PDF resources ahead of any document operations, to reduce latency
+         * during the interaction with the [SandboxedPdfLoader] or [PdfDocument].
+         *
+         * The returned [PdfSandboxHandle] represents a session and must be closed by the caller
+         * when no longer needed.
+         *
+         * Calling this method is optional. Any document operation via [SandboxedPdfLoader] and
+         * [PdfDocument] will initialize the resources internally on demand, but may experience
+         * increased startup time.
+         *
+         * @param context A [Context] of component to be associated with pdf session.
+         * @return A [PdfSandboxHandle] representing an active pdf session.
+         * @see PdfSandboxHandle
+         */
+        @JvmStatic
+        public fun startInitialization(context: Context): PdfSandboxHandle {
+            return PdfSandboxHandleImpl(context).also { it.connect() }
         }
     }
 }

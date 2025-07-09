@@ -46,6 +46,7 @@ import androidx.test.filters.LargeTest
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -402,5 +403,37 @@ class LazyGridHeadersTest {
         }
 
         assertTrue { error.isSuccess }
+    }
+
+    @Test
+    fun lazyGrid_withEmptyHeader_showsHeadersOnScroll() {
+        val headerTag = "headerTag"
+        lateinit var state: LazyGridState
+
+        rule.setContentWithTestViewConfiguration {
+            LazyVerticalGrid(
+                GridCells.Fixed(1),
+                Modifier.height(300.dp).testTag(LazyGridTag),
+                rememberLazyGridState().also { state = it },
+            ) {
+                stickyHeader { Spacer(Modifier.height(101.dp).fillMaxWidth().testTag(headerTag)) }
+
+                repeat(10) {
+                    item { Spacer(Modifier.height(101.dp).fillMaxWidth()) }
+
+                    // this empty header shouldn't be affecting the real header
+                    stickyHeader {}
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyGridTag).scrollBy(y = 10.dp, density = rule.density)
+
+        rule.onNodeWithTag(headerTag).assertIsDisplayed().assertTopPositionInRootIsEqualTo(0.dp)
+
+        rule.runOnIdle {
+            assertEquals(0, state.layoutInfo.visibleItemsInfo.first().index)
+            assertEquals(IntOffset(0, 0), state.layoutInfo.visibleItemsInfo.first().offset)
+        }
     }
 }

@@ -714,7 +714,7 @@ public fun NavHost(
                     // We need to make sure we are completing only when the start is settled on the
                     // actual entry.
                     (navController.currentBackStackEntry == null ||
-                        transition.targetState == navController.currentBackStackEntry)
+                        transition.targetState == backStackEntry)
             ) {
                 visibleEntries.forEach { entry -> composeNavigator.onTransitionComplete(entry) }
                 zIndices.removeIf { key, _ -> key != transition.targetState.id }

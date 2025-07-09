@@ -51,11 +51,3 @@ androidx {
 android {
     namespace = "androidx.fragment.testing.manifest"
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
-}

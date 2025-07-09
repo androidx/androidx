@@ -286,7 +286,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
      */
     @JvmOverloads
     fun addNativeLibrariesToVariantAssets(
-        androidTarget: KotlinAndroidTarget,
+        androidTarget: KotlinMultiplatformAndroidLibraryTarget,
         nativeCompilation: MultiTargetNativeCompilation,
         forTest: Boolean = false,
     ) =
@@ -305,7 +305,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
      */
     @JvmOverloads
     fun addNativeLibrariesToJniLibs(
-        androidTarget: KotlinAndroidTarget,
+        androidTarget: KotlinMultiplatformAndroidLibraryTarget,
         nativeCompilation: MultiTargetNativeCompilation,
         forTest: Boolean = false,
     ) =

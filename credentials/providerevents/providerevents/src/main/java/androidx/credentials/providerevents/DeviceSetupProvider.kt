@@ -17,7 +17,6 @@
 package androidx.credentials.providerevents
 
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.credentials.providerevents.service.DeviceSetupService
 
 /**
@@ -33,7 +32,6 @@ import androidx.credentials.providerevents.service.DeviceSetupService
  * 3. The returned [IBinder] allows the feature provider to execute custom logic before calling the
  *    public endpoints of [DeviceSetupService].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DeviceSetupProvider {
     /**
      * Returns the [IBinder] stub implementation.
@@ -43,7 +41,6 @@ public interface DeviceSetupProvider {
      *
      * @param service The instance of [DeviceSetupService] to interact with.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getStubImplementation(service: DeviceSetupService): IBinder?
 
     public companion object {

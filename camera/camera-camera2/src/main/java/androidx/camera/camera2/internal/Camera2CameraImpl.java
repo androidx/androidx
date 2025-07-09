@@ -50,9 +50,12 @@ import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.LegacyCameraOutputConfigNullPointerQuirk;
 import androidx.camera.camera2.internal.compat.quirk.LegacyCameraSurfaceCleanupQuirk;
 import androidx.camera.camera2.internal.compat.workaround.CloseCameraBeforeCreateNewSession;
+import androidx.camera.camera2.interop.Camera2CaptureRequestConfigurator;
+import androidx.camera.camera2.interop.Camera2CaptureRequestConfiguratorKt;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
@@ -69,7 +72,6 @@ import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.Observable;
@@ -193,6 +195,7 @@ final class Camera2CameraImpl implements CameraInternal {
     final @NonNull CameraCoordinator mCameraCoordinator;
     final @NonNull CameraStateRegistry mCameraStateRegistry;
 
+    private final @Nullable CameraXConfig mCameraXConfig;
     private final boolean mShouldCloseCameraBeforeCreateNewSession;
     private final boolean mConfigAndCloseQuirk;
     private boolean mIsConfigAndCloseRequired = false;
@@ -249,7 +252,9 @@ final class Camera2CameraImpl implements CameraInternal {
             @NonNull Executor executor,
             @NonNull Handler schedulerHandler,
             @NonNull DisplayInfoManager displayInfoManager,
-            long cameraOpenRetryMaxTimeoutInMs) throws CameraUnavailableException {
+            long cameraOpenRetryMaxTimeoutInMs,
+            @Nullable CameraXConfig cameraXConfig)
+            throws CameraUnavailableException {
         mCameraManager = cameraManager;
         mCameraCoordinator = cameraCoordinator;
         mCameraStateRegistry = cameraStateRegistry;
@@ -262,6 +267,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mCameraStateMachine = new CameraStateMachine(cameraStateRegistry);
         mCaptureSessionRepository = new CaptureSessionRepository(mExecutor);
         mDisplayInfoManager = displayInfoManager;
+        mCameraXConfig = cameraXConfig;
 
         try {
             mCameraCharacteristicsCompat =
@@ -319,13 +325,19 @@ final class Camera2CameraImpl implements CameraInternal {
 
     private @NonNull CaptureSessionInterface newCaptureSession() {
         synchronized (mLock) {
+            Camera2CaptureRequestConfigurator captureRequestConfigurator =
+                    mCameraXConfig == null ? null
+                            : Camera2CaptureRequestConfiguratorKt
+                                    .getCamera2CaptureRequestConfigurator(mCameraXConfig);
             if (mSessionProcessor == null) {
                 return new CaptureSession(mDynamicRangesCompat,
-                        mCameraInfoInternal.getCameraQuirks());
+                        mCameraInfoInternal.getCameraQuirks(),
+                        captureRequestConfigurator);
             } else {
                 return new ProcessingCaptureSession(mSessionProcessor,
                         mCameraInfoInternal, mDynamicRangesCompat, mExecutor,
-                        mScheduledExecutorService);
+                        mScheduledExecutorService,
+                        captureRequestConfigurator);
             }
         }
     }
@@ -890,17 +902,7 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     private boolean isMeteringRepeatingDisabled() {
-        boolean meteringRepeatingDisabled = false;
-        for (UseCaseAttachState.UseCaseAttachInfo useCaseInfo :
-                mUseCaseAttachState.getAttachedUseCaseInfo()) {
-            UseCaseConfig<?> useCaseConfig = useCaseInfo.getUseCaseConfig();
-            if (useCaseConfig instanceof ImageCaptureConfig) {
-                if (!((ImageCaptureConfig) useCaseConfig).isMeteringRepeatingEnabled()) {
-                    meteringRepeatingDisabled = true;
-                }
-            }
-        }
-        return meteringRepeatingDisabled;
+        return mCameraXConfig != null && !mCameraXConfig.isRepeatingStreamForced();
     }
 
     @VisibleForTesting
@@ -1221,7 +1223,7 @@ final class Camera2CameraImpl implements CameraInternal {
         SessionConfig sessionConfig = mUseCaseAttachState.getAttachedBuilder().build();
         int repeatingSurfaceCount = sessionConfig.getRepeatingCaptureConfig().getSurfaces().size();
         int allSurfaceCount = sessionConfig.getSurfaces().size();
-        boolean isRepeatingRequestMissing = false;
+        boolean isRepeatingRequestAvailable = true;
 
         if (isMeteringRepeatingAttachedInternal()) {
             // Should remove the metering repeating if it's the only surface or there are other
@@ -1233,7 +1235,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 removeMeteringRepeating();
                 if (!shouldRemoveMeteringRepeating) {
                     // The metering repeating is removed but shouldn't.
-                    isRepeatingRequestMissing = true;
+                    isRepeatingRequestAvailable = false;
                 }
             }
         } else {
@@ -1264,15 +1266,15 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
                 if (isMeteringRepeatingRestricted(mMeteringRepeatingSession)) {
                     // The metering repeating is required but not added.
-                    isRepeatingRequestMissing = true;
+                    isRepeatingRequestAvailable = false;
                 } else {
                     addMeteringRepeating();
                 }
             }
         }
 
-        if (isRepeatingRequestMissing) {
-            mCameraControlInternal.setIsRepeatingRequestAvailable(false);
+        mCameraControlInternal.setIsRepeatingRequestAvailable(isRepeatingRequestAvailable);
+        if (!isRepeatingRequestAvailable) {
             Logger.e(TAG, "The repeating surface is missing, CameraControl and "
                     + "ImageCapture may encounter issues due to the absence of repeating "
                     + "surface. Please add a UseCase (Preview or ImageAnalysis) that can "

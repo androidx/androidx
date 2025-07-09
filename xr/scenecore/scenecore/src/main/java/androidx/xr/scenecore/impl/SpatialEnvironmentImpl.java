@@ -26,6 +26,7 @@ import androidx.xr.runtime.internal.ExrImageResource;
 import androidx.xr.runtime.internal.GltfModelResource;
 import androidx.xr.runtime.internal.MaterialResource;
 import androidx.xr.runtime.internal.SpatialEnvironment;
+import androidx.xr.scenecore.impl.impress.ImpressApi;
 
 import com.android.extensions.xr.XrExtensionResult;
 import com.android.extensions.xr.XrExtensions;
@@ -38,7 +39,6 @@ import com.android.extensions.xr.space.SpatialState;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
-import com.google.ar.imp.apibindings.ImpressApi;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 

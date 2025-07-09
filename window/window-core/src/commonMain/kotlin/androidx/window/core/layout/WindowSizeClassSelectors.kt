@@ -33,7 +33,10 @@ import kotlin.jvm.JvmName
  * @param heightDp the height of the window to match a [WindowSizeClass] to.
  * @see computeWindowSizeClass
  */
-fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Float, heightDp: Float): WindowSizeClass {
+public fun Set<WindowSizeClass>.computeWindowSizeClass(
+    widthDp: Float,
+    heightDp: Float,
+): WindowSizeClass {
     return computeWindowSizeClass(widthDp.toInt(), heightDp.toInt())
 }
 
@@ -48,7 +51,10 @@ fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Float, heightDp: Float)
  * @param widthDp the width of the window to match a [WindowSizeClass] to.
  * @param heightDp the height of the window to match a [WindowSizeClass] to.
  */
-fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Int, heightDp: Int): WindowSizeClass {
+public fun Set<WindowSizeClass>.computeWindowSizeClass(
+    widthDp: Int,
+    heightDp: Int,
+): WindowSizeClass {
     var maxWidth = 0
     forEach { bucket ->
         if (bucket.minWidthDp <= widthDp && bucket.minWidthDp > maxWidth) {
@@ -79,7 +85,7 @@ fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Int, heightDp: Int): Wi
  * @param widthDp the width of the window to match a [WindowSizeClass] to.
  * @param heightDp the height of the window to match a [WindowSizeClass] to.
  */
-fun Set<WindowSizeClass>.computeWindowSizeClassPreferHeight(
+public fun Set<WindowSizeClass>.computeWindowSizeClassPreferHeight(
     widthDp: Int,
     heightDp: Int,
 ): WindowSizeClass {

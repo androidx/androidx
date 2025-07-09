@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -39,6 +38,8 @@ dependencies {
 
     implementation(libs.atomicFu)
     implementation(libs.dagger)
+    implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
+
 
     ksp(libs.daggerCompiler)
 

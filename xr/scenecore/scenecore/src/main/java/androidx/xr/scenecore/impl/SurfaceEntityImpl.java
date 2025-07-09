@@ -29,13 +29,13 @@ import androidx.xr.runtime.internal.SurfaceEntity;
 import androidx.xr.runtime.internal.SurfaceEntity.CanvasShape;
 import androidx.xr.runtime.internal.TextureResource;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.scenecore.impl.impress.ImpressApi;
 
 import com.android.extensions.xr.XrExtensions;
 import com.android.extensions.xr.node.NodeTransaction;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
-import com.google.ar.imp.apibindings.ImpressApi;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

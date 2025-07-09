@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /** Tests for [Viewfinder] with various output transforms via [ContentScale] and [Alignment] */
-@SdkSuppress(minSdkVersion = 33) // Required for screenshot tests
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @LargeTest
 @RunWith(Parameterized::class)
 class ViewfinderTransformsScreenshotTest(

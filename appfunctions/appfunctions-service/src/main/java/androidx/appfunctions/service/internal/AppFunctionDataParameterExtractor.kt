@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.service.internal
 
+import android.app.PendingIntent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -37,6 +38,8 @@ import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_STRING
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
 
+// TODO(b/429588205): Generate a pseudo AppFunctionSerializable class to represent a function
+// input. This would allow the infra to reuse AppFunctionDataFactory to supply default values.
 /**
  * Gets the parameter value from [AppFunctionData] based on [parameterMetadata].
  *
@@ -51,23 +54,37 @@ internal fun AppFunctionData.unsafeGetParameterValue(
         val value =
             when (val castDataType = parameterMetadata.dataType) {
                 is AppFunctionPrimitiveTypeMetadata -> {
-                    unsafeGetSingleProperty(parameterMetadata.name, castDataType.type)
+                    unsafeGetSingleProperty(
+                        key = parameterMetadata.name,
+                        type = castDataType.type,
+                        isNullable = castDataType.isNullable,
+                        isRequired = parameterMetadata.isRequired,
+                    )
                 }
                 is AppFunctionObjectTypeMetadata -> {
                     unsafeGetSingleProperty(
-                        parameterMetadata.name,
-                        TYPE_OBJECT,
-                        castDataType.qualifiedName,
+                        key = parameterMetadata.name,
+                        type = TYPE_OBJECT,
+                        isNullable = castDataType.isNullable,
+                        isRequired = parameterMetadata.isRequired,
+                        objectQualifiedName = castDataType.qualifiedName,
                     )
                 }
                 is AppFunctionArrayTypeMetadata -> {
-                    getArrayTypeParameterValue(parameterMetadata.name, castDataType)
+                    getArrayTypeParameterValue(
+                        key = parameterMetadata.name,
+                        arrayDataTypeMetadata = castDataType,
+                        isNullable = castDataType.isNullable,
+                        isRequired = parameterMetadata.isRequired,
+                    )
                 }
                 is AppFunctionReferenceTypeMetadata -> {
                     unsafeGetSingleProperty(
-                        parameterMetadata.name,
-                        TYPE_OBJECT,
-                        castDataType.referenceDataType,
+                        key = parameterMetadata.name,
+                        type = TYPE_OBJECT,
+                        isNullable = castDataType.isNullable,
+                        isRequired = parameterMetadata.isRequired,
+                        objectQualifiedName = castDataType.referenceDataType,
                     )
                 }
                 else ->
@@ -97,17 +114,36 @@ internal fun AppFunctionData.unsafeGetParameterValue(
 private fun AppFunctionData.getArrayTypeParameterValue(
     key: String,
     arrayDataTypeMetadata: AppFunctionArrayTypeMetadata,
+    isNullable: Boolean,
+    isRequired: Boolean,
 ): Any? {
     val itemType = arrayDataTypeMetadata.itemType
     return when (itemType) {
         is AppFunctionPrimitiveTypeMetadata -> {
-            unsafeGetCollectionProperty(key, itemType.type)
+            unsafeGetCollectionProperty(
+                key = key,
+                type = itemType.type,
+                isNullable = isNullable,
+                isRequired = isRequired,
+            )
         }
         is AppFunctionObjectTypeMetadata -> {
-            unsafeGetCollectionProperty(key, TYPE_OBJECT, itemType.qualifiedName)
+            unsafeGetCollectionProperty(
+                key = key,
+                type = TYPE_OBJECT,
+                isNullable = isNullable,
+                isRequired = isRequired,
+                objectQualifiedName = itemType.qualifiedName,
+            )
         }
         is AppFunctionReferenceTypeMetadata -> {
-            unsafeGetCollectionProperty(key, TYPE_OBJECT, itemType.referenceDataType)
+            unsafeGetCollectionProperty(
+                key = key,
+                type = TYPE_OBJECT,
+                isNullable = isNullable,
+                isRequired = isRequired,
+                objectQualifiedName = itemType.referenceDataType,
+            )
         }
         else ->
             throw IllegalStateException("Unknown item DataTypeMetadata: ${itemType::class.java}")
@@ -118,23 +154,45 @@ private fun AppFunctionData.getArrayTypeParameterValue(
 private fun AppFunctionData.unsafeGetSingleProperty(
     key: String,
     type: Int,
+    isNullable: Boolean,
+    isRequired: Boolean,
     objectQualifiedName: String? = null,
 ): Any? {
     return when (type) {
         TYPE_INT -> {
-            getIntOrNull(key)
+            if (!isRequired && !isNullable) {
+                getIntOrNull(key) ?: 0
+            } else {
+                getIntOrNull(key)
+            }
         }
         TYPE_LONG -> {
-            getLongOrNull(key)
+            if (!isRequired && !isNullable) {
+                getLongOrNull(key) ?: 0L
+            } else {
+                getLongOrNull(key)
+            }
         }
         TYPE_FLOAT -> {
-            getFloatOrNull(key)
+            if (!isRequired && !isNullable) {
+                getFloatOrNull(key) ?: 0.0f
+            } else {
+                getFloatOrNull(key)
+            }
         }
         TYPE_DOUBLE -> {
-            getDoubleOrNull(key)
+            if (!isRequired && !isNullable) {
+                getDoubleOrNull(key) ?: 0.0
+            } else {
+                getDoubleOrNull(key)
+            }
         }
         TYPE_BOOLEAN -> {
-            getBooleanOrNull(key)
+            if (!isRequired && !isNullable) {
+                getBooleanOrNull(key) ?: false
+            } else {
+                getBooleanOrNull(key)
+            }
         }
         TYPE_BYTES -> {
             throw IllegalStateException("Type of a single byte is not supported")
@@ -156,36 +214,76 @@ private fun AppFunctionData.unsafeGetSingleProperty(
 private fun AppFunctionData.unsafeGetCollectionProperty(
     key: String,
     type: Int,
+    isNullable: Boolean,
+    isRequired: Boolean,
     objectQualifiedName: String? = null,
 ): Any? {
     return when (type) {
         TYPE_INT -> {
-            getIntArray(key)
+            if (!isRequired && !isNullable) {
+                getIntArray(key) ?: intArrayOf()
+            } else {
+                getIntArray(key)
+            }
         }
         TYPE_LONG -> {
-            getLongArray(key)
+            if (!isRequired && !isNullable) {
+                getLongArray(key) ?: longArrayOf()
+            } else {
+                getLongArray(key)
+            }
         }
         TYPE_FLOAT -> {
-            getFloatArray(key)
+            if (!isRequired && !isNullable) {
+                getFloatArray(key) ?: floatArrayOf()
+            } else {
+                getFloatArray(key)
+            }
         }
         TYPE_DOUBLE -> {
-            getDoubleArray(key)
+            if (!isRequired && !isNullable) {
+                getDoubleArray(key) ?: doubleArrayOf()
+            } else {
+                getDoubleArray(key)
+            }
         }
         TYPE_BOOLEAN -> {
-            getBooleanArray(key)
+            if (!isRequired && !isNullable) {
+                getBooleanArray(key) ?: booleanArrayOf()
+            } else {
+                getBooleanArray(key)
+            }
         }
         TYPE_BYTES -> {
-            getByteArray(key)
+            if (!isRequired && !isNullable) {
+                getByteArray(key) ?: byteArrayOf()
+            } else {
+                getByteArray(key)
+            }
         }
         TYPE_STRING -> {
-            getStringList(key)
+            if (!isRequired && !isNullable) {
+                getStringList(key) ?: emptyList<String>()
+            } else {
+                getStringList(key)
+            }
         }
         TYPE_PENDING_INTENT -> {
-            getPendingIntentList(key)
+            if (!isRequired && !isNullable) {
+                getPendingIntentList(key) ?: emptyList<PendingIntent>()
+            } else {
+                getPendingIntentList(key)
+            }
         }
         TYPE_OBJECT -> {
-            getAppFunctionDataList(key)?.map {
-                it.deserialize<Any>(checkNotNull(objectQualifiedName))
+            if (!isRequired && !isNullable) {
+                getAppFunctionDataList(key)?.map {
+                    it.deserialize<Any>(checkNotNull(objectQualifiedName))
+                } ?: emptyList()
+            } else {
+                getAppFunctionDataList(key)?.map {
+                    it.deserialize<Any>(checkNotNull(objectQualifiedName))
+                }
             }
         }
         else -> throw IllegalStateException("Unknown data type $type")

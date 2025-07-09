@@ -130,9 +130,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
@@ -191,9 +189,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
@@ -267,9 +263,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
@@ -332,9 +326,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
@@ -404,9 +396,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     edgeButtonSpacing: Dp = ScreenScaffoldDefaults.EdgeButtonSpacing,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
@@ -465,9 +455,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
@@ -525,9 +513,7 @@ public fun ScreenScaffold(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = ScreenScaffoldDefaults.contentPadding,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
-        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
-    },
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit =
@@ -804,12 +790,14 @@ public fun ScreenScaffold(
     WrapWithOverscrollFactoryIfRequired(overscrollEffect) {
         Box(modifier.fillMaxSize()) {
             Box(modifier = Modifier.overscroll(overscrollEffect)) { content(contentPadding) }
+
             scrollInfoProvider?.let {
                 AnimatedIndicator(
                     isVisible = {
                         scaffoldState.screenContent.screenStage.value != ScreenStage.Idle &&
                             scrollInfoProvider.isScrollable
                     },
+                    modifier = Modifier.align(Alignment.CenterEnd),
                     content = scrollIndicator,
                 )
             } ?: scrollIndicator?.let { it() }

@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -33,6 +34,7 @@ import android.widget.FrameLayout;
 import androidx.core.content.ContextCompat;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
@@ -64,6 +66,10 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
 @LargeTest
+@SdkSuppress(
+        minSdkVersion = 35,
+        maxSdkVersion = 35
+)
 public class TileRendererGoldenTest {
     // Defines the name of the textproto and whether to use fullscreen or not.
     @Parameterized.Parameters(name = "{0} - fullscreen={1}")

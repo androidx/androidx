@@ -16,14 +16,12 @@
 
 package androidx.pdf.service.connect
 
-import android.app.BackgroundServiceStartNotAllowedException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
 import androidx.annotation.RestrictTo
-import androidx.pdf.PdfDocument.BackgroundServiceStartCancellationException
 import androidx.pdf.PdfDocumentRemote
 import androidx.pdf.service.PdfDocumentServiceImpl
 import java.util.Queue
@@ -74,22 +72,6 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
                 // See b/380140417
                 data = uri
             }
-
-        try {
-            /**
-             * Make [PdfDocumentServiceImpl] a started service so it could be kept alive for some
-             * duration after the last client unbinds from the service.
-             */
-            context.startService(intent)
-        } catch (exception: BackgroundServiceStartNotAllowedException) {
-            // The Android system restricts starting services when the application is in the
-            // background.
-            // If a connection attempt occurs while the app is backgrounded, this operation
-            // is cancelled. The service can be successfully started when a subsequent
-            // operation triggers a connection while the app is in the foreground.
-            throw BackgroundServiceStartCancellationException(cause = exception)
-        }
-
         context.bindService(intent, /* conn= */ this, /* flags= */ Context.BIND_AUTO_CREATE)
         _eventStateFlow.first { it is Connected }
     }

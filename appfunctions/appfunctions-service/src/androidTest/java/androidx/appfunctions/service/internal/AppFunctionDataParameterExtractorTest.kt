@@ -24,6 +24,7 @@ import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_BOOLEAN
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_DOUBLE
+import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_INT
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_LONG
 import androidx.appfunctions.metadata.AppFunctionPrimitiveTypeMetadata.Companion.TYPE_STRING
 import androidx.test.filters.SdkSuppress
@@ -102,20 +103,31 @@ class AppFunctionDataParameterExtractorTest {
     }
 
     @Test
-    fun testAppFunctionData_extractNotRequiredSingleParameters_notExist(
-        @TestParameter isNullable: Boolean
-    ) {
+    fun testAppFunctionData_extractNotRequiredNullableSingleParameters_notExist() {
         val parameterMetadata =
             AppFunctionParameterMetadata(
-                name = "fakeString",
+                name = "fakeInt",
                 isRequired = false,
-                dataType =
-                    AppFunctionPrimitiveTypeMetadata(type = TYPE_STRING, isNullable = isNullable),
+                dataType = AppFunctionPrimitiveTypeMetadata(type = TYPE_INT, isNullable = true),
             )
 
         val parameter = testAppFunctionData.unsafeGetParameterValue(parameterMetadata)
 
         assertThat(parameter).isNull()
+    }
+
+    @Test
+    fun testAppFunctionData_extractNotRequiredNonNullSingleParameters_notExist() {
+        val parameterMetadata =
+            AppFunctionParameterMetadata(
+                name = "fakeInt",
+                isRequired = false,
+                dataType = AppFunctionPrimitiveTypeMetadata(type = TYPE_INT, isNullable = false),
+            )
+
+        val parameter = testAppFunctionData.unsafeGetParameterValue(parameterMetadata)
+
+        assertThat(parameter).isEqualTo(0)
     }
 
     @Test
@@ -205,16 +217,33 @@ class AppFunctionDataParameterExtractorTest {
     }
 
     @Test
-    fun testAppFunctionData_extractNotRequiredCollectionParameters_notExist(
-        @TestParameter isNullable: Boolean
-    ) {
+    fun testAppFunctionData_extractNotRequiredNullableCollectionParameters_notExist() {
         val parameterMetadata =
             AppFunctionParameterMetadata(
                 name = "fakeStringList",
                 isRequired = false,
                 dataType =
                     AppFunctionArrayTypeMetadata(
-                        isNullable = isNullable,
+                        isNullable = true,
+                        itemType =
+                            AppFunctionPrimitiveTypeMetadata(type = TYPE_STRING, isNullable = true),
+                    ),
+            )
+
+        val parameter = testAppFunctionData.unsafeGetParameterValue(parameterMetadata)
+
+        assertThat(parameter).isNull()
+    }
+
+    @Test
+    fun testAppFunctionData_extractNotRequiredNonNullCollectionParameters_notExist() {
+        val parameterMetadata =
+            AppFunctionParameterMetadata(
+                name = "fakeStringList",
+                isRequired = false,
+                dataType =
+                    AppFunctionArrayTypeMetadata(
+                        isNullable = false,
                         itemType =
                             AppFunctionPrimitiveTypeMetadata(type = TYPE_STRING, isNullable = false),
                     ),
@@ -222,7 +251,7 @@ class AppFunctionDataParameterExtractorTest {
 
         val parameter = testAppFunctionData.unsafeGetParameterValue(parameterMetadata)
 
-        assertThat(parameter).isNull()
+        assertThat(parameter).isEqualTo(emptyList<String>())
     }
 
     @Test

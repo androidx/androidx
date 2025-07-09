@@ -16,20 +16,16 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -42,7 +38,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class LinearProgressIndicatorScreenshotTest {
 
     @get:Rule val rule = createComposeRule()
@@ -130,19 +126,16 @@ class LinearProgressIndicatorScreenshotTest {
         rule.setContentWithTheme {
             ScreenConfiguration(ScreenSize.LARGE.size) {
                 LinearProgressIndicator(
-                    progress = { progress.value },
+                    progress = { progress.floatValue },
                     modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
                 )
             }
         }
 
-        rule.runOnIdle { progress.value = 1f }
+        rule.runOnIdle { progress.floatValue = 1f }
         rule.mainClock.advanceTimeBy(100)
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     private fun linear_progress_indicator_test(
@@ -159,9 +152,6 @@ class LinearProgressIndicatorScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }

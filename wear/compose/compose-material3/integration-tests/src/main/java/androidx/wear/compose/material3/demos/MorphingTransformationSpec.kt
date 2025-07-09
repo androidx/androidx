@@ -22,13 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 import androidx.wear.compose.foundation.lazy.inverseLerp
 import androidx.wear.compose.material3.lazy.TransformationSpec
@@ -39,13 +45,67 @@ fun rememberMorphingTransformationSpec(
     transformationSpec: TransformationSpec,
     minMorphingHeight: Int,
 ) =
-    remember(transformationSpec, minMorphingHeight) {
-        MorphingTransformationSpec(
-            transformationSpec = transformationSpec,
-            growthStartScreenFraction = 0.95f,
-            growthEndScreenFraction = 0.8f,
-            minMorphingHeight = minMorphingHeight,
-        )
+    if (LocalReduceMotion.current) {
+        NoOpSpec
+    } else {
+        remember(transformationSpec, minMorphingHeight) {
+            MorphingTransformationSpec(
+                transformationSpec = transformationSpec,
+                growthStartScreenFraction = 0.95f,
+                growthEndScreenFraction = 0.8f,
+                minMorphingHeight = minMorphingHeight,
+            )
+        }
+    }
+
+private val NoOpSpec =
+    object : TransformationSpec {
+        override fun getTransformedHeight(
+            measuredHeight: Int,
+            scrollProgress: TransformingLazyColumnItemScrollProgress,
+        ): Int = measuredHeight
+
+        override fun GraphicsLayerScope.applyContentTransformation(
+            scrollProgress: TransformingLazyColumnItemScrollProgress
+        ) {}
+
+        override fun GraphicsLayerScope.applyContainerTransformation(
+            scrollProgress: TransformingLazyColumnItemScrollProgress
+        ) {}
+
+        override fun TransformedContainerPainterScope.createTransformedContainerPainter(
+            painter: Painter,
+            shape: Shape,
+            border: BorderStroke?,
+        ): Painter =
+            object : Painter() {
+                override val intrinsicSize: Size
+                    get() = Size.Unspecified
+
+                private var lastUsedSize = Size.Unspecified
+                private val cachedPath: Path = Path()
+
+                override fun DrawScope.onDraw() {
+                    if (size != lastUsedSize) {
+                        cachedPath.reset()
+                        cachedPath.addOutline(
+                            shape.createOutline(size, layoutDirection, this@onDraw)
+                        )
+                        lastUsedSize = size
+                    }
+
+                    clipPath(path = cachedPath) {
+                        if (border != null) {
+                            drawOutline(
+                                outline = shape.createOutline(size, layoutDirection, this@onDraw),
+                                brush = border.brush,
+                                style = Stroke(border.width.toPx()),
+                            )
+                        }
+                        with(painter) { draw(size) }
+                    }
+                }
+            }
     }
 
 data class MorphingTransformationSpec(

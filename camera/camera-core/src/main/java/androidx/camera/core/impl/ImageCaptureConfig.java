@@ -68,8 +68,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
                     ResolutionSelector.class);
     public static final Option<Boolean> OPTION_POSTVIEW_ENABLED =
             Option.create("camerax.core.useCase.isPostviewEnabled", Boolean.class);
-    public static final Option<Boolean> OPTION_METERING_REPEATING_ENABLED =
-            Option.create("camerax.core.useCase.meteringRepeatingEnabled", Boolean.class);
 
     // *********************************************************************************************
 
@@ -284,15 +282,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
      */
     public boolean isPostviewEnabled() {
         return retrieveOption(OPTION_POSTVIEW_ENABLED, false);
-    }
-
-    /**
-     * Returns whether metering repeating is enabled.
-     *
-     * <p>It defaults to {@code true} if not set.
-     */
-    public boolean isMeteringRepeatingEnabled() {
-        return retrieveOption(OPTION_METERING_REPEATING_ENABLED, true);
     }
 
     // Implementations of IO default methods

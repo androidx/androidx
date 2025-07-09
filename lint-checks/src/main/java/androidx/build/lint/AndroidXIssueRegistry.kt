@@ -88,6 +88,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     FlaggedApiDetector.ISSUE,
                     ClassVerificationFailureDetector.METHOD_CALL_ISSUE,
                     ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE,
+                    ScreenshotTestSdkSuppressAnnotationEnforcer.ISSUE,
                 )
             }
     }

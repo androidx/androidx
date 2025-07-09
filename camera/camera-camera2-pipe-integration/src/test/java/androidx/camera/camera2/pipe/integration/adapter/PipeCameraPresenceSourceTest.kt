@@ -165,12 +165,12 @@ class PipeCameraPresenceSourceTest {
         }
 
     // Helper fake observer for testing
-    internal class FakeObserver : Observable.Observer<Set<CameraIdentifier>> {
+    internal class FakeObserver : Observable.Observer<List<CameraIdentifier>> {
         private val updates: BlockingQueue<Result> = LinkedBlockingQueue()
 
-        data class Result(val data: Set<CameraIdentifier>?, val error: Throwable?)
+        data class Result(val data: List<CameraIdentifier>?, val error: Throwable?)
 
-        override fun onNewData(value: Set<CameraIdentifier>?) {
+        override fun onNewData(value: List<CameraIdentifier>?) {
             if (value != null) {
                 updates.offer(Result(value, null))
             }

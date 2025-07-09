@@ -19,13 +19,17 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW
+import androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW_JPEG
+import androidx.camera.core.ImageCapture.getImageCaptureCapabilities
+import androidx.camera.integration.core.ImageCaptureRawFormatTest.CaptureCallback.IN_MEMORY_CALLBACK
+import androidx.camera.integration.core.ImageCaptureRawFormatTest.CaptureCallback.ON_DISC_CALLBACK
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -33,6 +37,7 @@ import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
+import androidx.camera.testing.impl.fakes.FakeOnImageSavedCallback
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -44,7 +49,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -102,45 +106,111 @@ class ImageCaptureRawFormatTest(implName: String, private val cameraXConfig: Cam
         }
     }
 
-    // TODO:b/397347392 - Use public RAW capture APIs now that they exist and check for more cases
-    //  (e.g. with front camera?)
     @Test
-    fun takePicture_withBufferFormatRaw10() = runBlocking {
-        // RAW10 does not work in redmi 8
-        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
-        val cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)
-        val map = cameraCharacteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val resolutions = map!!.getOutputSizes(ImageFormat.RAW10)
-
-        // Ignore this tests on devices that do not support RAW10 image format.
-        assumeNotNull(resolutions)
-        assumeTrue(resolutions!!.isNotEmpty())
-        assumeTrue(isRawSupported(cameraCharacteristics))
-
-        val useCase = ImageCapture.Builder().setBufferFormat(ImageFormat.RAW10).build()
-
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, useCase)
-        }
-
-        val callback = FakeOnImageCapturedCallback(captureCount = 1)
-
-        useCase.takePicture(mainExecutor, callback)
-
-        // Wait for the signal that the image has been captured.
-        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-
-        val imageProperties = callback.results.first().properties
-        assertThat(imageProperties.format).isEqualTo(ImageFormat.RAW10)
+    fun takePicture_withRawOutputFormatAndInMemoryCallback() = runBlocking {
+        testImageCapture(OUTPUT_FORMAT_RAW, IN_MEMORY_CALLBACK)
     }
 
-    private fun isRawSupported(cameraCharacteristics: CameraCharacteristics): Boolean {
-        val capabilities =
-            cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-                ?: IntArray(0)
-        return capabilities.any { capability ->
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW == capability
+    @Test
+    fun takePicture_withRawJpegOutputFormatAndInMemoryCallback() = runBlocking {
+        testImageCapture(OUTPUT_FORMAT_RAW_JPEG, IN_MEMORY_CALLBACK)
+    }
+
+    @Test
+    fun takePicture_withRawOutputFormatAndOnDiscCallback() = runBlocking {
+        // RAW image saving on disc does not work in redmi 8
+        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
+
+        testImageCapture(OUTPUT_FORMAT_RAW, ON_DISC_CALLBACK)
+    }
+
+    @Test
+    fun takePicture_withRawJpegOutputFormatAndOnDiscCallback() = runBlocking {
+        // RAW image saving on disc does not work in redmi 8
+        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
+
+        testImageCapture(OUTPUT_FORMAT_RAW_JPEG, ON_DISC_CALLBACK)
+    }
+
+    private suspend fun testImageCapture(outputFormat: Int, captureCallback: CaptureCallback) {
+        val cameraInfo = cameraProvider.getCameraInfo(cameraSelector)
+        assumeTrue(
+            getImageCaptureCapabilities(cameraInfo).supportedOutputFormats.contains(outputFormat)
+        )
+
+        val imageCapture = bindImageCapture(OUTPUT_FORMAT_RAW)
+
+        when (captureCallback) {
+            IN_MEMORY_CALLBACK -> imageCapture.verifyInMemoryImageCapture()
+            ON_DISC_CALLBACK -> imageCapture.verifyOnDiskImageCapture()
         }
+    }
+
+    private suspend fun bindImageCapture(outputFormat: Int): ImageCapture {
+        val imageCapture = ImageCapture.Builder().setOutputFormat(outputFormat).build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, imageCapture)
+        }
+
+        return imageCapture
+    }
+
+    private suspend fun ImageCapture.verifyInMemoryImageCapture() {
+        val captureCount = if (outputFormat == OUTPUT_FORMAT_RAW_JPEG) 2 else 1
+        val callback = FakeOnImageCapturedCallback(captureCount = captureCount)
+
+        takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the images have been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = captureCount)
+
+        verifyImageFormats(
+            capturedImageFormats = callback.results.map { it.properties.format },
+            imageCaptureOutputFormat = outputFormat,
+        )
+    }
+
+    private suspend fun ImageCapture.verifyOnDiskImageCapture() {
+        val captureCount = if (outputFormat == OUTPUT_FORMAT_RAW_JPEG) 2 else 1
+        val callback = FakeOnImageSavedCallback(captureCount = captureCount)
+
+        val rawOutputFileOptions =
+            ImageCapture.OutputFileOptions.Builder(temporaryFolder.newFile("image.dng")).build()
+
+        if (outputFormat == OUTPUT_FORMAT_RAW_JPEG) {
+            val jpgOutputFileOptions =
+                ImageCapture.OutputFileOptions.Builder(temporaryFolder.newFile("image.jpg")).build()
+            takePicture(rawOutputFileOptions, jpgOutputFileOptions, mainExecutor, callback)
+        } else {
+            takePicture(rawOutputFileOptions, mainExecutor, callback)
+        }
+
+        // Wait for the signal that the images have been captured.
+        callback.awaitCapturesAndAssert(capturedImagesCount = captureCount)
+
+        verifyImageFormats(
+            capturedImageFormats = callback.results.map { it.imageFormat },
+            imageCaptureOutputFormat = outputFormat,
+        )
+    }
+
+    private fun verifyImageFormats(capturedImageFormats: List<Int>, imageCaptureOutputFormat: Int) {
+        assertThat(capturedImageFormats)
+            .containsExactlyElementsIn(
+                buildList {
+                    add(ImageFormat.RAW_SENSOR)
+
+                    if (imageCaptureOutputFormat == OUTPUT_FORMAT_RAW_JPEG) {
+                        add(ImageFormat.JPEG)
+                    }
+                }
+            )
+    }
+
+    private enum class CaptureCallback {
+        IN_MEMORY_CALLBACK,
+        ON_DISC_CALLBACK,
     }
 
     companion object {

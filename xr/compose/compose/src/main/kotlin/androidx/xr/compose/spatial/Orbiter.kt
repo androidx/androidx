@@ -208,7 +208,7 @@ internal fun PositionedOrbiter(data: OrbiterData, content: @Composable @UiCompos
      *    provider. In these cases, Orbiter defaults to the main window's size, which are fetched
      *    and kept updated by getMainWindowSize().
      */
-    val panelSize: IntVolumeSize = parentEntity?.size ?: getMainWindowSize(session)
+    val panelSize: IntVolumeSize = parentEntity?.mutableSize ?: getMainWindowSize(session)
 
     ElevatedPanel(
         contentSize = contentSize ?: IntSize.Zero,
@@ -343,15 +343,15 @@ public value class OrbiterOffsetType private constructor(private val value: Int)
 }
 
 internal data class OrbiterData(
-    public val position: ContentEdge,
-    public val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    public val horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    public val offset: Dp,
-    public val offsetType: OrbiterOffsetType,
-    public val content: @Composable () -> Unit,
-    public val shape: SpatialShape,
-    public val elevation: Dp = OrbiterDefaults.Elevation,
-    public val shouldRenderInNonSpatial: Boolean = true,
+    val position: ContentEdge,
+    val verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    val horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    val offset: Dp,
+    val offsetType: OrbiterOffsetType,
+    val content: @Composable () -> Unit,
+    val shape: SpatialShape,
+    val elevation: Dp = OrbiterDefaults.Elevation,
+    val shouldRenderInNonSpatial: Boolean = true,
 )
 
 /**

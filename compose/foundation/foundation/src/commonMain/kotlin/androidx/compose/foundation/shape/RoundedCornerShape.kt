@@ -22,11 +22,14 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 
 /**
  * A shape describing the rectangle with rounded corners.
@@ -59,8 +62,8 @@ class RoundedCornerShape(
         bottomEnd: Float,
         bottomStart: Float,
         layoutDirection: LayoutDirection,
-    ) =
-        if (topStart + topEnd + bottomEnd + bottomStart == 0.0f) {
+    ): Outline {
+        return if (topStart + topEnd + bottomEnd + bottomStart == 0.0f) {
             Outline.Rectangle(size.toRect())
         } else {
             Outline.Rounded(
@@ -75,6 +78,7 @@ class RoundedCornerShape(
                 )
             )
         }
+    }
 
     override fun copy(
         topStart: CornerSize,
@@ -112,6 +116,34 @@ class RoundedCornerShape(
         result = 31 * result + bottomEnd.hashCode()
         result = 31 * result + bottomStart.hashCode()
         return result
+    }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == RectangleShape || other == null) {
+            other = RoundedCornerShape(0f)
+        }
+        if (other is RoundedCornerShape) {
+            return lerp(this, other, t)
+        }
+        return null
+    }
+}
+
+internal fun lerp(a: RoundedCornerShape, b: RoundedCornerShape, t: Float): RoundedCornerShape {
+    return RoundedCornerShape(
+        topStart = lerp(a.topStart, b.topStart, t),
+        topEnd = lerp(a.topEnd, b.topEnd, t),
+        bottomEnd = lerp(a.bottomEnd, b.bottomEnd, t),
+        bottomStart = lerp(a.bottomStart, b.bottomStart, t),
+    )
+}
+
+internal fun lerp(a: CornerSize, b: CornerSize, t: Float): CornerSize {
+    return object : CornerSize {
+        override fun toPx(shapeSize: Size, density: Density): Float {
+            return lerp(a.toPx(shapeSize, density), b.toPx(shapeSize, density), t)
+        }
     }
 }
 

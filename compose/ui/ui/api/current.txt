@@ -137,14 +137,17 @@ package androidx.compose.ui {
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposeUiFlags {
     property public boolean areWindowInsetsRulersEnabled;
     property public boolean isAdaptiveRefreshRateEnabled;
+    property public boolean isBypassUnfocusableComposeViewEnabled;
     property @Deprecated public boolean isClearFocusOnResetEnabled;
     property @Deprecated public boolean isFocusActionExitsTouchModeEnabled;
     property public boolean isGraphicsLayerShapeSemanticsEnabled;
+    property public boolean isIgnoreInvalidPrevFocusRectEnabled;
     property public boolean isNestedScrollDispatcherNodeFixEnabled;
     property public boolean isNestedScrollInteropPostFlingFixEnabled;
     property @Deprecated public boolean isNoPinningInFocusRestorationEnabled;
     property public boolean isOutOfFrameDeactivationEnabled;
     property public boolean isPointerInteropFilterDispatchingFixEnabled;
+    property public boolean isPre26FocusFinderFixEnabled;
     property public boolean isRectTrackingEnabled;
     property @Deprecated public boolean isRemoveFocusedViewFixEnabled;
     property public boolean isSemanticAutofillEnabled;
@@ -152,14 +155,17 @@ package androidx.compose.ui {
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean areWindowInsetsRulersEnabled;
     field public static boolean isAdaptiveRefreshRateEnabled;
+    field public static boolean isBypassUnfocusableComposeViewEnabled;
     field @Deprecated public static boolean isClearFocusOnResetEnabled;
     field @Deprecated public static boolean isFocusActionExitsTouchModeEnabled;
     field public static boolean isGraphicsLayerShapeSemanticsEnabled;
+    field public static boolean isIgnoreInvalidPrevFocusRectEnabled;
     field public static boolean isNestedScrollDispatcherNodeFixEnabled;
     field public static boolean isNestedScrollInteropPostFlingFixEnabled;
     field @Deprecated public static boolean isNoPinningInFocusRestorationEnabled;
     field public static boolean isOutOfFrameDeactivationEnabled;
     field public static boolean isPointerInteropFilterDispatchingFixEnabled;
+    field public static boolean isPre26FocusFinderFixEnabled;
     field public static boolean isRectTrackingEnabled;
     field @Deprecated public static boolean isRemoveFocusedViewFixEnabled;
     field public static boolean isSemanticAutofillEnabled;

@@ -38,7 +38,7 @@ import androidx.window.embedding.SplitInfo
 @Suppress("FunctionName")
 @JvmName("createTestSplitInfo")
 @JvmOverloads
-fun TestSplitInfo(
+public fun TestSplitInfo(
     primaryActivityStack: ActivityStack = TestActivityStack(),
     secondActivityStack: ActivityStack = TestActivityStack(),
     splitAttributes: SplitAttributes = SplitAttributes.Builder().build(),

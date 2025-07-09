@@ -35,7 +35,9 @@ import kotlinx.coroutines.flow.Flow
  * display areas on a device.
  */
 @ExperimentalWindowApi
-abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+public abstract class WindowAreaController
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor() {
 
     /**
      * [Flow] of the list of current [WindowAreaInfo]s that are currently available to be interacted
@@ -44,7 +46,7 @@ abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) 
      * If [WindowSdkExtensions.extensionVersion] is less than 2, the flow will return empty
      * [WindowAreaInfo] list flow.
      */
-    abstract val windowAreaInfos: Flow<List<WindowAreaInfo>>
+    public abstract val windowAreaInfos: Flow<List<WindowAreaInfo>>
 
     /**
      * Starts a transfer session where the calling [Activity] is moved to the window area identified
@@ -82,7 +84,7 @@ abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) 
      *   ended.
      * @see windowAreaInfos
      */
-    abstract fun transferActivityToWindowArea(
+    public abstract fun transferActivityToWindowArea(
         token: Binder,
         activity: Activity,
         executor: Executor,
@@ -118,14 +120,14 @@ abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) 
      *   the currently enabled rear display presentation.
      * @see windowAreaInfos
      */
-    abstract fun presentContentOnWindowArea(
+    public abstract fun presentContentOnWindowArea(
         token: Binder,
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
     )
 
-    companion object {
+    public companion object {
 
         private val TAG = WindowAreaController::class.simpleName
 
@@ -158,19 +160,19 @@ abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) 
         /** Provides an instance of [WindowAreaController]. */
         @JvmName("getOrCreate")
         @JvmStatic
-        fun getOrCreate(): WindowAreaController {
+        public fun getOrCreate(): WindowAreaController {
             return decorator.decorate(windowAreaController)
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun overrideDecorator(overridingDecorator: WindowAreaControllerDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowAreaControllerDecorator) {
             decorator = overridingDecorator
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun reset() {
+        public fun reset() {
             decorator = EmptyDecorator
         }
     }
@@ -179,7 +181,7 @@ abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) 
 /** Decorator that allows us to provide different functionality in our window-testing artifact. */
 @ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface WindowAreaControllerDecorator {
+public interface WindowAreaControllerDecorator {
     /** Returns an instance of [WindowAreaController] associated to the [Activity] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun decorate(controller: WindowAreaController): WindowAreaController

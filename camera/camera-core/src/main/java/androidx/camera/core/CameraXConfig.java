@@ -160,6 +160,9 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     static final Option<Integer> OPTION_CONFIG_IMPL_TYPE =
             Option.create("camerax.core.appConfig.configImplType", int.class);
 
+    static final Option<Boolean> OPTION_REPEATING_STREAM_FORCED = Option.create(
+            "camerax.core.appConfig.repeatingStreamForced", boolean.class);
+
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -263,6 +266,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         return Objects.requireNonNull(
                 mConfig.retrieveOption(OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY,
                         RetryPolicy.DEFAULT));
+    }
+
+    /**
+     * Returns whether the internal repeating stream should be added.
+     *
+     * <p>If not set, default to {@code true}.
+     *
+     * @see Builder#setRepeatingStreamForced(boolean)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isRepeatingStreamForced() {
+        return mConfig.retrieveOption(OPTION_REPEATING_STREAM_FORCED, true);
     }
 
     /**
@@ -505,6 +520,30 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         }
 
         /**
+         * Sets whether to force a repeating stream to be added.
+         *
+         * <p>A repeating stream is required for handling certain camera controls such as focus
+         * and metering. If there's no repeating stream added explicitly, CameraX will add one
+         * internally by default, for example when a {@link ImageCapture} is the only bound use
+         * case.
+         *
+         * <p>If {@code false} is passed to this method, CameraX will not add the repeating
+         * stream internally and the controls that require a repeating stream, such as
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)}, will throw an
+         * exception when called. Disabling it can be useful if the extra stream is not supported
+         * on the device.
+         *
+         * @param forced Whether the internal repeating stream should be added. Defaults to
+         * {@code true} if not set.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setRepeatingStreamForced(boolean forced) {
+            getMutableConfig().insertOption(OPTION_REPEATING_STREAM_FORCED, forced);
+            return this;
+        }
+
+        /**
          * Sets the quirk settings.
          *
          * @param quirkSettings the quirk settings.
@@ -516,7 +555,8 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             return this;
         }
 
-        private @NonNull MutableConfig getMutableConfig() {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
 

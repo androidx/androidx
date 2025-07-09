@@ -17,13 +17,10 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
@@ -90,6 +88,7 @@ public fun HorizontalPagerScaffold(
         modifier = modifier,
         pagerState = pagerState,
         pageIndicator = pageIndicator,
+        pageIndicatorAlignment = Alignment.BottomCenter,
         pageIndicatorAnimationSpec = pageIndicatorAnimationSpec,
     )
 
@@ -136,6 +135,7 @@ public fun VerticalPagerScaffold(
         modifier = modifier,
         pagerState = pagerState,
         pageIndicator = pageIndicator,
+        pageIndicatorAlignment = Alignment.CenterEnd,
         pageIndicatorAnimationSpec = pageIndicatorAnimationSpec,
     )
 
@@ -256,8 +256,7 @@ public object PagerScaffoldDefaults {
      * The default value for the indicator fade out animation spec. Use this to fade out the page
      * indicator when paging has stopped.
      */
-    public val FadeOutAnimationSpec: AnimationSpec<Float> =
-        spring(stiffness = Spring.StiffnessMediumLow)
+    public val FadeOutAnimationSpec: AnimationSpec<Float> = INDICATOR_FADE_OUT_ANIMATION
 }
 
 @Composable
@@ -268,6 +267,7 @@ private fun PagerScaffoldImpl(
     pagerState: PagerState,
     modifier: Modifier,
     pageIndicator: (@Composable BoxScope.() -> Unit)?,
+    pageIndicatorAlignment: Alignment,
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
     val scaffoldState = LocalScaffoldState.current
@@ -290,7 +290,7 @@ private fun PagerScaffoldImpl(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box {
         pager()
 
         AnimatedIndicator(
@@ -299,6 +299,7 @@ private fun PagerScaffoldImpl(
                     pagerState.isScrollInProgress
             },
             animationSpec = pageIndicatorAnimationSpec,
+            modifier = modifier.align(pageIndicatorAlignment),
             content = pageIndicator,
         )
     }

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES;
+import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA;
@@ -788,5 +789,19 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         }
 
         return true;
+    }
+
+    @Override
+    public @NonNull Set<@NonNull Integer> getAvailableCapabilities() {
+        Set<Integer> capabilitySet = new HashSet<>();
+        int[] capabilities = mCameraCharacteristicsCompat.get(REQUEST_AVAILABLE_CAPABILITIES);
+
+        if (capabilities != null) {
+            for (int capability : capabilities) {
+                capabilitySet.add(capability);
+            }
+        }
+
+        return capabilitySet;
     }
 }

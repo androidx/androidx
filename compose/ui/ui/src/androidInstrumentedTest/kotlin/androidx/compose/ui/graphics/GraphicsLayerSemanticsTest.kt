@@ -21,6 +21,7 @@ import android.graphics.Region
 import android.os.Bundle
 import android.view.View
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
@@ -53,174 +54,103 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class GraphicsLayerSemanticsTest {
+@RunWith(Parameterized::class)
+class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
+
+    enum class ModifierVariant {
+        Simple,
+        Block,
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "{0}")
+        @JvmStatic
+        fun parameters() = ModifierVariant.entries.toTypedArray()
+    }
+
     @get:Rule val rule = createComposeRule()
     private val tag = "semantics-test-tag"
     private lateinit var androidComposeView: AndroidComposeView
 
     @Test
-    fun rectangleShape_clip_doesNotSetShapeSemanticsProperty() {
-        rule.setContent {
-            Box(
-                Modifier.size(10.dp).graphicsLayer(shape = RectangleShape, clip = true).testTag(tag)
-            )
-        }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-    }
-
-    @Test
-    fun block_rectangleShape_clip_doesNotSetShapeSemanticsProperty() {
+    fun shape_clip_setsShapeSemanticsProperty() {
         rule.setContent {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = RectangleShape
-                        clip = true
-                    }
+                    .parameterizedGraphicsLayer(shape = RectangleShape, clip = true)
                     .testTag(tag)
             )
         }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-    }
 
-    @Test
-    fun roundedCornerShape_clip_setsShapeSemanticsProperty() {
-        rule.setContent {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer(shape = RoundedCornerShape(1.dp), clip = true)
-                    .testTag(tag)
-            )
-        }
         rule
             .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
     }
 
     @Test
-    fun block_roundedCornerShape_clip_setsShapeSemanticsProperty() {
+    fun shape_noClip_doesNotSetShapeSemanticsProperty() {
         rule.setContent {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = RoundedCornerShape(1.dp)
-                        clip = true
-                    }
+                    .parameterizedGraphicsLayer(shape = RectangleShape, clip = false)
                     .testTag(tag)
             )
         }
-        rule
-            .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
-    }
 
-    @Test
-    fun roundedCornerShape_noClip_doesNotSetShapeSemanticsProperty() {
-        rule.setContent {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer(shape = RoundedCornerShape(1.dp), clip = false)
-                    .testTag(tag)
-            )
-        }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-    }
-
-    @Test
-    fun block_roundedCornerShape_noClip_doesNotSetShapeSemanticsProperty() {
-        rule.setContent {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = RoundedCornerShape(1.dp)
-                        clip = false
-                    }
-                    .testTag(tag)
-            )
-        }
         rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun roundedCornerShape_clip_rectFillsBoundsInScreen() {
+    fun rectangleShape_clip_shapeFillsNodeBounds() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer(shape = RoundedCornerShape(1.dp, 2.dp, 3.dp, 4.dp), clip = true)
+                    .parameterizedGraphicsLayer(shape = RectangleShape, clip = true)
                     .testTag(tag)
             )
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        val boundsInScreen = Rect()
-        info.getBoundsInScreen(boundsInScreen)
 
         // Act.
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectCornersKey)
 
         // Assert.
         rule.runOnIdle {
             assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            @Suppress("DEPRECATION")
-            val rect = info.extras.getParcelable<Rect>(ExtraDataShapeRectKey)!!
-            rect.assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
-            assertThat(rect.width()).isEqualTo(boundsInScreen.width())
-            assertThat(rect.height()).isEqualTo(boundsInScreen.height())
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
-            val corners = info.extras.getFloatArray(ExtraDataShapeRectCornersKey)!!
-            with(rule.density) {
-                assertThat(corners)
-                    .isEqualTo(
-                        floatArrayOf(
-                            1.dp.toPx(),
-                            1.dp.toPx(),
-                            2.dp.toPx(),
-                            2.dp.toPx(),
-                            3.dp.toPx(),
-                            3.dp.toPx(),
-                            4.dp.toPx(),
-                            4.dp.toPx(),
-                        )
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun roundedCornerShape_clip_shapeFillsNodeBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp)
+                    .parameterizedGraphicsLayer(
+                        shape = RoundedCornerShape(1.dp, 2.dp, 3.dp, 4.dp),
+                        clip = true,
                     )
-            }
-        }
-    }
-
-    @Ignore // TODO(b/407772600): re-enable once shape supports padding
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun roundedCornerShape_clipWithPadding_rectFillsDownsizedBoundsInScreen() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .padding(2.dp)
-                    .graphicsLayer(shape = RoundedCornerShape(1.dp, 2.dp, 3.dp, 4.dp), clip = true)
                     .testTag(tag)
             )
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        val boundsInScreen = Rect()
-        info.getBoundsInScreen(boundsInScreen)
 
         // Act.
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
@@ -229,11 +159,9 @@ class GraphicsLayerSemanticsTest {
         // Assert.
         rule.runOnIdle {
             assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            @Suppress("DEPRECATION")
-            val rect = info.extras.getParcelable<Rect>(ExtraDataShapeRectKey)!!
-            rect.assertBoundsEqualTo(left = 2.dp, top = 2.dp, right = 8.dp, bottom = 8.dp)
-            assertThat(rect.width()).isEqualTo(boundsInScreen.width())
-            assertThat(rect.height()).isEqualTo(boundsInScreen.height())
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
             assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
             val corners = info.extras.getFloatArray(ExtraDataShapeRectCornersKey)!!
             with(rule.density) {
@@ -256,19 +184,17 @@ class GraphicsLayerSemanticsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun genericShape_cutCornerShapeClip_boundingRectFillsBoundsInScreen() {
+    fun genericShape_clip_shapeFillsNodeBounds() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer(shape = CutCornerShape(2.dp), clip = true)
+                    .parameterizedGraphicsLayer(shape = CutCornerShape(2.dp), clip = true)
                     .testTag(tag)
             )
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        val boundsInScreen = Rect()
-        info.getBoundsInScreen(boundsInScreen)
 
         // Act.
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRegionKey)
@@ -276,30 +202,111 @@ class GraphicsLayerSemanticsTest {
         // Assert.
         rule.runOnIdle {
             assertThat(info.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
-            @Suppress("DEPRECATION")
-            val region = info.extras.getParcelable<Region>(ExtraDataShapeRegionKey)!!
-            val regionBounds = region.bounds
-            regionBounds.assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
-            assertThat(regionBounds.width()).isEqualTo(boundsInScreen.width())
-            assertThat(regionBounds.height()).isEqualTo(boundsInScreen.height())
+            info.extras
+                .getRegionParcelable(ExtraDataShapeRegionKey)
+                .bounds
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
         }
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun genericShape_insetRectangleClip_shiftsBoundingRectWithinBoundsInScreen() {
+    fun rectangleShape_padding_shapeOffsetAndFillsDownsizedBounds() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer(shape = InsetRectangle(insetPx = 1), clip = true)
-                    .testTag(tag)
-            )
+            Box(Modifier.size(100.dp).padding(10.dp)) {
+                Box(
+                    Modifier.size(10.dp)
+                        .padding(horizontal = 1.dp, vertical = 2.dp)
+                        .parameterizedGraphicsLayer(shape = RectangleShape, clip = true)
+                        .padding(2.dp)
+                        .testTag(tag)
+                )
+            }
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        val boundsInScreen = Rect()
-        info.getBoundsInScreen(boundsInScreen)
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .assertBoundsEqualTo(left = 1.dp, top = 2.dp, right = 9.dp, bottom = 8.dp)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun roundedCornerShape_padding_shapeOffsetAndFillsDownsizedBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(100.dp).padding(10.dp)) {
+                Box(
+                    Modifier.size(10.dp)
+                        .padding(horizontal = 1.dp, vertical = 2.dp)
+                        .parameterizedGraphicsLayer(
+                            shape = RoundedCornerShape(1.dp, 2.dp, 3.dp, 4.dp),
+                            clip = true,
+                        )
+                        .padding(2.dp)
+                        .testTag(tag)
+                )
+            }
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectCornersKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .assertBoundsEqualTo(left = 1.dp, top = 2.dp, right = 9.dp, bottom = 8.dp)
+            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
+            val corners = info.extras.getFloatArray(ExtraDataShapeRectCornersKey)!!
+            with(rule.density) {
+                assertThat(corners)
+                    .isEqualTo(
+                        floatArrayOf(
+                            1.dp.toPx(),
+                            1.dp.toPx(),
+                            2.dp.toPx(),
+                            2.dp.toPx(),
+                            3.dp.toPx(),
+                            3.dp.toPx(),
+                            4.dp.toPx(),
+                            4.dp.toPx(),
+                        )
+                    )
+            }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun genericShape_padding_shapeOffsetAndFillsDownsizedBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(100.dp).padding(10.dp)) {
+                Box(
+                    Modifier.size(10.dp)
+                        .padding(horizontal = 1.dp, vertical = 2.dp)
+                        .parameterizedGraphicsLayer(shape = CutCornerShape(2.dp), clip = true)
+                        .padding(2.dp)
+                        .testTag(tag)
+                )
+            }
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
 
         // Act.
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRegionKey)
@@ -307,37 +314,63 @@ class GraphicsLayerSemanticsTest {
         // Assert.
         rule.runOnIdle {
             assertThat(info.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
-            @Suppress("DEPRECATION")
-            val region = info.extras.getParcelable<Region>(ExtraDataShapeRegionKey)!!
-            val regionBounds = region.bounds
+            info.extras
+                .getRegionParcelable(ExtraDataShapeRegionKey)
+                .bounds
+                .assertBoundsEqualTo(left = 1.dp, top = 2.dp, right = 9.dp, bottom = 8.dp)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun genericShape_insetRectangle_regionHasInset() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp)
+                    .parameterizedGraphicsLayer(shape = InsetRectangle(insetPx = 1), clip = true)
+                    .testTag(tag)
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRegionKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
+            val regionBounds = info.extras.getRegionParcelable(ExtraDataShapeRegionKey).bounds
             with(rule.density) {
                 assertThat(regionBounds.left).isEqualTo(1)
                 assertThat(regionBounds.top).isEqualTo(1)
                 regionBounds.right.toDp().assertIsEqualTo(10.dp)
                 regionBounds.bottom.toDp().assertIsEqualTo(10.dp)
-                assertThat(regionBounds.width()).isEqualTo(boundsInScreen.width() - 1)
-                assertThat(regionBounds.height()).isEqualTo(boundsInScreen.height() - 1)
             }
         }
     }
 
-    @Ignore // TODO(b/407772600): re-enable once shape supports padding
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun genericShape_insetRectangleClipWithPadding_shiftsBoundingRectWithinBoundsInScreen() {
+    fun genericShape_insetRectangleWithPadding_regionHasInsetAndOffset() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .padding(2.dp)
-                    .graphicsLayer(shape = InsetRectangle(insetPx = 1), clip = true)
-                    .testTag(tag)
-            )
+            Box(Modifier.size(100.dp).padding(10.dp)) {
+                Box(
+                    Modifier.size(10.dp)
+                        .padding(horizontal = 1.dp, vertical = 2.dp)
+                        .parameterizedGraphicsLayer(
+                            shape = InsetRectangle(insetPx = 1),
+                            clip = true,
+                        )
+                        .padding(2.dp)
+                        .testTag(tag)
+                )
+            }
         }
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        val boundsInScreen = Rect()
-        info.getBoundsInScreen(boundsInScreen)
 
         // Act.
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRegionKey)
@@ -345,17 +378,40 @@ class GraphicsLayerSemanticsTest {
         // Assert.
         rule.runOnIdle {
             assertThat(info.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
-            @Suppress("DEPRECATION")
-            val region = info.extras.getParcelable<Region>(ExtraDataShapeRegionKey)!!
-            val regionBounds = region.bounds
+            val regionBounds = info.extras.getRegionParcelable(ExtraDataShapeRegionKey).bounds
             with(rule.density) {
-                assertThat(regionBounds.left).isEqualTo(2.dp.roundToPx() + 1)
+                assertThat(regionBounds.left).isEqualTo(1.dp.roundToPx() + 1)
                 assertThat(regionBounds.top).isEqualTo(2.dp.roundToPx() + 1)
-                regionBounds.right.toDp().assertIsEqualTo(8.dp)
-                regionBounds.bottom.toDp().assertIsEqualTo(6.dp)
-                assertThat(regionBounds.width()).isEqualTo(boundsInScreen.width() - 1)
-                assertThat(regionBounds.height()).isEqualTo(boundsInScreen.height() - 1)
+                regionBounds.right.toDp().assertIsEqualTo(9.dp)
+                regionBounds.bottom.toDp().assertIsEqualTo(8.dp)
             }
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun rectangleShape_partiallyOffScreen_shapeOffsetCorrectly() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp)
+                    .offset(x = (-5).dp)
+                    .parameterizedGraphicsLayer(shape = RectangleShape, clip = true)
+                    .testTag(tag)
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .assertBoundsEqualTo(left = (-5).dp, top = 0.dp, right = 5.dp, bottom = 10.dp)
         }
     }
 
@@ -367,53 +423,7 @@ class GraphicsLayerSemanticsTest {
         rule.setContentWithAccessibilityEnabled {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer(shape = RoundedCornerShape(1.dp), clip = shouldClip)
-                    .testTag(tag)
-            )
-        }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-        rule.runOnIdle {
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
-        }
-
-        // Act.
-        rule.runOnIdle { shouldClip = true }
-        val info2 = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectCornersKey)
-
-        // Assert.
-        rule
-            .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
-        rule.runOnIdle {
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isTrue()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun block_clipChange_invalidatesSemanticsProperty() {
-        // Arrange.
-        var shouldClip by mutableStateOf(false)
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = RoundedCornerShape(1.dp)
-                        clip = shouldClip
-                    }
+                    .parameterizedGraphicsLayer(shape = RoundedCornerShape(1.dp), clip = shouldClip)
                     .testTag(tag)
             )
         }
@@ -454,63 +464,21 @@ class GraphicsLayerSemanticsTest {
         // Arrange.
         var currentShape by mutableStateOf(RectangleShape)
         rule.setContentWithAccessibilityEnabled {
-            Box(Modifier.size(10.dp).graphicsLayer(shape = currentShape, clip = true).testTag(tag))
-        }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-        rule.runOnIdle {
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
-        }
-
-        // Act.
-        rule.runOnIdle { currentShape = RoundedCornerShape(1.dp) }
-        val info2 = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectCornersKey)
-
-        // Assert.
-        rule
-            .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
-        rule.runOnIdle {
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isTrue()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun block_shapeChange_fromRectangle_invalidatesSemanticsProperty() {
-        // Arrange.
-        var currentShape by mutableStateOf(RectangleShape)
-        rule.setContentWithAccessibilityEnabled {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = currentShape
-                        clip = true
-                    }
+                    .parameterizedGraphicsLayer(shape = currentShape, clip = true)
                     .testTag(tag)
             )
         }
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
+        rule
+            .onNodeWithTag(tag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
         rule.runOnIdle {
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
+            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
         }
 
         // Act.
@@ -539,52 +507,9 @@ class GraphicsLayerSemanticsTest {
         // Arrange.
         var currentShape: Shape by mutableStateOf(RoundedCornerShape(1.dp))
         rule.setContentWithAccessibilityEnabled {
-            Box(Modifier.size(10.dp).graphicsLayer(shape = currentShape, clip = true).testTag(tag))
-        }
-        rule
-            .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectCornersKey)
-        rule.runOnIdle {
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isTrue()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
-        }
-
-        // Act.
-        rule.runOnIdle { currentShape = RectangleShape }
-        val info2 = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectCornersKey)
-
-        // Assert.
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
-        rule.runOnIdle {
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun block_shapeChange_toRectangle_invalidatesSemanticsProperty() {
-        // Arrange.
-        var currentShape: Shape by mutableStateOf(RoundedCornerShape(1.dp))
-        rule.setContentWithAccessibilityEnabled {
             Box(
                 Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = currentShape
-                        clip = true
-                    }
+                    .parameterizedGraphicsLayer(shape = currentShape, clip = true)
                     .testTag(tag)
             )
         }
@@ -611,11 +536,12 @@ class GraphicsLayerSemanticsTest {
         addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectCornersKey)
 
         // Assert.
-        rule.onNodeWithTag(tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Shape))
+        rule
+            .onNodeWithTag(tag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
         rule.runOnIdle {
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
+            assertThat(info2.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
+            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
             assertThat(info2.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
         }
     }
@@ -626,7 +552,11 @@ class GraphicsLayerSemanticsTest {
         // Arrange.
         var currentShape: Shape by mutableStateOf(RoundedCornerShape(1.dp))
         rule.setContentWithAccessibilityEnabled {
-            Box(Modifier.size(10.dp).graphicsLayer(shape = currentShape, clip = true).testTag(tag))
+            Box(
+                Modifier.size(10.dp)
+                    .parameterizedGraphicsLayer(shape = currentShape, clip = true)
+                    .testTag(tag)
+            )
         }
         rule
             .onNodeWithTag(tag)
@@ -665,53 +595,39 @@ class GraphicsLayerSemanticsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun block_shapeChange_betweenNonRectangle_invalidatesSemanticsProperty() {
+    fun alphaChange_invalidatesSemanticsVisibility() {
         // Arrange.
-        var currentShape: Shape by mutableStateOf(RoundedCornerShape(1.dp))
+        var alpha by mutableStateOf(0f)
         rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .graphicsLayer {
-                        shape = currentShape
-                        clip = true
-                    }
-                    .testTag(tag)
-            )
+            Box(Modifier.size(10.dp).parameterizedGraphicsLayer(alpha = alpha).testTag(tag))
         }
-        rule
-            .onNodeWithTag(tag)
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
-            )
         val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectCornersKey)
-        rule.runOnIdle {
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info.availableExtraData.contains(ExtraDataShapeRectCornersKey)).isTrue()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
-            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
-        }
+        rule.runOnIdle { assertThat(info.isVisibleToUser).isFalse() }
 
         // Act.
-        rule.runOnIdle { currentShape = CutCornerShape(1.dp) }
+        rule.runOnIdle { alpha = 1f }
         val info2 = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRectCornersKey)
-        addExtraDataToAccessibilityNodeInfo(virtualViewId, info2, ExtraDataShapeRegionKey)
 
         // Assert.
-        rule
-            .onNodeWithTag(tag)
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CutCornerShape(1.dp)))
-        rule.runOnIdle {
-            assertThat(info2.availableExtraData.contains(ExtraDataShapeRegionKey)).isTrue()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectKey)).isFalse()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRectCornersKey)).isFalse()
-            assertThat(info2.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
-        }
+        rule.runOnIdle { assertThat(info2.isVisibleToUser).isTrue() }
     }
+
+    private fun Modifier.parameterizedGraphicsLayer(shape: Shape, clip: Boolean) =
+        when (modifierVariant) {
+            ModifierVariant.Simple -> this.graphicsLayer(shape = shape, clip = clip)
+            ModifierVariant.Block ->
+                this.graphicsLayer {
+                    this.shape = shape
+                    this.clip = clip
+                }
+        }
+
+    private fun Modifier.parameterizedGraphicsLayer(alpha: Float) =
+        when (modifierVariant) {
+            ModifierVariant.Simple -> this.graphicsLayer(alpha = alpha)
+            ModifierVariant.Block -> this.graphicsLayer { this.alpha = alpha }
+        }
 
     private class InsetRectangle(val insetPx: Int) : Shape {
         override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density) =
@@ -761,6 +677,16 @@ class GraphicsLayerSemanticsTest {
         val accNodeInfo = accessibilityNodeProvider.createAccessibilityNodeInfo(semanticsId)
         checkNotNull(accNodeInfo) { "Could not find semantics node with id = $semanticsId" }
         return AccessibilityNodeInfoCompat.wrap(accNodeInfo)
+    }
+
+    private fun Bundle.getRectParcelable(key: String): Rect {
+        @Suppress("DEPRECATION")
+        return getParcelable(key)!!
+    }
+
+    private fun Bundle.getRegionParcelable(key: String): Region {
+        @Suppress("DEPRECATION")
+        return getParcelable(key)!!
     }
 
     private fun Rect.assertBoundsEqualTo(left: Dp, top: Dp, right: Dp, bottom: Dp) {

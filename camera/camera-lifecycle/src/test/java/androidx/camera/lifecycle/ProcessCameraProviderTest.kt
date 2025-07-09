@@ -137,7 +137,7 @@ class ProcessCameraProviderTest {
         shadowPackageManager.setSystemFeature(PackageManager.FEATURE_CAMERA, true)
         shadowPackageManager.setSystemFeature(PackageManager.FEATURE_CAMERA_FRONT, false)
 
-        val cameraFactoryProvider = Provider { _, _, _, _, _ ->
+        val cameraFactoryProvider = Provider { _, _, _, _, _, _ ->
             val cameraFactory = FakeCameraFactory()
             cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
                 FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
@@ -195,7 +195,7 @@ class ProcessCameraProviderTest {
         surfaceManager: CameraDeviceSurfaceManager? = FakeCameraDeviceSurfaceManager(),
         useCaseConfigFactory: UseCaseConfigFactory? = FakeUseCaseConfigFactory(),
     ): CameraXConfig {
-        val cameraFactoryProvider = Provider { _, _, _, _, _ -> cameraFactory }
+        val cameraFactoryProvider = Provider { _, _, _, _, _, _ -> cameraFactory }
         return CameraXConfig.Builder()
             .setCameraFactoryProvider(cameraFactoryProvider)
             .apply {

@@ -19,7 +19,18 @@ package androidx.credentials.providerevents.service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import androidx.core.os.OutcomeReceiverCompat
+import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.providerevents.DeviceSetupProvider
+import androidx.credentials.providerevents.exception.ExportCredentialsException
+import androidx.credentials.providerevents.exception.GetCredentialTransferCapabilitiesException
+import androidx.credentials.providerevents.exception.ImportCredentialsException
+import androidx.credentials.providerevents.transfer.CredentialTransferCapabilities
+import androidx.credentials.providerevents.transfer.CredentialTransferCapabilitiesRequest
+import androidx.credentials.providerevents.transfer.ExportCredentialsRequest
+import androidx.credentials.providerevents.transfer.ExportCredentialsResponse
+import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
+import androidx.credentials.providerevents.transfer.ImportCredentialsResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -32,14 +43,64 @@ class DeviceSetupServiceTest {
 
     @Test
     fun onBind_nullIntent_returnsNull() {
-        val service = object : DeviceSetupService() {}
+        val service =
+            object : DeviceSetupService() {
+                override fun onImportCredentialsRequest(
+                    request: ImportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                ) {}
+
+                override fun onExportCredentialsRequest(
+                    request: ExportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                ) {}
+
+                override fun onGetCredentialTransferCapabilities(
+                    request: CredentialTransferCapabilitiesRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<
+                            CredentialTransferCapabilities,
+                            GetCredentialTransferCapabilitiesException,
+                        >,
+                ) {}
+            }
         val binder = service.onBind(null)
         assertThat(binder).isNull()
     }
 
     @Test
     fun onBind_noProviderFound_returnsNull() {
-        val service = object : DeviceSetupService() {}
+        val service =
+            object : DeviceSetupService() {
+                override fun onImportCredentialsRequest(
+                    request: ImportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                ) {}
+
+                override fun onExportCredentialsRequest(
+                    request: ExportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                ) {}
+
+                override fun onGetCredentialTransferCapabilities(
+                    request: CredentialTransferCapabilitiesRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<
+                            CredentialTransferCapabilities,
+                            GetCredentialTransferCapabilitiesException,
+                        >,
+                ) {}
+            }
         val intent = Intent()
         // No class name added to the intent
         val binder = service.onBind(intent)
@@ -48,7 +109,32 @@ class DeviceSetupServiceTest {
 
     @Test
     fun onBind_validProvider_returnsBinder() {
-        val service = object : DeviceSetupService() {}
+        val service =
+            object : DeviceSetupService() {
+                override fun onImportCredentialsRequest(
+                    request: ImportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                ) {}
+
+                override fun onExportCredentialsRequest(
+                    request: ExportCredentialsRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                ) {}
+
+                override fun onGetCredentialTransferCapabilities(
+                    request: CredentialTransferCapabilitiesRequest,
+                    callingAppInfo: CallingAppInfo,
+                    callback:
+                        OutcomeReceiverCompat<
+                            CredentialTransferCapabilities,
+                            GetCredentialTransferCapabilitiesException,
+                        >,
+                ) {}
+            }
         val intent =
             Intent().apply {
                 putExtra(

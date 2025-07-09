@@ -28,9 +28,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -43,7 +41,7 @@ import java.util.concurrent.Executor;
  * {@link #stopMonitoring()}.
  */
 public abstract class AbstractCameraPresenceSource
-        implements Observable<Set<CameraIdentifier>> {
+        implements Observable<List<CameraIdentifier>> {
 
     private static final String TAG = "CameraPresenceSrc";
 
@@ -51,7 +49,7 @@ public abstract class AbstractCameraPresenceSource
     private final List<ObserverWrapper> mObservers = new CopyOnWriteArrayList<>();
 
     @GuardedBy("mLock")
-    private Set<CameraIdentifier> mCurrentData = Collections.emptySet();
+    private List<CameraIdentifier> mCurrentData = Collections.emptyList();
     @GuardedBy("mLock")
     private Throwable mCurrentError = null;
     @GuardedBy("mLock")
@@ -59,10 +57,10 @@ public abstract class AbstractCameraPresenceSource
 
     private static class ObserverWrapper {
         final Executor mExecutor;
-        final Observer<? super Set<CameraIdentifier>> mObserver;
+        final Observer<? super List<CameraIdentifier>> mObserver;
 
         ObserverWrapper(@NonNull Executor executor,
-                @NonNull Observer<? super Set<CameraIdentifier>> observer) {
+                @NonNull Observer<? super List<CameraIdentifier>> observer) {
             mExecutor = executor;
             mObserver = observer;
         }
@@ -81,12 +79,12 @@ public abstract class AbstractCameraPresenceSource
     protected abstract void stopMonitoring();
 
     /**
-     * Subclasses must call this method to update the state with a new set of available cameras.
+     * Subclasses must call this method to update the state with a new list of available cameras.
      * This will trigger notifications to observers if the data has changed.
      *
-     * @param newData The new set of available {@link CameraIdentifier}s.
+     * @param newData The new list of available {@link CameraIdentifier}s.
      */
-    protected void updateData(@NonNull Set<CameraIdentifier> newData) {
+    protected void updateData(@NonNull List<CameraIdentifier> newData) {
         updateState(newData, null);
     }
 
@@ -102,7 +100,7 @@ public abstract class AbstractCameraPresenceSource
      */
     @NonNull
     @Override
-    public abstract ListenableFuture<Set<CameraIdentifier>> fetchData();
+    public abstract ListenableFuture<List<CameraIdentifier>> fetchData();
 
     /**
      * Subclasses must call this method to update the state with an error. This will trigger
@@ -114,23 +112,23 @@ public abstract class AbstractCameraPresenceSource
         updateState(null, error);
     }
 
-    private void updateState(@Nullable Set<CameraIdentifier> newData, @Nullable Throwable error) {
+    private void updateState(@Nullable List<CameraIdentifier> newData, @Nullable Throwable error) {
         boolean shouldNotify;
-        Set<CameraIdentifier> dataSnapshot;
+        List<CameraIdentifier> dataSnapshot;
         Throwable errorSnapshot;
 
         synchronized (mLock) {
             if (error != null) {
                 shouldNotify = (mCurrentError == null || !mCurrentData.isEmpty());
                 mCurrentError = error;
-                mCurrentData = Collections.emptySet();
+                mCurrentData = Collections.emptyList();
             } else {
                 Preconditions.checkNotNull(newData);
                 shouldNotify = (mCurrentError != null || !mCurrentData.equals(newData));
                 mCurrentError = null;
                 mCurrentData = newData;
             }
-            dataSnapshot = Collections.unmodifiableSet(new HashSet<>(mCurrentData));
+            dataSnapshot = Collections.unmodifiableList(mCurrentData);
             errorSnapshot = mCurrentError;
         }
 
@@ -144,7 +142,7 @@ public abstract class AbstractCameraPresenceSource
     }
 
     private void notifyObserver(@NonNull ObserverWrapper wrapper,
-            @NonNull Set<CameraIdentifier> data, @Nullable Throwable error) {
+            @NonNull List<CameraIdentifier> data, @Nullable Throwable error) {
         wrapper.mExecutor.execute(() -> {
             if (error != null) {
                 wrapper.mObserver.onError(error);
@@ -156,13 +154,13 @@ public abstract class AbstractCameraPresenceSource
 
     @Override
     public void addObserver(@NonNull Executor executor,
-            @NonNull Observer<? super Set<CameraIdentifier>> observer) {
+            @NonNull Observer<? super List<CameraIdentifier>> observer) {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(observer);
 
         mObservers.add(new ObserverWrapper(executor, observer));
 
-        Set<CameraIdentifier> dataSnapshot;
+        List<CameraIdentifier> dataSnapshot;
         Throwable errorSnapshot;
 
         synchronized (mLock) {
@@ -171,7 +169,7 @@ public abstract class AbstractCameraPresenceSource
                 mIsActive = true;
                 startMonitoring();
             }
-            dataSnapshot = Collections.unmodifiableSet(new HashSet<>(mCurrentData));
+            dataSnapshot = Collections.unmodifiableList(mCurrentData);
             errorSnapshot = mCurrentError;
         }
 
@@ -180,7 +178,7 @@ public abstract class AbstractCameraPresenceSource
     }
 
     @Override
-    public void removeObserver(@NonNull Observer<? super Set<CameraIdentifier>> observerToRemove) {
+    public void removeObserver(@NonNull Observer<? super List<CameraIdentifier>> observerToRemove) {
         Preconditions.checkNotNull(observerToRemove);
 
         ObserverWrapper wrapperToRemove = null;

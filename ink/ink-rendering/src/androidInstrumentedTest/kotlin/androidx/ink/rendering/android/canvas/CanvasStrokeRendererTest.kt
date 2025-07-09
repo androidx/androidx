@@ -43,6 +43,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import org.junit.Rule
@@ -53,6 +54,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalInkCustomBrushApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CanvasStrokeRendererTest {
 
     @get:Rule

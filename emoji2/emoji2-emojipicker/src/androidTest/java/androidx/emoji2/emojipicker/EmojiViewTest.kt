@@ -26,6 +26,7 @@ import androidx.core.graphics.applyCanvas
 import androidx.core.text.toSpanned
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -40,6 +41,7 @@ class EmojiViewTestActivity : Activity()
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class EmojiViewTest {
     companion object {
         private const val GRINNING_FACE = "\uD83D\uDE00"

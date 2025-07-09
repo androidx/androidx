@@ -25,11 +25,13 @@ import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        namespace = "androidx.testutils.fonts"
+        androidResources.enable = true
+    }
     desktop()
 }
 
@@ -37,21 +39,12 @@ dependencies {
     commonMainImplementation(libs.kotlinStdlib)
 }
 
-android {
-    sourceSets {
-        main {
-            res.srcDirs += "src/commonMain/resources"
-            res.srcDirs += "src/androidMain/res"
-            java.srcDirs += "src/androidMain/java"
-            assets.srcDirs += "src/androidMain/assets"
-        }
-    }
-}
-
 androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
 }
 
-android {
-    namespace = "androidx.testutils.fonts"
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        variant.sources.res.addStaticSourceDirectory("src/commonMain/resources")
+    })
 }

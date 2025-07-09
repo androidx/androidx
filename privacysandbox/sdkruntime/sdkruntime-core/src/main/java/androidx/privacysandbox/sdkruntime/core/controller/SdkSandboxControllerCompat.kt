@@ -31,13 +31,10 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.impl.ContinuationLoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
 import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -286,25 +283,5 @@ internal constructor(private val controllerImpl: SdkSandboxControllerBackend) {
             }
             throw UnsupportedOperationException("SDK should be loaded locally on API below 34")
         }
-    }
-
-    private class ContinuationLoadSdkCallback(
-        private val continuation: Continuation<SandboxedSdkCompat>
-    ) : LoadSdkCallback, AtomicBoolean(false) {
-        override fun onResult(result: SandboxedSdkCompat) {
-            // Do not attempt to resume more than once, even if the caller is buggy.
-            if (compareAndSet(false, true)) {
-                continuation.resume(result)
-            }
-        }
-
-        override fun onError(error: LoadSdkCompatException) {
-            // Do not attempt to resume more than once, even if the caller is buggy.
-            if (compareAndSet(false, true)) {
-                continuation.resumeWithException(error)
-            }
-        }
-
-        override fun toString() = "ContinuationLoadSdkCallback(outcomeReceived = ${get()})"
     }
 }

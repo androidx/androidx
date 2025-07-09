@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.media3.common.C
@@ -93,12 +94,11 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.TextureSampler
 import androidx.xr.scenecore.scene
-import com.google.common.util.concurrent.FutureCallback
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.file.Paths
+import kotlinx.coroutines.launch
 
 private const val TAG = "JXR-SurfaceEntity-VideoPlayerTestActivity"
 
@@ -188,23 +188,10 @@ class VideoPlayerTestActivity : ComponentActivity() {
             val unused = session.scene.mainPanelEntity.addComponent(movableComponentMP!!)
         }
 
-        val alphaMaskTextureFuture: ListenableFuture<Texture> =
-            Texture.create(session, "alpha_mask.png", TextureSampler.create())
-        Futures.addCallback(
-            alphaMaskTextureFuture,
-            object : FutureCallback<Texture> {
-                override fun onSuccess(texture: Texture) {
-                    Log.i(TAG, "Alpha mask texture created")
-                    alphaMaskTexture = texture
-                }
-
-                override fun onFailure(t: Throwable) {
-                    Log.e(TAG, "Failed to create alpha mask texture", t)
-                }
-            },
-            Runnable::run,
-        )
-
+        lifecycleScope.launch {
+            alphaMaskTexture =
+                Texture.create(session, Paths.get("alpha_mask.png"), TextureSampler.create())
+        }
         setContent { HelloWorld(session, activity) }
     }
 

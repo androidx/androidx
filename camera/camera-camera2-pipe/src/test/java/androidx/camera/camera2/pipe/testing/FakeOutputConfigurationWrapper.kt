@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.camera2.params.OutputConfiguration
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper
@@ -28,6 +29,7 @@ class FakeOutputConfigurationWrapper(
     override val surfaceSharing: Boolean = false,
     override val maxSharedSurfaceCount: Int = 1,
     override val surfaceGroupId: Int = -1,
+    override val outputConfiguration: OutputConfiguration? = null,
 ) : OutputConfigurationWrapper {
     private val _surfaces = mutableListOf<Surface>()
 

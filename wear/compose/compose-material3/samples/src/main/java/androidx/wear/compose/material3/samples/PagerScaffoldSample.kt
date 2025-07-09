@@ -17,7 +17,7 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,18 +54,17 @@ fun HorizontalPagerScaffoldSample(navigateBack: () -> Unit) {
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
                     ScreenScaffold {
-                        Box(
+                        Column(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
                         ) {
+                            Text(text = "Page #$page")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Swipe left and right")
                             if (page == 0) {
-                                Column {
-                                    Text("Page 0")
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Button(onClick = navigateBack) { Text("Exit") }
-                                }
-                            } else {
-                                Text("Page $page")
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(onClick = navigateBack) { Text("Exit") }
                             }
                         }
                     }
@@ -90,11 +89,14 @@ fun VerticalPagerScaffoldSample() {
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
                     ScreenScaffold {
-                        Box(
+                        Column(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
                         ) {
-                            Text("Page $page")
+                            Text(text = "Page #$page")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Swipe up and down")
                         }
                     }
                 }

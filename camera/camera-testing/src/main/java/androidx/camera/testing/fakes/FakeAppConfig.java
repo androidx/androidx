@@ -18,7 +18,9 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
@@ -62,7 +64,7 @@ public final class FakeAppConfig {
         FakeCameraFactory cameraFactory = createCameraFactory(availableCamerasSelector);
 
         final CameraFactory.Provider cameraFactoryProvider =
-                (ignored1, ignored2, ignored3, ignore4, streamSpecsCalculator) -> cameraFactory;
+                (ignored0, ignored1, ignored2, ignore3, ignored4, ignored5) -> cameraFactory;
 
         final CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (ignored1, ignored2, ignored3) -> new FakeCameraDeviceSurfaceManager();
@@ -74,8 +76,11 @@ public final class FakeAppConfig {
                     List<FakeCamera> fakeCameras = new ArrayList<>();
 
                     for (String cameraId : cameraFactory.getAvailableCameraIds()) {
-                        fakeCameras.add((FakeCamera) cameraFactory.getCamera(cameraId
-                        ));
+                        try {
+                            fakeCameras.add((FakeCamera) cameraFactory.getCamera(cameraId));
+                        } catch (CameraUnavailableException e) {
+                            throw new InitializationException(e);
+                        }
                     }
 
                     return new FakeUseCaseConfigFactory(fakeCameras);

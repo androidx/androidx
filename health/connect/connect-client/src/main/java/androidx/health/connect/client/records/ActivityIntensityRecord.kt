@@ -38,7 +38,6 @@ import java.time.ZoneOffset
  * installed on the device. To check if available: call [HealthConnectFeatures.getFeatureStatus] and
  * pass [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as an argument.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ActivityIntensityRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -77,6 +76,7 @@ class ActivityIntensityRecord(
 
     override fun hashCode(): Int {
         var result = activityIntensityType.hashCode()
+        result = 31 * result + startTime.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)

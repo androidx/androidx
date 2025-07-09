@@ -852,13 +852,20 @@ class RequestFocusTest {
         val success =
             rule.runOnIdle { button2.requestFocus(View.FOCUS_UP, android.graphics.Rect()) }
 
-        // TODO(b/406327273): Support this use case without isViewFocusFixEnabled. This was
-        //  added in aosp/3447394 but depends on aosp/3417182 which is behind a flag.
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isViewFocusFixEnabled) {
-            assertThat(success).isTrue()
-            rule.onNodeWithTag(tag1).assertIsFocused()
-        } else {
-            assertThat(success).isFalse()
+        @OptIn(ExperimentalComposeUiApi::class)
+        when {
+            ComposeUiFlags.isViewFocusFixEnabled -> {
+                assertThat(success).isTrue()
+                rule.onNodeWithTag(tag1).assertIsFocused()
+            }
+            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled &&
+                ComposeUiFlags.isIgnoreInvalidPrevFocusRectEnabled -> {
+                assertThat(success).isTrue()
+                rule.onNodeWithTag(tag2).assertIsFocused()
+            }
+            else -> {
+                assertThat(success).isFalse()
+            }
         }
     }
 }

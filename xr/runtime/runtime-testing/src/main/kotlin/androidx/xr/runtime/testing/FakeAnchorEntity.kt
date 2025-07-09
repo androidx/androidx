@@ -16,13 +16,65 @@
 
 package androidx.xr.runtime.testing
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.internal.Anchor
 import androidx.xr.runtime.internal.AnchorEntity
 import androidx.xr.runtime.internal.AnchorEntity.OnStateChangedListener
+import androidx.xr.runtime.internal.Dimensions
+import androidx.xr.runtime.internal.PlaneSemantic
+import androidx.xr.runtime.internal.PlaneType
+import androidx.xr.runtime.math.Pose
+import java.time.Duration
+import java.util.UUID
 
 /** Test-only implementation of [AnchorEntity] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeAnchorEntity : FakeSystemSpaceEntity(), AnchorEntity {
+@RequiresApi(Build.VERSION_CODES.O)
+public class FakeAnchorEntity(
+    /**
+     * The configuration data used to create this [FakeAnchorEntity]. This field is currently used
+     * by [FakeJxrPlatformAdapter.createAnchorEntity] only.
+     *
+     * In tests, this property can be inspected to verify that the anchor was instantiated with the
+     * correct parameters, such as bounds or plane type. It can also be modified to simulate
+     * different anchor configurations.
+     *
+     * @see AnchorCreationData
+     */
+    internal val anchorCreationData: AnchorCreationData = AnchorCreationData(),
+
+    /**
+     * The underlying [Anchor] instance that this fake entity represents.
+     *
+     * In tests, this property can be accessed to inspect or modify the state of the underlying
+     * (fake) anchor, such as its pose or tracking state. It is initialized by default with a
+     * [FakeRuntimeAnchor] instance.
+     *
+     * @see Anchor
+     * @see FakeRuntimeAnchor
+     */
+    internal val anchor: Anchor = FakeRuntimeAnchor(Pose(), FakeRuntimePlane()),
+) : FakeSystemSpaceEntity(), AnchorEntity {
+
+    /**
+     * A data class holding the configuration parameters for a [FakeAnchorEntity].
+     *
+     * This class is used within tests to specify the initial properties of a fake anchor, such as
+     * its dimensions, plane classification, and search timeout. It allows for the creation of
+     * test-specific anchor configurations and enables verification of these parameters after
+     * instantiation.
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    public data class AnchorCreationData(
+        val bounds: Dimensions = Dimensions(1f, 1f, 1f),
+        val planeType: PlaneType = PlaneType.ANY,
+        val planeSemantic: PlaneSemantic = PlaneSemantic.ANY,
+        val searchTimeout: Duration = Duration.ZERO,
+        val uuid: UUID = UUID.randomUUID(),
+    )
+
     private var onStateChangedListener: OnStateChangedListener =
         OnStateChangedListener { newState ->
             _state = newState

@@ -50,7 +50,11 @@ import kotlin.math.min
  * @constructor creates an embedding bounds.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
+public class EmbeddingBounds(
+    public val alignment: Alignment,
+    public val width: Dimension,
+    public val height: Dimension,
+) {
     override fun toString(): String {
         return "Bounds:{alignment=$alignment, width=$width, height=$height}"
     }
@@ -182,7 +186,8 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
     }
 
     /** The position of the bounds relative to parent window container. */
-    class Alignment internal constructor(@IntRange(from = 0, to = 3) internal val value: Int) {
+    public class Alignment
+    internal constructor(@IntRange(from = 0, to = 3) internal val value: Int) {
 
         init {
             require(value in 0..3)
@@ -207,19 +212,19 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
                 else -> "unknown position:$value"
             }
 
-        companion object {
+        public companion object {
 
             /** Specifies that the bounds is at the left of the parent window container. */
-            @JvmField val ALIGN_LEFT = Alignment(0)
+            @JvmField public val ALIGN_LEFT: Alignment = Alignment(0)
 
             /** Specifies that the bounds is at the top of the parent window container. */
-            @JvmField val ALIGN_TOP = Alignment(1)
+            @JvmField public val ALIGN_TOP: Alignment = Alignment(1)
 
             /** Specifies that the bounds is at the right of the parent window container. */
-            @JvmField val ALIGN_RIGHT = Alignment(2)
+            @JvmField public val ALIGN_RIGHT: Alignment = Alignment(2)
 
             /** Specifies that the bounds is at the bottom of the parent window container. */
-            @JvmField val ALIGN_BOTTOM = Alignment(3)
+            @JvmField public val ALIGN_BOTTOM: Alignment = Alignment(3)
         }
     }
 
@@ -231,7 +236,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
      *   example, if [width] has [ratio] value 0.6, it means the bounds' width is 0.6 to the parent
      *   window container's width.
      */
-    abstract class Dimension internal constructor(internal val description: String) {
+    public abstract class Dimension internal constructor(internal val description: String) {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -275,10 +280,10 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             internal operator fun times(dimen: Int): Int = (value * dimen).toInt()
         }
 
-        companion object {
+        public companion object {
 
             /** Represents this dimension follows its parent window dimension. */
-            @JvmField val DIMENSION_EXPANDED: Dimension = Ratio(1.0f)
+            @JvmField public val DIMENSION_EXPANDED: Dimension = Ratio(1.0f)
 
             /**
              * Represents this dimension follows the hinge position if the current window and device
@@ -287,15 +292,14 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
              * The [DIMENSION_HINGE] works only if:
              * - The parent container is not in multi-window mode (e.g., split-screen mode or
              *   picture-in-picture mode)
-             * - The device has a hinge or separating fold reported by
-             *   [androidx.window.layout.FoldingFeature.isSeparating]
+             * - The device has a hinge or separating fold reported by [FoldingFeature.isSeparating]
              * - The hinge or separating fold orientation matches [EmbeddingBounds.alignment]:
              *     - The hinge or fold orientation is vertical, and the position is [POSITION_LEFT]
              *       or [POSITION_RIGHT]
              *     - The hinge or fold orientation is horizontal, and the position is [POSITION_TOP]
              *       or [POSITION_BOTTOM]
              */
-            @JvmField val DIMENSION_HINGE: Dimension = object : Dimension("hinge") {}
+            @JvmField public val DIMENSION_HINGE: Dimension = object : Dimension("hinge") {}
 
             /**
              * Creates the dimension in pixel.
@@ -305,7 +309,8 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
              *
              * @param value The dimension length in pixel
              */
-            @JvmStatic fun pixel(@Px @IntRange(from = 1) value: Int): Dimension = Pixel(value)
+            @JvmStatic
+            public fun pixel(@Px @IntRange(from = 1) value: Int): Dimension = Pixel(value)
 
             /**
              * Creates the dimension which takes a proportion of the parent window dimension.
@@ -313,25 +318,26 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
              * @param ratio The proportion of the parent window dimension this dimension should take
              */
             @JvmStatic
-            fun ratio(
+            public fun ratio(
                 @FloatRange(from = 0.0, fromInclusive = false, to = 1.0, toInclusive = false)
                 ratio: Float
             ): Dimension = Ratio(ratio)
         }
     }
 
-    companion object {
+    public companion object {
 
         /** The bounds fills the parent window bounds */
         @JvmField
-        val BOUNDS_EXPANDED = EmbeddingBounds(ALIGN_TOP, DIMENSION_EXPANDED, DIMENSION_EXPANDED)
+        public val BOUNDS_EXPANDED: EmbeddingBounds =
+            EmbeddingBounds(ALIGN_TOP, DIMENSION_EXPANDED, DIMENSION_EXPANDED)
 
         /**
          * The bounds located on the top of the parent window, and the bounds' bottom side matches
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_TOP =
+        public val BOUNDS_HINGE_TOP: EmbeddingBounds =
             EmbeddingBounds(ALIGN_TOP, width = DIMENSION_EXPANDED, height = DIMENSION_HINGE)
 
         /**
@@ -339,7 +345,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_LEFT =
+        public val BOUNDS_HINGE_LEFT: EmbeddingBounds =
             EmbeddingBounds(ALIGN_LEFT, width = DIMENSION_HINGE, height = DIMENSION_EXPANDED)
 
         /**
@@ -347,7 +353,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_BOTTOM =
+        public val BOUNDS_HINGE_BOTTOM: EmbeddingBounds =
             EmbeddingBounds(ALIGN_BOTTOM, width = DIMENSION_EXPANDED, height = DIMENSION_HINGE)
 
         /**
@@ -355,7 +361,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_RIGHT =
+        public val BOUNDS_HINGE_RIGHT: EmbeddingBounds =
             EmbeddingBounds(ALIGN_RIGHT, width = DIMENSION_HINGE, height = DIMENSION_EXPANDED)
 
         /** Translates [EmbeddingBounds] to pure [Rect] bounds with given [ParentContainerInfo]. */

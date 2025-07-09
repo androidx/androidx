@@ -1115,6 +1115,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /**
+     * Notifies that the current layout is invalid and needs to be reinflated.
+     * This will clear any cached layout information and trigger a cache invalidation for resources.
+     */
+    public void invalidateLayout() {
+        mPrevLayout = null;
+        invalidateCache();
+    }
+
+    /**
      * Notifies that the future calls to {@link #renderAndAttach(Layout, ResourceProto.Resources,
      * ViewGroup)} will have a different versioning for layouts and resources. So any cached
      * rendered result should be cleared.

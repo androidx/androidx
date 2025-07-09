@@ -491,6 +491,26 @@ public class ProtoLayoutViewInstanceTest {
     }
 
     @Test
+    public void invalidateCache_ifInvalidateLayout_fullInflation() throws Exception {
+        Layout layout = layout(text(TEXT1));
+        Resources resources = Resources.newBuilder().setVersion("1").build();
+        setupInstance(/* adaptiveUpdateRatesEnabled= */ true);
+        ListenableFuture<RenderingArtifact> result =
+                mInstanceUnderTest.renderLayoutAndAttach(layout, resources, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNoException(result);
+        View view1 = findViewsWithText(mRootContainer, TEXT1).get(0);
+
+        mInstanceUnderTest.invalidateLayout();
+        result = mInstanceUnderTest.renderLayoutAndAttach(layout, resources, mRootContainer);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertNoException(result);
+        View view2 = findViewsWithText(mRootContainer, TEXT1).get(0);
+        assertThat(view1).isNotSameInstanceAs(view2);
+    }
+
+    @Test
     public void invalidateCache_ongoingInflation_oldInflationGetsCancelled() throws Exception {
         Layout layout1 = layout(text(TEXT1));
         Resources resources1 = Resources.newBuilder().setVersion("1").build();

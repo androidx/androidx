@@ -26,7 +26,7 @@ import androidx.annotation.IntRange
  *
  * @see EmbeddingAnimationParams.animationBackground
  */
-abstract class EmbeddingAnimationBackground private constructor() {
+public abstract class EmbeddingAnimationBackground private constructor() {
 
     /**
      * An {@link EmbeddingAnimationBackground} to specify of using a developer-defined color as the
@@ -34,17 +34,19 @@ abstract class EmbeddingAnimationBackground private constructor() {
      *
      * @see EmbeddingAnimationBackground.createColorBackground
      */
-    class ColorBackground
+    public class ColorBackground
     internal constructor(
         /** [ColorInt] to represent the color to use as the background color. */
-        @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong()) @ColorInt val color: Int
+        @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
+        @ColorInt
+        public val color: Int
     ) : EmbeddingAnimationBackground() {
 
         init {
             require(Color.alpha(color) == 255) { "Background color must be opaque" }
         }
 
-        override fun toString() = "ColorBackground{color:${Integer.toHexString(color)}}"
+        override fun toString(): String = "ColorBackground{color:${Integer.toHexString(color)}}"
 
         override fun equals(other: Any?): Boolean {
             if (other === this) return true
@@ -52,7 +54,7 @@ abstract class EmbeddingAnimationBackground private constructor() {
             return color == other.color
         }
 
-        override fun hashCode() = color.hashCode()
+        override fun hashCode(): Int = color.hashCode()
     }
 
     /** @see EmbeddingAnimationBackground.DEFAULT */
@@ -65,7 +67,7 @@ abstract class EmbeddingAnimationBackground private constructor() {
     }
 
     /** Methods that create various [EmbeddingAnimationBackground]. */
-    companion object {
+    public companion object {
 
         /**
          * Creates a [ColorBackground] to represent the given [color].
@@ -79,7 +81,7 @@ abstract class EmbeddingAnimationBackground private constructor() {
          *   background color.
          */
         @JvmStatic
-        fun createColorBackground(
+        public fun createColorBackground(
             @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong()) @ColorInt color: Int
         ): ColorBackground = ColorBackground(color)
 
@@ -87,7 +89,7 @@ abstract class EmbeddingAnimationBackground private constructor() {
          * The special [EmbeddingAnimationBackground] to represent the default value, which means to
          * use the current theme window background color.
          */
-        @JvmField val DEFAULT: EmbeddingAnimationBackground = DefaultBackground()
+        @JvmField public val DEFAULT: EmbeddingAnimationBackground = DefaultBackground()
 
         /** Returns an [EmbeddingAnimationBackground] with the given [color] */
         internal fun buildFromValue(@ColorInt color: Int): EmbeddingAnimationBackground {

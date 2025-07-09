@@ -18,13 +18,13 @@
 
 package androidx.compose.foundation.lazy.list
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
@@ -61,7 +61,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class LazyListHeadersTest {
@@ -457,6 +456,37 @@ class LazyListHeadersTest {
         }
 
         assertTrue { error.isSuccess }
+    }
+
+    @Test
+    fun lazyColumn_withEmptyHeader_showsHeadersOnScroll() {
+        val headerTag = "headerTag"
+        lateinit var state: LazyListState
+
+        rule.setContentWithTestViewConfiguration {
+            LazyColumn(
+                Modifier.height(300.dp).testTag(LazyListTag),
+                rememberLazyListState().also { state = it },
+            ) {
+                stickyHeader { Spacer(Modifier.height(101.dp).fillMaxWidth().testTag(headerTag)) }
+
+                repeat(10) {
+                    item { Spacer(Modifier.height(101.dp).fillMaxWidth()) }
+
+                    // this empty header shouldn't be affecting the real header
+                    stickyHeader {}
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag).scrollBy(y = 10.dp, density = rule.density)
+
+        rule.onNodeWithTag(headerTag).assertIsDisplayed().assertTopPositionInRootIsEqualTo(0.dp)
+
+        rule.runOnIdle {
+            assertEquals(0, state.layoutInfo.visibleItemsInfo.first().index)
+            assertEquals(0, state.layoutInfo.visibleItemsInfo.first().offset)
+        }
     }
 }
 

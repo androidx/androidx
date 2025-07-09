@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation
 
-import android.os.Build
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,7 +61,7 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class StretchOverscrollScreenshotTest {
     @get:Rule val rule = createComposeRule()
 

@@ -45,7 +45,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.requirePrecondition
-import androidx.compose.ui.modifier.EmptyMap.set
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeKind
@@ -56,6 +55,7 @@ import androidx.compose.ui.node.dispatchForKind
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitLocalDescendants
+import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -186,6 +186,31 @@ internal class FocusOwnerImpl(
         return clearedFocusSuccessfully
     }
 
+    // We clear focus within the compose hierarchy and request focus again to simulate
+    // a default focus scenario so that focus goes to the first item.
+    override fun resetFocus(focusDirection: FocusDirection): Boolean {
+        val successfulClear =
+            clearFocus(
+                force = false,
+                refreshFocusEvents = true,
+                clearOwnerFocus = false,
+                focusDirection = focusDirection,
+            )
+
+        if (!successfulClear) return false
+
+        val successfulReset =
+            focusSearch(focusDirection = focusDirection, focusedRect = null) {
+                it.requestFocus(focusDirection)
+            } ?: false
+
+        // We called clearFocus with clearOwnerFocus = false but didn't find anything else
+        // to focus on, so just clear focus from the owner.
+        if (!successfulReset) clearOwnerFocus()
+
+        return successfulReset
+    }
+
     private fun clearFocus(forced: Boolean = false, refreshFocusEvents: Boolean): Boolean {
         if (activeFocusTargetNode == null) return true
         if (isFocusCaptured && !forced) {
@@ -214,10 +239,13 @@ internal class FocusOwnerImpl(
         // First check to see if the focus should move within child Views
         @OptIn(ExperimentalComposeUiApi::class)
         if (
-            ComposeUiFlags.isViewFocusFixEnabled &&
-                platformFocusOwner.moveFocusInChildren(focusDirection)
+            ComposeUiFlags.isViewFocusFixEnabled ||
+                (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled &&
+                    activeFocusTargetNode?.isInteropViewHost == true)
         ) {
-            return true
+            if (platformFocusOwner.moveFocusInChildren(focusDirection)) {
+                return true
+            }
         }
         var requestFocusSuccess: Boolean? = false
         val activeNodeBefore = activeFocusTargetNode
@@ -250,12 +278,19 @@ internal class FocusOwnerImpl(
             return clearFocus && takeFocus(focusDirection, previouslyFocusedRect = null)
         }
 
-        // If we couldn't move focus within compose, we attempt to move focus within embedded views.
-        // We don't need this for 1D focus search because the wrap-around logic triggers a
-        // focus exit which will perform a focus search among the subviews.
         @OptIn(ExperimentalComposeUiApi::class)
-        return !ComposeUiFlags.isViewFocusFixEnabled &&
+        return if (
+            ComposeUiFlags.isViewFocusFixEnabled ||
+                ComposeUiFlags.isBypassUnfocusableComposeViewEnabled
+        ) {
+            false
+        } else {
+            // If we couldn't move focus within compose, we attempt to move focus within embedded
+            // views.
+            // We don't need this for 1D focus search because the wrap-around logic triggers a
+            // focus exit which will perform a focus search among the subviews.
             platformFocusOwner.moveFocusInChildren(focusDirection)
+        }
     }
 
     override fun focusSearch(
@@ -426,6 +461,33 @@ internal class FocusOwnerImpl(
     /** Searches for the currently focused item, and returns its coordinates as a rect. */
     override fun getFocusRect(): Rect? {
         return findFocusTargetNode()?.focusRect()
+    }
+
+    override fun hasFocusableContent(): Boolean {
+        if (!rootFocusNode.isAttached) return false
+
+        rootFocusNode.visitSubtree(Nodes.FocusTarget) {
+            if (it.isAttached && it.fetchFocusProperties().canFocus) {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun hasNonInteropFocusableContent(): Boolean {
+        if (!rootFocusNode.isAttached) return false
+
+        rootFocusNode.visitSubtree(Nodes.FocusTarget) {
+            if (!it.isAttached) {
+                return@visitSubtree
+            }
+            val focusProperties = it.fetchFocusProperties()
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (it.isAttached && !it.isInteropViewHost && focusProperties.canFocus) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun findFocusTargetNode(): FocusTargetNode? {

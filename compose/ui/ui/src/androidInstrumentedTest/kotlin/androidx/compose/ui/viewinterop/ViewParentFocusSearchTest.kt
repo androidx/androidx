@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
@@ -25,11 +26,14 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusableComponent
 import androidx.compose.ui.focus.FocusableView
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -124,6 +128,7 @@ class ViewParentFocusSearchTest {
 
     @Test
     fun oneDimensionSearch() {
+        // Arrange.
         rule.setContent {
             composeView = LocalView.current as ViewGroup
             Column {
@@ -133,10 +138,12 @@ class ViewParentFocusSearchTest {
         }
         rule.onNodeWithTag(composable1).requestFocus()
 
-        rule.runOnIdle {
-            assertThat(composeView.focusSearch(composeView, View.FOCUS_FORWARD))
-                .isSameInstanceAs(view1)
-        }
+        // Act.
+        InstrumentationRegistry.getInstrumentation()
+            .sendKeySync(KeyEvent(KeyEvent.ACTION_DOWN, Key.Tab.nativeKeyCode))
+
+        // Assert.
+        rule.runOnIdle { assertThat(view1.isFocused).isTrue() }
     }
 
     @Test

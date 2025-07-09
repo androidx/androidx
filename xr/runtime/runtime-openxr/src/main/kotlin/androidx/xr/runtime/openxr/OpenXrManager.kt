@@ -39,8 +39,6 @@ internal constructor(
     private val activity: Activity,
     private val perceptionManager: OpenXrPerceptionManager,
     internal val timeSource: OpenXrTimeSource,
-    // TODO: b/427434474 fix native test stub for calibration to not require this flag
-    internal val faceTrackingCalibrated: Boolean = false,
 ) : LifecycleManager {
 
     /**
@@ -165,9 +163,7 @@ internal constructor(
         if (config.faceTracking != this.config.faceTracking) {
             if (config.faceTracking == Config.FaceTrackingMode.USER) {
                 if (!nativeGetFaceTrackerCalibration()) {
-                    if (!faceTrackingCalibrated) {
-                        throw FaceTrackingNotCalibratedException()
-                    }
+                    throw FaceTrackingNotCalibratedException()
                 }
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.userFace)
             } else {

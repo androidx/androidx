@@ -17,8 +17,6 @@
 package androidx.privacysandbox.sdkruntime.client.controller.impl
 
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -134,18 +132,6 @@ internal object LocalClientImportanceListenerRegistry {
             sdkPackageName: String,
         ) {
             from.removeIf { it.sdkPackageName == sdkPackageName }
-        }
-    }
-
-    private object MainThreadExecutor : Executor {
-        private val mainHandler = Handler(Looper.getMainLooper())
-
-        override fun execute(command: Runnable) {
-            if (mainHandler.looper == Looper.myLooper()) {
-                command.run()
-            } else {
-                mainHandler.post(command)
-            }
         }
     }
 

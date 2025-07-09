@@ -28,7 +28,7 @@ import androidx.window.core.Bounds
  *
  * @see WindowMetricsCalculator
  */
-class WindowMetrics
+public class WindowMetrics
 internal constructor(
     private val _bounds: Bounds,
     /**
@@ -36,12 +36,12 @@ internal constructor(
      *
      * @see [DisplayMetrics.density]
      */
-    val density: Float,
+    public val density: Float,
 ) {
 
     /** An internal constructor for [WindowMetrics] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(bounds: Rect, density: Float) : this(Bounds(bounds), density)
+    public constructor(bounds: Rect, density: Float) : this(Bounds(bounds), density)
 
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
@@ -53,17 +53,17 @@ internal constructor(
      *
      * @return window bounds in pixels.
      */
-    val bounds: Rect
+    public val bounds: Rect
         get() = _bounds.toRect()
 
     /** Returns the width of the [Rect] in DP units including insets from all system decorations. */
-    val widthDp: Float
+    public val widthDp: Float
         get() = bounds.width() / density
 
     /**
      * Returns the height of the [Rect] in DP units including insets from all system decorations.
      */
-    val heightDp: Float
+    public val heightDp: Float
         get() = bounds.height() / density
 
     override fun equals(other: Any?): Boolean {

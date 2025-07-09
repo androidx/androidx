@@ -973,24 +973,24 @@ package androidx.compose.material3 {
     property public abstract kotlin.ranges.IntRange yearRange;
   }
 
-  public final class DatePicker_androidKt {
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DatePickerState DatePickerState(java.util.Locale locale, java.time.LocalDate? initialSelectedDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
+  public final class DatePicker_jvmKt {
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DatePickerState DatePickerState(java.util.Locale locale, java.time.LocalDate? initialSelectedDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @BytecodeOnly @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DatePickerState DatePickerState-sHin3Bw(java.util.Locale, java.time.LocalDate?, java.time.YearMonth?, kotlin.ranges.IntRange, int, androidx.compose.material3.SelectableDates);
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DateRangePickerState DateRangePickerState(java.util.Locale locale, java.time.LocalDate? initialSelectedStartDate, optional java.time.LocalDate? initialSelectedEndDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DateRangePickerState DateRangePickerState(java.util.Locale locale, java.time.LocalDate? initialSelectedStartDate, java.time.LocalDate? initialSelectedEndDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @BytecodeOnly @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.DateRangePickerState DateRangePickerState-HVP43zI(java.util.Locale, java.time.LocalDate?, java.time.LocalDate?, java.time.YearMonth?, kotlin.ranges.IntRange, int, androidx.compose.material3.SelectableDates);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static java.time.YearMonth? getDisplayedMonth(androidx.compose.material3.DatePickerState);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static java.time.YearMonth? getDisplayedMonth(androidx.compose.material3.DateRangePickerState);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static java.time.LocalDate? getSelectedDate(androidx.compose.material3.DatePickerState);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static java.time.LocalDate? getSelectedEndDate(androidx.compose.material3.DateRangePickerState);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static java.time.LocalDate? getSelectedStartDate(androidx.compose.material3.DateRangePickerState);
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DatePickerState rememberDatePickerState(java.time.LocalDate? initialSelectedDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static java.time.YearMonth? getDisplayedMonth(androidx.compose.material3.DatePickerState);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static java.time.YearMonth? getDisplayedMonth(androidx.compose.material3.DateRangePickerState);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static java.time.LocalDate? getSelectedDate(androidx.compose.material3.DatePickerState);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static java.time.LocalDate? getSelectedEndDate(androidx.compose.material3.DateRangePickerState);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static java.time.LocalDate? getSelectedStartDate(androidx.compose.material3.DateRangePickerState);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DatePickerState rememberDatePickerState(java.time.LocalDate? initialSelectedDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @BytecodeOnly @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DatePickerState rememberDatePickerState-EU0dCGE(java.time.LocalDate?, java.time.YearMonth?, kotlin.ranges.IntRange?, int, androidx.compose.material3.SelectableDates?, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DateRangePickerState rememberDateRangePickerState(java.time.LocalDate? initialSelectedStartDate, optional java.time.LocalDate? initialSelectedEndDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DateRangePickerState rememberDateRangePickerState(java.time.LocalDate? initialSelectedStartDate, java.time.LocalDate? initialSelectedEndDate, optional java.time.YearMonth? initialDisplayedMonth, optional kotlin.ranges.IntRange yearRange, optional int initialDisplayMode, optional androidx.compose.material3.SelectableDates selectableDates);
     method @BytecodeOnly @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.DateRangePickerState rememberDateRangePickerState-IlFM19s(java.time.LocalDate?, java.time.LocalDate?, java.time.YearMonth?, kotlin.ranges.IntRange?, int, androidx.compose.material3.SelectableDates?, androidx.compose.runtime.Composer?, int, int);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static void setDisplayedMonth(androidx.compose.material3.DatePickerState, java.time.YearMonth yearMonth);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static void setDisplayedMonth(androidx.compose.material3.DateRangePickerState, java.time.YearMonth yearMonth);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static void setSelectedDate(androidx.compose.material3.DatePickerState, java.time.LocalDate? date);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static void setSelection(androidx.compose.material3.DateRangePickerState, java.time.LocalDate? startDate, java.time.LocalDate? endDate);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static void setDisplayedMonth(androidx.compose.material3.DatePickerState, java.time.YearMonth yearMonth);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static void setDisplayedMonth(androidx.compose.material3.DateRangePickerState, java.time.YearMonth yearMonth);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static void setSelectedDate(androidx.compose.material3.DatePickerState, java.time.LocalDate? date);
+    method @SuppressCompatibility @RequiresApi(26) @androidx.compose.material3.ExperimentalMaterial3Api public static void setSelection(androidx.compose.material3.DateRangePickerState, java.time.LocalDate? startDate, java.time.LocalDate? endDate);
   }
 
   @androidx.compose.runtime.Stable public final class DateRangePickerDefaults {
@@ -1910,8 +1910,8 @@ package androidx.compose.material3 {
 
   public final class IconKt {
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, androidx.compose.ui.graphics.ColorProducer? tint, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.painter.Painter, androidx.compose.ui.graphics.ColorProducer?, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, androidx.compose.ui.graphics.ColorProducer? tint, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.painter.Painter, androidx.compose.ui.graphics.ColorProducer?, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional long tint);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon-ww6aTOc(androidx.compose.ui.graphics.ImageBitmap, String?, androidx.compose.ui.Modifier?, long, androidx.compose.runtime.Composer?, int, int);
@@ -2232,14 +2232,18 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class ModalBottomSheetProperties {
     ctor public ModalBottomSheetProperties();
-    ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
-    ctor @Deprecated public ModalBottomSheetProperties(androidx.compose.ui.window.SecureFlagPolicy securePolicy, boolean isFocusable, boolean shouldDismissOnBackPress);
-    ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress);
-    ctor public ModalBottomSheetProperties(boolean isAppearanceLightStatusBars, boolean isAppearanceLightNavigationBars, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
+    ctor @BytecodeOnly @Deprecated public ModalBottomSheetProperties(androidx.compose.ui.window.SecureFlagPolicy!, boolean);
+    ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress, optional boolean shouldDismissOnClickOutside);
+    ctor @BytecodeOnly @Deprecated public ModalBottomSheetProperties(boolean);
+    ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress, optional boolean shouldDismissOnClickOutside);
+    ctor @BytecodeOnly @Deprecated public ModalBottomSheetProperties(boolean, boolean, androidx.compose.ui.window.SecureFlagPolicy!, boolean);
+    ctor public ModalBottomSheetProperties(boolean isAppearanceLightStatusBars, boolean isAppearanceLightNavigationBars, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress, optional boolean shouldDismissOnClickOutside);
     method public androidx.compose.ui.window.SecureFlagPolicy getSecurePolicy();
     method public boolean getShouldDismissOnBackPress();
+    method public boolean shouldDismissOnClickOutside();
     property public androidx.compose.ui.window.SecureFlagPolicy securePolicy;
     property public boolean shouldDismissOnBackPress;
+    property public boolean shouldDismissOnClickOutside;
   }
 
   public final class ModalBottomSheet_androidKt {
@@ -2248,8 +2252,11 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class ModalWideNavigationRailDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape(androidx.compose.runtime.Composer?, int);
     method public androidx.compose.material3.ModalWideNavigationRailProperties getProperties();
     property public androidx.compose.material3.ModalWideNavigationRailProperties Properties;
+    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape containerShape;
     field public static final androidx.compose.material3.ModalWideNavigationRailDefaults INSTANCE;
   }
 
@@ -4581,35 +4588,39 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class WideNavigationRailColors {
-    ctor @KotlinOnly public WideNavigationRailColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color contentColor, androidx.compose.ui.graphics.Color modalContainerColor, androidx.compose.ui.graphics.Color modalScrimColor);
-    ctor @BytecodeOnly public WideNavigationRailColors(long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.material3.WideNavigationRailColors copy(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalScrimColor);
-    method @BytecodeOnly public androidx.compose.material3.WideNavigationRailColors copy-jRlVdoo(long, long, long, long);
+    ctor @KotlinOnly public WideNavigationRailColors(androidx.compose.ui.graphics.Color containerColor, androidx.compose.ui.graphics.Color contentColor, androidx.compose.ui.graphics.Color modalContainerColor, androidx.compose.ui.graphics.Color modalScrimColor, androidx.compose.ui.graphics.Color modalContentColor);
+    ctor @BytecodeOnly @Deprecated public WideNavigationRailColors(long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public WideNavigationRailColors(long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated public androidx.compose.material3.WideNavigationRailColors copy(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalScrimColor);
+    method public androidx.compose.material3.WideNavigationRailColors copy(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalScrimColor, optional long modalContentColor);
+    method @BytecodeOnly @Deprecated public androidx.compose.material3.WideNavigationRailColors! copy-jRlVdoo(long, long, long, long);
+    method @BytecodeOnly public androidx.compose.material3.WideNavigationRailColors copy-t635Npw(long, long, long, long, long);
     method @BytecodeOnly public long getContainerColor-0d7_KjU();
     method @BytecodeOnly public long getContentColor-0d7_KjU();
     method @BytecodeOnly public long getModalContainerColor-0d7_KjU();
+    method @BytecodeOnly public long getModalContentColor-0d7_KjU();
     method @BytecodeOnly public long getModalScrimColor-0d7_KjU();
     property public androidx.compose.ui.graphics.Color containerColor;
     property public androidx.compose.ui.graphics.Color contentColor;
     property public androidx.compose.ui.graphics.Color modalContainerColor;
+    property public androidx.compose.ui.graphics.Color modalContentColor;
     property public androidx.compose.ui.graphics.Color modalScrimColor;
   }
 
   public final class WideNavigationRailDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalScrimColor);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors(optional long containerColor, optional long contentColor, optional long modalContainerColor, optional long modalContentColor, optional long modalScrimColor);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.WideNavigationRailColors colors-zjMxDiM(long, long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method public androidx.compose.foundation.layout.Arrangement.Vertical getArrangement();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape(androidx.compose.runtime.Composer?, int);
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getModalContainerShape();
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getModalContainerShape(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape! getModalContainerShape(androidx.compose.runtime.Composer!, int);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.foundation.layout.Arrangement.Vertical arrangement;
     property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape containerShape;
-    property @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape modalContainerShape;
+    property @Deprecated public androidx.compose.ui.graphics.Shape modalContainerShape;
     property @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.WideNavigationRailDefaults INSTANCE;
   }
@@ -4629,8 +4640,10 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void ModalWideNavigationRail-k3FuEkE(androidx.compose.ui.Modifier?, androidx.compose.material3.WideNavigationRailState?, boolean, androidx.compose.ui.graphics.Shape?, androidx.compose.ui.graphics.Shape?, androidx.compose.material3.WideNavigationRailColors?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, float, androidx.compose.foundation.layout.WindowInsets?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.material3.ModalWideNavigationRailProperties?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
     method @androidx.compose.runtime.Composable public static void WideNavigationRail(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.WideNavigationRailState state, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.WideNavigationRailColors colors, optional kotlin.jvm.functions.Function0<kotlin.Unit>? header, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.foundation.layout.Arrangement.Vertical arrangement, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void WideNavigationRail(androidx.compose.ui.Modifier?, androidx.compose.material3.WideNavigationRailState?, androidx.compose.ui.graphics.Shape?, androidx.compose.material3.WideNavigationRailColors?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.foundation.layout.WindowInsets?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void WideNavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean railExpanded, optional int iconPosition, optional androidx.compose.material3.NavigationItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static void WideNavigationRailItem-pli-t6k(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.ui.Modifier?, boolean, boolean, int, androidx.compose.material3.NavigationItemColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
+    method @Deprecated @androidx.compose.runtime.Composable public static void WideNavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean railExpanded, optional int iconPosition, optional androidx.compose.material3.NavigationItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static void WideNavigationRailItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit>? label, boolean railExpanded, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional int iconPosition, optional androidx.compose.material3.NavigationItemColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void WideNavigationRailItem-pli-t6k(boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, androidx.compose.ui.Modifier!, boolean, boolean, int, androidx.compose.material3.NavigationItemColors!, androidx.compose.foundation.interaction.MutableInteractionSource!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void WideNavigationRailItem-pli-t6k(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, boolean, androidx.compose.ui.Modifier?, boolean, int, androidx.compose.material3.NavigationItemColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.ModalWideNavigationRailOverride> getLocalModalWideNavigationRailOverride();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.WideNavigationRailOverride> getLocalWideNavigationRailOverride();
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.material3.ModalWideNavigationRailOverride> LocalModalWideNavigationRailOverride;
@@ -4764,7 +4777,7 @@ package androidx.compose.material3.carousel {
 
 package androidx.compose.material3.pulltorefresh {
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class PullToRefreshDefaults {
+  public final class PullToRefreshDefaults {
     method @androidx.compose.runtime.Composable public void Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long color, optional float threshold);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public void Indicator-2poqoh4(androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, androidx.compose.ui.Modifier?, long, long, float, androidx.compose.runtime.Composer?, int, int);
     method @androidx.compose.runtime.Composable public void IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float elevation, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
@@ -4791,16 +4804,16 @@ package androidx.compose.material3.pulltorefresh {
   }
 
   public final class PullToRefreshKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean isRefreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.compose.material3.pulltorefresh.PullToRefreshState?, androidx.compose.ui.Alignment?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.pulltorefresh.PullToRefreshState PullToRefreshState();
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefresh(androidx.compose.ui.Modifier, boolean isRefreshing, androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional boolean enabled, optional float threshold, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefresh-Z4HSEVQ(androidx.compose.ui.Modifier, boolean, androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, float, kotlin.jvm.functions.Function0<kotlin.Unit!>);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState();
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState(androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean isRefreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.compose.material3.pulltorefresh.PullToRefreshState?, androidx.compose.ui.Alignment?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.material3.pulltorefresh.PullToRefreshState PullToRefreshState();
+    method public static androidx.compose.ui.Modifier pullToRefresh(androidx.compose.ui.Modifier, boolean isRefreshing, androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional boolean enabled, optional float threshold, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier pullToRefresh-Z4HSEVQ(androidx.compose.ui.Modifier, boolean, androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, float, kotlin.jvm.functions.Function0<kotlin.Unit!>);
+    method @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState(androidx.compose.runtime.Composer?, int);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public interface PullToRefreshState {
+  @androidx.compose.runtime.Stable public interface PullToRefreshState {
     method public suspend Object? animateToHidden(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? animateToThreshold(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @FloatRange(from=0.0) public float getDistanceFraction();

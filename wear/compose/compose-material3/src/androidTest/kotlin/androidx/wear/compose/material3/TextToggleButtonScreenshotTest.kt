@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.offset
@@ -39,7 +38,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TextToggleButtonScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
@@ -50,7 +49,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun textToggleButtonEnabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleTextToggleButton() },
         )
@@ -58,7 +57,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun textToggleButtonEnabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleTextToggleButton(checked = false) },
         )
@@ -66,7 +65,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun textToggleButtonDisabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleTextToggleButton(enabled = false) },
         )
@@ -74,7 +73,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun textToggleButtonDisabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleTextToggleButton(enabled = false, checked = false) },
         )
@@ -82,7 +81,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun textToggleButtonWithOffset() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleTextToggleButton(modifier = Modifier.offset(10.dp)) },
         )
@@ -91,7 +90,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun animatedTextToggleButtonPressed() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 val interactionSource = remember {
@@ -110,7 +109,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun animatedTextToggleButtonChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleTextToggleButton(
@@ -123,7 +122,7 @@ class TextToggleButtonScreenshotTest {
     @Test
     fun animatedTextToggleButtonUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleTextToggleButton(

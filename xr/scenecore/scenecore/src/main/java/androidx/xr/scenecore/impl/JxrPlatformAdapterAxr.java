@@ -74,7 +74,12 @@ import androidx.xr.runtime.math.Matrix3;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Vector3;
 import androidx.xr.runtime.math.Vector4;
+import androidx.xr.scenecore.impl.impress.ImpressApi;
 import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
+import androidx.xr.scenecore.impl.impress.ImpressApiImpl;
+import androidx.xr.scenecore.impl.impress.KhronosPbrMaterial;
+import androidx.xr.scenecore.impl.impress.Texture;
+import androidx.xr.scenecore.impl.impress.WaterMaterial;
 import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
 import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.impl.perception.ViewProjections;
@@ -88,11 +93,6 @@ import com.android.extensions.xr.space.SpatialState;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
-import com.google.ar.imp.apibindings.ImpressApi;
-import com.google.ar.imp.apibindings.ImpressApiImpl;
-import com.google.ar.imp.apibindings.KhronosPbrMaterial;
-import com.google.ar.imp.apibindings.Texture;
-import com.google.ar.imp.apibindings.WaterMaterial;
 import com.google.ar.imp.view.splitengine.ImpSplitEngine;
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -806,7 +806,7 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
 
         ListenableFuture<Texture> textureFuture;
         try {
-            textureFuture = mImpressApi.loadTexture(path, RuntimeUtils.getTextureSampler(sampler));
+            textureFuture = mImpressApi.loadTexture(path, sampler);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to load texture with error: " + e.getMessage());
             // TODO:b/375070346 - make this method NonNull and set the textureResourceFuture to an
@@ -1075,9 +1075,7 @@ public class JxrPlatformAdapterAxr implements JxrPlatformAdapter {
 
         ListenableFuture<KhronosPbrMaterial> materialFuture;
         try {
-            materialFuture =
-                    mImpressApi.createKhronosPbrMaterial(
-                            RuntimeUtils.getKhronosPbrMaterialSpec(spec));
+            materialFuture = mImpressApi.createKhronosPbrMaterial(spec);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to load Khronos PBR material with error: " + e.getMessage());
             // TODO:b/375070346 - make this method NonNull and set the textureResourceFuture to an

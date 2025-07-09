@@ -237,17 +237,14 @@ internal constructor(
          *
          * @param session The [Session] to use for loading the model.
          * @param isAlphaMapVersion If the water material should be the alpha map version or not.
-         * @return a ListenableFuture<WaterMaterial>. Listeners will be called on the main thread if
-         *   Runnable::run is supplied.
+         * @return a [WaterMaterial] upon completion.
          */
         @MainThread
         @JvmStatic
         @Suppress("AsyncSuffixFuture")
-        public fun create(
-            session: Session,
-            isAlphaMapVersion: Boolean,
-        ): ListenableFuture<WaterMaterial> {
+        public suspend fun create(session: Session, isAlphaMapVersion: Boolean): WaterMaterial {
             return WaterMaterial.createAsync(session.platformAdapter, isAlphaMapVersion, session)
+                .awaitSuspending()
         }
     }
 }

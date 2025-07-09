@@ -21,20 +21,10 @@ import androidx.annotation.RestrictTo
 /**
  * Represents an error thrown when the provider is requested to return the transfer capabilities.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GetCredentialTransferCapabilitiesException(public val type: String, message: String) :
-    Exception(message) {
-    public companion object {
-        /** The request cannot be trusted because the caller is unknown */
-        public const val UNKNOWN_CALLER_TYPE: String =
-            "androidx.credentials.providerevents.exception.GetCredentialTransferCapabilitiesException.UNKNOWN_CALLER_TYPE"
-
-        /** Used by the system when the request fails to reach the provider */
-        public const val SYSTEM_ERROR_TYPE: String =
-            "androidx.credentials.providerevents.exception.GetCredentialTransferCapabilitiesException.SYSTEM_ERROR_TYPE"
-
-        /** The request cannot be processed due to unknown error */
-        public const val UNKNOWN_ERROR_TYPE: String =
-            "androidx.credentials.providerevents.exception.GetCredentialTransferCapabilitiesException.UNKNOWN_ERROR_TYPE"
-    }
-}
+public abstract class GetCredentialTransferCapabilitiesException
+@JvmOverloads
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public open val type: String,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open val errorMessage: CharSequence? = null,
+) : Exception(errorMessage?.toString())

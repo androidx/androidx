@@ -52,7 +52,7 @@ import org.junit.runner.RunWith
 private const val TEST_DOCUMENT_FILE = "sample.pdf"
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
-@SdkSuppress(minSdkVersion = 35)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PdfFastScrollerTest {

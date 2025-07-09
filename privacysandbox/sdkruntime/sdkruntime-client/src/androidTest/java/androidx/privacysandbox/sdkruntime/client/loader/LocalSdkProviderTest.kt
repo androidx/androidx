@@ -45,6 +45,8 @@ import com.google.common.truth.Truth.assertThat
 import dalvik.system.BaseDexClassLoader
 import java.io.File
 import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -93,7 +95,7 @@ internal class LocalSdkProviderTest(
     fun onLoadSdk_callOnLoadSdkAndReturnResult() {
         val params = Bundle()
 
-        val sandboxedSdkCompat = loadedSdk.onLoadSdk(params)
+        val sandboxedSdkCompat = runBlocking(Dispatchers.Main) { loadedSdk.onLoadSdk(params) }
 
         val expectedBinder =
             loadedSdk.extractSdkProviderFieldValue<Binder>(fieldName = "onLoadSdkBinder")
@@ -109,7 +111,10 @@ internal class LocalSdkProviderTest(
         val params = Bundle()
         params.putBoolean("needFail", true)
 
-        val ex = assertThrows(LoadSdkCompatException::class.java) { loadedSdk.onLoadSdk(params) }
+        val ex =
+            assertThrows(LoadSdkCompatException::class.java) {
+                runBlocking(Dispatchers.Main) { loadedSdk.onLoadSdk(params) }
+            }
 
         assertThat(ex.extraInformation).isEqualTo(params)
     }

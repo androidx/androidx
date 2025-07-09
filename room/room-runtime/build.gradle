@@ -83,6 +83,8 @@ androidXMultiplatform {
     jvm()
     linux()
     mac()
+    tvos()
+    watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -110,8 +112,8 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":room:room-common"))
                 api(project(":sqlite:sqlite"))
-                api("androidx.collection:collection:1.4.2")
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.collection:collection:1.5.0")
+                api("androidx.annotation:annotation:1.9.1")
                 api(libs.kotlinCoroutinesCore)
             }
         }
@@ -148,7 +150,7 @@ androidXMultiplatform {
                 implementation("androidx.arch.core:core-runtime:2.2.0")
                 compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
                 compileOnly("androidx.paging:paging-common:2.0.0")
-                implementation("androidx.annotation:annotation-experimental:1.4.1")
+                implementation("androidx.annotation:annotation-experimental:1.5.0")
             }
         }
         androidUnitTest {

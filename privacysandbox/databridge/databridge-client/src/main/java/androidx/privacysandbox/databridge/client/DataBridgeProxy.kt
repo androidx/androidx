@@ -16,21 +16,46 @@
 
 package androidx.privacysandbox.databridge.client
 
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.privacysandbox.databridge.core.Key
+import androidx.privacysandbox.databridge.core.KeyUpdateCallback
 import androidx.privacysandbox.databridge.core.aidl.IDataBridgeProxy
 import androidx.privacysandbox.databridge.core.aidl.IGetValuesResultCallback
+import androidx.privacysandbox.databridge.core.aidl.IKeyUpdateInternalCallback
 import androidx.privacysandbox.databridge.core.aidl.IRemoveValuesResultCallback
 import androidx.privacysandbox.databridge.core.aidl.ISetValuesResultCallback
 import androidx.privacysandbox.databridge.core.aidl.ResultInternal
 import androidx.privacysandbox.databridge.core.aidl.ValueInternal
 import java.lang.IllegalStateException
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class DataBridgeProxy(val dataBridgeClient: DataBridgeClient) : IDataBridgeProxy.Stub() {
+    private val lock = Any()
+    @GuardedBy("lock") private val keyToUuidMap = mutableMapOf<Key, MutableSet<String>>()
+
+    @GuardedBy("lock")
+    private val uuidToKeyUpdateInternalCallbackMap =
+        mutableMapOf<String, IKeyUpdateInternalCallback>()
+
+    private val keyUpdateCallback: KeyUpdateCallback =
+        object : KeyUpdateCallback {
+            override fun onKeyUpdated(key: Key, value: Any?) {
+                val data = ValueInternal(key.type.toString(), value == null, value)
+                synchronized(lock) {
+                    keyToUuidMap[key]?.forEach { uuid ->
+                        uuidToKeyUpdateInternalCallbackMap[uuid]?.onKeyUpdated(key.name, data)
+                    }
+                }
+            }
+        }
+    private val executor: Executor = Executors.newCachedThreadPool()
+
     override fun getValues(
         keyNames: List<String>,
         keyTypes: List<String>,
@@ -84,7 +109,7 @@ internal class DataBridgeProxy(val dataBridgeClient: DataBridgeClient) : IDataBr
     ) {
         val scope = CoroutineScope(Dispatchers.IO)
         scope.launch {
-            var keys = getKeyList(keyNames, keyTypes)
+            val keys = getKeyList(keyNames, keyTypes)
             try {
                 dataBridgeClient.removeValues(keys.toSet())
                 callback.removeValuesResult(/* exceptionName= */ null, /* exceptionMessage= */ null)
@@ -94,6 +119,39 @@ internal class DataBridgeProxy(val dataBridgeClient: DataBridgeClient) : IDataBr
                     /*exceptionMessage =*/ exception.message,
                 )
             }
+        }
+    }
+
+    override fun addKeysForUpdates(
+        uuid: String,
+        keyNames: List<String>,
+        keyTypes: List<String>,
+        callback: IKeyUpdateInternalCallback,
+    ) {
+        val keys = getKeyList(keyNames, keyTypes).toSet()
+        synchronized(lock) {
+            if (!uuidToKeyUpdateInternalCallbackMap.containsKey(uuid)) {
+                uuidToKeyUpdateInternalCallbackMap[uuid] = callback
+            }
+            keys.forEach { key -> keyToUuidMap.getOrPut(key) { mutableSetOf() }.add(uuid) }
+        }
+
+        // This call can be made with different keys with the same callback multiple times
+        dataBridgeClient.registerKeyUpdateCallback(keys, executor, keyUpdateCallback)
+    }
+
+    override fun removeKeysFromUpdates(
+        uuid: String,
+        keyNames: List<String>,
+        keyTypes: List<String>,
+        unregisterCallback: Boolean,
+    ) {
+        val keys = getKeyList(keyNames, keyTypes)
+        synchronized(lock) {
+            if (unregisterCallback) {
+                uuidToKeyUpdateInternalCallbackMap.remove(uuid)
+            }
+            keys.forEach { key -> { keyToUuidMap[key]?.remove(uuid) } }
         }
     }
 

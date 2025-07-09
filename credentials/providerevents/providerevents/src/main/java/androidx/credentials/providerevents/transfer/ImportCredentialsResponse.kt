@@ -17,18 +17,23 @@
 package androidx.credentials.providerevents.transfer
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 
 /**
  * A success response from requesting import.
  *
- * @property responseJson the credential response json according to the CXF format
+ * @property responseJson the credential response json according to the
+ *   [Fido Credential Exchange Format](https://fidoalliance.org/specs/cx/cxf-v1.0-rd-20250313.html)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImportCredentialsResponse(public val responseJson: String) {
     public companion object {
-        @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public fun asBundle(response: ImportCredentialsResponse): Bundle = Bundle()
+        /**
+         * Wraps the response class into a bundle. The responseJson itself isn't written to bundle
+         * because it can potentially exceed the binder size limit. However, any other current or
+         * future parameters of the response will be included as part of the bundle. To share the
+         * credentials,
+         * [File Provider](https://developer.android.com/reference/androidx/core/content/FileProvider)
+         * can be used to share the credentials to another app.
+         */
+        @JvmStatic public fun toBundle(response: ImportCredentialsResponse): Bundle = Bundle()
     }
 }

@@ -169,7 +169,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInvoker` : AppFunctionInvok
           appFunctionContext.context
         )
         .createEnclosingClass(AllPrimitiveInputFunctions::class.java)
-        .simpleFunctionStringList(appFunctionContext, parameters["stringListParam"] as kotlin.collections.List<kotlin.String>)
+        .simpleFunctionStringList(appFunctionContext, @Suppress("UNCHECKED_CAST") (parameters["stringListParam"] as kotlin.collections.List<kotlin.String>))
       }
       "com.testdata.AllPrimitiveInputFunctions#simpleFunctionNullableIntArray" -> {
         ConfigurableAppFunctionFactory<AllPrimitiveInputFunctions>(
@@ -211,7 +211,7 @@ public class `$AllPrimitiveInputFunctions_AppFunctionInvoker` : AppFunctionInvok
           appFunctionContext.context
         )
         .createEnclosingClass(AllPrimitiveInputFunctions::class.java)
-        .simpleFunctionNullableStringList(appFunctionContext, parameters["stringListParam"] as kotlin.collections.List<kotlin.String>?)
+        .simpleFunctionNullableStringList(appFunctionContext, @Suppress("UNCHECKED_CAST") (parameters["stringListParam"] as kotlin.collections.List<kotlin.String>?))
       }
       else -> {
         throw AppFunctionFunctionNotFoundException("Unable to find $functionIdentifier")

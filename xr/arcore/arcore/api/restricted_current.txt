@@ -234,11 +234,9 @@ package androidx.xr.arcore {
   public static final class Face.State {
     ctor public Face.State(androidx.xr.runtime.TrackingState trackingState, float[] blendShapeValues, float[] confidenceValues);
     method public java.util.Map<androidx.xr.runtime.FaceBlendShapeType,java.lang.Float> getBlendShapes();
-    method public float getConfidence();
     method public float getConfidence(int regionIndex);
     method public androidx.xr.runtime.TrackingState getTrackingState();
     property public java.util.Map<androidx.xr.runtime.FaceBlendShapeType,java.lang.Float> blendShapes;
-    property public float confidence;
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 

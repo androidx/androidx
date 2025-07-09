@@ -19,24 +19,10 @@ package androidx.credentials.providerevents.exception
 import androidx.annotation.RestrictTo
 
 /** Represents an error thrown during the import flow. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ImportCredentialsException(public val type: String, message: String) :
-    Exception(message) {
-    public companion object {
-        /** The request json cannot be read because it is written in invalid format */
-        public const val INVALID_JSON_TYPE: String =
-            "androidx.credentials.providerevents.exception.ImportCredentialsException.INVALID_JSON_TYPE"
-
-        /** The request cannot be trusted because the caller is unknown */
-        public const val UNKNOWN_CALLER_TYPE: String =
-            "androidx.credentials.providerevents.exception.ImportCredentialsException.UNKNOWN_CALLER_TYPE"
-
-        /** Used by the system when the request fails to reach the provider */
-        public const val SYSTEM_ERROR_TYPE: String =
-            "androidx.credentials.providerevents.exception.ImportCredentialsException.SYSTEM_ERROR_TYPE"
-
-        /** The credential json cannot be returned due to unknown error */
-        public const val UNKNOWN_ERROR_TYPE: String =
-            "androidx.credentials.providerevents.exception.ImportCredentialsException.UNKNOWN_ERROR_TYPE"
-    }
-}
+public abstract class ImportCredentialsException
+@JvmOverloads
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public open val type: String,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open val errorMessage: CharSequence? = null,
+) : Exception(errorMessage?.toString())

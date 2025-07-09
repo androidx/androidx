@@ -17,6 +17,7 @@
 package androidx.build.clang
 
 import androidx.build.androidExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.SourceDirectories
 import com.android.build.api.variant.Sources
@@ -24,7 +25,6 @@ import com.android.utils.appendCapitalized
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -74,7 +74,7 @@ class NativeLibraryBundler(private val project: Project) {
      * @see CombineObjectFilesTask for details.
      */
     fun addNativeLibrariesToAndroidVariantSources(
-        androidTarget: KotlinAndroidTarget,
+        androidTarget: KotlinMultiplatformAndroidLibraryTarget,
         nativeCompilation: MultiTargetNativeCompilation,
         forTest: Boolean,
         provideSourceDirectories: Sources.() -> (SourceDirectories.Layered?),

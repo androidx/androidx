@@ -17,42 +17,18 @@
 package androidx.build.resources
 
 import androidx.build.getSupportRootFolder
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.LibraryVariant
 import java.io.File
 import org.gradle.api.Project
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
-fun configurePublicResourcesStub(
-    libraryVariant: LibraryVariant,
-    copyPublicResourcesDirTask: TaskProvider<CopyPublicResourcesDirTask>,
-) =
-    libraryVariant.sources.res.also {
-        it?.addGeneratedSourceDirectory(
-            copyPublicResourcesDirTask,
-            CopyPublicResourcesDirTask::outputFolder,
-        )
-    }
-
-fun Project.configurePublicResourcesStub(kmpExtension: KotlinMultiplatformExtension) {
-    val targetRes = project.layout.buildDirectory.dir("generated/res/public-stub")
-
-    val generatePublicResourcesStub =
-        tasks.register("generatePublicResourcesStub", Copy::class.java) { task ->
-            task.from(File(project.getSupportRootFolder(), "buildSrc/res"))
-            task.into(targetRes)
+fun Project.configurePublicResourcesStub(libraryVariant: LibraryVariant) {
+    val copyPublicResourcesDirTask =
+        tasks.register("generatePublicResourcesStub", CopyPublicResourcesDirTask::class.java) { task
+            ->
+            task.buildSrcResDir.set(File(getSupportRootFolder(), "buildSrc/res"))
         }
-    val sourceSet =
-        kmpExtension.targets
-            .withType(KotlinMultiplatformAndroidLibraryTarget::class.java)
-            .single()
-            .compilations
-            .getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-            .defaultSourceSet
-    sourceSet.resources.srcDir(
-        generatePublicResourcesStub.flatMap { project.provider { it.destinationDir } }
+    libraryVariant.sources.res?.addGeneratedSourceDirectory(
+        copyPublicResourcesDirTask,
+        CopyPublicResourcesDirTask::outputFolder,
     )
 }

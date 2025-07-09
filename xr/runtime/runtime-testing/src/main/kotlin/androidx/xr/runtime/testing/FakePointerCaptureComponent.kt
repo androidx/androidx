@@ -20,26 +20,43 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.PointerCaptureComponent
 import androidx.xr.runtime.internal.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.runtime.internal.PointerCaptureComponent.StateListener
+import java.util.concurrent.Executor
 
 /** Test-only implementation of [FakePointerCaptureComponent] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakePointerCaptureComponent() : FakeComponent(), PointerCaptureComponent {
+public class FakePointerCaptureComponent(
     /**
-     * For internal test only.
+     * The executor on which to invoke the [StateListener] callbacks.
      *
-     * The [PointerCaptureState] of pointer capture can be changed by [StateListener].
+     * If this is non-null, listener callbacks will be dispatched via this executor. If it is null,
+     * callbacks will be invoked synchronously on the thread that calls [onStateChanged]. This can
+     * be set in tests to simulate different threading behaviors.
      */
-    internal var pointerCaptureState: Int = PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED
+    internal val executor: Executor? = null,
+    /**
+     * The [StateListener] that receives callbacks upon a simulated pointer capture state change.
+     *
+     * Tests can provide a listener at construction to verify that state changes, triggered via the
+     * [onStateChanged] function, are dispatched correctly. If this is null, calls to
+     * [onStateChanged] will be ignored.
+     */
+    internal val stateListener: StateListener? = null,
+) : FakeComponent(), PointerCaptureComponent {
 
     /**
-     * For internal test only.
+     * Simulates a pointer capture state change event, invoking the registered [stateListener].
      *
-     * The fake version of [StateListener] that demonstrates how to update [pointerCaptureState].
+     * This function is a test utility to manually trigger the state change callback. It respects
+     * the provided [executor], dispatching the callback to it if non-null, or invoking it
+     * synchronously otherwise.
+     *
+     * @param newState The new [PointerCaptureState] to propagate to the listener.
      */
-    internal val stateListener: StateListener =
-        object : StateListener {
-            override fun onStateChanged(@PointerCaptureState newState: Int) {
-                pointerCaptureState = newState
-            }
+    internal fun onStateChanged(@PointerCaptureState newState: Int) {
+        if (stateListener != null) {
+            executor?.let { currentExecutor ->
+                currentExecutor.execute { stateListener.onStateChanged(newState) }
+            } ?: run { stateListener!!.onStateChanged(newState) }
         }
+    }
 }

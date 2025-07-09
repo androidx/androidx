@@ -54,6 +54,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class NavHostScreenShotTest {
     @get:Rule val composeTestRule = createComposeRule()
 

@@ -403,6 +403,16 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.InteractableComponent create(androidx.xr.runtime.Session session, java.util.concurrent.Executor executor, androidx.xr.scenecore.InputEventListener inputEventListener);
   }
 
+  public final class MainPanelEntity extends androidx.xr.scenecore.PanelEntity implements androidx.xr.scenecore.Entity androidx.xr.scenecore.ScenePose {
+    method public void addPerceivedResolutionChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.runtime.math.IntSize2d> listener);
+    method public void addPerceivedResolutionChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.IntSize2d> listener);
+    method public void removePerceivedResolutionChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.IntSize2d> listener);
+    field public static final androidx.xr.scenecore.MainPanelEntity.Companion Companion;
+  }
+
+  public static final class MainPanelEntity.Companion {
+  }
+
   public final class MovableComponent implements androidx.xr.scenecore.Component {
     method public void addMoveListener(androidx.xr.scenecore.EntityMoveListener entityMoveListener);
     method public void addMoveListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.EntityMoveListener entityMoveListener);
@@ -428,6 +438,15 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.MovableComponent createCustomMovable(androidx.xr.runtime.Session session, boolean scaleInZ, java.util.concurrent.Executor? executor, androidx.xr.scenecore.EntityMoveListener entityMoveListener);
     method public androidx.xr.scenecore.MovableComponent createSystemMovable(androidx.xr.runtime.Session session);
     method public androidx.xr.scenecore.MovableComponent createSystemMovable(androidx.xr.runtime.Session session, optional boolean scaleInZ);
+  }
+
+  public final class PanelClippingConfig {
+    ctor public PanelClippingConfig();
+    ctor public PanelClippingConfig(optional boolean isDepthTestEnabled);
+    method public androidx.xr.scenecore.PanelClippingConfig copy();
+    method public androidx.xr.scenecore.PanelClippingConfig copy(optional boolean isDepthTestEnabled);
+    method public boolean isDepthTestEnabled();
+    property public boolean isDepthTestEnabled;
   }
 
   public class PanelEntity implements androidx.xr.scenecore.Entity androidx.xr.scenecore.ScenePose {
@@ -528,6 +547,32 @@ package androidx.xr.scenecore {
     field public static final int WALL = 0; // 0x0
   }
 
+  public final class Scene {
+    ctor public Scene();
+    method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialCapabilities> listener);
+    method public void addSpatialCapabilitiesChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialCapabilities> listener);
+    method public void clearSpatialVisibilityChangedListener();
+    method public <T extends androidx.xr.scenecore.Entity> java.util.List<T> getEntitiesOfType(Class<? extends T> type);
+    method public androidx.xr.scenecore.MainPanelEntity getMainPanelEntity();
+    method public androidx.xr.scenecore.PanelClippingConfig getPanelClippingConfig();
+    method public androidx.xr.scenecore.PerceptionSpace getPerceptionSpace();
+    method public androidx.xr.scenecore.SpatialCapabilities getSpatialCapabilities();
+    method public androidx.xr.scenecore.SpatialEnvironment getSpatialEnvironment();
+    method public androidx.xr.scenecore.SpatialUser getSpatialUser();
+    method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialCapabilities> listener);
+    method public void requestFullSpaceMode();
+    method public void requestHomeSpaceMode();
+    method public void setPanelClippingConfig(androidx.xr.scenecore.PanelClippingConfig);
+    method public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.lang.Integer> listener);
+    method public void setSpatialVisibilityChangedListener(java.util.function.Consumer<java.lang.Integer> listener);
+    property public androidx.xr.scenecore.MainPanelEntity mainPanelEntity;
+    property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
+    property public androidx.xr.scenecore.PerceptionSpace perceptionSpace;
+    property public androidx.xr.scenecore.SpatialCapabilities spatialCapabilities;
+    property public androidx.xr.scenecore.SpatialEnvironment spatialEnvironment;
+    property public androidx.xr.scenecore.SpatialUser spatialUser;
+  }
+
   public interface ScenePose {
     method public androidx.xr.runtime.math.Pose getActivitySpacePose();
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int hitTestFilter, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.HitTestResult>);
@@ -544,12 +589,37 @@ package androidx.xr.scenecore {
     field public static final int SELF_SCENE = 1; // 0x1
   }
 
+  public final class SessionExt {
+    method public static androidx.xr.scenecore.Scene getScene(androidx.xr.runtime.Session);
+    property public static androidx.xr.scenecore.Scene androidx.xr.runtime.Session.scene;
+  }
+
   public final class Space {
     property public static int ACTIVITY;
     property public static int PARENT;
     field public static final int ACTIVITY = 1; // 0x1
     field public static final androidx.xr.scenecore.Space INSTANCE;
     field public static final int PARENT = 0; // 0x0
+  }
+
+  public final class SpatialCapabilities {
+    method public boolean hasCapability(int capability);
+    field public static final androidx.xr.scenecore.SpatialCapabilities.Companion Companion;
+    field public static final int SPATIAL_CAPABILITY_3D_CONTENT = 2; // 0x2
+    field public static final int SPATIAL_CAPABILITY_APP_ENVIRONMENT = 8; // 0x8
+    field public static final int SPATIAL_CAPABILITY_EMBED_ACTIVITY = 32; // 0x20
+    field public static final int SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL = 4; // 0x4
+    field public static final int SPATIAL_CAPABILITY_SPATIAL_AUDIO = 16; // 0x10
+    field public static final int SPATIAL_CAPABILITY_UI = 1; // 0x1
+  }
+
+  public static final class SpatialCapabilities.Companion {
+    property public static int SPATIAL_CAPABILITY_3D_CONTENT;
+    property public static int SPATIAL_CAPABILITY_APP_ENVIRONMENT;
+    property public static int SPATIAL_CAPABILITY_EMBED_ACTIVITY;
+    property public static int SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL;
+    property public static int SPATIAL_CAPABILITY_SPATIAL_AUDIO;
+    property public static int SPATIAL_CAPABILITY_UI;
   }
 
   public final class SpatialEnvironment {
@@ -623,6 +693,18 @@ package androidx.xr.scenecore {
     method public androidx.xr.scenecore.Head? getHead();
     property public java.util.Map<androidx.xr.scenecore.CameraView.CameraType,androidx.xr.scenecore.CameraView> cameraViews;
     property public androidx.xr.scenecore.Head? head;
+  }
+
+  public final class SpatialVisibility {
+    property public static int SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW;
+    property public static int SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW;
+    property public static int SPATIAL_VISIBILITY_UNKNOWN;
+    property public static int SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW;
+    field public static final androidx.xr.scenecore.SpatialVisibility INSTANCE;
+    field public static final int SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW = 1; // 0x1
+    field public static final int SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW = 2; // 0x2
+    field public static final int SPATIAL_VISIBILITY_UNKNOWN = 0; // 0x0
+    field public static final int SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW = 3; // 0x3
   }
 
 }

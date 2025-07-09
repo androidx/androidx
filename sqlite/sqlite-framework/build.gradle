@@ -64,6 +64,8 @@ androidXMultiplatform {
     }
     linux()
     mac()
+    tvos()
+    watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 

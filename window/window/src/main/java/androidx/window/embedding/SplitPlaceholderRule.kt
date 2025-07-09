@@ -42,22 +42,22 @@ import androidx.window.embedding.SplitRule.FinishBehavior.Companion.NEVER
  * [Activity embedding](https://developer.android.com/guide/topics/large-screens/activity-embedding#placeholders)
  * for more information.
  */
-class SplitPlaceholderRule : SplitRule {
+public class SplitPlaceholderRule : SplitRule {
 
     /**
      * Filters used to choose when to apply this rule. The rule may be used if any one of the
      * provided filters matches.
      */
-    val filters: Set<ActivityFilter>
+    public val filters: Set<ActivityFilter>
 
     /** Intent to launch the placeholder activity. */
-    val placeholderIntent: Intent
+    public val placeholderIntent: Intent
 
     /**
      * Determines whether the placeholder will show on top in a smaller window size after it first
      * appeared in a split with sufficient minimum width.
      */
-    val isSticky: Boolean
+    public val isSticky: Boolean
 
     /**
      * Determines what happens with the primary container when all activities are finished in the
@@ -68,7 +68,7 @@ class SplitPlaceholderRule : SplitRule {
      * @see SplitRule.FinishBehavior.ALWAYS
      * @see SplitRule.FinishBehavior.ADJACENT
      */
-    val finishPrimaryWithPlaceholder: FinishBehavior
+    public val finishPrimaryWithPlaceholder: FinishBehavior
 
     internal constructor(
         tag: String? = null,
@@ -109,7 +109,10 @@ class SplitPlaceholderRule : SplitRule {
      *   one of the provided filters matches.
      * @param placeholderIntent Intent to launch the placeholder activity.
      */
-    class Builder(private val filters: Set<ActivityFilter>, private val placeholderIntent: Intent) {
+    public class Builder(
+        private val filters: Set<ActivityFilter>,
+        private val placeholderIntent: Intent,
+    ) {
         private var tag: String? = null
         @IntRange(from = 0) private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0) private var minHeightDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
@@ -147,7 +150,7 @@ class SplitPlaceholderRule : SplitRule {
          * @param minWidthDp the smallest value of width of the parent window when the split should
          *   be used, in DP.
          */
-        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder = apply {
+        public fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder = apply {
             this.minWidthDp = minWidthDp
         }
 
@@ -168,7 +171,7 @@ class SplitPlaceholderRule : SplitRule {
          * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
          * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
          */
-        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder = apply {
+        public fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder = apply {
             this.minHeightDp = minHeightDp
         }
 
@@ -184,9 +187,10 @@ class SplitPlaceholderRule : SplitRule {
          * @param minSmallestWidthDp the smallest value of the smallest possible width of the parent
          *   window in any rotation when the split should be used, in DP.
          */
-        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder = apply {
-            this.minSmallestWidthDp = minSmallestWidthDp
-        }
+        public fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply {
+                this.minSmallestWidthDp = minSmallestWidthDp
+            }
 
         /**
          * Sets the largest value of the aspect ratio, expressed as `height / width` in decimal
@@ -206,7 +210,7 @@ class SplitPlaceholderRule : SplitRule {
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
          * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
-        fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder = apply {
+        public fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder = apply {
             this.maxAspectRatioInPortrait = aspectRatio
         }
 
@@ -228,9 +232,10 @@ class SplitPlaceholderRule : SplitRule {
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
          * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
-        fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder = apply {
-            this.maxAspectRatioInLandscape = aspectRatio
-        }
+        public fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply {
+                this.maxAspectRatioInLandscape = aspectRatio
+            }
 
         /**
          * Sets the behavior of the primary container when all activities are finished in the
@@ -243,10 +248,9 @@ class SplitPlaceholderRule : SplitRule {
          * @see SplitRule.FinishBehavior.ALWAYS
          * @see SplitRule.FinishBehavior.ADJACENT
          */
-        fun setFinishPrimaryWithPlaceholder(finishPrimaryWithPlaceholder: FinishBehavior): Builder =
-            apply {
-                this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder
-            }
+        public fun setFinishPrimaryWithPlaceholder(
+            finishPrimaryWithPlaceholder: FinishBehavior
+        ): Builder = apply { this.finishPrimaryWithPlaceholder = finishPrimaryWithPlaceholder }
 
         /**
          * Sets whether the placeholder will show on top in a smaller window size after it first
@@ -255,7 +259,7 @@ class SplitPlaceholderRule : SplitRule {
          * @param isSticky whether the placeholder will show on top in a smaller window size after
          *   it first appeared in a split with sufficient minimum width.
          */
-        fun setSticky(isSticky: Boolean): Builder = apply { this.isSticky = isSticky }
+        public fun setSticky(isSticky: Boolean): Builder = apply { this.isSticky = isSticky }
 
         /**
          * Sets the default [SplitAttributes] to apply on the activity containers pair when the host
@@ -265,9 +269,10 @@ class SplitPlaceholderRule : SplitRule {
          * @param defaultSplitAttributes the default [SplitAttributes] to apply on the activity
          *   containers pair when the host task bounds satisfy all the rule requirements.
          */
-        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder = apply {
-            this.defaultSplitAttributes = defaultSplitAttributes
-        }
+        public fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply {
+                this.defaultSplitAttributes = defaultSplitAttributes
+            }
 
         /**
          * Sets a unique string to identify this [SplitPlaceholderRule], which defaults to `null`.
@@ -276,14 +281,14 @@ class SplitPlaceholderRule : SplitRule {
          *
          * @param tag unique string to identify this [SplitPlaceholderRule].
          */
-        fun setTag(tag: String?): Builder = apply { this.tag = tag }
+        public fun setTag(tag: String?): Builder = apply { this.tag = tag }
 
         /**
          * Builds a `SplitPlaceholderRule` instance.
          *
          * @return The new `SplitPlaceholderRule` instance.
          */
-        fun build() =
+        public fun build(): SplitPlaceholderRule =
             SplitPlaceholderRule(
                 tag,
                 filters,

@@ -1149,7 +1149,7 @@ fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
  */
 var SemanticsPropertyReceiver.maxTextLength by SemanticsProperties.MaxTextLength
 
-/** The shape of the UI element if it's different from the bounding rectangle. */
+/** The shape of the UI element. */
 var SemanticsPropertyReceiver.shape by SemanticsProperties.Shape
 
 /**

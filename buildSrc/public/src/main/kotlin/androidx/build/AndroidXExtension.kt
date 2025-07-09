@@ -352,6 +352,9 @@ abstract class AndroidXExtension(
         if (deviceTests.enableAlsoRunningOnPhysicalDevices) {
             tags.add("all_run_on_physical_device")
         }
+        if (deviceTests.enableAlsoRunOn16KbPageSizeDevices) {
+            tags.add("all_run_on_16kb_page_size_device")
+        }
         return@lazy tags
     }
 
@@ -484,4 +487,10 @@ abstract class DeviceTests {
      * when run in CI.
      */
     var enableAlsoRunningOnPhysicalDevices = false
+
+    /**
+     * Whether this project's Android on device tests should also run on an Android device that uses
+     * 16KB page size when run in CI.
+     */
+    var enableAlsoRunOn16KbPageSizeDevices = false
 }

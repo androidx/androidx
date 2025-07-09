@@ -19,6 +19,7 @@ package androidx.build.checkapi
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import org.gradle.api.Project
@@ -134,10 +135,17 @@ internal sealed interface CompilationInputs {
                     .single()
             val compilation = target.findCompilation(KotlinCompilation.MAIN_COMPILATION_NAME)
 
+            val bootClasspath =
+                project.files(
+                    project.extensions
+                        .findByType(KotlinMultiplatformAndroidComponentsExtension::class.java)!!
+                        .sdkComponents
+                        .bootClasspath
+                )
             return MultiplatformCompilationInputs.fromCompilation(
                 project = project,
                 compilationProvider = compilation,
-                bootClasspath = project.getAndroidJar(),
+                bootClasspath = bootClasspath,
             )
         }
 

@@ -208,8 +208,6 @@ private class BackgroundNode(
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        if (this@BackgroundNode.shape != RectangleShape) {
-            this.shape = this@BackgroundNode.shape
-        }
+        this.shape = this@BackgroundNode.shape
     }
 }

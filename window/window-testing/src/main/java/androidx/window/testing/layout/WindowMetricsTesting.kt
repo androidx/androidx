@@ -30,7 +30,7 @@ import androidx.window.layout.WindowMetrics
 @Suppress("FunctionName")
 @JvmOverloads
 @JvmName("createWindowMetrics")
-fun TestWindowMetrics(bounds: Rect, density: Float = 1f): WindowMetrics {
+public fun TestWindowMetrics(bounds: Rect, density: Float = 1f): WindowMetrics {
     return WindowMetrics(bounds, density = density)
 }
 
@@ -47,7 +47,7 @@ fun TestWindowMetrics(bounds: Rect, density: Float = 1f): WindowMetrics {
 @Suppress("FunctionName")
 @JvmOverloads
 @JvmName("createWindowMetrics")
-fun TestWindowMetrics(
+public fun TestWindowMetrics(
     left: Int,
     top: Int,
     right: Int,

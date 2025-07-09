@@ -593,6 +593,15 @@ package androidx.compose.ui.graphics {
     method public static androidx.compose.ui.graphics.PixelMap toPixelMap(androidx.compose.ui.graphics.ImageBitmap, optional int startX, optional int startY, optional int width, optional int height, optional int[] buffer, optional int bufferOffset, optional int stride);
   }
 
+  public interface Interpolatable {
+    method public Object? lerp(Object? other, float t);
+    field public static final androidx.compose.ui.graphics.Interpolatable.Companion Companion;
+  }
+
+  public static final class Interpolatable.Companion {
+    method public Object? lerp(Object? a, Object? b, float t);
+  }
+
   @androidx.compose.runtime.Immutable public final class LightingColorFilter extends androidx.compose.ui.graphics.ColorFilter {
     ctor @KotlinOnly public LightingColorFilter(androidx.compose.ui.graphics.Color multiply, androidx.compose.ui.graphics.Color add);
     ctor @BytecodeOnly public LightingColorFilter(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -602,9 +611,10 @@ package androidx.compose.ui.graphics {
     property public androidx.compose.ui.graphics.Color multiply;
   }
 
-  @androidx.compose.runtime.Immutable public final class LinearGradient extends androidx.compose.ui.graphics.ShaderBrush {
+  @androidx.compose.runtime.Immutable public final class LinearGradient extends androidx.compose.ui.graphics.ShaderBrush implements androidx.compose.ui.graphics.Interpolatable {
     method public android.graphics.Shader createShader(long size);
     method @BytecodeOnly public android.graphics.Shader createShader-uvyYCjk(long);
+    method public Object? lerp(Object? other, float t);
     property public androidx.compose.ui.geometry.Size intrinsicSize;
   }
 
@@ -1011,9 +1021,10 @@ package androidx.compose.ui.graphics {
     property public androidx.compose.ui.graphics.PointMode Polygon;
   }
 
-  @androidx.compose.runtime.Immutable public final class RadialGradient extends androidx.compose.ui.graphics.ShaderBrush {
+  @androidx.compose.runtime.Immutable public final class RadialGradient extends androidx.compose.ui.graphics.ShaderBrush implements androidx.compose.ui.graphics.Interpolatable {
     method public android.graphics.Shader createShader(long size);
     method @BytecodeOnly public android.graphics.Shader createShader-uvyYCjk(long);
+    method public Object? lerp(Object? other, float t);
     property public androidx.compose.ui.geometry.Size intrinsicSize;
   }
 
@@ -1096,12 +1107,13 @@ package androidx.compose.ui.graphics {
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-Pq9zytI(long, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.unit.Density);
   }
 
-  @androidx.compose.runtime.Immutable public final class SolidColor extends androidx.compose.ui.graphics.Brush {
+  @androidx.compose.runtime.Immutable public final class SolidColor extends androidx.compose.ui.graphics.Brush implements androidx.compose.ui.graphics.Interpolatable {
     ctor @KotlinOnly public SolidColor(androidx.compose.ui.graphics.Color value);
     ctor @BytecodeOnly public SolidColor(long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void applyTo(long size, androidx.compose.ui.graphics.Paint p, float alpha);
     method @BytecodeOnly public void applyTo-Pq9zytI(long, androidx.compose.ui.graphics.Paint, float);
     method @BytecodeOnly public long getValue-0d7_KjU();
+    method public Object? lerp(Object? other, float t);
     property public androidx.compose.ui.graphics.Color value;
   }
 
@@ -1150,9 +1162,10 @@ package androidx.compose.ui.graphics {
     property public androidx.compose.ui.graphics.StrokeJoin Round;
   }
 
-  @androidx.compose.runtime.Immutable public final class SweepGradient extends androidx.compose.ui.graphics.ShaderBrush {
+  @androidx.compose.runtime.Immutable public final class SweepGradient extends androidx.compose.ui.graphics.ShaderBrush implements androidx.compose.ui.graphics.Interpolatable {
     method public android.graphics.Shader createShader(long size);
     method @BytecodeOnly public android.graphics.Shader createShader-uvyYCjk(long);
+    method public Object? lerp(Object? other, float t);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TileMode {
@@ -1862,6 +1875,10 @@ package androidx.compose.ui.graphics.shadow {
     method public default void clearCache();
     method public default androidx.compose.ui.graphics.shadow.DropShadowPainter createDropShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
     method public default androidx.compose.ui.graphics.shadow.InnerShadowPainter createInnerShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
+  }
+
+  public final class ShadowKt {
+    method public static androidx.compose.ui.graphics.shadow.Shadow? lerp(androidx.compose.ui.graphics.shadow.Shadow? a, androidx.compose.ui.graphics.shadow.Shadow? b, float t);
   }
 
 }

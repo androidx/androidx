@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -28,14 +27,11 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -50,7 +46,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconToggleButtonScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
@@ -61,7 +57,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonEnabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleIconToggleButton() },
         )
@@ -69,7 +65,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonEnabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleIconToggleButton(checked = false) },
         )
@@ -77,7 +73,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonDisabledAndChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleIconToggleButton(enabled = false) },
         )
@@ -85,7 +81,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonDisabledAndUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleIconToggleButton(enabled = false, checked = false) },
         )
@@ -93,7 +89,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun iconToggleButtonWithOffset() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) },
         )
@@ -124,16 +120,13 @@ class IconToggleButtonScreenshotTest {
         rule.mainClock.autoAdvance = false
         rule.mainClock.advanceTimeBy(500)
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(rule = screenshotRule, goldenIdentifier = testName.methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Test
     fun animatedIconToggleButtonChecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleIconToggleButton(
@@ -146,7 +139,7 @@ class IconToggleButtonScreenshotTest {
     @Test
     fun animatedIconToggleButtonUnchecked() =
         rule.verifyScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 sampleIconToggleButton(

@@ -18,6 +18,7 @@ package androidx.wear.protolayout.material3
 
 import androidx.annotation.Dimension
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -26,6 +27,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class MaterialGoldenTest(private val expected: String, private val testCase: RunnerUtils.TestCase) {
     @JvmField
     @Rule

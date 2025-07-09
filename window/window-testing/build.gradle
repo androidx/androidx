@@ -63,6 +63,5 @@ androidx {
     type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager Test Library"
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }

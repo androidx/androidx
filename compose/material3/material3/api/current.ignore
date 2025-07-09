@@ -21,6 +21,10 @@ AddedAbstractMethod: androidx.compose.material3.NavigationDrawerItemColors#textC
     Binary breaking change: Added method androidx.compose.material3.NavigationDrawerItemColors.textColor(boolean,androidx.compose.runtime.Composer,int)
 
 
+ChangedDefault: androidx.compose.material3.pulltorefresh.PullToRefreshState#isAnimating():
+    Binary breaking change: Method androidx.compose.material3.pulltorefresh.PullToRefreshState.isAnimating has changed 'default' qualifier
+
+
 RemovedClass: androidx.compose.material3.ExposedDropdownMenu_androidKt:
     Binary breaking change: Removed class androidx.compose.material3.ExposedDropdownMenu_androidKt
 RemovedClass: androidx.compose.material3.MenuAnchorType:

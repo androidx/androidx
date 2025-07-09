@@ -75,14 +75,6 @@ public class Face internal constructor(internal val runtimeFace: RuntimeFace) : 
             get() = FaceBlendShapeType.values().zip(blendShapeValues.toList()).toMap()
 
         /**
-         * Represents an overall average confidence of the face tracker's results.
-         *
-         * @return the average of all of the face tracker's confidence values.
-         */
-        public val confidence: Float =
-            confidenceValues.let { if (it.size == 0) 0f else it.sum() / it.size }
-
-        /**
          * Gets the confidence value of the face tracker at the specified region index.
          *
          * @param regionIndex the index of the region to get the confidence value for.

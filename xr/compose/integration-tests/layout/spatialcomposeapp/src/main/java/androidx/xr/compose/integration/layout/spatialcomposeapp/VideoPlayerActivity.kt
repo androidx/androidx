@@ -44,6 +44,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -127,12 +129,14 @@ class VideoPlayerActivity : ComponentActivity() {
     private val videoPlayingState = mutableStateOf(false)
     private val mediaUriState: MutableState<Uri?> = mutableStateOf(null)
     private val useDrmState = mutableStateOf(false)
+    private val rotateSphereVideoState = mutableStateOf(false)
 
     private var oldFeatheringType = FeatheringType.PERCENT
     private val drmLicenseUrl = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
     private val drmVideoUri =
         Environment.getExternalStorageDirectory().path + "/Download/sdr_singleview_protected.mp4"
-    private val REQUEST_READ_MEDIA_VIDEO: Int = 1
+    private val defaultVideoUri =
+        Environment.getExternalStorageDirectory().path + "/Download/vid_bigbuckbunny.mp4"
     private var exoPlayer: ExoPlayer? = null
 
     private val pickMedia =
@@ -158,6 +162,12 @@ class VideoPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+
+        val file = File(defaultVideoUri)
+        if (file.exists()) {
+            mediaUriState.value = Uri.fromFile(file)
+        }
+
         setContent { Subspace { VideoOptionsContent(session) } }
     }
 
@@ -214,8 +224,12 @@ class VideoPlayerActivity : ComponentActivity() {
                         animationSpec = tween(durationMillis = 2000, easing = FastOutLinearInEasing),
                     )
                 }
+                var modifier = SubspaceModifier.offset(z = animatedOffset.value.dp)
+                if (rotateSphereVideoState.value) {
+                    modifier = modifier.rotate(Vector3(z = 1f), 15f)
+                }
                 SpatialExternalSurface180Hemisphere(
-                    modifier = SubspaceModifier.offset(z = animatedOffset.value.dp),
+                    modifier = modifier,
                     stereoMode = stereoMode,
                     radius = animatedRadius.value.dp,
                     featheringEffect = getFeatheringEffect(featheringValue, featheringType),
@@ -243,6 +257,9 @@ class VideoPlayerActivity : ComponentActivity() {
             }
         } else if (videoPlaying && surfaceType == SpatialExternalSurfaceType.SPHERE) {
             SpatialExternalSurface360Sphere(
+                modifier =
+                    if (rotateSphereVideoState.value) SubspaceModifier.rotate(Vector3(z = 1f), 15f)
+                    else SubspaceModifier,
                 stereoMode = stereoMode,
                 featheringEffect = getFeatheringEffect(featheringValue, featheringType),
                 surfaceProtection =
@@ -353,7 +370,10 @@ class VideoPlayerActivity : ComponentActivity() {
                                 }
                             }
                             VideoMenuState.VIDEO_IN_SPATIAL_EXTERNAL_SURFACE -> {
-                                Column(modifier = Modifier.padding(24.dp)) {
+                                val scrollState = rememberScrollState()
+                                Column(
+                                    modifier = Modifier.padding(24.dp).verticalScroll(scrollState)
+                                ) {
                                     Button(
                                         onClick = {
                                             videoPlayingState.value = false
@@ -454,6 +474,23 @@ class VideoPlayerActivity : ComponentActivity() {
                                             }
                                         ) {
                                             Text("Sphere")
+                                        }
+                                    }
+
+                                    if (
+                                        surfaceType == SpatialExternalSurfaceType.HEMISPHERE ||
+                                            surfaceType == SpatialExternalSurfaceType.SPHERE
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("Rotate sphere video and child content")
+                                            Switch(
+                                                modifier = Modifier.padding(start = 8.dp),
+                                                checked = rotateSphereVideoState.value,
+                                                onCheckedChange = {
+                                                    rotateSphereVideoState.value =
+                                                        !rotateSphereVideoState.value
+                                                },
+                                            )
                                         }
                                     }
 

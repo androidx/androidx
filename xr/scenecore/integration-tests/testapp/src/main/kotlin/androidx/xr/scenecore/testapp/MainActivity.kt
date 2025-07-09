@@ -27,6 +27,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.xr.runtime.Session
+import androidx.xr.scenecore.testapp.accessibilitytest.AccessibilityTestActivity
 import androidx.xr.scenecore.testapp.activitypanel.ActivityPanelActivity
 import androidx.xr.scenecore.testapp.anchorentity.AnchorEntityActivity
 import androidx.xr.scenecore.testapp.common.createSession
@@ -119,6 +120,7 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.cuj_spatial_audio_setting_pointsourceparams_test),
                 getString(R.string.cuj_panel_rounded_corner),
                 getString(R.string.cuj_hit_test),
+                getString(R.string.cuj_accessibility_test),
             )
         val customAdapter = TestCasesRecyclerViewAdapter(dataset)
         val recyclerView: RecyclerView = findViewById(R.id.cuj_buttons_recycler)
@@ -217,6 +219,9 @@ class MainActivity : AppCompatActivity() {
 
             Tests.DIGITAL_HIT_TEST.test -> startActivity(createIntent<HitTestActivity>())
 
+            Tests.ACCESSIBILITY_TEST.test ->
+                startActivity(createIntent<AccessibilityTestActivity>())
+
             else -> {
                 Log.i(ACTIVITY_NAME, "DO_NOTHING")
             }
@@ -251,5 +256,6 @@ class MainActivity : AppCompatActivity() {
         SPATIAL_AUDIO_3_TEST(18),
         PANEL_ROUNDED_CORNER_TEST(19),
         DIGITAL_HIT_TEST(20),
+        ACCESSIBILITY_TEST(21),
     }
 }

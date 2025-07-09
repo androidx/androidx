@@ -100,6 +100,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRail {
                 WideNavigationRailItem(
+                    railExpanded = false,
                     modifier = Modifier.testTag("item"),
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
@@ -123,6 +124,7 @@ class WideNavigationRailTest {
                 WideNavigationRail {
                     repeat(3) { index ->
                         WideNavigationRailItem(
+                            railExpanded = false,
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
@@ -259,6 +261,7 @@ class WideNavigationRailTest {
 
             WideNavigationRail {
                 WideNavigationRailItem(
+                    railExpanded = false,
                     selected = true,
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
@@ -266,6 +269,7 @@ class WideNavigationRailTest {
                     onClick = {},
                 )
                 WideNavigationRailItem(
+                    railExpanded = false,
                     selected = false,
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
@@ -273,6 +277,7 @@ class WideNavigationRailTest {
                     onClick = {},
                 )
                 WideNavigationRailItem(
+                    railExpanded = false,
                     enabled = false,
                     selected = false,
                     colors = customItemColors,
@@ -291,6 +296,7 @@ class WideNavigationRailTest {
             WideNavigationRail {
                 repeat(3) { index ->
                     WideNavigationRailItem(
+                        railExpanded = false,
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         label = { Text("Item $index") },
                         selected = selectedItem == index,
@@ -324,6 +330,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
                 modifier = Modifier.testTag("item"),
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
@@ -345,6 +352,7 @@ class WideNavigationRailTest {
             WideNavigationRailItem(
                 enabled = false,
                 modifier = Modifier.testTag("item"),
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
@@ -365,6 +373,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
                 modifier = Modifier.testTag("item"),
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
                 label = null,
                 selected = false,
@@ -385,6 +394,7 @@ class WideNavigationRailTest {
             WideNavigationRailItem(
                 enabled = false,
                 modifier = Modifier.testTag("item"),
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
@@ -403,6 +413,7 @@ class WideNavigationRailTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("Long\nLabel\nMultiple\nLines") },
                 selected = true,
@@ -425,6 +436,7 @@ class WideNavigationRailTest {
             defaultHeight = LocalMinimumInteractiveComponentSize.current
             WideNavigationRailItem(
                 iconPosition = NavigationItemIconPosition.Start,
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("Long\nLabel\nMultiple\nLines") },
                 selected = true,
@@ -444,6 +456,7 @@ class WideNavigationRailTest {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
                 modifier = Modifier.testTag("item"),
+                railExpanded = false,
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                 label = null,
                 selected = true,
@@ -480,6 +493,7 @@ class WideNavigationRailTest {
 
             WideNavigationRail {
                 WideNavigationRailItem(
+                    railExpanded = false,
                     colors = customColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
                     label = {
@@ -490,6 +504,7 @@ class WideNavigationRailTest {
                     onClick = {},
                 )
                 WideNavigationRailItem(
+                    railExpanded = false,
                     colors = customColors,
                     icon = {
                         Truth.assertThat(LocalContentColor.current)
@@ -509,6 +524,7 @@ class WideNavigationRailTest {
             WideNavigationRail(header = { Box(Modifier.testTag("header").size(10.dp)) }) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
+                    railExpanded = false,
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
@@ -546,6 +562,7 @@ class WideNavigationRailTest {
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
+                    railExpanded = false,
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
@@ -579,6 +596,7 @@ class WideNavigationRailTest {
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
+                    railExpanded = false,
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,

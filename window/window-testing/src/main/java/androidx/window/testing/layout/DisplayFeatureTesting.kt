@@ -34,12 +34,12 @@ import androidx.window.testing.layout.FoldingFeatureTestingConstants.FOLDING_FEA
 /**
  * A class to contain all the constants related to testing [androidx.window.layout.DisplayFeature]s.
  */
-object FoldingFeatureTestingConstants {
+public object FoldingFeatureTestingConstants {
     /**
-     * A constant that denotes the center of a [androidx.window.layout.FoldingFeature] should be
-     * calculated the aligned with either the vertical or horizontal center of the given window.
+     * A constant that denotes the center of a [FoldingFeature] should be calculated the aligned
+     * with either the vertical or horizontal center of the given window.
      */
-    const val FOLDING_FEATURE_CENTER_DEFAULT = -1
+    public const val FOLDING_FEATURE_CENTER_DEFAULT: Int = -1
 }
 
 /**
@@ -70,7 +70,7 @@ object FoldingFeatureTestingConstants {
  */
 @JvmOverloads
 @JvmName("createFoldingFeature")
-fun FoldingFeature(
+public fun FoldingFeature(
     activity: Activity,
     @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
@@ -116,7 +116,7 @@ fun FoldingFeature(
  */
 @JvmOverloads
 @JvmName("createFoldingFeature")
-fun FoldingFeature(
+public fun FoldingFeature(
     windowBounds: Rect,
     @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,

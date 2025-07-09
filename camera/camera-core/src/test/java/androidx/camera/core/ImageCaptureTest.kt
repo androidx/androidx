@@ -19,6 +19,7 @@ package androidx.camera.core
 import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -142,7 +143,7 @@ class ImageCaptureTest {
             FakeCamera("1", null, FakeCameraInfoInternal("1", CameraSelector.LENS_FACING_FRONT))
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _, _, _ ->
+            CameraFactory.Provider { _, _, _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) { camera }
                 cameraFactory.insertDefaultFrontCamera(cameraFront.cameraInfoInternal.cameraId) {
@@ -410,7 +411,12 @@ class ImageCaptureTest {
 
     @Test
     fun canGetSupportedOutputFormats_fromOriginalCameraInfo() {
-        val cameraInfo = FakeCameraInfoInternal()
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                setAvailableCapabilities(
+                    setOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
+                )
+            }
         cameraInfo.setSupportedResolutions(ImageFormat.JPEG, listOf())
         cameraInfo.setSupportedResolutions(ImageFormat.RAW_SENSOR, listOf())
 
@@ -424,7 +430,12 @@ class ImageCaptureTest {
 
     @Test
     fun canGetSupportedOutputFormats_fromAdapterCameraInfo_notOverwriteOutputFormats() {
-        val cameraInfo = FakeCameraInfoInternal()
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                setAvailableCapabilities(
+                    setOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
+                )
+            }
         cameraInfo.setSupportedResolutions(ImageFormat.JPEG, listOf())
         cameraInfo.setSupportedResolutions(ImageFormat.RAW_SENSOR, listOf())
 
@@ -441,7 +452,12 @@ class ImageCaptureTest {
 
     @Test
     fun canGetSupportedOutputFormats_fromAdapterCameraInfo_overwriteRawNotSupported() {
-        val cameraInfo = FakeCameraInfoInternal()
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                setAvailableCapabilities(
+                    setOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
+                )
+            }
         cameraInfo.setSupportedResolutions(ImageFormat.JPEG, listOf())
         cameraInfo.setSupportedResolutions(ImageFormat.RAW_SENSOR, listOf())
 
@@ -972,14 +988,6 @@ class ImageCaptureTest {
 
         assertThat((imageCapture.currentConfig as ImageCaptureConfig).postviewResolutionSelector)
             .isSameInstanceAs(resolutionSelector)
-    }
-
-    @Test
-    fun canSetMeteringRepeatingDisabled() {
-        val imageCapture = ImageCapture.Builder().setMeteringRepeatingEnabled(false).build()
-
-        assertThat((imageCapture.currentConfig as ImageCaptureConfig).isMeteringRepeatingEnabled)
-            .isFalse()
     }
 
     @SdkSuppress(minSdkVersion = 23)

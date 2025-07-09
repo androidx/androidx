@@ -354,9 +354,7 @@ internal class BorderModifierNode(
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        if (this@BorderModifierNode.shape != RectangleShape) {
-            this.shape = this@BorderModifierNode.shape
-        }
+        shape = this@BorderModifierNode.shape
     }
 }
 

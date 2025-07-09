@@ -160,7 +160,11 @@ constructor(
     }
 
     override fun getOffset(index: Int) =
-        IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+        if (index == 0 && placeablesCount == 0) {
+            if (isVertical) IntOffset(0, offset) else IntOffset(offset, 0)
+        } else {
+            IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
+        }
 
     fun applyScrollDelta(delta: Int, updateAnimations: Boolean) {
         if (nonScrollableItem) {

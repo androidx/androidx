@@ -80,6 +80,5 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoIntents)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(project(":tracing:tracing"))
     androidTestImplementation(libs.testUiautomator)
 }

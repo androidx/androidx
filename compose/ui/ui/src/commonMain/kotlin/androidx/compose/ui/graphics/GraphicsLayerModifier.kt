@@ -731,17 +731,29 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
         if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
 
         val coordinator = requireCoordinator(Nodes.Layout)
+        val shape: Shape
+        val clip: Boolean
         if (!coordinator.wasLayerBlockInvoked) {
             // If this is the first time semantics is invalidated, we read the properties
             // directly from the layer block, as the layout phase has not happened yet.
             val layerScope = ReusableGraphicsLayerScope()
             layerBlock.invoke(layerScope)
-            applyShapeSemantics(layerScope.shape, layerScope.clip)
+            shape = layerScope.shape
+            clip = layerScope.clip
         } else {
             // If this is not the first time semantics is invalidated, the properties are
             // already available in the coordinator, so we don't need to invoke the layer block.
-            applyShapeSemantics(coordinator.lastShape, coordinator.lastClip)
+            shape = coordinator.lastShape
+            clip = coordinator.lastClip
         }
+
+        if (!clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may just be drawing
+            // a shape without it actually representing the boundary of the UI element.
+            return
+        }
+
+        this.shape = shape
     }
 }
 
@@ -837,17 +849,12 @@ private class SimpleGraphicsLayerModifier(
         @OptIn(ExperimentalComposeUiApi::class)
         if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
 
-        applyShapeSemantics(
-            this@SimpleGraphicsLayerModifier.shape,
-            this@SimpleGraphicsLayerModifier.clip,
-        )
-    }
-}
+        if (!this@SimpleGraphicsLayerModifier.clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may just be drawing
+            // a shape without it actually representing the boundary of the UI element.
+            return
+        }
 
-private fun SemanticsPropertyReceiver.applyShapeSemantics(shape: Shape, clip: Boolean) {
-    // We only set the shape if clip == true, as otherwise the modifier may just be drawing a shape
-    // without it actually representing the boundary of the UI element.
-    if (clip && shape != RectangleShape) {
-        this.shape = shape
+        this.shape = this@SimpleGraphicsLayerModifier.shape
     }
 }

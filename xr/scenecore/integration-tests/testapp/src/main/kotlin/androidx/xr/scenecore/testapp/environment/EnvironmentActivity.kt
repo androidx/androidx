@@ -35,7 +35,12 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.ExrImage
 import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.KhronosPbrMaterial
+import androidx.xr.scenecore.KhronosPbrMaterialSpec
+import androidx.xr.scenecore.Material
 import androidx.xr.scenecore.SpatialEnvironment
+import androidx.xr.scenecore.Texture
+import androidx.xr.scenecore.TextureSampler
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.EventType
@@ -66,6 +71,9 @@ class EnvironmentActivity : AppCompatActivity() {
     private lateinit var blueSkybox: ExrImage
     private lateinit var groundGeometry: GltfModel
     private lateinit var rockGeometry: GltfModel
+    private lateinit var dragonGeometry: GltfModel
+    private lateinit var khronosPbrMaterial: KhronosPbrMaterial
+    private lateinit var patternTexture: Texture
     private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
         null
 
@@ -128,8 +136,8 @@ class EnvironmentActivity : AppCompatActivity() {
 
         // Add other handlers
         lifecycleScope.launch {
-            // load images and models
-            loadExrImagesAndModels()
+            // load environment resources
+            loadResources()
 
             // add skybox handlers
             skyBoxButtonHandlers()
@@ -175,8 +183,20 @@ class EnvironmentActivity : AppCompatActivity() {
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to NIGHT")
         }
 
-        // handle unset geometry
+        // handle animated with mesh override geometry
         findViewById<Button>(R.id.environment_button3_3).setOnClickListener {
+            setGeoAndSkybox(
+                spatialEnvironmentPreference?.skybox,
+                dragonGeometry,
+                khronosPbrMaterial,
+                "Dragon",
+                "Fast_Flying",
+            )
+            addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to DRAGON")
+        }
+
+        // handle unset geometry
+        findViewById<Button>(R.id.environment_button3_4).setOnClickListener {
             setGeoAndSkybox(spatialEnvironmentPreference?.skybox, null)
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry unset")
         }
@@ -216,16 +236,45 @@ class EnvironmentActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun loadExrImagesAndModels() {
+    private suspend fun loadResources() {
         this.greySkybox = ExrImage.createFromZip(session!!, Paths.get("skyboxes", "GreySkybox.zip"))
         this.blueSkybox = ExrImage.createFromZip(session!!, Paths.get("skyboxes", "BlueSkybox.zip"))
         this.groundGeometry = GltfModel.create(session!!, Paths.get("models", "GroundGeometry.glb"))
         this.rockGeometry = GltfModel.create(session!!, Paths.get("models", "RocksGeometry.glb"))
+        this.dragonGeometry =
+            GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
+        this.patternTexture =
+            Texture.create(session!!, Paths.get("textures", "pattern.png"), TextureSampler.create())
+        val spec =
+            KhronosPbrMaterialSpec.create(
+                lightingModel = KhronosPbrMaterialSpec.LightingModel.LIT,
+                blendMode = KhronosPbrMaterialSpec.BlendMode.OPAQUE,
+                doubleSidedMode = KhronosPbrMaterialSpec.DoubleSidedMode.SINGLE_SIDED,
+            )
+        this.khronosPbrMaterial = KhronosPbrMaterial.create(session!!, spec)
+        this.khronosPbrMaterial.setBaseColorTexture(patternTexture)
     }
 
-    private fun setGeoAndSkybox(skybox: ExrImage?, geometry: GltfModel?) {
-        spatialEnvironmentPreference =
-            SpatialEnvironment.SpatialEnvironmentPreference(skybox, geometry)
+    private fun setGeoAndSkybox(
+        skybox: ExrImage?,
+        geometry: GltfModel?,
+        material: Material? = null,
+        meshName: String? = null,
+        animationName: String? = null,
+    ) {
+        if (material == null && meshName == null && animationName == null) {
+            spatialEnvironmentPreference =
+                SpatialEnvironment.SpatialEnvironmentPreference(skybox, geometry)
+        } else {
+            spatialEnvironmentPreference =
+                SpatialEnvironment.SpatialEnvironmentPreference(
+                    skybox,
+                    geometry,
+                    material,
+                    meshName,
+                    animationName,
+                )
+        }
         session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
             spatialEnvironmentPreference
     }

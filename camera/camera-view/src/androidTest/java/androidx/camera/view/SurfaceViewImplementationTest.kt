@@ -23,13 +23,12 @@ import android.widget.FrameLayout
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.ParameterizedTestConfigUtil
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -38,16 +37,21 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
-class SurfaceViewImplementationTest {
+@RunWith(Parameterized::class)
+class SurfaceViewImplementationTest(name: String) {
 
     companion object {
         private const val ANY_WIDTH = 640
         private const val ANY_HEIGHT = 480
         private val ANY_SIZE: Size by lazy { Size(ANY_WIDTH, ANY_HEIGHT) }
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun data() =
+            ParameterizedTestConfigUtil.generateInLabRequiredTestDefaultParameterizedTestConfigs()
     }
 
     private lateinit var mParent: FrameLayout

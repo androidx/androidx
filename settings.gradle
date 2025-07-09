@@ -880,6 +880,7 @@ includeProject(":metrics:metrics-integration-tests", "metrics/integration-tests"
 includeProject(":metrics:metrics-integration-tests:janktest", "metrics/integration-tests/janktest", [BuildType.MAIN])
 includeProject(":navigationevent:navigationevent", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigationevent:navigationevent-compose", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":navigationevent:navigationevent-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-benchmark", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-common", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.KMP])
 includeProject(":navigation:navigation-common-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.KMP])

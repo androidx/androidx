@@ -29,12 +29,6 @@ dependencies {
     implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
     implementation 'com.google.android.gms:play-services-cam-feature-combo-query:16.0.0-beta01'
 
-    testImplementation(libs.testRunner)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.truth)
-    testImplementation(libs.testRules)
-    testImplementation(libs.testCore)
-
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -58,6 +52,5 @@ androidx {
     inceptionYear = "2024"
     description = "Camera feature combination components for the Camera Library, a " +
             "library providing camera feature combination with Google Play Services dependencies."
-    enableRobolectric()
     kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

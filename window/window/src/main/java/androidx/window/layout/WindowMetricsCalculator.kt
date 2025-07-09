@@ -29,7 +29,7 @@ import androidx.window.core.Bounds
 import androidx.window.layout.util.WindowMetricsCompatHelper
 
 /** An interface to calculate the [WindowMetrics] for an [Activity] or a [UiContext]. */
-interface WindowMetricsCalculator {
+public interface WindowMetricsCalculator {
 
     /**
      * Computes the size and position of the area the window would occupy with
@@ -64,7 +64,7 @@ interface WindowMetricsCalculator {
      * @see android.view.WindowManager.getCurrentWindowMetrics
      * @see android.view.WindowMetrics.getBounds
      */
-    fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
+    public fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics
 
     /**
      * Computes the size and position of the area the window would occupy with
@@ -79,7 +79,7 @@ interface WindowMetricsCalculator {
      *   is guaranteed to implement this method.
      * @see [computeCurrentWindowMetrics]
      */
-    fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+    public fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeCurrentWindowMetrics(context) and" + " provide an implementation."
         )
@@ -95,7 +95,7 @@ interface WindowMetricsCalculator {
      *
      * @see android.view.WindowManager.getMaximumWindowMetrics
      */
-    fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
+    public fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics
 
     /**
      * Computes the maximum size and position of the area the window can expect with
@@ -114,31 +114,31 @@ interface WindowMetricsCalculator {
      *   is guaranteed to implement this method.
      * @see [computeMaximumWindowMetrics]
      */
-    fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+    public fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
         throw NotImplementedError(
             "Must override computeMaximumWindowMetrics(context) and" + " provide an implementation."
         )
     }
 
-    companion object {
+    public companion object {
 
         private var decorator: (WindowMetricsCalculator) -> WindowMetricsCalculator = { it }
         private val windowMetricsCalculatorCompat = WindowMetricsCalculatorCompat()
 
         @JvmStatic
-        fun getOrCreate(): WindowMetricsCalculator {
+        public fun getOrCreate(): WindowMetricsCalculator {
             return decorator(windowMetricsCalculatorCompat)
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowMetricsCalculatorDecorator) {
             decorator = overridingDecorator::decorate
         }
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun reset() {
+        public fun reset() {
             decorator = { it }
         }
 
@@ -165,8 +165,8 @@ interface WindowMetricsCalculator {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface WindowMetricsCalculatorDecorator {
+public interface WindowMetricsCalculatorDecorator {
 
     /** Returns an instance of [WindowMetricsCalculator] */
-    fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
+    public fun decorate(calculator: WindowMetricsCalculator): WindowMetricsCalculator
 }

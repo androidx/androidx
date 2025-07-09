@@ -99,6 +99,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private MutableLiveData<CameraState> mCameraStateMutableLiveData;
 
     private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
+    private final Set<Integer> mAvailableCapabilities = new HashSet<>();
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
     // Leave uninitialized to support camera-core:1.0.0 dependencies.
@@ -578,6 +579,19 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @Nullable CameraUseCaseAdapterProvider getCameraUseCaseAdapterProvider() {
         return mCameraUseCaseAdapterProvider;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public @NonNull Set<@NonNull Integer> getAvailableCapabilities() {
+        return new HashSet<>(mAvailableCapabilities);
+    }
+
+    /** Sets the capabilities available for a camera. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setAvailableCapabilities(@NonNull Set<@NonNull Integer> availableCapabilities) {
+        mAvailableCapabilities.clear();
+        mAvailableCapabilities.addAll(availableCapabilities);
     }
 
     static final class FakeExposureState implements ExposureState {

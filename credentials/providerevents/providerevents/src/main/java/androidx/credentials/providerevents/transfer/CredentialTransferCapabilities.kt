@@ -24,29 +24,29 @@ import androidx.annotation.RestrictTo
  *
  * @property totalNumCredentials the total number of credentials the provider holds
  * @property numPasswords the number of passwords the provider holds
- * @property numPasskeys the number of passkeys the provider holds
+ * @property numPublicKeyCredentials the number of public key credentials the provider holds
  * @property totalSizeBytes the total size of credentials the provider will export
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CredentialTransferCapabilities(
     public val totalNumCredentials: Int,
     public val numPasswords: Int,
-    public val numPasskeys: Int,
+    public val numPublicKeyCredentials: Int,
     public val totalSizeBytes: Long,
 ) {
     public companion object {
         private const val TOTAL_NUM_CREDENTIALS_KEY = "TOTAL_NUM_CREDENTIALS"
         private const val NUM_PASSWORDS_KEY = "NUM_PASSWORDS"
-        private const val NUM_PASSKEYS_KEY = "NUM_PASSKEYS"
+        private const val NUM_PUBLIC_KEY_CREDENTIALS_KEY = "NUM_PUBLIC_KEY_CREDENTIALS_KEY"
         private const val TOTAL_SIZE_BYTES_KEY = "TOTAL_SIZE_BYTES"
 
+        /** Wraps the response class into a bundle */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public fun asBundle(capabilities: CredentialTransferCapabilities): Bundle =
+        public fun toBundle(capabilities: CredentialTransferCapabilities): Bundle =
             Bundle().apply {
                 putInt(TOTAL_NUM_CREDENTIALS_KEY, capabilities.totalNumCredentials)
                 putInt(NUM_PASSWORDS_KEY, capabilities.numPasswords)
-                putInt(NUM_PASSKEYS_KEY, capabilities.numPasskeys)
+                putInt(NUM_PUBLIC_KEY_CREDENTIALS_KEY, capabilities.numPublicKeyCredentials)
                 putLong(TOTAL_SIZE_BYTES_KEY, capabilities.totalSizeBytes)
             }
     }

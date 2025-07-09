@@ -18,6 +18,7 @@ package androidx.compose.foundation.shape
 
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Interpolatable
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
@@ -37,7 +38,7 @@ abstract class CornerBasedShape(
     val topEnd: CornerSize,
     val bottomEnd: CornerSize,
     val bottomStart: CornerSize,
-) : Shape {
+) : Shape, Interpolatable {
 
     final override fun createOutline(
         size: Size,
@@ -108,6 +109,9 @@ abstract class CornerBasedShape(
         bottomEnd: CornerSize = this.bottomEnd,
         bottomStart: CornerSize = this.bottomStart,
     ): CornerBasedShape
+
+    /** Default implementation. Returns null. Override this to get interpolatable benefits. */
+    override fun lerp(other: Any?, t: Float): Any? = null
 
     /**
      * Creates a copy of this Shape with a new corner size.

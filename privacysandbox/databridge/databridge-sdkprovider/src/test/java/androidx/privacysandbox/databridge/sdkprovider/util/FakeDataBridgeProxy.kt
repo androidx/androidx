@@ -18,6 +18,7 @@ package androidx.privacysandbox.databridge.sdkprovider.util
 
 import androidx.privacysandbox.databridge.core.aidl.IDataBridgeProxy
 import androidx.privacysandbox.databridge.core.aidl.IGetValuesResultCallback
+import androidx.privacysandbox.databridge.core.aidl.IKeyUpdateInternalCallback
 import androidx.privacysandbox.databridge.core.aidl.IRemoveValuesResultCallback
 import androidx.privacysandbox.databridge.core.aidl.ISetValuesResultCallback
 import androidx.privacysandbox.databridge.core.aidl.ResultInternal
@@ -29,6 +30,8 @@ class FakeDataBridgeProxy(
     private val exceptionMessage: String? = null,
     private val resultInternals: List<ResultInternal> = emptyList(),
 ) : IDataBridgeProxy.Stub() {
+
+    var keyUpdateInternalCallback: IKeyUpdateInternalCallback? = null
 
     override fun getValues(
         keyNames: List<String>,
@@ -60,5 +63,23 @@ class FakeDataBridgeProxy(
         } else {
             callback.removeValuesResult(/* exceptionName= */ null, /* exceptionMessage= */ null)
         }
+    }
+
+    override fun addKeysForUpdates(
+        uuid: String,
+        keyNames: List<String>,
+        keyTypes: List<String>,
+        callback: IKeyUpdateInternalCallback,
+    ) {
+        // TODO(b/423805466) Implement this as part of DataBridgeSdkProvider
+    }
+
+    override fun removeKeysFromUpdates(
+        uuid: String,
+        keyNames: List<String>,
+        keyTypes: List<String>,
+        unregisterCallback: Boolean,
+    ) {
+        // TODO(b/423805466) Implement this as part of DataBridgeSdkProvider
     }
 }

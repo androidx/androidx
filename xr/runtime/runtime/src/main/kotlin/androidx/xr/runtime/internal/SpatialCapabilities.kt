@@ -45,7 +45,7 @@ public class SpatialCapabilities(public val capabilities: Int) {
     internal annotation class SpatialCapability
 
     public fun hasCapability(@SpatialCapability capability: Int): Boolean =
-        (capabilities and capability) != 0
+        (capabilities and capability) == capability
 
     public companion object {
         /** The activity can spatialize itself by e.g. adding a spatial panel. */

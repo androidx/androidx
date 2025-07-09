@@ -361,7 +361,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_gravity="center|center_vertical"
                         android:gravity="center"
                         android:layout_marginTop="10dp"
@@ -370,11 +370,20 @@
                         android:layout_marginEnd="40dp">
                         <Button
                             android:id="@+id/button_launch_settings_app"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/launch_settings_app_in_fsm"
                             android:background="@drawable/test_button"
+                            android:layout_marginBottom="10dp"
+                            android:textSize="18sp"
+                            android:textFontWeight="400" />
+                        <Button
+                            android:id="@+id/button_launch_settings_app_with_env_inherited"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/launch_settings_app_in_fsm_with_environment_inherited"
+                            android:background="@drawable/test_button"
+                            android:layout_marginTop="10dp"
                             android:textSize="18sp"
                             android:textFontWeight="400" />
                     </LinearLayout>

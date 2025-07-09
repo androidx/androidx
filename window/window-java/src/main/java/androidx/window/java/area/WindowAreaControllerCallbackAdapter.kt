@@ -30,13 +30,13 @@ import kotlinx.coroutines.flow.Flow
 
 /** An adapter for [WindowAreaController] to provide callback APIs. */
 @ExperimentalWindowApi
-class WindowAreaControllerCallbackAdapter
+public class WindowAreaControllerCallbackAdapter
 private constructor(
     private val controller: WindowAreaController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) : WindowAreaController() {
 
-    constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
+    public constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
 
     /**
      * Registers a listener that is interested in the current list of [WindowAreaInfo] available to
@@ -50,7 +50,7 @@ private constructor(
      * @see WindowAreaController.transferActivityToWindowArea
      * @see WindowAreaController.presentContentOnWindowArea
      */
-    fun addWindowAreaInfoListListener(
+    public fun addWindowAreaInfoListListener(
         executor: Executor,
         listener: Consumer<List<WindowAreaInfo>>,
     ) {
@@ -65,7 +65,7 @@ private constructor(
      * @see WindowAreaController.transferActivityToWindowArea
      * @see WindowAreaController.presentContentOnWindowArea
      */
-    fun removeWindowAreaInfoListListener(listener: Consumer<List<WindowAreaInfo>>) {
+    public fun removeWindowAreaInfoListListener(listener: Consumer<List<WindowAreaInfo>>) {
         callbackToFlowAdapter.disconnect(listener)
     }
 
@@ -77,7 +77,7 @@ private constructor(
         activity: Activity,
         executor: Executor,
         windowAreaSessionCallback: WindowAreaSessionCallback,
-    ) =
+    ): Unit =
         controller.transferActivityToWindowArea(
             token,
             activity,
@@ -90,7 +90,7 @@ private constructor(
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
-    ) =
+    ): Unit =
         controller.presentContentOnWindowArea(
             token,
             activity,

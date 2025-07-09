@@ -36,7 +36,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
@@ -52,7 +51,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
@@ -73,15 +71,11 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.test.screenshot.matchers.BitmapMatcher
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -382,30 +376,6 @@ internal fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = D
         // Comparison failed, report the error in DPs
         throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-internal fun ComposeContentTestRule.verifyScreenshot(
-    methodName: String,
-    screenshotRule: AndroidXScreenshotTestRule,
-    testTag: String = TEST_TAG,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    matcher: BitmapMatcher = MSSIMMatcher(),
-    content: @Composable () -> Unit,
-) {
-    setContentWithTheme {
-        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            ) {
-                content()
-            }
-        }
-    }
-
-    onNodeWithTag(testTag)
-        .captureToImage()
-        .assertAgainstGolden(screenshotRule, methodName, matcher = matcher)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

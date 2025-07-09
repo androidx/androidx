@@ -231,9 +231,9 @@ fun CircularProgressCustomisableFullScreenDemo() {
         )
 
         CircularProgressIndicator(
-            progress = { progress.value },
-            startAngle = startAngle.value,
-            endAngle = endAngle.value,
+            progress = { progress.floatValue },
+            startAngle = startAngle.floatValue,
+            endAngle = endAngle.floatValue,
             enabled = enabled.value,
             allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
@@ -284,10 +284,10 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
         )
 
         SegmentedCircularProgressIndicator(
-            segmentCount = numSegments.value,
-            progress = { progress.value },
-            startAngle = startAngle.value,
-            endAngle = endAngle.value,
+            segmentCount = numSegments.intValue,
+            progress = { progress.floatValue },
+            startAngle = startAngle.floatValue,
+            endAngle = endAngle.floatValue,
             enabled = enabled.value,
             allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,

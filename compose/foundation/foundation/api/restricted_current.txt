@@ -1904,7 +1904,7 @@ package androidx.compose.foundation.shape {
     method @BytecodeOnly public static androidx.compose.foundation.shape.AbsoluteRoundedCornerShape AbsoluteRoundedCornerShape-a9UjIt4(float, float, float, float);
   }
 
-  public abstract class CornerBasedShape implements androidx.compose.ui.graphics.Shape {
+  public abstract class CornerBasedShape implements androidx.compose.ui.graphics.Interpolatable androidx.compose.ui.graphics.Shape {
     ctor public CornerBasedShape(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
     method public final androidx.compose.foundation.shape.CornerBasedShape copy(androidx.compose.foundation.shape.CornerSize all);
     method public abstract androidx.compose.foundation.shape.CornerBasedShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
@@ -1916,6 +1916,7 @@ package androidx.compose.foundation.shape {
     method public final androidx.compose.foundation.shape.CornerSize getBottomStart();
     method public final androidx.compose.foundation.shape.CornerSize getTopEnd();
     method public final androidx.compose.foundation.shape.CornerSize getTopStart();
+    method public Object? lerp(Object? other, float t);
     property public final androidx.compose.foundation.shape.CornerSize bottomEnd;
     property public final androidx.compose.foundation.shape.CornerSize bottomStart;
     property public final androidx.compose.foundation.shape.CornerSize topEnd;

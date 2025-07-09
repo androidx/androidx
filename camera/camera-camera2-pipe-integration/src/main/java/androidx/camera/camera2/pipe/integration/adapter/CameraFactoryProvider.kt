@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Timestamps.measureNow
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.internal.StreamSpecsCalculator
@@ -47,6 +48,7 @@ public class CameraFactoryProvider(
         threadConfig: CameraThreadConfig,
         availableCamerasLimiter: CameraSelector?,
         cameraOpenRetryMaxTimeoutInMs: Long,
+        cameraXConfig: CameraXConfig?,
         streamSpecsCalculator: StreamSpecsCalculator,
     ): CameraFactory {
 

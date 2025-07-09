@@ -48,7 +48,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -140,7 +139,6 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 26) // b/318971623
     fun focusedViewViewInLinearLayout() {
         // Arrange.
         setContent {
@@ -163,7 +161,6 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
         }
     }
 
-    @SdkSuppress(minSdkVersion = O) // b/318971623
     @Test
     fun focusedComposableViewInLinearLayout() {
         // Arrange.

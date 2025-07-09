@@ -30,7 +30,7 @@ import org.junit.runners.model.Statement
  * [WindowSdkExtensions] properties for instrumentation tests. Overriding the device's extensions
  * version to a higher version may lead to unexpected test failures or even app crash.
  */
-class WindowSdkExtensionsRule : TestRule {
+public class WindowSdkExtensionsRule : TestRule {
 
     private val fakeWindowSdkExtensions = FakeWindowSdkExtensions()
 
@@ -63,7 +63,7 @@ class WindowSdkExtensionsRule : TestRule {
      *
      * @param version The extension version to override.
      */
-    fun overrideExtensionVersion(@IntRange(from = 0) version: Int) {
+    public fun overrideExtensionVersion(@IntRange(from = 0) version: Int) {
         fakeWindowSdkExtensions.overrideExtensionVersion(version)
     }
 }

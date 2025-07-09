@@ -27,12 +27,15 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.ui.test"
+        androidResources.enable = true
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -137,11 +140,6 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.test"
 }
 
 androidx {

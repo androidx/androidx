@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -50,7 +49,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(TestParameterInjector::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @OptIn(ExperimentalTextApi::class)
 class TypographyScreenshotTest {
     @get:Rule val rule = createComposeRule()
@@ -429,7 +428,7 @@ class TypographyScreenshotTest {
 
     private fun verifyTypographyScreenshot(content: @Composable () -> Unit) {
         rule.verifyScreenshot(
-            methodName = testName.goldenIdentifier(),
+            testName = testName,
             screenshotRule = screenshotRule,
             content = { content() },
         )

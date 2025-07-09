@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.HEAD_TRACKING" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="com.android.extensions.xr.INHERIT_FSM_ENV" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -81,6 +82,9 @@
             android:exported="true" />
         <activity
             android:name=".hittest.HitTestActivity"
+            android:exported="true" />
+        <activity
+            android:name=".accessibilitytest.AccessibilityTestActivity"
             android:exported="true" />
         <property
             android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"

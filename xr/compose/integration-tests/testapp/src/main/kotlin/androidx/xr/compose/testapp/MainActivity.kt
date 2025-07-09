@@ -81,6 +81,7 @@ import androidx.xr.compose.testapp.rotation.Rotation
 import androidx.xr.compose.testapp.spatialcompose.SpatialCompose
 import androidx.xr.compose.testapp.spatialelevation.SpatialElevation
 import androidx.xr.compose.testapp.splitengine.SplitEngine
+import androidx.xr.compose.testapp.ui.components.FpsCounterScreen
 import androidx.xr.compose.testapp.ui.components.TestCaseButton
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple40
@@ -184,13 +185,14 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun BottomBar() {
-        Box {
+        Box(contentAlignment = Alignment.CenterStart) {
             BottomAppBar(
                 actions = {},
                 contentColor = Color.White,
                 containerColor = Purple40,
                 tonalElevation = 5.dp,
             )
+            FpsCounterScreen()
         }
     }
 

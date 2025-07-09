@@ -1813,8 +1813,10 @@ package androidx.compose.ui.text.style {
   public static final class LineHeightStyle.Mode.Companion {
     method @BytecodeOnly public int getFixed-lzQqcRY();
     method @BytecodeOnly public int getMinimum-lzQqcRY();
+    method @BytecodeOnly public int getTight-lzQqcRY();
     property public androidx.compose.ui.text.style.LineHeightStyle.Mode Fixed;
     property public androidx.compose.ui.text.style.LineHeightStyle.Mode Minimum;
+    property public androidx.compose.ui.text.style.LineHeightStyle.Mode Tight;
   }
 
   @kotlin.jvm.JvmInline public static final value class LineHeightStyle.Trim {

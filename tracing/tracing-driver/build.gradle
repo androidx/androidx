@@ -77,16 +77,6 @@ androidXMultiplatform {
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        // Make sure to opt-in to expect-actual classes.
-        // https://youtrack.jetbrains.com/issue/KT-61573
-        freeCompilerArgs += [
-                "-Xexpect-actual-classes",
-        ]
-    }
-}
-
 androidx {
     name = "Tracing Driver"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS

@@ -128,7 +128,16 @@ public class CameraXConfigTest {
     }
 
     @Test
-    public void canSetGetQuirkSettings() {
+    public void canGetRepeatingStreamEnabled() {
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder()
+                .setRepeatingStreamForced(false)
+                .build();
+
+        assertThat(cameraXConfig.isRepeatingStreamForced()).isFalse();
+    }
+
+    @Test
+    public void canGetGetQuirkSettings() {
         QuirkSettings quirkSettings = QuirkSettings.withAllQuirksDisabled();
         CameraXConfig cameraXConfig = new CameraXConfig.Builder()
                 .setQuirkSettings(quirkSettings)

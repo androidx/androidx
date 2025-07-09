@@ -18,6 +18,7 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +41,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -318,7 +320,7 @@ class ScaffoldTest {
     }
 
     @Test
-    fun no_initial_room_for_bottom_button() {
+    fun no_initial_room_for_edge_button() {
         var spaceAvailable: Int = Int.MAX_VALUE
 
         rule.setContentWithTheme {
@@ -329,7 +331,7 @@ class ScaffoldTest {
                     timeTextColor = Color.Red,
                 ) {
                     BoxWithConstraints {
-                        // Check how much space we have for the bottom button
+                        // Check how much space we have for the edge button
                         spaceAvailable = constraints.maxHeight
                     }
                 }
@@ -340,7 +342,7 @@ class ScaffoldTest {
     }
 
     @Test
-    fun no_initial_room_for_bottom_button_wear_lazy_column() {
+    fun no_initial_room_for_edge_button_wear_lazy_column() {
         var spaceAvailable: Int = Int.MAX_VALUE
 
         rule.setContentWithTheme {
@@ -351,7 +353,7 @@ class ScaffoldTest {
                     timeTextColor = Color.Red,
                 ) {
                     BoxWithConstraints {
-                        // Check how much space we have for the bottom button
+                        // Check how much space we have for the edge button
                         spaceAvailable = constraints.maxHeight
                     }
                 }
@@ -362,7 +364,7 @@ class ScaffoldTest {
     }
 
     @Test
-    fun plenty_of_room_for_bottom_button_after_scroll() {
+    fun plenty_of_room_for_edge_button_after_scroll() {
         var spaceAvailable: Int = Int.MAX_VALUE
         var expectedSpace = 0f
 
@@ -379,7 +381,7 @@ class ScaffoldTest {
                     timeTextColor = Color.Red,
                     itemsCount = 10,
                 ) {
-                    // Check how much space we have for the bottom button
+                    // Check how much space we have for the edge button
                     BoxWithConstraints { spaceAvailable = constraints.maxHeight }
                 }
             }
@@ -394,7 +396,7 @@ class ScaffoldTest {
     }
 
     @Test
-    fun no_initial_room_for_bottom_button_lc() {
+    fun no_initial_room_for_edge_button_lc() {
         var spaceAvailable: Int = Int.MAX_VALUE
 
         rule.setContentWithTheme {
@@ -402,7 +404,7 @@ class ScaffoldTest {
             Box(Modifier.size(300.dp)) {
                 TestEdgeButtonLazyColumn {
                     BoxWithConstraints {
-                        // Check how much space we have for the bottom button
+                        // Check how much space we have for the edge button
                         spaceAvailable = constraints.maxHeight
                     }
                 }
@@ -412,13 +414,105 @@ class ScaffoldTest {
         assertEquals(0, spaceAvailable)
     }
 
-    @Test fun no_room_for_bottom_button_after_scroll_lc() = check_bottom_button_lc(0.dp)
+    @Test fun no_room_for_edge_button_after_scroll_lc() = check_edge_button_lc(0.dp)
 
     @Test
-    fun some_room_for_bottom_button_after_scroll_lc() =
-        check_bottom_button_lc(50.dp, itemsCount = 10)
+    fun some_room_for_edge_button_after_scroll_lc() = check_edge_button_lc(50.dp, itemsCount = 10)
 
-    private fun check_bottom_button_lc(
+    @Test
+    fun big_room_for_edge_button_after_scroll_reversed_slc() = check_edge_button_reversed_slc(75.dp)
+
+    @Test
+    fun some_room_for_edge_button_after_scroll_reversed_slc() =
+        check_edge_button_reversed_slc(50.dp)
+
+    /*
+     * Setup a  AppScaffold + ScreenScaffold(with a EdgeButton slot) + ScalingLazyColumn
+     * Check that when we scroll all the way down, there is no space for the edge button, and when
+     * we scroll all the way up, there is the expected space (equal to verticalPadding)
+     */
+    private fun check_edge_button_reversed_slc(verticalPadding: Dp) {
+        var spaceAvailable: Int = Int.MAX_VALUE
+        var expectedSpace: Float = Float.MAX_VALUE
+        val screenSize = 300.dp
+
+        rule.setContentWithTheme {
+            expectedSpace = with(LocalDensity.current) { verticalPadding.toPx().coerceAtLeast(0f) }
+
+            Box(Modifier.size(screenSize)) {
+                TestEdgeButtonScalingLazyColumn(
+                    verticalPadding = verticalPadding,
+                    itemsCount = 10,
+                    reverseLayout = true,
+                ) {
+                    // Check how much space we have for the edge button
+                    BoxWithConstraints { spaceAvailable = constraints.maxHeight }
+                }
+            }
+        }
+
+        // Scroll all the way down
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeDown() } }
+        rule.waitForIdle()
+
+        // Use floats so we can specify a pixel of tolerance.
+        assertThat(spaceAvailable.toFloat()).isWithin(1f).of(0f)
+
+        // Scroll all the way up
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeUp() } }
+        rule.waitForIdle()
+
+        // Use floats so we can specify a pixel of tolerance.
+        assertThat(spaceAvailable.toFloat()).isWithin(1f).of(expectedSpace)
+    }
+
+    @Test
+    fun no_room_for_edge_button_after_scroll_reversed_lc() = check_edge_button_reversed_lc(0.dp)
+
+    @Test
+    fun some_room_for_edge_button_after_scroll_reversed_lc() = check_edge_button_reversed_lc(50.dp)
+
+    /*
+     * Setup a  AppScaffold + ScreenScaffold(with a EdgeButton slot) + LazyColumn
+     * Check that when we scroll all the way down, there is no space for the edge button, and when
+     * we scroll all the way up, there is the expected space (equal to verticalPadding)
+     */
+    private fun check_edge_button_reversed_lc(verticalPadding: Dp) {
+        var spaceAvailable: Int = Int.MAX_VALUE
+        var expectedSpace: Float = Float.MAX_VALUE
+        val screenSize = 300.dp
+
+        rule.setContentWithTheme {
+            expectedSpace = with(LocalDensity.current) { verticalPadding.toPx().coerceAtLeast(0f) }
+
+            Box(Modifier.size(screenSize)) {
+                TestEdgeButtonLazyColumn(
+                    verticalPadding = verticalPadding,
+                    itemsCount = 10,
+                    reverseLayout = true,
+                ) {
+                    // Check how much space we have for the edge button
+                    BoxWithConstraints { spaceAvailable = constraints.maxHeight }
+                }
+            }
+        }
+
+        // Scroll all the way down
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeDown() } }
+        rule.waitForIdle()
+
+        // Use floats so we can specify a pixel of tolerance.
+        assertThat(spaceAvailable.toFloat()).isWithin(1f).of(0f)
+
+        // Scroll all the way up
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeUp() } }
+        rule.waitForIdle()
+
+        // Use floats so we can specify a pixel of tolerance.
+        assertThat(spaceAvailable.toFloat()).isWithin(1f).of(expectedSpace)
+    }
+
+    private fun check_edge_button_lc(
         verticalPadding: Dp = 0.dp,
         itemsCount: Int = DEFAULT_ITEMS_COUNT,
     ) {
@@ -431,7 +525,7 @@ class ScaffoldTest {
 
             Box(Modifier.size(screenSize)) {
                 TestEdgeButtonLazyColumn(verticalPadding, itemsCount) {
-                    // Check how much space we have for the bottom button
+                    // Check how much space we have for the edge button
                     BoxWithConstraints { spaceAvailable = constraints.maxHeight }
                 }
             }
@@ -587,6 +681,7 @@ class ScaffoldTest {
     private fun TestEdgeButtonLazyColumn(
         verticalPadding: Dp = 0.dp,
         itemsCount: Int = DEFAULT_ITEMS_COUNT,
+        reverseLayout: Boolean = false,
         @Suppress("ComposableLambdaParameterNaming")
         edgeButton: @Composable BoxScope.() -> Unit = {},
     ) {
@@ -602,6 +697,37 @@ class ScaffoldTest {
                     state = scrollState,
                     modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = verticalPadding),
+                    reverseLayout = reverseLayout,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(itemsCount) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun TestEdgeButtonScalingLazyColumn(
+        verticalPadding: Dp = 0.dp,
+        itemsCount: Int = DEFAULT_ITEMS_COUNT,
+        reverseLayout: Boolean = false,
+        @Suppress("ComposableLambdaParameterNaming")
+        edgeButton: @Composable BoxScope.() -> Unit = {},
+    ) {
+        AppScaffold {
+            val scrollState = rememberScalingLazyListState()
+            ScreenScaffold(
+                modifier = Modifier.testTag(TEST_TAG),
+                scrollState = scrollState,
+                edgeButton = edgeButton,
+                edgeButtonSpacing = 0.dp,
+            ) {
+                ScalingLazyColumn(
+                    state = scrollState,
+                    autoCentering = null,
+                    modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = verticalPadding),
+                    reverseLayout = reverseLayout,
                 ) {
                     items(itemsCount) { Button(onClick = {}, label = { Text("Item ${it + 1}") }) }
                 }
@@ -613,7 +739,6 @@ class ScaffoldTest {
 
     @Composable
     fun BoxWithConstraints(onPlaced: TestConstraintsScope.() -> Unit) {
-
         Box(
             modifier =
                 Modifier.fillMaxSize().layout { measurable, constraints ->

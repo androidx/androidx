@@ -52,7 +52,7 @@ androidXMultiplatform {
                 implementation(project(":paging:paging-common"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinSerializationCore)
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
             }
         }
         androidInstrumentedTest {

@@ -149,14 +149,15 @@ internal class ScreenContent(private val appTimeText: @Composable (() -> Unit)?)
 @Composable
 internal fun AnimatedIndicator(
     isVisible: () -> Boolean,
-    animationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
+    modifier: Modifier = Modifier,
+    animationSpec: AnimationSpec<Float>? = INDICATOR_FADE_OUT_ANIMATION,
     content: @Composable (BoxScope.() -> Unit)? = null,
 ) {
     // Skip if no indicator provided
     content?.let { pageIndicator ->
         if (animationSpec == null) {
             // if no animationSpec is provided then indicator will always be visible
-            Box(modifier = Modifier.fillMaxSize(), content = pageIndicator)
+            Box(modifier = modifier, content = pageIndicator)
         } else {
             // if animationSpec is provided this will be used to fade out indicator
             val alphaValue = remember { mutableFloatStateOf(0f) }
@@ -176,7 +177,7 @@ internal fun AnimatedIndicator(
                 }
             }
             Box(
-                modifier = Modifier.fillMaxSize().graphicsLayer { alpha = alphaValue.floatValue },
+                modifier = modifier.graphicsLayer { alpha = alphaValue.floatValue },
                 content = pageIndicator,
             )
         }
@@ -223,3 +224,6 @@ internal object AnimationCoordinator {
     private val registeredCount = AtomicInteger(0)
     private var running by mutableStateOf(false)
 }
+
+internal val INDICATOR_FADE_OUT_ANIMATION: AnimationSpec<Float> =
+    spring(stiffness = Spring.StiffnessMediumLow)

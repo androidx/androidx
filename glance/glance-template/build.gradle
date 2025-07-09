@@ -48,23 +48,6 @@ dependencies {
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
-
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRules)
-    testImplementation(libs.testRunner)
-    testImplementation(libs.truth)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.kotlinReflect)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
-    testImplementation("androidx.datastore:datastore-core:1.0.0")
-    testImplementation("androidx.datastore:datastore-preferences-core:1.0.0")
-    testImplementation("androidx.datastore:datastore-preferences:1.0.0")
-    testImplementation("androidx.room:room-runtime:2.4.3")
-    testImplementation("androidx.work:work-testing:2.7.1")
-    testImplementation("com.google.android.material:material:1.6.0")
 }
 
 android {
@@ -80,5 +63,4 @@ androidx {
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
-    enableRobolectric()
 }

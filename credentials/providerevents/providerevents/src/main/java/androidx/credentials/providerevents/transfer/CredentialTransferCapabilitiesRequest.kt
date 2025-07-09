@@ -16,7 +16,5 @@
 
 package androidx.credentials.providerevents.transfer
 
-import androidx.annotation.RestrictTo
-
-/** a request for the state of the provider's credentials that can be exported */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class CredentialTransferCapabilitiesRequest()
+/** A request for the state of the provider's credentials that can be exported */
+public class CredentialTransferCapabilitiesRequest()

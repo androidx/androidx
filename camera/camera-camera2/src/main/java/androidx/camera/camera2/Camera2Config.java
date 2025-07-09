@@ -65,7 +65,8 @@ public final class Camera2Config {
                         .setCameraFactoryProvider(cameraFactoryProvider)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider)
-                        .setConfigImplType(CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2);
+                        .setConfigImplType(CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2)
+                        .setRepeatingStreamForced(true);
 
         return appConfigBuilder.build();
     }

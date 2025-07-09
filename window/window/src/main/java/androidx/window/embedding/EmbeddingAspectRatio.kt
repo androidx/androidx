@@ -24,7 +24,7 @@ import androidx.annotation.FloatRange
  * @see SplitRule.maxAspectRatioInPortrait
  * @see SplitRule.maxAspectRatioInLandscape
  */
-class EmbeddingAspectRatio
+public class EmbeddingAspectRatio
 private constructor(
     /** The description of this `EmbeddingAspectRatio`. */
     internal val description: String,
@@ -36,7 +36,7 @@ private constructor(
      */
     internal val value: Float,
 ) {
-    override fun toString() = "EmbeddingAspectRatio($description)"
+    override fun toString(): String = "EmbeddingAspectRatio($description)"
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
@@ -44,9 +44,9 @@ private constructor(
         return value == other.value && description == other.description
     }
 
-    override fun hashCode() = description.hashCode() + 31 * value.hashCode()
+    override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
-    companion object {
+    public companion object {
         /**
          * For max aspect ratio, when the aspect ratio is greater than this value, it means to
          * disallow embedding.
@@ -62,7 +62,7 @@ private constructor(
          * @see ALWAYS_DISALLOW for always disallow embedding.
          */
         @JvmStatic
-        fun ratio(
+        public fun ratio(
             @FloatRange(from = 1.0, fromInclusive = false) ratio: Float
         ): EmbeddingAspectRatio {
             require(ratio > 1) { "Ratio must be greater than 1." }
@@ -75,7 +75,8 @@ private constructor(
          * An example use case is to set it on [SplitRule.maxAspectRatioInLandscape] if the app
          * wants to always allow embedding as split when the parent window is in landscape.
          */
-        @JvmField val ALWAYS_ALLOW = EmbeddingAspectRatio("ALWAYS_ALLOW", 0f)
+        @JvmField
+        public val ALWAYS_ALLOW: EmbeddingAspectRatio = EmbeddingAspectRatio("ALWAYS_ALLOW", 0f)
 
         /**
          * Gets the special [EmbeddingAspectRatio] to represent it always disallows embedding.
@@ -83,7 +84,9 @@ private constructor(
          * An example use case is to set it on [SplitRule.maxAspectRatioInPortrait] if the app wants
          * to disallow embedding as split when the parent window is in portrait.
          */
-        @JvmField val ALWAYS_DISALLOW = EmbeddingAspectRatio("ALWAYS_DISALLOW", -1f)
+        @JvmField
+        public val ALWAYS_DISALLOW: EmbeddingAspectRatio =
+            EmbeddingAspectRatio("ALWAYS_DISALLOW", -1f)
 
         /** Returns a [EmbeddingAspectRatio] with the given [value]. */
         internal fun buildAspectRatioFromValue(value: Float): EmbeddingAspectRatio {

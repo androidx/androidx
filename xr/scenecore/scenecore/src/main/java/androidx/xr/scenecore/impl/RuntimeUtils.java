@@ -26,7 +26,6 @@ import androidx.xr.runtime.internal.Entity;
 import androidx.xr.runtime.internal.HitTestResult;
 import androidx.xr.runtime.internal.InputEvent;
 import androidx.xr.runtime.internal.InputEvent.HitInfo;
-import androidx.xr.runtime.internal.KhronosPbrMaterialSpec;
 import androidx.xr.runtime.internal.PixelDimensions;
 import androidx.xr.runtime.internal.PlaneSemantic;
 import androidx.xr.runtime.internal.PlaneType;
@@ -35,7 +34,6 @@ import androidx.xr.runtime.internal.SpatialCapabilities;
 import androidx.xr.runtime.internal.SpatialPointerIcon;
 import androidx.xr.runtime.internal.SpatialPointerIconType;
 import androidx.xr.runtime.internal.SpatialVisibility;
-import androidx.xr.runtime.internal.TextureSampler;
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
@@ -440,167 +438,6 @@ final class RuntimeUtils {
                                 + " enabled.");
                 return 1.0f;
             }
-        }
-    }
-
-    /**
-     * Converts from JXR Core's TextureSampler to Impress' API bindings TextureSampler.
-     *
-     * @param sampler a {@link androidx.xr.scenecore.TextureSampler} instance to be converted.
-     */
-    static com.google.ar.imp.apibindings.TextureSampler getTextureSampler(
-            @NonNull TextureSampler sampler) {
-        return new com.google.ar.imp.apibindings.TextureSampler.Builder()
-                .setMinFilter(getMinFilter(sampler.getMinFilter()))
-                .setMagFilter(getMagFilter(sampler.getMagFilter()))
-                .setWrapModeS(getWrapMode(sampler.getWrapModeS()))
-                .setWrapModeT(getWrapMode(sampler.getWrapModeT()))
-                .setWrapModeR(getWrapMode(sampler.getWrapModeR()))
-                .setCompareMode(getCompareModeValue(sampler.getCompareMode()))
-                .setCompareFunc(getCompareFuncValue(sampler.getCompareFunc()))
-                .setAnisotropyLog2(sampler.getAnisotropyLog2())
-                .build();
-    }
-
-    private static com.google.ar.imp.apibindings.TextureSampler.WrapMode getWrapMode(
-            @TextureSampler.WrapMode int wrapMode) {
-        switch (wrapMode) {
-            case TextureSampler.CLAMP_TO_EDGE:
-                return com.google.ar.imp.apibindings.TextureSampler.WrapMode.CLAMP_TO_EDGE;
-            case TextureSampler.REPEAT:
-                return com.google.ar.imp.apibindings.TextureSampler.WrapMode.REPEAT;
-            case TextureSampler.MIRRORED_REPEAT:
-                return com.google.ar.imp.apibindings.TextureSampler.WrapMode.MIRRORED_REPEAT;
-            default:
-                throw new IllegalArgumentException("Unknown WrapMode value: " + wrapMode);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.TextureSampler.MinFilter getMinFilter(
-            @TextureSampler.MinFilter int minFilter) {
-        switch (minFilter) {
-            case TextureSampler.NEAREST:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter.NEAREST;
-            case TextureSampler.LINEAR:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter.LINEAR;
-            case TextureSampler.NEAREST_MIPMAP_NEAREST:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter
-                        .NEAREST_MIPMAP_NEAREST;
-            case TextureSampler.LINEAR_MIPMAP_NEAREST:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter.LINEAR_MIPMAP_NEAREST;
-            case TextureSampler.NEAREST_MIPMAP_LINEAR:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter.NEAREST_MIPMAP_LINEAR;
-            case TextureSampler.LINEAR_MIPMAP_LINEAR:
-                return com.google.ar.imp.apibindings.TextureSampler.MinFilter.LINEAR_MIPMAP_LINEAR;
-            default:
-                throw new IllegalArgumentException("Unknown MinFilter value: " + minFilter);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.TextureSampler.MagFilter getMagFilter(
-            @TextureSampler.MagFilter int magFilter) {
-        switch (magFilter) {
-            case TextureSampler.MAG_NEAREST:
-                return com.google.ar.imp.apibindings.TextureSampler.MagFilter.NEAREST;
-            case TextureSampler.MAG_LINEAR:
-                return com.google.ar.imp.apibindings.TextureSampler.MagFilter.LINEAR;
-            default:
-                throw new IllegalArgumentException("Unknown MagFilter value: " + magFilter);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.TextureSampler.CompareMode getCompareModeValue(
-            @TextureSampler.CompareMode int compareMode) {
-        switch (compareMode) {
-            case TextureSampler.NONE:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareMode.NONE;
-            case TextureSampler.COMPARE_TO_TEXTURE:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareMode.COMPARE_TO_TEXTURE;
-            default:
-                throw new IllegalArgumentException("Unknown CompareMode value: " + compareMode);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.TextureSampler.CompareFunc getCompareFuncValue(
-            @TextureSampler.CompareFunc int compareFunc) {
-        switch (compareFunc) {
-            case TextureSampler.LE:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.LE;
-            case TextureSampler.GE:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.GE;
-            case TextureSampler.L:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.L;
-            case TextureSampler.G:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.G;
-            case TextureSampler.E:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.E;
-            case TextureSampler.NE:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.NE;
-            case TextureSampler.A:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.A;
-            case TextureSampler.N:
-                return com.google.ar.imp.apibindings.TextureSampler.CompareFunc.N;
-            default:
-                throw new IllegalArgumentException("Unknown CompareFunc value: " + compareFunc);
-        }
-    }
-
-    /**
-     * Converts from JXR Core's KhronosPbrMaterialSpec to Impress' API bindings
-     * KhronosPbrMaterialSpec.
-     *
-     * @param spec a {@link com.google.vr.androidx.xr.core.KhronosPbrMaterialSpec} instance to be
-     *     converted.
-     */
-    static com.google.ar.imp.apibindings.KhronosPbrMaterialSpec getKhronosPbrMaterialSpec(
-            @NonNull KhronosPbrMaterialSpec spec) {
-        return new com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.Builder()
-                .setLightingModel(getLightingModel(spec.getLightingModel()))
-                .setBlendMode(getBlendMode(spec.getBlendMode()))
-                .setDoubleSidedMode(getDoubleSidedMode(spec.getDoubleSidedMode()))
-                .build();
-    }
-
-    private static com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.LightingModel
-            getLightingModel(@KhronosPbrMaterialSpec.LightingModel int lightingModel) {
-        switch (lightingModel) {
-            case KhronosPbrMaterialSpec.LIT:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.LightingModel.LIT;
-            case KhronosPbrMaterialSpec.UNLIT:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.LightingModel.UNLIT;
-            default:
-                throw new IllegalArgumentException("Unknown LightingModel value: " + lightingModel);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.BlendMode getBlendMode(
-            @KhronosPbrMaterialSpec.BlendMode int blendMode) {
-        switch (blendMode) {
-            case KhronosPbrMaterialSpec.OPAQUE:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.BlendMode.OPAQUE;
-            case KhronosPbrMaterialSpec.MASKED:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.BlendMode.MASKED;
-            case KhronosPbrMaterialSpec.TRANSPARENT:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.BlendMode.TRANSPARENT;
-            case KhronosPbrMaterialSpec.REFRACTIVE:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.BlendMode.REFRACTIVE;
-            default:
-                throw new IllegalArgumentException("Unknown BlendMode value: " + blendMode);
-        }
-    }
-
-    private static com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.DoubleSidedMode
-            getDoubleSidedMode(@KhronosPbrMaterialSpec.DoubleSidedMode int doubleSidedMode) {
-        switch (doubleSidedMode) {
-            case KhronosPbrMaterialSpec.SINGLE_SIDED:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.DoubleSidedMode
-                        .SINGLE_SIDED;
-            case KhronosPbrMaterialSpec.DOUBLE_SIDED:
-                return com.google.ar.imp.apibindings.KhronosPbrMaterialSpec.DoubleSidedMode
-                        .DOUBLE_SIDED;
-            default:
-                throw new IllegalArgumentException(
-                        "Unknown DoubleSidedMode value: " + doubleSidedMode);
         }
     }
 

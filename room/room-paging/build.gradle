@@ -36,6 +36,9 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    // TODO(b/394238801): Add TV and Watch once paging-common 3.4 is released
+    // tvos()
+    // watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 

@@ -21,6 +21,63 @@ import androidx.kruth.assertThrows
 import kotlin.test.Test
 
 class NavigationEventDispatcherTest {
+
+    @Test
+    fun dispatch_onStarted_thenOnStartedIsSent() {
+        val dispatcher = NavigationEventDispatcher()
+        val callback = TestNavigationEventCallback()
+        dispatcher.addCallback(callback)
+
+        dispatcher.dispatchOnStarted(TestNavigationEvent())
+
+        assertThat(callback.startedInvocations).isEqualTo(1)
+        assertThat(callback.progressedInvocations).isEqualTo(0)
+        assertThat(callback.completedInvocations).isEqualTo(0)
+        assertThat(callback.cancelledInvocations).isEqualTo(0)
+    }
+
+    @Test
+    fun dispatch_onProgressed_thenOnProgressedIsSent() {
+        val dispatcher = NavigationEventDispatcher()
+        val callback = TestNavigationEventCallback()
+        dispatcher.addCallback(callback)
+
+        dispatcher.dispatchOnProgressed(TestNavigationEvent())
+
+        assertThat(callback.startedInvocations).isEqualTo(0)
+        assertThat(callback.progressedInvocations).isEqualTo(1)
+        assertThat(callback.completedInvocations).isEqualTo(0)
+        assertThat(callback.cancelledInvocations).isEqualTo(0)
+    }
+
+    @Test
+    fun dispatch_onCompleted_theOnCompletedIsSent() {
+        val dispatcher = NavigationEventDispatcher()
+        val callback = TestNavigationEventCallback()
+        dispatcher.addCallback(callback)
+
+        dispatcher.dispatchOnCompleted()
+
+        assertThat(callback.startedInvocations).isEqualTo(0)
+        assertThat(callback.progressedInvocations).isEqualTo(0)
+        assertThat(callback.completedInvocations).isEqualTo(1)
+        assertThat(callback.cancelledInvocations).isEqualTo(0)
+    }
+
+    @Test
+    fun dispatch_onCancelled_theOnCancelledIsSent() {
+        val dispatcher = NavigationEventDispatcher()
+        val callback = TestNavigationEventCallback()
+        dispatcher.addCallback(callback)
+
+        dispatcher.dispatchOnCancelled()
+
+        assertThat(callback.startedInvocations).isEqualTo(0)
+        assertThat(callback.progressedInvocations).isEqualTo(0)
+        assertThat(callback.completedInvocations).isEqualTo(0)
+        assertThat(callback.cancelledInvocations).isEqualTo(1)
+    }
+
     @Test
     fun removeCallback_whenNavigationIsInProgress_thenOnCancelledIsSent() {
         val dispatcher = NavigationEventDispatcher()
@@ -213,6 +270,25 @@ class NavigationEventDispatcherTest {
         // The overlay callback should handle the event, and the normal one should not.
         assertThat(overlayCallback.completedInvocations).isEqualTo(1)
         assertThat(normalCallback.completedInvocations).isEqualTo(0)
+    }
+
+    @Test
+    fun dispatch_whenDisabledOverlayCallbackExists_thenDefaultCallbackIsInvoked() {
+        val dispatcher = NavigationEventDispatcher()
+        val overlayCallback = TestNavigationEventCallback()
+        val normalCallback = TestNavigationEventCallback()
+
+        dispatcher.addCallback(overlayCallback, NavigationEventPriority.Overlay)
+        dispatcher.addCallback(normalCallback, NavigationEventPriority.Default)
+
+        // The highest priority callback is disabled.
+        overlayCallback.isEnabled = false
+
+        dispatcher.dispatchOnCompleted()
+
+        // The event should skip the disabled overlay and be handled by the default.
+        assertThat(overlayCallback.completedInvocations).isEqualTo(0)
+        assertThat(normalCallback.completedInvocations).isEqualTo(1)
     }
 
     @Test

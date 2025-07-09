@@ -36,7 +36,7 @@ import java.util.concurrent.Executor
  * @param controller an [OverlayController] that can be obtained by [OverlayController.getInstance].
  * @constructor creates a callback adapter of [OverlayController.overlayInfo] flow API.
  */
-class OverlayControllerCallbackAdapter(private val controller: OverlayController) {
+public class OverlayControllerCallbackAdapter(private val controller: OverlayController) {
 
     private val callbackToFlowAdapter = CallbackToFlowAdapter()
 
@@ -58,7 +58,7 @@ class OverlayControllerCallbackAdapter(private val controller: OverlayController
      *   to [OverlayInfo].
      */
     @RequiresWindowSdkExtension(5)
-    fun addOverlayInfoListener(
+    public fun addOverlayInfoListener(
         overlayTag: String,
         executor: Executor,
         consumer: Consumer<OverlayInfo>,
@@ -72,7 +72,7 @@ class OverlayControllerCallbackAdapter(private val controller: OverlayController
      * @param consumer the previously registered [Consumer] to unregister.
      */
     @RequiresWindowSdkExtension(5)
-    fun removeOverlayInfoListener(consumer: Consumer<OverlayInfo>) {
+    public fun removeOverlayInfoListener(consumer: Consumer<OverlayInfo>) {
         callbackToFlowAdapter.disconnect(consumer)
     }
 }

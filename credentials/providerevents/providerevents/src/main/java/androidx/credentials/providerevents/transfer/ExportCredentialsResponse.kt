@@ -17,10 +17,14 @@
 package androidx.credentials.providerevents.transfer
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 
-/** Success response of exporting the credentials to the provider */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Success response of exporting the credentials to the provider
+ *
+ * @property numSuccess the number of credentials successfully stored
+ * @property numFailure the number of credentials failed to store because they are invalid
+ * @property numIgnored the number of credentials ignored because they require additional user input
+ */
 public class ExportCredentialsResponse(
     public val numSuccess: Int,
     public val numFailure: Int,
@@ -32,9 +36,9 @@ public class ExportCredentialsResponse(
         private const val NUM_FAILURE_KEY = "NUM_FAILURE"
         private const val NUM_IGNORED_KEY = "NUM_IGNORED"
 
+        /** Wraps the response class into a bundle */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public fun asBundle(response: ExportCredentialsResponse): Bundle =
+        public fun toBundle(response: ExportCredentialsResponse): Bundle =
             Bundle().apply {
                 putInt(NUM_SUCCESS_KEY, response.numSuccess)
                 putInt(NUM_FAILURE_KEY, response.numFailure)

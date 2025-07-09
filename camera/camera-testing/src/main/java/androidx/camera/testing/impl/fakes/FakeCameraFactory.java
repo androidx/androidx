@@ -16,13 +16,19 @@
 
 package androidx.camera.testing.impl.fakes;
 
+import static androidx.camera.core.CameraUnavailableException.CAMERA_ERROR;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraIdentifier;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ConstantObservable;
+import androidx.camera.core.impl.Observable;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
@@ -68,15 +74,16 @@ public final class FakeCameraFactory implements CameraFactory {
     }
 
     @Override
-    public @NonNull CameraInternal getCamera(@NonNull String cameraId) {
+    public @NonNull CameraInternal getCamera(@NonNull String cameraId)
+            throws CameraUnavailableException {
         Pair<Integer, Callable<CameraInternal>> cameraPair = mCameraMap.get(cameraId);
         if (cameraPair != null) {
             try {
                 Callable<CameraInternal> cameraCallable = Preconditions.checkNotNull(
                         cameraPair.second);
                 return cameraCallable.call();
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to create camera.", e);
+            } catch (Throwable t) {
+                throw new CameraUnavailableException(CAMERA_ERROR, t);
             }
         }
         throw new IllegalArgumentException("Unknown camera: " + cameraId);
@@ -181,5 +188,15 @@ public final class FakeCameraFactory implements CameraFactory {
     @Override
     public @Nullable Object getCameraManager() {
         return mCameraManager;
+    }
+
+    @Override
+    public @NonNull Observable<List<CameraIdentifier>> getCameraPresenceSource() {
+        return ConstantObservable.withValue(new ArrayList<>());
+    }
+
+    @Override
+    public void onCameraIdsUpdated(@NonNull List<String> cameraIds) {
+
     }
 }

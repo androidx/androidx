@@ -1,9 +1,19 @@
 // Signature format: 4.0
 package androidx.pdf {
 
+  public interface PdfSandboxHandle extends java.lang.AutoCloseable {
+    method public void close();
+  }
+
   public final class SandboxedPdfLoader implements androidx.pdf.PdfLoader {
     ctor public SandboxedPdfLoader(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method public suspend Object? openDocument(android.net.Uri uri, String? password, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>);
+    method public static androidx.pdf.PdfSandboxHandle startInitialization(android.content.Context context);
+    field public static final androidx.pdf.SandboxedPdfLoader.Companion Companion;
+  }
+
+  public static final class SandboxedPdfLoader.Companion {
+    method public androidx.pdf.PdfSandboxHandle startInitialization(android.content.Context context);
   }
 
 }

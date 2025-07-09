@@ -19,7 +19,6 @@ package androidx.credentials.providerevents.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.core.os.OutcomeReceiverCompat
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.CredentialProviderService
@@ -35,18 +34,20 @@ import androidx.credentials.providerevents.transfer.ImportCredentialsRequest
 import androidx.credentials.providerevents.transfer.ImportCredentialsResponse
 
 /**
- * A base service for credential providers to receive advanced requests from
- * [androidx.credentials.CredentialManager].
- *
  * This service builds upon the functionality of [CredentialProviderService] by enabling support for
  * more advanced credential requests, such as device setup.
  *
  * Note that this service is distinct from [CredentialProviderService], which handles basic
- * credential saving and retrieval requests.
+ * credential saving and retrieval requests. This service is mainly used to help with user pain
+ * point of credentials onboarding during device setup. When the user is setting up a new device,
+ * the credential provider can assist with the onboarding by either transferring the credentials to
+ * the new device, or receiving the credentials if the current device is the one doing the
+ * onboarding.
  *
  * This service is bound only during the duration of an API call. To receive requests, users must
  * enable the corresponding [CredentialProviderService] from within the same package, in Android
- * Settings.
+ * Settings. This service will be invoked as part of Android onboarding and will not contain any UI
+ * as part of the process.
  *
  * ## Basic Usage
  *
@@ -57,7 +58,7 @@ import androidx.credentials.providerevents.transfer.ImportCredentialsResponse
  * - The Android system sends the result back to the client application.
  *
  * This flow is designed to minimize the service's lifecycle. Calls to the service are stateless. If
- * a service requires maintaining state between calls, it must implement its own state management.
+ * a service requires maintaining states between calls, it must implement its own state management.
  * Note that the service's process may be terminated by the Android System when unbound, such as
  * during low-memory conditions.
  *
@@ -68,11 +69,10 @@ import androidx.credentials.providerevents.transfer.ImportCredentialsResponse
  * - Declare this service class within Android Manifest with corresponding intent action
  *   "androidx.credentials.DEVICE_SETUP_SERVICE_ACTION".
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DeviceSetupService() : Service() {
     private val factory = DeviceSetupProviderFactory()
 
-    override fun onBind(intent: Intent?): IBinder? {
+    final override fun onBind(intent: Intent?): IBinder? {
         if (intent == null) {
             return null
         }
@@ -95,11 +95,11 @@ public abstract class DeviceSetupService() : Service() {
      * @param callingAppInfo the requesting app info
      * @param callback The callback to receive the result of the credential fetching.
      */
-    public open fun onImportCredentialsRequest(
+    public abstract fun onImportCredentialsRequest(
         request: ImportCredentialsRequest,
         callingAppInfo: CallingAppInfo,
         callback: OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
-    ) {}
+    )
 
     /**
      * Called when a credential provider should receive credentials for device setup.
@@ -112,11 +112,11 @@ public abstract class DeviceSetupService() : Service() {
      * @param callingAppInfo the requesting app info
      * @param callback The callback to receive the result of the credential push.
      */
-    public open fun onExportCredentialsRequest(
+    public abstract fun onExportCredentialsRequest(
         request: ExportCredentialsRequest,
         callingAppInfo: CallingAppInfo,
         callback: OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
-    ) {}
+    )
 
     /**
      * Called when a credential provider should return the state of its credentials to the user.
@@ -130,7 +130,7 @@ public abstract class DeviceSetupService() : Service() {
      * @param callingAppInfo the requesting app info
      * @param callback The callback to receive the result of the request.
      */
-    public open fun onGetCredentialTransferCapabilities(
+    public abstract fun onGetCredentialTransferCapabilities(
         request: CredentialTransferCapabilitiesRequest,
         callingAppInfo: CallingAppInfo,
         callback:
@@ -138,5 +138,5 @@ public abstract class DeviceSetupService() : Service() {
                 CredentialTransferCapabilities,
                 GetCredentialTransferCapabilitiesException,
             >,
-    ) {}
+    )
 }

@@ -96,11 +96,3 @@ androidx {
     samples(project(":wear:compose:compose-material3-samples"))
     addGoldenImageAssets()
 }
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xjvm-default=all",
-        ]
-    }
-}

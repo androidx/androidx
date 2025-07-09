@@ -57,7 +57,7 @@ private const val PASSWORD_PROTECTED_DOCUMENT_FILE = "sample-protected.pdf"
  * correct/incorrect passwords or dialog dismissal behavior.
  */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
-@SdkSuppress(minSdkVersion = 35)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PasswordDialogScubaTests {

@@ -56,7 +56,7 @@ internal class SelectionActionModeCallback(private val pdfView: PdfView) :
                 if (page != null) {
                     // Action mode for old selection should be closed which will be triggered
                     // after select all is completed with current selection.
-                    close()
+                    finish()
                     pdfView.selectAllTextOnPage(page)
                 }
             },

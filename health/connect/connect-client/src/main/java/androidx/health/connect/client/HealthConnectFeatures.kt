@@ -55,7 +55,7 @@ interface HealthConnectFeatures {
         @ExperimentalPersonalHealthRecordApi const val FEATURE_PERSONAL_HEALTH_RECORD = 6
 
         /** Feature constant for Activity Intensity APIs. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_ACTIVITY_INTENSITY = 7
+        const val FEATURE_ACTIVITY_INTENSITY = 7
 
         @OptIn(ExperimentalPersonalHealthRecordApi::class)
         @Retention(AnnotationRetention.SOURCE)

@@ -19,9 +19,11 @@ package androidx.privacysandbox.sdkruntime.testsdk
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
+import android.os.Looper
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
+import java.lang.IllegalStateException
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
@@ -33,6 +35,9 @@ class CompatProvider : SandboxedSdkProviderCompat() {
 
     @Throws(LoadSdkCompatException::class)
     override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw IllegalStateException("onLoadSdk() must be called from main thread")
+        }
         val result = SdkImpl(context!!)
         onLoadSdkBinder = result
 

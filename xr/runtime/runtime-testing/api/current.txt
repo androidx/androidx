@@ -94,7 +94,7 @@ package androidx.xr.runtime.testing {
     property public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.TrackingState trackingState;
     property public java.util.UUID? uuid;
-    field public static final int ANCHOR_RESOURCE_LIMIT = 5; // 0x5
+    field public static final int ANCHOR_RESOURCE_LIMIT = 6; // 0x6
     field public static final androidx.xr.runtime.testing.FakeRuntimeAnchor.Companion Companion;
   }
 

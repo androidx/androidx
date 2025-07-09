@@ -18,6 +18,7 @@
 package androidx.privacysandbox.databridge.core.aidl;
 
 import androidx.privacysandbox.databridge.core.aidl.IGetValuesResultCallback;
+import androidx.privacysandbox.databridge.core.aidl.IKeyUpdateInternalCallback;
 import androidx.privacysandbox.databridge.core.aidl.ISetValuesResultCallback;
 import androidx.privacysandbox.databridge.core.aidl.IRemoveValuesResultCallback;
 import androidx.privacysandbox.databridge.core.aidl.ValueInternal;
@@ -27,4 +28,7 @@ oneway interface IDataBridgeProxy {
 	void getValues(in List<String> keyNames, in List<String> keyTypes, IGetValuesResultCallback callback);
     void setValues(in List<String> keyNames, in List<ValueInternal> data, ISetValuesResultCallback callback);
     void removeValues(in List<String> keyNames, in List<String> keyTypes, IRemoveValuesResultCallback callback);
+
+    void addKeysForUpdates(String uuid, in List<String> keyNames, in List<String> keyTypes, IKeyUpdateInternalCallback callback);
+    void removeKeysFromUpdates(String uuid, in List<String> keyNames, in List<String> keyTypes, boolean unregisterCallback);
 }

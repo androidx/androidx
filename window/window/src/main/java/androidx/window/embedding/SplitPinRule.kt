@@ -26,7 +26,7 @@ import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFA
  * Split configuration rules for pinning an [ActivityStack]. Define how the pinned [ActivityStack]
  * should be displayed side-by-side with the other [ActivityStack].
  */
-class SplitPinRule
+public class SplitPinRule
 internal constructor(
     /** A unique string to identify this [SplitPinRule]. */
     tag: String? = null,
@@ -38,7 +38,7 @@ internal constructor(
      * once again possible (e.g. the host Task bounds satisfies the size and aspect ratio
      * requirements).
      */
-    val isSticky: Boolean,
+    public val isSticky: Boolean,
     @IntRange(from = 0) minWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
     @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
     @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
@@ -56,7 +56,7 @@ internal constructor(
     ) {
 
     /** Builder for [SplitPinRule]. */
-    class Builder {
+    public class Builder {
         private var tag: String? = null
         @IntRange(from = 0) private var minWidthDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
         @IntRange(from = 0) private var minHeightDp = SPLIT_MIN_DIMENSION_DP_DEFAULT
@@ -78,7 +78,7 @@ internal constructor(
          * @param minWidthDp the smallest value of width of the parent window when the split should
          *   be used, in DP.
          */
-        fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder = apply {
+        public fun setMinWidthDp(@IntRange(from = 0) minWidthDp: Int): Builder = apply {
             this.minWidthDp = minWidthDp
         }
 
@@ -99,7 +99,7 @@ internal constructor(
          * @see SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
          * @see SplitAttributes.LayoutDirection.BOTTOM_TO_TOP
          */
-        fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder = apply {
+        public fun setMinHeightDp(@IntRange(from = 0) minHeightDp: Int): Builder = apply {
             this.minHeightDp = minHeightDp
         }
 
@@ -115,9 +115,10 @@ internal constructor(
          * @param minSmallestWidthDp the smallest value of the smallest possible width of the parent
          *   window in any rotation when the split should be used, in DP.
          */
-        fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder = apply {
-            this.minSmallestWidthDp = minSmallestWidthDp
-        }
+        public fun setMinSmallestWidthDp(@IntRange(from = 0) minSmallestWidthDp: Int): Builder =
+            apply {
+                this.minSmallestWidthDp = minSmallestWidthDp
+            }
 
         /**
          * Sets the largest value of the aspect ratio, expressed as `height / width` in decimal
@@ -137,7 +138,7 @@ internal constructor(
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
          * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
-        fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder = apply {
+        public fun setMaxAspectRatioInPortrait(aspectRatio: EmbeddingAspectRatio): Builder = apply {
             this.maxAspectRatioInPortrait = aspectRatio
         }
 
@@ -159,9 +160,10 @@ internal constructor(
          * @see EmbeddingAspectRatio.ALWAYS_ALLOW
          * @see EmbeddingAspectRatio.ALWAYS_DISALLOW
          */
-        fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder = apply {
-            this.maxAspectRatioInLandscape = aspectRatio
-        }
+        public fun setMaxAspectRatioInLandscape(aspectRatio: EmbeddingAspectRatio): Builder =
+            apply {
+                this.maxAspectRatioInLandscape = aspectRatio
+            }
 
         /**
          * Sets the default [SplitAttributes] to apply on the activity containers pair when the host
@@ -171,9 +173,10 @@ internal constructor(
          * @param defaultSplitAttributes the default [SplitAttributes] to apply on the activity
          *   containers pair when the host task bounds satisfy all the rule requirements.
          */
-        fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder = apply {
-            this.defaultSplitAttributes = defaultSplitAttributes
-        }
+        public fun setDefaultSplitAttributes(defaultSplitAttributes: SplitAttributes): Builder =
+            apply {
+                this.defaultSplitAttributes = defaultSplitAttributes
+            }
 
         /**
          * Sets a unique string to identify this [SplitPinRule], which defaults to `null`. The
@@ -182,7 +185,7 @@ internal constructor(
          *
          * @param tag unique string to identify this [SplitPinRule].
          */
-        fun setTag(tag: String?): Builder = apply { this.tag = tag }
+        public fun setTag(tag: String?): Builder = apply { this.tag = tag }
 
         /**
          * Sets this rule to be sticky.
@@ -190,14 +193,14 @@ internal constructor(
          * @param isSticky whether to be a sticky rule.
          * @see isSticky
          */
-        fun setSticky(isSticky: Boolean): Builder = apply { this.isSticky = isSticky }
+        public fun setSticky(isSticky: Boolean): Builder = apply { this.isSticky = isSticky }
 
         /**
          * Builds a [SplitPinRule] instance.
          *
          * @return The new [SplitPinRule] instance.
          */
-        fun build() =
+        public fun build(): SplitPinRule =
             SplitPinRule(
                 tag,
                 defaultSplitAttributes,

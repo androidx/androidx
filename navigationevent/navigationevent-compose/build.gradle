@@ -51,6 +51,7 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
+                implementation(project(":navigationevent:navigationevent-testing"))
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestCommon)

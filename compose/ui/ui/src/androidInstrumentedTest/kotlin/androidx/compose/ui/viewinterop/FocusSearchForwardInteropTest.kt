@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.O
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.KeyEvent.ACTION_DOWN
@@ -31,6 +32,8 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -54,6 +57,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -160,7 +164,6 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
         }
     }
 
-    @SdkSuppress(minSdkVersion = O) // b/327628485
     @Test
     fun focusedComposableViewInLinearLayout() {
         // Arrange.
@@ -184,6 +187,12 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
 
     @Test
     fun focusedComposableWithFocusableView_view_inLinearLayout() {
+        assumeTrue(
+            @OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isPre26FocusFinderFixEnabled ||
+                SDK_INT >= 26 ||
+                !moveFocusProgrammatically
+        )
+
         // Arrange.
         var isComposableFocused = false
         setContent {
@@ -239,7 +248,6 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
         }
     }
 
-    @SdkSuppress(minSdkVersion = O) // b/318971623
     @Test
     fun viewComposableViewInLinearLayout() {
         // Arrange.
@@ -263,7 +271,6 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
         rule.runOnIdle { assertThat(view2.isFocused).isFalse() }
     }
 
-    @SdkSuppress(minSdkVersion = O) // b/318971623
     @Test
     fun viewViewComposableInLinearLayout() {
         // Arrange.

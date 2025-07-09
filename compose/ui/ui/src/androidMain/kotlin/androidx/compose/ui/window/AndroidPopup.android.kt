@@ -708,6 +708,9 @@ internal class PopupLayout(
      * callbacks.
      */
     fun pollForLocationOnScreenChange() {
+        // When this view is not attached to a window, we don't need to do anything.
+        if (!isAttachedToWindow) return
+
         val (oldX, oldY) = locationOnScreen
         composeView.getLocationOnScreen(locationOnScreen)
         if (oldX != locationOnScreen[0] || oldY != locationOnScreen[1]) {

@@ -392,8 +392,7 @@ private fun SpatialExternalSurfaceSphere(
             content = {
                 SpatialBox(
                     modifier =
-                        modifier
-                            .fillMaxSize()
+                        SubspaceModifier.fillMaxSize()
                             .offset(
                                 z = radius * SPHERE_CONTENT_Z_OFFSET_PERCENT,
                                 y = radius * SPHERE_CONTENT_Y_OFFSET_PERCENT,

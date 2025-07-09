@@ -25,7 +25,10 @@ import androidx.compose.ui.graphics.Color
 @Immutable
 @ExperimentalMaterial3Api
 actual class ModalBottomSheetProperties
-actual constructor(actual val shouldDismissOnBackPress: Boolean) {
+actual constructor(
+    actual val shouldDismissOnBackPress: Boolean,
+    actual val shouldDismissOnClickOutside: Boolean,
+) {
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
         message = "Android-specific parameters have been removed",
@@ -37,6 +40,12 @@ actual constructor(actual val shouldDismissOnBackPress: Boolean) {
         isAppearanceLightStatusBars: Boolean,
         isAppearanceLightNavigationBars: Boolean,
     ) : this(shouldDismissOnBackPress)
+
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "Replaced with additional shouldDismissOnClickOutside param constructor.",
+    )
+    actual constructor(shouldDismissOnBackPress: Boolean) : this(shouldDismissOnBackPress, true)
 }
 
 @Immutable

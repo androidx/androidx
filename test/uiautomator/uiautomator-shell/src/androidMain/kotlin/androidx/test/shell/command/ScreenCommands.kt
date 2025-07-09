@@ -31,13 +31,10 @@ public class ScreenCommands internal constructor(private val shell: Shell) {
         // com.google.android.apps.messaging/.ui.ConversationListActivity t363}
         with(shell.command("dumpsys activity activities | grep ResumedActivity")) {
             stdErr.assertEmpty()
-            return stdOut
-                .lines()
-                .first { it.contains("ResumedActivity:") }
-                .substringAfter("ResumedActivity: ActivityRecord")
-                .trim('{', '}')
-                .split(" ")
-                .first { it.contains("/") }
+            return regex.find(stdOut)?.groupValues?.get(1)
+                ?: throw IllegalStateException(
+                    "Could not parse resumed activity from output:\n$stdOut"
+                )
         }
 
     /** Returns whether the keyboard is currently visible. */
@@ -52,4 +49,13 @@ public class ScreenCommands internal constructor(private val shell: Shell) {
                 .toBooleanStrict()
         }
     }
+
+    // Regex breakdown:
+    // ActivityRecord\{         # literal “ActivityRecord{”
+    //   [^}]*?                 # non-greedy skip up to the first space before the component
+    //   \s                     # that space
+    // (?<activity>            # start named group “activity”
+    //   [^\s}]+/[^\s}]+        #   one-or-more non-space/non-} chars, slash, same again
+    // )
+    private val regex = Regex("""ActivityRecord\{[^}]*?\s(?<activity>[^\s}]+/[^\s}]+)""")
 }

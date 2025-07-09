@@ -19,6 +19,12 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
+/**
+ * Properties used to customize the behavior of a [ModalWideNavigationRail].
+ *
+ * @param shouldDismissOnBackPress Whether the modal navigation rail can be dismissed by pressing
+ *   the back button. If true, pressing the back button will call onDismissRequest.
+ */
 @Immutable
 actual class ModalWideNavigationRailProperties
 actual constructor(actual val shouldDismissOnBackPress: Boolean)

@@ -29,12 +29,19 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.ui.graphics"
+        androidResources.enable = true
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -123,14 +130,6 @@ androidx {
 
 androidxCompose {
     composeCompilerPluginEnabled = false
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.graphics"
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
 }
 
 // TODO(b/407640608): Task :compose:ui:ui-inspection:connectedCheck fails without this block

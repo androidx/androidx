@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo
  */
 @JvmInline
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public value class ConfigQueryResult private constructor(internal val value: Int) {
+public value class ConfigQueryResult(internal val value: Int) {
     override fun toString(): String {
         return when (this) {
             SUPPORTED -> "SUPPORTED"

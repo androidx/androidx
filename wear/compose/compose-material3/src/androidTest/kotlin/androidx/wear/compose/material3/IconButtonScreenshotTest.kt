@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3.test
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,13 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -54,6 +50,7 @@ import androidx.wear.compose.material3.rememberAnimatedCornerBasedShape
 import androidx.wear.compose.material3.rememberAnimatedRoundedCornerShape
 import androidx.wear.compose.material3.setContentWithTheme
 import androidx.wear.compose.material3.touchTargetAwareSize
+import androidx.wear.compose.material3.verifyScreenshot
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -61,7 +58,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconButtonScreenshotTest {
 
     @get:Rule val rule = createComposeRule()
@@ -349,9 +346,6 @@ class IconButtonScreenshotTest {
             }
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, methodName)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 }

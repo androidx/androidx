@@ -45,14 +45,36 @@ package androidx.xr.runtime.testing {
     property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeAnchorEntity extends androidx.xr.runtime.testing.FakeSystemSpaceEntity implements androidx.xr.runtime.internal.AnchorEntity {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeAnchorEntity extends androidx.xr.runtime.testing.FakeSystemSpaceEntity implements androidx.xr.runtime.internal.AnchorEntity {
     ctor public FakeAnchorEntity();
+    ctor public FakeAnchorEntity(optional androidx.xr.runtime.testing.FakeAnchorEntity.AnchorCreationData anchorCreationData, optional androidx.xr.runtime.internal.Anchor anchor);
     method public long getNativePointer();
     method public int getState();
     method public void onStateChanged(int newState);
     method public void setOnStateChangedListener(androidx.xr.runtime.internal.AnchorEntity.OnStateChangedListener onStateChangedListener);
     property public long nativePointer;
     property public int state;
+  }
+
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public static final class FakeAnchorEntity.AnchorCreationData {
+    ctor public FakeAnchorEntity.AnchorCreationData();
+    ctor public FakeAnchorEntity.AnchorCreationData(optional androidx.xr.runtime.internal.Dimensions bounds, optional androidx.xr.runtime.internal.PlaneType planeType, optional androidx.xr.runtime.internal.PlaneSemantic planeSemantic, optional java.time.Duration searchTimeout, optional java.util.UUID uuid);
+    method public androidx.xr.runtime.internal.Dimensions component1();
+    method public androidx.xr.runtime.internal.PlaneType component2();
+    method public androidx.xr.runtime.internal.PlaneSemantic component3();
+    method public java.time.Duration component4();
+    method public java.util.UUID component5();
+    method public androidx.xr.runtime.testing.FakeAnchorEntity.AnchorCreationData copy(optional androidx.xr.runtime.internal.Dimensions bounds, optional androidx.xr.runtime.internal.PlaneType planeType, optional androidx.xr.runtime.internal.PlaneSemantic planeSemantic, optional java.time.Duration searchTimeout, optional java.util.UUID uuid);
+    method public androidx.xr.runtime.internal.Dimensions getBounds();
+    method public androidx.xr.runtime.internal.PlaneSemantic getPlaneSemantic();
+    method public androidx.xr.runtime.internal.PlaneType getPlaneType();
+    method public java.time.Duration getSearchTimeout();
+    method public java.util.UUID getUuid();
+    property public androidx.xr.runtime.internal.Dimensions bounds;
+    property public androidx.xr.runtime.internal.PlaneSemantic planeSemantic;
+    property public androidx.xr.runtime.internal.PlaneType planeType;
+    property public java.time.Duration searchTimeout;
+    property public java.util.UUID uuid;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeAudioTrackExtensionsWrapper implements androidx.xr.runtime.internal.AudioTrackExtensionsWrapper {
@@ -70,7 +92,10 @@ package androidx.xr.runtime.testing {
     method public int getCameraType();
     method public androidx.xr.runtime.internal.PixelDimensions getDisplayResolutionInPixels();
     method public androidx.xr.runtime.internal.CameraViewActivityPose.Fov getFov();
-    property public int cameraType;
+    method public void setCameraType(int);
+    method public void setDisplayResolutionInPixels(androidx.xr.runtime.internal.PixelDimensions);
+    method public void setFov(androidx.xr.runtime.internal.CameraViewActivityPose.Fov);
+    property @androidx.xr.runtime.internal.CameraViewActivityPose.CameraType public int cameraType;
     property public androidx.xr.runtime.internal.PixelDimensions displayResolutionInPixels;
     property public androidx.xr.runtime.internal.CameraViewActivityPose.Fov fov;
   }
@@ -125,6 +150,10 @@ package androidx.xr.runtime.testing {
     property @androidx.xr.runtime.internal.GltfEntity.AnimationStateValue public int animationState;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeHeadActivityPose extends androidx.xr.runtime.testing.FakeActivityPose implements androidx.xr.runtime.internal.HeadActivityPose {
+    ctor public FakeHeadActivityPose();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeInteractableComponent extends androidx.xr.runtime.testing.FakeComponent implements androidx.xr.runtime.internal.InteractableComponent {
     ctor public FakeInteractableComponent();
   }
@@ -136,20 +165,20 @@ package androidx.xr.runtime.testing {
     method public androidx.xr.runtime.internal.TextureResource? borrowReflectionTexture();
     method public void clearSpatialVisibilityChangedListener();
     method public androidx.xr.runtime.internal.ActivityPanelEntity createActivityPanelEntity(androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.internal.PixelDimensions windowBoundsPx, String name, android.app.Activity hostActivity, androidx.xr.runtime.internal.Entity parent);
-    method public androidx.xr.runtime.internal.AnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Anchor anchor);
-    method public androidx.xr.runtime.internal.AnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Dimensions bounds, androidx.xr.runtime.internal.PlaneType planeType, androidx.xr.runtime.internal.PlaneSemantic planeSemantic, java.time.Duration searchTimeout);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.xr.runtime.testing.FakeAnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Anchor anchor);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.xr.runtime.testing.FakeAnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Dimensions bounds, androidx.xr.runtime.internal.PlaneType planeType, androidx.xr.runtime.internal.PlaneSemantic planeSemantic, java.time.Duration searchTimeout);
     method public androidx.xr.runtime.internal.AnchorPlacement createAnchorPlacementForPlanes(java.util.Set<androidx.xr.runtime.internal.PlaneType> planeTypeFilter, java.util.Set<androidx.xr.runtime.internal.PlaneSemantic> planeSemanticFilter);
     method public androidx.xr.runtime.internal.GltfEntity createGltfEntity(androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.internal.GltfModelResource loadedGltf, androidx.xr.runtime.internal.Entity parentEntity);
     method public androidx.xr.runtime.internal.Entity createGroupEntity(androidx.xr.runtime.math.Pose pose, String name, androidx.xr.runtime.internal.Entity parent);
     method public androidx.xr.runtime.internal.InteractableComponent createInteractableComponent(java.util.concurrent.Executor executor, androidx.xr.runtime.internal.InputEventListener listener);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.MaterialResource>? createKhronosPbrMaterial(androidx.xr.runtime.internal.KhronosPbrMaterialSpec spec);
     method public androidx.xr.runtime.internal.LoggingEntity createLoggingEntity(androidx.xr.runtime.math.Pose pose);
-    method public androidx.xr.runtime.internal.MovableComponent createMovableComponent(boolean systemMovable, boolean scaleInZ, java.util.Set<androidx.xr.runtime.internal.AnchorPlacement> anchorPlacement, boolean shouldDisposeParentAnchor);
+    method public androidx.xr.runtime.testing.FakeMovableComponent createMovableComponent(boolean systemMovable, boolean scaleInZ, java.util.Set<androidx.xr.runtime.internal.AnchorPlacement> anchorPlacement, boolean shouldDisposeParentAnchor);
     method public androidx.xr.runtime.internal.PanelEntity createPanelEntity(android.content.Context context, androidx.xr.runtime.math.Pose pose, android.view.View view, androidx.xr.runtime.internal.Dimensions dimensions, String name, androidx.xr.runtime.internal.Entity parent);
     method public androidx.xr.runtime.internal.PanelEntity createPanelEntity(android.content.Context context, androidx.xr.runtime.math.Pose pose, android.view.View view, androidx.xr.runtime.internal.PixelDimensions pixelDimensions, String name, androidx.xr.runtime.internal.Entity parent);
-    method public androidx.xr.runtime.internal.AnchorEntity createPersistedAnchorEntity(java.util.UUID uuid, java.time.Duration searchTimeout);
-    method public androidx.xr.runtime.internal.PointerCaptureComponent createPointerCaptureComponent(java.util.concurrent.Executor executor, androidx.xr.runtime.internal.PointerCaptureComponent.StateListener stateListener, androidx.xr.runtime.internal.InputEventListener inputListener);
-    method public androidx.xr.runtime.internal.ResizableComponent createResizableComponent(androidx.xr.runtime.internal.Dimensions minimumSize, androidx.xr.runtime.internal.Dimensions maximumSize);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.xr.runtime.testing.FakeAnchorEntity createPersistedAnchorEntity(java.util.UUID uuid, java.time.Duration searchTimeout);
+    method public androidx.xr.runtime.testing.FakePointerCaptureComponent createPointerCaptureComponent(java.util.concurrent.Executor executor, androidx.xr.runtime.internal.PointerCaptureComponent.StateListener stateListener, androidx.xr.runtime.internal.InputEventListener inputListener);
+    method public androidx.xr.runtime.testing.FakeResizableComponent createResizableComponent(androidx.xr.runtime.internal.Dimensions minimumSize, androidx.xr.runtime.internal.Dimensions maximumSize);
     method public androidx.xr.runtime.internal.SpatialPointerComponent createSpatialPointerComponent();
     method public androidx.xr.runtime.internal.SubspaceNodeEntity createSubspaceNodeEntity(androidx.xr.runtime.SubspaceNodeHolder<? extends java.lang.Object?> subspaceNodeHolder, androidx.xr.runtime.internal.Dimensions size);
     method public androidx.xr.runtime.internal.SurfaceEntity createSurfaceEntity(int stereoMode, androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.internal.SurfaceEntity.CanvasShape canvasShape, int contentSecurityLevel, int superSampling, androidx.xr.runtime.internal.Entity parentEntity);
@@ -163,15 +192,24 @@ package androidx.xr.runtime.testing {
     method public androidx.xr.runtime.internal.Entity getActivitySpaceRootImpl();
     method public androidx.xr.runtime.internal.AudioTrackExtensionsWrapper getAudioTrackExtensionsWrapper();
     method public androidx.xr.runtime.internal.CameraViewActivityPose? getCameraViewActivityPose(@androidx.xr.runtime.internal.CameraViewActivityPose.CameraType int cameraType);
+    method public java.util.List<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.FakeKhronosPbrMaterial> getCreatedKhronosPbrMaterials();
+    method public java.util.List<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.FakeWaterMaterial> getCreatedWaterMaterials();
     method public androidx.xr.runtime.internal.HeadActivityPose? getHeadActivityPose();
+    method public android.app.Activity? getLastSetPreferredAspectRatioActivity();
+    method public float getLastSetPreferredAspectRatioRatio();
     method public androidx.xr.runtime.internal.PanelEntity getMainPanelEntity();
     method public androidx.xr.runtime.internal.MediaPlayerExtensionsWrapper getMediaPlayerExtensionsWrapper();
+    method public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.PixelDimensions>> getPerceivedResolutionChangedMap();
     method public androidx.xr.runtime.internal.PerceptionSpaceActivityPose getPerceptionSpaceActivityPose();
     method public androidx.xr.runtime.internal.TextureResource? getReflectionTextureFromIbl(androidx.xr.runtime.internal.ExrImageResource iblToken);
+    method public boolean getRequestedFullSpaceMode();
+    method public boolean getRequestedHomeSpaceMode();
     method public androidx.xr.runtime.internal.SoundPoolExtensionsWrapper getSoundPoolExtensionsWrapper();
     method public androidx.xr.runtime.internal.SpatialCapabilities getSpatialCapabilities();
+    method public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.SpatialCapabilities>> getSpatialCapabilitiesChangedMap();
     method public androidx.xr.runtime.internal.SpatialEnvironment getSpatialEnvironment();
     method public androidx.xr.runtime.internal.SpatialModeChangeListener getSpatialModeChangeListener();
+    method public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.SpatialVisibility>> getSpatialVisibilityChangedMap();
     method public Enum<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.State> getState();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.ExrImageResource> loadExrImageByAssetName(String assetName);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.ExrImageResource> loadExrImageByByteArray(byte[] assetData, String assetKey);
@@ -201,6 +239,8 @@ package androidx.xr.runtime.testing {
     method public android.os.Bundle setFullSpaceMode(android.os.Bundle bundle);
     method public android.os.Bundle setFullSpaceModeWithEnvironmentInherited(android.os.Bundle bundle);
     method public void setIndexOfRefractionOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, float indexOfRefraction);
+    method public void setLastSetPreferredAspectRatioActivity(android.app.Activity?);
+    method public void setLastSetPreferredAspectRatioRatio(float);
     method public void setMetallicFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, float factor);
     method public void setMetallicRoughnessTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, androidx.xr.runtime.internal.TextureResource metallicRoughness);
     method public void setMetallicRoughnessUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, androidx.xr.runtime.math.Matrix3 uvTransform);
@@ -214,6 +254,8 @@ package androidx.xr.runtime.testing {
     method public void setNormalZOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource material, float normalZ);
     method public void setPreferredAspectRatio(android.app.Activity activity, float preferredRatio);
     method public void setReflectionMapOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource material, androidx.xr.runtime.internal.TextureResource reflectionMap);
+    method public void setRequestedFullSpaceMode(boolean);
+    method public void setRequestedHomeSpaceMode(boolean);
     method public void setRoughnessFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, float factor);
     method public void setSheenColorFactorsOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, androidx.xr.runtime.math.Vector3 factors);
     method public void setSheenColorTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource material, androidx.xr.runtime.internal.TextureResource sheenColor);
@@ -229,15 +271,153 @@ package androidx.xr.runtime.testing {
     property public androidx.xr.runtime.internal.ActivitySpace activitySpace;
     property public androidx.xr.runtime.internal.Entity activitySpaceRootImpl;
     property public androidx.xr.runtime.internal.AudioTrackExtensionsWrapper audioTrackExtensionsWrapper;
+    property public java.util.List<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.FakeKhronosPbrMaterial> createdKhronosPbrMaterials;
+    property public java.util.List<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.FakeWaterMaterial> createdWaterMaterials;
     property public androidx.xr.runtime.internal.HeadActivityPose? headActivityPose;
+    property public android.app.Activity? lastSetPreferredAspectRatioActivity;
+    property public float lastSetPreferredAspectRatioRatio;
     property public androidx.xr.runtime.internal.PanelEntity mainPanelEntity;
     property public androidx.xr.runtime.internal.MediaPlayerExtensionsWrapper mediaPlayerExtensionsWrapper;
+    property public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.PixelDimensions>> perceivedResolutionChangedMap;
     property public androidx.xr.runtime.internal.PerceptionSpaceActivityPose perceptionSpaceActivityPose;
+    property public boolean requestedFullSpaceMode;
+    property public boolean requestedHomeSpaceMode;
     property public androidx.xr.runtime.internal.SoundPoolExtensionsWrapper soundPoolExtensionsWrapper;
     property public androidx.xr.runtime.internal.SpatialCapabilities spatialCapabilities;
+    property public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.SpatialCapabilities>> spatialCapabilitiesChangedMap;
     property public androidx.xr.runtime.internal.SpatialEnvironment spatialEnvironment;
     property public androidx.xr.runtime.internal.SpatialModeChangeListener spatialModeChangeListener;
+    property public java.util.Map<java.util.concurrent.Executor,java.util.function.Consumer<androidx.xr.runtime.internal.SpatialVisibility>> spatialVisibilityChangedMap;
     property public Enum<androidx.xr.runtime.testing.FakeJxrPlatformAdapter.State> state;
+  }
+
+  public static final class FakeJxrPlatformAdapter.FakeKhronosPbrMaterial implements androidx.xr.runtime.internal.MaterialResource {
+    ctor public FakeJxrPlatformAdapter.FakeKhronosPbrMaterial(androidx.xr.runtime.internal.KhronosPbrMaterialSpec spec);
+    method public Float? getAlphaCutoff();
+    method public Float? getAmbientOcclusionFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getAmbientOcclusionTexture();
+    method public androidx.xr.runtime.math.Matrix3? getAmbientOcclusionUvTransform();
+    method public androidx.xr.runtime.math.Vector4? getBaseColorFactors();
+    method public androidx.xr.runtime.internal.TextureResource? getBaseColorTexture();
+    method public androidx.xr.runtime.math.Matrix3? getBaseColorUvTransform();
+    method public Float? getClearcoatIntensity();
+    method public Float? getClearcoatNormalFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getClearcoatNormalTexture();
+    method public Float? getClearcoatRoughness();
+    method public androidx.xr.runtime.internal.TextureResource? getClearcoatRoughnessTexture();
+    method public androidx.xr.runtime.internal.TextureResource? getClearcoatTexture();
+    method public androidx.xr.runtime.math.Vector3? getEmissiveFactors();
+    method public androidx.xr.runtime.internal.TextureResource? getEmissiveTexture();
+    method public androidx.xr.runtime.math.Matrix3? getEmissiveUvTransform();
+    method public Float? getIndexOfRefraction();
+    method public Float? getMetallicFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getMetallicRoughnessTexture();
+    method public androidx.xr.runtime.math.Matrix3? getMetallicRoughnessUvTransform();
+    method public Float? getNormalFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getNormalTexture();
+    method public androidx.xr.runtime.math.Matrix3? getNormalUvTransform();
+    method public Float? getRoughnessFactor();
+    method public androidx.xr.runtime.math.Vector3? getSheenColorFactors();
+    method public androidx.xr.runtime.internal.TextureResource? getSheenColorTexture();
+    method public Float? getSheenRoughnessFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getSheenRoughnessTexture();
+    method public androidx.xr.runtime.internal.KhronosPbrMaterialSpec getSpec();
+    method public Float? getTransmissionFactor();
+    method public androidx.xr.runtime.internal.TextureResource? getTransmissionTexture();
+    method public androidx.xr.runtime.math.Matrix3? getTransmissionUvTransform();
+    method public void setAlphaCutoff(Float?);
+    method public void setAmbientOcclusionFactor(Float?);
+    method public void setAmbientOcclusionTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setAmbientOcclusionUvTransform(androidx.xr.runtime.math.Matrix3?);
+    method public void setBaseColorFactors(androidx.xr.runtime.math.Vector4?);
+    method public void setBaseColorTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setBaseColorUvTransform(androidx.xr.runtime.math.Matrix3?);
+    method public void setClearcoatIntensity(Float?);
+    method public void setClearcoatNormalFactor(Float?);
+    method public void setClearcoatNormalTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setClearcoatRoughness(Float?);
+    method public void setClearcoatRoughnessTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setClearcoatTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setEmissiveFactors(androidx.xr.runtime.math.Vector3?);
+    method public void setEmissiveTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setEmissiveUvTransform(androidx.xr.runtime.math.Matrix3?);
+    method public void setIndexOfRefraction(Float?);
+    method public void setMetallicFactor(Float?);
+    method public void setMetallicRoughnessTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setMetallicRoughnessUvTransform(androidx.xr.runtime.math.Matrix3?);
+    method public void setNormalFactor(Float?);
+    method public void setNormalTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setNormalUvTransform(androidx.xr.runtime.math.Matrix3?);
+    method public void setRoughnessFactor(Float?);
+    method public void setSheenColorFactors(androidx.xr.runtime.math.Vector3?);
+    method public void setSheenColorTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setSheenRoughnessFactor(Float?);
+    method public void setSheenRoughnessTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setTransmissionFactor(Float?);
+    method public void setTransmissionTexture(androidx.xr.runtime.internal.TextureResource?);
+    method public void setTransmissionUvTransform(androidx.xr.runtime.math.Matrix3?);
+    property public Float? alphaCutoff;
+    property public Float? ambientOcclusionFactor;
+    property public androidx.xr.runtime.internal.TextureResource? ambientOcclusionTexture;
+    property public androidx.xr.runtime.math.Matrix3? ambientOcclusionUvTransform;
+    property public androidx.xr.runtime.math.Vector4? baseColorFactors;
+    property public androidx.xr.runtime.internal.TextureResource? baseColorTexture;
+    property public androidx.xr.runtime.math.Matrix3? baseColorUvTransform;
+    property public Float? clearcoatIntensity;
+    property public Float? clearcoatNormalFactor;
+    property public androidx.xr.runtime.internal.TextureResource? clearcoatNormalTexture;
+    property public Float? clearcoatRoughness;
+    property public androidx.xr.runtime.internal.TextureResource? clearcoatRoughnessTexture;
+    property public androidx.xr.runtime.internal.TextureResource? clearcoatTexture;
+    property public androidx.xr.runtime.math.Vector3? emissiveFactors;
+    property public androidx.xr.runtime.internal.TextureResource? emissiveTexture;
+    property public androidx.xr.runtime.math.Matrix3? emissiveUvTransform;
+    property public Float? indexOfRefraction;
+    property public Float? metallicFactor;
+    property public androidx.xr.runtime.internal.TextureResource? metallicRoughnessTexture;
+    property public androidx.xr.runtime.math.Matrix3? metallicRoughnessUvTransform;
+    property public Float? normalFactor;
+    property public androidx.xr.runtime.internal.TextureResource? normalTexture;
+    property public androidx.xr.runtime.math.Matrix3? normalUvTransform;
+    property public Float? roughnessFactor;
+    property public androidx.xr.runtime.math.Vector3? sheenColorFactors;
+    property public androidx.xr.runtime.internal.TextureResource? sheenColorTexture;
+    property public Float? sheenRoughnessFactor;
+    property public androidx.xr.runtime.internal.TextureResource? sheenRoughnessTexture;
+    property public androidx.xr.runtime.internal.KhronosPbrMaterialSpec spec;
+    property public Float? transmissionFactor;
+    property public androidx.xr.runtime.internal.TextureResource? transmissionTexture;
+    property public androidx.xr.runtime.math.Matrix3? transmissionUvTransform;
+  }
+
+  public static final class FakeJxrPlatformAdapter.FakeWaterMaterial implements androidx.xr.runtime.internal.MaterialResource {
+    ctor public FakeJxrPlatformAdapter.FakeWaterMaterial(boolean isAlphaMapVersion);
+    method public androidx.xr.runtime.internal.TextureResource? getAlphaMap();
+    method public float getAlphaStepMultiplier();
+    method public float getNormalBoundary();
+    method public androidx.xr.runtime.internal.TextureResource? getNormalMap();
+    method public float getNormalSpeed();
+    method public float getNormalTiling();
+    method public float getNormalZ();
+    method public androidx.xr.runtime.internal.TextureResource? getReflectionMap();
+    method public boolean isAlphaMapVersion();
+    method public void setAlphaMap(androidx.xr.runtime.internal.TextureResource?);
+    method public void setAlphaStepMultiplier(float);
+    method public void setNormalBoundary(float);
+    method public void setNormalMap(androidx.xr.runtime.internal.TextureResource?);
+    method public void setNormalSpeed(float);
+    method public void setNormalTiling(float);
+    method public void setNormalZ(float);
+    method public void setReflectionMap(androidx.xr.runtime.internal.TextureResource?);
+    property public androidx.xr.runtime.internal.TextureResource? alphaMap;
+    property public float alphaStepMultiplier;
+    property public boolean isAlphaMapVersion;
+    property public float normalBoundary;
+    property public androidx.xr.runtime.internal.TextureResource? normalMap;
+    property public float normalSpeed;
+    property public float normalTiling;
+    property public float normalZ;
+    property public androidx.xr.runtime.internal.TextureResource? reflectionMap;
   }
 
   public enum FakeJxrPlatformAdapter.State {
@@ -330,6 +510,7 @@ package androidx.xr.runtime.testing {
     method public androidx.xr.runtime.internal.Dimensions getSize();
     method public androidx.xr.runtime.internal.PixelDimensions getSizeInPixels();
     method public void setCornerRadius(float);
+    method public final void setPerceivedResolution(androidx.xr.runtime.internal.PerceivedResolutionResult perceivedResolution);
     method public void setSize(androidx.xr.runtime.internal.Dimensions);
     method public void setSizeInPixels(androidx.xr.runtime.internal.PixelDimensions);
     property public float cornerRadius;
@@ -373,8 +554,13 @@ package androidx.xr.runtime.testing {
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.testing.FakeRuntimeViewCamera> viewCameras;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakePerceptionSpaceActivityPose extends androidx.xr.runtime.testing.FakeActivityPose implements androidx.xr.runtime.internal.PerceptionSpaceActivityPose {
+    ctor public FakePerceptionSpaceActivityPose();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakePointerCaptureComponent extends androidx.xr.runtime.testing.FakeComponent implements androidx.xr.runtime.internal.PointerCaptureComponent {
     ctor public FakePointerCaptureComponent();
+    ctor public FakePointerCaptureComponent(optional java.util.concurrent.Executor? executor, optional androidx.xr.runtime.internal.PointerCaptureComponent.StateListener? stateListener);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeResizableComponent extends androidx.xr.runtime.testing.FakeComponent implements androidx.xr.runtime.internal.ResizableComponent {
@@ -443,7 +629,7 @@ package androidx.xr.runtime.testing {
     property public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.TrackingState trackingState;
     property public java.util.UUID? uuid;
-    field public static final int ANCHOR_RESOURCE_LIMIT = 5; // 0x5
+    field public static final int ANCHOR_RESOURCE_LIMIT = 6; // 0x6
     field public static final androidx.xr.runtime.testing.FakeRuntimeAnchor.Companion Companion;
   }
 

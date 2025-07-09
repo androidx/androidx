@@ -46,7 +46,7 @@ class AbstractCameraPresenceSourceTest {
     // A fake implementation of the abstract class for testing.
     internal class FakeCameraPresenceSource : AbstractCameraPresenceSource() {
         val isMonitoring = AtomicBoolean(false)
-        var fetchDataCompleter: CallbackToFutureAdapter.Completer<Set<CameraIdentifier>>? = null
+        var fetchDataCompleter: CallbackToFutureAdapter.Completer<List<CameraIdentifier>>? = null
 
         override fun startMonitoring() {
             isMonitoring.set(true)
@@ -56,7 +56,7 @@ class AbstractCameraPresenceSourceTest {
             isMonitoring.set(false)
         }
 
-        override fun fetchData(): ListenableFuture<Set<CameraIdentifier>> {
+        override fun fetchData(): ListenableFuture<List<CameraIdentifier>> {
             return CallbackToFutureAdapter.getFuture { completer ->
                     fetchDataCompleter = completer
                     "FetchData for FakeCameraPresenceSource"
@@ -65,8 +65,8 @@ class AbstractCameraPresenceSourceTest {
                     // Fake implementation to call updateDate/updateError with the result.
                     Futures.addCallback(
                         this,
-                        object : FutureCallback<Set<CameraIdentifier>> {
-                            override fun onSuccess(result: Set<CameraIdentifier>) {
+                        object : FutureCallback<List<CameraIdentifier>> {
+                            override fun onSuccess(result: List<CameraIdentifier>) {
                                 updateData(result)
                             }
 
@@ -80,7 +80,7 @@ class AbstractCameraPresenceSourceTest {
         }
 
         // Public methods to simulate data/error events from the source.
-        fun pushData(newData: Set<CameraIdentifier>) {
+        fun pushData(newData: List<CameraIdentifier>) {
             updateData(newData)
         }
 
@@ -90,8 +90,8 @@ class AbstractCameraPresenceSourceTest {
     }
 
     // A fake observer to capture results without using a mocking framework.
-    internal class FakeObserver : Observable.Observer<Set<CameraIdentifier>> {
-        private val updates: BlockingQueue<Result<Set<CameraIdentifier>>> = LinkedBlockingQueue()
+    internal class FakeObserver : Observable.Observer<List<CameraIdentifier>> {
+        private val updates: BlockingQueue<Result<List<CameraIdentifier>>> = LinkedBlockingQueue()
 
         // Helper class to wrap results, differentiating data from errors.
         data class Result<T>(val data: T?, val error: Throwable?) {
@@ -102,7 +102,7 @@ class AbstractCameraPresenceSourceTest {
             }
         }
 
-        override fun onNewData(value: Set<CameraIdentifier>?) {
+        override fun onNewData(value: List<CameraIdentifier>?) {
             // Correctly handles the nullable parameter from the Observer interface.
             if (value != null) {
                 updates.offer(Result.fromData(value))
@@ -117,7 +117,7 @@ class AbstractCameraPresenceSourceTest {
         fun awaitNextResult(
             timeout: Long = 1,
             unit: TimeUnit = TimeUnit.SECONDS,
-        ): Result<Set<CameraIdentifier>> {
+        ): Result<List<CameraIdentifier>> {
             val result = updates.poll(timeout, unit)
             assertThat(result).isNotNull()
             return result!!
@@ -133,8 +133,8 @@ class AbstractCameraPresenceSourceTest {
 
     private val id1 = CameraIdentifier.create("1")
     private val id2 = CameraIdentifier.create("2")
-    private val initialSet = setOf(id1)
-    private val updatedSet = setOf(id1, id2)
+    private val initialList = listOf(id1)
+    private val updatedList = listOf(id1, id2)
 
     @Before
     fun setUp() {
@@ -184,14 +184,14 @@ class AbstractCameraPresenceSourceTest {
 
         // Assert: New observer gets the current (empty) data set immediately.
         val result = observer.awaitNextResult()
-        assertThat(result.data).isEqualTo(emptySet<CameraIdentifier>())
+        assertThat(result.data).isEqualTo(emptyList<CameraIdentifier>())
         assertThat(result.error).isNull()
     }
 
     @Test
     fun newObserver_receivesLatestData() {
         // Arrange: Push data before observer is added
-        source.pushData(initialSet)
+        source.pushData(initialList)
         val observer = FakeObserver()
 
         // Act
@@ -199,7 +199,7 @@ class AbstractCameraPresenceSourceTest {
 
         // Assert: New observer gets the current data set immediately.
         val result = observer.awaitNextResult()
-        assertThat(result.data).isEqualTo(initialSet)
+        assertThat(result.data).isEqualTo(initialList)
     }
 
     @Test
@@ -226,24 +226,24 @@ class AbstractCameraPresenceSourceTest {
         observer.awaitNextResult()
 
         // Act
-        source.pushData(initialSet)
+        source.pushData(initialList)
 
         // Assert
         val result = observer.awaitNextResult()
-        assertThat(result.data).isEqualTo(initialSet)
+        assertThat(result.data).isEqualTo(initialList)
     }
 
     @Test
     fun updateData_doesNotNotify_ifDataIsUnchanged() {
         // Arrange
         val observer = FakeObserver()
-        source.pushData(initialSet)
+        source.pushData(initialList)
         source.addObserver(mainExecutor, observer)
         // Consume the initial notification
         observer.awaitNextResult()
 
         // Act: Push the exact same data again
-        source.pushData(initialSet)
+        source.pushData(initialList)
 
         // Assert: No new notifications should occur.
         observer.assertNoNewUpdate()
@@ -277,16 +277,16 @@ class AbstractCameraPresenceSourceTest {
         // Act
         val future = source.fetchData()
         assertThat(source.fetchDataCompleter).isNotNull()
-        source.fetchDataCompleter!!.set(updatedSet)
+        source.fetchDataCompleter!!.set(updatedList)
 
         // Assert
         // 1. The future completes with the data
         val futureResult = future.get(1, TimeUnit.SECONDS)
-        assertThat(futureResult).isEqualTo(updatedSet)
+        assertThat(futureResult).isEqualTo(updatedList)
 
         // 2. The observer is notified of the state change
         val observerResult = observer.awaitNextResult()
-        assertThat(observerResult.data).isEqualTo(updatedSet)
+        assertThat(observerResult.data).isEqualTo(updatedList)
     }
 
     @Test

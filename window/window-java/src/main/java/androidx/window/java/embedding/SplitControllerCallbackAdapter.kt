@@ -34,13 +34,13 @@ import java.util.concurrent.Executor
  * @param controller A [SplitController] that can be obtained by [SplitController.getInstance]
  */
 @ExperimentalWindowApi
-class SplitControllerCallbackAdapter
+public class SplitControllerCallbackAdapter
 private constructor(
     private val controller: SplitController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) {
 
-    constructor(controller: SplitController) : this(controller, CallbackToFlowAdapter())
+    public constructor(controller: SplitController) : this(controller, CallbackToFlowAdapter())
 
     /**
      * Registers a listener for updates about the active split state(s) that this activity is part
@@ -58,7 +58,7 @@ private constructor(
      * @param consumer [Consumer] that will be invoked on the [executor] when there is an update to
      *   the active split state(s).
      */
-    fun addSplitListener(
+    public fun addSplitListener(
         activity: Activity,
         executor: Executor,
         consumer: Consumer<List<SplitInfo>>,
@@ -71,7 +71,7 @@ private constructor(
      *
      * @param consumer the previously registered [Consumer] to unregister.
      */
-    fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) {
+    public fun removeSplitListener(consumer: Consumer<List<SplitInfo>>) {
         callbackToFlowAdapter.disconnect(consumer)
     }
 }

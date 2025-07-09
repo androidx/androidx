@@ -27,6 +27,9 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -109,6 +112,44 @@ class SandboxedPdfLoaderTest {
         assertThat(document1.getPageContent(0)?.textContents?.get(0)?.text).isEqualTo(doc1Page1Text)
         assertThat(document1.getPageInfo(2).height).isEqualTo(doc1Page3Info.height)
         assertThat(document1.getPageInfo(2).width).isEqualTo(doc1Page3Info.width)
+
+        document1.close()
+        document2.close()
+    }
+
+    @Test
+    fun test_initPdfSession_success() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val handle = SandboxedPdfLoader.startInitialization(context)
+
+        // Assert a non-null handle returned for maintaining pdf session
+        assertNotNull(handle)
+        // Clean up
+        handle.close()
+    }
+
+    @Test
+    fun startInitialization_multipleCallsReturnIndependentHandles() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val handle1 = SandboxedPdfLoader.startInitialization(context)
+        assertNotNull(handle1)
+
+        val handle2 = SandboxedPdfLoader.startInitialization(context)
+        assertNotNull(handle2)
+
+        assertNotSame(handle1, handle2)
+
+        // Ensure cleanup for both
+        handle1.close()
+        handle2.close()
+    }
+
+    @Test
+    fun test_callingCloseImmediatelyAfterInit() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val handle = SandboxedPdfLoader.startInitialization(context)
+        // Call close immediately from a separate thread; asserting no exception is thrown
+        withContext(Dispatchers.IO) { handle.close() }
     }
 
     companion object {

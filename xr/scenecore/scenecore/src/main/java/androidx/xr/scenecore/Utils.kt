@@ -182,9 +182,10 @@ internal fun RtSpatialCapabilities.toSpatialCapabilities(): SpatialCapabilities 
     return SpatialCapabilities(capabilities.toSpatialCapability())
 }
 
-/** Extension function that converts a [RtSpatialVisibility] to a [SpatialVisibility]. */
-internal fun RtSpatialVisibility.toSpatialVisibility(): SpatialVisibility {
-    return SpatialVisibility(visibility.toSpatialVisibilityValue())
+/** Extension function that converts a [RtSpatialVisibility] to a [SpatialVisibilityValue]. */
+@SpatialVisibilityValue
+internal fun RtSpatialVisibility.toSpatialVisibility(): Int {
+    return visibility.toSpatialVisibilityValue()
 }
 
 /** Extension function that converts a [RtResizeEvent] to a [ResizeEvent]. */
@@ -261,20 +262,22 @@ internal fun Int.toInputEventPointerType(): Int {
     }
 }
 
-/** Extension function that converts a [Int] to [SpatialCapabilities.SpatialCapability]. */
-@SpatialCapabilities.SpatialCapability
+/** Extension function that converts a [Int] to [SpatialCapability]. */
+@SpatialCapability
 internal fun Int.toSpatialCapability(): Int {
     return this
 }
 
 /** Extension function that converts a [Int] to [SpatialVisibilityValue]. */
-@SpatialVisibility.SpatialVisibilityValue
+@SpatialVisibilityValue
 internal fun Int.toSpatialVisibilityValue(): Int {
     return when (this) {
-        RtSpatialVisibility.UNKNOWN -> SpatialVisibility.UNKNOWN
-        RtSpatialVisibility.OUTSIDE_FOV -> SpatialVisibility.OUTSIDE_FOV
-        RtSpatialVisibility.PARTIALLY_WITHIN_FOV -> SpatialVisibility.PARTIALLY_WITHIN_FOV
-        RtSpatialVisibility.WITHIN_FOV -> SpatialVisibility.WITHIN_FOV
+        RtSpatialVisibility.UNKNOWN -> SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN
+        RtSpatialVisibility.OUTSIDE_FOV ->
+            SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW
+        RtSpatialVisibility.PARTIALLY_WITHIN_FOV ->
+            SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW
+        RtSpatialVisibility.WITHIN_FOV -> SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW
         else -> error("Unknown Spatial Visibility Value: $this")
     }
 }

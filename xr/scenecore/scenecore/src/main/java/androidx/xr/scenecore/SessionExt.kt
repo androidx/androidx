@@ -18,9 +18,30 @@
 
 package androidx.xr.scenecore
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Session
+import java.util.Collections
+import java.util.WeakHashMap
 
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/**
+ * A thread-safe, memory-safe cache to store the Scene for each Session instance.
+ *
+ * A [WeakHashMap] is used to prevent memory leaks. It allows the garbage collector to remove
+ * entries when the [Session] key is no longer in use elsewhere. This is wrapped in a
+ * [Collections.synchronizedMap] to ensure thread safety.
+ */
+private val sceneCache = Collections.synchronizedMap(WeakHashMap<Session, Scene>())
+
+/**
+ * Gets the [Scene] associated with this Session.
+ *
+ * The `Scene` is the primary interface for creating and managing spatial content. There is a single
+ * `Scene` instance for each `Session`.
+ *
+ * @see Scene
+ */
 public val Session.scene: Scene
-    get() = this.sessionConnectors.filterIsInstance<Scene>().single()
+    get() =
+        sceneCache.getOrPut(this) {
+            // This lambda is executed only once per session instance.
+            this.sessionConnectors.filterIsInstance<Scene>().single()
+        }

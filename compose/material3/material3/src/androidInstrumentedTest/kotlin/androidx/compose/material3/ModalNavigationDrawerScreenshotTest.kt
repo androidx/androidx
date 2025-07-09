@@ -64,7 +64,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3Api::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ModalNavigationDrawerScreenshotTest {
 
     @Suppress("DEPRECATION") @get:Rule val rule = createComposeRule()

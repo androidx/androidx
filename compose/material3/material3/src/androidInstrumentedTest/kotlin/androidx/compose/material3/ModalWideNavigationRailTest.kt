@@ -64,6 +64,7 @@ class ModalWideNavigationRailTest {
             ModalWideNavigationRail {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
+                    railExpanded = false,
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,

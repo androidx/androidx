@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -42,8 +41,6 @@ public class PerceptionLibrary {
     private static final String TAG = "PerceptionLibrary";
 
     private static final String NATIVE_LIBRARY_NAME = "androidx.xr.runtime.openxr";
-    private static final ConcurrentHashMap<Activity, Session> sActivitySessionMap =
-            new ConcurrentHashMap<>();
 
     @SuppressWarnings("NonFinalStaticField")
     private static volatile boolean sLibraryLoaded = false;
@@ -109,12 +106,6 @@ public class PerceptionLibrary {
                         future.setException(new IllegalStateException("Session already exists."));
                         return;
                     }
-                    if (sActivitySessionMap.containsKey(activity)) {
-                        future.setException(
-                                new IllegalStateException(
-                                        "Session already exists for the provided activity."));
-                        return;
-                    }
                     Session session = new Session(activity, referenceSpaceType, executor);
                     if (!session.initSession()) {
                         Log.e(TAG, "Failed to initialize a session.");
@@ -122,16 +113,7 @@ public class PerceptionLibrary {
                                 new FailedToInitializeException("Failed to initialize a session."));
                         return;
                     }
-
                     Log.i(TAG, "Loaded perception library.");
-                    // Do another check to make sure another session wasn't created for this
-                    // activity
-                    // while we were initializing it.
-                    if (sActivitySessionMap.putIfAbsent(activity, session) != null) {
-                        future.setException(
-                                new IllegalStateException(
-                                        "Session already exists for the provided activity."));
-                    }
                     mSession = session;
                     future.set(mSession);
                 });

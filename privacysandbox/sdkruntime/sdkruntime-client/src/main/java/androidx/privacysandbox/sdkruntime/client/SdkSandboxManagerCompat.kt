@@ -122,7 +122,7 @@ private constructor(
      * 2) Testing loading newest SDK versions via old protocol version.
      */
     @TestOnly
-    internal fun loadLocalSdkWithVersionOverride(
+    internal suspend fun loadLocalSdkWithVersionOverride(
         sdkName: String,
         params: Bundle,
         apiVersion: Int,

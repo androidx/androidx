@@ -574,16 +574,16 @@ internal constructor(
          *
          * @param session The [Session] to use for loading the model.
          * @param spec The [KhronosPbrMaterialSpec] to use for the material.
-         * @return a ListenableFuture<KhronosPbrMaterial>. Listeners will be called on the main
-         *   thread if Runnable::run is supplied.
+         * @return a [KhronosPbrMaterial] upon completion.
          */
         @MainThread
         @JvmStatic
-        public fun create(
+        public suspend fun create(
             session: Session,
             spec: KhronosPbrMaterialSpec,
-        ): ListenableFuture<KhronosPbrMaterial> {
+        ): KhronosPbrMaterial {
             return KhronosPbrMaterial.createAsync(session.platformAdapter, spec, session)
+                .awaitSuspending()
         }
     }
 }

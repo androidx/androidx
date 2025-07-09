@@ -21,22 +21,23 @@ import androidx.annotation.RestrictTo
 
 /** Describes an overlay [ActivityStack] associated with [OverlayCreateParams.tag]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class OverlayInfo
+public class OverlayInfo
 internal constructor(
     /** The unique identifier associated with the overlay [ActivityStack]. */
-    val overlayTag: String,
+    public val overlayTag: String,
     /**
      * The [OverlayAttributes] of the overlay [ActivityStack] if it exists, or `null` if there's no
      * such a [ActivityStack]
      */
-    val currentOverlayAttributes: OverlayAttributes?,
+    public val currentOverlayAttributes: OverlayAttributes?,
     /**
      * The overlay [ActivityStack] associated with [overlayTag], or `null` if there's no such a
      * [ActivityStack].
      */
-    val activityStack: ActivityStack?,
+    public val activityStack: ActivityStack?,
 ) {
-    operator fun contains(activity: Activity): Boolean = activityStack?.contains(activity) ?: false
+    public operator fun contains(activity: Activity): Boolean =
+        activityStack?.contains(activity) ?: false
 
     override fun toString(): String =
         "${OverlayInfo::class.java.simpleName}: {" +

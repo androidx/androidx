@@ -1267,7 +1267,7 @@ class SnapshotTests {
             { mutableIntStateOf(1) },
             { it.value },
             {
-                it.value = 2
+                it.intValue = 2
                 2
             },
         )
@@ -1275,7 +1275,7 @@ class SnapshotTests {
             { mutableLongStateOf(1L) },
             { it.value },
             {
-                it.value = 2L
+                it.longValue = 2L
                 2L
             },
         )
@@ -1283,7 +1283,7 @@ class SnapshotTests {
             { mutableFloatStateOf(1f) },
             { it.value },
             {
-                it.value = 2f
+                it.floatValue = 2f
                 2f
             },
         )
@@ -1291,7 +1291,7 @@ class SnapshotTests {
             { mutableDoubleStateOf(1.0) },
             { it.value },
             {
-                it.value = 2.0
+                it.doubleValue = 2.0
                 2.0
             },
         )

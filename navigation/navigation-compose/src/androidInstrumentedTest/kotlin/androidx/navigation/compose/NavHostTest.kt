@@ -36,6 +36,8 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -1414,6 +1416,50 @@ class NavHostTest {
         }
 
         composeTestRule.waitForIdle()
+    }
+
+    @Test
+    fun testLifecycleStateOnAtomicNavigateToComposableAndDialog() {
+        lateinit var navController: NavHostController
+        lateinit var screen1Lifecycle: State<Lifecycle.State>
+        lateinit var screen2Lifecycle: State<Lifecycle.State>
+        lateinit var dialogLifecycle: State<Lifecycle.State>
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "screen1") {
+                composable("screen1") {
+                    screen1Lifecycle = it.lifecycle.currentStateFlow.collectAsState()
+                    Text("screen1")
+                }
+                composable("screen2") {
+                    screen2Lifecycle = it.lifecycle.currentStateFlow.collectAsState()
+                    Text("screen1")
+                }
+                dialog("dialog") {
+                    dialogLifecycle = it.lifecycle.currentStateFlow.collectAsState()
+                    Text("dialog")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("screen1").assertIsDisplayed()
+        assertThat(screen1Lifecycle.value).isEqualTo(Lifecycle.State.RESUMED)
+
+        runOnUiThread {
+            navController.navigate("screen2")
+            navController.navigate("dialog")
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("dialog").assertIsDisplayed()
+        assertThat(screen2Lifecycle.value).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(dialogLifecycle.value).isEqualTo(Lifecycle.State.RESUMED)
+
+        runOnUiThread { navController.popBackStack() }
+
+        composeTestRule.waitForIdle()
+        assertThat(screen2Lifecycle.value).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     private fun createNavController(context: Context): TestNavHostController {

@@ -33,6 +33,9 @@ import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.DebugTextLinearView
 import androidx.xr.scenecore.testapp.common.createSession
+import androidx.xr.scenecore.testapp.common.managers.GltfManager
+import androidx.xr.scenecore.testapp.common.managers.SpatialEnvironmentManager
+import androidx.xr.scenecore.testapp.common.managers.SurfaceEntityManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.function.Consumer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,8 +51,8 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
     private lateinit var mPerceivedResolutionManager: PerceivedResolutionManager
     private lateinit var mHeadLockedPanelView: DebugTextLinearView
     private val _mSpatialVisibilityFlow =
-        MutableStateFlow(SpatialVisibility(SpatialVisibility.UNKNOWN))
-    var mSpatialVisibility: SpatialVisibility
+        MutableStateFlow(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
+    var mSpatialVisibility: Int
         get() = _mSpatialVisibilityFlow.value
         set(value) {
             _mSpatialVisibilityFlow.value = value
@@ -94,7 +97,10 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         session!!.scene.clearSpatialVisibilityChangedListener()
-        session!!.scene.removePerceivedResolutionChangedListener(mPerceivedResolutionListener)
+        session!!
+            .scene
+            .mainPanelEntity
+            .removePerceivedResolutionChangedListener(mPerceivedResolutionListener)
     }
 
     private fun createHeadLockedPanel() {
@@ -103,18 +109,24 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         mHeadLockedPanelView.setLine("State", "UNKNOWN")
         this.mHeadLockedUIManager = HeadLockedUIManager(session!!, this, mHeadLockedPanelView)
 
-        session!!.scene.setSpatialVisibilityChangedListener { visibility: SpatialVisibility ->
+        session!!.scene.setSpatialVisibilityChangedListener { visibility: Int ->
             mSpatialVisibility = visibility
-            Log.i(TAG, "Spatial visibility changed listener called $visibility")
-            mHeadLockedPanelView.setLine("State", "$visibility")
+            Log.i(
+                TAG,
+                "Spatial visibility changed listener called ${visibility.toSpatialVisibilityString()}",
+            )
+            mHeadLockedPanelView.setLine("State", visibility.toSpatialVisibilityString())
             updateTextViews()
         }
-        session!!.scene.addPerceivedResolutionChangedListener(mPerceivedResolutionListener)
+        session!!
+            .scene
+            .mainPanelEntity
+            .addPerceivedResolutionChangedListener(mPerceivedResolutionListener)
     }
 
     private fun updateTextViews() {
         findViewById<TextView>(R.id.fov_textview1).also {
-            it.text = "SpatialVisibility: $mSpatialVisibility"
+            it.text = "SpatialVisibility: ${mSpatialVisibility.toSpatialVisibilityString()}"
         }
 
         findViewById<TextView>(R.id.fov_textview2).also {
@@ -155,5 +167,19 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
         mPanelEntityManager = PanelEntityManager(session!!, this)
         mPerceivedResolutionManager =
             PerceivedResolutionManager(session!!, this, mSurfaceEntityManager, mPanelEntityManager)
+    }
+
+    fun Int.toSpatialVisibilityString(): String {
+        val visibilityString =
+            when (this) {
+                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN -> "UNKNOWN"
+                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW ->
+                    "OUTSIDE_FIELD_OF_VIEW"
+                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW ->
+                    "PARTIALLY_WITHIN_FIELD_OF_VIEW"
+                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW -> "WITHIN_FIELD_OF_VIEW"
+                else -> "UNKNOWN"
+            }
+        return "SpatialVisibility($visibilityString)"
     }
 }

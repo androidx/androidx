@@ -19,13 +19,10 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -38,7 +35,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TimePickerScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
@@ -49,7 +46,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker24h_withoutSeconds() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 TimePicker(
@@ -64,7 +61,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker24h_withSeconds() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 TimePicker(
@@ -79,7 +76,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker12h() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             content = {
                 TimePicker(
@@ -94,7 +91,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker24h_withoutSeconds_largeScreen() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             isLargeScreen = true,
             content = {
@@ -110,7 +107,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker24h_withSeconds_largeScreen() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             isLargeScreen = true,
             content = {
@@ -126,7 +123,7 @@ class TimePickerScreenshotTest {
     @Test
     fun timePicker12h_largeScreen() =
         rule.verifyTimePickerScreenshot(
-            methodName = testName.methodName,
+            testName = testName,
             screenshotRule = screenshotRule,
             isLargeScreen = true,
             content = {
@@ -141,7 +138,7 @@ class TimePickerScreenshotTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.verifyTimePickerScreenshot(
-        methodName: String,
+        testName: TestName,
         screenshotRule: AndroidXScreenshotTestRule,
         testTag: String = TEST_TAG,
         isLargeScreen: Boolean = false,
@@ -150,6 +147,6 @@ class TimePickerScreenshotTest {
         val screenSizeDp = if (isLargeScreen) SCREEN_SIZE_LARGE else SCREEN_SIZE_SMALL
         setContentWithTheme { ScreenConfiguration(screenSizeDp) { content() } }
 
-        onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
+        rule.verifyScreenshot(testName, screenshotRule, testTag = testTag)
     }
 }

@@ -147,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="left"
-                app:constraint_referenced_ids="environment_button3_1,environment_button3_2,environment_button3_3" />
+                app:constraint_referenced_ids="environment_button3_1,environment_button3_2,environment_button3_3,environment_button3_4" />
 
             <Button
                 android:id="@+id/environment_button3_1"
@@ -187,11 +187,26 @@
                 android:background="@drawable/test_button"
                 android:textSize="18sp"
                 android:textFontWeight="400"
-                android:text="Unset Geometry"
+                android:text="Set Geometry Dragon"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/environment_button3_2"
+                app:layout_constraintEnd_toStartOf="@+id/environment_button3_4"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+            <Button
+                android:id="@+id/environment_button3_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Unset Geometry"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/environment_button3_3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5" />
 
@@ -261,37 +276,37 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
-        <Button
-            android:id="@+id/environment_toggle_passthrough"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/test_button"
-            android:textSize="18sp"
-            android:textFontWeight="400"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Toggle Passthrough"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/environment_log_spatial_capabilities"
-            app:layout_constraintHorizontal_weight="5"/>
+            <Button
+                android:id="@+id/environment_toggle_passthrough"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="Toggle Passthrough"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/environment_log_spatial_capabilities"
+                app:layout_constraintHorizontal_weight="5"/>
 
-        <Button
-            android:id="@+id/environment_log_spatial_capabilities"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/test_button"
-            android:textSize="18sp"
-            android:textFontWeight="400"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Log Current Spatial Capabilities"
-            app:layout_constraintTop_toTopOf="@+id/environment_toggle_passthrough"
-            app:layout_constraintStart_toEndOf="@+id/environment_toggle_passthrough"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="5"/>
+            <Button
+                android:id="@+id/environment_log_spatial_capabilities"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:text="Log Current Spatial Capabilities"
+                app:layout_constraintTop_toTopOf="@+id/environment_toggle_passthrough"
+                app:layout_constraintStart_toEndOf="@+id/environment_toggle_passthrough"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="5"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -365,10 +380,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/environment_event_log_table_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/environment_event_log_table_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

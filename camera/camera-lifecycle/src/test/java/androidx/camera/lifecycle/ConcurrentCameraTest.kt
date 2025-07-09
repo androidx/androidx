@@ -338,7 +338,7 @@ class ConcurrentCameraTest {
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination1)
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _, _, _ ->
+            CameraFactory.Provider { _, _, _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
                     FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))

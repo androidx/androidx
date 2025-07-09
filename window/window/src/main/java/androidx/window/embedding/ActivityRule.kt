@@ -20,20 +20,20 @@ package androidx.window.embedding
  * Layout configuration rules for individual activities with split layouts. Take precedence over
  * [SplitPairRule].
  */
-class ActivityRule
+public class ActivityRule
 internal constructor(
     tag: String?,
     /**
      * Filters used to choose when to apply this rule. The rule will be applied if any one of the
      * provided filters matches.
      */
-    val filters: Set<ActivityFilter>,
+    public val filters: Set<ActivityFilter>,
     /**
      * Whether the activity should always be expanded on launch. Some activities are supposed to
      * expand to the full task bounds, independent of the state of the split. An example is an
      * activity that blocks all user interactions, such as a warning dialog.
      */
-    val alwaysExpand: Boolean = false,
+    public val alwaysExpand: Boolean = false,
 ) : EmbeddingRule(tag) {
 
     /**
@@ -41,7 +41,7 @@ internal constructor(
      *
      * @param filters See [ActivityRule.filters].
      */
-    class Builder(private val filters: Set<ActivityFilter>) {
+    public class Builder(private val filters: Set<ActivityFilter>) {
         private var tag: String? = null
         private var alwaysExpand: Boolean = false
 
@@ -53,7 +53,7 @@ internal constructor(
          * @param alwaysExpand whether the activity should always be expanded on launch.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        fun setAlwaysExpand(alwaysExpand: Boolean): Builder = apply {
+        public fun setAlwaysExpand(alwaysExpand: Boolean): Builder = apply {
             this.alwaysExpand = alwaysExpand
         }
 
@@ -62,14 +62,14 @@ internal constructor(
          *
          * @param tag unique string to identify this [ActivityRule].
          */
-        fun setTag(tag: String?): Builder = apply { this.tag = tag }
+        public fun setTag(tag: String?): Builder = apply { this.tag = tag }
 
         /**
          * Builds an `ActivityRule` instance.
          *
          * @return The new `ActivityRule` instance.
          */
-        fun build() = ActivityRule(tag, filters, alwaysExpand)
+        public fun build(): ActivityRule = ActivityRule(tag, filters, alwaysExpand)
     }
 
     /**

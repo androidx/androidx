@@ -46,6 +46,7 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.test.R
@@ -68,6 +69,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ArcLayoutTest(private val testHeight: Int) {
     private val testWidth: Int = SCREEN_SIZE_DEFAULT
     private val renderDoneLatch = CountDownLatch(1)

@@ -1415,6 +1415,7 @@ class ProcessCameraProviderTest(
                     ),
                     null,
                     -1L,
+                    null,
                     NO_OP_STREAM_SPECS_CALCULATOR,
                 )
                 .availableCameraIds

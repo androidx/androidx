@@ -26,6 +26,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.testing.EqualsTester
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import java.time.ZoneOffset
 import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
@@ -72,6 +73,77 @@ class ActivityIntensityRecordTest {
                 )
             )
             .testEquals()
+    }
+
+    @Test
+    fun hashCode_includesAllFields() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 16)
+        val baseRecord =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = ZoneOffset.UTC,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.UTC,
+                metadata = Metadata.manualEntry(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_MODERATE,
+            )
+        val baseRecord2 =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = ZoneOffset.UTC,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.UTC,
+                metadata = Metadata.manualEntry(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_MODERATE,
+            )
+        val otherStartTime =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1235L),
+                startZoneOffset = ZoneOffset.UTC,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.UTC,
+                metadata = Metadata.manualEntry(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_MODERATE,
+            )
+        val otherZoneOffset =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = ZoneOffset.ofHours(1),
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.ofHours(1),
+                metadata = Metadata.manualEntry(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_MODERATE,
+            )
+        val otherType =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = ZoneOffset.UTC,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.UTC,
+                metadata = Metadata.manualEntry(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_VIGOROUS,
+            )
+        val otherMetadata =
+            ActivityIntensityRecord(
+                startTime = Instant.ofEpochMilli(1234L),
+                startZoneOffset = ZoneOffset.UTC,
+                endTime = Instant.ofEpochMilli(1236L),
+                endZoneOffset = ZoneOffset.UTC,
+                metadata = Metadata.unknownRecordingMethod(),
+                activityIntensityType =
+                    ActivityIntensityRecord.Companion.ACTIVITY_INTENSITY_TYPE_MODERATE,
+            )
+
+        assertThat(baseRecord.hashCode()).isEqualTo(baseRecord2.hashCode())
+        assertThat(baseRecord.hashCode()).isNotEqualTo(otherStartTime.hashCode())
+        assertThat(baseRecord.hashCode()).isNotEqualTo(otherZoneOffset.hashCode())
+        assertThat(baseRecord.hashCode()).isNotEqualTo(otherType.hashCode())
+        assertThat(baseRecord.hashCode()).isNotEqualTo(otherMetadata.hashCode())
     }
 
     @Test

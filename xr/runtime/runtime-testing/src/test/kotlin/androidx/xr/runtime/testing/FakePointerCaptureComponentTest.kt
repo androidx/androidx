@@ -18,7 +18,8 @@ package androidx.xr.runtime.testing
 
 import androidx.kruth.assertThat
 import androidx.xr.runtime.internal.PointerCaptureComponent.PointerCaptureState
-import org.junit.Before
+import androidx.xr.runtime.internal.PointerCaptureComponent.StateListener
+import java.util.concurrent.Executor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,24 +28,23 @@ import org.junit.runners.JUnit4
 class FakePointerCaptureComponentTest {
     private lateinit var underTest: FakePointerCaptureComponent
 
-    @Before
-    fun setUp() {
-        underTest = FakePointerCaptureComponent()
-    }
-
     @Test
-    fun setPointerCaptureState_getPointerCaptureStateReturnsSetPointerCaptureState() {
-        // Default value.
-        check(underTest.pointerCaptureState == PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED)
+    fun onStateChanged_withExecutor_returnsSetPointerCaptureState() {
+        // Arrange
+        var state = PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED
+        val stateListener: StateListener =
+            object : StateListener {
+                override fun onStateChanged(@PointerCaptureState newState: Int) {
+                    state = newState
+                }
+            }
+        val executor = Executor { commands -> commands.run() }
+        underTest = FakePointerCaptureComponent(executor, stateListener)
 
-        underTest.stateListener.onStateChanged(PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE)
+        // Act
+        underTest.onStateChanged(PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE)
 
-        assertThat(underTest.pointerCaptureState)
-            .isEqualTo(PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE)
-
-        underTest.stateListener.onStateChanged(PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED)
-
-        assertThat(underTest.pointerCaptureState)
-            .isEqualTo(PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED)
+        // Assert
+        assertThat(state).isEqualTo(PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE)
     }
 }

@@ -32,11 +32,11 @@ import androidx.window.embedding.MatcherUtils.validateComponentName
  * primary [Activity.getComponentName] and the new started activity [Intent], it matches the
  * [SplitPairRule] that holds this filter.
  */
-class SplitPairFilter
+public class SplitPairFilter
 internal constructor(
     private val _primaryActivityName: ActivityComponentInfo,
     private val _secondaryActivityName: ActivityComponentInfo,
-    val secondaryActivityIntentAction: String?,
+    public val secondaryActivityIntentAction: String?,
 ) {
 
     /**
@@ -58,7 +58,7 @@ internal constructor(
      *   is not `null`, the [SplitPairFilter] will check the activity [Intent.getAction] besides the
      *   component name. If it is `null`, [Intent.getAction] will be ignored.
      */
-    constructor(
+    public constructor(
         /**
          * Component name of the primary activity in the split. Must be non-empty. Can contain a
          * single wildcard at the end. Supported formats:
@@ -95,10 +95,10 @@ internal constructor(
         validateComponentName(_secondaryActivityName.packageName, _secondaryActivityName.className)
     }
 
-    val primaryActivityName: ComponentName
+    public val primaryActivityName: ComponentName
         get() = ComponentName(_primaryActivityName.packageName, _primaryActivityName.className)
 
-    val secondaryActivityName: ComponentName
+    public val secondaryActivityName: ComponentName
         get() = ComponentName(_secondaryActivityName.packageName, _secondaryActivityName.className)
 
     /**
@@ -109,7 +109,10 @@ internal constructor(
      * @param primaryActivity the [Activity] to test against with the [primaryActivityName]
      * @param secondaryActivity the [Activity] to test against with the [secondaryActivityName]
      */
-    fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
+    public fun matchesActivityPair(
+        primaryActivity: Activity,
+        secondaryActivity: Activity,
+    ): Boolean {
         // Check if the activity component names match
         val match =
             if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
@@ -141,7 +144,7 @@ internal constructor(
      * @param primaryActivity the [Activity] to test against with the [primaryActivityName]
      * @param secondaryActivityIntent the [Intent] to test against with the [secondaryActivityName]
      */
-    fun matchesActivityIntentPair(
+    public fun matchesActivityIntentPair(
         primaryActivity: Activity,
         secondaryActivityIntent: Intent,
     ): Boolean {

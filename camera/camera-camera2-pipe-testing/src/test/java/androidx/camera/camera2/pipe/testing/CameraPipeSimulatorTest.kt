@@ -51,6 +51,8 @@ class CameraPipeSimulatorTest {
         )
 
     private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+    private val unsupportedStreamConfig =
+        CameraStream.Config.create(Size(7680, 4320), StreamFormat.YUV_420_888)
     private val graphConfig =
         CameraGraph.Config(camera = frontCameraMetadata.camera, streams = listOf(streamConfig))
 
@@ -182,10 +184,35 @@ class CameraPipeSimulatorTest {
     }
 
     @Test
-    fun cameraPipeSimulatorSupportIsConfigureSupportedApi() {
-        val config =
-            CameraGraph.Config(camera = frontCameraMetadata.camera, streams = listOf(streamConfig))
-        val result = cameraPipe.isConfigSupported(config)
-        assertThat(result).isEqualTo(ConfigQueryResult.UNKNOWN)
+    fun isConfigSupported_returnsExpectedResult() {
+        testScope.runTest {
+            val supportedConfig =
+                CameraGraph.Config(
+                    camera = backCameraMetadata.camera,
+                    streams = listOf(streamConfig),
+                )
+            val result = cameraPipe.isConfigSupported(supportedConfig)
+            var expectedResult =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    ConfigQueryResult.SUPPORTED
+                } else {
+                    ConfigQueryResult.UNKNOWN
+                }
+            assertThat(result).isEqualTo(expectedResult)
+
+            val unsupportedConfig =
+                CameraGraph.Config(
+                    camera = backCameraMetadata.camera,
+                    streams = listOf(unsupportedStreamConfig),
+                )
+            val unsupportedResult = cameraPipe.isConfigSupported(unsupportedConfig)
+            expectedResult =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    ConfigQueryResult.UNSUPPORTED
+                } else {
+                    ConfigQueryResult.UNKNOWN
+                }
+            assertThat(unsupportedResult).isEqualTo(expectedResult)
+        }
     }
 }

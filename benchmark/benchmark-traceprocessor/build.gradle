@@ -69,13 +69,6 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.named("multiplatformSourceJar").configure {
     dependsOn(tasks.named("generateCommonMainProtos"))
 }
-afterEvaluate {
-    if (!ProjectLayoutType.isPlayground(project)) {
-        tasks.named("generateJavaKzip").configure {
-            dependsOn(tasks.named("generateCommonMainProtos"))
-        }
-    }
-}
 
 wire {
     kotlin {}

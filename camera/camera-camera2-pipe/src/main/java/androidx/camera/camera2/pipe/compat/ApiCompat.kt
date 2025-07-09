@@ -41,8 +41,10 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.availableVideoStabilizationModes
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import java.util.concurrent.Executor
 
 @RequiresApi(23)
@@ -559,5 +561,53 @@ internal object Api35Compat {
     fun getMaxTorchStrengthLevel(cameraMetadata: CameraMetadata): Int {
         val maxLevel = cameraMetadata[CameraCharacteristics.FLASH_TORCH_STRENGTH_MAX_LEVEL]
         return maxLevel ?: 1
+    }
+
+    /**
+     * Creates a wrapper for the CameraDeviceSetup object on API 35+.
+     *
+     * This is the helper function that directly calls the new CameraManager#getCameraDeviceSetup
+     * method.
+     *
+     * @param cameraManager The framework CameraManager instance.
+     * @param cameraId The ID of the camera to set up.
+     * @return An [AndroidCameraDeviceSetupWrapper] instance, or null if the setup fails.
+     */
+    @JvmStatic
+    fun getCameraDeviceSetup(
+        cameraManager: CameraManager,
+        cameraId: CameraId,
+        cameraErrorListener: CameraErrorListener,
+    ): AndroidCameraDeviceSetupWrapper {
+        val cameraDeviceSetup = cameraManager.getCameraDeviceSetup(cameraId.value)
+        return AndroidCameraDeviceSetup(cameraDeviceSetup, cameraId, cameraErrorListener)
+    }
+
+    /**
+     * Creates a new [OutputConfiguration] for ImageReader with the specified format and surface
+     * size.
+     *
+     * @param format The image format for the output.
+     * @param surfaceSize The size of the surface for the output.
+     */
+    @JvmStatic
+    fun newImageReaderOutputConfiguration(format: Int, surfaceSize: Size): OutputConfiguration {
+        return OutputConfiguration(format, surfaceSize)
+    }
+
+    @JvmStatic
+    fun newSessionConfiguration(
+        sessionType: Int,
+        outputs: List<OutputConfiguration?>,
+    ): SessionConfiguration {
+        return SessionConfiguration(sessionType, outputs)
+    }
+
+    @JvmStatic
+    fun createCaptureRequest(
+        cameraDeviceSetup: CameraDevice.CameraDeviceSetup,
+        templateType: Int,
+    ): CaptureRequest.Builder {
+        return cameraDeviceSetup.createCaptureRequest(templateType)
     }
 }

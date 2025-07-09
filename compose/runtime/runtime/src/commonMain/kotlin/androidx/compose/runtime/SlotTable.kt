@@ -3345,9 +3345,7 @@ private class SlotTableGroup(
             else table.groups.key(group)
 
     override val sourceInfo: String?
-        get() =
-            if (table.groups.hasAux(group)) table.slots[table.groups.auxIndex(group)] as? String
-            else table.sourceInformationOf(group)?.sourceInformation
+        get() = table.sourceInformationOf(group)?.sourceInformation
 
     override val node: Any?
         get() = if (table.groups.isNode(group)) table.slots[table.groups.nodeIndex(group)] else null

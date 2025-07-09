@@ -38,16 +38,17 @@ import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec.Companio
  * @see EmbeddingAnimationBackground.createColorBackground
  * @see EmbeddingAnimationBackground.DEFAULT
  */
-class EmbeddingAnimationParams
+public class EmbeddingAnimationParams
 private constructor(
-    val animationBackground: EmbeddingAnimationBackground = EmbeddingAnimationBackground.DEFAULT,
-    val openAnimation: AnimationSpec = DEFAULT,
-    val closeAnimation: AnimationSpec = DEFAULT,
-    val changeAnimation: AnimationSpec = DEFAULT,
+    public val animationBackground: EmbeddingAnimationBackground =
+        EmbeddingAnimationBackground.DEFAULT,
+    public val openAnimation: AnimationSpec = DEFAULT,
+    public val closeAnimation: AnimationSpec = DEFAULT,
+    public val changeAnimation: AnimationSpec = DEFAULT,
 ) {
 
     /** The animation to use when an activity transitions (e.g. open, close, or change). */
-    class AnimationSpec
+    public class AnimationSpec
     private constructor(
         /**
          * The unique integer value for the `splitAnimationSpec`. This can be used as an enum value
@@ -77,11 +78,11 @@ private constructor(
         override fun hashCode(): Int = value * 31
 
         /** Properties and methods. */
-        companion object {
+        public companion object {
             /** Specifies the default animation defined by the system. */
-            @JvmField val DEFAULT = AnimationSpec(0)
+            @JvmField public val DEFAULT: AnimationSpec = AnimationSpec(0)
             /** Specifies an animation with zero duration. */
-            @JvmField val JUMP_CUT = AnimationSpec(1)
+            @JvmField public val JUMP_CUT: AnimationSpec = AnimationSpec(1)
 
             /** Returns `AnimationSpec` with the given integer `value`. */
             @JvmStatic
@@ -133,7 +134,7 @@ private constructor(
             "closeAnimation=$closeAnimation, changeAnimation=$changeAnimation }"
 
     /** Builder for creating an instance of [EmbeddingAnimationParams]. */
-    class Builder {
+    public class Builder {
         private var animationBackground = EmbeddingAnimationBackground.DEFAULT
         private var openAnimation = DEFAULT
         private var closeAnimation = DEFAULT
@@ -152,9 +153,10 @@ private constructor(
          * @see EmbeddingAnimationBackground
          */
         @RequiresWindowSdkExtension(5)
-        fun setAnimationBackground(background: EmbeddingAnimationBackground): Builder = apply {
-            this.animationBackground = background
-        }
+        public fun setAnimationBackground(background: EmbeddingAnimationBackground): Builder =
+            apply {
+                this.animationBackground = background
+            }
 
         /**
          * Sets the open animation.
@@ -168,7 +170,9 @@ private constructor(
          * @return this `Builder`.
          */
         @RequiresWindowSdkExtension(7)
-        fun setOpenAnimation(spec: AnimationSpec): Builder = apply { this.openAnimation = spec }
+        public fun setOpenAnimation(spec: AnimationSpec): Builder = apply {
+            this.openAnimation = spec
+        }
 
         /**
          * Sets the close animation.
@@ -182,7 +186,9 @@ private constructor(
          * @return this `Builder`.
          */
         @RequiresWindowSdkExtension(7)
-        fun setCloseAnimation(spec: AnimationSpec): Builder = apply { this.closeAnimation = spec }
+        public fun setCloseAnimation(spec: AnimationSpec): Builder = apply {
+            this.closeAnimation = spec
+        }
 
         /**
          * Sets the change (resize or move) animation.
@@ -196,7 +202,9 @@ private constructor(
          * @return this `Builder`.
          */
         @RequiresWindowSdkExtension(7)
-        fun setChangeAnimation(spec: AnimationSpec): Builder = apply { this.changeAnimation = spec }
+        public fun setChangeAnimation(spec: AnimationSpec): Builder = apply {
+            this.changeAnimation = spec
+        }
 
         /**
          * Builds an `EmbeddingAnimationParams` instance with the attributes specified by the
@@ -204,7 +212,7 @@ private constructor(
          *
          * @return the new `EmbeddingAnimationParams` instance.
          */
-        fun build(): EmbeddingAnimationParams =
+        public fun build(): EmbeddingAnimationParams =
             EmbeddingAnimationParams(
                 animationBackground,
                 openAnimation,

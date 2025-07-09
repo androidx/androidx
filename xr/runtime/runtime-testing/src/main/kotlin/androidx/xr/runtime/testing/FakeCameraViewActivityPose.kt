@@ -18,13 +18,23 @@ package androidx.xr.runtime.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.CameraViewActivityPose
+import androidx.xr.runtime.internal.CameraViewActivityPose.CameraType
+import androidx.xr.runtime.internal.CameraViewActivityPose.Fov
 import androidx.xr.runtime.internal.PixelDimensions
 
+/**
+ * A fake ActivityPose representing a user's camera. This can be used to determine the location and
+ * field of view of the camera.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FakeCameraViewActivityPose : CameraViewActivityPose, FakeActivityPose() {
-    override val cameraType: Int = 0
 
-    override val fov: CameraViewActivityPose.Fov = CameraViewActivityPose.Fov(0f, 0f, 0f, 0f)
+    /** Returns the type of camera that this space represents. */
+    @CameraType override var cameraType: Int = 0
 
-    override val displayResolutionInPixels: PixelDimensions = PixelDimensions(0, 0)
+    /** Returns the field of view for this camera. */
+    override var fov: Fov = Fov(0.0f, 0.0f, 0.0f, 0.0f)
+
+    /** Returns the resolution of this camera view in pixels. */
+    override var displayResolutionInPixels: PixelDimensions = PixelDimensions(640, 480)
 }

@@ -310,6 +310,93 @@ class TestFunctions {
     ): ClassWithOptionalValues {
         return classWithOptionalValues
     }
+
+    @AppFunction
+    fun echoFunctionWithOptionalParameters(
+        appFunctionContext: AppFunctionContext,
+        // Int
+        optionalNonNullInt: Int = 1,
+        optionalNullableInt: Int? = 1,
+        // Long
+        optionalNonNullLong: Long = 2L,
+        optionalNullableLong: Long? = 2L,
+        // Boolean
+        optionalNonNullBoolean: Boolean = false,
+        optionalNullableBoolean: Boolean? = false,
+        // Float
+        optionalNonNullFloat: Float = 3.0f,
+        optionalNullableFloat: Float? = 3.0f,
+        // Double
+        optionalNonNullDouble: Double = 4.0,
+        optionalNullableDouble: Double? = 4.0,
+        // String
+        optionalNullableString: String? = "Default String",
+        // Serializable
+        optionalNullableSerializable: Owner? = Owner("Default Owner"),
+        // Proxy (using LocalDateTime as an example)
+        optionalNullableProxySerializable: LocalDateTime? = LocalDateTime.now(),
+        // IntArray
+        optionalNonNullIntArray: IntArray = intArrayOf(1),
+        optionalNullableIntArray: IntArray? = intArrayOf(1),
+        // LongArray
+        optionalNonNullLongArray: LongArray = longArrayOf(2L),
+        optionalNullableLongArray: LongArray? = longArrayOf(2L),
+        // BooleanArray
+        optionalNonNullBooleanArray: BooleanArray = booleanArrayOf(false),
+        optionalNullableBooleanArray: BooleanArray? = booleanArrayOf(false),
+        // FloatArray
+        optionalNonNullFloatArray: FloatArray = floatArrayOf(3.0f),
+        optionalNullableFloatArray: FloatArray? = floatArrayOf(3.0f),
+        // DoubleArray
+        optionalNonNullDoubleArray: DoubleArray = doubleArrayOf(4.0),
+        optionalNullableDoubleArray: DoubleArray? = doubleArrayOf(4.0),
+        // ByteArray
+        optionalNonNullByteArray: ByteArray = byteArrayOf(5),
+        optionalNullableByteArray: ByteArray? = byteArrayOf(5),
+        // List<String>
+        optionalNonNullListString: List<String> = listOf("Default String"),
+        optionalNullableListString: List<String>? = listOf("Default String"),
+        // List of Serializable
+        optionalNonNullSerializableList: List<Owner> = listOf(Owner("Default Owner")),
+        optionalNullableSerializableList: List<Owner>? = listOf(Owner("Default Owner")),
+        // List of Proxy
+        optionalNonNullProxySerializableList: List<LocalDateTime> = listOf(LocalDateTime.now()),
+        optionalNullableProxySerializableList: List<LocalDateTime>? = listOf(LocalDateTime.now()),
+    ): ClassWithOptionalValues {
+        return ClassWithOptionalValues(
+            optionalNonNullInt = optionalNonNullInt,
+            optionalNullableInt = optionalNullableInt,
+            optionalNonNullLong = optionalNonNullLong,
+            optionalNullableLong = optionalNullableLong,
+            optionalNonNullBoolean = optionalNonNullBoolean,
+            optionalNullableBoolean = optionalNullableBoolean,
+            optionalNonNullFloat = optionalNonNullFloat,
+            optionalNullableFloat = optionalNullableFloat,
+            optionalNonNullDouble = optionalNonNullDouble,
+            optionalNullableDouble = optionalNullableDouble,
+            optionalNullableString = optionalNullableString,
+            optionalNullableSerializable = optionalNullableSerializable,
+            optionalNullableProxySerializable = optionalNullableProxySerializable,
+            optionalNonNullIntArray = optionalNonNullIntArray,
+            optionalNullableIntArray = optionalNullableIntArray,
+            optionalNonNullLongArray = optionalNonNullLongArray,
+            optionalNullableLongArray = optionalNullableLongArray,
+            optionalNonNullBooleanArray = optionalNonNullBooleanArray,
+            optionalNullableBooleanArray = optionalNullableBooleanArray,
+            optionalNonNullFloatArray = optionalNonNullFloatArray,
+            optionalNullableFloatArray = optionalNullableFloatArray,
+            optionalNonNullDoubleArray = optionalNonNullDoubleArray,
+            optionalNullableDoubleArray = optionalNullableDoubleArray,
+            optionalNonNullByteArray = optionalNonNullByteArray,
+            optionalNullableByteArray = optionalNullableByteArray,
+            optionalNonNullListString = optionalNonNullListString,
+            optionalNullableListString = optionalNullableListString,
+            optionalNonNullSerializableList = optionalNonNullSerializableList,
+            optionalNullableSerializableList = optionalNullableSerializableList,
+            optionalNonNullProxySerializableList = optionalNonNullProxySerializableList,
+            optionalNullableProxySerializableList = optionalNullableProxySerializableList,
+        )
+    }
 }
 
 @Suppress("UNUSED_PARAMETER")

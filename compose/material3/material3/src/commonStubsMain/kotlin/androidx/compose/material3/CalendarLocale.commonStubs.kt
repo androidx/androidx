@@ -19,20 +19,7 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
-@ExperimentalMaterial3Api
-actual class CalendarLocale {
-    init {
-        implementedInJetBrainsFork()
-    }
-}
-
 @Composable
 @ReadOnlyComposable
 @OptIn(ExperimentalMaterial3Api::class)
 internal actual fun defaultLocale(): CalendarLocale = implementedInJetBrainsFork()
-
-internal actual fun Int.toLocalString(
-    minDigits: Int,
-    maxDigits: Int,
-    isGroupingUsed: Boolean,
-): String = implementedInJetBrainsFork()

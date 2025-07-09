@@ -27,10 +27,10 @@ import android.graphics.Rect
  *
  * @see FoldingFeature Represents a screen fold that intersects the application window.
  */
-interface DisplayFeature {
+public interface DisplayFeature {
     /**
      * The bounding rectangle of the feature within the application window in the window coordinate
      * space.
      */
-    val bounds: Rect
+    public val bounds: Rect
 }

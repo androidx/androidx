@@ -334,6 +334,10 @@ abstract class VideoRecordingTestBase(
         videoCapture.setViewPortCropRect(cropRect)
 
         checkAndBindUseCases(preview, videoCapture)
+        // On some devices stream sharing could be forcibly enabled by workaround
+        // StreamSharingForceEnabler.java such as on moto-e20. Check stream sharing after binding
+        // and skip it by the same reason above.
+        assumeFalse(isStreamSharingEnabled(videoCapture))
         val calculatedCropRect = videoCapture.cropRect!!
 
         // Act.

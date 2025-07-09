@@ -36,13 +36,6 @@ dependencies {
     implementation("androidx.media3:media3-common:1.6.0")
     implementation("androidx.media3:media3-effect:1.6.0")
 
-    testImplementation(libs.kotlinCoroutinesAndroid)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRunner)
-    testImplementation(libs.junit)
-
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -70,5 +63,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Media3 effect components for the Jetpack Camera Library, a library providing a seamless integration that enables media3 effect in CameraX."
-    enableRobolectric()
 }

@@ -21,11 +21,6 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocumentRemote
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 /**
@@ -39,62 +34,5 @@ import kotlinx.coroutines.launch
  * and accessing document metadata.
  */
 public class PdfDocumentServiceImpl : Service() {
-
-    /** Counter representing the number of clients bound to the service currently. */
-    private var clientCount = 0
-
-    /**
-     * Coroutine job for scheduling the stop of the service. This will be scheduled once all client
-     * unbinds from the service.
-     */
-    private var stopSelfJob: Job? = null
-    private val mainScope = CoroutineScope(Dispatchers.Main)
-
-    private var lastStartId = 0
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Save the startId so we can safely stop the service later using stopSelfResult(startId).
-        // This ensures we only stop the service if it's the same instance that was originally
-        // started, preventing accidental shutdown if the service was restarted in the meantime.
-        lastStartId = startId
-        return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onBind(intent: Intent?): IBinder {
-        clientCount++
-        cancelStopSelfJob()
-        return PdfDocumentRemoteImpl()
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        clientCount--
-        if (clientCount <= 0) {
-            scheduleStopSelfJob()
-            // Defensive approach, if ever onUnbind called more than onBind
-            clientCount = 0
-        }
-        return super.onUnbind(intent)
-    }
-
-    private fun scheduleStopSelfJob() {
-        stopSelfJob =
-            mainScope.launch {
-                delay(KEEP_ALIVE_MILLIS)
-                if (clientCount <= 0) stopSelfResult(lastStartId)
-            }
-    }
-
-    private fun cancelStopSelfJob() {
-        stopSelfJob?.cancel()
-        stopSelfJob = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cancelStopSelfJob()
-    }
-
-    internal companion object {
-        private const val KEEP_ALIVE_MILLIS = 30_000L
-    }
+    override fun onBind(intent: Intent?): IBinder = PdfDocumentRemoteImpl()
 }

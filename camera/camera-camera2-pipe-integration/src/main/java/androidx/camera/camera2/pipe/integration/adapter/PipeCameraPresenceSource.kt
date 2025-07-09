@@ -52,20 +52,18 @@ public class PipeCameraPresenceSource(
         flowCollectionJob =
             idFlow
                 .map { pipeCameraIdList ->
-                    pipeCameraIdList
-                        .mapNotNull { pipeId ->
-                            try {
-                                CameraIdentifier.create(pipeId.value)
-                            } catch (ex: Exception) {
-                                Log.w(
-                                    TAG,
-                                    "Failed to create CameraIdentifier for pipeId: ${pipeId.value}",
-                                    ex,
-                                )
-                                null
-                            }
+                    pipeCameraIdList.mapNotNull { pipeId ->
+                        try {
+                            CameraIdentifier.create(pipeId.value)
+                        } catch (ex: Exception) {
+                            Log.w(
+                                TAG,
+                                "Failed to create CameraIdentifier for pipeId: ${pipeId.value}",
+                                ex,
+                            )
+                            null
                         }
-                        .toSet()
+                    }
                 }
                 .onEach { identifiers ->
                     Log.d(TAG, "Flow emitted new camera set: ${identifiers.joinToString()}")
@@ -84,26 +82,24 @@ public class PipeCameraPresenceSource(
         flowCollectionJob = null
     }
 
-    override fun fetchData(): ListenableFuture<Set<CameraIdentifier>> {
+    override fun fetchData(): ListenableFuture<List<CameraIdentifier>> {
         return CallbackToFutureAdapter.getFuture { completer ->
             coroutineScope.launch {
                 try {
                     val systemCameraIds = cameraManager.cameraIdList
                     val newIdentifiers =
-                        systemCameraIds
-                            .mapNotNull {
-                                try {
-                                    CameraIdentifier.create(it)
-                                } catch (e: IllegalArgumentException) {
-                                    Log.w(
-                                        TAG,
-                                        "Could not create CameraIdentifier for system ID: $it",
-                                        e,
-                                    )
-                                    null
-                                }
+                        systemCameraIds.mapNotNull {
+                            try {
+                                CameraIdentifier.create(it)
+                            } catch (e: IllegalArgumentException) {
+                                Log.w(
+                                    TAG,
+                                    "Could not create CameraIdentifier for system ID: $it",
+                                    e,
+                                )
+                                null
                             }
-                            .toSet()
+                        }
 
                     Log.d(TAG, "[FetchData] Refreshed camera list from hardware: $newIdentifiers")
                     updateData(newIdentifiers) // Update state and notify

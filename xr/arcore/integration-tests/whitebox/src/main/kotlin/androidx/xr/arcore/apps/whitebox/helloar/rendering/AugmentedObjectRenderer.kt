@@ -158,6 +158,9 @@ internal class AugmentedObjectRenderer(val session: Session, val coroutineScope:
             mapOf("Keyboard" to .05f, "Mouse" to .25f, "Laptop" to .1f)
         private const val TRACKED_ALPHA_DEFAULT = .5f
         private const val PAUSED_ALPHA = 0.25f
+
+        // TODO: b/428037016 - remove this scaling factor once this bug is fixed
+        private const val PANEL_SCALING_FACTOR = 1f / 1.7f
     }
 
     internal class CubeEntity(
@@ -257,30 +260,30 @@ internal class AugmentedObjectRenderer(val session: Session, val coroutineScope:
         }
 
         private fun dimensionsForFace(face: Face): FloatSize2d {
-            val halfExtents = extents.div(2f)
+            val scaledExtents = extents * PANEL_SCALING_FACTOR
             return when (face) {
                 Face.PosX,
                 Face.NegX -> {
-                    FloatSize2d(halfExtents.z, halfExtents.y)
+                    FloatSize2d(scaledExtents.z, scaledExtents.y)
                 }
                 Face.PosY,
                 Face.NegY -> {
-                    FloatSize2d(halfExtents.x, halfExtents.z)
+                    FloatSize2d(scaledExtents.x, scaledExtents.z)
                 }
                 Face.PosZ,
                 Face.NegZ -> {
-                    FloatSize2d(halfExtents.x, halfExtents.y)
+                    FloatSize2d(scaledExtents.x, scaledExtents.y)
                 }
             }
         }
 
         private fun poseForFace(face: Face): Pose {
-            val quarterExtents = extents.div(4f)
+            val scaledExtents = (extents * PANEL_SCALING_FACTOR) / 2f
             return when (face) {
                 Face.PosX -> {
                     centerPose.compose(
                         Pose(
-                            Vector3(quarterExtents.x, 0f, 0f),
+                            Vector3(scaledExtents.x, 0f, 0f),
                             Quaternion.fromEulerAngles(0f, 90f, 0f),
                         )
                     )
@@ -288,18 +291,18 @@ internal class AugmentedObjectRenderer(val session: Session, val coroutineScope:
                 Face.PosY -> {
                     centerPose.compose(
                         Pose(
-                            Vector3(0f, quarterExtents.y, 0f),
+                            Vector3(0f, scaledExtents.y, 0f),
                             Quaternion.fromEulerAngles(-90f, 0f, 0f),
                         )
                     )
                 }
                 Face.PosZ -> {
-                    centerPose.compose(Pose(Vector3(0f, 0f, quarterExtents.z), Quaternion.Identity))
+                    centerPose.compose(Pose(Vector3(0f, 0f, scaledExtents.z), Quaternion.Identity))
                 }
                 Face.NegX -> {
                     centerPose.compose(
                         Pose(
-                            Vector3(-quarterExtents.x, 0f, 0f),
+                            Vector3(-scaledExtents.x, 0f, 0f),
                             Quaternion.fromEulerAngles(0f, -90f, 0f),
                         )
                     )
@@ -307,7 +310,7 @@ internal class AugmentedObjectRenderer(val session: Session, val coroutineScope:
                 Face.NegY -> {
                     centerPose.compose(
                         Pose(
-                            Vector3(0f, -quarterExtents.y, 0f),
+                            Vector3(0f, -scaledExtents.y, 0f),
                             Quaternion.fromEulerAngles(90f, 0f, 0f),
                         )
                     )
@@ -315,7 +318,7 @@ internal class AugmentedObjectRenderer(val session: Session, val coroutineScope:
                 Face.NegZ -> {
                     centerPose.compose(
                         Pose(
-                            Vector3(0f, 0f, -quarterExtents.z),
+                            Vector3(0f, 0f, -scaledExtents.z),
                             Quaternion.fromEulerAngles(0f, 180f, 0f),
                         )
                     )

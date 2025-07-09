@@ -158,7 +158,7 @@ private inline fun debugLog(generateMsg: () -> String) {
 }
 
 private val LazyLayoutMeasuredItem.mainAxisOffset
-    get() = if (placeablesCount == 0) 0 else getOffset(0).let { if (isVertical) it.y else it.x }
+    get() = getOffset(0).let { if (isVertical) it.y else it.x }
 
 /**
  * This glue logic is not meant to become public. In here we will use [StickyItemsPlacement] to

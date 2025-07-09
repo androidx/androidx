@@ -78,7 +78,7 @@ class FSMAndHSMTransitionActivity : AppCompatActivity() {
         val buttonLaunchInFSM: Button = findViewById(R.id.buttonLaunchInFsm)
         buttonLaunchInFSM.setOnClickListener {
             var (intent, bundle) = createIntent()
-            bundle = session.scene.setFullSpaceMode(bundle)
+            bundle = session.scene.configureBundleForFullSpaceModeLaunch(bundle)
             startActivity(intent, bundle)
             Log.i(TAG, "Launching Settings app in a new task in FSM.")
         }
@@ -87,7 +87,8 @@ class FSMAndHSMTransitionActivity : AppCompatActivity() {
             findViewById(R.id.buttonLaunchInFsmWithEnvironmentInherited)
         buttonLaunchInFSMWithEnv.setOnClickListener {
             var (intent, bundle) = createIntent()
-            bundle = session.scene.setFullSpaceModeWithEnvironmentInherited(bundle)
+            bundle =
+                session.scene.configureBundleForFullSpaceModeLaunchWithEnvironmentInherited(bundle)
             startActivity(intent, bundle)
             Log.i(TAG, "Launching Settings app in a new task in FSM with environment inherited.")
         }
@@ -212,7 +213,7 @@ class FSMAndHSMTransitionActivity : AppCompatActivity() {
     private fun createIntent(): Pair<Intent, Bundle> {
         val intent = Intent()
         intent.setComponent(ComponentName("com.android.settings", "com.android.settings.Settings"))
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         return Pair(intent, ActivityOptions.makeBasic().toBundle())
     }
 

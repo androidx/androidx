@@ -362,17 +362,17 @@ package androidx.xr.compose.subspace.layout {
   @kotlin.PublishedApi internal abstract sealed class CoreEntity implements androidx.xr.compose.subspace.layout.OpaqueEntity {
     method public final boolean addComponent(androidx.xr.scenecore.Component component);
     method public void dispose();
-    method protected final androidx.compose.ui.unit.Density? getDensity();
     method public final androidx.xr.scenecore.Entity getEntity();
-    method protected final androidx.compose.runtime.MutableState<androidx.xr.compose.unit.IntVolumeSize> getMutableSize();
+    method public androidx.xr.runtime.math.Pose getLayoutPoseInPixels();
+    method public final androidx.xr.compose.unit.IntVolumeSize getMutableSize();
     method public androidx.xr.compose.subspace.layout.CoreEntity? getParent();
     method public androidx.xr.compose.unit.IntVolumeSize getSize();
     method public final void removeComponent(androidx.xr.scenecore.Component component);
     method public void setParent(androidx.xr.compose.subspace.layout.CoreEntity?);
     method public void setSize(androidx.xr.compose.unit.IntVolumeSize);
-    property protected final androidx.compose.ui.unit.Density? density;
     property public final androidx.xr.scenecore.Entity entity;
-    property protected final androidx.compose.runtime.MutableState<androidx.xr.compose.unit.IntVolumeSize> mutableSize;
+    property public androidx.xr.runtime.math.Pose layoutPoseInPixels;
+    property public final androidx.xr.compose.unit.IntVolumeSize mutableSize;
     property public androidx.xr.compose.subspace.layout.CoreEntity? parent;
     property public androidx.xr.compose.unit.IntVolumeSize size;
   }
@@ -477,7 +477,7 @@ package androidx.xr.compose.subspace.layout {
   }
 
   public final class PointerHoverIconKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.subspace.layout.SubspaceModifier pointerHoverIcon(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.scenecore.SpatialPointerIcon icon);
+    method public static androidx.xr.compose.subspace.layout.SubspaceModifier pointerHoverIcon(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.scenecore.SpatialPointerIcon icon);
   }
 
   public final class ResizableKt {

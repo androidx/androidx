@@ -153,13 +153,24 @@ private class ScalingLazyListStateScrollInfoProvider(val state: ScalingLazyListS
         get() {
             val screenHeightPx = state.config.value?.viewportHeightPx ?: 0
             val layoutInfo = state.layoutInfo
-            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-                if (it.index != layoutInfo.totalItemsCount - 1) {
-                    return@let 0f
-                }
-                val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
-                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+            val reverseLayout = state.config.value?.reverseLayout ?: false
+            return if (reverseLayout) {
+                layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                    if (it.index != 0) {
+                        return@let 0f
+                    }
+                    val bottomEdge = -it.offset + screenHeightPx / 2 + it.size / 2
+                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            } else {
+                layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                    if (it.index != layoutInfo.totalItemsCount - 1) {
+                        return@let 0f
+                    }
+                    val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
+                    (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            }
         }
 
     override fun toString(): String {
@@ -196,14 +207,26 @@ private class LazyListStateScrollInfoProvider(val state: LazyListState) : Scroll
     override val lastItemOffset: Float
         get() {
             val layoutInfo = state.layoutInfo
-            val screenHeightPx = layoutInfo.viewportSize.height
-            return layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-                if (it.index != layoutInfo.totalItemsCount - 1) {
-                    return@let 0f
-                }
-                val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
-                (screenHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
-            } ?: 0f
+            val lazyColumnHeightPx = layoutInfo.viewportSize.height
+            val reverseLayout = state.layoutInfo.reverseLayout
+            return if (reverseLayout) {
+                layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                    if (it.index != 0) {
+                        return@let 0f
+                    }
+                    val bottomEdge =
+                        -it.offset + lazyColumnHeightPx + layoutInfo.viewportStartOffset
+                    (lazyColumnHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            } else {
+                layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                    if (it.index != layoutInfo.totalItemsCount - 1) {
+                        return@let 0f
+                    }
+                    val bottomEdge = it.offset + it.size - layoutInfo.viewportStartOffset
+                    (lazyColumnHeightPx - bottomEdge).toFloat().coerceAtLeast(0f)
+                } ?: 0f
+            }
         }
 
     override fun toString(): String {

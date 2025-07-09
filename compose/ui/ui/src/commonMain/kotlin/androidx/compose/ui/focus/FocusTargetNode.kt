@@ -30,7 +30,6 @@ import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.EmptyMap.set
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -45,6 +44,7 @@ import androidx.compose.ui.util.trace
 
 internal class FocusTargetNode(
     focusability: Focusability = Focusability.Always,
+    val isInteropViewHost: Boolean = false,
     private val onFocusChange: ((previous: FocusState, current: FocusState) -> Unit)? = null,
     private val onDispatchEventsCompleted: ((FocusTargetNode) -> Unit)? = null,
 ) :
@@ -155,6 +155,20 @@ internal class FocusTargetNode(
                     clearOwnerFocus = false,
                     focusDirection = Exit,
                 )
+
+                if (isInteropViewHost) {
+                    // Move focus to the AndroidComposeView, so that we can safely remove the
+                    // embedded view without triggering initial focus. We can safely move focus to
+                    // the host view even when we don't have focusable composables because we know
+                    // that this action will be followed by a call to restoreDefaultFocus after
+                    // onEndApplyChanges (The embedded view has a focus target associated with it,
+                    // and detaching that focus target will schedule a call to restoreDefaultFocus).
+                    focusOwner.requestOwnerFocus(
+                        focusDirection = null,
+                        previouslyFocusedRect = null,
+                    )
+                }
+
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation
                 // after onApplyChanges. The FocusInvalidationManager contains the invalidation
@@ -162,7 +176,16 @@ internal class FocusTargetNode(
                 // are invalidated.
                 focusOwner.scheduleInvalidationForOwner()
             }
-            ActiveParent,
+            ActiveParent -> {
+                val focusOwner = requireOwner().focusOwner
+                if (findActiveFocusNode()?.isInteropViewHost == true) {
+                    focusOwner.requestOwnerFocus(
+                        focusDirection = null,
+                        previouslyFocusedRect = null,
+                    )
+                    focusOwner.scheduleInvalidationForOwner()
+                }
+            }
             Inactive -> {}
         }
         // This node might be reused, so we reset its state.

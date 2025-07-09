@@ -48,7 +48,6 @@ import androidx.compose.ui.window.DialogProperties
  * @param content the content of the dialog (i.e. a [DatePicker], for example)
  */
 @Composable
-@ExperimentalMaterial3Api
 actual fun DatePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,

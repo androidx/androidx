@@ -349,7 +349,7 @@ private fun Any.callSuspendMethod(methodName: String, vararg args: Any?): Any? {
         if (runBlockingException is UndeclaredThrowableException) {
             throw runBlockingException.undeclaredThrowable
         } else {
-            throw ex
+            throw runBlockingException
         }
     }
 }

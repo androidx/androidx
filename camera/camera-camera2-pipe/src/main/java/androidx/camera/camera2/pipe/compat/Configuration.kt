@@ -97,6 +97,7 @@ internal data class InputConfigData(val width: Int, val height: Int, val format:
  * require the CameraCaptureSession to be finalized or updated.
  */
 internal interface OutputConfigurationWrapper : UnsafeWrapper {
+    val outputConfiguration: OutputConfiguration?
     /**
      * This method will return null if the output configuration was created without a Surface, and
      * until addSurface is called for the first time.
@@ -153,6 +154,7 @@ internal class AndroidOutputConfiguration(
          */
         fun create(
             surface: Surface?,
+            format: Int? = null,
             outputType: OutputType = OutputType.SURFACE,
             mirrorMode: MirrorMode? = null,
             timestampBase: TimestampBase? = null,
@@ -164,19 +166,24 @@ internal class AndroidOutputConfiguration(
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
             physicalCameraId: CameraId? = null,
         ): OutputConfigurationWrapper? {
-            check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
-            if (outputType == OutputType.SURFACE) {
+            if (
+                outputType == OutputType.SURFACE_DEFERRED_FOR_QUERY_ONLY &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+            ) {
+                checkNotNull(format)
+                checkNotNull(size)
+                configuration = Api35Compat.newImageReaderOutputConfiguration(format, size)
+            } else if (outputType == OutputType.SURFACE) {
                 check(surface != null) {
                     "OutputConfigurations defined with ${OutputType.SURFACE} must provide a"
                     "non-null surface!"
                 }
-                // OutputConfiguration will, on some OS versions, attempt to read the surface size
-                // from the Surface object. If the Surface has been destroyed, this check will fail.
-                // Because there's no way to cleanly synchronize and check the value, we catch the
-                // exception for these cases.
+                // OutputConfiguration will, on some OS versions, attempt to read the surface
+                // size from the Surface object. If the Surface has been destroyed, this check
+                // will fail. Because there's no way to cleanly synchronize and check the
+                // value, we catch the exception for these cases.
                 try {
                     configuration =
                         if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
@@ -308,6 +315,7 @@ internal class AndroidOutputConfiguration(
         }
     }
 
+    override val outputConfiguration: OutputConfiguration = output
     override val surface: Surface? = output.surface
     override val surfaces: List<Surface>
         get() {

@@ -344,6 +344,7 @@ public interface OutputStream {
             public val SURFACE: OutputType = OutputType()
             public val SURFACE_VIEW: OutputType = OutputType()
             public val SURFACE_TEXTURE: OutputType = OutputType()
+            internal val SURFACE_DEFERRED_FOR_QUERY_ONLY: OutputType = OutputType()
         }
     }
 

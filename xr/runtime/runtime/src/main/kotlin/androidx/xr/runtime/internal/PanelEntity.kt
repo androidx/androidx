@@ -32,8 +32,8 @@ public interface PanelEntity : Entity {
     public var cornerRadius: Float
 
     /**
-     * Returns the spatial size of this Panel in meters. This includes any scaling applied to this
-     * panel by itself or its parents, which might be set via changes to setScale.
+     * Returns the spatial size of this Panel in meters, without considering any scaling applied to
+     * this panel by itself or its parents.
      *
      * @return [Dimensions] size of this panel in meters. (Z will be 0)
      */

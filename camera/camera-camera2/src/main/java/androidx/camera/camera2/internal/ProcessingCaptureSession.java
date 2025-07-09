@@ -24,6 +24,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionShouldUseMrirQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.interop.Camera2CaptureRequestConfigurator;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageAnalysis;
@@ -122,9 +123,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     ProcessingCaptureSession(@NonNull SessionProcessor sessionProcessor,
             @NonNull Camera2CameraInfoImpl camera2CameraInfoImpl,
             @NonNull DynamicRangesCompat dynamicRangesCompat, @NonNull Executor executor,
-            @NonNull ScheduledExecutorService scheduledExecutorService) {
+            @NonNull ScheduledExecutorService scheduledExecutorService,
+            @Nullable Camera2CaptureRequestConfigurator captureRequestConfigurator) {
         mCaptureSession = new CaptureSession(dynamicRangesCompat,
-                DeviceQuirks.get(CaptureSessionShouldUseMrirQuirk.class) != null);
+                DeviceQuirks.get(CaptureSessionShouldUseMrirQuirk.class) != null,
+                captureRequestConfigurator);
         mSessionProcessor = sessionProcessor;
         mCamera2CameraInfoImpl = camera2CameraInfoImpl;
         mExecutor = executor;

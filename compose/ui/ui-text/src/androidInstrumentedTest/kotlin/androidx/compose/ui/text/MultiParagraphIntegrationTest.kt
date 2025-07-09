@@ -409,7 +409,7 @@ class MultiParagraphIntegrationTest {
         paragraph.getBoundingBox(-1)
     }
 
-    @Ignore
+    @Ignore("b/430079884 - Re-enable this test once the bug is fixed.")
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_offset_larger_than_length_throw_exception() {
         val text = "abc"

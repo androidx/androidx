@@ -42,15 +42,6 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
 
-    testImplementation(libs.testRunner)
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.truth)
-    testImplementation(libs.testRules)
-    testImplementation(libs.testCore)
-    testImplementation("org.robolectric:annotations:4.14")
-    testImplementation("org.robolectric:shadowapi:4.14")
-    testImplementation(libs.junit)
-
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -82,5 +73,4 @@ androidx {
     description = "Standalone View-based Viewfinder for Camera"
     legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
-    enableRobolectric()
 }

@@ -67,14 +67,16 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCompos
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasurePolicy
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
+import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.Meter.Companion.millimeters
-import androidx.xr.compose.unit.toMeter
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.PanelEntity
+import kotlin.math.roundToInt
 
 private const val DEFAULT_SIZE_PX = 400
 
@@ -250,7 +252,7 @@ public fun SpatialPanel(
                         measurables.fastMaxOfOrNull {
                             try {
                                 it.maxIntrinsicWidth(volumeConstraints.maxHeight)
-                            } catch (e: IllegalStateException) {
+                            } catch (_: IllegalStateException) {
                                 0
                             }
                         } ?: DEFAULT_SIZE_PX
@@ -258,7 +260,7 @@ public fun SpatialPanel(
                         measurables.fastMaxOfOrNull {
                             try {
                                 it.maxIntrinsicHeight(volumeConstraints.maxWidth)
-                            } catch (e: IllegalStateException) {
+                            } catch (_: IllegalStateException) {
                                 0
                             }
                         } ?: DEFAULT_SIZE_PX
@@ -385,9 +387,6 @@ public fun SpatialActivityPanel(
         (corePanelEntity.entity as ActivityPanelEntity).launchActivity(intent)
     }
 
-    val scrimWidth = with(density) { activityPanelEntity.size.width.toDp().toMeter() }
-    val scrimHeight = with(density) { activityPanelEntity.size.height.toDp().toMeter() }
-
     SpatialBox {
         SubspaceLayout(modifier = modifier, coreEntity = corePanelEntity) { _, constraints ->
             val width = DEFAULT_SIZE_PX.coerceIn(constraints.minWidth, constraints.maxWidth)
@@ -406,6 +405,8 @@ public fun SpatialActivityPanel(
                     }
                 }
 
+            val scrimWidth = Meter.fromPixel(activityPanelEntity.size.width, density)
+            val scrimHeight = Meter.fromPixel(activityPanelEntity.size.height, density)
             val scrimPanelEntity =
                 rememberCorePanelEntity(shape = shape) {
                     PanelEntity.create(
@@ -420,7 +421,14 @@ public fun SpatialActivityPanel(
                             setPose(Pose(translation = Vector3(0f, 0f, 3.millimeters.toM())))
                         }
                 }
-            SideEffect { scrimPanelEntity.size = corePanelEntity.size }
+            SideEffect {
+                scrimPanelEntity.size =
+                    IntVolumeSize(
+                        activityPanelEntity.size.width.roundToInt(),
+                        activityPanelEntity.size.height.roundToInt(),
+                        0,
+                    )
+            }
         }
     }
 }

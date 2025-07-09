@@ -44,6 +44,7 @@ import androidx.camera.camera2.internal.compat.workaround.RequestMonitor;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
 import androidx.camera.camera2.internal.compat.workaround.TemplateParamsOverride;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
+import androidx.camera.camera2.interop.Camera2CaptureRequestConfigurator;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
@@ -132,6 +133,7 @@ final class CaptureSession implements CaptureSessionInterface {
     private final DynamicRangesCompat mDynamicRangesCompat;
     private final TemplateParamsOverride mTemplateParamsOverride;
     private final boolean mCanUseMultiResolutionImageReader;
+    private final Camera2CaptureRequestConfigurator mCaptureRequestConfigurator;
 
     /**
      * Constructor for CaptureSession without CameraQuirk.
@@ -146,7 +148,7 @@ final class CaptureSession implements CaptureSessionInterface {
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
             boolean canUseMultiResolutionImageReader) {
         this(dynamicRangesCompat, new Quirks(Collections.emptyList()),
-                canUseMultiResolutionImageReader);
+                canUseMultiResolutionImageReader, null);
     }
 
     /**
@@ -154,20 +156,41 @@ final class CaptureSession implements CaptureSessionInterface {
      */
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
             @NonNull Quirks cameraQuirks) {
-        this(dynamicRangesCompat, cameraQuirks, false);
+        this(dynamicRangesCompat, cameraQuirks, false, null);
+    }
+
+    /**
+     * Constructor for CaptureSession without {@link Camera2CaptureRequestConfigurator}.
+     */
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
+            boolean canUseMultiResolutionImageReader,
+            @Nullable Camera2CaptureRequestConfigurator captureRequestConfigurator) {
+        this(dynamicRangesCompat, new Quirks(Collections.emptyList()),
+                canUseMultiResolutionImageReader, captureRequestConfigurator);
+    }
+
+    /**
+     * Constructor for CaptureSession with {@link Camera2CaptureRequestConfigurator}.
+     */
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
+            @NonNull Quirks cameraQuirks,
+            @Nullable Camera2CaptureRequestConfigurator captureRequestConfigurator) {
+        this(dynamicRangesCompat, cameraQuirks, false, captureRequestConfigurator);
     }
 
     /**
      * Constructor for CaptureSession.
      */
     CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
-            @NonNull Quirks cameraQuirks, boolean canUseMultiResolutionImageReader) {
+            @NonNull Quirks cameraQuirks, boolean canUseMultiResolutionImageReader,
+            @Nullable Camera2CaptureRequestConfigurator captureRequestConfigurator) {
         setState(State.INITIALIZED);
         mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
         mRequestMonitor = new RequestMonitor(cameraQuirks.contains(CaptureNoResponseQuirk.class));
         mTemplateParamsOverride = new TemplateParamsOverride(cameraQuirks);
         mCanUseMultiResolutionImageReader = canUseMultiResolutionImageReader;
+        mCaptureRequestConfigurator = captureRequestConfigurator;
     }
 
     @Override
@@ -387,6 +410,9 @@ final class CaptureSession implements CaptureSessionInterface {
                                         sessionParameterConfigBuilder.build(), cameraDevice,
                                         mTemplateParamsOverride);
                         if (captureRequest != null) {
+                            if (mCaptureRequestConfigurator != null) {
+                                mCaptureRequestConfigurator.configureWith(captureRequest);
+                            }
                             sessionConfigCompat.setSessionParameters(captureRequest);
                         }
                     } catch (CameraAccessException e) {
@@ -702,6 +728,9 @@ final class CaptureSession implements CaptureSessionInterface {
                         mRequestMonitor.createMonitorListener(createCamera2CaptureCallback(
                                 captureConfig.getCameraCaptureCallbacks()));
 
+                if (mCaptureRequestConfigurator != null) {
+                    mCaptureRequestConfigurator.configureWith(captureRequest);
+                }
                 if (sessionConfig.getSessionType() == SessionConfiguration.SESSION_HIGH_SPEED) {
                     List<CaptureRequest> requests =
                             mSynchronizedCaptureSession.createHighSpeedRequestList(captureRequest);
@@ -860,6 +889,11 @@ final class CaptureSession implements CaptureSessionInterface {
                                         }
                                     }
                                 }));
+                    }
+                    if (mCaptureRequestConfigurator != null) {
+                        for (CaptureRequest captureRequest : captureRequests) {
+                            mCaptureRequestConfigurator.configureWith(captureRequest);
+                        }
                     }
                     if (mSessionConfig != null && mSessionConfig.getSessionType()
                             == SessionConfiguration.SESSION_HIGH_SPEED) {

@@ -24,6 +24,8 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.xr.runtime.internal.GltfEntity;
 import androidx.xr.runtime.internal.MaterialResource;
 import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
+import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl;
+import androidx.xr.scenecore.impl.impress.WaterMaterial;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
 
 import com.android.extensions.xr.ShadowXrExtensions;
@@ -31,8 +33,6 @@ import com.android.extensions.xr.XrExtensions;
 import com.android.extensions.xr.node.Node;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
-import com.google.ar.imp.apibindings.FakeImpressApiImpl;
-import com.google.ar.imp.apibindings.WaterMaterial;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.jspecify.annotations.Nullable;
@@ -57,6 +57,7 @@ public class GltfEntityImplTest {
     private final SplitEngineSubspaceManager mSplitEngineSubspaceManager =
             Mockito.mock(SplitEngineSubspaceManager.class);
     private GltfEntityImpl mGltfEntity;
+
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
@@ -103,7 +104,7 @@ public class GltfEntityImplTest {
     private MaterialResource createWaterMaterial(boolean isAlphaMapVersion)
             throws ExecutionException, InterruptedException {
         ResolvableFuture<MaterialResource> materialResourceFuture = ResolvableFuture.create();
-        ListenableFuture<com.google.ar.imp.apibindings.WaterMaterial> materialFuture =
+        ListenableFuture<androidx.xr.scenecore.impl.impress.WaterMaterial> materialFuture =
                 mFakeImpressApi.createWaterMaterial(isAlphaMapVersion);
 
         WaterMaterial material = materialFuture.get();

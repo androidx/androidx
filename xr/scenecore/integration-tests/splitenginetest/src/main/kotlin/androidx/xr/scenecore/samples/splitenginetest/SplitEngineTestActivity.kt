@@ -69,7 +69,6 @@ import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.TextureSampler
 import androidx.xr.scenecore.scene
-import com.google.common.util.concurrent.ListenableFuture
 import java.nio.file.Paths
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -409,53 +408,30 @@ class SplitEngineTestActivity : ComponentActivity() {
                     )
                     Button(
                         onClick = {
-                            val spec =
-                                KhronosPbrMaterialSpec.create(
-                                    lightingModel = KhronosPbrMaterialSpec.LightingModel.LIT,
-                                    blendMode = KhronosPbrMaterialSpec.BlendMode.OPAQUE,
-                                    doubleSidedMode =
-                                        KhronosPbrMaterialSpec.DoubleSidedMode.SINGLE_SIDED,
-                                )
-                            val khronosPbrMaterialFuture: ListenableFuture<KhronosPbrMaterial> =
-                                KhronosPbrMaterial.create(session, spec)
-                            khronosPbrMaterialFuture.addListener(
-                                {
-                                    try {
-                                        khronosPbrMaterial.value = khronosPbrMaterialFuture.get()
-                                    } catch (e: Exception) {
-                                        Log.e(
-                                            "SplitEngineTestActivity",
-                                            "Failed to Khronos PBR Material: " + e.message,
-                                        )
-                                    }
-                                },
-                                Runnable::run,
-                            )
+                            lifecycleScope.launch {
+                                val spec =
+                                    KhronosPbrMaterialSpec.create(
+                                        lightingModel = KhronosPbrMaterialSpec.LightingModel.LIT,
+                                        blendMode = KhronosPbrMaterialSpec.BlendMode.OPAQUE,
+                                        doubleSidedMode =
+                                            KhronosPbrMaterialSpec.DoubleSidedMode.SINGLE_SIDED,
+                                    )
+                                khronosPbrMaterial.value = KhronosPbrMaterial.create(session, spec)
+                            }
                         }
                     ) {
                         Text(text = "Create Khronos PBR Material Split Engine", fontSize = 20.sp)
                     }
                     Button(
                         onClick = {
-                            val textureFuture: ListenableFuture<Texture> =
-                                Texture.create(
-                                    session,
-                                    "textures/pattern.png",
-                                    TextureSampler.create(),
-                                )
-                            textureFuture.addListener(
-                                {
-                                    try {
-                                        patternTexture.value = textureFuture.get()
-                                    } catch (e: Exception) {
-                                        Log.e(
-                                            "SplitEngineTestActivity",
-                                            "Failed to load Pattern Texture: " + e.message,
-                                        )
-                                    }
-                                },
-                                Runnable::run,
-                            )
+                            lifecycleScope.launch {
+                                patternTexture.value =
+                                    Texture.create(
+                                        session,
+                                        Paths.get("textures", "pattern.png"),
+                                        TextureSampler.create(),
+                                    )
+                            }
                         }
                     ) {
                         Text(text = "Load Pattern Texture Split Engine", fontSize = 20.sp)

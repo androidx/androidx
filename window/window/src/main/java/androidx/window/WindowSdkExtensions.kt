@@ -32,14 +32,17 @@ import androidx.window.core.ExtensionsUtil
  *
  * @sample androidx.window.samples.checkWindowSdkExtensionsVersion
  */
-abstract class WindowSdkExtensions @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+public abstract class WindowSdkExtensions
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor() {
 
     /**
      * Reports the device's extension version
      *
      * When Window SDK Extensions is not present on the device, the extension version will be 0.
      */
-    @get:IntRange(from = 0) open val extensionVersion: Int = ExtensionsUtil.safeVendorApiLevel
+    @get:IntRange(from = 0)
+    public open val extensionVersion: Int = ExtensionsUtil.safeVendorApiLevel
 
     /**
      * Checks the [extensionVersion] and throws [UnsupportedOperationException] if the minimum
@@ -76,31 +79,31 @@ abstract class WindowSdkExtensions @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) c
         }
     }
 
-    companion object {
+    public companion object {
         /** Returns a [WindowSdkExtensions] instance. */
         @JvmStatic
-        fun getInstance(): WindowSdkExtensions {
+        public fun getInstance(): WindowSdkExtensions {
             return decorator.decorate(object : WindowSdkExtensions() {})
         }
 
         private var decorator: WindowSdkExtensionsDecorator = EmptyDecoratorWindowSdk
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun overrideDecorator(overridingDecorator: WindowSdkExtensionsDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowSdkExtensionsDecorator) {
             decorator = overridingDecorator
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun reset() {
+        public fun reset() {
             decorator = EmptyDecoratorWindowSdk
         }
     }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface WindowSdkExtensionsDecorator {
+public interface WindowSdkExtensionsDecorator {
     /** Returns a [WindowSdkExtensions] instance. */
-    fun decorate(windowSdkExtensions: WindowSdkExtensions): WindowSdkExtensions
+    public fun decorate(windowSdkExtensions: WindowSdkExtensions): WindowSdkExtensions
 }
 
 private object EmptyDecoratorWindowSdk : WindowSdkExtensionsDecorator {

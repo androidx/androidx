@@ -85,4 +85,7 @@ androidx {
     name = "SQLite Driver Coformance Base Tests"
     inceptionYear = "2023"
     description = "SQLite Kotlin driver coformance base tests"
+    deviceTests {
+        enableAlsoRunOn16KbPageSizeDevices = true
+    }
 }

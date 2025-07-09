@@ -34,6 +34,8 @@ import android.app.Activity;
 import androidx.xr.runtime.internal.MaterialResource;
 import androidx.xr.runtime.internal.SpatialEnvironment.SpatialEnvironmentPreference;
 import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
+import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl;
+import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl.MaterialData;
 
 import com.android.extensions.xr.ShadowXrExtensions;
 import com.android.extensions.xr.XrExtensions;
@@ -47,8 +49,6 @@ import com.android.extensions.xr.space.SpatialState;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
 import com.google.androidxr.splitengine.SubspaceNode;
-import com.google.ar.imp.apibindings.FakeImpressApiImpl;
-import com.google.ar.imp.apibindings.FakeImpressApiImpl.MaterialData;
 
 import org.junit.Before;
 import org.junit.Test;

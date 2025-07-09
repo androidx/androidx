@@ -79,6 +79,7 @@ import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
+import androidx.camera.camera2.interop.Camera2CaptureRequestConfigurator;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks;
@@ -136,6 +137,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests for {@link CaptureSession}. This requires an environment where a valid {@link
@@ -940,6 +942,27 @@ public final class CaptureSessionTest {
         // Should throw IllegalStateException
         captureSession.issueCaptureRequests(
                 Collections.singletonList(mTestParameters0.mCaptureConfig));
+    }
+
+    @Test
+    public void issueCaptureRequest_configuratorIsCalled() throws InterruptedException {
+        final AtomicReference<CaptureRequest> captureRequestToVerify = new AtomicReference<>(null);
+        Camera2CaptureRequestConfigurator captureRequestConfigurator = captureRequestToVerify::set;
+        CaptureSession captureSession = new CaptureSession(mDynamicRangesCompat, mCameraQuirks,
+                false, captureRequestConfigurator);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get(),
+                mCaptureSessionOpenerBuilder.build());
+
+        assertTrue(mTestParameters0.waitForData());
+
+        assertThat(captureRequestToVerify.get().get(CaptureRequest.CONTROL_AF_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AF_MODE_AUTO);
+        assertThat(captureRequestToVerify.get().get(
+                CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION)).isEqualTo(
+                mTestParameters0.mEvRange.getUpper());
+        assertThat(captureRequestToVerify.get().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AE_MODE_ON);
     }
 
     @Test

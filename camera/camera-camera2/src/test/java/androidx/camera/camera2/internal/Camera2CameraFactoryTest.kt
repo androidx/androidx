@@ -27,6 +27,7 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,94 +45,127 @@ import org.robolectric.util.ReflectionHelpers
     instrumentedPackages = ["androidx.camera.camera2.internal"],
 )
 class Camera2CameraFactoryTest {
-    @Test
-    fun filterOutIncompatibleCameras_withoutAvailableCameraSelector() {
-        // Customizes Build.FINGERPRINT to be not "fingerprint", so that cameras without
-        // REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE will be filtered.
-        ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
+    private val originalFingerprint = Build.FINGERPRINT
 
+    @After
+    fun tearDown() {
+        // Restore the original fingerprint after each test
+        ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", originalFingerprint)
+    }
+
+    @Test
+    fun constructor_filtersOutIncompatibleCameras_withoutAvailableCameraSelector() {
+        // Arrange
+        setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
         setupCameras()
 
-        val camera2CameraFactory =
-            Camera2CameraFactory(
-                ApplicationProvider.getApplicationContext(),
-                CameraThreadConfig.create(
-                    CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper()),
-                ),
-                null,
-                -1L,
-            )
+        // Act
+        val camera2CameraFactory = createCameraFactory(null)
 
+        // Assert
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2")
     }
 
     @Test
-    fun filterOutIncompatibleCameras_withAvailableCameraSelector() {
-        // Customizes Build.FINGERPRINT to be not "fingerprint", so that cameras without
-        // REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE will be filtered.
-        ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
-
+    fun constructor_filtersOutIncompatibleCameras_withAvailableCameraSelector() {
+        // Arrange
+        setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
         setupCameras()
 
-        val camera2CameraFactory =
-            Camera2CameraFactory(
-                ApplicationProvider.getApplicationContext(),
-                CameraThreadConfig.create(
-                    CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper()),
-                ),
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                -1L,
-            )
+        // Act
+        val camera2CameraFactory = createCameraFactory(CameraSelector.DEFAULT_BACK_CAMERA)
 
+        // Assert
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
     }
 
     @Test
-    fun NotFilterOutIncompatibleCameras_whenBuildFingerprintIsRobolectric() {
+    fun constructor_NotFilterOutIncompatibleCameras_whenBuildFingerprintIsRobolectric() {
+        // Arrange
+        setFingerprint("robolectric") // Should skip backward compatibility filter
         setupCameras()
 
-        val camera2CameraFactory =
-            Camera2CameraFactory(
-                ApplicationProvider.getApplicationContext(),
-                CameraThreadConfig.create(
-                    CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper()),
-                ),
-                null,
-                -1L,
-            )
+        // Act
+        val camera2CameraFactory = createCameraFactory(null)
 
+        // Assert
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2", "3")
     }
 
-    private fun setupCameras() {
-        val capabilities =
-            intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
-        // Camera "0" and "1" won't be filtered out even they don't have
-        // REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE.
-        initCharacterisic("0", CameraCharacteristics.LENS_FACING_BACK, null)
-        initCharacterisic("1", CameraCharacteristics.LENS_FACING_FRONT, null)
-        initCharacterisic("2", CameraCharacteristics.LENS_FACING_BACK, capabilities)
-        // Do not set REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE for the camera, so that
-        // it will be filtered out if Build.FINGERPRINT is no "robolectric".
-        // Do not set REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE for the camera, so that
-        // it will be filtered out if Build.FINGERPRINT is no "robolectric".
-        initCharacterisic("3", CameraCharacteristics.LENS_FACING_BACK, null)
+    @Test
+    fun onCameraIdsUpdated_refreshesAndFiltersList() {
+        // Arrange
+        setFingerprint("fake-fingerprint")
+        setupCameras() // Initial state: "0", "1", "2", "3"
+        val camera2CameraFactory = createCameraFactory(null)
+
+        // Assert initial state
+        assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2")
+
+        // Act: Simulate a camera ("1") being removed from the system.
+        camera2CameraFactory.onCameraIdsUpdated(listOf("0", "2", "3"))
+
+        // Assert: The list should be re-filtered. "3" is incompatible, "1" is gone.
+        assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
     }
 
-    private fun initCharacterisic(cameraId: String, lensFacing: Int, capabilities: IntArray?) {
+    @Test
+    fun onCameraIdsUpdated_appliesCameraSelectorToNewList() {
+        // Arrange
+        setFingerprint("fake-fingerprint")
+        setupCameras() // Initial state: "0", "1", "2", "3"
+        val camera2CameraFactory = createCameraFactory(CameraSelector.DEFAULT_BACK_CAMERA)
+
+        // Assert initial state (filters by selector and compatibility)
+        assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
+
+        // Act: Simulate a new BACK camera ("4") being added. "1" (FRONT) is removed.
+        initCharacteristic("4", CameraCharacteristics.LENS_FACING_BACK, getCompatCapabilities())
+        camera2CameraFactory.onCameraIdsUpdated(listOf("0", "2", "3", "4"))
+
+        // Assert: The selector should be re-applied to the new list.
+        assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2", "4")
+    }
+
+    private fun setFingerprint(fingerprint: String) {
+        ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", fingerprint)
+    }
+
+    private fun createCameraFactory(
+        availableCameraSelector: CameraSelector?
+    ): Camera2CameraFactory {
+        return Camera2CameraFactory(
+            ApplicationProvider.getApplicationContext(),
+            CameraThreadConfig.create(
+                CameraXExecutors.mainThreadExecutor(),
+                Handler(Looper.getMainLooper()),
+            ),
+            availableCameraSelector,
+            -1L,
+        )
+    }
+
+    private fun getCompatCapabilities() =
+        intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
+
+    private fun setupCameras() {
+        // Camera "0" and "1" won't be filtered by compat check, by heuristic.
+        initCharacteristic("0", CameraCharacteristics.LENS_FACING_BACK, null)
+        initCharacteristic("1", CameraCharacteristics.LENS_FACING_FRONT, null)
+        // Camera "2" has backward compat capabilities.
+        initCharacteristic("2", CameraCharacteristics.LENS_FACING_BACK, getCompatCapabilities())
+        // Camera "3" does NOT have backward compat capabilities, will be filtered.
+        initCharacteristic("3", CameraCharacteristics.LENS_FACING_BACK, null)
+    }
+
+    private fun initCharacteristic(cameraId: String, lensFacing: Int, capabilities: IntArray?) {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
         shadowCharacteristics.set(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
         )
-
-        // Add a lens facing to the camera
         shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
-
         capabilities?.let {
             shadowCharacteristics.set(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
@@ -140,7 +174,7 @@ class Camera2CameraFactoryTest {
         }
 
         // Add the camera to the camera service
-        (Shadow.extract<Any>(
+        (Shadow.extract(
                 ApplicationProvider.getApplicationContext<Context>()
                     .getSystemService(Context.CAMERA_SERVICE)
             ) as ShadowCameraManager)

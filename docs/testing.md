@@ -113,7 +113,7 @@ Here is an example of a minimal screenshot test for compose material.
 ```
 @LargeTest
 @RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class CheckboxScreenshotTest {
     @get:Rule val composeTestRule = createComposeRule()
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
@@ -165,7 +165,13 @@ Step 2: Click on the “Update scuba goldens” below:
 ![alt_text](onboarding_images/image8.png "Update scuba button")
 
 Step 3: Select the tests for which you want to update the golden images. Confirm
-the images look correct and click on “Approve Changes”
+the images look correct and click on “Approve Changes”.
+
+Note: If Scuba isn't loading correctly, you likely need to sign into your Google
+Account. A sign-in prompt should appear in Chrome. If it doesn't, try opening
+Scuba in an incognito window or clear your browser's cookies and then try
+loading Scuba again.
+
 ![alt_text](onboarding_images/image9.png "Button to approve scuba changes")
 
 Step 4: In the Approve changes dialog box, enter the following details and click

@@ -32,10 +32,10 @@ import androidx.window.RequiresWindowSdkExtension
  * @see DraggableDividerAttributes
  * @see NO_DIVIDER
  */
-abstract class DividerAttributes
+public abstract class DividerAttributes
 private constructor(
-    @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) val widthDp: Int = WIDTH_SYSTEM_DEFAULT,
-    @ColorInt val color: Int = COLOR_SYSTEM_DEFAULT,
+    @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) public val widthDp: Int = WIDTH_SYSTEM_DEFAULT,
+    @ColorInt public val color: Int = COLOR_SYSTEM_DEFAULT,
 ) {
     override fun toString(): String =
         DividerAttributes::class.java.simpleName + "{" + "width=$widthDp, " + "color=$color" + "}"
@@ -48,7 +48,7 @@ private constructor(
      * @property color the color of the divider.
      * @see SplitAttributes.Builder.setDividerAttributes
      */
-    class FixedDividerAttributes
+    public class FixedDividerAttributes
     @RequiresWindowSdkExtension(6)
     private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
@@ -69,7 +69,7 @@ private constructor(
          * @constructor creates a new [FixedDividerAttributes.Builder]
          */
         @RequiresWindowSdkExtension(6)
-        class Builder() {
+        public class Builder() {
             @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong())
             private var widthDp = WIDTH_SYSTEM_DEFAULT
 
@@ -82,7 +82,7 @@ private constructor(
              * @param original the original [FixedDividerAttributes] to initialize the [Builder].
              */
             @RequiresWindowSdkExtension(6)
-            constructor(original: FixedDividerAttributes) : this() {
+            public constructor(original: FixedDividerAttributes) : this() {
                 widthDp = original.widthDp
                 color = original.color
             }
@@ -94,11 +94,12 @@ private constructor(
              * @throws IllegalArgumentException if the provided value is invalid.
              */
             @RequiresWindowSdkExtension(6)
-            fun setWidthDp(@IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int): Builder =
-                apply {
-                    validateWidth(widthDp)
-                    this.widthDp = widthDp
-                }
+            public fun setWidthDp(
+                @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int
+            ): Builder = apply {
+                validateWidth(widthDp)
+                this.widthDp = widthDp
+            }
 
             /**
              * Sets the color of the divider. If not set, the default color [Color.BLACK] is used.
@@ -106,14 +107,14 @@ private constructor(
              * @throws IllegalArgumentException if the provided value is invalid.
              */
             @RequiresWindowSdkExtension(6)
-            fun setColor(@ColorInt color: Int): Builder = apply {
+            public fun setColor(@ColorInt color: Int): Builder = apply {
                 validateColor(color)
                 this.color = color
             }
 
             /** Builds a [FixedDividerAttributes] instance. */
             @RequiresWindowSdkExtension(6)
-            fun build(): FixedDividerAttributes {
+            public fun build(): FixedDividerAttributes {
                 return FixedDividerAttributes(widthDp = widthDp, color = color)
             }
         }
@@ -139,13 +140,13 @@ private constructor(
      *   Default to `false`.
      * @see SplitAttributes.Builder.setDividerAttributes
      */
-    class DraggableDividerAttributes
+    public class DraggableDividerAttributes
     @RequiresWindowSdkExtension(6)
     private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
         @ColorInt color: Int = COLOR_SYSTEM_DEFAULT,
-        val dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT,
-        val isDraggingToFullscreenAllowed: Boolean = false,
+        public val dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT,
+        public val isDraggingToFullscreenAllowed: Boolean = false,
     ) : DividerAttributes(widthDp, color) {
 
         override fun equals(other: Any?): Boolean {
@@ -176,7 +177,7 @@ private constructor(
          * @constructor creates a new [DraggableDividerAttributes.Builder]
          */
         @RequiresWindowSdkExtension(6)
-        class Builder() {
+        public class Builder() {
             @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong())
             private var widthDp = WIDTH_SYSTEM_DEFAULT
 
@@ -193,7 +194,7 @@ private constructor(
              * @param original the original [DraggableDividerAttributes] to initialize the [Builder]
              */
             @RequiresWindowSdkExtension(6)
-            constructor(original: DraggableDividerAttributes) : this() {
+            public constructor(original: DraggableDividerAttributes) : this() {
                 widthDp = original.widthDp
                 dragRange = original.dragRange
                 color = original.color
@@ -213,11 +214,12 @@ private constructor(
              * @throws IllegalArgumentException if the provided value is invalid.
              */
             @RequiresWindowSdkExtension(6)
-            fun setWidthDp(@IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int): Builder =
-                apply {
-                    validateWidth(widthDp)
-                    this.widthDp = widthDp
-                }
+            public fun setWidthDp(
+                @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int
+            ): Builder = apply {
+                validateWidth(widthDp)
+                this.widthDp = widthDp
+            }
 
             /**
              * Sets the color of the divider. If not set, the default color [Color.BLACK] is used.
@@ -225,7 +227,7 @@ private constructor(
              * @throws IllegalArgumentException if the provided value is invalid.
              */
             @RequiresWindowSdkExtension(6)
-            fun setColor(@ColorInt color: Int): Builder = apply {
+            public fun setColor(@ColorInt color: Int): Builder = apply {
                 validateColor(color)
                 this.color = color
             }
@@ -241,7 +243,9 @@ private constructor(
              * @param dragRange the [DragRange] for the draggable divider.
              */
             @RequiresWindowSdkExtension(6)
-            fun setDragRange(dragRange: DragRange): Builder = apply { this.dragRange = dragRange }
+            public fun setDragRange(dragRange: DragRange): Builder = apply {
+                this.dragRange = dragRange
+            }
 
             /**
              * Sets whether dragging to full screen is allowed.
@@ -267,13 +271,13 @@ private constructor(
              * disabled.
              */
             @RequiresWindowSdkExtension(7)
-            fun setDraggingToFullscreenAllowed(allowed: Boolean): Builder = apply {
+            public fun setDraggingToFullscreenAllowed(allowed: Boolean): Builder = apply {
                 this.isDraggingToFullscreenAllowed = allowed
             }
 
             /** Builds a [DividerAttributes] instance. */
             @RequiresWindowSdkExtension(6)
-            fun build(): DraggableDividerAttributes =
+            public fun build(): DraggableDividerAttributes =
                 DraggableDividerAttributes(
                     widthDp = widthDp,
                     color = color,
@@ -289,7 +293,7 @@ private constructor(
      * @see SplitRatioDragRange
      * @see DRAG_RANGE_SYSTEM_DEFAULT
      */
-    abstract class DragRange private constructor() {
+    public abstract class DragRange private constructor() {
         /**
          * A drag range represented as an interval of the primary container's split ratios.
          *
@@ -304,11 +308,11 @@ private constructor(
          * @constructor constructs a new [SplitRatioDragRange]
          * @throws IllegalArgumentException if the provided values are invalid.
          */
-        class SplitRatioDragRange(
+        public class SplitRatioDragRange(
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
-            val minRatio: Float,
+            public val minRatio: Float,
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
-            val maxRatio: Float,
+            public val maxRatio: Float,
         ) : DragRange() {
             init {
                 if (minRatio <= 0.0 || minRatio >= 1.0) {
@@ -335,7 +339,7 @@ private constructor(
             override fun hashCode(): Int = minRatio.hashCode() * 31 + maxRatio.hashCode()
         }
 
-        companion object {
+        public companion object {
             /**
              * A special value to indicate that the system will choose default values based on the
              * display size and form factor.
@@ -343,14 +347,14 @@ private constructor(
              * @see DraggableDividerAttributes.dragRange
              */
             @JvmField
-            val DRAG_RANGE_SYSTEM_DEFAULT =
+            public val DRAG_RANGE_SYSTEM_DEFAULT: DragRange =
                 object : DragRange() {
                     override fun toString(): String = "DRAG_RANGE_SYSTEM_DEFAULT"
                 }
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * A special value to indicate that the system will choose a default value based on the
          * display size and form factor. Some devices may choose 0 as the default width, while the
@@ -363,11 +367,11 @@ private constructor(
          * @see FixedDividerAttributes.Builder.setWidthDp
          * @see DraggableDividerAttributes.Builder.setWidthDp
          */
-        const val WIDTH_SYSTEM_DEFAULT: Int = -1
+        public const val WIDTH_SYSTEM_DEFAULT: Int = -1
 
         /** Indicates that no divider is requested. */
         @JvmField
-        val NO_DIVIDER =
+        public val NO_DIVIDER: DividerAttributes =
             object : DividerAttributes() {
                 override fun toString(): String = "NO_DIVIDER"
 

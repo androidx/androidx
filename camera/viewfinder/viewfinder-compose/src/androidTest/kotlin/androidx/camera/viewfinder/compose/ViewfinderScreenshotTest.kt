@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Tests for [Viewfinder] with various source transforms via [TransformationInfo] */
-@SdkSuppress(minSdkVersion = 33) // Required for screenshot tests
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ViewfinderScreenshotTest {

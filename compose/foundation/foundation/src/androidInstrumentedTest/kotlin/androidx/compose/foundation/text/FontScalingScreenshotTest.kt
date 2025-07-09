@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.GOLDEN_FOUNDATION
@@ -55,7 +54,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class FontScalingScreenshotTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 

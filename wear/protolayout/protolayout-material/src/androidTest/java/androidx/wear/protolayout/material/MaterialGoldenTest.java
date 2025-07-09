@@ -27,10 +27,12 @@ import static androidx.wear.protolayout.material.TestCasesGenerator.generateText
 import static androidx.wear.protolayout.material.TestCasesGenerator.generateTextTestCasesRtlOnly;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.protolayout.DeviceParametersBuilders;
@@ -48,6 +50,10 @@ import java.util.List;
 
 @RunWith(Parameterized.class)
 @LargeTest
+@SdkSuppress(
+        minSdkVersion = 35,
+        maxSdkVersion = 35
+)
 public class MaterialGoldenTest {
     private final TestCase mTestCase;
     private final String mExpected;

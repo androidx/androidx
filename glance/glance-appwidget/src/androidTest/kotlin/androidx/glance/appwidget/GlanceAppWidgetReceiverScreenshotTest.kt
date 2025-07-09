@@ -73,7 +73,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 
-@SdkSuppress(minSdkVersion = 29)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest
 class GlanceAppWidgetReceiverScreenshotTest {

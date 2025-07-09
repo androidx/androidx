@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.content.ComponentName;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 
 import com.google.auto.value.AutoValue;
 
@@ -198,6 +199,26 @@ public abstract class CameraState {
     public static final int ERROR_DO_NOT_DISTURB_MODE_ENABLED = 7;
 
     /**
+     * An error indicating that the camera device is no longer available because it has been
+     * removed from the system.
+     *
+     * <p>This error will be reported when a camera is disconnected from the host
+     * device (e.g., a USB camera is unplugged). This is a terminal state for the
+     * camera session. Once this error is received, the associated {@link Camera} and
+     * {@link CameraInfo} objects are no longer valid. Attempting to call methods on them may
+     * result in exceptions.
+     *
+     * <p><b>Action:</b> The application should unbind all use cases from the invalid camera
+     * and switch to another available camera. To find a new camera, use
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#getAvailableCameraInfos()} or
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#hasCamera(CameraSelector)}.
+     *
+     * <p>This error is considered critical, and CameraX will not attempt to recover.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int ERROR_CAMERA_REMOVED = 8;
+
+    /**
      * Create a new {@link CameraState} instance from a {@link Type} and a {@code null}
      * {@link StateError}.
      *
@@ -238,7 +259,8 @@ public abstract class CameraState {
             ERROR_STREAM_CONFIG,
             ERROR_CAMERA_DISABLED,
             ERROR_CAMERA_FATAL_ERROR,
-            ERROR_DO_NOT_DISTURB_MODE_ENABLED})
+            ERROR_DO_NOT_DISTURB_MODE_ENABLED,
+            ERROR_CAMERA_REMOVED})
     @Retention(RetentionPolicy.SOURCE)
     @interface ErrorCode {
     }

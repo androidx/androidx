@@ -193,7 +193,7 @@ class VectorTest {
             Image(vectorPainter, null, modifier = Modifier.size(20.dp))
         }
 
-        state.value = 1
+        state.intValue = 1
         rule.waitForIdle()
         assertEquals(2, composeCount) // Arbitrary state read should compose twice
         assertEquals(1, vectorComposeCount) // Vector is identical so should compose once

@@ -65,6 +65,7 @@ package androidx.health.connect.client {
   public interface HealthConnectFeatures {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
+    field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
     field @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
@@ -76,6 +77,7 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectFeatures.Companion {
+    property public static int FEATURE_ACTIVITY_INTENSITY;
     property public static int FEATURE_MINDFULNESS_SESSION;
     property @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static int FEATURE_PERSONAL_HEALTH_RECORD;
     property public static int FEATURE_PLANNED_EXERCISE;
@@ -84,6 +86,7 @@ package androidx.health.connect.client {
     property public static int FEATURE_SKIN_TEMPERATURE;
     property public static int FEATURE_STATUS_AVAILABLE;
     property public static int FEATURE_STATUS_UNAVAILABLE;
+    field public static final int FEATURE_ACTIVITY_INTENSITY = 7; // 0x7
     field public static final int FEATURE_MINDFULNESS_SESSION = 5; // 0x5
     field @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi public static final int FEATURE_PERSONAL_HEALTH_RECORD = 6; // 0x6
     field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
@@ -257,6 +260,38 @@ package androidx.health.connect.client.records {
 
   public static final class ActiveCaloriesBurnedRecord.Companion {
     property public androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Energy> ACTIVE_CALORIES_TOTAL;
+  }
+
+  public final class ActivityIntensityRecord implements androidx.health.connect.client.records.IntervalRecord {
+    ctor public ActivityIntensityRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, androidx.health.connect.client.records.metadata.Metadata metadata, int activityIntensityType);
+    method public int getActivityIntensityType();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public int activityIntensityType;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final int ACTIVITY_INTENSITY_TYPE_MODERATE = 0; // 0x0
+    field public static final int ACTIVITY_INTENSITY_TYPE_VIGOROUS = 1; // 0x1
+    field public static final androidx.health.connect.client.records.ActivityIntensityRecord.Companion Companion;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> DURATION_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> INTENSITY_MINUTES_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> MODERATE_DURATION_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> VIGOROUS_DURATION_TOTAL;
+  }
+
+  public static final class ActivityIntensityRecord.Companion {
+    property public static int ACTIVITY_INTENSITY_TYPE_MODERATE;
+    property public static int ACTIVITY_INTENSITY_TYPE_VIGOROUS;
+    property public androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> DURATION_TOTAL;
+    property public androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> INTENSITY_MINUTES_TOTAL;
+    property public androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> MODERATE_DURATION_TOTAL;
+    property public androidx.health.connect.client.aggregate.AggregateMetric<java.time.Duration> VIGOROUS_DURATION_TOTAL;
   }
 
   public final class BasalBodyTemperatureRecord implements androidx.health.connect.client.records.InstantaneousRecord {

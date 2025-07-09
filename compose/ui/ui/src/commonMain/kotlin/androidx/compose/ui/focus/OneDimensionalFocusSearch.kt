@@ -48,8 +48,8 @@ internal fun FocusTargetNode.oneDimensionalFocusSearch(
         else -> error(InvalidFocusDirection)
     }
 
-private fun FocusTargetNode.forwardFocusSearch(onFound: (FocusTargetNode) -> Boolean): Boolean =
-    when (focusState) {
+private fun FocusTargetNode.forwardFocusSearch(onFound: (FocusTargetNode) -> Boolean): Boolean {
+    return when (focusState) {
         ActiveParent -> {
             val focusedChild = activeChild ?: error(NoActiveChild)
             focusedChild.forwardFocusSearch(onFound) ||
@@ -64,6 +64,7 @@ private fun FocusTargetNode.forwardFocusSearch(onFound: (FocusTargetNode) -> Boo
                 pickChildForForwardSearch(onFound)
             }
     }
+}
 
 private fun FocusTargetNode.backwardFocusSearch(onFound: (FocusTargetNode) -> Boolean): Boolean =
     when (focusState) {

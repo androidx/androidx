@@ -281,6 +281,7 @@ fun WideNavigationRailCollapsedSample() {
     WideNavigationRail {
         items.forEachIndexed { index, item ->
             WideNavigationRailItem(
+                railExpanded = false,
                 icon = {
                     Icon(
                         if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],

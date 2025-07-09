@@ -21,6 +21,7 @@ package androidx.build.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
 
 class Stubs {
 
@@ -102,6 +103,63 @@ package org.junit
 annotation class Test
             """
             )
+        val RuleAnnotation =
+            TestFiles.kotlin(
+                """
+package org.junit
+
+annotation class Rule
+            """
+            )
+
+        val AndroidXScreenshotTestRule =
+            TestFiles.kotlin(
+                    """
+                    package androidx.test.screenshot
+
+                    class AndroidXScreenshotTestRule
+                    """
+                )
+                .indented()
+
+        val SdkSuppressAnnotation =
+            java(
+                    """
+        package androidx.test.filters;
+
+        import java.lang.annotation.ElementType;
+        import java.lang.annotation.Retention;
+        import java.lang.annotation.RetentionPolicy;
+        import java.lang.annotation.Target;
+
+        @Retention(RetentionPolicy.RUNTIME)
+        @Target({ElementType.TYPE, ElementType.METHOD})
+        public @interface SdkSuppress {
+            int minSdkVersion() default 0;
+            int maxSdkVersion() default Integer.MAX_VALUE;
+            String codename() default "";
+        }
+        """
+                )
+                .indented()
+
+        val AndroidBuild =
+            java(
+                    """
+            package android.os;
+
+            public final class Build {
+                public static final class VERSION_CODES {
+                    public static final int TIRAMISU = 33;
+                    public static final int VANILLA_ICE_CREAM = 35;
+                }
+                public static final class VERSION {
+                    public static final int SDK_INT = 35;
+                }
+            }
+            """
+                )
+                .indented()
 
         /**
          * [TestFile] containing OptIn.kt from the Kotlin standard library.

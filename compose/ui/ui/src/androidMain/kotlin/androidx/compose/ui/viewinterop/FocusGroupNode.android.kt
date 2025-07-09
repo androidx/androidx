@@ -51,11 +51,25 @@ internal fun Modifier.focusInteropModifier(): Modifier =
         .focusTarget()
         // Focus Target to make the embedded view focusable.
         .then(FocusTargetPropertiesElement)
-        .focusTarget()
+        .then(FocusTargetInteropElement)
+
+private object FocusTargetInteropElement : ModifierNodeElement<FocusTargetNode>() {
+    override fun create() = FocusTargetNode(isInteropViewHost = true)
+
+    override fun update(node: FocusTargetNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "focusTargetInterop"
+    }
+
+    override fun hashCode() = "focusTargetInterop".hashCode()
+
+    override fun equals(other: Any?) = other === this
+}
 
 private class FocusTargetPropertiesNode : Modifier.Node(), FocusPropertiesModifierNode {
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        focusProperties.canFocus = node.isAttached && getEmbeddedView().hasFocusable()
+        focusProperties.canFocus = (node.isAttached && getEmbeddedView().hasFocusable())
     }
 }
 
@@ -93,6 +107,8 @@ private class FocusGroupPropertiesNode :
             if (embeddedView.hasFocus() || embeddedView.isFocused) {
                 embeddedView.clearFocus()
             }
+        } else if (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled) {
+            // Do nothing.
         } else if (embeddedView.hasFocus()) {
             val focusOwner = requireOwner().focusOwner
             val hostView = requireView()

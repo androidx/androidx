@@ -156,6 +156,14 @@ abstract interface androidx.compose.ui.graphics/ImageBitmap { // androidx.compos
     final object Companion // androidx.compose.ui.graphics/ImageBitmap.Companion|null[0]
 }
 
+abstract interface androidx.compose.ui.graphics/Interpolatable { // androidx.compose.ui.graphics/Interpolatable|null[0]
+    abstract fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/Interpolatable.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
+
+    final object Companion { // androidx.compose.ui.graphics/Interpolatable.Companion|null[0]
+        final fun lerp(kotlin/Any?, kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/Interpolatable.Companion.lerp|lerp(kotlin.Any?;kotlin.Any?;kotlin.Float){}[0]
+    }
+}
+
 abstract interface androidx.compose.ui.graphics/Paint { // androidx.compose.ui.graphics/Paint|null[0]
     abstract var alpha // androidx.compose.ui.graphics/Paint.alpha|{}alpha[0]
         abstract fun <get-alpha>(): kotlin/Float // androidx.compose.ui.graphics/Paint.alpha.<get-alpha>|<get-alpha>(){}[0]
@@ -800,13 +808,14 @@ final class androidx.compose.ui.graphics/LightingColorFilter : androidx.compose.
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/LightingColorFilter.toString|toString(){}[0]
 }
 
-final class androidx.compose.ui.graphics/LinearGradient : androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/LinearGradient|null[0]
+final class androidx.compose.ui.graphics/LinearGradient : androidx.compose.ui.graphics/Interpolatable, androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/LinearGradient|null[0]
     final val intrinsicSize // androidx.compose.ui.graphics/LinearGradient.intrinsicSize|{}intrinsicSize[0]
         final fun <get-intrinsicSize>(): androidx.compose.ui.geometry/Size // androidx.compose.ui.graphics/LinearGradient.intrinsicSize.<get-intrinsicSize>|<get-intrinsicSize>(){}[0]
 
     final fun createShader(androidx.compose.ui.geometry/Size): androidx.compose.ui.graphics/Shader // androidx.compose.ui.graphics/LinearGradient.createShader|createShader(androidx.compose.ui.geometry.Size){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.graphics/LinearGradient.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics/LinearGradient.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/LinearGradient.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/LinearGradient.toString|toString(){}[0]
 }
 
@@ -879,13 +888,14 @@ final class androidx.compose.ui.graphics/PixelMap { // androidx.compose.ui.graph
     final fun get(kotlin/Int, kotlin/Int): androidx.compose.ui.graphics/Color // androidx.compose.ui.graphics/PixelMap.get|get(kotlin.Int;kotlin.Int){}[0]
 }
 
-final class androidx.compose.ui.graphics/RadialGradient : androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/RadialGradient|null[0]
+final class androidx.compose.ui.graphics/RadialGradient : androidx.compose.ui.graphics/Interpolatable, androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/RadialGradient|null[0]
     final val intrinsicSize // androidx.compose.ui.graphics/RadialGradient.intrinsicSize|{}intrinsicSize[0]
         final fun <get-intrinsicSize>(): androidx.compose.ui.geometry/Size // androidx.compose.ui.graphics/RadialGradient.intrinsicSize.<get-intrinsicSize>|<get-intrinsicSize>(){}[0]
 
     final fun createShader(androidx.compose.ui.geometry/Size): androidx.compose.ui.graphics/Shader // androidx.compose.ui.graphics/RadialGradient.createShader|createShader(androidx.compose.ui.geometry.Size){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.graphics/RadialGradient.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics/RadialGradient.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/RadialGradient.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/RadialGradient.toString|toString(){}[0]
 }
 
@@ -914,7 +924,7 @@ final class androidx.compose.ui.graphics/Shadow { // androidx.compose.ui.graphic
     }
 }
 
-final class androidx.compose.ui.graphics/SolidColor : androidx.compose.ui.graphics/Brush { // androidx.compose.ui.graphics/SolidColor|null[0]
+final class androidx.compose.ui.graphics/SolidColor : androidx.compose.ui.graphics/Brush, androidx.compose.ui.graphics/Interpolatable { // androidx.compose.ui.graphics/SolidColor|null[0]
     constructor <init>(androidx.compose.ui.graphics/Color) // androidx.compose.ui.graphics/SolidColor.<init>|<init>(androidx.compose.ui.graphics.Color){}[0]
 
     final val value // androidx.compose.ui.graphics/SolidColor.value|{}value[0]
@@ -923,13 +933,15 @@ final class androidx.compose.ui.graphics/SolidColor : androidx.compose.ui.graphi
     final fun applyTo(androidx.compose.ui.geometry/Size, androidx.compose.ui.graphics/Paint, kotlin/Float) // androidx.compose.ui.graphics/SolidColor.applyTo|applyTo(androidx.compose.ui.geometry.Size;androidx.compose.ui.graphics.Paint;kotlin.Float){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.graphics/SolidColor.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics/SolidColor.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/SolidColor.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/SolidColor.toString|toString(){}[0]
 }
 
-final class androidx.compose.ui.graphics/SweepGradient : androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/SweepGradient|null[0]
+final class androidx.compose.ui.graphics/SweepGradient : androidx.compose.ui.graphics/Interpolatable, androidx.compose.ui.graphics/ShaderBrush { // androidx.compose.ui.graphics/SweepGradient|null[0]
     final fun createShader(androidx.compose.ui.geometry/Size): androidx.compose.ui.graphics/Shader // androidx.compose.ui.graphics/SweepGradient.createShader|createShader(androidx.compose.ui.geometry.Size){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.graphics/SweepGradient.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics/SweepGradient.hashCode|hashCode(){}[0]
+    final fun lerp(kotlin/Any?, kotlin/Float): kotlin/Any? // androidx.compose.ui.graphics/SweepGradient.lerp|lerp(kotlin.Any?;kotlin.Float){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/SweepGradient.toString|toString(){}[0]
 }
 
@@ -1982,6 +1994,7 @@ final fun (androidx.compose.ui.graphics/TileMode).androidx.compose.ui.graphics/i
 final fun (kotlin.collections/List<androidx.compose.ui.graphics.vector/PathNode>).androidx.compose.ui.graphics.vector/toPath(androidx.compose.ui.graphics/Path = ...): androidx.compose.ui.graphics/Path // androidx.compose.ui.graphics.vector/toPath|toPath@kotlin.collections.List<androidx.compose.ui.graphics.vector.PathNode>(androidx.compose.ui.graphics.Path){}[0]
 final fun (kotlin/ByteArray).androidx.compose.ui.graphics/decodeToImageBitmap(): androidx.compose.ui.graphics/ImageBitmap // androidx.compose.ui.graphics/decodeToImageBitmap|decodeToImageBitmap@kotlin.ByteArray(){}[0]
 final fun androidx.compose.ui.graphics.painter/BitmapPainter(androidx.compose.ui.graphics/ImageBitmap, androidx.compose.ui.unit/IntOffset = ..., androidx.compose.ui.unit/IntSize = ..., androidx.compose.ui.graphics/FilterQuality = ...): androidx.compose.ui.graphics.painter/BitmapPainter // androidx.compose.ui.graphics.painter/BitmapPainter|BitmapPainter(androidx.compose.ui.graphics.ImageBitmap;androidx.compose.ui.unit.IntOffset;androidx.compose.ui.unit.IntSize;androidx.compose.ui.graphics.FilterQuality){}[0]
+final fun androidx.compose.ui.graphics.shadow/lerp(androidx.compose.ui.graphics.shadow/Shadow?, androidx.compose.ui.graphics.shadow/Shadow?, kotlin/Float): androidx.compose.ui.graphics.shadow/Shadow? // androidx.compose.ui.graphics.shadow/lerp|lerp(androidx.compose.ui.graphics.shadow.Shadow?;androidx.compose.ui.graphics.shadow.Shadow?;kotlin.Float){}[0]
 final fun androidx.compose.ui.graphics/BlurEffect(kotlin/Float, kotlin/Float, androidx.compose.ui.graphics/TileMode = ...): androidx.compose.ui.graphics/BlurEffect // androidx.compose.ui.graphics/BlurEffect|BlurEffect(kotlin.Float;kotlin.Float;androidx.compose.ui.graphics.TileMode){}[0]
 final fun androidx.compose.ui.graphics/Canvas(androidx.compose.ui.graphics/ImageBitmap): androidx.compose.ui.graphics/Canvas // androidx.compose.ui.graphics/Canvas|Canvas(androidx.compose.ui.graphics.ImageBitmap){}[0]
 final fun androidx.compose.ui.graphics/Color(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float = ..., androidx.compose.ui.graphics.colorspace/ColorSpace = ...): androidx.compose.ui.graphics/Color // androidx.compose.ui.graphics/Color|Color(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.ui.graphics.colorspace.ColorSpace){}[0]

@@ -198,6 +198,7 @@ class ProcessingCaptureSessionTest(
             dynamicRangesCompat,
             executor,
             executor as ScheduledExecutorService,
+            null,
         )
     }
 

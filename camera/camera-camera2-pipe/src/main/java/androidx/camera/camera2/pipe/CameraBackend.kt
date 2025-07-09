@@ -17,6 +17,7 @@ package androidx.camera.camera2.pipe
 
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -134,6 +135,28 @@ public interface CameraBackend {
 
     /** Disconnects all active Cameras. */
     public fun disconnectAll()
+
+    /**
+     * Performs initialization for checking if a [CameraGraph.Config] is supported. The default
+     * implementation returns null for backward compatibility.
+     */
+    public suspend fun prewarmGraphConfigQuery(cameraId: CameraId): CameraDeviceSetupCompat? {
+        return null
+    }
+
+    /**
+     * Checks if a [CameraGraph.Config] is supported by the device.
+     *
+     * On API 35 and above, this queries the underlying framework. On older API levels, this will
+     * return [ConfigQueryResult.UNKNOWN].
+     *
+     * @param graphConfig The camera graph configuration to validate.
+     * @return A [ConfigQueryResult] indicating whether the configuration is supported. The default
+     *   implementation returns UNKNOWN for backward compatibility.
+     */
+    public suspend fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult {
+        return ConfigQueryResult.UNKNOWN
+    }
 }
 
 /**

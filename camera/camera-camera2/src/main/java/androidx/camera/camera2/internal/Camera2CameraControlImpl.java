@@ -76,6 +76,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -346,7 +347,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        if (!mIsRepeatingRequestAvailable) {
+        if (!isRepeatingRequestAvailable()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException(
                             "Repeating request is not available possibly because it's disable for"
@@ -362,7 +363,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        if (!mIsRepeatingRequestAvailable) {
+        if (!isRepeatingRequestAvailable()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException(
                             "Repeating request is not available possibly because it's disable for"
@@ -939,6 +940,24 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             }
         }
         return false;
+    }
+
+    @VisibleForTesting
+    private boolean isRepeatingRequestAvailable() {
+        try {
+            return CallbackToFutureAdapter.<Boolean>getFuture(completer -> {
+                try {
+                    mExecutor.execute(() -> completer.set(mIsRepeatingRequestAvailable));
+                } catch (RejectedExecutionException e) {
+                    completer.setException(new RuntimeException(
+                            "Unable to check if repeating request is available. Camera executor "
+                                    + "shut down."));
+                }
+                return "isRepeatingRequestAvailable";
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Unable to check if repeating request is available.", e);
+        }
     }
 
     int getMaxAfRegionCount() {

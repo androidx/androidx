@@ -369,6 +369,11 @@ constructor(
         return true
     }
 
+    override fun getAvailableCapabilities(): Set<Int> {
+        return cameraProperties.metadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
+            ?.toSet() ?: emptySet()
+    }
+
     public companion object {
         public fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
             when (this) {

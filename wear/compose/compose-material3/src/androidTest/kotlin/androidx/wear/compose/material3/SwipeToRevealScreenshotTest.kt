@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,12 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.Composable
-import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -52,7 +49,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(TestParameterInjector::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class SwipeToRevealScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
@@ -496,17 +493,11 @@ class SwipeToRevealScreenshotTest {
             moveTo(Offset(center.x - (screenWidthPx!! * swipeScreenPercent), center.y))
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenIdentifier)
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     private fun verifyScreenshotForSize(screenSize: ScreenSize, content: @Composable () -> Unit) {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.goldenIdentifier(),
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, testName = testName) {
             ScreenConfiguration(screenSize.size) { content() }
         }
     }

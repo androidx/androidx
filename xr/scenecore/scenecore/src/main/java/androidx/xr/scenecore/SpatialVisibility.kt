@@ -19,46 +19,33 @@ package androidx.xr.scenecore
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.TYPE,
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@Retention(AnnotationRetention.SOURCE)
+@IntDef(
+    SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
+    SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
+    SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
+    SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
+)
+internal annotation class SpatialVisibilityValue
+
 /** Spatial Visibility states of content within the user's field of view. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class SpatialVisibility(@SpatialVisibilityValue public val visibility: Int) {
-    public companion object {
-        /** Unknown spatial visibility state. */
-        public const val UNKNOWN: Int = 0
-        /** The content is fully outside the user's field of view. */
-        public const val OUTSIDE_FOV: Int = 1
-        /** The content is partially within the user's field of view, but not fully inside of it. */
-        public const val PARTIALLY_WITHIN_FOV: Int = 2
-        /** The content is fully within the user's field of view. */
-        public const val WITHIN_FOV: Int = 3
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is SpatialVisibility) return false
-        if (visibility != other.visibility) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return visibility
-    }
-
-    override fun toString(): String {
-        val visibilityString =
-            when (visibility) {
-                UNKNOWN -> "UNKNOWN"
-                OUTSIDE_FOV -> "OUTSIDE_FOV"
-                PARTIALLY_WITHIN_FOV -> "PARTIALLY_WITHIN_FOV"
-                WITHIN_FOV -> "WITHIN_FOV"
-                else -> "UNKNOWN"
-            }
-        return "SpatialVisibility($visibilityString)"
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Retention(AnnotationRetention.SOURCE)
-    @IntDef(UNKNOWN, OUTSIDE_FOV, PARTIALLY_WITHIN_FOV, WITHIN_FOV)
-    internal annotation class SpatialVisibilityValue
+public object SpatialVisibility {
+    /** Unknown spatial visibility state. */
+    public const val SPATIAL_VISIBILITY_UNKNOWN: Int = 0
+    /** The content is fully outside the user's field of view. */
+    public const val SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW: Int = 1
+    /** The content is partially within the user's field of view, but not fully inside of it. */
+    public const val SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW: Int = 2
+    /** The content is fully within the user's field of view. */
+    public const val SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW: Int = 3
 }

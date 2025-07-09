@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageSources
+import androidx.camera.featurecombinationquery.CameraDeviceSetupCompat
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.synchronized
@@ -107,7 +108,26 @@ public interface CameraPipe {
      *
      * @param graphConfig The configuration to check for support.
      */
-    public fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult
+    public suspend fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult
+
+    /**
+     * Performs a one-time, potentially slow initialization to fetch and cache
+     * [CameraDeviceSetupCompat]. It queries the AndroidX API which may either query the Camera2
+     * framework API or Google Play Services. The Play Services implementation, in particular, can
+     * be a potentially expensive, blocking operation. To avoid blocking the main thread, the work
+     * is safely dispatched to a background thread. It should be called and successfully completed
+     * from a coroutine before calling [isConfigSupported] for that [CameraId] to avoid potential
+     * delay.
+     *
+     * This is safe to call multiple times; it will only perform the expensive work on the first
+     * invocation for each camera.
+     *
+     * @param graphConfig The camera graph configuration to prepare for a query.
+     * @return A [CameraDeviceSetupCompat] if the prewarm was successful, otherwise null.
+     */
+    public suspend fun prewarmGraphConfigQuery(
+        graphConfig: CameraGraph.Config
+    ): CameraDeviceSetupCompat?
 
     /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
@@ -308,14 +328,52 @@ internal class CameraPipeImpl(private val component: CameraPipeComponent) : Came
             component.cameraSurfaceManager()
         }
 
+    private fun getBackend(graphConfig: CameraGraph.Config) =
+        synchronized(lock) {
+            check(!shutdown)
+            // Determine which backend to use based on the graphConfig.
+            // If no specific backend is requested, use the default one.
+            val customCameraBackend = graphConfig.customCameraBackend
+            if (customCameraBackend != null) {
+                customCameraBackend.create(component.cameraContext())
+            } else {
+                val cameraBackendId = graphConfig.cameraBackendId
+                if (cameraBackendId != null) {
+                    checkNotNull(component.cameraBackends()[cameraBackendId]) {
+                        "Failed to initialize $cameraBackendId from $graphConfig"
+                    }
+                } else {
+                    component.cameraBackends().default
+                }
+            }
+        }
+
     /**
      * This checks if the given [CameraGraph.Config] is supported by the device.
      *
      * @param graphConfig The configuration to check for support.
+     * @return A [ConfigQueryResult] to indicate if the configuration is supported.
      */
-    // TODO: b/425425744 - Return default unknown until complete implementation
-    override fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult =
-        ConfigQueryResult.UNKNOWN
+    override suspend fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult {
+        val backend = getBackend(graphConfig)
+        checkNotNull(backend)
+        return backend.isConfigSupported(graphConfig)
+    }
+
+    /**
+     * Performs a one-time, potentially slow initialization to fetch and cache
+     * CameraDeviceSetupCompat.
+     *
+     * @param graphConfig The camera graph configuration to prepare for a query.
+     * @return A [CameraDeviceSetupCompat] if the prewarm was successful, otherwise null.
+     */
+    override suspend fun prewarmGraphConfigQuery(
+        graphConfig: CameraGraph.Config
+    ): CameraDeviceSetupCompat? {
+        val backend = getBackend(graphConfig)
+        checkNotNull(backend)
+        return backend.prewarmGraphConfigQuery(graphConfig.camera)
+    }
 
     /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].

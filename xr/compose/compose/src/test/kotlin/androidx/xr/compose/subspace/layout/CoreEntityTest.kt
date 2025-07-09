@@ -20,7 +20,13 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.ApplicationSubspace
@@ -33,12 +39,14 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.hamcrest.Matchers.containsString
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,7 +87,62 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_androidViewBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
+    @Ignore("b/430291253 - behavior is different in presubmit")
+    fun coreEntity_size_shouldNotTriggerRecomposition() {
+        var size = 100
+        var sizeCount = 0
+        var mutableSizeCount = 0
+
+        composeTestRule.setContent {
+            TestSetup {
+                val coreEntity = remember {
+                    CoreGroupEntity(
+                            GroupEntity.create(
+                                session = assertNotNull(composeTestRule.activity.session),
+                                name = "Test",
+                            )
+                        )
+                        .apply { this.size = IntVolumeSize(size, size, size) }
+                }
+
+                SizeWatcher(coreEntity) { sizeCount++ }
+                MutableSizeWatcher(coreEntity) { mutableSizeCount++ }
+
+                Button(
+                    onClick = {
+                        size += 100
+                        coreEntity.size = IntVolumeSize(size, size, size)
+                    }
+                ) {
+                    Text("Increase")
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithText("Increase").performClick()
+        composeTestRule.onNodeWithText("Increase").performClick()
+        composeTestRule.onNodeWithText("Increase").performClick()
+        composeTestRule.onNodeWithText("Increase").performClick()
+        composeTestRule.waitForIdle()
+
+        assertThat(sizeCount).isEqualTo(1)
+        assertThat(mutableSizeCount).isEqualTo(5)
+    }
+
+    @Composable
+    private fun SizeWatcher(coreEntity: CoreEntity, onSizeChanged: () -> Unit) {
+        check(coreEntity.size != IntVolumeSize.Zero)
+        onSizeChanged()
+    }
+
+    @Composable
+    private fun MutableSizeWatcher(coreEntity: CoreEntity, onSizeChanged: () -> Unit) {
+        check(coreEntity.mutableSize != IntVolumeSize.Zero)
+        onSizeChanged()
+    }
+
+    @Test
+    fun coreBasePanelEntity_androidViewBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -99,7 +162,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_contentBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
+    fun coreBasePanelEntity_contentBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -116,7 +179,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_mainPanelSizeNonZero_shouldBeEnabled() {
+    fun coreBasePanelEntity_mainPanelSizeNonZero_shouldBeEnabled() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -135,7 +198,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_intentBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
+    fun coreBasePanelEntity_intentBasedSpatialPanelSizeNonZero_shouldBeEnabled() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -155,7 +218,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_androidViewBasedPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_androidViewBasedPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -180,7 +243,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_contentBasedSpatialPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_contentBasedSpatialPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -205,7 +268,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_mainPanelSizeZeroAfterMeasurement_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_mainPanelSizeZeroAfterMeasurement_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -227,7 +290,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_intentBasedPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_intentBasedPanelSizeZeroAfterMeasure_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -252,7 +315,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_androidViewPanelresizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_androidViewPanelResizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -278,7 +341,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_contentBasedPanelresizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_contentBasedPanelResizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -303,7 +366,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_mainPanelresizableAndZeroSizeOverride_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_mainPanelResizableAndZeroSizeOverride_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {
@@ -328,7 +391,7 @@ class CoreEntityTest {
     }
 
     @Test
-    fun CoreBasePanelEntity_intentBasedPanelresizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
+    fun coreBasePanelEntity_intentBasedPanelResizableZeroSizeOverride_shouldBeDisabledAndNotCrash() {
         composeTestRule.setContent {
             TestSetup {
                 ApplicationSubspace {

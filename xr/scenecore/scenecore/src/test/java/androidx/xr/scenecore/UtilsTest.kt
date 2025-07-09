@@ -326,6 +326,8 @@ class UtilsTest {
                         RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
                 )
                 .toSpatialCapabilities()
+
+        // Assert that individually checking the capabilities works as expected.
         assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_UI)).isTrue()
         assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT)).isTrue()
         assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL))
@@ -336,10 +338,23 @@ class UtilsTest {
             .isTrue()
         assertThat(caps.hasCapability(SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY))
             .isTrue()
+
+        // Assert that it is also true when we check for all capabilities together.
+        assertThat(
+                caps.hasCapability(
+                    SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                        SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
+                        SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL or
+                        SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT or
+                        SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO or
+                        SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
+                )
+            )
+            .isTrue()
     }
 
     @Test
-    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedCapabilities() {
+    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedCapabilities_singleChecksWork() {
         var caps =
             RuntimeSpatialCapabilities(
                     RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
@@ -378,6 +393,58 @@ class UtilsTest {
     }
 
     @Test
+    fun runtimeSpatialCapabilitiesToSpatialCapabilities_exactMixedCapabilitiesCheck_returnsTrue() {
+        val caps =
+            RuntimeSpatialCapabilities(
+                    RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
+                )
+                .toSpatialCapabilities()
+
+        // Check for the exact set of available capabilities.
+        val allAvailable =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
+        assertThat(caps.hasCapability(allAvailable)).isTrue()
+
+        // Check for a mix of available and unavailable capabilities.
+        val mixed =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
+        assertThat(caps.hasCapability(mixed)).isFalse()
+
+        // Check for a superset of available capabilities.
+        val superset =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
+                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
+        assertThat(caps.hasCapability(superset)).isFalse()
+    }
+
+    @Test
+    fun runtimeSpatialCapabilitiesToSpatialCapabilities_mixedUnavailableCapabilities_returnsFalse() {
+        val caps =
+            RuntimeSpatialCapabilities(
+                    RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                        RuntimeSpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT
+                )
+                .toSpatialCapabilities()
+
+        // Check for a mix of available and unavailable capabilities.
+        val mixed =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
+        assertThat(caps.hasCapability(mixed)).isFalse()
+
+        // Check for a superset of available capabilities.
+        val superset =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
+                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL
+        assertThat(caps.hasCapability(superset)).isFalse()
+    }
+
+    @Test
     fun RtSpatialVisibilityToSpatialVisibility_convertsCorrectly() {
         assertThat(
                 listOf(
@@ -389,10 +456,10 @@ class UtilsTest {
                     .map { it.toSpatialVisibility() }
             )
             .containsExactly(
-                SpatialVisibility(SpatialVisibility.UNKNOWN),
-                SpatialVisibility(SpatialVisibility.OUTSIDE_FOV),
-                SpatialVisibility(SpatialVisibility.PARTIALLY_WITHIN_FOV),
-                SpatialVisibility(SpatialVisibility.WITHIN_FOV),
+                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
+                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
             )
             .inOrder()
     }
@@ -409,10 +476,10 @@ class UtilsTest {
                     .map { it.toSpatialVisibilityValue() }
             )
             .containsExactly(
-                SpatialVisibility.UNKNOWN,
-                SpatialVisibility.OUTSIDE_FOV,
-                SpatialVisibility.PARTIALLY_WITHIN_FOV,
-                SpatialVisibility.WITHIN_FOV,
+                SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN,
+                SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW,
+                SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW,
+                SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW,
             )
             .inOrder()
     }

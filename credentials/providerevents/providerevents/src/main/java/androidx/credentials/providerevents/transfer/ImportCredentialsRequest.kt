@@ -16,12 +16,10 @@
 
 package androidx.credentials.providerevents.transfer
 
-import androidx.annotation.RestrictTo
-
 /**
  * a request to import the provider's credentials
  *
- * @property requestJson the request according to the CXP format
+ * @property requestJson the request according to the
+ *   [Fido Credential Exchange Protocol format](https://fidoalliance.org/specs/cx/cxp-v1.0-wd-20240522.html)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImportCredentialsRequest(public val requestJson: String)

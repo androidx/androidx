@@ -21,6 +21,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -203,19 +205,28 @@ class HeadLockedUiActivity : AppCompatActivity() {
 
     private fun setProjectionSource(source: String) {
         when (source) {
-            "LeftEye" ->
+            "LeftEye" -> {
                 mProjectionSource =
-                    mSession.scene.spatialUser.cameraViews[CameraView.CameraType.LEFT_EYE]
-            "RightEye" ->
+                    mSession.scene.spatialUser.cameraViews?.get(CameraView.CameraType.LEFT_EYE)
+                if (mProjectionSource == null) Log.w(TAG, "Left eye is not available yet")
+            }
+            "RightEye" -> {
                 mProjectionSource =
-                    mSession.scene.spatialUser.cameraViews[CameraView.CameraType.RIGHT_EYE]
-            "Head" -> mProjectionSource = mSession.scene.spatialUser.head!!
+                    mSession.scene.spatialUser.cameraViews?.get(CameraView.CameraType.RIGHT_EYE)
+                if (mProjectionSource == null) Log.w(TAG, "Right eye is not available yet")
+            }
+            "Head" -> {
+                mProjectionSource = mSession.scene.spatialUser.head
+                if (mProjectionSource == null) Log.w(TAG, "Head is not available yet")
+            }
             else -> Log.e(TAG, "Unknown projection source: $source")
         }
     }
 
     @Composable
     fun ModifyProjectionParameters(session: Session) {
+        val currentContext = LocalContext.current
+
         var sliderPositionZ by remember { mutableFloatStateOf(-1.0f) }
         var sliderPositionY by remember { mutableFloatStateOf(0.0f) }
         var sliderPositionX by remember { mutableFloatStateOf(0.0f) }
@@ -265,8 +276,16 @@ class HeadLockedUiActivity : AppCompatActivity() {
                 RadioButton(
                     selected = (text == selectedOption),
                     onClick = {
-                        onOptionSelected(text)
                         setProjectionSource(text)
+                        if (text != getProjectionSourceName()) {
+                            Toast.makeText(
+                                    currentContext,
+                                    "$text is not available yet",
+                                    Toast.LENGTH_SHORT,
+                                )
+                                .show()
+                        }
+                        onOptionSelected(getProjectionSourceName())
                     },
                 )
                 Text(text = text, modifier = Modifier.padding(start = 8.dp))
@@ -281,6 +300,15 @@ class HeadLockedUiActivity : AppCompatActivity() {
             Button(onClick = { mIsDebugPanelEnabled = !mIsDebugPanelEnabled }) {
                 Text(text = "Toggle Debug Panel", fontSize = 30.sp)
             }
+        }
+    }
+
+    private fun getProjectionSourceName(): String {
+        return when (mProjectionSource) {
+            mSession.scene.spatialUser.cameraViews[CameraView.CameraType.LEFT_EYE] -> "LeftEye"
+            mSession.scene.spatialUser.cameraViews[CameraView.CameraType.RIGHT_EYE] -> "RightEye"
+            mSession.scene.spatialUser.head -> "Head"
+            else -> ""
         }
     }
 }

@@ -84,15 +84,15 @@ public class Camera2PresenceSource(
         }
     }
 
-    override fun fetchData(): ListenableFuture<Set<CameraIdentifier>> {
+    override fun fetchData(): ListenableFuture<List<CameraIdentifier>> {
         return CallbackToFutureAdapter.getFuture { completer ->
             systemCallbackExecutor.execute {
                 try {
-                    val newCameraSet =
-                        cameraManager.cameraIdList.map { CameraIdentifier.create(it) }.toSet()
-                    Log.d(TAG, "[FetchData] Refreshed camera list: ${newCameraSet.joinToString()}")
-                    updateData(newCameraSet)
-                    completer.set(newCameraSet)
+                    val newCameraList =
+                        cameraManager.cameraIdList.map { CameraIdentifier.create(it) }
+                    Log.d(TAG, "[FetchData] Refreshed camera list: ${newCameraList.joinToString()}")
+                    updateData(newCameraList)
+                    completer.set(newCameraList)
                 } catch (e: CameraAccessExceptionCompat) {
                     Log.e(TAG, "[FetchData] Failed to get camera list for refresh.", e)
                     val error = CameraUnavailableExceptionHelper.createFrom(e)

@@ -30,6 +30,8 @@ import androidx.window.layout.WindowLayoutInfo
 @Suppress("FunctionName")
 @JvmName("createWindowLayoutInfo")
 @JvmOverloads
-fun TestWindowLayoutInfo(displayFeatures: List<DisplayFeature> = emptyList()): WindowLayoutInfo {
+public fun TestWindowLayoutInfo(
+    displayFeatures: List<DisplayFeature> = emptyList()
+): WindowLayoutInfo {
     return WindowLayoutInfo(displayFeatures)
 }

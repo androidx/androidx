@@ -645,6 +645,8 @@ final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose
                 final fun <get-Fixed>(): androidx.compose.ui.text.style/LineHeightStyle.Mode // androidx.compose.ui.text.style/LineHeightStyle.Mode.Companion.Fixed.<get-Fixed>|<get-Fixed>(){}[0]
             final val Minimum // androidx.compose.ui.text.style/LineHeightStyle.Mode.Companion.Minimum|{}Minimum[0]
                 final fun <get-Minimum>(): androidx.compose.ui.text.style/LineHeightStyle.Mode // androidx.compose.ui.text.style/LineHeightStyle.Mode.Companion.Minimum.<get-Minimum>|<get-Minimum>(){}[0]
+            final val Tight // androidx.compose.ui.text.style/LineHeightStyle.Mode.Companion.Tight|{}Tight[0]
+                final fun <get-Tight>(): androidx.compose.ui.text.style/LineHeightStyle.Mode // androidx.compose.ui.text.style/LineHeightStyle.Mode.Companion.Tight.<get-Tight>|<get-Tight>(){}[0]
         }
     }
 

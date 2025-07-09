@@ -712,6 +712,7 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(TFTag).assertTextContains(OptionName)
     }
 
+    @Ignore("b/422763737")
     @Test
     fun edm_resizesWithinWindowBounds_uponImeAppearance() {
         var actualMenuSize: IntSize? = null

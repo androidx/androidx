@@ -224,8 +224,8 @@ public class SupportedSizeConstraintsTest {
                         Camera2Config.defaultConfig())
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setCameraFactoryProvider(
-                        (ignored0, ignored1, ignored2, ignored3,
-                                streamSpecsCalculator) -> cameraFactory)
+                        (ignored0, ignored1, ignored2, ignored3, ignored4, ignored5)
+                                -> cameraFactory)
                 .build();
         CameraXUtil.initialize(mContext, cameraXConfig);
     }

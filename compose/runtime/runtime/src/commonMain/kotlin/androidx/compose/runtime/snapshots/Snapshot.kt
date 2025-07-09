@@ -483,6 +483,15 @@ public sealed class Snapshot(
             readObserver: ((Any) -> Unit)? = null,
             writeObserver: ((Any) -> Unit)? = null,
             block: () -> T,
+        ): T = observeInternal(readObserver, writeObserver, block)
+
+        @Suppress("NOTHING_TO_INLINE")
+        // marked as inline to use as part of SnapshotStateObserver without adding extra function
+        // call overhead.
+        internal inline fun <T> observeInternal(
+            noinline readObserver: ((Any) -> Unit)? = null,
+            noinline writeObserver: ((Any) -> Unit)? = null,
+            noinline block: () -> T,
         ): T {
             if (readObserver == null && writeObserver == null) {
                 // No observer change, just execute the block
@@ -1839,7 +1848,7 @@ private fun createTransparentSnapshotWithNoParentReadObserver(
         )
     }
 
-private fun mergedReadObserver(
+internal fun mergedReadObserver(
     readObserver: ((Any) -> Unit)?,
     parentObserver: ((Any) -> Unit)?,
     mergeReadObserver: Boolean = true,
@@ -1853,7 +1862,7 @@ private fun mergedReadObserver(
     } else readObserver ?: parentObserver
 }
 
-private fun mergedWriteObserver(
+internal fun mergedWriteObserver(
     writeObserver: ((Any) -> Unit)?,
     parentObserver: ((Any) -> Unit)?,
 ): ((Any) -> Unit)? =

@@ -497,6 +497,7 @@ private class PagesState(
     private val spacersCount = pagesOnScreen + 2
 
     private var smoothProgress = 0f
+
     // An offset in pages, basically meaning how many pages are hidden to the left.
     private var hiddenPagesToTheLeft = 0
 

@@ -66,6 +66,7 @@ import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.tiles.renderer.TileRenderer
@@ -80,6 +81,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ScreenshotTests {
 
     private val defaultTextColor = ColorProvider(Color.White)

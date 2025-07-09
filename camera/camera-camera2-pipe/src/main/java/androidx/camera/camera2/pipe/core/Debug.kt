@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILI
 import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.os.Trace
 import androidx.camera.camera2.pipe.CameraGraph
@@ -143,9 +142,7 @@ public object Debug {
     /* Utility for cleaning up some verbose value types for logs */
     private fun valueToString(value: Any?): String =
         when (value) {
-            is MeteringRectangle ->
-                "[x=${value.x}, y=${value.y}, " +
-                    "w=${value.width}, h=${value.height}, weight=${value.meteringWeight}"
+            is Array<*> -> value.joinToString(prefix = "[", postfix = "]") { valueToString(it) }
             else -> value.toString()
         }
 

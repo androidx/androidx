@@ -203,12 +203,12 @@ class Camera2PresenceSourceTest {
     }
 
     // Helper fake observer for testing
-    internal class FakeObserver : Observable.Observer<Set<CameraIdentifier>> {
+    internal class FakeObserver : Observable.Observer<List<CameraIdentifier>> {
         private val updates: BlockingQueue<Result> = LinkedBlockingQueue()
 
-        data class Result(val data: Set<CameraIdentifier>?, val error: Throwable?)
+        data class Result(val data: List<CameraIdentifier>?, val error: Throwable?)
 
-        override fun onNewData(value: Set<CameraIdentifier>?) {
+        override fun onNewData(value: List<CameraIdentifier>?) {
             // The Observable contract allows nullable T, but our source always provides non-null.
             // We check for safety, but expect non-null.
             if (value != null) {

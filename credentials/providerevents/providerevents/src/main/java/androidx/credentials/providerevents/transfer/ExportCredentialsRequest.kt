@@ -16,12 +16,10 @@
 
 package androidx.credentials.providerevents.transfer
 
-import androidx.annotation.RestrictTo
-
 /**
  * a request to export a set of credentials into the provider
  *
- * @property credentialsJson the credentials that are delivered to the provider
+ * @property credentialsJson the credentials that are delivered to the provider formatted as per
+ *   [Fido Credential Exchange Format](https://fidoalliance.org/specs/cx/cxf-v1.0-rd-20250313.html)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ExportCredentialsRequest(public val credentialsJson: String)

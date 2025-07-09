@@ -17,15 +17,21 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.pager.HorizontalPager
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.AnimatedPage
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
@@ -35,7 +41,7 @@ import androidx.wear.compose.material3.VerticalPagerScaffold
 
 @Sampled
 @Composable
-fun HorizontalPageIndicatorWithPagerSample() {
+fun HorizontalPageIndicatorWithPagerSample(navigateBack: () -> Unit) {
     val pageCount = 9
     val pagerState = rememberPagerState { pageCount }
 
@@ -50,8 +56,18 @@ fun HorizontalPageIndicatorWithPagerSample() {
                     PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(text = "Page #$page")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Swipe left and right")
+                        if (page == 0) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(onClick = navigateBack) { Text("Exit") }
+                        }
                     }
                 }
             }
@@ -76,8 +92,14 @@ fun VerticalPageIndicatorWithPagerSample() {
                     PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(text = "Page #$page")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Swipe up and down")
                     }
                 }
             }

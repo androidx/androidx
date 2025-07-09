@@ -449,7 +449,13 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         }
 
         /** Setup new scope for state read observation, observe them, and cleanup afterwards */
-        fun observe(scope: Any, readObserver: (Any) -> Unit, block: () -> Unit) {
+        // inlined as used only in one place to not add extra function call overhead
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun observe(
+            scope: Any,
+            noinline readObserver: (Any) -> Unit,
+            noinline block: () -> Unit,
+        ) {
             val previousScope = currentScope
             val previousReads = currentScopeReads
             val previousToken = currentToken
@@ -461,7 +467,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             }
 
             observeDerivedStateRecalculations(derivedStateObserver) {
-                Snapshot.observe(readObserver, null, block)
+                Snapshot.observeInternal(readObserver, null, block)
             }
 
             clearObsoleteStateReads(currentScope!!)

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.test
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -174,6 +175,7 @@ val DEVICE_CONFIG =
         /* digitalPreviewReferenceTimeMillis = */ 0,
     )
 
+@SuppressLint("ScreenshotTestSdkSuppress")
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1, maxSdkVersion = 32) // b/271922712
 @RunWith(AndroidJUnit4::class)
 @MediumTest

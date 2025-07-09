@@ -27,24 +27,24 @@ import androidx.window.layout.WindowMetrics
  * [ActivityStack] by [overlayTag].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class OverlayAttributesCalculatorParams
+public class OverlayAttributesCalculatorParams
 internal constructor(
     /** The parent container's [WindowMetrics] */
-    val parentWindowMetrics: WindowMetrics,
+    public val parentWindowMetrics: WindowMetrics,
     /** The parent container's [Configuration] */
-    val parentConfiguration: Configuration,
+    public val parentConfiguration: Configuration,
     /** The parent container's [WindowLayoutInfo] */
-    val parentWindowLayoutInfo: WindowLayoutInfo,
+    public val parentWindowLayoutInfo: WindowLayoutInfo,
     /**
      * The unique identifier of the overlay [ActivityStack] specified by [OverlayCreateParams.tag]
      */
-    val overlayTag: String,
+    public val overlayTag: String,
     /**
      * The overlay [ActivityStack]'s [OverlayAttributes] specified by [overlayTag], which is the
      * [OverlayAttributes] that is not calculated by calculator. It should be either initialized by
      * [OverlayCreateParams.overlayAttributes] or [OverlayController.updateOverlayAttributes].
      */
-    val defaultOverlayAttributes: OverlayAttributes,
+    public val defaultOverlayAttributes: OverlayAttributes,
 ) {
     override fun toString(): String =
         "${OverlayAttributesCalculatorParams::class.java}:{" +

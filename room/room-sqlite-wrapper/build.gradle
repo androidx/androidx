@@ -37,7 +37,7 @@ dependencies {
     api(project(":room:room-runtime"))
     api(project(":sqlite:sqlite"))
     implementation(libs.kotlinCoroutinesAndroid)
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

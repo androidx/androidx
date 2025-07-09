@@ -46,6 +46,7 @@
     <string name="cuj_spatial_audio_setting_pointsourceparams_test">Spatial Audio Setting PointSourceParams Test Case</string>
     <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
     <string name="cuj_hit_test">Digital Hit Test Case</string>
+    <string name="cuj_accessibility_test">Accessibility Test Case</string>
 
     <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
     <string name="panel_text" description="Arbitrary test string which appears in a TestPanel. [CHAR_LIMIT=30]">Dragons!!</string>
@@ -105,6 +106,7 @@
     <string name="scale_in_z_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Scale In Z</string>
 
     <string name="launch_settings_app_in_fsm">Launch Settings App in a new task in FSM</string>
+    <string name="launch_settings_app_in_fsm_with_environment_inherited">Launch Settings App in a new task in FSM with environment inherited</string>
     <string name="fsm_hsm_transition_test">FSM/HSM Transition Test</string>
     <string name="intent_into_scene_viewer">Intent into Scene Viewer</string>
 

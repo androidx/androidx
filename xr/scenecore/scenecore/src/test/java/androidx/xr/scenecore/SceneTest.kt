@@ -45,6 +45,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
@@ -137,22 +138,24 @@ class SceneTest {
     }
 
     @Test
-    fun setFullSpaceMode_callsThrough() {
+    fun configureBundleForFullSpaceMode_Launch_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
         whenever(mockPlatformAdapter.setFullSpaceMode(any())).thenReturn(bundle)
-        @Suppress("UNUSED_VARIABLE") val unused = session.scene.setFullSpaceMode(bundle)
+        @Suppress("UNUSED_VARIABLE")
+        val unused = session.scene.configureBundleForFullSpaceModeLaunch(bundle)
         verify(mockPlatformAdapter).setFullSpaceMode(bundle)
     }
 
     @Test
-    fun setFullSpaceModeWithEnvironmentInherited_callsThrough() {
+    fun configureBundleForFullSpaceModeLaunchWithEnvironmentInherited_callsThrough() {
         // Test that Session calls into the runtime.
         val bundle = Bundle().apply { putString("testkey", "testval") }
         whenever(mockPlatformAdapter.setFullSpaceModeWithEnvironmentInherited(any()))
             .thenReturn(bundle)
         @Suppress("UNUSED_VARIABLE")
-        val unused = session.scene.setFullSpaceModeWithEnvironmentInherited(bundle)
+        val unused =
+            session.scene.configureBundleForFullSpaceModeLaunchWithEnvironmentInherited(bundle)
         verify(mockPlatformAdapter).setFullSpaceModeWithEnvironmentInherited(bundle)
     }
 
@@ -225,10 +228,9 @@ class SceneTest {
 
     @Test
     fun setSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent() {
-        var listenerCalledWithValue = SpatialVisibility(SpatialVisibility.UNKNOWN)
+        var listenerCalledWithValue = SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN
         val captor = argumentCaptor<Consumer<RtSpatialVisibility>>()
-        val listener =
-            Consumer<SpatialVisibility> { visibility -> listenerCalledWithValue = visibility }
+        val listener = Consumer<Int> { visibility -> listenerCalledWithValue = visibility }
 
         // Test that it calls into the runtime and capture the runtime listener.
         val executor = directExecutor()
@@ -240,25 +242,25 @@ class SceneTest {
         val rtListener = captor.firstValue
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.WITHIN_FOV))
         assertThat(listenerCalledWithValue)
-            .isNotEqualTo(SpatialVisibility(SpatialVisibility.UNKNOWN))
+            .isNotEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
         assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility(SpatialVisibility.WITHIN_FOV))
+            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_WITHIN_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.PARTIALLY_WITHIN_FOV))
         assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility(SpatialVisibility.PARTIALLY_WITHIN_FOV))
+            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_PARTIALLY_WITHIN_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.OUTSIDE_FOV))
         assertThat(listenerCalledWithValue)
-            .isEqualTo(SpatialVisibility(SpatialVisibility.OUTSIDE_FOV))
+            .isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_OUTSIDE_FIELD_OF_VIEW)
 
         rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.UNKNOWN))
-        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility(SpatialVisibility.UNKNOWN))
+        assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.SPATIAL_VISIBILITY_UNKNOWN)
     }
 
     @Test
     fun setSpatialVisibilityChangedListener_withNoExecutor_callsRuntimeSetSpatialVisibilityChangedListenerWithMainThreadExecutor() {
-        val listener = Consumer<SpatialVisibility> { _ -> }
+        val listener = Consumer<Int> { _ -> }
         session.scene.setSpatialVisibilityChangedListener(listener)
         verify(mockPlatformAdapter)
             .setSpatialVisibilityChangedListener(eq(HandlerExecutor.mainThreadExecutor), any())
@@ -268,92 +270,6 @@ class SceneTest {
     fun clearSpatialVisibilityChangedListener_callsRuntimeClearSpatialVisibilityChangedListener() {
         session.scene.clearSpatialVisibilityChangedListener()
         verify(mockPlatformAdapter).clearSpatialVisibilityChangedListener()
-    }
-
-    @Test
-    fun addPerceivedResolutionChangedListener_callsRuntimeAddPerceivedResolutionChangedListener() {
-        val listener = Consumer<IntSize2d> {}
-        val executor = directExecutor()
-        session.scene.addPerceivedResolutionChangedListener(executor, listener)
-        verify(mockPlatformAdapter).addPerceivedResolutionChangedListener(eq(executor), any())
-    }
-
-    @Test
-    fun addPerceivedResolutionChangedListener_withNoExecutor_callsRuntimeWithMainThreadExecutor() {
-        val listener = Consumer<IntSize2d> {}
-        session.scene.addPerceivedResolutionChangedListener(listener)
-        verify(mockPlatformAdapter)
-            .addPerceivedResolutionChangedListener(eq(HandlerExecutor.mainThreadExecutor), any())
-    }
-
-    @Test
-    fun removePerceivedResolutionChangedListener_callsRuntimeRemovePerceivedResolutionChangedListener() {
-        val listener = Consumer<IntSize2d> {}
-        // Add the listener first so there's something to remove
-        session.scene.addPerceivedResolutionChangedListener(directExecutor(), listener)
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
-        verify(mockPlatformAdapter)
-            .addPerceivedResolutionChangedListener(any(), rtListenerCaptor.capture())
-
-        session.scene.removePerceivedResolutionChangedListener(listener)
-        verify(mockPlatformAdapter)
-            .removePerceivedResolutionChangedListener(eq(rtListenerCaptor.firstValue))
-    }
-
-    @Test
-    fun perceivedResolutionChangedListener_isCalledWithConvertedValues() {
-        var receivedDimensions: IntSize2d? = null
-        val listener = Consumer<IntSize2d> { dims -> receivedDimensions = dims }
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
-        val executor = directExecutor()
-
-        session.scene.addPerceivedResolutionChangedListener(executor, listener)
-        verify(mockPlatformAdapter)
-            .addPerceivedResolutionChangedListener(eq(executor), rtListenerCaptor.capture())
-
-        val rtListener = rtListenerCaptor.firstValue
-
-        val testRtDimensions = RtPixelDimensions(100, 200)
-        rtListener.accept(testRtDimensions)
-
-        assertThat(receivedDimensions).isNotNull()
-        assertThat(receivedDimensions!!.width).isEqualTo(100)
-        assertThat(receivedDimensions.height).isEqualTo(200)
-
-        // Simulate another callback
-        val anotherRtDimensions = RtPixelDimensions(300, 400)
-        rtListener.accept(anotherRtDimensions)
-        assertThat(receivedDimensions.width).isEqualTo(300)
-        assertThat(receivedDimensions.height).isEqualTo(400)
-    }
-
-    @Test
-    fun addMultiplePerceivedResolutionListeners_allAreRegisteredAndCalled() {
-        val listener1 = mock<Consumer<IntSize2d>>()
-        val listener2 = mock<Consumer<IntSize2d>>()
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
-        val executor = directExecutor()
-
-        session.scene.addPerceivedResolutionChangedListener(executor, listener1)
-        session.scene.addPerceivedResolutionChangedListener(executor, listener2)
-
-        verify(mockPlatformAdapter, times(2))
-            .addPerceivedResolutionChangedListener(eq(executor), rtListenerCaptor.capture())
-
-        val rtListeners = rtListenerCaptor.allValues
-        assertThat(rtListeners).hasSize(2)
-
-        // Simulate callback for the first registered listener only
-        val testRtDimensions1 = RtPixelDimensions(10, 20)
-        rtListeners[0].accept(testRtDimensions1)
-        verify(listener1).accept(IntSize2d(10, 20))
-        verify(listener2, never()).accept(any())
-
-        // Simulate callback for the second registered listener
-        val testRtDimensions2 = RtPixelDimensions(30, 40)
-        rtListeners[1].accept(testRtDimensions2)
-        verify(listener1).accept(IntSize2d(10, 20)) // Still called once
-        verify(listener2).accept(IntSize2d(30, 40))
     }
 
     @Test
@@ -394,5 +310,36 @@ class SceneTest {
     fun requestHomeSpaceMode_callsThrough() {
         session.scene.requestHomeSpaceMode()
         verify(mockPlatformAdapter).requestHomeSpaceMode()
+    }
+
+    @Test
+    fun panelClippingConfig_defaultValue_isTrue() {
+        val defaultConfig = PanelClippingConfig(isDepthTestEnabled = true)
+        assertThat(session.scene.panelClippingConfig).isEqualTo(defaultConfig)
+        verify(mockPlatformAdapter, never()).enablePanelDepthTest(false)
+    }
+
+    @Test
+    fun panelClippingConfig_setFalse_callsPlatformAdapterWithFalse() {
+        val disabledConfig = PanelClippingConfig(isDepthTestEnabled = false)
+        session.scene.panelClippingConfig = disabledConfig
+
+        verify(mockPlatformAdapter).enablePanelDepthTest(false)
+        assertThat(session.scene.panelClippingConfig).isEqualTo(disabledConfig)
+        verify(mockPlatformAdapter, never()).enablePanelDepthTest(true)
+    }
+
+    @Test
+    fun panelClippingConfig_setTrue_callsPlatformAdapterWithTrue() {
+        // First, set to disabled to ensure the next call is a change.
+        session.scene.panelClippingConfig = PanelClippingConfig(isDepthTestEnabled = false)
+
+        val enabledConfig = PanelClippingConfig(isDepthTestEnabled = true)
+        session.scene.panelClippingConfig = enabledConfig
+
+        val inOrder = inOrder(mockPlatformAdapter)
+        inOrder.verify(mockPlatformAdapter).enablePanelDepthTest(false)
+        inOrder.verify(mockPlatformAdapter).enablePanelDepthTest(true)
+        assertThat(session.scene.panelClippingConfig).isEqualTo(enabledConfig)
     }
 }

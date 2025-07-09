@@ -18,6 +18,7 @@ package androidx.privacysandbox.databridge.client
 
 import android.content.Context
 import androidx.privacysandbox.databridge.client.util.GetValuesResultCallbackStub
+import androidx.privacysandbox.databridge.client.util.KeyUpdateInternalCallbackStub
 import androidx.privacysandbox.databridge.client.util.RemoveValuesResultCallbackStub
 import androidx.privacysandbox.databridge.client.util.SetValuesResultCallbackStub
 import androidx.privacysandbox.databridge.core.Key
@@ -27,8 +28,11 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Expect
 import com.google.common.truth.Truth.assertThat
 import java.lang.ClassCastException
+import java.util.UUID
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,7 +103,7 @@ class DataBridgeProxyTest {
     }
 
     @Test
-    fun setValues_success() = runBlocking {
+    fun testSetValues_success() = runBlocking {
         val valueInternals =
             listOf(
                 ValueInternal(keyTypes[0], false, intValue),
@@ -125,7 +129,7 @@ class DataBridgeProxyTest {
     }
 
     @Test
-    fun setValues_failure() = runBlocking {
+    fun testSetValues_failure() = runBlocking {
         val inputKeyNames = listOf(stringKey.name)
         val inputValueInternals = listOf(ValueInternal("INT", false, stringValue))
 
@@ -135,9 +139,7 @@ class DataBridgeProxyTest {
 
         val exceptionData: List<String?> = callback.getException()
 
-        expect
-            .that(exceptionData[0])
-            .isEqualTo(java.lang.ClassCastException::class.java.canonicalName)
+        expect.that(exceptionData[0]).isEqualTo(ClassCastException::class.java.canonicalName)
         expect
             .that(exceptionData[1])
             .contains("class java.lang.String cannot be cast to class java.lang.Integer")
@@ -149,7 +151,7 @@ class DataBridgeProxyTest {
     }
 
     @Test
-    fun removeValues_success() = runBlocking {
+    fun testRemoveValues_success() = runBlocking {
         val callback = RemoveValuesResultCallbackStub()
         mDataBridgeProxy.removeValues(keyNames, keyTypes, callback)
 
@@ -165,6 +167,52 @@ class DataBridgeProxyTest {
 
         expect.that(result[stringKey]?.isSuccess).isTrue()
         expect.that(result[stringKey]?.getOrNull()).isNull()
+    }
+
+    @Test
+    fun testAddKeys() = runBlocking {
+        val callback = KeyUpdateInternalCallbackStub()
+        val uuid = UUID.randomUUID().toString()
+
+        mDataBridgeProxy.addKeysForUpdates(
+            uuid,
+            listOf(intKey.name),
+            listOf(intKey.type.toString()),
+            callback,
+        )
+        expect.that(callback.getValue(intKey.name)).isEqualTo(null)
+
+        callback.initializeLatch()
+        mDataBridgeClient.setValue(intKey, 1)
+        expect.that(callback.getValue(intKey.name)).isEqualTo(1)
+    }
+
+    @Test()
+    fun testRemoveKeys() = runBlocking {
+        val callback = KeyUpdateInternalCallbackStub()
+        val uuid = UUID.randomUUID().toString()
+
+        mDataBridgeProxy.addKeysForUpdates(
+            uuid,
+            listOf(intKey.name),
+            listOf(intKey.type.toString()),
+            callback,
+        )
+        expect.that(callback.getValue(intKey.name)).isEqualTo(null)
+
+        mDataBridgeProxy.removeKeysFromUpdates(
+            uuid,
+            listOf(intKey.name),
+            listOf(intKey.type.toString()),
+            unregisterCallback = true,
+        )
+
+        callback.initializeLatch()
+        mDataBridgeClient.setValue(intKey, 1)
+        val thrown =
+            assertThrows(TimeoutException::class.java) {
+                expect.that(callback.getValue(intKey.name)).isEqualTo(1)
+            }
     }
 }
 

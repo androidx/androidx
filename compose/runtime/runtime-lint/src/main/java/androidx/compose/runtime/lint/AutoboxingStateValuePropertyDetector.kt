@@ -30,9 +30,11 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.kotlin.readWriteAccess
 
 class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
 
@@ -53,6 +55,8 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         return type == AnnotationUsageType.FIELD_REFERENCE
     }
 
+    // https://youtrack.jetbrains.com/issue/IDEA-374002
+    @Suppress("UnstableApiUsage")
     override fun visitAnnotationUsage(
         context: JavaContext,
         element: UElement,
@@ -63,11 +67,20 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         val preferredPropertyName =
             annotationInfo.annotation.preferredPropertyName ?: "<unknown replacement>"
 
+        val readWriteAccess = (element.sourcePsi as? KtExpression)?.readWriteAccess()
         val accessKind =
-            when (element.resolvedName?.takeWhile { it.isLowerCase() }) {
-                "get" -> "Reading"
-                "set" -> "Assigning"
-                else -> "Accessing"
+            when {
+                readWriteAccess?.isRead == true -> "Reading"
+                readWriteAccess?.isWrite == true -> "Assigning"
+                else -> {
+                    // We may (i.e., not necessary) go back to use this part only after
+                    // https://youtrack.jetbrains.com/issue/KT-78076 is fixed/available.
+                    when (element.resolvedName?.takeWhile { it.isLowerCase() }) {
+                        "get" -> "Reading"
+                        "set" -> "Assigning"
+                        else -> "Accessing"
+                    }
+                }
             }
 
         context.report(

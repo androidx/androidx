@@ -36,7 +36,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common:2.6.2")
     api("androidx.customview:customview-poolingcontainer:1.0.0")
     api(project(":privacysandbox:ui:ui-core"))
-    implementation(project(":tracing:tracing"))
+    implementation("androidx.tracing:tracing:1.3.0")
 
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.junit)

@@ -28,6 +28,7 @@ package androidx.wear.protolayout.renderer.impl {
     method @UiThread public void detach(android.view.ViewGroup);
     method public java.util.List<androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator!> getAnimations();
     method public void invalidateCache();
+    method public void invalidateLayout();
     method @UiThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> renderAndAttach(androidx.wear.protolayout.proto.LayoutElementProto.Layout, androidx.wear.protolayout.proto.ResourceProto.Resources, android.view.ViewGroup);
     method @UiThread public void setLayoutVisibility(int);
   }

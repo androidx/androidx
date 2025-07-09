@@ -19,23 +19,23 @@ package androidx.window.layout
  * A feature that describes a fold in the flexible display or a hinge between two physical display
  * panels.
  */
-interface FoldingFeature : DisplayFeature {
+public interface FoldingFeature : DisplayFeature {
 
     /** Represents how the hinge might occlude content. */
-    class OcclusionType private constructor(private val description: String) {
+    public class OcclusionType private constructor(private val description: String) {
 
         override fun toString(): String {
             return description
         }
 
-        companion object {
+        public companion object {
             /**
              * The [FoldingFeature] does not occlude the content in any way. One example is a flat
              * continuous fold where content can stretch across the fold. Another example is a hinge
              * that has width or height equal to 0. In this case the content is physically split
              * across both displays, but fully visible.
              */
-            @JvmField val NONE: OcclusionType = OcclusionType("NONE")
+            @JvmField public val NONE: OcclusionType = OcclusionType("NONE")
 
             /**
              * The [FoldingFeature] occludes all content. One example is a hinge that is considered
@@ -44,42 +44,42 @@ interface FoldingFeature : DisplayFeature {
              * occluded areas should always be avoided when placing interactive UI elements and
              * text.
              */
-            @JvmField val FULL: OcclusionType = OcclusionType("FULL")
+            @JvmField public val FULL: OcclusionType = OcclusionType("FULL")
         }
     }
 
     /** Represents the axis for which the [FoldingFeature] runs parallel to. */
-    class Orientation private constructor(private val description: String) {
+    public class Orientation private constructor(private val description: String) {
 
         override fun toString(): String {
             return description
         }
 
-        companion object {
+        public companion object {
 
             /** The height of the [FoldingFeature] is greater than or equal to the width. */
-            @JvmField val VERTICAL: Orientation = Orientation("VERTICAL")
+            @JvmField public val VERTICAL: Orientation = Orientation("VERTICAL")
 
             /** The width of the [FoldingFeature] is greater than the height. */
-            @JvmField val HORIZONTAL: Orientation = Orientation("HORIZONTAL")
+            @JvmField public val HORIZONTAL: Orientation = Orientation("HORIZONTAL")
         }
     }
 
     /** Represents the [State] of the [FoldingFeature]. */
-    class State private constructor(private val description: String) {
+    public class State private constructor(private val description: String) {
 
         override fun toString(): String {
             return description
         }
 
-        companion object {
+        public companion object {
             /**
              * The foldable device is completely open, the screen space that is presented to the
              * user is flat. See the
              * [Posture](https://developer.android.com/guide/topics/ui/foldables#postures) section
              * in the official documentation for visual samples and references.
              */
-            @JvmField val FLAT: State = State("FLAT")
+            @JvmField public val FLAT: State = State("FLAT")
 
             /**
              * The foldable device's hinge is in an intermediate position between opened and closed
@@ -88,7 +88,7 @@ interface FoldingFeature : DisplayFeature {
              * [Posture](https://developer.android.com/guide/topics/ui/foldables#postures) section
              * in the official documentation for visual samples and references.
              */
-            @JvmField val HALF_OPENED: State = State("HALF_OPENED")
+            @JvmField public val HALF_OPENED: State = State("HALF_OPENED")
         }
     }
 
@@ -110,7 +110,7 @@ interface FoldingFeature : DisplayFeature {
      *
      * @return `true` if the feature splits the display into two areas, `false` otherwise.
      */
-    val isSeparating: Boolean
+    public val isSeparating: Boolean
 
     /**
      * Calculates the occlusion mode to determine if a [FoldingFeature] occludes a part of the
@@ -130,14 +130,14 @@ interface FoldingFeature : DisplayFeature {
      *
      * @return [FoldingFeature.OcclusionType.NONE] if the [FoldingFeature] has empty bounds.
      */
-    val occlusionType: OcclusionType
+    public val occlusionType: OcclusionType
 
     /**
      * Returns [FoldingFeature.Orientation.HORIZONTAL] if the width is greater than the height,
      * [FoldingFeature.Orientation.VERTICAL] otherwise.
      */
-    val orientation: Orientation
+    public val orientation: Orientation
 
     /** Returns the [FoldingFeature.State] for the [FoldingFeature] */
-    val state: State
+    public val state: State
 }

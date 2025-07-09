@@ -30,9 +30,9 @@ import androidx.window.core.ExperimentalWindowApi
  * @see WindowAreaController.presentContentOnWindowArea
  */
 @ExperimentalWindowApi
-interface WindowAreaSessionPresenter : WindowAreaSession {
+public interface WindowAreaSessionPresenter : WindowAreaSession {
     /** Returns the [Context] associated with the window area. */
-    val context: Context
+    public val context: Context
 
     /**
      * Returns the [Window] associated with the active presentation window area or null if there is
@@ -41,11 +41,11 @@ interface WindowAreaSessionPresenter : WindowAreaSession {
      * API can be used to directly access parts of the [Window] API that are not available through
      * the [Context] provided.
      */
-    val window: Window?
+    public val window: Window?
 
     /**
      * Sets a [View] to show on a window area. After setting the view the system can turn on the
      * corresponding display and start showing content.
      */
-    fun setContentView(view: View)
+    public fun setContentView(view: View)
 }

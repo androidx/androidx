@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 package androidx.compose.runtime.lint
 
 import androidx.compose.lint.test.Stubs
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -60,7 +56,6 @@ class OpaqueUnitKeyDetectorTest : LintDetectorTest() {
 
     @Test
     fun remember_withUnitPropertyRead_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -102,7 +97,6 @@ Fix for src/test/test.kt line 10: Move expression outside of `remember`'s argume
 
     @Test
     fun remember_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -144,7 +138,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
 
     @Test
     fun remember_withUnitComposableInvocation_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -187,7 +180,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `remember`'s argumen
 
     @Test
     fun remember_withUnitComposableInvocation_reportsError_withFixInSingleExpressionFun() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -229,7 +221,6 @@ Fix for src/test/test.kt line 7: Move expression outside of `remember`'s argumen
 
     @Test
     fun remember_withIfStatementThatReturnsUnit_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -312,7 +303,6 @@ Fix for src/test/test.kt line 9: Move expression outside of `remember`'s argumen
 
     @Test
     fun remember_twoKeys_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -713,7 +703,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `produceState`'s arg
 
     @Test
     fun disposableEffect_withUnitPropertyRead_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -760,7 +749,6 @@ Fix for src/test/test.kt line 10: Move expression outside of `DisposableEffect`'
 
     @Test
     fun disposableEffect_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -807,7 +795,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
 
     @Test
     fun disposableEffect_withUnitComposableInvocation_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -855,7 +842,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
 
     @Test
     fun disposableEffect_withUnitComposableInvocation_reportsError_withFixInSingleExpressionFun() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -903,7 +889,6 @@ Fix for src/test/test.kt line 7: Move expression outside of `DisposableEffect`'s
 
     @Test
     fun disposableEffect_withIfStatementThatReturnsUnit_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -996,7 +981,6 @@ Fix for src/test/test.kt line 9: Move expression outside of `DisposableEffect`'s
 
     @Test
     fun disposableEffect_twoKeys_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1073,7 +1057,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `DisposableEffect`'s
 
     @Test
     fun launchedEffect_withUnitPropertyRead_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1118,7 +1101,6 @@ Fix for src/test/test.kt line 10: Move expression outside of `LaunchedEffect`'s 
 
     @Test
     fun launchedEffect_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1163,7 +1145,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
 
     @Test
     fun launchedEffect_withUnitComposableInvocation_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1209,7 +1190,6 @@ Fix for src/test/test.kt line 8: Move expression outside of `LaunchedEffect`'s a
 
     @Test
     fun launchedEffect_withUnitComposableInvocation_reportsError_withFixInSingleExpressionFun() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1255,7 +1235,6 @@ Fix for src/test/test.kt line 7: Move expression outside of `LaunchedEffect`'s a
 
     @Test
     fun launchedEffect_withIfStatementThatReturnsUnit_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,
@@ -1344,7 +1323,6 @@ Fix for src/test/test.kt line 9: Move expression outside of `LaunchedEffect`'s a
 
     @Test
     fun launchedEffect_twoKeys_withUnitFunctionCall_reportsError() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         lint()
             .files(
                 Stubs.Remember,

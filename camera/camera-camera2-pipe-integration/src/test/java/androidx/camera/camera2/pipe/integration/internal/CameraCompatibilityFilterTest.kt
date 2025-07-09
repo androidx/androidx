@@ -74,6 +74,7 @@ class CameraCompatibilityFilterTest {
                     ),
                     null,
                     -1L,
+                    null,
                     NO_OP_STREAM_SPECS_CALCULATOR,
                 )
 
@@ -100,6 +101,7 @@ class CameraCompatibilityFilterTest {
                     ),
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     -1L,
+                    null,
                     NO_OP_STREAM_SPECS_CALCULATOR,
                 )
 
@@ -123,6 +125,7 @@ class CameraCompatibilityFilterTest {
                     ),
                     null,
                     -1L,
+                    null,
                     NO_OP_STREAM_SPECS_CALCULATOR,
                 )
 

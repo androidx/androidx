@@ -98,9 +98,17 @@ val WearMaterial3Demos =
                         ComposableDemo("Sizes and Colors") { EdgeButtonMultiDemo() },
                         ComposableDemo("Configurable") { EdgeButtonConfigurableDemo() },
                         ComposableDemo("Simple Edge Button below SLC") { EdgeButtonListSample() },
-                        ComposableDemo("Edge Button Below LC") { EdgeButtonBelowLazyColumnDemo() },
+                        ComposableDemo("Edge Button Below LC") {
+                            EdgeButtonBelowLazyColumnDemo(reverseLayout = false)
+                        },
+                        ComposableDemo("Edge Button Below Reversed LC") {
+                            EdgeButtonBelowLazyColumnDemo(reverseLayout = true)
+                        },
                         ComposableDemo("Edge Button Below SLC") {
-                            EdgeButtonBelowScalingLazyColumnDemo()
+                            EdgeButtonBelowScalingLazyColumnDemo(reverseLayout = false)
+                        },
+                        ComposableDemo("Edge Button Below reversed SLC") {
+                            EdgeButtonBelowScalingLazyColumnDemo(reverseLayout = true)
                         },
                         ComposableDemo("Edge Button Below TLC") {
                             EdgeButtonBelowTransformingLazyColumnDemo()

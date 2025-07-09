@@ -49,7 +49,10 @@ import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VER
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
 @RequiresWindowSdkExtension(5)
-fun Bundle.setLaunchingActivityStack(context: Context, activityStack: ActivityStack): Bundle =
+public fun Bundle.setLaunchingActivityStack(
+    context: Context,
+    activityStack: ActivityStack,
+): Bundle =
     ActivityEmbeddingController.getInstance(context).setLaunchingActivityStack(this, activityStack)
 
 /**
@@ -92,7 +95,7 @@ fun Bundle.setLaunchingActivityStack(context: Context, activityStack: ActivitySt
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-fun Bundle.setOverlayCreateParams(
+public fun Bundle.setOverlayCreateParams(
     activity: Activity,
     overlayCreateParams: OverlayCreateParams,
 ): Bundle =

@@ -23,6 +23,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -91,11 +92,16 @@ class OpenXrFaceTest {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
             val perceptionManager = OpenXrPerceptionManager(timeSource)
-            openXrManager =
-                OpenXrManager(it, perceptionManager, timeSource, faceTrackingCalibrated = true)
+            openXrManager = OpenXrManager(it, perceptionManager, timeSource)
             openXrManager.create()
             openXrManager.resume()
-            openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+
+            // Configure twice because the stubs return false calibration the first time
+            try {
+                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            } catch (e: FaceTrackingNotCalibratedException) {
+                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            }
 
             testBody()
 

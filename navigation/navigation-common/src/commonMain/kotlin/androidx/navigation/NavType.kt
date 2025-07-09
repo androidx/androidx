@@ -871,3 +871,12 @@ internal class StringListNavType : CollectionNavType<List<String>?>(true) {
 
     override fun emptyCollection(): List<String> = emptyList()
 }
+
+/**
+ * Enables other navigation modules to internally access [NavUriUtils], which is package internal
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> NavType<T>.parseAndPutFromUri(bundle: SavedState, key: String, value: String): T {
+    val decoded = NavUriUtils.decode(value)
+    return parseAndPut(bundle, key, decoded)
+}

@@ -90,7 +90,7 @@ class SnapshotObserverTests {
         ) {
             val state = mutableIntStateOf(10)
             val snapshot = Snapshot.takeMutableSnapshot()
-            snapshot.enter { state.value = 12 }
+            snapshot.enter { state.intValue = 12 }
             snapshot.apply().check()
             val apply = applied.first()
             assertEquals(snapshot, apply.first)
@@ -161,7 +161,7 @@ class SnapshotObserverTests {
             val state = mutableIntStateOf(10)
             val snapshot = Snapshot.takeMutableSnapshot()
             val nestedSnapshot = snapshot.takeNestedMutableSnapshot()
-            nestedSnapshot.enter { state.value = 12 }
+            nestedSnapshot.enter { state.intValue = 12 }
             nestedSnapshot.apply().check()
             snapshot.apply().check()
 
@@ -246,7 +246,7 @@ class SnapshotObserverTests {
             try {
                 val result =
                     snapshot.enter {
-                        state.value = 20
+                        state.intValue = 20
                         state.value
                     }
                 assertEquals(20, result)
@@ -314,7 +314,7 @@ class SnapshotObserverTests {
 
                 val ms1 = Snapshot.takeMutableSnapshot()
                 try {
-                    ms1.enter { state1.value = 11 }
+                    ms1.enter { state1.intValue = 11 }
                     ms1.apply().check()
                 } finally {
                     ms1.dispose()

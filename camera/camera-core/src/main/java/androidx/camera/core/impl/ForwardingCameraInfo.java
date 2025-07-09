@@ -300,4 +300,9 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
             @NonNull CameraUseCaseAdapterProvider cameraUseCaseAdapterProvider) {
         mCameraInfoInternal.setCameraUseCaseAdapterProvider(cameraUseCaseAdapterProvider);
     }
+
+    @Override
+    public @NonNull Set<Integer> getAvailableCapabilities() {
+        return mCameraInfoInternal.getAvailableCapabilities();
+    }
 }
