@@ -598,7 +598,7 @@ public class IconCompat extends CustomVersionedParcelable {
                         BitmapFactory.decodeByteArray((byte[]) mObj1, mInt1, mInt2)
                 );
             case TYPE_URI:
-            try (InputStream is = getUriInputStream(context)) {
+                try (InputStream is = getUriInputStream(context)) {
                     return new BitmapDrawable(context.getResources(),
                             BitmapFactory.decodeStream(is));
                 } catch (Exception e) {
