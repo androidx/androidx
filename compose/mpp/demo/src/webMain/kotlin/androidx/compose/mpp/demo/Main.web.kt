@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package androidx.compose.mpp.demo
 
 import androidx.compose.mpp.demo.bugs.BugsScreen
+import androidx.compose.mpp.demo.components.text.loadResource
 import androidx.compose.mpp.demo.interops.HtmlInteropDemos
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -29,16 +30,8 @@ import androidx.compose.ui.window.ComposeViewport
 import androidx.navigation.ExperimentalBrowserHistoryApi
 import androidx.navigation.bindToBrowserNavigation
 import androidx.navigation.compose.rememberNavController
-import kotlin.wasm.unsafe.UnsafeWasmMemoryApi
-import kotlin.wasm.unsafe.withScopedMemoryAllocator
-import kotlinx.browser.window
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.asDeferred
-import kotlinx.coroutines.await
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Int8Array
-import org.w3c.fetch.Response
 
 private const val notoColorEmoji = "./NotoColorEmoji.ttf"
 private const val notoSansSC = "./NotoSansSC-Regular.ttf"
@@ -70,50 +63,27 @@ fun main() {
         }
 
         LaunchedEffect(Unit) {
-            val fontsDeferred = awaitAll(loadResAsync(notoColorEmoji), loadResAsync(notoSansSC)).zip(listOf(
+            val load1 = async {
+                loadResource(notoColorEmoji) ?: ByteArray(0)
+            }
+            val load2 = async {
+                loadResource(notoSansSC) ?: ByteArray(0)
+            }
+            val fontsDeferred = awaitAll(load1, load2).zip(listOf(
                 "NotoColorEmoji",
                 "NotoSansSC"
             ))
 
             fontsDeferred.forEach { (font, name) ->
-                val fontFamily = FontFamily(listOf(Font(name, font.toByteArray())))
+                val fontFamily = FontFamily(listOf(Font(name, font)))
                 fontFamilyResolver.preload(fontFamily)
             }
 
             fontsLoaded.value = true
         }
 
-    }
-    setupBackingTextAreaDebugHints()
-}
-
-private suspend fun loadResAsync(url: String): Deferred<ArrayBuffer> {
-    return window.fetch(url).await<Response>().arrayBuffer().asDeferred()
-}
-
-suspend fun loadRes(url: String): ArrayBuffer {
-    return loadResAsync(url).await()
-}
-
-fun ArrayBuffer.toByteArray(): ByteArray {
-    val source = Int8Array(this, 0, byteLength)
-    return jsInt8ArrayToKotlinByteArray(source)
-}
-
-private fun wasmExportsMemoryBuffer(): ArrayBuffer = js("wasmExports.memory.buffer")
-private fun jsExportInt8ArrayToWasm(destination: ArrayBuffer, src: Int8Array, size: Int, dstAddr: Int) {
-    val mem8 = Int8Array(destination, dstAddr, size)
-    mem8.set(src)
-}
-
-internal fun jsInt8ArrayToKotlinByteArray(x: Int8Array): ByteArray {
-    val size = x.length
-
-    @OptIn(UnsafeWasmMemoryApi::class)
-    return withScopedMemoryAllocator { allocator ->
-        val memBuffer = allocator.allocate(size)
-        val dstAddress = memBuffer.address.toInt()
-        jsExportInt8ArrayToWasm(wasmExportsMemoryBuffer(),  x, size, dstAddress)
-        ByteArray(size) { i -> (memBuffer + i).loadByte() }
+        LaunchedEffect(Unit) {
+            setupBackingTextAreaDebugHints()
+        }
     }
 }

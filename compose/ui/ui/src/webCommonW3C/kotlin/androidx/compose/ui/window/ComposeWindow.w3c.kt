@@ -680,20 +680,17 @@ fun CanvasBasedWindow(
     )
 }
 
-/**
- * EXPERIMENTAL! Might be deleted or changed in the future!
- *
- * Creates the composition in HTML canvas created in parent container identified by [viewportContainerId] id.
- * This size of canvas is adjusted with the size of the container
- */
-@ExperimentalComposeUiApi
-fun ComposeViewport(
-    viewportContainerId: String,
-    configure: ComposeViewportConfiguration.() -> Unit = {},
-    content: @Composable () -> Unit = { }
+internal actual fun InternalComposeViewport(
+    viewportContainerId: String?,
+    configure: ComposeViewportConfiguration.() -> Unit,
+    content: @Composable () -> Unit
 ) {
-    val canvasContainer = document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
-    ComposeViewport(canvasContainer, configure, content)
+    val providedContainer = if (viewportContainerId != null) {
+        document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
+    } else {
+        document.body ?: error("failed to find <body> element")
+    }
+    ComposeViewport(providedContainer, configure, content)
 }
 
 /**
@@ -716,7 +713,7 @@ fun ComposeViewport(
     viewportContainer: Element,
     configure: ComposeViewportConfiguration.() -> Unit = {},
     content: @Composable () -> Unit = { }
-) {
+) = onSkikoReady {
     val canvas = document.createElement("canvas") as HTMLCanvasElement
     canvas.setAttribute("tabindex", "0")
     canvas.setAttribute("role", "generic")
@@ -741,7 +738,6 @@ fun ComposeViewport(
         top = "0"
         left = "0"
     }
-
 
     val configuration = ComposeViewportConfiguration().apply(configure)
 
