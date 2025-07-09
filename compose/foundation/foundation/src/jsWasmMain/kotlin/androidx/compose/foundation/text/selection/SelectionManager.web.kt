@@ -16,6 +16,13 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.text.TextContextMenuItems
+import androidx.compose.foundation.text.TextContextMenuItems.Copy
+import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
+import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
+import androidx.compose.foundation.text.getLocalizedString
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -42,10 +49,39 @@ internal actual fun isCopyKeyEvent(keyEvent: KeyEvent): Boolean {
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier =
     this // TODO for mobile web: https://youtrack.jetbrains.com/issue/CMP-6645
 
-// TODO https://youtrack.jetbrains.com/issue/CMP-7819
 internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
     selectionManager: SelectionManager
-): Modifier = this
+): Modifier = appendTextContextMenuComponents {
+    fun TextContextMenuBuilderScope.selectionContainerItem(
+        item: TextContextMenuItems,
+        enabled: Boolean,
+        closePredicate: (() -> Boolean)? = null,
+        onClick: () -> Unit
+    ) {
+        item(
+            key = item.key,
+            label = getLocalizedString(item.stringId),
+            enabled = enabled,
+            onClick = {
+                onClick()
+                if (closePredicate?.invoke() != false) close()
+            }
+        )
+    }
+
+    with(selectionManager) {
+        separator()
+        selectionContainerItem(Copy, enabled = isNonEmptySelection()) { copy() }
+        selectionContainerItem(
+            item = SelectAll,
+            enabled = !isEntireContainerSelected(),
+            closePredicate = { !showToolbar || !isInTouchMode },
+        ) {
+            selectAll()
+        }
+        separator()
+    }
+}
 
 internal actual val SelectionManager.skipCopyKeyEvent: Boolean
     get() = true

@@ -17,11 +17,22 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.TextContextMenuItems
+import androidx.compose.foundation.text.TextContextMenuItems.Copy
+import androidx.compose.foundation.text.TextContextMenuItems.Cut
+import androidx.compose.foundation.text.TextContextMenuItems.Paste
+import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
+import androidx.compose.foundation.text.getLocalizedString
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerInputScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 
 /** Runs platform-specific text tap gestures logic. */
 internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
@@ -38,8 +49,42 @@ internal actual suspend fun PointerInputScope.getTextFieldSelectionGestures(
     textDragObserver: TextDragObserver
 ) = defaultTextFieldSelectionGestures(mouseSelectionObserver, textDragObserver)
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-8433/web-Adopt-new-context-menu-API
 internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     state: TextFieldSelectionState,
     coroutineScope: CoroutineScope
-): Modifier = this
+): Modifier = appendTextContextMenuComponents {
+    fun TextContextMenuBuilderScope.textFieldItem(
+        item: TextContextMenuItems,
+        enabled: Boolean,
+        onClick: () -> Unit,
+    ) {
+        item(
+            key = item.key,
+            label = getLocalizedString(item.stringId),
+            enabled = enabled,
+            onClick = {
+                onClick()
+                close()
+            }
+        )
+    }
+
+    fun TextContextMenuBuilderScope.textFieldSuspendItem(
+        item: TextContextMenuItems,
+        enabled: Boolean,
+        onClick: suspend () -> Unit,
+    ) {
+        textFieldItem(item, enabled) {
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { onClick() }
+        }
+    }
+
+    with(state) {
+        separator()
+        textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
+        textFieldSuspendItem(Copy, enabled = canCopy()) { copy(cancelSelection = false) }
+        textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
+        textFieldItem(SelectAll, enabled = canSelectAll()) { selectAll() }
+        separator()
+    }
+}

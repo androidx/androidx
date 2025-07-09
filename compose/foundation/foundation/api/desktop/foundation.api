@@ -1948,6 +1948,7 @@ public final class androidx/compose/foundation/text/contextmenu/internal/Composa
 	public fun <init> ()V
 	public final fun getLambda$-651812147$foundation ()Lkotlin/jvm/functions/Function5;
 	public final fun getLambda$1837043723$foundation ()Lkotlin/jvm/functions/Function5;
+	public final fun getLambda$1965104340$foundation ()Lkotlin/jvm/functions/Function5;
 }
 
 public final class androidx/compose/foundation/text/contextmenu/modifier/TextContextMenuModifierKt {

@@ -44,8 +44,12 @@ internal value class Strings(val value: Int) {
 @Composable
 @ReadOnlyComposable
 internal fun getString(string: Strings): String {
+    return getLocalizedString(string)
+}
 
+internal fun getLocalizedString(string: Strings): String {
     val locale = Locale.current
+
     val tag = localeTag(language = locale.language, region = locale.region)
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)

@@ -16,8 +16,19 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.text.TextContextMenuItems
+import androidx.compose.foundation.text.TextContextMenuItems.Copy
+import androidx.compose.foundation.text.TextContextMenuItems.Cut
+import androidx.compose.foundation.text.TextContextMenuItems.Paste
+import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
+import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
+import androidx.compose.foundation.text.getLocalizedString
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier = this
 
@@ -28,8 +39,42 @@ internal actual fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
     isStartHandle: Boolean
 ): Boolean = isSelectionHandleInVisibleBoundDefault(isStartHandle)
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-7819
 internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     manager: TextFieldSelectionManager,
     coroutineScope: CoroutineScope,
-): Modifier = this
+): Modifier = appendTextContextMenuComponents {
+    fun TextContextMenuBuilderScope.textFieldItem(
+        item: TextContextMenuItems,
+        enabled: Boolean,
+        onClick: () -> Unit,
+    ) {
+        item(
+            key = item.key,
+            label = getLocalizedString(item.stringId),
+            enabled = enabled,
+            onClick = {
+                onClick()
+                close()
+            }
+        )
+    }
+
+    fun TextContextMenuBuilderScope.textFieldSuspendItem(
+        item: TextContextMenuItems,
+        enabled: Boolean,
+        onClick: suspend () -> Unit,
+    ) {
+        textFieldItem(item, enabled) {
+            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { onClick() }
+        }
+    }
+
+    with(manager) {
+        separator()
+        textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
+        textFieldSuspendItem(Copy, enabled = canCopy()) { copy(cancelSelection = false) }
+        textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
+        textFieldItem(SelectAll, enabled = canSelectAll()) { selectAll() }
+        separator()
+    }
+}
