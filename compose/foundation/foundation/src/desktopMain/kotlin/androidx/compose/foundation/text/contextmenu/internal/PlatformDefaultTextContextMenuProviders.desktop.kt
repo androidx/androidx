@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.contextmenu.internal
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuDropdownProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,6 +29,8 @@ internal actual fun ProvideDefaultPlatformTextContextMenuProviders(
     val dropdownDefined = LocalTextContextMenuDropdownProvider.current != null
     if (!dropdownDefined) {
         ProvideDefaultTextContextMenuDropdown(modifier, content)
+    } else {
+        Box(modifier, propagateMinConstraints = true) { content() }
     }
 }
 
