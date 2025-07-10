@@ -1164,7 +1164,7 @@ class NavHostTest {
 
         runOnIdle { navController.navigate("Second") }
 
-        unOnIdle {
+        runOnIdle {
             navController.navigate("First") {
                 popUpTo("First")
                 launchSingleTop = true
