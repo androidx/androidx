@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.WebElementView
 import kotlinx.browser.document
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLTextAreaElement
 
 val HtmlInteropDemos = Screen.Selection(
     "HtmlInteropDemos",
@@ -60,12 +61,16 @@ fun SyncTextState() {
 
         WebElementView(
             factory = {
-                (document.createElement("div") as HTMLDivElement).apply {
-                    innerText = textState.text.toString()
+                (document.createElement("textarea") as HTMLTextAreaElement).apply {
+                    style.apply {
+                        boxSizing = "border-box"
+                    }
                 }
             },
-            modifier = Modifier.size(300.dp).padding(50.dp),
-            update = { div -> div.innerText = textState.text.toString() }
+            update = { input ->
+                input.value = textState.text.toString()
+            },
+            modifier = Modifier.size(300.dp).padding(50.dp)
         )
     }
 }

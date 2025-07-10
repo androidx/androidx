@@ -41,6 +41,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.composeButton
 import androidx.compose.ui.input.pointer.composeButtons
 import androidx.compose.ui.platform.DefaultInputModeManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
@@ -425,6 +426,9 @@ internal class ComposeWindow(
                 LocalLifecycleOwner provides this,
                 LocalInternalViewModelStoreOwner provides this,
                 LocalInteropContainer provides interopContainer,
+                LocalActiveClipEventsTarget provides {
+                    (platformContext.textInputService as WebTextInputService).getBackingInput() ?: canvas
+                },
                 content = {
                     interopContainer.TrackInteropPlacementContainer {
                         content()

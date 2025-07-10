@@ -53,7 +53,7 @@ internal class BackingDomInput(
         composeCommunicator
     )
 
-    private val backingElement = inputStrategy.htmlInput
+    internal val backingElement = inputStrategy.htmlInput
 
     fun register() {
         setBackingInputBox(container = inputContainer, 0f, 0f, 0f, 0f)

@@ -77,6 +77,10 @@ internal abstract class WebTextInputService : PlatformTextInputService, InputAwa
         showSoftwareKeyboard()
     }
 
+    fun getBackingInput(): HTMLElement? {
+        return backingDomInput?.backingElement?.takeIf { it.isConnected }
+    }
+
     override fun stopInput() {
         backingDomInput?.dispose()
     }

@@ -19,11 +19,13 @@ package androidx.compose.foundation.text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.NonRestartableComposable
-import kotlinx.browser.document
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.window.LocalActiveClipEventsTarget
 import org.w3c.dom.clipboard.ClipboardEvent
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener as EventListenerInterface
 
+@OptIn(InternalComposeUiApi::class)
 @Composable
 @NonRestartableComposable
 internal actual inline fun rememberClipboardEventsHandler(
@@ -33,6 +35,7 @@ internal actual inline fun rememberClipboardEventsHandler(
     isEnabled: Boolean
 ) {
     if (isEnabled) {
+        val clipEventsTargetProvider = LocalActiveClipEventsTarget.current
         DisposableEffect(Unit) {
             val copyListener = EventListener { event ->
                 val textToCopy = onCopy()
@@ -58,14 +61,15 @@ internal actual inline fun rememberClipboardEventsHandler(
                 }
             }
 
-            document.addEventListener("copy", copyListener)
-            document.addEventListener("paste", pasteListener)
-            document.addEventListener("cut", cutListener)
+            val eventsTarget = clipEventsTargetProvider()
+            eventsTarget?.addEventListener("copy", copyListener)
+            eventsTarget?.addEventListener("paste", pasteListener)
+            eventsTarget?.addEventListener("cut", cutListener)
 
             onDispose {
-                document.removeEventListener("copy", copyListener)
-                document.removeEventListener("paste", pasteListener)
-                document.removeEventListener("cut", cutListener)
+                eventsTarget?.removeEventListener("copy", copyListener)
+                eventsTarget?.removeEventListener("paste", pasteListener)
+                eventsTarget?.removeEventListener("cut", cutListener)
             }
         }
     }
