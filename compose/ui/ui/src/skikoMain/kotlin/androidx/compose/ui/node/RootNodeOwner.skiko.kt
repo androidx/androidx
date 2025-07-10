@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.SkiaGraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.InputMode
@@ -89,8 +90,10 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
@@ -159,19 +162,23 @@ internal class RootNodeOwner(
     private val pointerInputEventProcessor = PointerInputEventProcessor(owner.root)
     private val measureAndLayoutDelegate = MeasureAndLayoutDelegate(owner.root)
     private var isDisposed = false
-    private var currentCornersOnScreen: List<Offset>? = cornersOnScreen()
+
+    private var windowPosition: Offset? = null
+    private var globalPosition: Offset? = null
+
+    // TODO: Android assumes matrix for some APIs, so we need store something to avoid extra
+    //  allocations. Clean up this APIs and remove it.
+    private val identityMatrix = Matrix()
 
     init {
         snapshotObserver.startObserving()
         owner.root.attach(owner)
         platformContext.rootForTestListener?.onRootForTestCreated(rootForTest)
         onRootConstrainsChanged(size?.toConstraints())
-        onLightingInfoChanged()
+        updatePositionCacheAndDispatch()
         coroutineScope.launch {
             snapshotFlow { platformContext.windowInfo.containerSize }
-                .collect {
-                    onLightingInfoChanged()
-                }
+                .collect { updatePositionCacheAndDispatch() }
         }
     }
 
@@ -216,43 +223,65 @@ internal class RootNodeOwner(
 
     fun measureAndLayout() {
         owner.measureAndLayout(sendPointerUpdate = true)
+        updatePositionCacheAndDispatch()
+    }
+
+    private fun updatePositionCacheAndDispatch() {
+        val globalPosition = platformContext.convertLocalToScreenPosition(Offset.Zero)
+        val hasGlobalPositionChanged = if (platformContext.hasNonTranslationComponents) {
+            this.globalPosition = null
+            true // Always invalidate in case of rotation, skew, etc.
+        } else if (globalPosition != this.globalPosition) {
+            this.globalPosition = globalPosition
+            true
+        } else false
+
+        val windowPosition = platformContext.convertLocalToWindowPosition(Offset.Zero)
+        val hasWindowPositionChanged = if (platformContext.hasNonTranslationComponents) {
+            this.windowPosition = null
+            true // Always invalidate in case of rotation, skew, etc.
+        } else if (windowPosition != this.windowPosition) {
+            this.windowPosition = windowPosition
+            true
+        } else false
+
+        if (hasGlobalPositionChanged || hasWindowPositionChanged) {
+            owner.root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
+        }
+        val containerSize = platformContext.windowInfo.containerSize
+        owner.rectManager.updateOffsets(
+            screenOffset = globalPosition.round(),
+            windowOffset = windowPosition.round(),
+            viewToWindowMatrix = identityMatrix, // TODO: Replace viewToWindowMatrix to delegates
+            windowWidth = containerSize.width,
+            windowHeight = containerSize.height,
+        )
+        measureAndLayoutDelegate.dispatchOnPositionedCallbacks(
+            forceDispatch = hasGlobalPositionChanged || hasWindowPositionChanged
+        )
+        if (ComposeUiFlags.isRectTrackingEnabled) {
+            owner.rectManager.dispatchCallbacks()
+        }
+        if (hasWindowPositionChanged) {
+            graphicsContext.setLightingInfo(
+                canvasOffset = windowPosition,
+                density = density,
+                containerSize = containerSize
+            )
+        }
     }
 
     fun invalidatePositionInWindow() {
-        owner.root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
-        measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = true)
-        onLightingInfoChanged()
-    }
-
-    private fun cornersOnScreen() = size?.let { size ->
-        val width = size.width.toFloat()
-        val height = size.height.toFloat()
-        val corners =
-            listOf(
-                Offset.Zero,
-                Offset(x = width, y = 0f),
-                Offset(x = 0f, y = height),
-                Offset(x = width, y = height)
-            ).fastMap {
-                platformContext.convertLocalToScreenPosition(it)
-            }
-        if (corners.fastAny { it.isUnspecified }) null else corners
+        updatePositionCacheAndDispatch()
     }
 
     fun invalidatePositionOnScreen() {
-        // Look at all corners, because platformContext.convertLocalToScreenPosition can also
-        // rotate, skew etc.
-        val cornersOnScreen = cornersOnScreen()
-        if (cornersOnScreen != currentCornersOnScreen) {
-            measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = true)
-            currentCornersOnScreen = cornersOnScreen
-        }
+        updatePositionCacheAndDispatch()
     }
 
     fun draw(canvas: Canvas) = trace("RootNodeOwner:draw") {
         ownedLayerManager.draw(canvas)
         clearInvalidObservations()
-        @OptIn(ExperimentalComposeUiApi::class)
         if (ComposeUiFlags.isRectTrackingEnabled) {
             owner.rectManager.dispatchCallbacks()
         }
@@ -267,14 +296,6 @@ internal class RootNodeOwner(
         if (measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
             snapshotInvalidationTracker.requestMeasureAndLayout()
         }
-    }
-
-    private fun onLightingInfoChanged() {
-        graphicsContext.setLightingInfo(
-            canvasOffset = platformContext.convertLocalToWindowPosition(Offset.Zero),
-            density = density,
-            containerSize = platformContext.windowInfo.containerSize
-        )
     }
 
     fun onCancelPointerInput() {
@@ -522,7 +543,6 @@ internal class RootNodeOwner(
                         snapshotInvalidationTracker.requestDraw()
                     }
                     measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
-                    @OptIn(ExperimentalComposeUiApi::class)
                     if (ComposeUiFlags.isRectTrackingEnabled) {
                        rectManager.dispatchCallbacks()
                     }
@@ -540,7 +560,6 @@ internal class RootNodeOwner(
                 if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                     measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                 }
-                @OptIn(ExperimentalComposeUiApi::class)
                 if (ComposeUiFlags.isRectTrackingEnabled) {
                     rectManager.dispatchCallbacks()
                 }

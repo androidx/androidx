@@ -69,6 +69,22 @@ interface PlatformContext {
     val isWindowTransparent: Boolean get() = false
 
     /**
+     * Indicates whether the transformation between local and window/screen coordinate spaces
+     * includes components other than simple translation (such as rotation, scaling, or skewing).
+     *
+     * When this property returns `true`:
+     * - Position calculations require full matrix transformations rather than simple offsets
+     * - Certain optimizations for translation-only transformations cannot be applied
+     *
+     * @return `true` if the transformation includes rotation, scaling, skewing, or other
+     *   non-translation components; `false` if only translation is used.
+     *
+     * @see convertLocalToWindowPosition
+     * @see convertWindowToLocalPosition
+     */
+    val hasNonTranslationComponents: Boolean get() = false
+
+    /**
      * Converts [localPosition] relative to the [ComposeScene] into an [Offset] relative to
      * the containing window.
      * If the [ComposeScene] is rotated, scaled, or otherwise transformed relative to the window,
@@ -293,4 +309,3 @@ internal class DelegateRootForTestListener : PlatformContext.RootForTestListener
         }
     }
 }
-
