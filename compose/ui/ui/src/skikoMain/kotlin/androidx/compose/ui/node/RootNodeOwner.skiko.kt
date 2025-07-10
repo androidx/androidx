@@ -386,9 +386,7 @@ internal class RootNodeOwner(
                     // if focusDirection is forward/backward,
                     // it will move the focus after/before ComposePanel
                     if (platformContext.parentFocusManager.moveFocus(requestedFocusDirection)) {
-                        FocusRequester.Cancel
-                    } else {
-                        FocusRequester.Default
+                        cancelFocusChange()
                     }
                 }
             }

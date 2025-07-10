@@ -107,7 +107,6 @@ class ComposeFocusTest {
         )
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8348
     @Test
     fun `compose panel in the end`() = runFocusTest {
         val window = JFrame().disposeOnEnd()
@@ -138,7 +137,6 @@ class ComposeFocusTest {
         )
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8348
     @Test
     fun `compose panel in the beginning`() = runFocusTest {
         val window = JFrame().disposeOnEnd()
@@ -230,7 +228,6 @@ class ComposeFocusTest {
         )
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8348
     @Test
     fun `swing panel in the end of compose panel`() = runFocusTest {
         val window = JFrame().disposeOnEnd()
@@ -270,7 +267,6 @@ class ComposeFocusTest {
         )
     }
 
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8348
     @Test
     fun `swing panel in the beginning of compose panel`() = runFocusTest {
         val window = JFrame().disposeOnEnd()
