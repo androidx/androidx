@@ -130,6 +130,7 @@ internal class MetalView(
         val screen = window.screen
         contentScaleFactor = screen.scale
         redrawer.maximumFramesPerSecond = screen.maximumFramesPerSecond
+        redrawer.preferredFramesPerSecond = screen.maximumFramesPerSecond
 
         updateMetalLayerSize()
     }

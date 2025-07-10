@@ -97,7 +97,6 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrDefault
-import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.InteropPointerInputModifier
 import androidx.compose.ui.viewinterop.InteropView
@@ -691,6 +690,10 @@ internal class RootNodeOwner(
             snapshotInvalidationTracker.requestMeasureAndLayout()
         }
 
+        override fun voteFrameRate(frameRate: Float) {
+            ownedLayerManager.voteFrameRate(frameRate)
+        }
+
         private var keepScreenOnCount = 0
 
         override fun incrementKeepScreenOnCount() {
@@ -855,6 +858,26 @@ internal class RootNodeOwner(
             snapshotInvalidationTracker.requestDraw()
         }
 
+        private var currentFrameRate = Float.NaN
+        private var currentFrameRateCategory = 0f
+
+        override fun voteFrameRate(frameRate: Float) {
+            if (!ComposeUiFlags.isAdaptiveRefreshRateEnabled) return
+
+            val isCurrentFrameRateUnset = currentFrameRate.isNaN()
+            val isCurrentFrameRateCategoryUnset = currentFrameRateCategory == 0f
+
+            if (frameRate > 0) {
+                if (isCurrentFrameRateUnset || frameRate > currentFrameRate) {
+                    currentFrameRate = frameRate
+                }
+            } else if (frameRate.isNaN() && isCurrentFrameRateCategoryUnset) {
+                currentFrameRateCategory = frameRate
+            } else if (!frameRate.isNaN() && frameRate < 0 && (currentFrameRateCategory.isNaN() || frameRate < currentFrameRateCategory)) {
+                currentFrameRateCategory = frameRate
+            }
+        }
+
         fun draw(canvas: Canvas) {
             isDrawingContent = true
 
@@ -884,6 +907,13 @@ internal class RootNodeOwner(
                 val postponed = postponedDirtyLayers!!
                 dirtyLayers.addAll(postponed)
                 postponed.clear()
+            }
+
+            val isAnyCurrentFrameRateSet = !currentFrameRate.isNaN() || currentFrameRateCategory != 0f
+            if (ComposeUiFlags.isAdaptiveRefreshRateEnabled && isAnyCurrentFrameRateSet) {
+                platformContext.voteFrameRate(currentFrameRate, currentFrameRateCategory)
+                currentFrameRate = Float.NaN
+                currentFrameRateCategory = 0f
             }
 
             isDrawingContent = false

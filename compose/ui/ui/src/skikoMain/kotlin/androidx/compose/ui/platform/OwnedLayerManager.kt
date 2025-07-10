@@ -29,18 +29,20 @@ internal interface OwnedLayerManager {
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
-    ): OwnedLayer
+    ): OwnedLayer = throw NotImplementedError()
 
     /**
      * Return [layer] to the layer cache. It can be reused in [createLayer] after this. Returns
      * `true` if it was recycled or `false` if it will be discarded.
      */
-    fun recycle(layer: OwnedLayer): Boolean
+    fun recycle(layer: OwnedLayer): Boolean = false
 
-    fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean)
-
+    fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean) = Unit
+    
     /**
      * Triggers redrawing of Compose content during the next frame.
      */
-    fun invalidate()
+    fun invalidate() = Unit
+
+    fun voteFrameRate(frameRate: Float) = Unit
 }

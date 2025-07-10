@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isUnspecified
@@ -95,8 +96,6 @@ internal class GraphicsLayerOwnerLayer(
     private var isMatrixDirty = false
     private var isInverseMatrixDirty = false
     private var isIdentity = true
-
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-7802
     override var frameRate: Float = 0f
     override var isFrameRateFromParent = false
 
@@ -191,6 +190,7 @@ internal class GraphicsLayerOwnerLayer(
         mutatedFields = scope.mutatedFields
         if (maybeChangedFields != 0 || outlineChanged) {
             triggerRepaint()
+            layerManager.voteFrameRate(frameRate)
         }
     }
 
@@ -218,12 +218,14 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     override fun move(position: IntOffset) {
+        layerManager.voteFrameRate(FrameRateCategory.High.value)
         graphicsLayer.topLeft = position
         triggerRepaint()
     }
 
     override fun resize(size: IntSize) {
         if (size != this.size) {
+            layerManager.voteFrameRate(FrameRateCategory.High.value)
             this.size = size
             invalidate()
         }
@@ -239,6 +241,7 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     override fun updateDisplayList() {
+        layerManager.voteFrameRate(frameRate)
         if (isDirty) {
             if (transformOrigin != TransformOrigin.Center && graphicsLayer.size != size) {
                 graphicsLayer.pivotOffset =

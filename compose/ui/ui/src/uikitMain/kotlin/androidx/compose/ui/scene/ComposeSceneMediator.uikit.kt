@@ -717,6 +717,10 @@ internal class ComposeSceneMediator(
             get() = UIKitIdleTimerManager.isIdleTimerDisabled
             set(value) { UIKitIdleTimerManager.setIdleTimerState(this@ComposeSceneMediator, value) }
 
+        override fun voteFrameRate(frameRate: Float, frameRateCategory: Float) {
+            redrawer.voteFrameRate(frameRate, frameRateCategory)
+        }
+
         override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
             // TODO: Adopt PlatformTextInputService2 (https://youtrack.jetbrains.com/issue/CMP-7832/iOS-Adopt-PlatformTextInputService2)
             coroutineScope {

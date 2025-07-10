@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -126,6 +127,14 @@ interface PlatformContext {
     var isKeepScreenOnEnabled: Boolean
         get() = false
         set(value) {}
+
+    /**
+     * Votes for a specific frame rate to be used for rendering.
+     *
+     * @param frameRate The explicit frame rate value requested
+     * @param frameRateCategory The frame rate category value requested as defined in [FrameRateCategory]
+     */
+    fun voteFrameRate(frameRate: Float, frameRateCategory: Float) = Unit
 
     /**
      * The listener to track [RootForTest]s.
