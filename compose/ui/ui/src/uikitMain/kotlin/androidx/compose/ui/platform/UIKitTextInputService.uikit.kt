@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -68,7 +68,7 @@ internal class UIKitTextInputService(
     private val updateView: () -> Unit,
     private val view: UIView,
     private val viewConfiguration: ViewConfiguration,
-    private val focusStack: FocusStack?,
+    private val focusedViewsList: FocusedViewsList?,
     private var onInputStarted: () -> Unit,
     /**
      * Callback to handle keyboard presses. The parameter is a [Set] of [UIPress] objects.
@@ -167,13 +167,13 @@ internal class UIKitTextInputService(
 
     override fun showSoftwareKeyboard() {
         textUIView?.let {
-            focusStack?.pushAndFocus(it)
+            focusedViewsList?.addAndFocus(it)
         }
     }
 
     override fun hideSoftwareKeyboard() {
         textUIView?.let {
-            focusStack?.popUntilNext(it, delayMillis = CLEAR_FOCUS_DELAY)
+            focusedViewsList?.remove(it, delayMillis = CLEAR_FOCUS_DELAY)
         }
     }
 

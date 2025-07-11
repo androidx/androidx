@@ -82,7 +82,7 @@ class ComposeSceneMediatorTest {
     private fun makeMediator(): ComposeSceneMediator {
         val mediator = ComposeSceneMediator(
             onFocusBehavior = OnFocusBehavior.DoNothing,
-            focusStack = null,
+            focusedViewsList = null,
             windowContext = PlatformWindowContext(),
             coroutineContext = Dispatchers.Main,
             redrawer = MetalRedrawer(

@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toRect
-import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.MetalView
 import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.CValue
@@ -58,14 +58,14 @@ internal class UIKitComposeSceneLayer(
     private val initLayoutDirection: LayoutDirection,
     private val onAccessibilityChanged: () -> Unit,
     onFocusBehavior: OnFocusBehavior,
-    focusStack: FocusStack?,
+    focusedViewsList: FocusedViewsList?,
     windowContext: PlatformWindowContext,
     compositionContext: CompositionContext,
     private val coroutineContext: CoroutineContext,
     private val enableBackGesture: Boolean,
 ) : ComposeSceneLayer {
 
-    override var focusable: Boolean = focusStack != null
+    override var focusable: Boolean = focusedViewsList != null
         set(value) {
             if (field != value) {
                 field = value
@@ -89,7 +89,7 @@ internal class UIKitComposeSceneLayer(
 
     private val mediator = ComposeSceneMediator(
         onFocusBehavior = onFocusBehavior,
-        focusStack = focusStack,
+        focusedViewsList = focusedViewsList,
         windowContext = windowContext,
         coroutineContext = compositionContext.effectCoroutineContext,
         redrawer = metalView.redrawer,

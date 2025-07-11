@@ -22,30 +22,29 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.UIKit.UIView
 
-internal class FocusStack {
+internal class FocusedViewsList {
 
     private var activeViews = emptyList<UIView>()
     private var resignedViews = emptyList<UIView>()
     private val mainScope = MainScope()
 
     /**
-     * Add new view to stack and focus on it.
+     * Add new view to list and focus on it.
      */
-    fun pushAndFocus(view: UIView) {
+    fun addAndFocus(view: UIView) {
         activeViews += view
         resignedViews -= view
         view.becomeFirstResponder()
     }
 
     /**
-     * Pop all elements until some element. Also pop this element too.
-     * Last remaining element in Stack will be focused.
+     * Remove the view from the list and resigns first responder.
+     * The last element in the list will become a new first responder.
      */
-    fun popUntilNext(view: UIView, delayMillis: Long = 0) {
+    fun remove(view: UIView, delayMillis: Long = 0) {
         if (activeViews.contains(view)) {
-            val index = activeViews.indexOf(view)
-            resignedViews += activeViews.subList(index, activeViews.size)
-            activeViews = activeViews.subList(0, index)
+            resignedViews += view
+            activeViews = activeViews.filter { it != view }
 
             mainScope.launch {
                 delay(delayMillis)
@@ -53,13 +52,12 @@ internal class FocusStack {
                     it.resignFirstResponder()
                 }
                 resignedViews = emptyList()
-                activeViews.lastOrNull()?.becomeFirstResponder()
+                activeViews.lastOrNull()?.let {
+                    if (!it.isFirstResponder) {
+                        it.becomeFirstResponder()
+                    }
+                }
             }
         }
     }
-
-    /**
-     * Return first added view or null
-     */
-    fun first(): UIView? = activeViews.firstOrNull()
 }

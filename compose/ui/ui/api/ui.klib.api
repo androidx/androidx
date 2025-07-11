@@ -5063,7 +5063,7 @@ final val androidx.compose.ui.window/androidx_compose_ui_window_ComposeView$stab
 final val androidx.compose.ui.window/androidx_compose_ui_window_DisplayLinkListener$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_DisplayLinkListener$stableprop|#static{}androidx_compose_ui_window_DisplayLinkListener$stableprop[0]
 
 // Targets: [ios]
-final val androidx.compose.ui.window/androidx_compose_ui_window_FocusStack$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_FocusStack$stableprop|#static{}androidx_compose_ui_window_FocusStack$stableprop[0]
+final val androidx.compose.ui.window/androidx_compose_ui_window_FocusedViewsList$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_FocusedViewsList$stableprop|#static{}androidx_compose_ui_window_FocusedViewsList$stableprop[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_InflightCommandBuffers$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_InflightCommandBuffers$stableprop|#static{}androidx_compose_ui_window_InflightCommandBuffers$stableprop[0]
@@ -5258,7 +5258,7 @@ final fun androidx.compose.ui.window/androidx_compose_ui_window_ComposeView$stab
 final fun androidx.compose.ui.window/androidx_compose_ui_window_DisplayLinkListener$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_DisplayLinkListener$stableprop_getter|androidx_compose_ui_window_DisplayLinkListener$stableprop_getter(){}[0]
 
 // Targets: [ios]
-final fun androidx.compose.ui.window/androidx_compose_ui_window_FocusStack$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_FocusStack$stableprop_getter|androidx_compose_ui_window_FocusStack$stableprop_getter(){}[0]
+final fun androidx.compose.ui.window/androidx_compose_ui_window_FocusedViewsList$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_FocusedViewsList$stableprop_getter|androidx_compose_ui_window_FocusedViewsList$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_InflightCommandBuffers$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_InflightCommandBuffers$stableprop_getter|androidx_compose_ui_window_InflightCommandBuffers$stableprop_getter(){}[0]

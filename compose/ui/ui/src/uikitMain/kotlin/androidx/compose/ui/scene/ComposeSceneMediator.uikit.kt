@@ -84,7 +84,7 @@ import androidx.compose.ui.viewinterop.UIKitInteropContainer
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
-import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.MetalRedrawer
 import androidx.compose.ui.window.TouchesEventKind
@@ -184,7 +184,7 @@ private class SemanticsOwnerListenerImpl(
 
 internal class ComposeSceneMediator(
     private val onFocusBehavior: OnFocusBehavior,
-    private val focusStack: FocusStack?,
+    private val focusedViewsList: FocusedViewsList?,
     private val windowContext: PlatformWindowContext,
     private val coroutineContext: CoroutineContext,
     private val redrawer: MetalRedrawer,
@@ -350,7 +350,7 @@ internal class ComposeSceneMediator(
             },
             view = _overlayView,
             viewConfiguration = viewConfiguration,
-            focusStack = focusStack,
+            focusedViewsList = focusedViewsList,
             onInputStarted = {
                 animateKeyboardOffsetChanges = true
             },
@@ -521,7 +521,7 @@ internal class ComposeSceneMediator(
 
     fun setContent(content: @Composable () -> Unit) {
         _overlayView.runOnceOnAppeared {
-            focusStack?.pushAndFocus(userInputView)
+            focusedViewsList?.addAndFocus(userInputView)
 
             scene.setContent {
                 ProvideComposeSceneMediatorCompositionLocals {
@@ -622,7 +622,7 @@ internal class ComposeSceneMediator(
         _overlayView.dispose()
         textInputService.stopInput()
         applicationForegroundStateListener.dispose()
-        focusStack?.popUntilNext(userInputView)
+        focusedViewsList?.remove(userInputView)
         keyboardManager.dispose()
         userInputView.dispose()
 
