@@ -31,6 +31,8 @@ internal class UIKitTransparentContainerView(
     private var onAppeared: (() -> Unit)? = null
 
     init {
+        showsHorizontalScrollIndicator = false
+        showsVerticalScrollIndicator = false
         panGestureRecognizer.setEnabled(false)
         bounces = false
     }
