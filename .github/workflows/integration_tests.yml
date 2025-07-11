@@ -50,7 +50,7 @@ jobs:
           then
             echo "result=true" >> $GITHUB_OUTPUT
           else
-            echo "result=false" >> GITHUB_OUTPUT
+            echo "result=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Result WebHook
