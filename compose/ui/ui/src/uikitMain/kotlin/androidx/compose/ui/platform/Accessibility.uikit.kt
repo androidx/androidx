@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.accessibility.accessibilityLabel
 import androidx.compose.ui.platform.accessibility.accessibilityTraits
 import androidx.compose.ui.platform.accessibility.accessibilityValue
 import androidx.compose.ui.platform.accessibility.allScrollableParentNodeIds
+import androidx.compose.ui.platform.accessibility.canScroll
 import androidx.compose.ui.platform.accessibility.isRTL
 import androidx.compose.ui.platform.accessibility.isScreenReaderFocusable
 import androidx.compose.ui.platform.accessibility.scrollIfPossible
@@ -55,6 +56,7 @@ import kotlin.time.measureTime
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
+import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
@@ -77,12 +79,18 @@ import platform.CoreGraphics.CGRectGetMinY
 import platform.CoreGraphics.CGRectIntersectsRect
 import platform.CoreGraphics.CGRectIsEmpty
 import platform.CoreGraphics.CGRectZero
+import platform.Foundation.NSNotification
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSSelectorFromString
 import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIAccessibilityContainerType
 import platform.UIKit.UIAccessibilityContainerTypeNone
 import platform.UIKit.UIAccessibilityContainerTypeSemanticGroup
 import platform.UIKit.UIAccessibilityCustomAction
+import platform.UIKit.UIAccessibilityElement
+import platform.UIKit.UIAccessibilityElementFocusedNotification
 import platform.UIKit.UIAccessibilityFocusedElement
+import platform.UIKit.UIAccessibilityFocusedElementKey
 import platform.UIKit.UIAccessibilityLayoutChangedNotification
 import platform.UIKit.UIAccessibilityPageScrolledNotification
 import platform.UIKit.UIAccessibilityPostNotification
@@ -140,7 +148,6 @@ private sealed interface AccessibilityNode {
     fun accessibilityDecrement() {}
     fun accessibilityElementDidBecomeFocused() {}
     fun accessibilityElementDidLoseFocus() {}
-    fun accessibilityScrollToVisible(): Boolean = false
     fun accessibilityScroll(direction: UIAccessibilityScrollDirection): Boolean = false
     fun accessibilityPerformEscape(): Boolean = false
 
@@ -161,27 +168,22 @@ private sealed interface AccessibilityNode {
         private val isBeyondBounds: Boolean
     ) : AccessibilityNode {
         private val cachedConfig = semanticsNode.copyWithMergingEnabled().config
+        private val scrollableParentNodeIds by lazy { semanticsNode.allScrollableParentNodeIds }
 
         override val key: AccessibilityElementKey get() = semanticsNode.semanticsKey
 
         override val isAccessibilityElement: Boolean get() {
-            if (!semanticsNode.isScreenReaderFocusable()) {
-                return false
+            return if (semanticsNode.isScreenReaderFocusable()) {
+                isBeyondBoundsOrFocusable
+            } else {
+                false
             }
-
-            if (isBeyondBounds) {
-                // Semantics node is outside visible bounds.
-                // Check if it can be focused by scrolling.
-                return semanticsNode.allScrollableParentNodeIds.any {
-                    mediator.focusedNodesScrollableParentsIds.contains(it)
-                }
-            }
-
-            return true
         }
 
         override val accessibilityInteropView: InteropWrappingView?
-            get() = cachedConfig.getOrNull(NativeAccessibilityViewSemanticsKey)
+            get() = cachedConfig.getOrNull(NativeAccessibilityViewSemanticsKey)?.also {
+                it.isAccessibilityFocusable = ::isBeyondBoundsOrFocusable
+            }
 
         override val accessibilityLabel: String?
             get() = cachedConfig.accessibilityLabel()
@@ -246,26 +248,6 @@ private sealed interface AccessibilityNode {
             mediator.clearFocusTargetIfNeeded(key)
         }
 
-        private var listener: DisplayLinkListener? = null
-        override fun accessibilityScrollToVisible(): Boolean {
-            if (listener != null) {
-                return false
-            }
-            val listener = DisplayLinkListener()
-            listener.start()
-            this.listener = listener
-            CoroutineScope(mediator.coroutineContext + listener.frameClock).launch {
-                semanticsNode.parent?.scrollToCenterRectIfNeeded(
-                    targetRect = semanticsNode.unclippedBoundsInWindow,
-                    safeAreaRectInWindow = mediator.safeAreaRectInWindow
-                )
-                listener.invalidate()
-                this@Semantics.listener = null
-            }
-
-            return true
-        }
-
         override fun accessibilityScroll(direction: UIAccessibilityScrollDirection): Boolean {
             if (cachedConfig.contains(SemanticsProperties.Disabled)) {
                 return false
@@ -302,7 +284,7 @@ private sealed interface AccessibilityNode {
             get() = semanticsNode.unmergedConfig.contains(SemanticsProperties.Focused)
 
         override fun didBecomeFocused() {
-            accessibilityScrollToVisible()
+            mediator.scrollToAccessibilityElement(key)
             mediator.keyboardFocusedElementKey = key
         }
 
@@ -310,6 +292,17 @@ private sealed interface AccessibilityNode {
             if (mediator.keyboardFocusedElementKey == key) {
                 mediator.keyboardFocusedElementKey = null
             }
+        }
+
+        private val isBeyondBoundsOrFocusable: Boolean get() = if (isBeyondBounds) {
+            // The accessibility element beyond the bounds should only be focusable
+            // when it is located within the same scrollable container as the element
+            // that is already focused, in order to prevent an unwanted selection order.
+            scrollableParentNodeIds.any {
+                mediator.focusedNodesScrollableParentsIds.contains(it)
+            }
+        } else {
+            true
         }
     }
 
@@ -520,26 +513,6 @@ private class AccessibilityElement(
         node.accessibilityDecrement()
     }
 
-    override fun accessibilityScrollToVisible(): Boolean {
-        if (!isAlive) {
-            return false
-        }
-
-        return node.accessibilityScrollToVisible()
-    }
-
-    override fun accessibilityScrollToVisibleWithChild(child: Any): Boolean {
-        if (!isAlive) {
-            return false
-        }
-
-        if (child is AccessibilityElement) {
-            return child.accessibilityScrollToVisible()
-        }
-
-        return false
-    }
-
     override fun accessibilityScroll(direction: UIAccessibilityScrollDirection): Boolean {
         if (!isAlive) {
             return false
@@ -740,15 +713,20 @@ internal class AccessibilityMediator(
     val onScreenReaderActive: (Boolean) -> Unit,
 ) {
     private var focusMode: AccessibilityElementFocusMode = AccessibilityElementFocusMode.None
-        set(value) {
-            field = value
-            accessibilityDebugLogger?.log("Focus mode: $focusMode")
 
-            scheduleFocusedScrollableParentsIdsUpdate()
+    var focusedNodesScrollableParentsIds: Set<Int> = setOf()
+        private set(value) {
+            if (field != value) {
+                field = value
+                invalidateSemanticsTree()
+
+                if (value.isNotEmpty()) {
+                    // Hack to fix an issue where iOS accessibility only reads the items visible
+                    // at the moment of the beginning of the "Speak Screen" command.
+                    UIAccessibilityPostNotification(UIAccessibilityPageScrolledNotification, null)
+                }
+            }
         }
-
-    var focusedNodesScrollableParentsIds = setOf<Int>()
-        private set
 
     var keyboardFocusedElementKey: AccessibilityElementKey? = null
     private var forceFocusedElementKey: AccessibilityElementKey? = null
@@ -793,6 +771,93 @@ internal class AccessibilityMediator(
             toView = null
         )
         return rectInWindow.asDpRect().toRect(view.density)
+    }
+
+    private var displayLinkListener: DisplayLinkListener? = null
+
+    private var scrollJob: Job? = null
+
+    private val focusObserver = AccessibilityFocusedElementObserver { focusedElement ->
+        scrollToAccessibilityElement(focusedElement)
+        scheduleFocusedScrollableParentsIdsUpdate(focusedElement)
+    }
+
+    fun scrollToAccessibilityElement(key: AccessibilityElementKey) {
+        val element = accessibilityElementsMap[key] ?: return
+        scrollToAccessibilityElement(element)
+    }
+
+    private fun scrollToAccessibilityElement(element: NSObject) {
+        val listener = displayLinkListener ?: return
+
+        val scrollableContainer = findFirstAccessibilityElementInHierarchy(element) {
+            it.node.semanticsNode.canScroll
+        }
+        if (scrollableContainer != null) {
+            scrollJob?.cancel()
+            val rect = when {
+                element is AccessibilityElement ->
+                    element.node.semanticsNode.unclippedBoundsInWindow
+
+                else ->
+                    element.accessibilityFrame.asDpRect()
+                        .toRect(scrollableContainer.node.semanticsNode.layoutNode.density)
+            }
+            scrollJob = CoroutineScope(coroutineContext + listener.frameClock).launch {
+                scrollableContainer.node.semanticsNode.scrollToCenterRectIfNeeded(
+                    targetRect = rect,
+                    safeAreaRectInWindow = safeAreaRectInWindow
+                )
+            }
+        }
+
+    }
+
+    /**
+     * Iterates through the accessibility element hierarchy starting from the top element down to the root.
+     * For each element of type `AccessibilityElement` invokes [onElement] callback.
+     *
+     * @param element The starting point for the iteration in the hierarchy.
+     * @param onElement A callback function that is invoked for each `AccessibilityElement` encountered during the iteration.
+     * @return Returns `true` if the provided [element] located in the hierarchy of the tree of current [AccessibilityMediator],
+     * otherwise returns `false`.
+     */
+    private fun iterateAccessibilityElementHierarchy(
+        element: Any,
+        onElement: (AccessibilityElement) -> Unit,
+    ): Boolean {
+        var iterator: Any? = element
+        while (iterator != null) {
+            when (iterator) {
+                is AccessibilityElement -> {
+                    onElement(iterator)
+                    iterator = iterator.accessibilityContainer
+                }
+
+                is InteropWrappingView -> iterator = iterator.actualAccessibilityContainer
+                is AccessibilityRoot -> {
+                    // Return true only of the result element has the same root
+                    return iterator == root
+                }
+                is UIView -> iterator = iterator.superview
+                is UIAccessibilityElement -> iterator = iterator.accessibilityContainer
+                else -> return false
+            }
+        }
+        return false
+    }
+
+    private fun findFirstAccessibilityElementInHierarchy(
+        element: Any,
+        validate: (AccessibilityElement) -> Boolean,
+    ): AccessibilityElement? {
+        var result: AccessibilityElement? = null
+        val isInHierarchy = iterateAccessibilityElementHierarchy(element) {
+            if (result == null && validate(it)) {
+                result = it
+            }
+        }
+        return result?.takeIf { isInHierarchy }
     }
 
     init {
@@ -846,7 +911,8 @@ internal class AccessibilityMediator(
     private fun scheduleAccessibilityDisablingAndCleanup() {
         if (disableAccessibilityJob != null ||
             keyboardFocusedElementKey != null ||
-            focusMode is AccessibilityElementFocusMode.KeepFocus) {
+            focusMode is AccessibilityElementFocusMode.KeepFocus ||
+            hasFocusedElement()) {
             return
         }
         disableAccessibilityJob = coroutineScope.launch {
@@ -857,6 +923,13 @@ internal class AccessibilityMediator(
 
             cleanUp()
         }
+    }
+
+    private fun hasFocusedElement(): Boolean {
+        val element = UIAccessibilityFocusedElement(null) ?: return false
+        return findFirstAccessibilityElementInHierarchy(element) {
+            true
+        } != null
     }
 
     private fun cancelAccessibilityDisabling() {
@@ -928,6 +1001,7 @@ internal class AccessibilityMediator(
     }
 
     fun dispose() {
+        focusObserver.dispose()
         job.cancel()
         disableAccessibilityJob?.cancel()
 
@@ -943,6 +1017,9 @@ internal class AccessibilityMediator(
     }
 
     private fun cleanUp() {
+        displayLinkListener?.invalidate()
+        displayLinkListener = null
+
         disableAccessibilityJob = null
         isAccessibilityActive = false
 
@@ -951,26 +1028,22 @@ internal class AccessibilityMediator(
     }
 
     private var focusedScrollableParentsIdsUpdateJob: Job? = null
-    private fun scheduleFocusedScrollableParentsIdsUpdate() {
+    private fun scheduleFocusedScrollableParentsIdsUpdate(focusedElement: NSObject) {
         focusedScrollableParentsIdsUpdateJob?.cancel()
         focusedScrollableParentsIdsUpdateJob = coroutineScope.launch {
             // Throttle the recalculation of scrollable parent node IDs to avoid unnecessary
             // reloading of the accessibility tree when the focusMode changes quickly.
             delay(10)
-            val ids = (focusMode as? AccessibilityElementFocusMode.KeepFocus)?.key?.let {
-                accessibilityElementsMap[it]?.node?.semanticsNode?.allScrollableParentNodeIds
-            } ?: emptySet()
-
-            if (focusedNodesScrollableParentsIds != ids) {
-                focusedNodesScrollableParentsIds = ids
-                invalidateSemanticsTree()
-
-                if (ids.isNotEmpty()) {
-                    // Hack to fix an issue where iOS accessibility only reads the items visible
-                    // at the moment of the beginning of the "Speak Screen" command.
-                    UIAccessibilityPostNotification(UIAccessibilityPageScrolledNotification, null)
+            val scrollableElementsIds = mutableSetOf<Int>()
+            val isInHierarchy = iterateAccessibilityElementHierarchy(focusedElement) {
+                if (it.node.semanticsNode.canScroll) {
+                    scrollableElementsIds.add(it.node.semanticsNode.id)
                 }
             }
+            if (!isInHierarchy) {
+                scrollableElementsIds.clear()
+            }
+            focusedNodesScrollableParentsIds = scrollableElementsIds
         }
     }
 
@@ -1031,7 +1104,9 @@ internal class AccessibilityMediator(
                 if (child.isValid) {
                     if (nodes.contains(child.id)) {
                         semanticsChildren.add(child)
-                    } else if (child.size != IntSize.Zero && child.isScreenReaderFocusable()) {
+                    } else if (child.size != IntSize.Zero && (child.isScreenReaderFocusable() ||
+                            child.unmergedConfig.contains(NativeAccessibilityViewSemanticsKey))
+                    ) {
                         if (child.isBeforeBeyondBoundsItem(container = this)) {
                             beforeBeyondBoundsChildren.add(child)
                         } else {
@@ -1132,6 +1207,11 @@ internal class AccessibilityMediator(
 
         val (element, focusedElementKey) = traverseSemanticsTree(rootSemanticsNode)
         root.element = element
+
+        if (displayLinkListener == null) {
+            displayLinkListener = DisplayLinkListener()
+            displayLinkListener?.start()
+        }
 
         accessibilityDebugLogger?.let {
             debugTraverse(it, view)
@@ -1411,5 +1491,29 @@ private class BeyondBoundsComparator(private val isRTL: Boolean) : Comparator<Se
         }
 
         return result
+    }
+}
+
+private class AccessibilityFocusedElementObserver(
+    private val onElementFocused: (NSObject) -> Unit
+): NSObject() {
+    init {
+        NSNotificationCenter.defaultCenter.addObserver(
+            observer = this,
+            selector = NSSelectorFromString(::onFocus.name + ":"),
+            name = UIAccessibilityElementFocusedNotification,
+            `object` = null
+        )
+    }
+
+    @OptIn(BetaInteropApi::class)
+    @ObjCAction
+    private fun onFocus(arg: NSNotification) {
+        val accessibilityElement = arg.userInfo?.get(UIAccessibilityFocusedElementKey) as? NSObject
+        accessibilityElement?.let { onElementFocused(it) }
+    }
+
+    fun dispose() {
+        NSNotificationCenter.defaultCenter.removeObserver(this)
     }
 }

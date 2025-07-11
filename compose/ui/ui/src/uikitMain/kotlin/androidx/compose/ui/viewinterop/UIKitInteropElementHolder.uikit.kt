@@ -34,6 +34,7 @@ import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectIntersection
 import platform.CoreGraphics.CGRectIsEmpty
 import platform.UIKit.UIView
+import platform.UIKit.accessibilityFrame
 
 internal abstract class UIKitInteropElementHolder<T : InteropView>(
     factory: () -> T,
@@ -118,10 +119,15 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
                 .toRect()
                 .toDpRect(density)
                 .asCGRect()
+            val groupAccessibilityFrame = unclippedRect
+                .toRect()
+                .toDpRect(density)
+                .asCGRect()
 
             container.scheduleUpdate {
                 UIView.performWithoutAnimation {
                     group.setFrame(groupFrame)
+                    group.accessibilityFrame = groupAccessibilityFrame
                 }
             }
         }

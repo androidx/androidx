@@ -256,7 +256,7 @@ private val SemanticsNode.isHiddenFromAccessibility: Boolean
     get() = unmergedConfig.contains(HideFromAccessibility) ||
         unmergedConfig.contains(InvisibleToUser)
 
-private val SemanticsNode.canScroll: Boolean
+internal val SemanticsNode.canScroll: Boolean
     get() = unmergedConfig.contains(SemanticsActions.ScrollBy) ||
         unmergedConfig.contains(SemanticsActions.ScrollByOffset)
 

@@ -81,32 +81,12 @@ NS_ASSUME_NONNULL_BEGIN
     return [super accessibilityPerformEscape];
 }
 
-- (BOOL)accessibilityScrollToVisible {
-    return NO;
-}
-
-- (BOOL)accessibilityScrollToVisibleWithChild:(id)child {
-    return NO;
-}
-
 - (void)accessibilityElementDidBecomeFocused {
     [super accessibilityElementDidBecomeFocused];
 }
 
 - (void)accessibilityElementDidLoseFocus {
     [super accessibilityElementDidLoseFocus];
-}
-
-- (NSInteger)accessibilityElementCount {
-    return [super accessibilityElementCount];
-}
-
-- (NSInteger)indexOfAccessibilityElement:(nonnull id)element {
-    return [super indexOfAccessibilityElement:element];
-}
-
-- (id _Nullable)accessibilityElementAtIndex:(NSInteger)index {
-    return [super accessibilityElementAtIndex:index];
 }
 
 - (NSArray *)accessibilityElements {

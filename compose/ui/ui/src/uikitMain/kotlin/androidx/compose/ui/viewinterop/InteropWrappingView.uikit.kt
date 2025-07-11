@@ -55,6 +55,7 @@ internal class InteropWrappingView(
     interactionMode: UIKitInteropInteractionMode?
 ) : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
+    var isAccessibilityFocusable: () -> Boolean = { true }
 
     var interactionMode: UIKitInteropInteractionMode? = interactionMode
         set(value) {
@@ -63,18 +64,23 @@ internal class InteropWrappingView(
         }
 
     init {
-        updateAccessibilityElements()
         // required to properly clip the content of the wrapping view in case interop unclipped
         // bounds are larger than clipped bounds
         clipsToBounds = true
     }
 
     private fun updateAccessibilityElements() {
-        if (interactionMode == null) {
-            setAccessibilityElements(emptyList<Any>())
+        if (interactionMode != null && isAccessibilityFocusable()) {
+            setAccessibilityElements(subviews)
         } else {
-            setAccessibilityElements(null)
+            setAccessibilityElements(emptyList<Any>())
         }
+    }
+
+    override fun accessibilityElements(): List<*> {
+        updateAccessibilityElements()
+
+        return super.accessibilityElements()
     }
 
     override fun accessibilityContainer(): Any? {

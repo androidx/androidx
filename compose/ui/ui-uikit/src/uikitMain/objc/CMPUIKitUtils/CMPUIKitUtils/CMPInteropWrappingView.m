@@ -22,4 +22,12 @@
     CMP_ABSTRACT_FUNCTION_CALLED
 }
 
+- (NSArray *)accessibilityElements {
+    return [super accessibilityElements];
+}
+
+- (void)setAccessibilityElements:(nullable NSArray *)accessibilityElements {
+    [super setAccessibilityElements:accessibilityElements];
+}
+
 @end

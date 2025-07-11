@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (__nullable id)accessibilityContainer CMP_ABSTRACT_FUNCTION;
 
+- (NSArray *)accessibilityElements;
+
+- (void)setAccessibilityElements:(nullable NSArray *)accessibilityElements;
+
 @end
 
 NS_ASSUME_NONNULL_END
