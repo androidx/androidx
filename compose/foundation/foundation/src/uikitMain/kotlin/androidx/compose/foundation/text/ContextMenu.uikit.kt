@@ -18,6 +18,7 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.contextmenu.contextMenuGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
@@ -37,6 +38,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -54,12 +56,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import platform.CoreGraphics.CGRectMake
 
 /**
  * Context menu area for [BasicTextField] (with [TextFieldValue] argument).
@@ -73,7 +77,7 @@ internal actual fun ContextMenuArea(
         // The first time the menu is called up, the menu item provider contains a non-final set of
         // menu items, which causes the context menu callout to blink.
         // Adding a small delay resolves this issue.
-        ProvideDefaultPlatformTextContextMenuProviders(
+        ProvideNewContextMenuDefaultProviders(
             menuDelay = 100.milliseconds,
             modifier = manager.contextMenuAreaModifier,
             content = content
@@ -100,12 +104,17 @@ internal actual fun ContextMenuArea(
         } else {
             Modifier
         }
-        ProvideDefaultPlatformTextContextMenuProviders(
+        ProvideNewContextMenuDefaultProviders(
             modifier = modifier,
             content = content
         )
     } else {
-        CommonContextMenuArea(selectionState, enabled, content)
+        val scope = rememberCoroutineScope()
+        PlatformContextMenu(
+            getState = { selectionState.contextMenuItemsState(scope) },
+            enabled = enabled,
+            content = content
+        )
     }
 }
 
@@ -119,18 +128,21 @@ internal actual fun ContextMenuArea(
     content: @Composable () -> Unit
 ) {
     if (ComposeFoundationFlags.isNewContextMenuEnabled) {
-        ProvideDefaultPlatformTextContextMenuProviders(
+        ProvideNewContextMenuDefaultProviders(
             modifier = manager.contextMenuAreaModifier,
             content = content
         )
     } else {
-        CommonContextMenuArea(manager, content)
+        PlatformContextMenu(
+            getState = { manager.contextMenuItemsState() },
+            content = content
+        )
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun ProvideDefaultPlatformTextContextMenuProviders(
+private fun ProvideNewContextMenuDefaultProviders(
     menuDelay: Duration = 0.seconds,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
@@ -155,9 +167,10 @@ private fun ProvideDefaultPlatformTextContextMenuProviders(
                 coordinates = { layoutCoordinates.value }
             )
         }
+
         CompositionLocalProvider(
-            LocalTextContextMenuToolbarProvider provides (toolbarProvider ?: provider),
-            LocalTextContextMenuDropdownProvider provides (dropdownProvider ?: provider),
+            LocalTextContextMenuToolbarProvider providesDefault provider,
+            LocalTextContextMenuDropdownProvider providesDefault provider,
             content = {
                 Box(
                     modifier = modifier.onGloballyPositioned { layoutCoordinates.value = it }
@@ -168,6 +181,10 @@ private fun ProvideDefaultPlatformTextContextMenuProviders(
                 }
             }
         )
+    } else {
+        Box(modifier = modifier, propagateMinConstraints = true) {
+            content()
+        }
     }
 }
 
@@ -188,7 +205,7 @@ private class ContextMenuToolbarProvider(
     @OptIn(FlowPreview::class)
     override suspend fun showTextContextMenu(dataProvider: TextContextMenuDataProvider) {
         var session: TextContextMenuSession? = null
-        val result = coroutineScope {
+        coroutineScope {
             val job = launch {
                 delay(menuDelay)
                 snapshotFlow {
@@ -240,8 +257,105 @@ private class ContextMenuToolbarProvider(
             }
             job.cancel()
         }
-        return result
     }
+}
+
+@Composable
+private fun PlatformContextMenu(
+    getState: () -> ContextMenuItemsState,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val layoutCoordinates: MutableState<LayoutCoordinates?> = remember {
+        mutableStateOf(value = null, policy = neverEqualPolicy())
+    }
+    val editMenuView = remember {
+        CMPEditMenuView().also {
+            it.userInteractionEnabled = false
+        }
+    }
+
+    val modifier = if (enabled) {
+        val density = LocalDensity.current
+        Modifier.onGloballyPositioned {
+            layoutCoordinates.value = it
+        }.contextMenuGestures { offset ->
+            val coordinates = layoutCoordinates.value ?: return@contextMenuGestures
+            val layoutPosition = coordinates.positionInWindow()
+            val layoutBounds = coordinates.boundsInWindow()
+
+            val state = getState()
+            val rect = CGRectMake(
+                x = with(density) {
+                    (offset.x + layoutPosition.x - layoutBounds.left).toDp().value.toDouble()
+                },
+                y = with(density) {
+                    (offset.y + layoutPosition.y - layoutBounds.top).toDp().value.toDouble()
+                },
+                width = 1.0,
+                height = 1.0
+            )
+            editMenuView.showEditMenuAtRect(
+                rect,
+                state.copy,
+                state.cut,
+                state.paste,
+                state.selectAll
+            )
+        }
+    } else {
+        Modifier
+    }
+    Box(
+        modifier = modifier.then(ContextMenuLayoutElement(editMenuView)),
+        propagateMinConstraints = true,
+    ) {
+        content()
+    }
+}
+
+private fun TextFieldSelectionState.contextMenuItemsState(scope: CoroutineScope): ContextMenuItemsState {
+    return ContextMenuItemsState(
+        copy = if (canCopy()) {
+            { scope.launch { copy(cancelSelection = true) } }
+        } else {
+            null
+        },
+        paste = if (canPaste()) {
+            { scope.launch { paste() } }
+        } else {
+            null
+        },
+        cut = if (canCut()) {
+            { scope.launch { cut() } }
+        } else {
+            null
+        },
+        selectAll = if (canSelectAll()) {
+            { selectAll() }
+        } else {
+            null
+        },
+        rect = Rect.Zero
+    )
+}
+
+private fun SelectionManager.contextMenuItemsState(): ContextMenuItemsState {
+    return ContextMenuItemsState(
+        copy = if (isNonEmptySelection()) {
+            { copy() }
+        } else {
+            null
+        },
+        paste = null,
+        cut = null,
+        selectAll = if (!isEntireContainerSelected()) {
+            { selectAll() }
+        } else {
+            null
+        },
+        rect = Rect.Zero
+    )
 }
 
 private class TextContextMenuSessionImpl(

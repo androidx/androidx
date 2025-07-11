@@ -106,7 +106,11 @@ internal class ContextMenuLayoutNode(
     override fun onObservedReadsChanged() {
         observeReads {
             val previousContainerView = containerView
-            val currentContainerView = currentValueOf(LocalUIView)
+            val currentContainerView = try {
+                currentValueOf(LocalUIView)
+            } catch (_: IllegalStateException) {
+                null
+            }
             density = currentValueOf(LocalDensity)
 
             if (previousContainerView != currentContainerView) {
