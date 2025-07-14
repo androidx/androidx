@@ -26,6 +26,7 @@ import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.WindowPlacement
+import androidx.savedstate.SavedState
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.GraphicsConfiguration
@@ -47,10 +48,12 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
  * SkiaLayer is underlying class used internally to draw Compose content.
  * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+ * @param savedState The saved state to restore the UI state from a previous instance.
  */
 class ComposeWindow @ExperimentalComposeUiApi constructor(
     graphicsConfiguration: GraphicsConfiguration? = null,
     skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+    savedState: SavedState? = null,
 ) : JFrame(graphicsConfiguration) {
     /**
      * ComposeWindow is a window for building UI using Compose for Desktop.
@@ -66,7 +69,8 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     private val composePanel = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
-        skiaLayerAnalytics = skiaLayerAnalytics
+        skiaLayerAnalytics = skiaLayerAnalytics,
+        savedState = savedState,
     )
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
@@ -165,6 +169,17 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * The thickness of the resizers used when the window is undecorated and resizable.
      */
     var undecoratedResizerThickness: Dp by undecoratedWindowResizer::resizerThickness
+
+    /**
+     * Saves the current UI state into a [SavedState] object. The returned state can be used
+     * to restore the UI state later by passing it to the constructor's [savedState] parameter.
+     *
+     * @return A [SavedState] object containing the current UI state.
+     */
+    @ExperimentalComposeUiApi
+    fun saveState(): SavedState? {
+        return composePanel.saveState()
+    }
 
     override fun dispose() {
         composePanel.dispose()

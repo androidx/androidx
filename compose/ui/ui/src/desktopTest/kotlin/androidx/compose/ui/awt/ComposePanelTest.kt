@@ -22,10 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.ThrowUncaughtExceptionRule
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
+import androidx.savedstate.SavedState
 import com.google.common.truth.Truth.assertThat
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -189,6 +192,51 @@ class ComposePanelTest {
             } finally {
                 frame.dispose()
             }
+        }
+    }
+
+    @Test
+    fun savedState() = runApplicationTest {
+        var savedState: SavedState? = null
+        var lastState = 0
+
+        val frame = JFrame()
+
+        @Composable
+        fun testContent() {
+            var state by rememberSaveable { mutableStateOf(0) }
+            lastState = state
+            LaunchedEffect(Unit) {
+                repeat(3) {
+                    state++
+                    lastState = state
+                }
+            }
+        }
+
+        suspend fun testPanel(savedState: SavedState? = null, verify: (ComposePanel) -> Unit) {
+            val composePanel = ComposePanel(savedState = savedState)
+            composePanel.setContent { testContent() }
+            frame.contentPane.add(composePanel)
+            awaitIdle()
+            verify(composePanel)
+            frame.contentPane.remove(composePanel)
+        }
+
+        try {
+            frame.isVisible = true
+
+            testPanel { composePanel ->
+                assertThat(lastState).isEqualTo(3)
+
+                savedState = composePanel.saveState()
+            }
+
+            testPanel(savedState) { composePanel ->
+                assertThat(lastState).isEqualTo(6)
+            }
+        } finally {
+            frame.dispose()
         }
     }
 

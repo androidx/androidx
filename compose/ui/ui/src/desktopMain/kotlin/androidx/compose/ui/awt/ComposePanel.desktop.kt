@@ -25,6 +25,7 @@ import androidx.compose.ui.awt.RenderSettings.SwingGraphics
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.WindowExceptionHandler
+import androidx.savedstate.SavedState
 import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
@@ -45,13 +46,16 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
  * SkiaLayer is underlying class used internally to draw Compose content.
  * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+ * @param savedState The saved state to restore the UI state from a previous instance.
  * @param renderSettings Configuration class for rendering settings.
  */
 class ComposePanel @ExperimentalComposeUiApi constructor(
-    private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+    private var savedState: SavedState? = null,
     private val renderSettings: RenderSettings = DefaultRenderSettings
 ) : JLayeredPane() {
     constructor() : this(
+        savedState = null,
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
         renderSettings = DefaultRenderSettings
     )
@@ -130,6 +134,17 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     var isDisposeOnRemove: Boolean = true
 
     /**
+     * Saves the current UI state into a [SavedState] object. The returned state can be used
+     * to restore the UI state later by passing it to the constructor's [savedState] parameter.
+     *
+     * @return A [SavedState] object containing the current UI state.
+     */
+    @ExperimentalComposeUiApi
+    fun saveState(): SavedState? {
+        return _composeContainer?.saveState()
+    }
+
+    /**
      * Disposes Compose state and rendering resources.
      *
      * Should be called only when [ComposePanel] is detached from Swing hierarchy.
@@ -139,7 +154,9 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      */
     @ExperimentalComposeUiApi
     fun dispose() {
-        _composeContainer?.dispose()
+        val composeContainer = _composeContainer ?: return
+        savedState = composeContainer.saveState()
+        composeContainer.dispose()
         _composeContainer = null
     }
 
@@ -212,6 +229,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             if (composeContent != null) {
                 it.setContent(composeContent)
             }
+            savedState = null
         }
         composeContainer.addNotify()
     }
@@ -220,6 +238,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         return ComposeContainer(
             container = this,
             skiaLayerAnalytics = skiaLayerAnalytics,
+            savedState = savedState,
             windowContainer = windowContainer,
             renderSettings = renderSettings,
         ).apply {

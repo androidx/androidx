@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package androidx.compose.desktop.examples.swingexample
 
-import java.awt.Color as awtColor
 import androidx.compose.foundation.ContextMenuDataProvider
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ContextMenuState
@@ -44,16 +45,14 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
-import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.SwingPanel
@@ -68,7 +67,9 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
+import androidx.savedstate.SavedState
 import java.awt.BorderLayout
+import java.awt.Color as awtColor
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -100,56 +101,26 @@ fun main() = SwingUtilities.invokeLater {
     SwingComposeWindow()
 }
 
-private typealias SaveableStateData = Map<String, List<Any?>>
+private val globalSavedState = mutableMapOf<String, SavedState?>()
 
-private class GlobalSaveableStateRegistry(
-    val saveableId: String,
-) : SaveableStateRegistry by SaveableStateRegistry(
-    restoredValues = map[saveableId],
-    canBeSaved = { true }
-) {
-    fun save() { map[saveableId] = performSave() }
-    companion object {
-        private val map = mutableMapOf<String, SaveableStateData>()
-    }
-}
-
-fun createGreenComposePanel() = ComposePanel().also {
-    val saveableStateRegistry = GlobalSaveableStateRegistry("GREEN")
+fun createGreenComposePanel(
+    savedState: SavedState? = null,
+) = ComposePanel(savedState = savedState).also {
     it.background = awtColor(55, 155, 55)
     it.setContent {
         JPopupTextMenuProvider(it) {
-            CompositionLocalProvider(
-                LocalSaveableStateRegistry provides saveableStateRegistry,
-            ) {
-                ComposeContent(background = Color(55, 155, 55))
-            }
-        }
-        DisposableEffect(Unit) {
-            onDispose {
-                saveableStateRegistry.save()
-                println("Dispose composition")
-            }
+            ComposeContent(background = Color(55, 155, 55))
         }
     }
 }
 
-fun createBlueComposePanel() = ComposePanel().also {
-    val saveableStateRegistry = GlobalSaveableStateRegistry("BLUE")
+fun createBlueComposePanel(
+    savedState: SavedState? = null,
+) = ComposePanel(savedState = savedState).also {
     it.background = awtColor(55, 55, 155)
     it.setContent {
         CustomTextMenuProvider {
-            CompositionLocalProvider(
-                LocalSaveableStateRegistry provides saveableStateRegistry,
-            ) {
-                ComposeContent(background = Color(55, 55, 155))
-            }
-        }
-        DisposableEffect(Unit) {
-            onDispose {
-                saveableStateRegistry.save()
-                println("Dispose composition")
-            }
+            ComposeContent(background = Color(55, 55, 155))
         }
     }
 }
@@ -173,10 +144,11 @@ fun SwingComposeWindow() {
             size = IntSize(40, 40),
             action = {
                 if (composePanel1 != null) {
+                    globalSavedState["GREEN"] = composePanel1!!.saveState()
                     panel.remove(composePanel1)
                     composePanel1 = null
                 } else {
-                    composePanel1 = createGreenComposePanel()
+                    composePanel1 = createGreenComposePanel(globalSavedState["GREEN"])
                     panel.add(composePanel1, 0)
                 }
                 panel.revalidate()
@@ -191,10 +163,11 @@ fun SwingComposeWindow() {
             size = IntSize(40, 40),
             action = {
                 if (composePanel2 != null) {
+                    globalSavedState["BLUE"] = composePanel2!!.saveState()
                     panel.remove(composePanel2)
                     composePanel2 = null
                 } else {
-                    composePanel2 = createBlueComposePanel()
+                    composePanel2 = createBlueComposePanel(globalSavedState["BLUE"])
                     panel.add(composePanel2)
                 }
                 panel.revalidate()

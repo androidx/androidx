@@ -19,6 +19,9 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LayerType
@@ -29,6 +32,7 @@ import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.backhandler.DesktopBackGestureDispatcher
 import androidx.compose.ui.backhandler.LocalBackGestureDispatcher
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.DisposableSaveableStateRegistry
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -51,6 +55,12 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.enableSavedStateHandles
+import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentAdapter
@@ -75,12 +85,13 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * It binds Skia canvas and [ComposeScene] to [container].
  *
  * @property container A container for the [ComposeScene].
- * @property skiaLayerAnalytics The analytics for the Skia layer.
- * @property window The window ancestor of the [container].
- * @property windowContainer A container used for additional layers and as reference
+ * @param skiaLayerAnalytics The analytics for the Skia layer.
+ * @param window The window ancestor of the [container].
+ * @param windowContainer A container used for additional layers and as a reference
  *  for window coordinate space.
- * @property layerType The type of layer used for Popup/Dialog.
- * @property renderSettings The settings for rendering.
+ * @param savedState The saved state to restore the UI state from a previous instance.
+ * @param layerType The type of layer used for Popup/Dialog.
+ * @param renderSettings The settings for rendering.
  */
 internal class ComposeContainer(
     val container: JLayeredPane,
@@ -89,9 +100,15 @@ internal class ComposeContainer(
     window: Window? = null,
     windowContainer: JLayeredPane = container,
 
+    savedState: SavedState? = null,
+
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
     private val renderSettings: RenderSettings = RenderSettings.SkiaSurface(),
-) : WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
+) : WindowFocusListener,
+    WindowListener,
+    LifecycleOwner,
+    SavedStateRegistryOwner,
+    ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -175,6 +192,10 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
 
     override val lifecycle = LifecycleRegistry(this)
+
+    private val savedStateController = SavedStateRegistryController.create(this)
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateController.savedStateRegistry
     override val viewModelStore = ViewModelStore()
 
     private val backGestureDispatcher = DesktopBackGestureDispatcher()
@@ -185,12 +206,28 @@ internal class ComposeContainer(
     private var isFocused = false
 
     init {
+        savedStateController.performAttach()
+        savedStateController.performRestore(savedState)
+        enableSavedStateHandles()
+
         setWindow(window)
         this.windowContainer = windowContainer
 
         if (layerType == LayerType.OnComponent && renderSettings !is RenderSettings.SwingGraphics) {
             error("LayerType.OnComponent can only be used with rendering via Swing graphics")
         }
+    }
+
+    /**
+     * Saves the current UI state into a [SavedState] object. The returned state can be used
+     * to restore the UI state later by passing it to the constructor's [savedState] parameter.
+     *
+     * @return A [SavedState] object containing the current UI state.
+     */
+    fun saveState(): SavedState {
+        val state = androidx.savedstate.savedState()
+        savedStateController.performSave(state)
+        return state
     }
 
     fun dispose() {
@@ -533,9 +570,18 @@ private fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,
     backGestureDispatcher: DesktopBackGestureDispatcher,
     content: @Composable () -> Unit,
-) = CompositionLocalProvider(
-    LocalLifecycleOwner provides composeContainer,
-    LocalInternalViewModelStoreOwner provides composeContainer,
-    LocalBackGestureDispatcher provides backGestureDispatcher,
-    content = content
-)
+) {
+    val saveableStateRegistry = remember {
+        DisposableSaveableStateRegistry("ComposeContainer", composeContainer)
+    }
+    DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
+
+    CompositionLocalProvider(
+        LocalLifecycleOwner provides composeContainer,
+        LocalSavedStateRegistryOwner provides composeContainer,
+        LocalSaveableStateRegistry provides saveableStateRegistry,
+        LocalInternalViewModelStoreOwner provides composeContainer,
+        LocalBackGestureDispatcher provides backGestureDispatcher,
+        content = content,
+    )
+}

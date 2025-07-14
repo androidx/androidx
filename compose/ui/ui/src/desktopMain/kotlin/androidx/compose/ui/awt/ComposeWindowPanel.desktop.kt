@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.LocalWindow
+import androidx.savedstate.SavedState
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
@@ -41,6 +42,7 @@ internal class ComposeWindowPanel(
     private val window: Window,
     private val isUndecorated: () -> Boolean,
     skiaLayerAnalytics: SkiaLayerAnalytics,
+    savedState: SavedState? = null,
 ) : JLayeredPaneWithTransparencyHack() {
     private var isDisposed = false
 
@@ -52,6 +54,8 @@ internal class ComposeWindowPanel(
         container = this,
         skiaLayerAnalytics = skiaLayerAnalytics,
         window = window,
+        windowContainer = this,
+        savedState = savedState,
         layerType = ComposeFeatureFlags.layerType.let {
             // LayerType.OnComponent may can only be used with rendering via Swing graphics,
             // but it's always disabled here. Using fallback instead of [check] to support
@@ -143,6 +147,8 @@ internal class ComposeWindowPanel(
             }
         }
     }
+
+    fun saveState() = _composeContainer?.saveState()
 
     fun dispose() {
         if (isDisposed) {

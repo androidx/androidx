@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.DialogWindowScope
 import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
+import androidx.savedstate.SavedState
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.Frame
@@ -45,28 +46,17 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * ComposeDialog inherits javax.swing.JDialog.
  */
 class ComposeDialog : JDialog {
-    private val skiaLayerAnalytics: SkiaLayerAnalytics
     private val composePanel: ComposeWindowPanel
 
-    internal var rootForTestListener
-        get() = composePanel.rootForTestListener
-        set(value) { composePanel.rootForTestListener = value }
-
-    private fun createComposePanel() = ComposeWindowPanel(
+    private fun createComposePanel(
+        skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+        savedState: SavedState? = null,
+    ) = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
+        savedState = savedState,
     )
-
-    constructor(
-        owner: Window?,
-        modalityType: ModalityType = ModalityType.MODELESS,
-        graphicsConfiguration: GraphicsConfiguration? = null
-    ) : super(owner, "", modalityType, graphicsConfiguration) {
-        skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createComposePanel()
-        contentPane.add(composePanel)
-    }
 
     /**
      * ComposeDialog is a dialog for building UI using Compose for Desktop.
@@ -75,16 +65,17 @@ class ComposeDialog : JDialog {
      * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
      * SkiaLayer is underlying class used internally to draw Compose content.
      * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+     * @param savedState The saved state to restore the UI state from a previous instance.
      */
     @ExperimentalComposeUiApi
     constructor(
         owner: Window?,
         modalityType: ModalityType = ModalityType.MODELESS,
         graphicsConfiguration: GraphicsConfiguration? = null,
-        skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
+        skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+        savedState: SavedState? = null,
     ) : super(owner, "", modalityType, graphicsConfiguration) {
-        this.skiaLayerAnalytics = skiaLayerAnalytics
-        composePanel = createComposePanel()
+        composePanel = createComposePanel(skiaLayerAnalytics, savedState)
         contentPane.add(composePanel)
     }
 
@@ -95,40 +86,50 @@ class ComposeDialog : JDialog {
      * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
      * SkiaLayer is underlying class used internally to draw Compose content.
      * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+     * @param savedState The saved state to restore the UI state from a previous instance.
      */
     @ExperimentalComposeUiApi
     constructor(
-        skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
-    ) : super() {
-        this.skiaLayerAnalytics = skiaLayerAnalytics
-        composePanel = createComposePanel()
+        skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+        savedState: SavedState? = null,
+    ): super() {
+        composePanel = createComposePanel(skiaLayerAnalytics, savedState)
         contentPane.add(composePanel)
     }
 
-    @Deprecated("Use the constructor with setting owner explicitly. Will be removed in 1.3")
     constructor(
-        modalityType: ModalityType = ModalityType.MODELESS
-    ) : super(null, modalityType) {
-        skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createComposePanel()
-        contentPane.add(composePanel)
-    }
+        owner: Window?,
+        modalityType: ModalityType = ModalityType.MODELESS,
+        graphicsConfiguration: GraphicsConfiguration? = null,
+    ) : this(
+        owner = owner,
+        modalityType = modalityType,
+        graphicsConfiguration = graphicsConfiguration,
+        skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+        savedState = null
+    )
 
-    constructor(graphicsConfiguration: GraphicsConfiguration? = null) :
-        super(null as Frame?, "", false, graphicsConfiguration) {
-        skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createComposePanel()
-        contentPane.add(composePanel)
-    }
+    constructor(
+        graphicsConfiguration: GraphicsConfiguration? = null,
+    ) : this(
+        owner = null,
+        modalityType = ModalityType.MODELESS,
+        graphicsConfiguration = graphicsConfiguration,
+        skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+        savedState = null
+    )
 
     // don't replace super() by super(null, ModalityType.MODELESS), because
     // this constructor creates an icon in the taskbar.
     // Dialog's shouldn't be appeared in the taskbar.
     constructor() : super() {
-        skiaLayerAnalytics = SkiaLayerAnalytics.Empty
         composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
+
+    internal var rootForTestListener
+        get() = composePanel.rootForTestListener
+        set(value) { composePanel.rootForTestListener = value }
 
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
@@ -225,6 +226,17 @@ class ComposeDialog : JDialog {
      * The thickness of the resizers used when the dialog is undecorated and resizable.
      */
     var undecoratedResizerThickness: Dp by undecoratedWindowResizer::resizerThickness
+
+    /**
+     * Saves the current UI state into a [SavedState] object. The returned state can be used
+     * to restore the UI state later by passing it to the constructor's `savedState` parameter.
+     *
+     * @return A [SavedState] object containing the current UI state.
+     */
+    @ExperimentalComposeUiApi
+    fun saveState(): SavedState? {
+        return composePanel.saveState()
+    }
 
     override fun dispose() {
         composePanel.dispose()

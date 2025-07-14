@@ -21,6 +21,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
+import androidx.savedstate.SavedState
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
@@ -286,6 +293,45 @@ class ComposeWindowTest {
             assertThat(rendererIsCalled).isTrue()
         } finally {
             window.dispose()
+        }
+    }
+
+    @Test
+    fun savedState() = runApplicationTest {
+        var savedState: SavedState? = null
+        var lastState = 0
+
+        @Composable
+        fun testContent() {
+            var state by rememberSaveable { mutableStateOf(0) }
+            lastState = state
+            LaunchedEffect(Unit) {
+                repeat(3) {
+                    state++
+                    lastState = state
+                }
+            }
+        }
+
+        suspend fun testWindow(savedState: SavedState? = null, verify: (ComposeWindow) -> Unit) {
+            val window = ComposeWindow(savedState = savedState)
+            try {
+                window.setContent { testContent() }
+                window.isVisible = true
+                awaitIdle()
+                verify(window)
+            } finally {
+                window.dispose()
+            }
+        }
+
+        testWindow { window ->
+            assertThat(lastState).isEqualTo(3)
+            savedState = window.saveState()
+        }
+
+        testWindow(savedState) { window ->
+            assertThat(lastState).isEqualTo(6)
         }
     }
 

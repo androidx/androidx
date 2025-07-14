@@ -435,8 +435,6 @@ public final class androidx/compose/ui/awt/AwtWindow_desktopKt {
 public final class androidx/compose/ui/awt/ComposeDialog : javax/swing/JDialog {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Ljava/awt/Dialog$ModalityType;)V
-	public synthetic fun <init> (Ljava/awt/Dialog$ModalityType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/awt/GraphicsConfiguration;)V
 	public synthetic fun <init> (Ljava/awt/GraphicsConfiguration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/awt/Window;Ljava/awt/Dialog$ModalityType;Ljava/awt/GraphicsConfiguration;)V
