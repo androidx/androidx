@@ -47,25 +47,16 @@ import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.RectHeightMode
 import org.jetbrains.skia.paragraph.RectWidthMode
 import org.jetbrains.skia.paragraph.TextBox
+import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
 
 internal class SkiaParagraph(
     private val paragraphIntrinsics: SkiaParagraphIntrinsics,
     val maxLines: Int,
-    overflow: TextOverflow,
+    private val overflow: TextOverflow,
     val constraints: Constraints
 ) : Paragraph {
     private val layouter = paragraphIntrinsics.layouter().apply {
-        // TODO: Support Middle/Start ellipsis
-        val ellipsisChar = if (overflow in listOf(
-                TextOverflow.Ellipsis,
-                TextOverflow.MiddleEllipsis,
-                TextOverflow.StartEllipsis,
-            )
-        ) "\u2026" else ""
-        setParagraphStyle(
-            maxLines = maxLines,
-            ellipsis = ellipsisChar
-        )
+        setParagraphStyle(maxLines, ellipsis)
     }
 
     internal val defaultFont
@@ -75,7 +66,7 @@ internal class SkiaParagraph(
      * Paragraph isn't always immutable, it could be changed via [paint] method without
      * rerunning layout
      */
-    private var paragraph = layouter.layoutParagraph(
+    private var paragraph: SkParagraph = layouter.layoutParagraph(
         width = width
     )
         set(value) {
@@ -90,8 +81,36 @@ internal class SkiaParagraph(
         layouter.setBrushSize(Size(width, height))
         paragraph = layouter.layoutParagraph(width)
 
-        paragraph.layout(width)
+        // Ellipsize if there's not enough vertical space to fit all lines. Because this only makes
+        // sense for end ellipsis because start/middle only works for a single line.
+        if (overflow == TextOverflow.Ellipsis
+            && paragraph.height > constraints.maxHeight
+            && maxLines > 1
+        ) {
+            val calculatedMaxLines =
+                numberOfLinesThatFitMaxHeight(constraints.maxHeight)
+            if (calculatedMaxLines >= 0 && calculatedMaxLines != maxLines) {
+                layouter.setParagraphStyle(
+                    // When we can't fully fit even a single line, measure with one line anyway.
+                    // This will allow to have an ellipsis on that single line. If we measured
+                    // with 0 maxLines, it would measure all lines with no ellipsis even though
+                    // the first line might be partially visible
+                    maxLines = calculatedMaxLines.coerceAtLeast(1),
+                    ellipsis = ellipsis
+                )
+                paragraph = layouter.layoutParagraph(width)
+            }
+        }
     }
+
+    // TODO(https://youtrack.jetbrains.com/issue/CMP-6716): Properly support Middle/Start ellipsis
+    private val ellipsis: String
+        get() = if (overflow in listOf(
+                TextOverflow.Ellipsis,
+                TextOverflow.MiddleEllipsis,
+                TextOverflow.StartEllipsis,
+            )
+        ) "\u2026" else ""
 
     private val text: String
         get() = paragraphIntrinsics.text
@@ -499,7 +518,7 @@ internal class SkiaParagraph(
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
     ): TextRange {
-        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-1255/Implement-Paragraph.getRangeForRect)
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-1255)
         return TextRange.Zero
     }
 
@@ -514,8 +533,8 @@ internal class SkiaParagraph(
         arrayStart: Int
     ) {
         println("Compose Multiplatform doesn't support fillBoundingBoxes` yet. " +
-            "Follow https://github.com/JetBrains/compose-multiplatform/issues/4236")
-        // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-720/Implement-Paragraph.fillBoundingBoxes) implement fillBoundingBoxes
+            "Follow https://youtrack.jetbrains.com/issue/CMP-720")
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-720) implement fillBoundingBoxes
     }
 
     override fun getWordBoundary(offset: Int): TextRange {
@@ -683,6 +702,13 @@ private fun LineMetrics.copy(
     baseline = baseline,
     lineNumber = lineNumber
 )
+
+private fun Paragraph.numberOfLinesThatFitMaxHeight(maxHeight: Int): Int {
+    for (lineIndex in 0 until lineCount) {
+        if (getLineBottom(lineIndex) > maxHeight) return lineIndex
+    }
+    return lineCount
+}
 
 private fun IRange.toTextRange() = TextRange(start, end)
 

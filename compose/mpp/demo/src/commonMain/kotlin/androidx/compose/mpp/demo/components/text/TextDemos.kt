@@ -25,4 +25,5 @@ val TextDemos = Screen.Selection(
     Screen.Example("FontRasterization") { FontRasterization() },
     Screen.Example("LineHeightStyle") { LineHeightStyleDemo() },
     Screen.Example("TextDirection") { TextDirection() },
+    Screen.Example("TextOverflow") { TextOverflow() },
 )
