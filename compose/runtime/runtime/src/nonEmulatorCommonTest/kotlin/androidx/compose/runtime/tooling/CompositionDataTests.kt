@@ -145,18 +145,21 @@ class CompositionDataTests {
     fun canFindSourceInfo() {
         val slots =
             SlotTable().also {
+                it.collectSourceInformation()
                 var data = 0
                 it.write { writer ->
                     writer.insert {
                         writer.group(0) {
                             fun emit(depth: Int) {
                                 if (depth == 0) {
-                                    writer.startData(100, aux = "$data")
+                                    writer.startGroup(100)
+                                    writer.recordGroupSourceInformation("$data")
                                     data++
                                     writer.endGroup()
                                 } else {
                                     if (depth == 2) {
-                                        writer.startData(depth * 1000, aux = "$data")
+                                        writer.startGroup(depth * 1000)
+                                        writer.recordGroupSourceInformation("$data")
                                         data++
                                     } else writer.startGroup(depth)
                                     emit(depth - 1)

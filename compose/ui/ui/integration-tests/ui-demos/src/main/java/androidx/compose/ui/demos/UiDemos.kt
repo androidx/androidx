@@ -89,6 +89,7 @@ import androidx.compose.ui.demos.gestures.RawDragGestureFilterDemo
 import androidx.compose.ui.demos.gestures.ScaleGestureFilterDemo
 import androidx.compose.ui.demos.gestures.ScrollGestureFilterDemo
 import androidx.compose.ui.demos.gestures.VerticalScrollerInDrawerDemo
+import androidx.compose.ui.demos.graphics.ShadowsDemo
 import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
@@ -233,6 +234,7 @@ private val GraphicsDemos =
             ComposableDemo("VectorGraphicsDemo") { VectorGraphicsDemo() },
             ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() },
             ActivityDemo("Painter Resources Demo", PainterResourcesDemoActivity::class),
+            ComposableDemo("Shadow's Demo") { ShadowsDemo() },
         ),
     )
 
