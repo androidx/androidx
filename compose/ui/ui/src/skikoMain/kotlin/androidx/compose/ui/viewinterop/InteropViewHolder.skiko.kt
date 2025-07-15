@@ -17,6 +17,7 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -39,7 +40,7 @@ private fun abstractInvocationError(name: String): Nothing {
 internal open class InteropViewHolder(
     val container: InteropContainer,
     val group: InteropViewGroup,
-    private val compositeKeyHash: Int,
+    private val compositeKeyHashCode: CompositeKeyHashCode,
     measurePolicy: MeasurePolicy
 ) : ComposeNodeLifecycleCallback {
     private var onModifierChanged: (() -> Unit)? = null
@@ -141,7 +142,7 @@ internal open class InteropViewHolder(
                 // container.onInteropViewLayoutChange(this)
             }
 
-        layoutNode.compositeKeyHash = compositeKeyHash
+        layoutNode.compositeKeyHash = compositeKeyHashCode.hashCode()
 
         layoutNode.modifier = modifier then platformModifier then coreModifier
 

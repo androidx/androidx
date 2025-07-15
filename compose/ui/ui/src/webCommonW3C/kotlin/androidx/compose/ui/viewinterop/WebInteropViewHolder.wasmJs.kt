@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
@@ -27,11 +28,11 @@ import org.w3c.dom.HTMLElement
 internal class WebInteropViewHolder<T : HTMLElement>(
     factory: () -> T,
     interopContainer: InteropContainer,
-    compositeKeyHash: Int,
+    compositeKeyHashCode: CompositeKeyHashCode,
 ) : WebInteropElementHolder<T>(
     factory,
     interopContainer,
-    compositeKeyHash
+    compositeKeyHashCode
 ) {
     init {
         group.htmlElement.appendChild((typedInteropView as HTMLElement).apply { style.apply {

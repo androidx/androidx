@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasurePolicy
@@ -33,12 +34,12 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
     factory: () -> T,
     interopContainer: InteropContainer,
     private val interopWrapper: HTMLElement,
-    compositeKeyHash: Int
+    compositeKeyHashCode: CompositeKeyHashCode
 ) : TypedInteropViewHolder<T>(
     factory = factory,
     interopContainer = interopContainer,
     group = InteropViewGroup(interopWrapper),
-    compositeKeyHash = compositeKeyHash,
+    compositeKeyHashCode = compositeKeyHashCode,
     measurePolicy = MeasurePolicy { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {
             // No-op, no children are expected
@@ -48,7 +49,7 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
     constructor(
         factory: () -> T,
         interopContainer: InteropContainer,
-        compositeKeyHash: Int,
+        compositeKeyHashCode: CompositeKeyHashCode,
     ) : this(
         factory = factory,
         interopContainer = interopContainer,
@@ -60,7 +61,7 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
                     // otherwise it can briefly flash at 0,0
                     toggleVisibility(this, isHidden = true)
                 },
-        compositeKeyHash = compositeKeyHash
+        compositeKeyHashCode = compositeKeyHashCode
     )
 
     private var isPositioned = false

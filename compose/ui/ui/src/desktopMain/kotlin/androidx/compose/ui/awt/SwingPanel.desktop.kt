@@ -16,7 +16,8 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.CompositeKeyHashCode
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.Modifier
@@ -57,7 +58,7 @@ public fun <T : Component> SwingPanel(
     update: (T) -> Unit = NoOpUpdate,
 ) {
     val interopContainer = LocalInteropContainer.current
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHashCode = currentCompositeKeyHashCode
     val focusManager = LocalFocusManager.current
 
     // TODO: entire interop context must be inside SwingInteropViewHolder in order to
@@ -66,7 +67,7 @@ public fun <T : Component> SwingPanel(
 
     val group = remember {
         SwingInteropViewGroup(
-            key = compositeKeyHash,
+            key = compositeKeyHashCode,
             focusComponent = interopContainer.root
         )
     }
@@ -81,7 +82,7 @@ public fun <T : Component> SwingPanel(
             container = interopContainer,
             group = group,
             focusSwitcher = focusSwitcher,
-            compositeKeyHash = compositeKeyHash
+            compositeKeyHashCode = compositeKeyHashCode
         )
     }
 
@@ -117,7 +118,7 @@ internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
  * @param focusComponent The component that should receive focus.
  */
 internal class SwingInteropViewGroup(
-    key: Int,
+    key: CompositeKeyHashCode,
     private val focusComponent: Component
 ) : JPanel() {
     init {

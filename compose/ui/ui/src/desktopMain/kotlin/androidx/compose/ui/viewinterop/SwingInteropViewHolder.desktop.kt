@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.InteropFocusSwitcher
 import androidx.compose.ui.awt.awtEventOrNull
@@ -45,12 +46,12 @@ internal class SwingInteropViewHolder<T : Component>(
     container: InteropContainer,
     group: InteropViewGroup,
     focusSwitcher: InteropFocusSwitcher,
-    compositeKeyHash: Int,
+    compositeKeyHashCode: CompositeKeyHashCode,
 ) : TypedInteropViewHolder<T>(
     factory,
     container,
     group,
-    compositeKeyHash,
+    compositeKeyHashCode,
     MeasurePolicy { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {}
     }

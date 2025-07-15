@@ -18,11 +18,12 @@ package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.Updater
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -44,12 +45,12 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
     factory: () -> T,
     interopContainer: InteropContainer,
     group: InteropViewGroup,
-    compositeKeyHash: Int,
+    compositeKeyHashCode: CompositeKeyHashCode,
     measurePolicy: MeasurePolicy
 ) : InteropViewHolder(
     interopContainer,
     group,
-    compositeKeyHash,
+    compositeKeyHashCode,
     measurePolicy
 ) {
     val typedInteropView = factory()
@@ -95,15 +96,15 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
 
 /**
  * Create a [LayoutNode] factory that can be constructed from [TypedInteropViewHolder] built with
- * the [currentCompositeKeyHash]
+ * the [currentCompositeKeyHashCode]
  *
  * @see [AndroidView.android.kt:createAndroidViewNodeFactory]
  */
 @Composable
 private fun <T : InteropView> createInteropViewLayoutNodeFactory(
-    factory: (compositeKeyHash: Int) -> TypedInteropViewHolder<T>
+    factory: (compositeKeyHashCode: CompositeKeyHashCode) -> TypedInteropViewHolder<T>
 ): () -> LayoutNode {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = currentCompositeKeyHashCode
 
     return {
         factory(compositeKeyHash).layoutNode
@@ -120,13 +121,13 @@ private fun <T : InteropView> createInteropViewLayoutNodeFactory(
 @Composable
 @UiComposable
 internal fun <T : InteropView> InteropView(
-    factory: (compositeKeyHash: Int) -> TypedInteropViewHolder<T>,
+    factory: (compositeKeyHashCode: CompositeKeyHashCode) -> TypedInteropViewHolder<T>,
     modifier: Modifier,
     onReset: ((T) -> Unit)? = null,
     onRelease: (T) -> Unit = NoOp,
     update: (T) -> Unit = NoOp,
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHashCode = currentCompositeKeyHashCode
     val materializedModifier = currentComposer.materialize(modifier)
     val density = LocalDensity.current
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
@@ -141,7 +142,7 @@ internal fun <T : InteropView> InteropView(
                     compositionLocalMap,
                     materializedModifier,
                     density,
-                    compositeKeyHash
+                    compositeKeyHashCode
                 )
 
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
@@ -156,7 +157,7 @@ internal fun <T : InteropView> InteropView(
                     compositionLocalMap,
                     materializedModifier,
                     density,
-                    compositeKeyHash
+                    compositeKeyHashCode
                 )
 
                 set(onReset) { requireViewFactoryHolder<T>().resetBlock = it }
@@ -175,12 +176,12 @@ private fun <T : InteropView> Updater<LayoutNode>.updateParameters(
     compositionLocalMap: CompositionLocalMap,
     modifier: Modifier,
     density: Density,
-    compositeKeyHash: Int
+    compositeKeyHashCode: CompositeKeyHashCode
 ) {
     set(compositionLocalMap, SetResolvedCompositionLocals)
     set(modifier) { requireViewFactoryHolder<T>().modifier = it }
     set(density) { requireViewFactoryHolder<T>().density = it }
-    set(compositeKeyHash, SetCompositeKeyHash)
+    set(compositeKeyHashCode.hashCode(), SetCompositeKeyHash)
 }
 
 /**

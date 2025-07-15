@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
@@ -41,12 +42,12 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
     interopContainer: InteropContainer,
     private val interopWrappingView: InteropWrappingView,
     properties: UIKitInteropProperties,
-    compositeKeyHash: Int
+    compositeKeyHashCode: CompositeKeyHashCode
 ) : TypedInteropViewHolder<T>(
     factory = factory,
     interopContainer = interopContainer,
     group = interopWrappingView,
-    compositeKeyHash = compositeKeyHash,
+    compositeKeyHashCode = compositeKeyHashCode,
     measurePolicy = MeasurePolicy { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {
             // No-op, no children are expected
@@ -60,15 +61,15 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
         factory: () -> T,
         interopContainer: InteropContainer,
         properties: UIKitInteropProperties,
-        compositeKeyHash: Int,
+        compositeKeyHashCode: CompositeKeyHashCode,
     ) : this(
-        factory,
-        interopContainer,
+        factory = factory,
+        interopContainer = interopContainer,
         interopWrappingView = InteropWrappingView(
             interactionMode = null
         ),
-        properties,
-        compositeKeyHash
+        properties = properties,
+        compositeKeyHashCode = compositeKeyHashCode
     )
 
     private var currentUnclippedRect: IntRect? = null

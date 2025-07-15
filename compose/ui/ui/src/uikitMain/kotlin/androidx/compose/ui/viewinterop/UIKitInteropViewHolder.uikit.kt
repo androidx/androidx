@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.UIKit.UIView
@@ -24,12 +25,12 @@ internal class UIKitInteropViewHolder<T : UIView>(
     factory: () -> T,
     interopContainer: InteropContainer,
     properties: UIKitInteropProperties,
-    compositeKeyHash: Int,
+    compositeKeyHashCode: CompositeKeyHashCode,
 ) : UIKitInteropElementHolder<T>(
     factory,
     interopContainer,
     properties,
-    compositeKeyHash
+    compositeKeyHashCode
 ) {
     init {
         // Group will be placed to hierarchy in [InteropContainer.placeInteropView]
