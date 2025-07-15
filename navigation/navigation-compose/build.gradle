@@ -117,6 +117,15 @@ kotlin {
         desktopMain {
             dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
+
+            dependencies {
+                // TODO revert after https://youtrack.jetbrains.com/issue/CMP-8582/androidx.lifecyclelifecycle-viewmodel-savedstate-desktop2.9.1-depend-on-an-Android-artifact-in-pom is fixed and the dependency is upgraded
+                // lifecycle-viewmodel-savedstate-desktop:2.9.1 is broken for Maven projects.
+                // See https://youtrack.jetbrains.com/issue/CMP-8577/Maven-project-doesnt-work-with-1.9.0-alpha03
+                implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.9.1") {
+                    exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
+                }
+            }
         }
         desktopTest {
             dependsOn(jvmTest)
