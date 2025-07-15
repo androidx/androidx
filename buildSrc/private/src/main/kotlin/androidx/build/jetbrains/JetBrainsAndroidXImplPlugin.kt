@@ -81,14 +81,37 @@ open class JetbrainsExtensions(
     fun KotlinNativeTarget.substituteForRedirectedPublishedDependencies() {
         val main = compilations.getByName("main")
         val test = compilations.getByName("test")
-        val kNativeManifestRedirectingModulesRaw =
-            project.property("artifactRedirection.modulesForKNativeManifest") as String
 
-        val projectPathToRedirectingVersionMap = kNativeManifestRedirectingModulesRaw
-            .split(",").associate {
-                val pair = it.split("=")
-                pair[0] to project.property(pair[1]) as String
+        val targetName = name.lowercase()
+        // The target name in a dependency project might be different from this project,
+        // so we check for an alternative name too.
+        // Historically, we had such aliases only for the 'ios <-> uikit' pair.
+        val altName = if (targetName.startsWith("ios")) {
+            targetName
+                .replace("iossimulator", "uikitsim")
+                .replace("ios", "uikit")
+        } else if (targetName.startsWith("uikit")) {
+            targetName
+                .replace("uikitsim", "iossimulator")
+                .replace("uikit", "ios")
+        } else {
+            null
+        }
+
+        val rootProjectName = project.rootProject.name // compose-multiplatform-core
+
+        val redirectedProjects = project.rootProject.subprojects.mapNotNull { project ->
+            project.takeIf {
+                // we are not interested in intermediate (structural) projects which are not published.
+                // they have a group name with rootProjectName in it
+               !it.group.toString().contains(rootProjectName)
+            }?.artifactRedirection()?.takeIf {
+                it.targetNames.contains(targetName) || it.targetNames.contains(altName)
+            }?.let {
+                project.path to it.groupId + ":" + project.name + ":" + it.versionForTargetOrDefault(targetName)
             }
+        }
+
         listOf(main, test).flatMap {
             val configurations = it.configurations
             listOf(
@@ -102,11 +125,9 @@ open class JetbrainsExtensions(
         }.forEach { c ->
             c?.resolutionStrategy {
                 it.dependencySubstitution {
-                    projectPathToRedirectingVersionMap.forEach { path, version ->
-                        val pathElements = path.split(":").filter { it.isNotEmpty() }
-                        val group = pathElements.dropLast(1).joinToString(".")
-                        val module = pathElements.last()
-                        val artifact = "androidx.$group:$module:$version"
+                    redirectedProjects.forEach { entry ->
+                        val path = entry.first
+                        val artifact = entry.second
                         it.substitute(it.project(path)).using(it.module(artifact))
                     }
                 }
