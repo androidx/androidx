@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
-@ExperimentalMaterial3ExpressiveApi
 /** Possible values of [WideNavigationRailState]. */
 enum class WideNavigationRailValue {
     /** The state of the rail when it is collapsed. */
@@ -51,7 +50,6 @@ enum class WideNavigationRailValue {
  *
  * @see rememberWideNavigationRailState to construct the default implementation.
  */
-@ExperimentalMaterial3ExpressiveApi
 interface WideNavigationRailState {
     /** Whether the state is currently animating */
     val isAnimating: Boolean
@@ -83,7 +81,6 @@ interface WideNavigationRailState {
 }
 
 /** Create and [remember] a [WideNavigationRailState]. */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun rememberWideNavigationRailState(
     initialValue: WideNavigationRailValue = WideNavigationRailValue.Collapsed
@@ -95,11 +92,9 @@ fun rememberWideNavigationRailState(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val WideNavigationRailValue.isExpanded
     get() = this == WideNavigationRailValue.Expanded
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal operator fun WideNavigationRailValue.not(): WideNavigationRailValue {
     return if (this == WideNavigationRailValue.Collapsed) {
         WideNavigationRailValue.Expanded
@@ -108,7 +103,6 @@ internal operator fun WideNavigationRailValue.not(): WideNavigationRailValue {
     }
 }
 
-@ExperimentalMaterial3ExpressiveApi
 internal class WideNavigationRailStateImpl(
     var initialValue: WideNavigationRailValue,
     private val animationSpec: AnimationSpec<Float>,
@@ -171,7 +165,6 @@ internal class WideNavigationRailStateImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ModalWideNavigationRailState(
     state: WideNavigationRailState,
     density: Density,

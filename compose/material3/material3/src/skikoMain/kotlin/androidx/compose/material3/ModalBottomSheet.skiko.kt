@@ -30,16 +30,27 @@ import androidx.compose.ui.window.DialogProperties
 actual class ModalBottomSheetProperties
 actual constructor(
     actual val shouldDismissOnBackPress: Boolean,
+    actual val shouldDismissOnClickOutside: Boolean,
 ) {
+    @Deprecated(
+        level = DeprecationLevel.HIDDEN,
+        message = "Replaced with additional shouldDismissOnScrimClick param constructor.",
+    )
+    actual constructor(shouldDismissOnBackPress: Boolean) : this(shouldDismissOnBackPress, true)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ModalBottomSheetProperties) return false
+        if (shouldDismissOnBackPress != other.shouldDismissOnBackPress) return false
+        if (shouldDismissOnClickOutside != other.shouldDismissOnClickOutside) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return shouldDismissOnBackPress.hashCode()
+        var result = shouldDismissOnBackPress.hashCode()
+        result = 31 * result + shouldDismissOnClickOutside.hashCode()
+        return result
     }
 }
 
@@ -62,6 +73,7 @@ internal actual fun ModalBottomSheetDialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
             dismissOnBackPress = properties.shouldDismissOnBackPress,
+            dismissOnClickOutside = properties.shouldDismissOnClickOutside,
             usePlatformDefaultWidth = false,
             usePlatformInsets = false,
             scrimColor = Color.Transparent,

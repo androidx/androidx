@@ -9,3 +9,21 @@ AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScop
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight-3ABfNKs(androidx.compose.ui.Modifier,float)
 AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth-3ABfNKs(androidx.compose.ui.Modifier, float):
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth-3ABfNKs(androidx.compose.ui.Modifier,float)
+
+
+RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAlwaysAvoid():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAlwaysAvoid()
+RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAvoidOccluding():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAvoidOccluding()
+RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getAvoidSeparating():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getAvoidSeparating()
+RemovedMethod: androidx.compose.material3.adaptive.layout.HingePolicy.Companion#getNeverAvoid():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.HingePolicy.Companion.getNeverAvoid()
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#PaneScaffoldDirective(int, float, int, float, float, java.util.List<androidx.compose.ui.geometry.Rect>):
+    Binary breaking change: Removed constructor androidx.compose.material3.adaptive.layout.PaneScaffoldDirective(int,float,int,float,float,java.util.List<androidx.compose.ui.geometry.Rect>)
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getDefaultPanePreferredWidth():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getDefaultPanePreferredWidth()
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getHorizontalPartitionSpacerSize():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getHorizontalPartitionSpacerSize()
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldDirective#getVerticalPartitionSpacerSize():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.getVerticalPartitionSpacerSize()

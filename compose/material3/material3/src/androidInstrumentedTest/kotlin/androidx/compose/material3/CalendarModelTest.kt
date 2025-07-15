@@ -35,7 +35,6 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalMaterial3Api::class)
 internal class CalendarModelTest(private val model: CalendarModel) {
 
     private lateinit var defaultLocale: Locale

@@ -1,3 +1,29 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope#item(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.ui.Modifier, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors, androidx.compose.foundation.interaction.MutableInteractionSource):
     Binary breaking change: Added method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope.item(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.ui.Modifier,boolean,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,boolean,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors,androidx.compose.foundation.interaction.MutableInteractionSource)
+
+
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationBarContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationBarContainerColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationBarContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationBarContentColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationDrawerContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationDrawerContainerColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationDrawerContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationDrawerContentColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationRailContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationRailContainerColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors#getNavigationRailContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteColors.getNavigationRailContentColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults.getContentColor()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion#getNavigationBar():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion.getNavigationBar()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion#getNavigationDrawer():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion.getNavigationDrawer()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion#getNavigationRail():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion.getNavigationRail()
+RemovedMethod: androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType.Companion.getNone()

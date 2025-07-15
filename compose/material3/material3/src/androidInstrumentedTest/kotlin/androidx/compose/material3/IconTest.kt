@@ -244,7 +244,6 @@ class IconTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun iconRenderedCorrectlyInPaddedBox() {
@@ -330,7 +329,6 @@ class IconTest {
             .assertPixels(expectedSize = expectedIntSize!!) { Color.Blue }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun iconRenderedCorrectlyInLargeBox() {
@@ -416,7 +414,6 @@ class IconTest {
             .assertPixels(expectedSize = expectedIntSize!!) { Color.Blue }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun iconRenderedCorrectlyInSmallBox() {

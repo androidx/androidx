@@ -70,9 +70,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class)
 class DatePickerTest {
 
     @get:Rule val rule = createComposeRule()
@@ -705,6 +705,7 @@ class DatePickerTest {
         rule.onNodeWithText("July 2020").assertExists()
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun state_initWithJavaTimeApi() {
@@ -746,6 +747,7 @@ class DatePickerTest {
             .isEqualTo(datePickerStateWithJavaTimeApi.selectableDates)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun state_initWithJavaTimeApi_withoutRemember() {

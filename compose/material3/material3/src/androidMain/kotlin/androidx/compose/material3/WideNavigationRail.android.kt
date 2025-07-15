@@ -83,7 +83,6 @@ import java.util.UUID
  *   the back button. If true, pressing the back button will call onDismissRequest.
  */
 @Immutable
-@ExperimentalMaterial3ExpressiveApi
 actual class ModalWideNavigationRailProperties(
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     @get:Suppress("GetterSetterNames") actual val shouldDismissOnBackPress: Boolean = true,
@@ -110,13 +109,11 @@ actual class ModalWideNavigationRailProperties(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal actual fun createDefaultModalWideNavigationRailProperties() =
     ModalWideNavigationRailProperties()
 
 // Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
 // Added predictiveBackProgress param to pass into ModalWideNavigationRailDialogWrapper.
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal actual fun ModalWideNavigationRailDialog(
     onDismissRequest: () -> Unit,
@@ -319,7 +316,6 @@ private class ModalWideNavigationRailDialogLayout(
 // Fork of androidx.compose.ui.window.DialogWrapper.
 // scope and predictive back related params added for predictive back implementation.
 // EdgeToEdgeFloatingDialogWindowTheme provided to allow theme to extend into status bar.
-@ExperimentalMaterial3ExpressiveApi
 private class ModalWideNavigationRailDialogWrapper(
     private var onDismissRequest: () -> Unit,
     private var properties: ModalWideNavigationRailProperties,

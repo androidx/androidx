@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Snooze
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.MarkEmailUnread
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AppBarRow
@@ -59,12 +60,16 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TwoRowsTopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -94,19 +99,28 @@ fun SimpleTopAppBar() {
                     Text("Simple TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
             )
@@ -143,6 +157,15 @@ fun SimpleTopAppBarWithAdaptiveActions() {
         } else {
             3
         }
+    val icons =
+        listOf(
+            Icons.Filled.Attachment,
+            Icons.Filled.Edit,
+            Icons.Outlined.Star,
+            Icons.Filled.Snooze,
+            Icons.Outlined.MarkEmailUnread,
+        )
+    val items = listOf("Attachment", "Edit", "Star", "Snooze", "Mark unread")
 
     Scaffold(
         topBar = {
@@ -151,70 +174,52 @@ fun SimpleTopAppBarWithAdaptiveActions() {
                     Text("Simple TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
                     AppBarRow(
                         maxItemCount = maxItemCount,
                         overflowIndicator = {
-                            IconButton(onClick = { it.show() }) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = "Localized description",
-                                )
+                            TooltipBox(
+                                positionProvider =
+                                    TooltipDefaults.rememberTooltipPositionProvider(),
+                                tooltip = { PlainTooltip { Text("Overflow") } },
+                                state = rememberTooltipState(),
+                            ) {
+                                IconButton(onClick = { it.show() }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = "Overflow",
+                                    )
+                                }
                             }
                         },
                     ) {
-                        clickableItem(
-                            onClick = {},
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Filled.Attachment,
-                                    contentDescription = null,
-                                )
-                            },
-                            label = "Attachment",
-                        )
-
-                        clickableItem(
-                            onClick = {},
-                            icon = {
-                                Icon(imageVector = Icons.Filled.Edit, contentDescription = null)
-                            },
-                            label = "Edit",
-                        )
-
-                        clickableItem(
-                            onClick = {},
-                            icon = {
-                                Icon(imageVector = Icons.Outlined.Star, contentDescription = null)
-                            },
-                            label = "Favorite",
-                        )
-
-                        clickableItem(
-                            onClick = {},
-                            icon = {
-                                Icon(imageVector = Icons.Filled.Snooze, contentDescription = null)
-                            },
-                            label = "Alarm",
-                        )
-
-                        clickableItem(
-                            onClick = {},
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.MarkEmailUnread,
-                                    contentDescription = "Localized description",
-                                )
-                            },
-                            label = "Email",
-                        )
+                        // TODO: These icons should have tooltips.
+                        items.forEachIndexed { index, item ->
+                            clickableItem(
+                                onClick = {},
+                                icon = {
+                                    TooltipBox(
+                                        positionProvider =
+                                            TooltipDefaults.rememberTooltipPositionProvider(),
+                                        tooltip = { PlainTooltip { Text(item) } },
+                                        state = rememberTooltipState(),
+                                    ) {
+                                        Icon(imageVector = icons[index], contentDescription = item)
+                                    }
+                                },
+                                label = item,
+                            )
+                        }
                     }
                 },
             )
@@ -257,19 +262,28 @@ fun SimpleTopAppBarWithSubtitle() {
                 },
                 subtitle = { Text("Subtitle", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -310,19 +324,28 @@ fun SimpleCenterAlignedTopAppBar() {
                     Text("Centered TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
             )
@@ -366,19 +389,28 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
                 subtitle = { Text("Subtitle", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 titleHorizontalAlignment = Alignment.CenterHorizontally,
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -420,26 +452,38 @@ fun PinnedTopAppBar() {
             TopAppBar(
                 title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
                     // RowScope here, so these icons will be placed horizontally
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to starred") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Star, contentDescription = "Star")
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -480,19 +524,28 @@ fun EnterAlwaysTopAppBar() {
                 title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 subtitle = { Text("Subtitle", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -534,19 +587,28 @@ fun ExitUntilCollapsedMediumTopAppBar() {
                     Text("Medium TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -590,19 +652,28 @@ fun ExitUntilCollapsedCenterAlignedMediumFlexibleTopAppBar() {
                 subtitle = { Text("Subtitle", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 titleHorizontalAlignment = Alignment.CenterHorizontally,
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -642,19 +713,28 @@ fun ExitUntilCollapsedLargeTopAppBar() {
             LargeTopAppBar(
                 title = { Text("Large TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -696,19 +776,28 @@ fun ExitUntilCollapsedCenterAlignedLargeFlexibleTopAppBar() {
                 subtitle = { Text("Subtitle", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 titleHorizontalAlignment = Alignment.CenterHorizontally,
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Add to favorites") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Filled.Favorite,
+                                contentDescription = "Add to favorites",
+                            )
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -768,11 +857,14 @@ fun CustomTwoRowsTopAppBar() {
                 collapsedHeight = 64.dp,
                 expandedHeight = 156.dp,
                 navigationIcon = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                        )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -792,39 +884,65 @@ fun CustomTwoRowsTopAppBar() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun SimpleBottomAppBar() {
     BottomAppBar(
         actions = {
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Filled.Menu, contentDescription = "Localized description")
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text("Menu") } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Menu, contentDescription = "Menu button")
+                }
             }
         }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun BottomAppBarWithFAB() {
     BottomAppBar(
         actions = {
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Filled.Check, contentDescription = "Localized description")
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text("Check") } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Check, contentDescription = "Check")
+                }
             }
-            IconButton(onClick = { /* doSomething() */ }) {
-                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text("Edit") } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                }
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /* do something */ },
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text("Add") } },
+                state = rememberTooltipState(),
             ) {
-                Icon(Icons.Filled.Add, "Localized description")
+                FloatingActionButton(
+                    onClick = { /* do something */ },
+                    containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                ) {
+                    Icon(Icons.Filled.Add, "Add")
+                }
             }
         },
     )
@@ -845,24 +963,42 @@ fun ExitAlwaysBottomAppBar() {
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Check") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Check, contentDescription = "Check")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Edit") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                        }
                     }
                 },
                 scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                modifier = Modifier.offset(y = 4.dp),
-                onClick = { /* do something */ },
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                tooltip = { PlainTooltip { Text("Add") } },
+                state = rememberTooltipState(),
             ) {
-                Icon(Icons.Filled.Add, "Localized description")
+                FloatingActionButton(
+                    modifier = Modifier.offset(y = 4.dp),
+                    onClick = { /* do something */ },
+                    containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                ) {
+                    Icon(Icons.Filled.Add, "Add")
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.EndOverlay,
@@ -894,6 +1030,16 @@ fun ExitAlwaysBottomAppBar() {
 @Composable
 fun ExitAlwaysBottomAppBarSpacedAround() {
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+        )
+    val buttons = listOf("Back", "Forward", "Add", "Check", "Edit")
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -902,29 +1048,25 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
                 contentPadding = PaddingValues(horizontal = 0.dp),
                 scrollBehavior = scrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.width(56.dp),
-                        onClick = { /* doSomething() */ },
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    buttons.forEachIndexed { index, button ->
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(button) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            if (index == 2) {
+                                FilledIconButton(
+                                    modifier = Modifier.width(56.dp),
+                                    onClick = { /* doSomething() */ },
+                                ) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            } else {
+                                IconButton(onClick = { /* doSomething() */ }) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            }
+                        }
                     }
                 },
             )
@@ -957,6 +1099,15 @@ fun ExitAlwaysBottomAppBarSpacedAround() {
 @Composable
 fun ExitAlwaysBottomAppBarSpacedBetween() {
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+        )
+    val buttons = listOf("Back", "Forward", "Add", "Check", "Edit")
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -964,29 +1115,25 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 scrollBehavior = scrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.width(56.dp),
-                        onClick = { /* doSomething() */ },
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    buttons.forEachIndexed { index, button ->
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(button) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            if (index == 2) {
+                                FilledIconButton(
+                                    modifier = Modifier.width(56.dp),
+                                    onClick = { /* doSomething() */ },
+                                ) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            } else {
+                                IconButton(onClick = { /* doSomething() */ }) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            }
+                        }
                     }
                 },
             )
@@ -1019,6 +1166,15 @@ fun ExitAlwaysBottomAppBarSpacedBetween() {
 @Composable
 fun ExitAlwaysBottomAppBarSpacedEvenly() {
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+        )
+    val buttons = listOf("Back", "Forward", "Add", "Check", "Edit")
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -1027,29 +1183,25 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
                 contentPadding = PaddingValues(horizontal = 0.dp),
                 scrollBehavior = scrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.width(56.dp),
-                        onClick = { /* doSomething() */ },
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    buttons.forEachIndexed { index, button ->
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(button) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            if (index == 2) {
+                                FilledIconButton(
+                                    modifier = Modifier.width(56.dp),
+                                    onClick = { /* doSomething() */ },
+                                ) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            } else {
+                                IconButton(onClick = { /* doSomething() */ }) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            }
+                        }
                     }
                 },
             )
@@ -1082,6 +1234,15 @@ fun ExitAlwaysBottomAppBarSpacedEvenly() {
 @Composable
 fun ExitAlwaysBottomAppBarFixed() {
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+        )
+    val buttons = listOf("Back", "Forward", "Add", "Check", "Edit")
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -1089,29 +1250,25 @@ fun ExitAlwaysBottomAppBarFixed() {
                 horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
                 scrollBehavior = scrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.width(56.dp),
-                        onClick = { /* doSomething() */ },
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    buttons.forEachIndexed { index, button ->
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(button) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            if (index == 2) {
+                                FilledIconButton(
+                                    modifier = Modifier.width(56.dp),
+                                    onClick = { /* doSomething() */ },
+                                ) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            } else {
+                                IconButton(onClick = { /* doSomething() */ }) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            }
+                        }
                     }
                 },
             )
@@ -1144,6 +1301,15 @@ fun ExitAlwaysBottomAppBarFixed() {
 @Composable
 fun ExitAlwaysBottomAppBarFixedVibrant() {
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+        )
+    val buttons = listOf("Back", "Forward", "Add", "Check", "Edit")
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
@@ -1153,29 +1319,25 @@ fun ExitAlwaysBottomAppBarFixedVibrant() {
                 containerColor =
                     MaterialTheme.colorScheme.primaryContainer, // TODO(b/356885344): tokens
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Localized description",
-                        )
-                    }
-                    FilledIconButton(
-                        modifier = Modifier.width(56.dp),
-                        onClick = { /* doSomething() */ },
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
-                    }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    buttons.forEachIndexed { index, button ->
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(button) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            if (index == 2) {
+                                FilledIconButton(
+                                    modifier = Modifier.width(56.dp),
+                                    onClick = { /* doSomething() */ },
+                                ) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            } else {
+                                IconButton(onClick = { /* doSomething() */ }) {
+                                    Icon(icons[index], contentDescription = button)
+                                }
+                            }
+                        }
                     }
                 },
             )
@@ -1204,70 +1366,57 @@ fun ExitAlwaysBottomAppBarFixedVibrant() {
 @Sampled
 @Composable
 fun BottomAppBarWithOverflow() {
+    val icons =
+        listOf(
+            Icons.AutoMirrored.Filled.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowForward,
+            Icons.Filled.Add,
+            Icons.Filled.Check,
+            Icons.Filled.Edit,
+            Icons.Filled.Favorite,
+        )
+    val items = listOf("Back", "Forward", "Add", "Check", "Edit", "Favorite")
     FlexibleBottomAppBar(
         contentPadding = PaddingValues(horizontal = 96.dp),
         horizontalArrangement = BottomAppBarDefaults.FlexibleFixedHorizontalArrangement,
     ) {
         AppBarRow(
             overflowIndicator = { menuState ->
-                IconButton(
-                    onClick = {
-                        if (menuState.isExpanded) {
-                            menuState.dismiss()
-                        } else {
-                            menuState.show()
-                        }
-                    }
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    tooltip = { PlainTooltip { Text("Overflow") } },
+                    state = rememberTooltipState(),
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "Localized description",
-                    )
+                    IconButton(
+                        onClick = {
+                            if (menuState.isExpanded) {
+                                menuState.dismiss()
+                            } else {
+                                menuState.show()
+                            }
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "Overflow")
+                    }
                 }
             }
         ) {
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Localized description",
-                    )
-                },
-                label = "ArrowBack",
-            )
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Localized description",
-                    )
-                },
-                label = "ArrowForward",
-            )
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = { Icon(Icons.Filled.Add, contentDescription = "Localized description") },
-                label = "Add",
-            )
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = { Icon(Icons.Filled.Check, contentDescription = "Localized description") },
-                label = "Check",
-            )
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = { Icon(Icons.Filled.Edit, contentDescription = "Localized description") },
-                label = "Edit",
-            )
-            clickableItem(
-                onClick = { /* doSomething() */ },
-                icon = {
-                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
-                },
-                label = "Favorite",
-            )
+            // TODO: These items should have tooltips.
+            items.forEachIndexed { index, item ->
+                clickableItem(
+                    onClick = { /* doSomething() */ },
+                    icon = {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(item) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            Icon(icons[index], contentDescription = item)
+                        }
+                    },
+                    label = item,
+                )
+            }
         }
     }
 }

@@ -63,10 +63,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -110,7 +110,7 @@ fun PullToRefreshSample() {
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 fun PullToRefreshWithLoadingIndicatorSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -158,10 +158,10 @@ fun PullToRefreshWithLoadingIndicatorSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 @Sampled
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshViewModelSample() {
     val viewModel = remember {
         object : ViewModel() {
@@ -169,7 +169,7 @@ fun PullToRefreshViewModelSample() {
             var isRefreshing by mutableStateOf(false)
                 private set
 
-            var itemCount by mutableStateOf(15)
+            var itemCount by mutableIntStateOf(15)
                 private set
 
             init {
@@ -229,7 +229,7 @@ fun PullToRefreshViewModelSample() {
 @Composable
 @Preview
 fun PullToRefreshScalingSample() {
-    var itemCount by remember { mutableStateOf(15) }
+    var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
@@ -285,10 +285,10 @@ fun PullToRefreshScalingSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshLinearProgressIndicatorSample() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -341,10 +341,10 @@ fun PullToRefreshLinearProgressIndicatorSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshSampleCustomState() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -411,10 +411,10 @@ fun PullToRefreshSampleCustomState() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
-@OptIn(ExperimentalMaterial3Api::class)
 fun PullToRefreshCustomIndicatorWithDefaultTransform() {
     var itemCount by remember { mutableIntStateOf(15) }
     var isRefreshing by remember { mutableStateOf(false) }

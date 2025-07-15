@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -61,7 +60,7 @@ import org.junit.runner.RunWith
 // TODO(b/208991956): Update to include DropdownMenu when popups can be captured into bitmaps.
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class MenuScreenshotTest {
 
     @get:Rule val composeTestRule = createComposeRule()

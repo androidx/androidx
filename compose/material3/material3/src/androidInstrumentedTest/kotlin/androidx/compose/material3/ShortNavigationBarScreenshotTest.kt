@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -54,10 +53,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class ShortNavigationBarScreenshotTest {
 
     @get:Rule val composeTestRule = createComposeRule()
@@ -438,7 +436,6 @@ class ShortNavigationBarScreenshotTest {
  * @param modifier the [Modifier] applied to the navigation bar
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DefaultShortNavigationBar(
     interactionSource: MutableInteractionSource,

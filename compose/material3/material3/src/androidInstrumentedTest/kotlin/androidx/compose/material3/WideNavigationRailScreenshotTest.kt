@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -51,10 +50,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
 
     @get:Rule val composeTestRule = createComposeRule()
@@ -278,7 +276,6 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
  * @param withHeader when true, shows a [FloatingActionButton] as the header
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DefaultWideNavigationRail(
     interactionSource: MutableInteractionSource,

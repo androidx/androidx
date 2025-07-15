@@ -182,7 +182,6 @@ fun Icon(
  * @param modifier the [Modifier] to be applied to this icon
  */
 @Composable
-@ExperimentalMaterial3Api
 fun Icon(
     painter: Painter,
     tint: ColorProducer?,

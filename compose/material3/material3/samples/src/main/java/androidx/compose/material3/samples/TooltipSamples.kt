@@ -73,7 +73,12 @@ fun PlainTooltipWithManualInvocationSample() {
             tooltip = { PlainTooltip { Text("Add to list") } },
             state = tooltipState,
         ) {
-            Icon(imageVector = Icons.Filled.AddCircle, contentDescription = "Localized Description")
+            IconButton(onClick = { /* Icon button's click event */ }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = "Localized Description",
+                )
+            }
         }
         Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(onClick = { scope.launch { tooltipState.show() } }) {
@@ -134,6 +139,7 @@ fun RichTooltipSample() {
                 Text(richTooltipText)
             }
         },
+        hasAction = true,
         state = tooltipState,
     ) {
         IconButton(onClick = { /* Icon button's click event */ }) {
@@ -163,9 +169,12 @@ fun RichTooltipWithManualInvocationSample() {
                     Text(richTooltipText)
                 }
             },
+            hasAction = true,
             state = tooltipState,
         ) {
-            Icon(imageVector = Icons.Filled.Info, contentDescription = "Localized Description")
+            IconButton(onClick = { /* Icon button's click event */ }) {
+                Icon(imageVector = Icons.Filled.Info, contentDescription = "Localized Description")
+            }
         }
         Spacer(Modifier.requiredHeight(30.dp))
         OutlinedButton(onClick = { scope.launch { tooltipState.show() } }) {
@@ -195,6 +204,7 @@ fun RichTooltipWithCaretSample() {
                 Text(richTooltipText)
             }
         },
+        hasAction = true,
         state = tooltipState,
     ) {
         IconButton(onClick = { /* Icon button's click event */ }) {
@@ -224,6 +234,7 @@ fun RichTooltipWithCustomCaretSample() {
                 Text(richTooltipText)
             }
         },
+        hasAction = true,
         state = tooltipState,
     ) {
         IconButton(onClick = { /* Icon button's click event */ }) {
