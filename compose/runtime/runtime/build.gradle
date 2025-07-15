@@ -170,6 +170,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             nonJvmMain {
+                dependsOn(jbMain)
                 dependencies {
                     implementation(libs.atomicFu)
                 }
@@ -195,7 +196,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
             desktopMain.dependsOn(jbMain)
-            jsNativeMain.dependsOn(jbMain)
 
             darwinMain {
                 dependsOn(unixMain)

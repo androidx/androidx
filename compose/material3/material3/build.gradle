@@ -140,15 +140,15 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             nativeMain.dependsOn(nonJvmMain)
             darwinMain.dependsOn(nativeMain)
-            jsWasmMain.dependsOn(nonJvmMain)
+            webMain.dependsOn(nonJvmMain)
 
             jsMain {
                 kotlin.srcDir("src/webCommonW3C/kotlin")
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
             wasmJsMain {
                 kotlin.srcDir("src/webCommonW3C/kotlin")
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
                 dependencies {
                     implementation(libs.kotlinStdlib)
                 }
@@ -198,14 +198,14 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             nativeTest.dependsOn(skikoTest)
             darwinTest.dependsOn(nativeTest)
-            jsWasmTest.dependsOn(skikoTest)
+            webTest.dependsOn(skikoTest)
 
             jsTest {
-                dependsOn(jsWasmTest)
+                dependsOn(webTest)
             }
 
             wasmJsTest {
-                dependsOn(jsWasmTest)
+                dependsOn(webTest)
             }
 
             uikitTest {

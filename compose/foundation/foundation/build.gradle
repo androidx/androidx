@@ -134,9 +134,9 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.kotlinStdlib)
                 }
             }
-            jsNativeMain.dependsOn(skikoMain)
-            nativeMain.dependsOn(jsNativeMain)
-            jsWasmMain.dependsOn(jsNativeMain)
+            nonJvmMain.dependsOn(skikoMain)
+            nativeMain.dependsOn(nonJvmMain)
+            webMain.dependsOn(nonJvmMain)
             uikitMain {
                 dependencies {
                     implementation(project(":compose:ui:ui-uikit"))
@@ -144,12 +144,12 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             jsMain {
                 kotlin.srcDir("src/webCommonW3C/kotlin")
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             wasmJsMain {
                 kotlin.srcDir("src/webCommonW3C/kotlin")
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
@@ -198,7 +198,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.skikoCommon)
                 }
             }
-            jsNativeTest {
+            nonJvmTest {
                 dependsOn(skikoTest)
             }
 
@@ -226,9 +226,9 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             desktopTest.kotlin.srcDirs("src/desktopTest/kotlin")
 
-            nativeTest.dependsOn(jsNativeTest)
-            jsTest.dependsOn(jsNativeTest)
-            wasmJsTest.dependsOn(jsNativeTest)
+            nativeTest.dependsOn(nonJvmTest)
+            jsTest.dependsOn(nonJvmTest)
+            wasmJsTest.dependsOn(nonJvmTest)
 
             configureEach {
                 languageSettings.optIn("androidx.compose.foundation.ExperimentalFoundationApi")

@@ -105,16 +105,16 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopMain.dependsOn(nonAndroidMain)
             nativeMain.dependsOn(nonAndroidMain)
 
-            jsWasmMain {
+            webMain {
                 dependsOn(nonAndroidMain)
             }
 
             jsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             wasmJsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
         }
     }

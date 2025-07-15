@@ -120,12 +120,12 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.kotlinStdlib)
                 }
             }
-            jsNativeMain.dependsOn(commonMain)
-            nativeMain.dependsOn(jsNativeMain)
-            jsWasmMain.dependsOn(jsNativeMain)
+            nonJvmMain.dependsOn(commonMain)
+            nativeMain.dependsOn(nonJvmMain)
+            webMain.dependsOn(nonJvmMain)
 
             jsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             jbMain {
@@ -135,10 +135,10 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
             desktopMain.dependsOn(jbMain)
-            jsNativeMain.dependsOn(jbMain)
+            nonJvmMain.dependsOn(jbMain)
 
             wasmJsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you

@@ -226,12 +226,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopTest.kotlin.srcDirs("src/test/java", "src/desktopTest/kotlin")
             desktopTest.resources.srcDirs("src/test/resources", "src/desktopTest/resources")
 
-            jsNativeTest {
+            nonJvmTest {
                 dependsOn(skikoTest)
             }
-            nativeTest.dependsOn(jsNativeTest)
-            jsTest.dependsOn(jsNativeTest)
-            wasmJsTest.dependsOn(jsNativeTest)
+            nativeTest.dependsOn(nonJvmTest)
+            jsTest.dependsOn(nonJvmTest)
+            wasmJsTest.dependsOn(nonJvmTest)
 
             configureEach {
                 languageSettings.optIn("androidx.compose.ui.text.ExperimentalTextApi")

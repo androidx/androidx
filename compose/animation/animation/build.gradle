@@ -103,14 +103,14 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             nonJvmMain.dependsOn(nonAndroidMain)
             nativeMain.dependsOn(nonJvmMain)
-            jsWasmMain.dependsOn(nonJvmMain)
+            webMain.dependsOn(nonJvmMain)
 
             jsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             wasmJsMain {
-                dependsOn(jsWasmMain)
+                dependsOn(webMain)
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
