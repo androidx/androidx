@@ -62,7 +62,7 @@ internal class DesktopTextInputService2(
     fun onKeyEvent(keyEvent: KeyEvent) {
         when (keyEvent.id) {
             KeyEvent.KEY_TYPED ->
-                inputMethodSession?.charKeyPressed = true
+                inputMethodSession?.charKeyPressed = !keyEvent.keyChar.isISOControl()
             KeyEvent.KEY_RELEASED ->
                 inputMethodSession?.charKeyPressed = false
         }
