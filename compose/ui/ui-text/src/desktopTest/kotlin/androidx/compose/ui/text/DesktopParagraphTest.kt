@@ -26,6 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.LineHeightStyle.Alignment
+import androidx.compose.ui.text.style.LineHeightStyle.Trim
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
@@ -73,6 +76,46 @@ class DesktopParagraphTest {
                 assertThat(box.right).isEqualToWithTolerance((i + 1) * fontSizeInPx)
                 assertThat(box.top).isZero()
                 assertThat(box.bottom).isEqualToWithTolerance(fontSizeInPx)
+            }
+        }
+    }
+
+    @Test
+    fun getBoundingBox_lineHeight() {
+        with(defaultDensity) {
+            val text = "abc\ndef"
+            val fontSize = 20.sp
+            val fontSizeInPx = fontSize.toPx()
+
+            for (lineHeightMultiplier in listOf(
+                // 0f, // TODO https://youtrack.jetbrains.com/issue/CMP-7963
+                0.1f, 0.5f, 1f, 1.5f, 2f, 10f,
+            )) {
+                val paragraph = simpleParagraph(
+                    text = text,
+                    style = TextStyle(
+                        fontSize = fontSize,
+                        lineHeight = fontSize * lineHeightMultiplier,
+                        lineHeightStyle = LineHeightStyle(
+                            // TODO Other alignments produce weird results in case of lineHeightMultiplier < 1f
+                            alignment = Alignment.Top,
+                            trim = Trim.None
+                        )
+                    )
+                )
+
+                val lineStart = paragraph.getLineStart(1)
+                val lineEnd = paragraph.getLineEnd(1)
+                for (i in lineStart..lineEnd - 1) {
+                    val position = i - lineStart
+                    val box = paragraph.getBoundingBox(i)
+                    assertThat(box.left).isEqualToWithTolerance(position * fontSizeInPx)
+                    assertThat(box.right).isEqualToWithTolerance((position + 1) * fontSizeInPx)
+
+                    val lineHeightInPx = fontSizeInPx * lineHeightMultiplier
+                    assertThat(box.top).isEqualToWithTolerance(lineHeightInPx)
+                    assertThat(box.bottom).isEqualToWithTolerance(lineHeightInPx + maxOf(fontSizeInPx, lineHeightInPx))
+                }
             }
         }
     }
