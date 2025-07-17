@@ -75,7 +75,6 @@ import kotlin.math.roundToInt
 
 /** Class that describes the different supported icon positions of the navigation item. */
 @JvmInline
-@ExperimentalMaterial3ExpressiveApi
 value class NavigationItemIconPosition private constructor(private val value: Int) {
     companion object {
         /* The icon is positioned on top of the label. */
@@ -225,7 +224,6 @@ constructor(
  *   for this item. You can create and pass in your own `remember`ed instance to observe
  *   [Interaction]s and customize the appearance / behavior of this item in different states
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun NavigationItem(
     selected: Boolean,
@@ -320,7 +318,6 @@ internal fun NavigationItem(
  *
  * This item will animate its elements when the value of [iconPosition] changes.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun AnimatedNavigationItem(
     selected: Boolean,
@@ -440,7 +437,6 @@ internal fun AnimatedNavigationItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavigationItemLayout(
     interactionSource: InteractionSource,
@@ -492,7 +488,6 @@ private fun NavigationItemLayout(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedNavigationItemLayout(
     interactionSource: InteractionSource,
@@ -740,7 +735,6 @@ private class StartIconMeasurePolicy(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class AnimatedMeasurePolicy(
     val iconPosition: NavigationItemIconPosition,
     val iconPositionProgress: () -> Float,
@@ -981,7 +975,6 @@ private fun MeasureScope.placeLabelAndStartIcon(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun MeasureScope.placeAnimatedLabelAndIcon(
     iconPosition: NavigationItemIconPosition,
     iconPositionProgress: () -> Float,

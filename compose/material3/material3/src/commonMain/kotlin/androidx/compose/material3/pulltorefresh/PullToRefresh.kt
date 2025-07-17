@@ -32,7 +32,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ContainedLoadingIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
@@ -131,7 +130,6 @@ import kotlinx.coroutines.launch
  *   [LazyColumn] or a layout using [Modifier.verticalScroll]
  */
 @Composable
-@ExperimentalMaterial3Api
 fun PullToRefreshBox(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
@@ -169,7 +167,6 @@ fun PullToRefreshBox(
  * @param threshold how much distance can be scrolled down before [onRefresh] is invoked
  * @param onRefresh callback that is invoked when the distance pulled is greater than [threshold]
  */
-@ExperimentalMaterial3Api
 fun Modifier.pullToRefresh(
     isRefreshing: Boolean,
     state: PullToRefreshState,
@@ -186,7 +183,6 @@ fun Modifier.pullToRefresh(
             threshold = threshold,
         )
 
-@OptIn(ExperimentalMaterial3Api::class)
 internal class PullToRefreshElement(
     val isRefreshing: Boolean,
     val onRefresh: () -> Unit,
@@ -246,7 +242,6 @@ internal class PullToRefreshElement(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 internal class PullToRefreshModifierNode(
     var isRefreshing: Boolean,
     var onRefresh: () -> Unit,
@@ -408,7 +403,6 @@ internal class PullToRefreshModifierNode(
 }
 
 /** Contains the default values for [PullToRefreshBox] */
-@ExperimentalMaterial3Api
 object PullToRefreshDefaults {
     /** The default shape for [Indicator] */
     val shape: Shape = CircleShape
@@ -656,7 +650,6 @@ object PullToRefreshDefaults {
  * @sample androidx.compose.material3.samples.PullToRefreshLinearProgressIndicatorSample
  */
 @Stable
-@ExperimentalMaterial3Api
 interface PullToRefreshState {
 
     /**
@@ -686,7 +679,6 @@ interface PullToRefreshState {
 
 /** Create and remember the default [PullToRefreshState]. */
 @Composable
-@ExperimentalMaterial3Api
 fun rememberPullToRefreshState(): PullToRefreshState {
     return rememberSaveable(saver = PullToRefreshStateImpl.Saver) { PullToRefreshStateImpl() }
 }
@@ -697,10 +689,8 @@ fun rememberPullToRefreshState(): PullToRefreshState {
  * Note that in most cases, you are advised to use [rememberPullToRefreshState] when in composition.
  */
 @JsName("funPullToRefreshState")
-@ExperimentalMaterial3Api
 fun PullToRefreshState(): PullToRefreshState = PullToRefreshStateImpl()
 
-@ExperimentalMaterial3Api
 internal class PullToRefreshStateImpl
 private constructor(private val anim: Animatable<Float, AnimationVector1D>) : PullToRefreshState {
     constructor() : this(Animatable(0f, Float.VectorConverter))

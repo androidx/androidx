@@ -55,8 +55,7 @@ import org.mockito.quality.Strictness
 
 @RunWith(Parameterized::class)
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule val rule = createComposeRule()

@@ -213,8 +213,7 @@ fun TopAppBar(
  *   work in conjunction with a scrolled content to change the top app bar appearance as the content
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: @Composable () -> Unit,
@@ -338,8 +337,7 @@ fun CenterAlignedTopAppBar(
  *   work in conjunction with a scrolled content to change the top app bar appearance as the content
  *   scrolls. See [TopAppBarScrollBehavior.nestedScrollConnection].
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CenterAlignedTopAppBar(
     title: @Composable () -> Unit,
@@ -543,8 +541,7 @@ fun MediumTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller than the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediumTopAppBar(
     title: @Composable () -> Unit,
@@ -794,8 +791,7 @@ fun LargeTopAppBar(
  * @throws IllegalArgumentException if the provided [expandedHeight] is smaller to the
  *   [collapsedHeight]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LargeTopAppBar(
     title: @Composable () -> Unit,
@@ -1497,7 +1493,6 @@ interface TopAppBarScrollBehavior {
 }
 
 /** Contains default values used for the top app bar implementations. */
-@ExperimentalMaterial3Api
 object TopAppBarDefaults {
 
     /**
@@ -1912,7 +1907,6 @@ object TopAppBarDefaults {
  *   offset height offset should be between zero and [initialHeightOffsetLimit].
  * @param initialContentOffset the initial value for [TopAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberTopAppBarState(
     initialHeightOffsetLimit: Float = -Float.MAX_VALUE,
@@ -1934,7 +1928,6 @@ fun rememberTopAppBarState(
  * @param initialHeightOffset the initial value for [TopAppBarState.heightOffset]
  * @param initialContentOffset the initial value for [TopAppBarState.contentOffset]
  */
-@ExperimentalMaterial3Api
 @Stable
 class TopAppBarState(
     initialHeightOffsetLimit: Float,
@@ -2041,7 +2034,6 @@ class TopAppBarState(
  * @constructor create an instance with arbitrary colors, see [TopAppBarColors] for a factory method
  *   using the default material3 spec
  */
-@ExperimentalMaterial3Api
 @Stable
 class TopAppBarColors(
     val containerColor: Color,

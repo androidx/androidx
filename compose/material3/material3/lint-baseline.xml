@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.12.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha02)" variant="all" version="8.12.0-alpha02">
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
 
     <issue
         id="CheckResult"
@@ -445,24 +445,6 @@
     <issue
         id="ComposableLambdaParameterNaming"
         message="Composable lambda parameter should be named `content`"
-        errorLine1="    text: @Composable () -> Unit,"
-        errorLine2="    ~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/Tooltip.android.kt"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
-        errorLine1="    text: @Composable () -> Unit,"
-        errorLine2="    ~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/Tooltip.android.kt"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
         errorLine1="        tooltipContent: @Composable () -> Unit = {},"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
@@ -489,11 +471,47 @@
 
     <issue
         id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="fun DropdownMenu("
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/AndroidMenu.android.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
         message="Composable functions that return Unit should start with an uppercase letter"
         errorLine1="    private fun testContent("
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonMenuScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ConfigurationScreenWidthHeight"
+        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
+        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
+    </issue>
+
+    <issue
+        id="ConfigurationScreenWidthHeight"
+        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
+        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
+    </issue>
+
+    <issue
+        id="ConfigurationScreenWidthHeight"
+        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
+        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
     </issue>
 
     <issue
@@ -859,6 +877,15 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    keylines.forEach {"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/carousel/Carousel.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                perVertexRounding = buildList { for (p in actualPoints) add(p.r) },"
         errorLine2="                                                       ~~">
         <location
@@ -867,7 +894,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
@@ -876,7 +903,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location
@@ -885,7 +912,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
@@ -903,7 +930,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location

@@ -17,18 +17,14 @@ package androidx.compose.material3.adaptive.navigation {
   }
 
   public static final class BackNavigationBehavior.Companion {
-    method public String getPopLatest();
     method @BytecodeOnly public String getPopLatest-pSECbL4();
-    method public String getPopUntilContentChange();
     method @BytecodeOnly public String getPopUntilContentChange-pSECbL4();
-    method public String getPopUntilCurrentDestinationChange();
     method @BytecodeOnly public String getPopUntilCurrentDestinationChange-pSECbL4();
-    method public String getPopUntilScaffoldValueChange();
     method @BytecodeOnly public String getPopUntilScaffoldValueChange-pSECbL4();
-    property public String PopLatest;
-    property public String PopUntilContentChange;
-    property public String PopUntilCurrentDestinationChange;
-    property public String PopUntilScaffoldValueChange;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopLatest;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopUntilContentChange;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopUntilCurrentDestinationChange;
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior PopUntilScaffoldValueChange;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public interface ThreePaneScaffoldNavigator<T> {

@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import java.time.Instant
@@ -39,21 +37,29 @@ internal actual inline fun formatHeadlineDescription(
 /**
  * Creates a [DatePickerState] for a [DatePicker] that is remembered across compositions.
  *
+ * Note: This composable uses [LocalDate] and [YearMonth]. For a lower-level composable that uses
+ * UTC milliseconds, see the other [rememberDatePickerState] overload.
+ *
+ * The initial values are converted to UTC milliseconds at the start of the day (midnight):
+ * - `initialSelectedDate` is used to set [DatePickerState.selectedDateMillis].
+ * - `initialDisplayedMonth` is used to set [DatePickerState.displayedMonthMillis], based on the
+ *   first day of that month.
+ *
  * To create a date picker state outside composition, see the `DatePickerState` function.
  *
  * @sample androidx.compose.material3.samples.DatePickerApi26Sample
- * @param initialSelectedDate a [LocalDate] that represents an initial selection of a date. Provide
- *   a `null` to indicate no selection.
- * @param initialDisplayedMonth an optional [YearMonth] that represents an initial selection of a
- *   month to be displayed to the user. By default, in case an [initialSelectedDate] is provided,
- *   the initial displayed month would be the month of the selected date. Otherwise, in case `null`
- *   is provided, the displayed month would be the current one.
+ * @param initialSelectedDate a [LocalDate] for an initial date selection. Provide a `null` to
+ *   indicate no selection.
+ * @param initialDisplayedMonth an optional [YearMonth] for an initial month that will be displayed
+ *   to the user. By default, in case an [initialSelectedDate] is provided, the initial displayed
+ *   month would be the month of the selected date. You may provide a different initial month, or
+ *   `null` to display the current one.
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
  *   case a date is not allowed to be selected, it will appear disabled in the UI.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 @Composable
 @ExperimentalMaterial3Api
 fun rememberDatePickerState(
@@ -79,6 +85,11 @@ fun rememberDatePickerState(
  *
  * For most cases, you are advised to use the [rememberDatePickerState] when in a composition.
  *
+ * The initial values are converted to UTC milliseconds at the start of the day (midnight):
+ * - `initialSelectedDate` is used to set [DatePickerState.selectedDateMillis].
+ * - `initialDisplayedMonth` is used to set [DatePickerState.displayedMonthMillis], based on the
+ *   first day of that month.
+ *
  * Note that in case you provide a [locale] that is different than the default platform locale, you
  * may need to ensure that the picker's title and headline are localized correctly. The following
  * sample shows one possible way of doing so by applying a local composition of a `LocalContext` and
@@ -90,11 +101,12 @@ fun rememberDatePickerState(
  *   case the provided [CalendarLocale] differs from the platform's default Locale, you may need to
  *   ensure that the picker's title and headline are localized correctly, and in some cases, you may
  *   need to apply an RTL layout.
- * @param initialSelectedDate a [LocalDate] that represents an initial selection of a date. Provide
- *   a `null` to indicate no selection.
- * @param initialDisplayedMonth an optional [YearMonth] that represents an initial selection of a
- *   month to be displayed to the user. In case `null` is provided, the displayed month would be the
- *   current one.
+ * @param initialSelectedDate a [LocalDate] for an initial date selection. Provide a `null` to
+ *   indicate no selection.
+ * @param initialDisplayedMonth an optional [YearMonth] for an initial month that will be displayed
+ *   to the user. By default, in case an [initialSelectedDate] is provided, the initial displayed
+ *   month would be the month of the selected date. You may provide a different initial month, or
+ *   `null` to display the current one.
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
@@ -103,7 +115,7 @@ fun rememberDatePickerState(
  *   year that is out of the year range.
  * @see rememberDatePickerState
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 @ExperimentalMaterial3Api
 fun DatePickerState(
     locale: CalendarLocale,
@@ -125,6 +137,15 @@ fun DatePickerState(
 /**
  * Creates a [DateRangePickerState] for a [DateRangePicker] that is remembered across compositions.
  *
+ * Note: This composable uses [LocalDate] and [YearMonth]. For a lower-level composable that uses
+ * UTC milliseconds, see the other [rememberDateRangePickerState] overload.
+ *
+ * The initial values are converted to UTC milliseconds at the start of the day (midnight):
+ * - `initialSelectedStartDate` is used to set [DateRangePickerState.selectedStartDateMillis].
+ * - `initialSelectedEndDate` is used to set [DateRangePickerState.selectedEndDateMillis].
+ * - `initialDisplayedMonth` is used to set [DateRangePickerState.displayedMonthMillis], based on
+ *   the first day of that month.
+ *
  * To create a date range picker state outside composition, see the `DateRangePickerState` function.
  *
  * @sample androidx.compose.material3.samples.DateRangePickerApi26Sample
@@ -132,22 +153,22 @@ fun DatePickerState(
  *   date. Provide a `null` to indicate no selection.
  * @param initialSelectedEndDate a [LocalDate] that represents an initial selection of an end date.
  *   Provide a `null` to indicate no selection.
- * @param initialDisplayedMonth an optional [YearMonth] that represents an initial selection of a
- *   month to be displayed to the user. By default, in case an [initialSelectedStartDate] is
- *   provided, the initial displayed month would be the month of the selected date. Otherwise, in
- *   case `null` is provided, the displayed month would be the current one.
+ * @param initialDisplayedMonth an optional [YearMonth] for an initial month that will be displayed
+ *   to the user. By default, in case an [initialSelectedStartDate] is provided, the initial
+ *   displayed month would be the month of the selected date. You may provide a different initial
+ *   month, or `null` to display the current one.
  * @param yearRange an [IntRange] that holds the year range that the date range picker will be
  *   limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
  *   case a date is not allowed to be selected, it will appear disabled in the UI.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 @Composable
 @ExperimentalMaterial3Api
 fun rememberDateRangePickerState(
     initialSelectedStartDate: LocalDate?,
-    initialSelectedEndDate: LocalDate? = null,
+    initialSelectedEndDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedStartDate?.let { YearMonth.from(it) },
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
@@ -171,6 +192,12 @@ fun rememberDateRangePickerState(
  *
  * For most cases, you are advised to use the [rememberDateRangePickerState] when in a composition.
  *
+ * The initial values are converted to UTC milliseconds at the start of the day (midnight):
+ * - `initialSelectedStartDate` is used to set [DateRangePickerState.selectedStartDateMillis].
+ * - `initialSelectedEndDate` is used to set [DateRangePickerState.selectedEndDateMillis].
+ * - `initialDisplayedMonth` is used to set [DateRangePickerState.displayedMonthMillis], based on
+ *   the first day of that month.
+ *
  * Note that in case you provide a [locale] that is different than the default platform locale, you
  * may need to ensure that the picker's title and headline are localized correctly. The following
  * sample shows one possible way of doing so by applying a local composition of a `LocalContext` and
@@ -186,10 +213,10 @@ fun rememberDateRangePickerState(
  *   date. Provide a `null` to indicate no selection.
  * @param initialSelectedEndDate a [LocalDate] that represents an initial selection of an end date.
  *   Provide a `null` to indicate no selection.
- * @param initialDisplayedMonth an optional [YearMonth] that represents an initial selection of a
- *   month to be displayed to the user. By default, in case an [initialSelectedStartDate] is
- *   provided, the initial displayed month would be the month of the selected date. Otherwise, in
- *   case `null` is provided, the displayed month would be the current one.
+ * @param initialDisplayedMonth an optional [YearMonth] for an initial month that will be displayed
+ *   to the user. By default, in case an [initialSelectedStartDate] is provided, the initial
+ *   displayed month would be the month of the selected date. You may provide a different initial
+ *   month, or `null` to display the current one.
  * @param yearRange an [IntRange] that holds the year range that the date picker will be limited to
  * @param initialDisplayMode an initial [DisplayMode] that this state will hold
  * @param selectableDates a [SelectableDates] that is consulted to check if a date is allowed. In
@@ -199,12 +226,12 @@ fun rememberDateRangePickerState(
  *   without a start date (e.g. the start date was null, while the end date was not).
  * @see rememberDateRangePickerState
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 @ExperimentalMaterial3Api
 fun DateRangePickerState(
     locale: CalendarLocale,
     initialSelectedStartDate: LocalDate?,
-    initialSelectedEndDate: LocalDate? = null,
+    initialSelectedEndDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedStartDate?.let { YearMonth.from(it) },
     yearRange: IntRange = DatePickerDefaults.YearRange,
     initialDisplayMode: DisplayMode = DisplayMode.Picker,
@@ -228,8 +255,8 @@ fun DateRangePickerState(
  *
  * @param date The [LocalDate] to select, or `null` to clear the selection.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DatePickerState.setSelectedDate(date: LocalDate?) {
     // The selectedDateMillis setter handles the yearRange validation.
     this.selectedDateMillis = getLocalDateMillisUtc(date)
@@ -241,8 +268,8 @@ fun DatePickerState.setSelectedDate(date: LocalDate?) {
  *
  * @return The selected [LocalDate], or `null` if there is no selection.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DatePickerState.getSelectedDate(): LocalDate? {
     return getLocalDate(this.selectedDateMillis)
 }
@@ -255,8 +282,8 @@ fun DatePickerState.getSelectedDate(): LocalDate? {
  *
  * @param yearMonth The [YearMonth] to display.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
@@ -269,8 +296,8 @@ fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  *
  * @return The displayed [YearMonth].
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DatePickerState.getDisplayedMonth(): YearMonth? =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
@@ -292,8 +319,8 @@ fun DatePickerState.getDisplayedMonth(): YearMonth? =
  * @throws IllegalArgumentException in case the given [LocalDate]s do not comply with the expected
  *   values specified above.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?) {
     this.setSelection(getLocalDateMillisUtc(startDate), getLocalDateMillisUtc(endDate))
 }
@@ -304,8 +331,8 @@ fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?
  *
  * @return The selected start [LocalDate], or `null` if there is no selection.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
     return getLocalDate(this.selectedStartDateMillis)
 }
@@ -316,8 +343,8 @@ fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
  *
  * @return The selected end [LocalDate], or `null` if there is no selection.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
     return getLocalDate(this.selectedEndDateMillis)
 }
@@ -330,8 +357,8 @@ fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
  *
  * @param yearMonth The [YearMonth] to display.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
@@ -344,13 +371,13 @@ fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  *
  * @return The displayed [YearMonth].
  */
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(26)
+@ExperimentalMaterial3Api
 fun DateRangePickerState.getDisplayedMonth(): YearMonth? =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
 /** Returns a [YearMonth] representation of the given [millisUtcFirstOfMonth] UTC milliseconds. */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun getYearMonth(millisUtcFirstOfMonth: Long): YearMonth {
     // Convert the UTC epoch milliseconds to an Instant object. Since the Instant represents
     // midnight UTC we can get the correct calendar date components by interpreting this
@@ -364,7 +391,7 @@ private fun getYearMonth(millisUtcFirstOfMonth: Long): YearMonth {
  *
  * The returned time if for the first day of the month in midnight.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun getYearMonthMillisUtc(yearMonth: YearMonth): Long {
     // Get the start of the first day of the month (midnight).
     val firstDayOfMonth = yearMonth.atDay(1)
@@ -377,7 +404,7 @@ private fun getYearMonthMillisUtc(yearMonth: YearMonth): Long {
  * Returns a [LocalDate] representation of the given [millisUtc] UTC milliseconds. If [millisUtc] is
  * `null`, returns `null`.
  */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 private fun getLocalDate(millisUtc: Long?): LocalDate? {
     if (millisUtc == null) return null
     // Convert the UTC epoch milliseconds to an Instant object. Since the Instant represents
@@ -387,7 +414,7 @@ private fun getLocalDate(millisUtc: Long?): LocalDate? {
 }
 
 /** Returns a [LocalDate] in UTC milliseconds from the epoch. */
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 @OptIn(ExperimentalMaterial3Api::class)
 private fun getLocalDateMillisUtc(date: LocalDate?): Long? {
     return if (date == null) {

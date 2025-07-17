@@ -171,6 +171,44 @@ class ModalBottomSheetTest {
     }
 
     @Test
+    fun modalBottomSheet_disabledClickOutside() {
+        var showBottomSheet by mutableStateOf(true)
+        lateinit var sheetState: SheetState
+
+        rule.setContent {
+            sheetState = rememberModalBottomSheetState()
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    sheetState = sheetState,
+                    onDismissRequest = { showBottomSheet = false },
+                    properties = ModalBottomSheetProperties(shouldDismissOnClickOutside = false),
+                ) {
+                    Box(Modifier.size(sheetHeight).testTag(sheetTag))
+                }
+            }
+        }
+
+        assertThat(sheetState.isVisible).isTrue()
+
+        // Tap Scrim
+        val outsideY =
+            with(rule.density) {
+                rule
+                    .onAllNodes(isDialog())
+                    .onFirst()
+                    .getUnclippedBoundsInRoot()
+                    .height
+                    .roundToPx() / 4
+            }
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(0, outsideY)
+        rule.waitForIdle()
+
+        // Bottom sheet should exist
+        assertThat(sheetState.isVisible).isTrue()
+        rule.onNodeWithTag(sheetTag).assertExists()
+    }
+
+    @Test
     fun modalBottomSheet_isDismissedOnTapOutsideWithPadding() {
         var showBottomSheet by mutableStateOf(true)
         lateinit var sheetState: SheetState

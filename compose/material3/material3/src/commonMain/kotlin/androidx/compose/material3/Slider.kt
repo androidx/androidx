@@ -1760,6 +1760,84 @@ object SliderDefaults {
         thumbTrackGapSize: Dp = ThumbTrackGapSize,
         trackInsideCornerSize: Dp = TrackInsideCornerSize,
     ) {
+        TrackImpl(
+            rangeSliderState = rangeSliderState,
+            trackCornerSize = Dp.Unspecified,
+            modifier = modifier,
+            enabled = enabled,
+            colors = colors,
+            drawStopIndicator = drawStopIndicator,
+            drawTick = drawTick,
+            thumbTrackGapSize = thumbTrackGapSize,
+            trackInsideCornerSize = trackInsideCornerSize,
+        )
+    }
+
+    /**
+     * The Default track for [RangeSlider]
+     *
+     * @param rangeSliderState [RangeSliderState] which is used to obtain the current active track.
+     * @param trackCornerSize size of the external corners.
+     * @param modifier the [Modifier] to be applied to the track.
+     * @param enabled controls the enabled state of this slider. When `false`, this component will
+     *   not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
+     *   different states. See [SliderDefaults.colors].
+     * @param drawStopIndicator lambda that will be called to draw the stop indicator at the
+     *   start/end of the track.
+     * @param drawTick lambda that will be called to draw the ticks if steps are greater than 0.
+     * @param thumbTrackGapSize size of the gap between the thumbs and the track.
+     * @param trackInsideCornerSize size of the corners towards the thumbs when a gap is set.
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun Track(
+        rangeSliderState: RangeSliderState,
+        trackCornerSize: Dp,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        colors: SliderColors = colors(),
+        drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
+            drawStopIndicator(
+                offset = it,
+                color = colors.trackColor(enabled, active = true),
+                size = TrackStopIndicatorSize,
+            )
+        },
+        drawTick: DrawScope.(Offset, Color) -> Unit = { offset, color ->
+            drawStopIndicator(offset = offset, color = color, size = TickSize)
+        },
+        thumbTrackGapSize: Dp = ThumbTrackGapSize,
+        trackInsideCornerSize: Dp = TrackInsideCornerSize,
+    ) {
+        TrackImpl(
+            rangeSliderState = rangeSliderState,
+            trackCornerSize = trackCornerSize,
+            modifier = modifier,
+            enabled = enabled,
+            colors = colors,
+            drawStopIndicator = drawStopIndicator,
+            drawTick = drawTick,
+            thumbTrackGapSize = thumbTrackGapSize,
+            trackInsideCornerSize = trackInsideCornerSize,
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun TrackImpl(
+        rangeSliderState: RangeSliderState,
+        trackCornerSize: Dp,
+        modifier: Modifier,
+        enabled: Boolean,
+        colors: SliderColors,
+        drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
+        drawTick: DrawScope.(Offset, Color) -> Unit,
+        thumbTrackGapSize: Dp,
+        trackInsideCornerSize: Dp,
+    ) {
         val inactiveTrackColor = colors.trackColor(enabled, active = false)
         val activeTrackColor = colors.trackColor(enabled, active = true)
         val inactiveTickColor = colors.tickColor(enabled, active = false)
@@ -1777,6 +1855,12 @@ object SliderDefaults {
                 }
             }
         ) {
+            val cornerSize: Float =
+                if (trackCornerSize == Dp.Unspecified) {
+                    size.height / 2
+                } else {
+                    trackCornerSize.toPx()
+                }
             drawTrack(
                 tickFractions = rangeSliderState.tickFractions,
                 activeRangeStart = rangeSliderState.coercedActiveRangeStartAsFraction,
@@ -1791,7 +1875,7 @@ object SliderDefaults {
                 endThumbHeight = rangeSliderState.endThumbHeight.toDp(),
                 thumbTrackGapSize = thumbTrackGapSize,
                 trackInsideCornerSize = trackInsideCornerSize,
-                trackCornerSize = (size.height / 2).toDp(),
+                trackCornerSize = cornerSize.toDp(),
                 drawStopIndicator = drawStopIndicator,
                 drawTick = drawTick,
                 isRangeSlider = true,

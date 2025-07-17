@@ -76,7 +76,8 @@ import kotlinx.coroutines.withTimeout
  *   will consume touch events while it's shown and will have accessibility focus move to the first
  *   element of the component. When false, the tooltip won't consume touch events while it's shown
  *   but assistive-tech users will need to swipe or drag to get to the first element of the
- *   component.
+ *   component. For certain a11y cases, such as when the tooltip has an action and Talkback is on,
+ *   focusable will be forced to true to allow for the correct a11y behavior.
  * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle long press
  *   and mouse hover to trigger the tooltip through the state provided.
  * @param content the composable that the tooltip will anchor to.
@@ -88,11 +89,14 @@ internal fun BasicTooltipBox(
     state: TooltipState,
     modifier: Modifier = Modifier,
     onDismissRequest: (() -> Unit)? = null,
-    focusable: Boolean = true,
+    focusable: Boolean = false,
     enableUserInput: Boolean = true,
+    hasAction: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val shouldForceFocusableForA11y =
+        hasAction && rememberTouchExplorationOrSwitchAccessServiceState().value
     Box {
         if (state.isVisible) {
             TooltipPopup(
@@ -100,7 +104,7 @@ internal fun BasicTooltipBox(
                 state = state,
                 onDismissRequest = onDismissRequest,
                 scope = scope,
-                focusable = focusable,
+                focusable = focusable || shouldForceFocusableForA11y,
                 content = tooltip,
             )
         }
@@ -385,3 +389,12 @@ internal expect object BasicTooltipStrings {
 
     @Composable fun description(): String
 }
+
+/** Returns the current accessibility touch exploration or switch access service [State]. */
+@Composable
+private fun rememberTouchExplorationOrSwitchAccessServiceState() =
+    rememberAccessibilityServiceState(
+        listenToTouchExplorationState = true,
+        listenToSwitchAccessState = true,
+        listenToVoiceAccessState = false,
+    )

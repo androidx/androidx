@@ -1,4 +1,16 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.material3.DatePickerState#getDisplayMode-jFl-4v0():
+    Binary breaking change: Added method androidx.compose.material3.DatePickerState.getDisplayMode-jFl-4v0()
+AddedAbstractMethod: androidx.compose.material3.DatePickerState#getLocale():
+    Binary breaking change: Added method androidx.compose.material3.DatePickerState.getLocale()
+AddedAbstractMethod: androidx.compose.material3.DatePickerState#setDisplayMode-vCnGnXg(int):
+    Binary breaking change: Added method androidx.compose.material3.DatePickerState.setDisplayMode-vCnGnXg(int)
+AddedAbstractMethod: androidx.compose.material3.DateRangePickerState#getDisplayMode-jFl-4v0():
+    Binary breaking change: Added method androidx.compose.material3.DateRangePickerState.getDisplayMode-jFl-4v0()
+AddedAbstractMethod: androidx.compose.material3.DateRangePickerState#getLocale():
+    Binary breaking change: Added method androidx.compose.material3.DateRangePickerState.getLocale()
+AddedAbstractMethod: androidx.compose.material3.DateRangePickerState#setDisplayMode-vCnGnXg(int):
+    Binary breaking change: Added method androidx.compose.material3.DateRangePickerState.setDisplayMode-vCnGnXg(int)
 AddedAbstractMethod: androidx.compose.material3.NavigationDrawerItemColors#badgeColor(boolean, androidx.compose.runtime.Composer, int):
     Binary breaking change: Added method androidx.compose.material3.NavigationDrawerItemColors.badgeColor(boolean,androidx.compose.runtime.Composer,int)
 AddedAbstractMethod: androidx.compose.material3.NavigationDrawerItemColors#containerColor(boolean, androidx.compose.runtime.Composer, int):
@@ -9,9 +21,631 @@ AddedAbstractMethod: androidx.compose.material3.NavigationDrawerItemColors#textC
     Binary breaking change: Added method androidx.compose.material3.NavigationDrawerItemColors.textColor(boolean,androidx.compose.runtime.Composer,int)
 
 
+ChangedDefault: androidx.compose.material3.pulltorefresh.PullToRefreshState#isAnimating():
+    Binary breaking change: Method androidx.compose.material3.pulltorefresh.PullToRefreshState.isAnimating has changed 'default' qualifier
+
+
 RemovedClass: androidx.compose.material3.ExposedDropdownMenu_androidKt:
     Binary breaking change: Removed class androidx.compose.material3.ExposedDropdownMenu_androidKt
 RemovedClass: androidx.compose.material3.MenuAnchorType:
     Binary breaking change: Removed class androidx.compose.material3.MenuAnchorType
 RemovedClass: androidx.compose.material3.SearchBar_androidKt:
     Binary breaking change: Removed class androidx.compose.material3.SearchBar_androidKt
+
+
+RemovedDeprecatedMethod: androidx.compose.material3.ColorScheme#ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed deprecated constructor androidx.compose.material3.ColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedDeprecatedMethod: androidx.compose.material3.DrawerDefaults#getContainerColor():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.DrawerDefaults.getContainerColor()
+RemovedDeprecatedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularTrackColor():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.ProgressIndicatorDefaults.getCircularTrackColor()
+RemovedDeprecatedMethod: androidx.compose.material3.TabRowDefaults#getContainerColor():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TabRowDefaults.getContainerColor()
+RemovedDeprecatedMethod: androidx.compose.material3.TabRowDefaults#getContentColor():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TabRowDefaults.getContentColor()
+RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#getFocusedBorderThickness():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TextFieldDefaults.getFocusedBorderThickness()
+RemovedDeprecatedMethod: androidx.compose.material3.TextFieldDefaults#getUnfocusedBorderThickness():
+    Binary breaking change: Removed deprecated method androidx.compose.material3.TextFieldDefaults.getUnfocusedBorderThickness()
+
+
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getIconContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getIconContentColor()
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getTextContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getTextContentColor()
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getTitleContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getTitleContentColor()
+RemovedMethod: androidx.compose.material3.AlertDialogDefaults#getTonalElevation():
+    Binary breaking change: Removed method androidx.compose.material3.AlertDialogDefaults.getTonalElevation()
+RemovedMethod: androidx.compose.material3.AssistChipDefaults#getHeight():
+    Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.getHeight()
+RemovedMethod: androidx.compose.material3.AssistChipDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.AssistChipDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.BadgeDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.BadgeDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.BottomAppBarDefaults#getBottomAppBarFabColor():
+    Binary breaking change: Removed method androidx.compose.material3.BottomAppBarDefaults.getBottomAppBarFabColor()
+RemovedMethod: androidx.compose.material3.BottomAppBarDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.BottomAppBarDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.BottomAppBarDefaults#getContainerElevation():
+    Binary breaking change: Removed method androidx.compose.material3.BottomAppBarDefaults.getContainerElevation()
+RemovedMethod: androidx.compose.material3.ButtonColors#ButtonColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.ButtonColors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.ButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.ButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonColors.getContentColor()
+RemovedMethod: androidx.compose.material3.ButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.ButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getMinHeight():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getMinHeight()
+RemovedMethod: androidx.compose.material3.ButtonDefaults#getMinWidth():
+    Binary breaking change: Removed method androidx.compose.material3.ButtonDefaults.getMinWidth()
+RemovedMethod: androidx.compose.material3.CardColors#CardColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.CardColors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.CardColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.CardColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.CardColors#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.CardColors.getContentColor()
+RemovedMethod: androidx.compose.material3.CardColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.CardColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.CardColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.CardColors.getDisabledContentColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#CheckboxColors(long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.CheckboxColors(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.CheckboxColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getCheckedBorderColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getCheckedBoxColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getCheckedBoxColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getCheckedCheckmarkColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledBorderColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledCheckedBoxColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledCheckedBoxColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledIndeterminateBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledIndeterminateBorderColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledIndeterminateBoxColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledIndeterminateBoxColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getDisabledUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getDisabledUncheckedBoxColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getUncheckedBorderColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getUncheckedBoxColor()
+RemovedMethod: androidx.compose.material3.CheckboxColors#getUncheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.compose.material3.CheckboxColors.getUncheckedCheckmarkColor()
+RemovedMethod: androidx.compose.material3.ChipColors#ChipColors(long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.ChipColors(long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ChipColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getDisabledLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getDisabledLabelColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getDisabledLeadingIconContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getDisabledLeadingIconContentColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getDisabledTrailingIconContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getDisabledTrailingIconContentColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getLabelColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getLeadingIconContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getLeadingIconContentColor()
+RemovedMethod: androidx.compose.material3.ChipColors#getTrailingIconContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ChipColors.getTrailingIconContentColor()
+RemovedMethod: androidx.compose.material3.ChipElevation#ChipElevation(float, float, float, float, float, float):
+    Binary breaking change: Removed constructor androidx.compose.material3.ChipElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.ChipElevation#getDisabledElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getDisabledElevation()
+RemovedMethod: androidx.compose.material3.ChipElevation#getDraggedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getDraggedElevation()
+RemovedMethod: androidx.compose.material3.ChipElevation#getElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getElevation()
+RemovedMethod: androidx.compose.material3.ChipElevation#getFocusedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getFocusedElevation()
+RemovedMethod: androidx.compose.material3.ChipElevation#getHoveredElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getHoveredElevation()
+RemovedMethod: androidx.compose.material3.ChipElevation#getPressedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ChipElevation.getPressedElevation()
+RemovedMethod: androidx.compose.material3.ColorScheme#ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.ColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ColorScheme#getBackground():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getBackground()
+RemovedMethod: androidx.compose.material3.ColorScheme#getError():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getError()
+RemovedMethod: androidx.compose.material3.ColorScheme#getErrorContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getErrorContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getInverseOnSurface():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getInverseOnSurface()
+RemovedMethod: androidx.compose.material3.ColorScheme#getInversePrimary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getInversePrimary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getInverseSurface():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getInverseSurface()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnBackground():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnBackground()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnError():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnError()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnErrorContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnErrorContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnPrimary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnPrimary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnPrimaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnPrimaryContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnSecondary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnSecondary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnSecondaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnSecondaryContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnSurface():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnSurface()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnSurfaceVariant():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnSurfaceVariant()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnTertiary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnTertiary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOnTertiaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOnTertiaryContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOutline():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOutline()
+RemovedMethod: androidx.compose.material3.ColorScheme#getOutlineVariant():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getOutlineVariant()
+RemovedMethod: androidx.compose.material3.ColorScheme#getPrimary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getPrimary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getPrimaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getPrimaryContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getScrim():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getScrim()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSecondary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSecondary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSecondaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSecondaryContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurface():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurface()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceBright():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceBright()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceContainer()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceContainerHigh():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceContainerHigh()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceContainerHighest():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceContainerHighest()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceContainerLow():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceContainerLow()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceContainerLowest():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceContainerLowest()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceDim():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceDim()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceTint():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceTint()
+RemovedMethod: androidx.compose.material3.ColorScheme#getSurfaceVariant():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getSurfaceVariant()
+RemovedMethod: androidx.compose.material3.ColorScheme#getTertiary():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getTertiary()
+RemovedMethod: androidx.compose.material3.ColorScheme#getTertiaryContainer():
+    Binary breaking change: Removed method androidx.compose.material3.ColorScheme.getTertiaryContainer()
+RemovedMethod: androidx.compose.material3.DividerDefaults#getColor():
+    Binary breaking change: Removed method androidx.compose.material3.DividerDefaults.getColor()
+RemovedMethod: androidx.compose.material3.DividerDefaults#getThickness():
+    Binary breaking change: Removed method androidx.compose.material3.DividerDefaults.getThickness()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getDismissibleDrawerElevation():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getDismissibleDrawerElevation()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getMaximumDrawerWidth():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getMaximumDrawerWidth()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getModalContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getModalContainerColor()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getModalDrawerElevation():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getModalDrawerElevation()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getPermanentDrawerElevation():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getPermanentDrawerElevation()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getScrimColor():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getScrimColor()
+RemovedMethod: androidx.compose.material3.DrawerDefaults#getStandardContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.DrawerDefaults.getStandardContainerColor()
+RemovedMethod: androidx.compose.material3.FabPosition.Companion#getCenter():
+    Binary breaking change: Removed method androidx.compose.material3.FabPosition.Companion.getCenter()
+RemovedMethod: androidx.compose.material3.FabPosition.Companion#getEnd():
+    Binary breaking change: Removed method androidx.compose.material3.FabPosition.Companion.getEnd()
+RemovedMethod: androidx.compose.material3.FabPosition.Companion#getEndOverlay():
+    Binary breaking change: Removed method androidx.compose.material3.FabPosition.Companion.getEndOverlay()
+RemovedMethod: androidx.compose.material3.FabPosition.Companion#getStart():
+    Binary breaking change: Removed method androidx.compose.material3.FabPosition.Companion.getStart()
+RemovedMethod: androidx.compose.material3.FilterChipDefaults#getHeight():
+    Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.getHeight()
+RemovedMethod: androidx.compose.material3.FilterChipDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.FilterChipDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.FloatingActionButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.FloatingActionButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.compose.material3.IconButtonColors#IconButtonColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.IconButtonColors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.IconButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.IconButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonColors.getContentColor()
+RemovedMethod: androidx.compose.material3.IconButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.IconButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#IconToggleButtonColors(long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.IconToggleButtonColors(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getContentColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.IconToggleButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.IconToggleButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.compose.material3.InputChipDefaults#getAvatarSize():
+    Binary breaking change: Removed method androidx.compose.material3.InputChipDefaults.getAvatarSize()
+RemovedMethod: androidx.compose.material3.InputChipDefaults#getHeight():
+    Binary breaking change: Removed method androidx.compose.material3.InputChipDefaults.getHeight()
+RemovedMethod: androidx.compose.material3.InputChipDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.InputChipDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.ListItemColors#ListItemColors(long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.ListItemColors(long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.ListItemColors#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getContainerColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getDisabledHeadlineColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getDisabledHeadlineColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getDisabledLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getDisabledLeadingIconColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getDisabledTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getDisabledTrailingIconColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getHeadlineColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getHeadlineColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getLeadingIconColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getOverlineColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getOverlineColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getSupportingTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getSupportingTextColor()
+RemovedMethod: androidx.compose.material3.ListItemColors#getTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemColors.getTrailingIconColor()
+RemovedMethod: androidx.compose.material3.ListItemDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.ListItemDefaults#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemDefaults.getContentColor()
+RemovedMethod: androidx.compose.material3.ListItemDefaults#getElevation():
+    Binary breaking change: Removed method androidx.compose.material3.ListItemDefaults.getElevation()
+RemovedMethod: androidx.compose.material3.MenuDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.MenuDefaults#getShadowElevation():
+    Binary breaking change: Removed method androidx.compose.material3.MenuDefaults.getShadowElevation()
+RemovedMethod: androidx.compose.material3.MenuDefaults#getTonalElevation():
+    Binary breaking change: Removed method androidx.compose.material3.MenuDefaults.getTonalElevation()
+RemovedMethod: androidx.compose.material3.MenuItemColors#MenuItemColors(long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.MenuItemColors(long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.MenuItemColors#getDisabledLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getDisabledLeadingIconColor()
+RemovedMethod: androidx.compose.material3.MenuItemColors#getDisabledTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getDisabledTextColor()
+RemovedMethod: androidx.compose.material3.MenuItemColors#getDisabledTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getDisabledTrailingIconColor()
+RemovedMethod: androidx.compose.material3.MenuItemColors#getLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getLeadingIconColor()
+RemovedMethod: androidx.compose.material3.MenuItemColors#getTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getTextColor()
+RemovedMethod: androidx.compose.material3.MenuItemColors#getTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.MenuItemColors.getTrailingIconColor()
+RemovedMethod: androidx.compose.material3.NavigationBarDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.NavigationBarDefaults#getElevation():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarDefaults.getElevation()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#NavigationBarItemColors(long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.NavigationBarItemColors(long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getDisabledIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getDisabledIconColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getDisabledTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getDisabledTextColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getSelectedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getSelectedIconColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getSelectedIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getSelectedIndicatorColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getSelectedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getSelectedTextColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getUnselectedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getUnselectedIconColor()
+RemovedMethod: androidx.compose.material3.NavigationBarItemColors#getUnselectedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationBarItemColors.getUnselectedTextColor()
+RemovedMethod: androidx.compose.material3.NavigationRailDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailDefaults.getContainerColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#NavigationRailItemColors(long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.NavigationRailItemColors(long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getDisabledIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getDisabledIconColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getDisabledTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getDisabledTextColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getSelectedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getSelectedIconColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getSelectedIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getSelectedIndicatorColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getSelectedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getSelectedTextColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getUnselectedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getUnselectedIconColor()
+RemovedMethod: androidx.compose.material3.NavigationRailItemColors#getUnselectedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.NavigationRailItemColors.getUnselectedTextColor()
+RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#getFocusedBorderThickness():
+    Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.getFocusedBorderThickness()
+RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#getMinHeight():
+    Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.getMinHeight()
+RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#getMinWidth():
+    Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.getMinWidth()
+RemovedMethod: androidx.compose.material3.OutlinedTextFieldDefaults#getUnfocusedBorderThickness():
+    Binary breaking change: Removed method androidx.compose.material3.OutlinedTextFieldDefaults.getUnfocusedBorderThickness()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularColor():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularColor()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularDeterminateStrokeCap():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularDeterminateStrokeCap()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularDeterminateTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularDeterminateTrackColor()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularIndeterminateStrokeCap():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularIndeterminateStrokeCap()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularIndeterminateTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularIndeterminateTrackColor()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getCircularStrokeWidth():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getCircularStrokeWidth()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getLinearColor():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getLinearColor()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getLinearStrokeCap():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getLinearStrokeCap()
+RemovedMethod: androidx.compose.material3.ProgressIndicatorDefaults#getLinearTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.ProgressIndicatorDefaults.getLinearTrackColor()
+RemovedMethod: androidx.compose.material3.RadioButtonColors#RadioButtonColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.RadioButtonColors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.RadioButtonColors#getDisabledSelectedColor():
+    Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.getDisabledSelectedColor()
+RemovedMethod: androidx.compose.material3.RadioButtonColors#getDisabledUnselectedColor():
+    Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.getDisabledUnselectedColor()
+RemovedMethod: androidx.compose.material3.RadioButtonColors#getSelectedColor():
+    Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.getSelectedColor()
+RemovedMethod: androidx.compose.material3.RadioButtonColors#getUnselectedColor():
+    Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.getUnselectedColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#SegmentedButtonColors(long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.SegmentedButtonColors(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getActiveBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getActiveBorderColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getActiveContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getActiveContainerColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getActiveContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getActiveContentColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledActiveBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledActiveBorderColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledActiveContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledActiveContainerColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledActiveContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledActiveContentColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledInactiveBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledInactiveBorderColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledInactiveContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledInactiveContainerColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getDisabledInactiveContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getDisabledInactiveContentColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getInactiveBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getInactiveBorderColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getInactiveContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getInactiveContainerColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonColors#getInactiveContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonColors.getInactiveContentColor()
+RemovedMethod: androidx.compose.material3.SegmentedButtonDefaults#getBorderWidth():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonDefaults.getBorderWidth()
+RemovedMethod: androidx.compose.material3.SegmentedButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.SegmentedButtonDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.SelectableChipColors#SelectableChipColors(long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.SelectableChipColors(long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#SelectableChipElevation(float, float, float, float, float, float):
+    Binary breaking change: Removed constructor androidx.compose.material3.SelectableChipElevation(float,float,float,float,float,float)
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getDisabledElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getDisabledElevation()
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getDraggedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getDraggedElevation()
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getElevation()
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getFocusedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getFocusedElevation()
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getHoveredElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getHoveredElevation()
+RemovedMethod: androidx.compose.material3.SelectableChipElevation#getPressedElevation():
+    Binary breaking change: Removed method androidx.compose.material3.SelectableChipElevation.getPressedElevation()
+RemovedMethod: androidx.compose.material3.SliderColors#SliderColors(long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.SliderColors(long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.SliderColors#getActiveTickColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getActiveTickColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getActiveTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getActiveTrackColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getDisabledActiveTickColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getDisabledActiveTickColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getDisabledActiveTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getDisabledActiveTrackColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getDisabledInactiveTickColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getDisabledInactiveTickColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getDisabledInactiveTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getDisabledInactiveTrackColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getDisabledThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getDisabledThumbColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getInactiveTickColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getInactiveTickColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getInactiveTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getInactiveTrackColor()
+RemovedMethod: androidx.compose.material3.SliderColors#getThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SliderColors.getThumbColor()
+RemovedMethod: androidx.compose.material3.SliderDefaults#getTickSize():
+    Binary breaking change: Removed method androidx.compose.material3.SliderDefaults.getTickSize()
+RemovedMethod: androidx.compose.material3.SliderDefaults#getTrackStopIndicatorSize():
+    Binary breaking change: Removed method androidx.compose.material3.SliderDefaults.getTrackStopIndicatorSize()
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getActionColor():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getActionColor()
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getActionContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getActionContentColor()
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getColor():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getColor()
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getContentColor()
+RemovedMethod: androidx.compose.material3.SnackbarDefaults#getDismissActionContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.SnackbarDefaults.getDismissActionContentColor()
+RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#getHeight():
+    Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.getHeight()
+RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.SuggestionChipDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.SwitchColors#SwitchColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.SwitchColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.SwitchColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getCheckedBorderColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getCheckedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getCheckedIconColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getCheckedThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getCheckedThumbColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getCheckedTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getCheckedTrackColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledCheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledCheckedBorderColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledCheckedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledCheckedIconColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledCheckedThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledCheckedThumbColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledCheckedTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledCheckedTrackColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledUncheckedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledUncheckedIconColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledUncheckedThumbColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getDisabledUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getDisabledUncheckedTrackColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getUncheckedBorderColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getUncheckedIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getUncheckedIconColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getUncheckedThumbColor()
+RemovedMethod: androidx.compose.material3.SwitchColors#getUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchColors.getUncheckedTrackColor()
+RemovedMethod: androidx.compose.material3.SwitchDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.compose.material3.SwitchDefaults.getIconSize()
+RemovedMethod: androidx.compose.material3.TabPosition#getContentWidth():
+    Binary breaking change: Removed method androidx.compose.material3.TabPosition.getContentWidth()
+RemovedMethod: androidx.compose.material3.TabPosition#getLeft():
+    Binary breaking change: Removed method androidx.compose.material3.TabPosition.getLeft()
+RemovedMethod: androidx.compose.material3.TabPosition#getRight():
+    Binary breaking change: Removed method androidx.compose.material3.TabPosition.getRight()
+RemovedMethod: androidx.compose.material3.TabPosition#getWidth():
+    Binary breaking change: Removed method androidx.compose.material3.TabPosition.getWidth()
+RemovedMethod: androidx.compose.material3.TabRowDefaults#getPrimaryContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TabRowDefaults.getPrimaryContainerColor()
+RemovedMethod: androidx.compose.material3.TabRowDefaults#getPrimaryContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.TabRowDefaults.getPrimaryContentColor()
+RemovedMethod: androidx.compose.material3.TabRowDefaults#getScrollableTabRowEdgeStartPadding():
+    Binary breaking change: Removed method androidx.compose.material3.TabRowDefaults.getScrollableTabRowEdgeStartPadding()
+RemovedMethod: androidx.compose.material3.TabRowDefaults#getSecondaryContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TabRowDefaults.getSecondaryContainerColor()
+RemovedMethod: androidx.compose.material3.TabRowDefaults#getSecondaryContentColor():
+    Binary breaking change: Removed method androidx.compose.material3.TabRowDefaults.getSecondaryContentColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#TextFieldColors(long, long, long, long, long, long, long, long, long, long, androidx.compose.foundation.text.selection.TextSelectionColors, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.compose.material3.TextFieldColors(long,long,long,long,long,long,long,long,long,long,androidx.compose.foundation.text.selection.TextSelectionColors,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.compose.material3.TextFieldColors#getCursorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getCursorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledContainerColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledIndicatorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledLabelColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledLeadingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledPlaceholderColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledPlaceholderColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledPrefixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledPrefixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledSuffixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledSuffixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledSupportingTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledSupportingTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getDisabledTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getDisabledTrailingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorContainerColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorCursorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorCursorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorIndicatorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorLabelColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorLeadingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorPlaceholderColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorPlaceholderColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorPrefixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorPrefixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorSuffixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorSuffixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorSupportingTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorSupportingTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getErrorTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getErrorTrailingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedContainerColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedIndicatorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedLabelColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedLeadingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedPlaceholderColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedPlaceholderColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedPrefixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedPrefixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedSuffixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedSuffixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedSupportingTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedSupportingTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getFocusedTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getFocusedTrailingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedContainerColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedContainerColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedIndicatorColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedIndicatorColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedLabelColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedLabelColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedLeadingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedLeadingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedPlaceholderColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedPlaceholderColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedPrefixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedPrefixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedSuffixColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedSuffixColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedSupportingTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedSupportingTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedTextColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedTextColor()
+RemovedMethod: androidx.compose.material3.TextFieldColors#getUnfocusedTrailingIconColor():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldColors.getUnfocusedTrailingIconColor()
+RemovedMethod: androidx.compose.material3.TextFieldDefaults#getFocusedIndicatorThickness():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.getFocusedIndicatorThickness()
+RemovedMethod: androidx.compose.material3.TextFieldDefaults#getMinHeight():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.getMinHeight()
+RemovedMethod: androidx.compose.material3.TextFieldDefaults#getMinWidth():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.getMinWidth()
+RemovedMethod: androidx.compose.material3.TextFieldDefaults#getUnfocusedIndicatorThickness():
+    Binary breaking change: Removed method androidx.compose.material3.TextFieldDefaults.getUnfocusedIndicatorThickness()

@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmInline
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateInputContent(
     selectedDateMillis: Long?,
@@ -113,7 +112,6 @@ internal fun DateInputContent(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateInputTextField(
     modifier: Modifier,
@@ -280,7 +278,6 @@ internal fun DateInputTextField(
  *   and one of the input dates is out of order (i.e. the user inputs a start date that is after the
  *   end date, or an end date that is before the start date)
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 internal class DateInputValidator(
     private val yearRange: IntRange,
@@ -392,7 +389,6 @@ internal value class InputIdentifier internal constructor(internal val value: In
  * A [VisualTransformation] for date input. The transformation will automatically display the date
  * delimiters provided by the [DateInputFormat] as the date is being entered into the text field.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 private class DateVisualTransformation(private val dateInputFormat: DateInputFormat) :
     VisualTransformation {
 
