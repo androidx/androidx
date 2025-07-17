@@ -32,7 +32,8 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
-import com.google.common.truth.Truth
+import com.google.common.truth.FloatSubject
+import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
@@ -54,7 +55,6 @@ class DesktopParagraphTest {
                 style = FontStyle.Normal
             )
         )
-    private val lineMetricsTolerance = 0.001f
 
     @Test
     fun getBoundingBox_basic() {
@@ -69,10 +69,10 @@ class DesktopParagraphTest {
 
             for (i in 0..text.length - 1) {
                 val box = paragraph.getBoundingBox(i)
-                Truth.assertThat(box.left).isWithin(lineMetricsTolerance).of(i * fontSizeInPx)
-                Truth.assertThat(box.right).isWithin(lineMetricsTolerance).of((i + 1) * fontSizeInPx)
-                Truth.assertThat(box.top).isZero()
-                Truth.assertThat(box.bottom).isWithin(lineMetricsTolerance).of(fontSizeInPx)
+                assertThat(box.left).isEqualToWithTolerance(i * fontSizeInPx)
+                assertThat(box.right).isEqualToWithTolerance((i + 1) * fontSizeInPx)
+                assertThat(box.top).isZero()
+                assertThat(box.bottom).isEqualToWithTolerance(fontSizeInPx)
             }
         }
     }
@@ -90,9 +90,9 @@ class DesktopParagraphTest {
             )
 
             repeat(4) {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((fontSizeInPx * it).roundToInt())
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo(paragraph.getCursorRect(it).right.roundToInt())
             }
         }
@@ -110,11 +110,11 @@ class DesktopParagraphTest {
             )
 
             val leftX = paragraph.getLineLeft(0)
-            Truth.assertThat(leftX.roundToInt()).isEqualTo((widthInPx - 3 * fontSizeInPx).roundToInt())
+            assertThat(leftX.roundToInt()).isEqualTo((widthInPx - 3 * fontSizeInPx).roundToInt())
             repeat(4) {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((leftX + fontSizeInPx * it).roundToInt())
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo(paragraph.getCursorRect(it).right.roundToInt())
             }
         }
@@ -133,7 +133,7 @@ class DesktopParagraphTest {
             )
 
             repeat(4) {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo(((3 - it) * fontSizeInPx).roundToInt())
             }
         }
@@ -151,9 +151,9 @@ class DesktopParagraphTest {
             )
 
             val leftX = paragraph.getLineLeft(0)
-            Truth.assertThat(leftX.roundToInt()).isEqualTo((widthInPx - 3 * fontSizeInPx).roundToInt())
+            assertThat(leftX.roundToInt()).isEqualTo((widthInPx - 3 * fontSizeInPx).roundToInt())
             repeat(4) {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((leftX + (3 - it) * fontSizeInPx).roundToInt())
             }
         }
@@ -173,11 +173,11 @@ class DesktopParagraphTest {
 
             val rightX = paragraph.getLineRight(0)
             (0..3).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((it * fontSizeInPx).roundToInt())
             }
             (4..7).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((rightX - (it - 4) * fontSizeInPx).roundToInt())
             }
         }
@@ -192,11 +192,11 @@ class DesktopParagraphTest {
 
             val leftX = paragraph.getLineLeft(0)
             (0..3).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((leftX + (3 - it) * fontSizeInPx).roundToInt())
             }
             (7 downTo 4).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((it * fontSizeInPx).roundToInt())
             }
         }
@@ -214,11 +214,11 @@ class DesktopParagraphTest {
 
             val rightX = paragraph.getLineRight(0)
             (3 downTo 0).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((rightX - (3 - it) * fontSizeInPx).roundToInt())
             }
             (4..7).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((rightX -  it * fontSizeInPx).roundToInt())
             }
         }
@@ -235,11 +235,11 @@ class DesktopParagraphTest {
             val leftX = paragraph.getLineLeft(0)
             val rightX = paragraph.getLineRight(0)
             (0..3).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((rightX - it * fontSizeInPx).roundToInt())
             }
             (4..7).forEach {
-                Truth.assertThat(paragraph.getCursorRect(it).left.roundToInt())
+                assertThat(paragraph.getCursorRect(it).left.roundToInt())
                     .isEqualTo((leftX + (it - 4) * fontSizeInPx).roundToInt())
             }
         }
@@ -264,9 +264,9 @@ class DesktopParagraphTest {
             val clickX = (leftX + rightX) / 2f
             val secondLineY = (paragraph.getLineBottom(1) + paragraph.getLineTop(1)) / 2f
 
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(clickX, secondLineY))).isEqualTo(4)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(leftX - fontSizeInPx, secondLineY))).isEqualTo(4)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(rightX + fontSizeInPx, secondLineY))).isEqualTo(4)
+            assertThat(paragraph.getOffsetForPosition(Offset(clickX, secondLineY))).isEqualTo(4)
+            assertThat(paragraph.getOffsetForPosition(Offset(leftX - fontSizeInPx, secondLineY))).isEqualTo(4)
+            assertThat(paragraph.getOffsetForPosition(Offset(rightX + fontSizeInPx, secondLineY))).isEqualTo(4)
         }
     }
 
@@ -284,18 +284,18 @@ class DesktopParagraphTest {
 
             val firstLineY = (paragraph.getLineBottom(0) + paragraph.getLineTop(0)) / 2f
             (0..5).forEach {
-                Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = fontSizeInPx * it, y = firstLineY)))
+                assertThat(paragraph.getOffsetForPosition(Offset(x = fontSizeInPx * it, y = firstLineY)))
                     .isEqualTo(it)
             }
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 1000f, y = firstLineY))).isEqualTo(5)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = firstLineY))).isEqualTo(0)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 1000f, y = firstLineY))).isEqualTo(5)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = firstLineY))).isEqualTo(0)
 
             val secondLineY = (paragraph.getLineBottom(1) + paragraph.getLineTop(1)) / 2f
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 1000f, y = secondLineY))).isEqualTo(13)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = secondLineY))).isEqualTo(6)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 1000f, y = secondLineY))).isEqualTo(13)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = secondLineY))).isEqualTo(6)
 
             (6..13).forEach {
-                Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = fontSizeInPx * (it - 6), y = secondLineY))).isEqualTo(it)
+                assertThat(paragraph.getOffsetForPosition(Offset(x = fontSizeInPx * (it - 6), y = secondLineY))).isEqualTo(it)
             }
         }
 
@@ -313,18 +313,18 @@ class DesktopParagraphTest {
 
             val firstLineY = (paragraph.getLineBottom(0) + paragraph.getLineTop(0)) / 2f
             (0..5).forEach {
-                Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width - fontSizeInPx * it, y = firstLineY)))
+                assertThat(paragraph.getOffsetForPosition(Offset(x = width - fontSizeInPx * it, y = firstLineY)))
                     .isEqualTo(it)
             }
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width + fontSizeInPx, y = firstLineY))).isEqualTo(0)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = firstLineY))).isEqualTo(5)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width + fontSizeInPx, y = firstLineY))).isEqualTo(0)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = firstLineY))).isEqualTo(5)
 
             val secondLineY = 20f + (paragraph.getLineBottom(1) + paragraph.getLineTop(1)) / 2f
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width - 1f, y = secondLineY))).isEqualTo(6)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = secondLineY))).isEqualTo(13)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width - 1f, y = secondLineY))).isEqualTo(6)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = -100f, y = secondLineY))).isEqualTo(13)
 
             (7..13).forEach {
-                Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width - (it - 6) * fontSizeInPx, y = secondLineY))).isEqualTo(it)
+                assertThat(paragraph.getOffsetForPosition(Offset(x = width - (it - 6) * fontSizeInPx, y = secondLineY))).isEqualTo(it)
             }
         }
     }
@@ -342,26 +342,26 @@ class DesktopParagraphTest {
                 style = TextStyle(fontSize = fontSize, textDirection = TextDirection.Ltr)
             )
 
-            Truth.assertThat(paragraph.lineCount).isEqualTo(4)
+            assertThat(paragraph.lineCount).isEqualTo(4)
             val y = fontSizeInPx / 2f
 
             // first line has 2 spaces in the end
-            Truth.assertThat(
+            assertThat(
                 paragraph.getOffsetForPosition(Offset(x = width, y = y))
             ).isEqualTo(8)
 
             // seconds line has 1 space in the end
-            Truth.assertThat(
+            assertThat(
                 paragraph.getOffsetForPosition(Offset(x = width, y = y + fontSizeInPx))
             ).isEqualTo(16)
 
             // 3rd line has 2 spaces in the end
-            Truth.assertThat(
+            assertThat(
                 paragraph.getOffsetForPosition(Offset(x = width, y = y + 2 * fontSizeInPx))
             ).isEqualTo(25)
 
             // 4th line has no spaces
-            Truth.assertThat(
+            assertThat(
                 paragraph.getOffsetForPosition(Offset(x = width, y = y + 3 * fontSizeInPx))
             ).isEqualTo(29)
         }
@@ -382,10 +382,10 @@ class DesktopParagraphTest {
             )
 
             val y = fontSizeInPx / 2f
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y))).isEqualTo(7)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + fontSizeInPx))).isEqualTo(11)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + 2 * fontSizeInPx))).isEqualTo(15)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + 3 * fontSizeInPx))).isEqualTo(16)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y))).isEqualTo(7)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + fontSizeInPx))).isEqualTo(11)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + 2 * fontSizeInPx))).isEqualTo(15)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = width, y = y + 3 * fontSizeInPx))).isEqualTo(16)
         }
     }
 
@@ -404,10 +404,10 @@ class DesktopParagraphTest {
             )
 
             val y = fontSizeInPx / 2f
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y))).isEqualTo(0)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + fontSizeInPx))).isEqualTo(8)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + 2 * fontSizeInPx))).isEqualTo(12)
-            Truth.assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + 3 * fontSizeInPx))).isEqualTo(16)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y))).isEqualTo(0)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + fontSizeInPx))).isEqualTo(8)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + 2 * fontSizeInPx))).isEqualTo(12)
+            assertThat(paragraph.getOffsetForPosition(Offset(x = 0f, y = y + 3 * fontSizeInPx))).isEqualTo(16)
         }
     }
 
@@ -419,10 +419,10 @@ class DesktopParagraphTest {
             style = TextStyle(fontSize = 50.sp)
         )
 
-        Truth.assertThat(paragraph.getBoundingBox(1).left)
+        assertThat(paragraph.getBoundingBox(1).left)
             .isEqualTo(paragraph.getBoundingBox(0).right)
 
-        Truth.assertThat(paragraph.getBoundingBox(5))
+        assertThat(paragraph.getBoundingBox(5))
             .isEqualTo(paragraph.getBoundingBox(1))
     }
 
@@ -434,9 +434,9 @@ class DesktopParagraphTest {
             style = TextStyle(fontSize = 50.sp)
         )
 
-        Truth.assertThat(paragraph.getLineForOffset(2))
+        assertThat(paragraph.getLineForOffset(2))
             .isEqualTo(0)
-        Truth.assertThat(paragraph.getLineForOffset(3))
+        assertThat(paragraph.getLineForOffset(3))
             .isEqualTo(1)
     }
 
@@ -449,7 +449,7 @@ class DesktopParagraphTest {
                 style = TextStyle(fontSize = 50.sp)
             )
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
+            assertThat(paragraph.getLineEnd(0, true))
                 .isEqualTo(0)
         }
         with(defaultDensity) {
@@ -459,11 +459,11 @@ class DesktopParagraphTest {
                 style = TextStyle(fontSize = 50.sp)
             )
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
+            assertThat(paragraph.getLineEnd(0, true))
                 .isEqualTo(2)
-            Truth.assertThat(paragraph.getLineEnd(1, true))
+            assertThat(paragraph.getLineEnd(1, true))
                 .isEqualTo(3)
-            Truth.assertThat(paragraph.getLineEnd(2, true))
+            assertThat(paragraph.getLineEnd(2, true))
                 .isEqualTo(5)
         }
         with(defaultDensity) {
@@ -473,75 +473,10 @@ class DesktopParagraphTest {
                 style = TextStyle(fontSize = 50.sp)
             )
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
+            assertThat(paragraph.getLineEnd(0, true))
                 .isEqualTo(2)
-            Truth.assertThat(paragraph.getLineEnd(1, true))
+            assertThat(paragraph.getLineEnd(1, true))
                 .isEqualTo(3)
-        }
-    }
-
-    @Test
-    fun getHorizontalPositionForOffset_primary_Bidi_singleLine_textDirectionDefault() {
-        with(defaultDensity) {
-            val ltrText = "abc"
-            val rtlText = "\u05D0\u05D1\u05D2"
-            val text = ltrText + rtlText
-            val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx()
-            val width = text.length * fontSizeInPx
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = fontSize),
-                width = width
-            )
-
-            for (i in ltrText.indices) {
-                Truth.assertThat(paragraph.getHorizontalPosition(i, true))
-                    .isWithin(lineMetricsTolerance)
-                    .of(fontSizeInPx * i)
-            }
-
-            for (i in 1 until rtlText.length) {
-                Truth.assertThat(paragraph.getHorizontalPosition(i + ltrText.length, true))
-                    .isWithin(lineMetricsTolerance)
-                    .of(width - fontSizeInPx * i)
-            }
-        }
-    }
-
-    @Test
-    fun getHorizontalPositionForOffset_notPrimary_Bidi_singleLine_textDirectionLtr() {
-        with(defaultDensity) {
-            val ltrText = "abc"
-            val rtlText = "\u05D0\u05D1\u05D2"
-            val text = ltrText + rtlText
-            val fontSize = 50.sp
-            val fontSizeInPx = fontSize.toPx()
-            val width = text.length * fontSizeInPx
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(
-                    fontSize = fontSize,
-                    textDirection = TextDirection.Ltr
-                ),
-                width = width
-            )
-
-            for (i in ltrText.indices) {
-                Truth.assertThat(paragraph.getHorizontalPosition(i, false))
-                    .isWithin(lineMetricsTolerance)
-                    .of(fontSizeInPx * i)
-            }
-
-            for (i in rtlText.indices) {
-                Truth.assertThat(paragraph.getHorizontalPosition(i + ltrText.length, false))
-                    .isWithin(lineMetricsTolerance)
-                    .of(width - fontSizeInPx * i)
-            }
-
-            Truth.assertThat(paragraph.getHorizontalPosition(text.length, false))
-                .isWithin(lineMetricsTolerance)
-                .of(width - rtlText.length * fontSizeInPx)
         }
     }
 
@@ -557,17 +492,17 @@ class DesktopParagraphTest {
         )
 
         val singleSpaceStartResult = paragraph.getWordBoundary(text.indexOf('b') + 1)
-        Truth.assertThat(singleSpaceStartResult.start).isEqualTo(text.indexOf('a'))
-        Truth.assertThat(singleSpaceStartResult.end).isEqualTo(text.indexOf('b') + 1)
+        assertThat(singleSpaceStartResult.start).isEqualTo(text.indexOf('a'))
+        assertThat(singleSpaceStartResult.end).isEqualTo(text.indexOf('b') + 1)
 
         val singleSpaceEndResult = paragraph.getWordBoundary(text.indexOf('c'))
 
-        Truth.assertThat(singleSpaceEndResult.start).isEqualTo(text.indexOf('c'))
-        Truth.assertThat(singleSpaceEndResult.end).isEqualTo(text.indexOf('d') + 1)
+        assertThat(singleSpaceEndResult.start).isEqualTo(text.indexOf('c'))
+        assertThat(singleSpaceEndResult.end).isEqualTo(text.indexOf('d') + 1)
 
         val doubleSpaceResult = paragraph.getWordBoundary(text.indexOf('d') + 2)
-        Truth.assertThat(doubleSpaceResult.start).isEqualTo(text.indexOf('d') + 2)
-        Truth.assertThat(doubleSpaceResult.end).isEqualTo(text.indexOf('d') + 2)
+        assertThat(doubleSpaceResult.start).isEqualTo(text.indexOf('d') + 2)
+        assertThat(doubleSpaceResult.end).isEqualTo(text.indexOf('d') + 2)
     }
 
     @Test
@@ -583,20 +518,20 @@ class DesktopParagraphTest {
         val paragraph2 = simpleParagraph(intrinsics, width = 100000f)
         val offset2 = paragraph2.testOffset()
 
-        Truth.assertThat(paragraph1.testOffset()).isEqualTo(offset1)
-        Truth.assertThat(paragraph2.testOffset()).isEqualTo(offset2)
+        assertThat(paragraph1.testOffset()).isEqualTo(offset1)
+        assertThat(paragraph2.testOffset()).isEqualTo(offset2)
 
         paragraph2.paint()
-        Truth.assertThat(paragraph1.testOffset()).isEqualTo(offset1)
-        Truth.assertThat(paragraph2.testOffset()).isEqualTo(offset2)
+        assertThat(paragraph1.testOffset()).isEqualTo(offset1)
+        assertThat(paragraph2.testOffset()).isEqualTo(offset2)
 
         paragraph1.paint()
-        Truth.assertThat(paragraph1.testOffset()).isEqualTo(offset1)
-        Truth.assertThat(paragraph2.testOffset()).isEqualTo(offset2)
+        assertThat(paragraph1.testOffset()).isEqualTo(offset1)
+        assertThat(paragraph2.testOffset()).isEqualTo(offset2)
 
         paragraph2.paint()
-        Truth.assertThat(paragraph1.testOffset()).isEqualTo(offset1)
-        Truth.assertThat(paragraph2.testOffset()).isEqualTo(offset2)
+        assertThat(paragraph1.testOffset()).isEqualTo(offset1)
+        assertThat(paragraph2.testOffset()).isEqualTo(offset2)
     }
 
     @Test
@@ -608,7 +543,7 @@ class DesktopParagraphTest {
         val firstLineHeight = paragraph.getLineHeight(0)
 
         for (i in 1 until paragraph.lineCount) {
-            Truth.assertThat(paragraph.getLineHeight(i)).isEqualTo(firstLineHeight)
+            assertThat(paragraph.getLineHeight(i)).isEqualTo(firstLineHeight)
         }
     }
 
@@ -643,15 +578,15 @@ class DesktopParagraphTest {
         val e = paragraph.getBoundingBox(helper.text.indexOf("e"))
         val f = paragraph.getBoundingBox(helper.text.indexOf("f"))
 
-        Truth.assertThat(a.top).isLessThan(b.top)
-        Truth.assertThat(b.top).isLessThan(c.top)
-        Truth.assertThat(e.top).isLessThan(d.top)
-        Truth.assertThat(d.top).isLessThan(f.top)
+        assertThat(a.top).isLessThan(b.top)
+        assertThat(b.top).isLessThan(c.top)
+        assertThat(e.top).isLessThan(d.top)
+        assertThat(d.top).isLessThan(f.top)
 
-        Truth.assertThat(a.bottom).isLessThan(b.bottom)
-        Truth.assertThat(b.bottom).isLessThan(c.bottom)
-        Truth.assertThat(e.bottom).isLessThan(d.bottom)
-        Truth.assertThat(d.bottom).isLessThan(f.bottom)
+        assertThat(a.bottom).isLessThan(b.bottom)
+        assertThat(b.bottom).isLessThan(c.bottom)
+        assertThat(e.bottom).isLessThan(d.bottom)
+        assertThat(d.bottom).isLessThan(f.bottom)
     }
 
     @Test
@@ -673,14 +608,14 @@ class DesktopParagraphTest {
                 paragraph.getLineRight(1).roundToInt()
             )
         }
-        Truth.assertThat(measureLines(TextAlign.Left, TextDirection.Ltr)).isEqualTo(listOf(50, 170, 20, 100))
-        Truth.assertThat(measureLines(TextAlign.Center, TextDirection.Ltr)).isEqualTo(listOf(965, 1085, 970, 1050))
-        Truth.assertThat(measureLines(TextAlign.Right, TextDirection.Ltr)).isEqualTo(listOf(1830, 1950, 1900, 1980))
-        Truth.assertThat(measureLines(TextAlign.Justify, TextDirection.Ltr)).isEqualTo(listOf(50, 170, 20, 100))
-        Truth.assertThat(measureLines(TextAlign.Left, TextDirection.Rtl)).isEqualTo(listOf(50, 170, 20, 100))
-        Truth.assertThat(measureLines(TextAlign.Center, TextDirection.Rtl)).isEqualTo(listOf(915, 1035, 950, 1030))
-        Truth.assertThat(measureLines(TextAlign.Right, TextDirection.Rtl)).isEqualTo(listOf(1830, 1950, 1900, 1980))
-        Truth.assertThat(measureLines(TextAlign.Justify, TextDirection.Rtl)).isEqualTo(listOf(1830, 1950, 1900, 1980))
+        assertThat(measureLines(TextAlign.Left, TextDirection.Ltr)).isEqualTo(listOf(50, 170, 20, 100))
+        assertThat(measureLines(TextAlign.Center, TextDirection.Ltr)).isEqualTo(listOf(965, 1085, 970, 1050))
+        assertThat(measureLines(TextAlign.Right, TextDirection.Ltr)).isEqualTo(listOf(1830, 1950, 1900, 1980))
+        assertThat(measureLines(TextAlign.Justify, TextDirection.Ltr)).isEqualTo(listOf(50, 170, 20, 100))
+        assertThat(measureLines(TextAlign.Left, TextDirection.Rtl)).isEqualTo(listOf(50, 170, 20, 100))
+        assertThat(measureLines(TextAlign.Center, TextDirection.Rtl)).isEqualTo(listOf(915, 1035, 950, 1030))
+        assertThat(measureLines(TextAlign.Right, TextDirection.Rtl)).isEqualTo(listOf(1830, 1950, 1900, 1980))
+        assertThat(measureLines(TextAlign.Justify, TextDirection.Rtl)).isEqualTo(listOf(1830, 1950, 1900, 1980))
     }
 
     private fun simpleParagraph(
@@ -734,3 +669,6 @@ class DesktopParagraphTest {
         )
     }
 }
+
+private fun FloatSubject.isEqualToWithTolerance(expected: Float, tolerance: Float = 0.001f) =
+    isWithin(tolerance).of(expected)

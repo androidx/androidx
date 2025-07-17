@@ -33,11 +33,9 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import org.jetbrains.skia.FontMetrics
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
 
 @RunWith(JUnit4::class)
 class DesktopParagraphIntegrationLineHeightStyleTest {
@@ -59,7 +57,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* single line even */
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun singleLine_even_trim_None() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.None,
@@ -79,7 +76,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun singleLine_even_trim_LastLineBottom() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -99,7 +95,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun singleLine_even_trim_FirstLineTop() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -139,7 +134,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* single line top */
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun singleLine_top_trim_None() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.None,
@@ -159,7 +153,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun singleLine_top_trim_LastLineBottom() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -177,7 +170,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun singleLine_top_trim_FirstLineTop() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -217,7 +209,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* single line bottom */
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun singleLine_bottom_trim_None() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.None,
@@ -237,7 +228,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun singleLine_bottom_trim_LastLineBottom() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -255,7 +245,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun singleLine_bottom_trim_FirstLineTop() {
         val paragraph = singleLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -375,7 +364,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* multi line even */
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun multiLine_even_trim_None() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.None,
@@ -400,7 +388,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun multiLine_even_trim_LastLineBottom() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -431,7 +418,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun multiLine_even_trim_FirstLineTop() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -462,7 +448,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Center is not supported") // TODO: Support non-proportional alignment
     fun multiLine_even_trim_Both() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.Both,
@@ -495,7 +480,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* multi line top */
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun multiLine_top_trim_None() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.None,
@@ -526,7 +510,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun multiLine_top_trim_LastLineBottom() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -557,7 +540,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun multiLine_top_trim_FirstLineTop() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -588,7 +570,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Top is not supported") // TODO: Support non-proportional alignment
     fun multiLine_top_trim_Both() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.Both,
@@ -621,7 +602,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     /* multi line bottom */
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun multiLine_bottom_trim_None() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.None,
@@ -652,7 +632,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun multiLine_bottom_trim_LastLineBottom() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.LastLineBottom,
@@ -683,7 +662,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun multiLine_bottom_trim_FirstLineTop() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.FirstLineTop,
@@ -714,7 +692,6 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     }
 
     @Test
-    @Ignore("Alignment.Bottom is not supported") // TODO: Support non-proportional alignment
     fun multiLine_bottom_trim_Both() {
         val paragraph = multiLineParagraph(
             lineHeightTrim = Trim.Both,

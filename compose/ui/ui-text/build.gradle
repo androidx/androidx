@@ -205,6 +205,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             skikoTest {
                 dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":kruth:kruth"))
+                }
             }
 
             desktopTest {

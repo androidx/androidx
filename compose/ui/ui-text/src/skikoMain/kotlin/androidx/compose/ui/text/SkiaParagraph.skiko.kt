@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.SkiaParagraphIntrinsics
 import androidx.compose.ui.text.platform.cursorHorizontalPosition
 import androidx.compose.ui.text.style.LineHeightStyle
@@ -75,6 +76,12 @@ internal class SkiaParagraph(
         }
 
     init {
+        requirePrecondition(constraints.minHeight == 0 && constraints.minWidth == 0) {
+            "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
+                "these should be the default zero values instead."
+        }
+        requirePrecondition(maxLines >= 1) { "maxLines should be greater than 0" }
+
         // Size is not known until layout is complete but to apply it, we need to re-create
         // skia's paragraph :'(
         // layouter might use cached instance if no [ShaderBrush] was applied.
@@ -152,6 +159,11 @@ internal class SkiaParagraph(
             }
 
     override fun getPathForRange(start: Int, end: Int): Path {
+        requirePrecondition(start in 0..end && end <= text.length) {
+            "start($start) or end($end) is out of range [0..${text.length}]," +
+                " or start > end!"
+        }
+
         val boxes = paragraph.getRectsForRange(
             start,
             end,
@@ -166,6 +178,7 @@ internal class SkiaParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
+        checkOffsetIsValid(offset)
         val horizontal = getHorizontalPosition(offset, true)
         val line = lineMetricsForOffset(offset)!!
 
@@ -224,13 +237,12 @@ internal class SkiaParagraph(
     internal fun getLineDescent(lineIndex: Int): Float =
         lineMetrics.getOrNull(lineIndex)?.descent?.toFloat() ?: 0f
 
-    private fun lineMetricsForOffset(offset: Int): LineMetrics? {
-        checkOffsetIsValid(offset)
-
-        return lineMetrics.binarySearchFirstMatchingOrLast {
-            offset < it.endIncludingNewline
-        }
-    }
+    private fun lineMetricsForOffset(offset: Int): LineMetrics? =
+        if (offset in 0..text.length) {
+            lineMetrics.binarySearchFirstMatchingOrLast {
+                offset < it.endIncludingNewline
+            }
+        } else null
 
     override fun getLineHeight(lineIndex: Int) =
         lineMetrics.getOrNull(lineIndex)?.height?.toFloat() ?: 0f
@@ -264,7 +276,11 @@ internal class SkiaParagraph(
     override fun isLineEllipsized(lineIndex: Int) = false
 
     override fun getLineForOffset(offset: Int) =
-        lineMetricsForOffset(offset)?.lineNumber ?: 0
+        when {
+            offset < 0 -> 0
+            offset > text.length -> lineCount - 1
+            else -> lineMetricsForOffset(offset)!!.lineNumber
+        }
 
     override fun getLineForVerticalPosition(vertical: Float): Int {
         return getLineMetricsForVerticalPosition(vertical)?.lineNumber ?: 0
@@ -332,7 +348,7 @@ internal class SkiaParagraph(
     }
 
     private fun getBoxForwardByOffset(offset: Int): TextBox? {
-        checkOffsetIsValid(offset)
+        if (offset !in 0..text.length) return null
         var to = offset + 1 // TODO: Use unicode code points (CodePoint.charCount() instead of +1)
         while (to <= text.length) {
             val box = paragraph.getRectsForRange(
@@ -348,7 +364,7 @@ internal class SkiaParagraph(
     }
 
     private fun getBoxBackwardByOffset(offset: Int, end: Int = offset): TextBox? {
-        checkOffsetIsValid(offset)
+        if (offset !in 0..text.length) return null
         var from = offset - 1
         val isRtl = paragraphIntrinsics.textDirection == ResolvedTextDirection.Rtl
         while (from >= 0) {
@@ -523,6 +539,9 @@ internal class SkiaParagraph(
     }
 
     override fun getBoundingBox(offset: Int): Rect {
+        requirePrecondition(offset in text.indices) {
+            "offset($offset) is out of bounds [0,${text.length})"
+        }
         val box = getBoxForwardByOffset(offset) ?: getBoxBackwardByOffset(offset, text.length)!!
         return box.rect.toComposeRect()
     }
@@ -639,8 +658,8 @@ internal class SkiaParagraph(
      * Check if the given offset is in the given range.
      */
     private inline fun checkOffsetIsValid(offset: Int) {
-        require(offset in 0..text.length) {
-            ("Invalid offset: $offset. Valid range is [0, ${text.length}]")
+        requirePrecondition(offset in 0..text.length) {
+            "offset($offset) is out of bounds [0,${text.length}]"
         }
     }
 }
