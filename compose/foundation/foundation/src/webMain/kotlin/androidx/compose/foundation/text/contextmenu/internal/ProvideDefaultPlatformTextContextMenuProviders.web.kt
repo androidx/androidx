@@ -44,7 +44,7 @@ internal actual fun ProvideDefaultPlatformTextContextMenuProviders(
         Box(modifier, propagateMinConstraints = true) { content() }
     } else if (dropdownDefined) {
         // Dropdown is defined, so the toolbar isn't.
-        ProvidePlatformTextContextMenuToolbar(modifier, content)
+        ProvideDefaultTextContextMenuToolbar(modifier, content)
     } else if (toolbarDefined) {
         // Toolbar is defined, so the dropdown isn't.
         ProvideDefaultTextContextMenuDropdown(modifier, content)
@@ -68,7 +68,7 @@ private fun ProvideBothDefaultProviders(modifier: Modifier, content: @Composable
     }
 
     val dropdownProvider = defaultTextContextMenuDropdown()
-    val toolbarProvider = platformTextContextMenuToolbarProvider(layoutCoordinatesBlock)
+    val toolbarProvider = defaultTextContextMenuToolbar()
 
     CompositionLocalProvider(
         LocalTextContextMenuToolbarProvider provides toolbarProvider,
@@ -79,6 +79,7 @@ private fun ProvideBothDefaultProviders(modifier: Modifier, content: @Composable
             modifier = modifier.onGloballyPositioned { layoutCoordinates = it },
         ) {
             content()
+            toolbarProvider.ContextMenu(layoutCoordinatesBlock)
             dropdownProvider.ContextMenu(layoutCoordinatesBlock)
         }
     }

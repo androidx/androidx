@@ -24,6 +24,7 @@ import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.contextmenu.DefaultContextMenuColors
 import androidx.compose.foundation.contextmenu.close
 import androidx.compose.foundation.contextmenu.computeContextMenuColors
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -140,12 +142,13 @@ internal fun WebContextMenuRow(
     Row(
         modifier =
             modifier
+                .padding(horizontal = WebContextMenuToolbarSpec.ContainerPadding)
                 .shadow(
                     WebContextMenuToolbarSpec.MenuContainerElevation,
                     WebContextMenuToolbarSpec.CornerShape
                 )
                 .background(colors.backgroundColor)
-                .width(IntrinsicSize.Max)
+                .horizontalScroll(rememberScrollState())
                 .padding(horizontal = WebContextMenuToolbarSpec.ContainerPadding),
         content = content,
     )

@@ -16,6 +16,7 @@
 
 package androidx.compose.mpp.demo.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.contextmenu.builder.item
+import androidx.compose.foundation.text.contextmenu.modifier.appendTextContextMenuComponents
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SelectionExample() {
     var count by remember { mutableStateOf(0) }
@@ -58,6 +62,30 @@ fun SelectionExample() {
             }
             SelectionContainer(
                 Modifier.padding(24.dp).fillMaxWidth()
+                    .appendTextContextMenuComponents {
+                        separator()
+                        item(
+                            key = "custom item 1",
+                            label = "custom item 1",
+                            onClick = { close() }
+                        )
+                        item(
+                            key = "custom item 2",
+                            label = "custom item 2",
+                            onClick = { close() }
+                        )
+                        item(
+                            key = "custom item 3",
+                            label = "custom item 3",
+                            onClick = { close() }
+                        )
+                        item(
+                            key = "custom item 4",
+                            label = "custom item 4",
+                            onClick = { close() }
+                        )
+                        separator()
+                    }
             ) {
                 Column {
                     TextField(

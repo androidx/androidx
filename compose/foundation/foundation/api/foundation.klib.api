@@ -2427,13 +2427,7 @@ final fun androidx.compose.foundation/androidx_compose_foundation_PlatformMagnif
 final fun androidx.compose.foundation/androidx_compose_foundation_PlatformMagnifierFactoryIos17Impl_PlatformMagnifierImpl$stableprop_getter(): kotlin/Int // androidx.compose.foundation/androidx_compose_foundation_PlatformMagnifierFactoryIos17Impl_PlatformMagnifierImpl$stableprop_getter|androidx_compose_foundation_PlatformMagnifierFactoryIos17Impl_PlatformMagnifierImpl$stableprop_getter(){}[0]
 
 // Targets: [js, wasmJs]
-final val androidx.compose.foundation.text.contextmenu.internal/androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop // androidx.compose.foundation.text.contextmenu.internal/androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop|#static{}androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop[0]
-
-// Targets: [js, wasmJs]
 final val androidx.compose.foundation.text/androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop // androidx.compose.foundation.text/androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop|#static{}androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.foundation.text.contextmenu.internal/androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text.contextmenu.internal/androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop_getter|androidx_compose_foundation_text_contextmenu_internal_WebTextContextMenuToolbarProvider$stableprop_getter(){}[0]
 
 // Targets: [js, wasmJs]
 final fun androidx.compose.foundation.text/androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop_getter(): kotlin/Int // androidx.compose.foundation.text/androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop_getter|androidx_compose_foundation_text_WebContextMenuToolbarSpec$stableprop_getter(){}[0]
