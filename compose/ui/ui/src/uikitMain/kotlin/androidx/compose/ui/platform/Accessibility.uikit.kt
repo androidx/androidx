@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.accessibility.accessibilityLabel
 import androidx.compose.ui.platform.accessibility.accessibilityTraits
 import androidx.compose.ui.platform.accessibility.accessibilityValue
 import androidx.compose.ui.platform.accessibility.allScrollableParentNodeIds
+import androidx.compose.ui.platform.accessibility.canBeAccessibilityElement
 import androidx.compose.ui.platform.accessibility.canScroll
 import androidx.compose.ui.platform.accessibility.isRTL
 import androidx.compose.ui.platform.accessibility.isScreenReaderFocusable
@@ -1088,17 +1089,18 @@ internal class AccessibilityMediator(
         }
         var focusedKey: AccessibilityElementKey? = null
 
-        // 1. Flatten all children except nodes inside traversal groups to:
+        // 1. Get children except nodes inside traversal. Flattening is used to:
         // - have the same traversal order as on Android
         // - allow navigation between semantic containers on iOS
         // 2. Split non-visible children beyond bounds to be located go before and after the group
         // of visible semantic children in the accessibility elements tree.
         // See [isBeforeBeyondBoundsItem] for more details.
-        fun SemanticsNode.flattenChildrenInsideTraversalGroup(
+        fun SemanticsNode.getChildrenInsideTraversalGroup(
             node: SemanticsNode,
             semanticsChildren: ArrayList<SemanticsNode>,
             beforeBeyondBoundsChildren: ArrayList<SemanticsNode>,
-            afterBeyondBoundsChildren: ArrayList<SemanticsNode>
+            afterBeyondBoundsChildren: ArrayList<SemanticsNode>,
+            flatten: Boolean
         ) {
             node.replacedChildren.fastForEach { child ->
                 if (child.isValid) {
@@ -1114,18 +1116,23 @@ internal class AccessibilityMediator(
                         }
                     }
                 }
-                if (!child.isTraversalGroup) {
-                    flattenChildrenInsideTraversalGroup(
+                if (!child.isTraversalGroup && flatten && !child.canBeAccessibilityElement()) {
+                    getChildrenInsideTraversalGroup(
                         child,
                         semanticsChildren,
                         beforeBeyondBoundsChildren,
-                        afterBeyondBoundsChildren
+                        afterBeyondBoundsChildren,
+                        flatten
                     )
                 }
             }
         }
 
-        fun traverseGroup(node: SemanticsNode, isBeyondBounds: Boolean): AccessibilityElement {
+        fun traverseChildren(
+            node: SemanticsNode,
+            isBeyondBounds: Boolean,
+            flatten: Boolean
+        ): AccessibilityElement {
             presentIds.add(node.semanticsKey)
 
             val frame = nodes[node.id]?.adjustedBounds?.toRect() ?: node.unclippedBoundsInWindow
@@ -1134,51 +1141,73 @@ internal class AccessibilityMediator(
                 focusedKey = node.semanticsKey
             }
 
-            fun makeSemanticsNode() = createOrUpdateAccessibilityElement(
-                node = AccessibilityNode.Semantics(
-                    semanticsNode = node,
-                    mediator = this,
-                    isBeyondBounds = isBeyondBounds
-                ),
-                frame = frame
-            )
+            fun makeSemanticsNode(children: List<AccessibilityElement>) =
+                createOrUpdateAccessibilityElement(
+                    node = AccessibilityNode.Semantics(
+                        semanticsNode = node,
+                        mediator = this,
+                        isBeyondBounds = isBeyondBounds
+                    ),
+                    children = children,
+                    frame = frame
+                )
 
-            if (!node.isTraversalGroup && node.id != rootNode.id) {
-                return makeSemanticsNode()
-            }
+            val flattenChildren = flatten && !node.canBeAccessibilityElement()
+            return if (node.isTraversalGroup || node.id == rootNode.id || !flattenChildren) {
+                val visibleChildren = ArrayList<SemanticsNode>()
+                val beforeChildren = ArrayList<SemanticsNode>()
+                val afterChildren = ArrayList<SemanticsNode>()
 
-            val visibleChildren = ArrayList<SemanticsNode>()
-            val beforeChildren = ArrayList<SemanticsNode>()
-            val afterChildren = ArrayList<SemanticsNode>()
-            node.flattenChildrenInsideTraversalGroup(
-                node, visibleChildren, beforeChildren, afterChildren
-            )
+                node.getChildrenInsideTraversalGroup(
+                    node = node,
+                    semanticsChildren = visibleChildren,
+                    beforeBeyondBoundsChildren = beforeChildren,
+                    afterBeyondBoundsChildren = afterChildren,
+                    flatten = flattenChildren
+                )
 
-            val sortedChildren = node.sortByGeometryGroupings(visibleChildren)
-            beforeChildren.sortWith(BeyondBoundsComparator(node.isRTL))
-            afterChildren.sortWith(BeyondBoundsComparator(node.isRTL))
+                val sortedChildren = node.sortByGeometryGroupings(visibleChildren)
+                beforeChildren.sortWith(BeyondBoundsComparator(node.isRTL))
+                afterChildren.sortWith(BeyondBoundsComparator(node.isRTL))
 
-            val visibleElements = sortedChildren.map { traverseGroup(it, isBeyondBounds) }
-            val beforeElements = beforeChildren.map { traverseGroup(it, isBeyondBounds = true) }
-            val afterElements = afterChildren.map { traverseGroup(it, isBeyondBounds = true) }
+                val visibleElements = sortedChildren.map {
+                    traverseChildren(it, isBeyondBounds = isBeyondBounds, flatten = flattenChildren)
+                }
+                val beforeElements = beforeChildren.map {
+                    traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren)
+                }
+                val afterElements = afterChildren.map {
+                    traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren)
+                }
 
-            val containerElements = if (node.isImportantForAccessibility() ||
-                node.config.contains(SemanticsProperties.TestTag)
-            ) {
-                listOf(makeSemanticsNode())
+                if (node.isTraversalGroup || node.id == rootNode.id) {
+                    val containerElements = if (node.isImportantForAccessibility() ||
+                        node.config.contains(SemanticsProperties.TestTag)
+                    ) {
+                        listOf(makeSemanticsNode(emptyList()))
+                    } else {
+                        emptyList()
+                    }
+
+                    presentIds.add(node.containerKey)
+                    createOrUpdateAccessibilityElement(
+                        node = AccessibilityNode.Container(semanticsNode = node),
+                        children = beforeElements + containerElements + visibleElements + afterElements,
+                        frame = frame
+                    )
+                } else {
+                    makeSemanticsNode(beforeElements + visibleElements + afterElements)
+                }
             } else {
-                emptyList()
+                makeSemanticsNode(emptyList())
             }
-
-            presentIds.add(node.containerKey)
-            return createOrUpdateAccessibilityElement(
-                node = AccessibilityNode.Container(semanticsNode = node),
-                children = beforeElements + containerElements + visibleElements + afterElements,
-                frame = frame
-            )
         }
 
-        val rootAccessibilityElement = traverseGroup(rootNode, isBeyondBounds = false)
+        val rootAccessibilityElement = traverseChildren(
+            node = rootNode,
+            isBeyondBounds = false,
+            flatten = true
+        )
 
         // Filter out [AccessibilityElement] in [accessibilityElementsMap] that are not present in the tree anymore
         accessibilityElementsMap.keys.retainAll {

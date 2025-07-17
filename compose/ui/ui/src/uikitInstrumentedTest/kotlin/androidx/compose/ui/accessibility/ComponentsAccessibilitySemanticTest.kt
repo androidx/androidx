@@ -704,17 +704,15 @@ class ComponentsAccessibilitySemanticTest {
         }
 
         assertAccessibilityTree {
+            label = "Foo\nBar"
+            identifier = "row"
+            isAccessibilityElement = true
+            traits(UIAccessibilityTraitButton)
             node {
                 label = "Foo"
                 identifier = "row_title"
                 isAccessibilityElement = false
                 traits(UIAccessibilityTraitStaticText)
-            }
-            node {
-                label = "Foo\nBar"
-                identifier = "row"
-                isAccessibilityElement = true
-                traits(UIAccessibilityTraitButton)
             }
             node {
                 label = "Bar"
