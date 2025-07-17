@@ -73,6 +73,13 @@ class SourceInfoParseTests {
         assertEquals(listOf(3, 4, 0, 1, 6, 8, 2, 5, 7, 9), info.parameters.map { it.sortedIndex })
     }
 
+    @Test // regression test for b/428978168
+    fun parseLastParameterRun() {
+        val s = "C(Test)P(2!,3)"
+        val info = parseSourceInformationInternal(s)
+        assertEquals(listOf(2, 0, 1, 3), info.parameters.map { it.sortedIndex })
+    }
+
     @Test
     fun parseParameterNames() {
         val s = "C(Test)N(a,b:c#ui.text.style.TextOverflow,d:f)"
@@ -101,5 +108,17 @@ class SourceInfoParseTests {
     fun emptyStringReturnsNull() {
         val info = parseSourceInformation("")
         assertNull(info)
+    }
+
+    @Test
+    fun parseIncomplete() {
+        var ex: Exception? = null
+        try {
+            parseSourceInformationInternal("123@")
+        } catch (e: Exception) {
+            ex = e
+        }
+
+        assertEquals("Error while parsing source information: expected int at 123@|", ex?.message)
     }
 }

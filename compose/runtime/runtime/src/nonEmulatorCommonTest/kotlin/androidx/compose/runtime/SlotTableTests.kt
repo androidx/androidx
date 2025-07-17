@@ -4180,6 +4180,29 @@ class SlotTableTests {
     }
 
     @Test
+    fun auxSlotIsNotExposedInSourceInformation() {
+        val slots =
+            SlotTable().apply {
+                collectSourceInformation()
+                write { writer ->
+                    with(writer) {
+                        insert {
+                            group(100) {
+                                startData(reuseKey, "Aux data")
+                                endGroup()
+                            }
+                        }
+                    }
+                }
+            }
+
+        val expected = SourceGroup.group(100) { group(reuseKey) {} }
+        val received = SourceGroup.group(slots)
+
+        assertEquals(expected, received)
+    }
+
+    @Test
     fun canMoveAGroupFromATableIntoAnotherGroupAndModifyThatGroup() {
         val slots = SlotTable()
         var insertAnchor = Anchor(-1)

@@ -285,7 +285,6 @@ internal class InnerShadowRenderer(private val shadow: Shadow, outline: Outline)
                     shadowBitmap.height.toFloat(),
                     paint.configureShadow(), // Draw with default params
                 )
-                save()
                 // If we have a pathBitmap then we have a non-zero spread and we needed to rasterize
                 // the path into an intermediate bitmap in order to mask off the path with a stroke
                 // by
@@ -293,7 +292,7 @@ internal class InnerShadowRenderer(private val shadow: Shadow, outline: Outline)
 
                 drawImage(
                     pathBitmap,
-                    Offset(radius, radius),
+                    Offset(offsetX, offsetY),
                     paint.configureShadow(
                         blurFilter =
                             if (radius > 0f) {
@@ -304,15 +303,8 @@ internal class InnerShadowRenderer(private val shadow: Shadow, outline: Outline)
                         blendMode = BlendMode.Xor,
                     ),
                 )
-                restore()
 
-                return ShaderBrush(ImageShader(shadowBitmap)).apply {
-                    transform =
-                        obtainMatrix().apply {
-                            reset()
-                            translate(offsetX - radius, offsetY - radius)
-                        }
-                }
+                return ShaderBrush(ImageShader(shadowBitmap))
             } else {
                 save()
                 translate(offsetX, offsetY)
@@ -359,11 +351,14 @@ internal class InnerShadowRenderer(private val shadow: Shadow, outline: Outline)
             )
         val shadowCanvas = androidx.compose.ui.graphics.Canvas(shadowBitmap)
         with(shadowCanvas) {
-            val right = max(size.width - spread, spread)
-            val bottom = max(size.height - spread, spread)
+            val left = offsetX + spread
+            val top = offsetY + spread
+            val right = max(left, offsetX + size.width - spread)
+            val bottom = max(top, offsetY + size.height - spread)
+
             drawRoundRect(
-                spread,
-                spread,
+                left,
+                top,
                 right,
                 bottom,
                 cornerRadius.x,
@@ -386,8 +381,6 @@ internal class InnerShadowRenderer(private val shadow: Shadow, outline: Outline)
             )
         }
 
-        return ShaderBrush(ImageShader(shadowBitmap)).apply {
-            transform = obtainMatrix().apply { translate(offsetX, offsetY) }
-        }
+        return ShaderBrush(ImageShader(shadowBitmap))
     }
 }
