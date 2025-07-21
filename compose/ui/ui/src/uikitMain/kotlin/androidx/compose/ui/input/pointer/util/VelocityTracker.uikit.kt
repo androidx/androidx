@@ -21,7 +21,6 @@ import kotlin.math.abs
 internal actual const val HistorySize: Int = 40 // Increased to store history on 120 Hz devices
 
 private const val MinimumGestureDurationMilliseconds: Int = 50
-private const val MinimumGestureSpeed: Float = 1.0f // Minimum tracking speed, dp/ms
 
 /**
  * Some platforms (e.g. iOS) filter certain gestures during velocity calculation.
@@ -38,11 +37,6 @@ internal actual fun VelocityTracker1D.shouldUseDataPoints(
 
     val timeDelta = abs(times[0] - times[count - 1])
     if (timeDelta < MinimumGestureDurationMilliseconds && afterPointerStop) {
-        return false
-    }
-
-    val distance = abs(points[0] - points[count - 1])
-    if (distance / timeDelta < MinimumGestureSpeed) {
         return false
     }
 
