@@ -65,4 +65,11 @@ interface TextEditingScope {
      * This intends to replicate [SetComposingTextCommand].
      */
     fun setComposingText(text: CharSequence, newCursorPosition: Int)
+
+    /**
+     * Finishes composing, leaving the text as-is.
+     *
+     * This intends to replicate [FinishComposingTextCommand].
+     */
+    fun finishComposingText()
 }

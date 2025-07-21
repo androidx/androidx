@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.awt.toAwtRectangleRounded
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.text.TextRange
@@ -29,31 +30,80 @@ import java.awt.im.InputMethodRequests
 import java.text.AttributedCharacterIterator
 import java.text.AttributedString
 import java.text.CharacterIterator
+import javax.swing.SwingUtilities
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
 internal class DesktopTextInputService2(
-    private val component: PlatformComponent
+    private val component: PlatformComponent,
 ) {
 
     private var inputMethodSession: InputMethodSession? = null
 
-    private var receivedInputMethodEventsSinceStartInput = false
+    private val extraCommitEventWorkaround = ExtraCommitEventWorkaround()
 
-    private var composingText: String = ""
+    suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
+        val coroutineScope = CoroutineScope(currentCoroutineContext())
+        suspendCancellableCoroutine<Nothing> { continuation ->
+            coroutineScope.startInput(request)
+            continuation.invokeOnCancellation {
+                stopInput()
+                coroutineScope.cancel()
+            }
+        }
+    }
 
-    fun startInput(request: PlatformTextInputMethodRequest) {
-        receivedInputMethodEventsSinceStartInput = false
+    private fun CoroutineScope.startInput(request: PlatformTextInputMethodRequest) {
+        extraCommitEventWorkaround.onStartInput()
+
         component.enableInput(
             InputMethodSession(component, request).also {
                 inputMethodSession = it
             }
         )
+
+        // During composition, the selection should be collapsed and at the end of the composition.
+        // If it changes unexpectedly, finish composing.
+        // BTF1 commits the composition itself when the user clicks somewhere, but BTF2
+        // does not. This commits the composition for BTF2
+        launch {
+            snapshotFlow { request.state.selection }.collect { selection ->
+                val composition = request.state.composition ?: return@collect
+                if (!selection.collapsed || (selection.end != composition.end)) {
+                    request.editText {
+                        finishComposingText()
+                    }
+                }
+            }
+        }
+
+        // When something commits (or otherwise ends) the composition, end it for the platform too
+        launch {
+            snapshotFlow { request.state.composition }.collect { composition ->
+                val composingText = inputMethodSession?.imeComposingText ?: return@collect
+                if (composingText.isNotEmpty() && (composition == null)) {
+                    SwingUtilities.invokeLater {
+                        // The event sent due to ending the composition must be ignored because the
+                        // composition has already been committed.
+                        // Set this in `invokeLater` to make sure we ignore the event scheduled by
+                        // `component.endComposition()`, and not some event that has already been
+                        // scheduled beforehand.
+                        inputMethodSession?.ignoreNextInputMethodEvent = true
+                    }
+                    component.endComposition()
+                }
+            }
+        }
     }
 
-    fun stopInput() {
+    private fun stopInput() {
         component.disableInput()
 
         this.inputMethodSession = null
@@ -72,34 +122,10 @@ internal class DesktopTextInputService2(
         if (event.isConsumed) return
         val inputMethodSession = inputMethodSession ?: return
 
-        if (commitEventWorkaroundShouldIgnoreEvent(event)) return
+        if (extraCommitEventWorkaround.shouldIgnoreEvent(event)) return
 
-        inputMethodSession.replaceInputMethodText(event)
+        inputMethodSession.inputMethodTextChanged(event)
         event.consume()
-    }
-
-    /**
-     * Implements a workaround for https://youtrack.jetbrains.com/issue/CMP-7976; returns whether
-     * the given event should be ignored.
-     *
-     * JBR sends an extra [InputMethodEvent] when focus moves away from a text field. This event
-     * means to commit the current composition. Unfortunately, because we use a single actual Swing
-     * component (see [ComposeSceneMediator]) as a source of [InputMethodEvent]s, this event gets
-     * delivered to a new text session if the focus switches away to another text field.
-     *
-     * Regardless, Compose text fields commit their composition on focus loss (but not window focus
-     * loss) themselves, so we don't need this event.
-     */
-    private fun commitEventWorkaroundShouldIgnoreEvent(event: InputMethodEvent): Boolean {
-        val isFirstEventAfterStartInput = !receivedInputMethodEventsSinceStartInput
-        receivedInputMethodEventsSinceStartInput = true
-
-        val currentComposingText = composingText
-        composingText = event.composingText
-
-        return isFirstEventAfterStartInput &&
-            event.committedText == currentComposingText &&
-            event.composingText.isEmpty()
     }
 }
 
@@ -116,6 +142,12 @@ private class InputMethodSession(
 
     private val composition: TextRange?
         get() = state.composition
+
+    // The composing text from the last InputMethodEvent
+    var imeComposingText: String = ""
+        private set
+
+    var ignoreNextInputMethodEvent = false
 
     // This is required to support input of accented characters using press-and-hold method (http://support.apple.com/kb/PH11264).
     // JDK currently properly supports this functionality only for TextComponent/JTextComponent descendants.
@@ -203,9 +235,16 @@ private class InputMethodSession(
         return AttributedString(committed).iterator
     }
 
-    fun replaceInputMethodText(event: InputMethodEvent) {
+    fun inputMethodTextChanged(event: InputMethodEvent) {
         val committed = event.committedText
         val composing = event.composingText
+
+        imeComposingText = composing
+
+        if (ignoreNextInputMethodEvent) {
+            ignoreNextInputMethodEvent = false
+            return
+        }
 
         request.editText {
             if (needToDeletePreviousChar && selection.min > 0 && composing.isEmpty()) {
@@ -251,5 +290,42 @@ private fun AttributedCharacterIterator?.substringOrEmpty(
             append(c)
             c = next()
         }
+    }
+}
+
+/**
+ * Implements a workaround for https://youtrack.jetbrains.com/issue/CMP-7976
+ *
+ * JBR sends an extra [InputMethodEvent] when focus moves away from a text field. This event
+ * means to commit the current composition. Unfortunately, because we use a single actual Swing
+ * component (see [ComposeSceneMediator]) as a source of [InputMethodEvent]s, this event gets
+ * delivered to a new text session if the focus switches away to another text field.
+ *
+ * Regardless, Compose text fields commit their composition on focus loss (but not window focus
+ * loss) themselves, so we don't need this event.
+ */
+private class ExtraCommitEventWorkaround {
+
+    private var composingText: String = ""
+
+    private var receivedInputMethodEventsSinceStartInput = false
+
+    fun onStartInput() {
+        receivedInputMethodEventsSinceStartInput = false
+    }
+
+    /**
+     * Returns whether the given event should be ignored.
+     */
+    fun shouldIgnoreEvent(event: InputMethodEvent): Boolean {
+        val isFirstEventAfterStartInput = !receivedInputMethodEventsSinceStartInput
+        receivedInputMethodEventsSinceStartInput = true
+
+        val currentComposingText = composingText
+        composingText = event.composingText
+
+        return isFirstEventAfterStartInput &&
+            event.committedText == currentComposingText &&
+            event.composingText.isEmpty()
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
@@ -148,6 +149,12 @@ internal actual fun legacyTextInputServiceAdapterAndService():
                         ) {
                             runOnEditCommand(
                                 SetComposingTextCommand(text.toString(), newCursorPosition)
+                            )
+                        }
+
+                        override fun finishComposingText() {
+                            runOnEditCommand(
+                                FinishComposingTextCommand()
                             )
                         }
                     }.block()

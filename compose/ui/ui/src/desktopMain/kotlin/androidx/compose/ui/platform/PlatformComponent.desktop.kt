@@ -29,12 +29,15 @@ internal interface PlatformComponent {
 
     fun disableInput()
 
+    fun endComposition()
+
     companion object {
         val Empty = object : PlatformComponent {
             override val locationOnScreen = Point(0, 0)
             override val density = Density(1f)
             override fun enableInput(inputMethodRequests: InputMethodRequests) = Unit
             override fun disableInput() = Unit
+            override fun endComposition() = Unit
         }
     }
 }

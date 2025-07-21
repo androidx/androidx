@@ -739,6 +739,38 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         assertStateEquals("請問", selection = TextRange(2), composition = null)
     }
 
+    // Verifies the fix to https://youtrack.jetbrains.com/issue/CMP-8200
+    @Theory
+    internal fun `v, x, click before v, x, click at end(Korean, macOS)`(
+        textFieldKind: TextFieldKind<*>
+    ) = runTextFieldTest(textFieldKind, "Chinese, macOS") {
+        // Press 'v' key
+        window.sendKeyTypedEvent('v')
+        assertStateEquals("v", selection = TextRange(1), composition = null)
+
+        // Press 'x' key (produces 'ㅌ')
+        window.sendInputMethodEvent("ㅌ", 0)
+        window.sendKeyEvent(88, 'ㅌ', KEY_RELEASED)
+        assertStateEquals("vㅌ", selection = TextRange(2), composition = TextRange(1, 2))
+
+        clickBeforeIndex(0)
+        awaitIdle()
+        // Here PlatformComponent.endComposition() should be called, and in response the
+        // system should send a composition-ending event
+        window.sendInputMethodEvent("ㅌ", 1)
+        assertStateEquals("vㅌ", selection = TextRange(0), composition = null)
+
+        // Press 'x' key (produces 'ㅌ')
+        window.sendInputMethodEvent("ㅌ", 0)
+        window.sendKeyEvent(88, 'ㅌ', KEY_RELEASED)
+        assertStateEquals("ㅌvㅌ", selection = TextRange(1), composition = TextRange(0, 1))
+
+        clickBeforeIndex(3)
+        awaitIdle()
+        window.sendInputMethodEvent("ㅌ", 1)
+        assertStateEquals("ㅌvㅌ", selection = TextRange(3), composition = null)
+    }
+
     // Verifies that each typed character and character replaced by the input service is reported
     // (to `inputTransformation`) as a change in the last character only.
     // The behavior of `SecureTextField` with `TextObfuscationMode.RevealLastTyped` depends on this,

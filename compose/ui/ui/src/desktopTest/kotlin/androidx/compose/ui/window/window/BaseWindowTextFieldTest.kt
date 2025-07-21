@@ -37,14 +37,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowTestScope
+import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.experimental.theories.DataPoint
 
 open class BaseWindowTextFieldTest {
@@ -88,6 +97,12 @@ open class BaseWindowTextFieldTest {
         abstract val selection: TextRange
         abstract val composition: TextRange?
 
+        var textLayoutResult: TextLayoutResult? = null
+            protected set
+
+        var textBoundingBox: Rect = Rect.Zero
+            protected set
+
         @Composable
         abstract fun TextField()
 
@@ -96,7 +111,7 @@ open class BaseWindowTextFieldTest {
         }
 
         suspend fun assertStateEquals(
-            actual: String,
+            text: String,
             selection: TextRange,
             composition: TextRange?,
             awaitIdle: Boolean = true
@@ -104,9 +119,34 @@ open class BaseWindowTextFieldTest {
             if (awaitIdle) {
                 windowTestScope.awaitIdle()
             }
-            assertThat(text).isEqualTo(actual)
-            assertThat(selection).isEqualTo(selection)
-            assertThat(composition).isEqualTo(composition)
+            assertThat(this.text).isEqualTo(text)
+            assertThat(this.selection).isEqualTo(selection)
+            assertThat(this.composition).isEqualTo(composition)
+        }
+
+        fun clickBeforeIndex(index: Int) {
+            val localLocation = textLayoutResult!!.let {
+                if (index == text.length)
+                    it.getBoundingBox(index-1).centerRight
+                else
+                    it.getBoundingBox(index).centerLeft
+            }
+            val location = localLocation + textBoundingBox.topLeft
+            val platformLocation = location.let {
+                val scale = window.density.density
+                IntOffset(
+                    x = (it.x / scale).roundToInt(),
+                    y = (it.y / scale).roundToInt()
+                )
+            }
+            window.sendMousePress(
+                x = platformLocation.x,
+                y = platformLocation.y
+            )
+            window.sendMouseRelease(
+                x = platformLocation.x,
+                y = platformLocation.y
+            )
         }
     }
 
@@ -173,7 +213,12 @@ open class BaseWindowTextFieldTest {
                         onValueChange = {
                             textFieldValue = it
                         },
-                        modifier = Modifier.focusRequester(focusRequester)
+                        onTextLayout = { textLayoutResult = it },
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .onPlaced {
+                                textBoundingBox = it.boundsInWindow()
+                            }
                     )
 
                     LaunchedEffect(focusRequester) {
@@ -195,7 +240,12 @@ open class BaseWindowTextFieldTest {
                     BasicTextField(
                         state = textFieldState,
                         inputTransformation = inputTransformation,
-                        modifier = Modifier.focusRequester(focusRequester)
+                        onTextLayout = { textLayoutResult = it() },
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .onPlaced {
+                                textBoundingBox = it.boundsInWindow()
+                            }
                     )
 
                     LaunchedEffect(focusRequester) {
@@ -217,8 +267,13 @@ open class BaseWindowTextFieldTest {
 
                     BasicSecureTextField(
                         state = textFieldState,
-                        modifier = Modifier.focusRequester(focusRequester),
-                        textObfuscationMode = textObfuscationMode
+                        textObfuscationMode = textObfuscationMode,
+                        onTextLayout = { textLayoutResult = it() },
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .onPlaced {
+                                textBoundingBox = it.boundsInWindow()
+                            }
                     )
 
                     LaunchedEffect(focusRequester) {

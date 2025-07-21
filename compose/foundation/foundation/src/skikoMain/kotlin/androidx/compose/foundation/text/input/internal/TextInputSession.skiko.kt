@@ -216,6 +216,10 @@ private fun TextEditingScope(buffer: TextFieldBuffer) = object : TextEditingScop
 
         buffer.cursor = newCursorInBuffer
     }
+
+    override fun finishComposingText() {
+        buffer.commitComposition()
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

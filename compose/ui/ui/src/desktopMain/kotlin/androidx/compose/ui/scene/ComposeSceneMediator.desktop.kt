@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.scene
 
-import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ComposeFeatureFlags
@@ -31,6 +30,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.key.internal
 import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.AwtCursor
@@ -90,7 +90,6 @@ import javax.swing.JComponent
 import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -712,12 +711,7 @@ internal class ComposeSceneMediator(
         override val textInputService = this@ComposeSceneMediator.textInputService
 
         override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
-            suspendCancellableCoroutine<Nothing> { continuation ->
-                textInputService2.startInput(request)
-                continuation.invokeOnCancellation {
-                    textInputService2.stopInput()
-                }
-            }
+            textInputService2.startInputMethod(request)
         }
 
         override fun setPointerIcon(pointerIcon: PointerIcon) {
@@ -754,6 +748,7 @@ internal class ComposeSceneMediator(
         override fun enableInput(inputMethodRequests: InputMethodRequests) {
             currentInputMethodRequests = inputMethodRequests
             contentComponent.enableInputMethods(true)
+            contentComponent.inputContext.endComposition()
             // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
             // enableInputMethods is design to used per-Swing component level at init stage,
             // not dynamically
@@ -767,6 +762,10 @@ internal class ComposeSceneMediator(
             // enableInputMethods is design to used per-Swing component level at init stage,
             // not dynamically
             resetFocus()
+        }
+
+        override fun endComposition() {
+            contentComponent.inputContext.endComposition()
         }
     }
 
