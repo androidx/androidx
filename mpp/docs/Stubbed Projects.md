@@ -3,7 +3,11 @@
 ### List:
 - `:annotation:annotation` is stubbed by `:annotation:annotation-compatibility-stubs`, it depends on `androidx.annotation`
 - `:collection:collection` is stubbed by `:collection:collection-compatibility-stubs`, it depends on  `androidx.collection`
-- `:compose:runtime:runtime` is stubbed by `:compose:runtime:runtime-compatibility-stubs`, it depends on  `androidx.compose.runtime:runtime`mpose.runtime:runtime-annotation`
+- `:compose:runtime:runtime` is stubbed by `:compose:runtime:runtime-compatibility-stubs`, it depends on  `androidx.compose.runtime:runtime`
+- `:lifecycle:lifecycle-common` is stubbed by `lifecycle/lifecycle-common-compatibility-stub`, it depends on  `androidx.lifecycle:lifecycle-common`
+- `:lifecycle:lifecycle-runtime` is stubbed by `lifecycle/lifecycle-runtime-compatibility-stub`, it depends on  `androidx.lifecycle:lifecycle-runtime`
+- `:lifecycle:lifecycle-viewmodel` is stubbed by `lifecycle/lifecycle-viewmodel-compatibility-stub`, it depends on  `androidx.lifecycle:lifecycle-viewmodel`
+- `:lifecycle:lifecycle-viewmodel-savedstate` is stubbed by `lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub`, it depends on  `androidx.lifecycle:lifecycle-viewmodel-savedstate`
 
 ### Purpose
 The need for "stubbed projects" appeared in this PR - https://github.com/JetBrains/compose-multiplatform-core/pull/1819

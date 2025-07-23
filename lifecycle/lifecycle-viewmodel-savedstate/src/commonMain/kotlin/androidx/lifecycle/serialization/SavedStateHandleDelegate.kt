@@ -17,12 +17,12 @@
 package androidx.lifecycle.serialization
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.internal.canonicalName
 import androidx.savedstate.SavedState
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
@@ -112,9 +112,3 @@ private class SavedStateHandleDelegate<T : Any>(
         this.value = value
     }
 }
-
-/**
- * Multiplatform replacement for [KClass.qualifiedName] reflection API. It's required because it's
- * not supported for all platforms.
- */
-internal expect val <T : Any> KClass<T>.canonicalName: String?

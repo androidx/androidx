@@ -82,8 +82,5 @@ constructor(
         get() = lifecycleRegistry.observerCount
 }
 
-// Because k/js and k/wasm don't have runBlocking
-internal expect fun <T> runBlockingIfPossible(
-    dispatcher: CoroutineDispatcher,
-    block: () -> T
-): T
+// TODO: K/JS and K/WASM don't support `runBlocking` yet.
+internal expect fun <T> runBlockingIfPossible(dispatcher: CoroutineDispatcher, block: () -> T): T

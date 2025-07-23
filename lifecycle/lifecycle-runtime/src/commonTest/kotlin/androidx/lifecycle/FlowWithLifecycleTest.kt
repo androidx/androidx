@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
+@IgnoreWebTarget
 class FlowWithLifecycleTest {
     private val owner = FakeLifecycleOwner()
 

@@ -20,9 +20,6 @@ open class ComposePublishingTask : AbstractComposePublishingTask() {
     }
 }
 
-// TODO: Align with other modules
-val viewModelPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE
-
 val libraryToComponents = mapOf(
     "COMPOSE" to listOf(
         // TODO https://youtrack.jetbrains.com/issue/CMP-1604/Publish-public-collection-annotation-libraries-with-a-separate-version
@@ -101,23 +98,23 @@ val libraryToComponents = mapOf(
         ),
         ComposeComponent(
             path = ":lifecycle:lifecycle-viewmodel",
-            supportedPlatforms = viewModelPlatforms
+            supportedPlatforms = ComposePlatforms.ALL_AOSP
         ),
-        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", viewModelPlatforms),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", supportedPlatforms = ComposePlatforms.ALL_AOSP),
         ComposeComponent(":lifecycle:lifecycle-runtime-compose", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
     ),
     "NAVIGATION" to listOf(
         ComposeComponent(":navigation:navigation-compose"),
-        ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
-        ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
+        ComposeComponent(":navigation:navigation-common", supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE),
+        ComposeComponent(":navigation:navigation-runtime", supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE),
     ),
     "SAVEDSTATE" to listOf(
         ComposeComponent(":savedstate:savedstate", supportedPlatforms = ComposePlatforms.ALL_AOSP),
         ComposeComponent(":savedstate:savedstate-compose", supportedPlatforms = ComposePlatforms.ALL),
     ),
     "WINDOW" to listOf(
-        ComposeComponent(":window:window-core", viewModelPlatforms),
+        ComposeComponent(":window:window-core", supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE),
     ),
 )
 

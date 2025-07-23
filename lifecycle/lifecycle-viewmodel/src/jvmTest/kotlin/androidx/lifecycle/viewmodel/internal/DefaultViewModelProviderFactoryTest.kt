@@ -49,7 +49,7 @@ class DefaultViewModelProviderFactoryTest {
         }
     }
 
-    @org.junit.Test
+    @Test
     fun create_withPrivateConstructor_throwsIllegalAccessException() {
         val modelClass = TestViewModel3::class
         val factory = DefaultViewModelProviderFactory
@@ -57,7 +57,7 @@ class DefaultViewModelProviderFactoryTest {
             factory.create(modelClass, CreationExtras.Empty)
             fail("Expected `IllegalArgumentException` but no exception has been throw.")
         } catch (e: RuntimeException) {
-            assertThat(e).hasCauseThat().isInstanceOf<IllegalAccessException>()
+            assertThat(e).hasCauseThat().isNull()
             assertThat(e)
                 .hasMessageThat()
                 .contains("Cannot create an instance of class ${TestViewModel3::class.java.name}")

@@ -56,7 +56,7 @@ androidXMultiplatform {
 
         commonMain {
             dependencies {
-                api(project(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.9.1")
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
             }
@@ -85,7 +85,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                implementation("androidx.core:core-viewtree:1.0.0-alpha01")
+                implementation("androidx.core:core-viewtree:1.0.0")
             }
         }
 
@@ -97,7 +97,7 @@ androidXMultiplatform {
         }
 
         androidInstrumentedTest {
-            dependsOn(commonTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation("androidx.core:core-ktx:1.2.0")
                 implementation(libs.testExtJunit)
@@ -106,32 +106,89 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain.dependsOn(jvmMain)
-        nonJvmMain.dependsOn(commonMain)
-        nativeMain.dependsOn(nonJvmMain)
-        darwinMain.dependsOn(nativeMain)
-        linuxMain.dependsOn(nativeMain)
-        webMain.dependsOn(nonJvmMain)
+        desktopMain { dependsOn(jvmMain) }
+        desktopTest { dependsOn(jvmTest) }
+        nonJvmMain { dependsOn(commonMain) }
+        nonJvmTest { dependsOn(commonTest) }
+        nativeMain { dependsOn(nonJvmMain) }
+        nativeTest { dependsOn(nonJvmTest) }
+
+        unixMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
+        linuxMain {
+            dependsOn(unixMain)
+        }
+
+        mingwMain {
+            dependsOn(nativeMain)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+
+        jsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+                implementation(libs.kotlinTestJs)
+            }
+        }
 
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily.appleFamily) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                } else if (target.konanTarget.family == Family.MINGW) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
                 }
-            } else if (target.platformType in [
-                    KotlinPlatformType.js,
-                    KotlinPlatformType.wasm
-            ]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(webMain)
-                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -145,6 +202,7 @@ kotlin {
     tvosArm64()
     tvosX64()
     tvosSimulatorArm64()
+    mingwX64()
 }
 
 android {

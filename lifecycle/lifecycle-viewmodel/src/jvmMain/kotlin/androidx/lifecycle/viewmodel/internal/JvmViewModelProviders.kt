@@ -17,6 +17,7 @@
 package androidx.lifecycle.viewmodel.internal
 
 import androidx.lifecycle.ViewModel
+import java.lang.reflect.Modifier
 
 /**
  * [JvmViewModelProviders] provides common helper functionalities.
@@ -33,14 +34,30 @@ internal object JvmViewModelProviders {
      * throws a [RuntimeException].
      */
     @Suppress("DocumentExceptions")
-    fun <T : ViewModel> createViewModel(modelClass: Class<T>): T =
-        try {
-            modelClass.getDeclaredConstructor().newInstance()
-        } catch (e: NoSuchMethodException) {
-            throw RuntimeException("Cannot create an instance of $modelClass", e)
+    fun <T : ViewModel> createViewModel(modelClass: Class<T>): T {
+        val constructor =
+            try {
+                modelClass.getDeclaredConstructor()
+            } catch (e: NoSuchMethodException) {
+                throw RuntimeException("Cannot create an instance of $modelClass", e)
+            }
+
+        // Enforce that the constructor is public to ensure consistent behavior across environments.
+        // In instrumentation tests, tools like R8 may remove access modifiers, making private
+        // constructors accessible at runtime. In contrast, JVM tests enforce access restrictions
+        // strictly. This check guarantees that only ViewModels with a public no-arg constructor can
+        // be instantiated, avoiding false positives in tests.
+        if (!Modifier.isPublic(constructor.modifiers)) {
+            throw RuntimeException("Cannot create an instance of $modelClass")
+        }
+
+        return try {
+            constructor.newInstance()
         } catch (e: InstantiationException) {
             throw RuntimeException("Cannot create an instance of $modelClass", e)
         } catch (e: IllegalAccessException) {
+            // Shouldn't happen due to the public modifier check above, but caught defensively.
             throw RuntimeException("Cannot create an instance of $modelClass", e)
         }
+    }
 }

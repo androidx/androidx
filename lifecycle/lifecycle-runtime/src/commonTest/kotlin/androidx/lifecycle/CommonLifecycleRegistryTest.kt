@@ -21,6 +21,7 @@ import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@IgnoreWebTarget
 class CommonLifecycleRegistryTest {
     private lateinit var mLifecycleOwner: LifecycleOwner
     private lateinit var mRegistry: LifecycleRegistry

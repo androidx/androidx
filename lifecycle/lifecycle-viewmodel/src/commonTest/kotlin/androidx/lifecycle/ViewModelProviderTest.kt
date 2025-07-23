@@ -18,11 +18,13 @@ package androidx.lifecycle
 
 import androidx.kruth.assertThat
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.IgnoreWebTarget
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.fail
 
+@IgnoreWebTarget
 class ViewModelProviderTest {
 
     private val viewModelProvider =

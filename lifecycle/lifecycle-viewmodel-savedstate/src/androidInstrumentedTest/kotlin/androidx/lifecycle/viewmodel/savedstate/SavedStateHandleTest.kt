@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -105,7 +106,7 @@ class SavedStateHandleTest {
 
     @Test
     @UiThreadTest
-    fun testRemoveWithLD() {
+    fun testRemoveWithLiveData() {
         val handle = SavedStateHandle()
         handle.set("spb", 1703)
         val ld = handle.getLiveData<Int>("spb")
@@ -121,6 +122,50 @@ class SavedStateHandleTest {
         handle.set("spb", 1914)
         invalidUpdate = false
         ld.value = 1924
+        assertThat(handle.get<Int?>("spb")).isEqualTo(1914)
+    }
+
+    @Test
+    @UiThreadTest
+    fun testRemoveWithStateFlow() = runTest {
+        val handle = SavedStateHandle()
+        handle.set("spb", 1703)
+        val flow = handle.getStateFlow("spb", 1309)
+        assertThat(handle.contains("spb")).isTrue()
+        var invalidUpdate = false
+        backgroundScope.launch {
+            flow.collect {
+                if (invalidUpdate) throw AssertionError("Flow must be already detached")
+            }
+        }
+        invalidUpdate = true // next removes key
+        assertThat(handle.remove<Int>("spb")).isEqualTo(1703)
+        assertThat(handle.contains("spb")).isFalse()
+        assertThat(handle.remove<Int?>("spb")).isNull()
+        handle.set("spb", 1914)
+        invalidUpdate = false
+    }
+
+    @Test
+    @UiThreadTest
+    fun testRemoveWithMutableStateFlow() = runTest {
+        val handle = SavedStateHandle()
+        handle.set("spb", 1703)
+        val flow = handle.getMutableStateFlow("spb", 1309)
+        assertThat(handle.contains("spb")).isTrue()
+        var invalidUpdate = false
+        backgroundScope.launch {
+            flow.collect {
+                if (invalidUpdate) throw AssertionError("Flow must be already detached")
+            }
+        }
+        invalidUpdate = true // next removes key
+        assertThat(handle.remove<Int>("spb")).isEqualTo(1703)
+        assertThat(handle.contains("spb")).isFalse()
+        assertThat(handle.remove<Int?>("spb")).isNull()
+        handle.set("spb", 1914)
+        invalidUpdate = false
+        flow.value = 1924
         assertThat(handle.get<Int?>("spb")).isEqualTo(1914)
     }
 

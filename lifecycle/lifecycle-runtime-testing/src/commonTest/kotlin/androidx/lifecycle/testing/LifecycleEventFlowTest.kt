@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreWebTarget
 class LifecycleEventFlowTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
