@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.WebTextInputService
@@ -42,7 +43,10 @@ internal class WebTextInputSession(
         }
         launch {
             snapshotFlow { request.focusedRectInRoot() }.filterNotNull().collect {
-                webTextInputService.notifyFocusedRect(it)
+                // Skip Rect.Zero, because it's an initial value. The real value is never Zero
+                if (it != Rect.Zero) {
+                    webTextInputService.notifyFocusedRect(it)
+                }
             }
         }
         suspendCancellableCoroutine<Nothing> { continuation ->

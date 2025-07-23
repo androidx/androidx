@@ -234,7 +234,6 @@ private fun ImeOptions.createDomElement(): HTMLElement {
         setProperty("width", "calc(var(--compose-internal-web-backing-input-width) * 1px")
         setProperty("height", "calc(var(--compose-internal-web-backing-input-height) * 1px")
         setProperty("padding", "0")
-        setProperty("opacity", "0")
         setProperty("color", "transparent")
         setProperty("background", "transparent")
         setProperty("caret-color", "transparent")
@@ -245,6 +244,13 @@ private fun ImeOptions.createDomElement(): HTMLElement {
         setProperty("z-index", "-1")
         // TODO: do we need pointer-events: none
         //setProperty("pointer-events", "none")
+
+        // I keep "opacity" commented to make it explicit that we can't use this property.
+        // Reason: Safari iOS keyboard overlaps the text input. See CMP-8611
+        // setProperty("opacity", "0")
+
+        // To prevent auto-zoom in some mobile browsers, we set a larger font-size
+        setProperty("font-size", "20px")
     }
 
     return htmlElement
