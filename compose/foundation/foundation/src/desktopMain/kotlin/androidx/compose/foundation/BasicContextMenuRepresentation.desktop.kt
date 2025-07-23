@@ -86,7 +86,10 @@ class DefaultContextMenuRepresentation(
                             key = it,
                             label = it.label,
                             enabled = true,
-                            onClick = { it.onClick() }
+                            onClick = {
+                                session.close()
+                                it.onClick()
+                            }
                         )
                     }
                 }
