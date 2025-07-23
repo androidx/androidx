@@ -35,28 +35,14 @@ Reloaded before every execution run.
     // All served files with the latest timestamps
     %MAPPINGS%
   </script>
-  <script type="text/javascript">
 
-    console.log(window.__karma__);
-    window.__karma__.loaded = function() {
-      console.log("window.__karma__.loaded");
-    };
-
-    function loadWasmModule() {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (typeof onWasmReady === 'function') {
-            onWasmReady(() => { resolve('skiko.wasm is ready') });
-          } else {
-            loadWasmModule().then(resolve);
-          }
-        }, 100);
-      });
-    }
+  <!-- Dynamically replaced with <script> tags -->
+  %SCRIPTS%
+  <script type="module">
+    import {api} from "./js-reexport-symbols.mjs"
 
     // Load the wasm module and start Karma after it's loaded
-    loadWasmModule()
-            .then(() => {
+    api.awaitSkiko.then(() => {
               window.__karma__.start();
             })
             .catch(error => {
@@ -64,7 +50,5 @@ Reloaded before every execution run.
               window.__karma__.error(error);
             });
   </script>
-  <!-- Dynamically replaced with <script> tags -->
-  %SCRIPTS%
 </body>
 </html>

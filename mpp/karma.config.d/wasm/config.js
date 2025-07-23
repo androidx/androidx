@@ -47,19 +47,10 @@ function KarmaWebpackOutputFramework(config) {
         return
     }
 
-    config.files.push({
-        pattern: `${staticFilesDir}/**/*.js`,
-        included: true,
-        served: true,
-        watched: false
-    });
-
-    config.files.push({
-        pattern: `${controller.outputPath}/**/*`,
-        included: false,
-        served: true,
-        watched: false
-    });
+    config.files.push(
+        {pattern: `${staticFilesDir}/**/*.js`, included: true, served: true, watched: false},
+        {pattern: `${controller.outputPath}/**/*`, included: false, served: true, watched: false}
+    );
 }
 
 const KarmaWebpackOutputPlugin = {

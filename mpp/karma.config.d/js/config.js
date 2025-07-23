@@ -65,10 +65,6 @@ function KarmaWebpackOutputFramework(config) {
         watched: false
     });
 }
-config.proxies = {
-    "/skiko.js": path.resolve(basePath, "kotlin", "skiko.js"),
-    "/skiko.wasm": path.resolve(basePath, "kotlin", "skiko.wasm"),
-}
 
 const KarmaWebpackOutputPlugin = {
     'framework:webpack-output': ['factory', KarmaWebpackOutputFramework],
@@ -77,8 +73,19 @@ const KarmaWebpackOutputPlugin = {
 config.plugins.push(KarmaWebpackOutputPlugin);
 config.frameworks.push("webpack-output");
 
-config.files.push({pattern: path.resolve(basePath, "kotlin", "skiko.wasm"), included: false, served: true, watched: false},);
-config.files.push(path.resolve(basePath, "kotlin", "skiko.js"));
+config.files.push(
+    {pattern: path.resolve(basePath, "kotlin", "skiko.wasm"), included: false, served: true, watched: false},
+    {pattern: path.resolve(basePath, "kotlin", "skiko.mjs"), included: true, served: true, watched: false, type: 'module'},
+    {pattern: path.resolve(basePath, "kotlin", "js-reexport-symbols.mjs"), included: false, served: true, watched: false, type: 'module'},
+);
+
+config.proxies = {
+    "/skiko.mjs": path.resolve(basePath, "kotlin", "skiko.mjs"),
+    "/skiko.wasm": path.resolve(basePath, "kotlin", "skiko.wasm"),
+    "/js-reexport-symbols.mjs": path.resolve(basePath, "kotlin", "js-reexport-symbols.mjs"),
+}
+
+
 
 configLaunchers(config);
 

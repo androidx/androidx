@@ -120,7 +120,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             it.from(skikoWasm.map { artifact ->
                 project.zipTree(artifact)
                     .matching { pattern ->
-                        pattern.include("skiko.wasm", "skiko.js")
+                        pattern.include("skiko.wasm", "skiko.mjs", "js-reexport-symbols.mjs")
                     }
             })
         }

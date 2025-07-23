@@ -16,7 +16,8 @@
 
 package androidx.compose.ui.window
 
+import org.jetbrains.skiko.wasm.onWasmReady
+
 internal actual fun onSkikoReady(block: () -> Unit) {
-    // onWasmReady {} is not needed in k/wasm target, so NoOp
-    block()
+    onWasmReady { block() }
 }
