@@ -88,9 +88,3 @@ internal object ViewModelProviders {
         }
     }
 }
-
-/**
- * Multiplatform replacement for [KClass.qualifiedName] reflection API. It's required because it's
- * not supported for all platforms.
- */
-internal expect val <T : Any> KClass<T>.canonicalName: String?

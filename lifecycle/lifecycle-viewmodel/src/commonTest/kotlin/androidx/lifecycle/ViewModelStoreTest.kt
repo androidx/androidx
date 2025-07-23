@@ -16,8 +16,10 @@
 package androidx.lifecycle
 
 import androidx.kruth.assertThat
+import androidx.lifecycle.viewmodel.IgnoreWebTarget
 import kotlin.test.Test
 
+@IgnoreWebTarget
 class ViewModelStoreTest {
 
     @Test

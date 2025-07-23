@@ -22,9 +22,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.IgnoreWebTarget
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import kotlin.test.Test
 
+@IgnoreWebTarget
 class ViewModelProvidersTest {
 
     @Test

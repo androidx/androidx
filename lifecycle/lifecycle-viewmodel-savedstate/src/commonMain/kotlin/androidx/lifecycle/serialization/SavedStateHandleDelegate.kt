@@ -17,6 +17,7 @@
 package androidx.lifecycle.serialization
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.internal.canonicalName
 import androidx.savedstate.SavedState
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
