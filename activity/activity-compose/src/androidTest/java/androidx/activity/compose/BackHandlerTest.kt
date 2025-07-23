@@ -79,6 +79,28 @@ class BackHandlerTest {
     }
 
     /**
+     * Test that [BackHandler] updates the dispatcher callback successfully when the `enabled`
+     * boolean parameter changes
+     */
+    @Test
+    fun testBackHandlerEnabledChanged() {
+        var isEnabled by mutableStateOf(false)
+        val results = mutableListOf<String>()
+        var handler by mutableStateOf({ results += "initial" })
+        composeTestRule.setContent {
+            BackHandler(enabled = isEnabled, onBack = handler)
+            val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            Button(onClick = { dispatcher.onBackPressed() }) { Text(text = "Press Back") }
+            Button(onClick = { isEnabled = true }) { Text(text = "Enable Back") }
+        }
+        composeTestRule.onNodeWithText("Press Back").performClick()
+        composeTestRule.runOnIdle { assertThat(results).isEqualTo(emptyList<String>()) }
+        composeTestRule.onNodeWithText("Enable Back").performClick()
+        composeTestRule.runOnIdle { handler = { results += "changed" } }
+        composeTestRule.runOnIdle { assertThat(results).isEqualTo(listOf("initial", "changed")) }
+    }
+
+    /**
      * Test that [BackHandler] updates the dispatcher callback successfully when the `onBack`
      * function parameter changes
      */

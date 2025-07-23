@@ -91,7 +91,7 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
         }
     }
     // On every successful composition, update the callback with the `enabled` value
-    SideEffect { backCallback.isEnabled = enabled }
+    remember(enabled) { backCallback.isEnabled = enabled }
     val backDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
                 "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
