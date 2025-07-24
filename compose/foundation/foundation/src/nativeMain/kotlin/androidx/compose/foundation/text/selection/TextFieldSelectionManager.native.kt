@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.input.internal.selection
+package androidx.compose.foundation.text.selection
 
-import androidx.compose.ui.platform.Clipboard
+import androidx.compose.foundation.internal.hasText
 
-// the paste state is needed to show or hide the "paste" context menu item.
-// in browsers we don't want to bother users by a permission request,
-// so we return unconditionally true
-internal actual class ClipboardPasteState actual constructor(private val clipboard: Clipboard) {
-    actual val hasText = true
-    actual val hasClip = true
-    actual suspend fun update() {}
+internal actual suspend fun TextFieldSelectionManager.hasAvailableTextToPaste(): Boolean {
+    return clipboard?.getClipEntry()?.hasText() == true
 }

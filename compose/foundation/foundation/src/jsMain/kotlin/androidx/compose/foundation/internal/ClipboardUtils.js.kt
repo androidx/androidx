@@ -46,10 +46,7 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 
 internal actual fun ClipEntry?.hasText(): Boolean {
     if (this == null) return false
-    // Empty clipboardItems here mean that the read from web clipboard was ended with an error.
-    // The most common reason is that the permission was denied.
-    // In this case we want to show the "paste" menu item anyway.
-    if (this.clipboardItems.isEmpty()) return true
+    if (this.clipboardItems.isEmpty()) return false
     return doesJsArrayContainValue(this.clipboardItems[0].types, MIME_TYPE_PLAIN_TEXT)
 }
 

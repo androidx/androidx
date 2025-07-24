@@ -16,23 +16,13 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.internal.hasText
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.Clipboard
 
+// the paste state is needed to show or hide the "paste" context menu item.
+// in browsers we don't want to bother users by a permission request,
+// so we return unconditionally true
 internal actual class ClipboardPasteState actual constructor(private val clipboard: Clipboard) {
-    private var _hasClip = false
-    private var _hasText = false
-
-    actual val hasText: Boolean get() = _hasText
-    actual val hasClip: Boolean get() = _hasClip
-
-    // TODO: replace the experimental API usage when a common ClipEntry API is ready - https://youtrack.jetbrains.com/issue/CMP-7624
-    @OptIn(ExperimentalComposeUiApi::class)
-    actual suspend fun update() {
-        val entry = clipboard.getClipEntry()
-        val itemsSize = entry?.clipboardItems?.length ?: 0
-        _hasClip = itemsSize > 0
-        _hasText = entry?.hasText() ?: false
-    }
+    actual val hasText = true
+    actual val hasClip = true
+    actual suspend fun update() {}
 }

@@ -20,7 +20,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPreconditionNotNull
-import androidx.compose.foundation.internal.hasText
 import androidx.compose.foundation.internal.readAnnotatedString
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
@@ -54,7 +53,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -201,10 +199,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     internal var latestSelection: TextRange? = null
 
-    // TODO(grantapher) android ClipboardManager has a way to notify primary clip changes.
-    //  That could possibly be used so that this doesn't have to be updated manually.
-    /** The current clip entry. Updated via [updateClipboardEntry]. */
-    private var clipEntry: ClipEntry? by mutableStateOf(null)
+    private var hasAvailableTextToPaste by mutableStateOf(false)
 
     @VisibleForTesting internal var toolbarRequester: ToolbarRequester = ToolbarRequesterImpl()
 
@@ -776,7 +771,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     internal fun canCopy(): Boolean = hasSelection && !isPassword
 
     internal suspend fun updateClipboardEntry() {
-        clipEntry = clipboard?.getClipEntry()
+        hasAvailableTextToPaste = hasAvailableTextToPaste()
     }
 
     private suspend fun notifyPlatformSelectionBehaviorsOnShowContextMenu() {
@@ -794,7 +789,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     }
 
     /** Only fully accurate if [updateClipboardEntry] has been called. */
-    internal fun canPaste(): Boolean = editable && clipEntry?.hasText() == true
+    internal fun canPaste(): Boolean = editable && hasAvailableTextToPaste
 
     internal fun canCut(): Boolean = hasSelection && editable && !isPassword
 
@@ -1021,6 +1016,8 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     private fun showSelectionToolbarViaTextToolbar() =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
+            updateClipboardEntry()
+
             // Because this is undispatched and the above is called once in CoreTextField
             // composition, disable read observation to avoid reading many states and landing
             // in a composition loop.
@@ -1041,7 +1038,6 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         }
                     } else null
 
-                updateClipboardEntry()
                 val paste: (() -> Unit)? =
                     if (canPaste()) {
                         {
@@ -1400,3 +1396,6 @@ internal expect fun Modifier.addBasicTextFieldTextContextMenuComponents(
     manager: TextFieldSelectionManager,
     coroutineScope: CoroutineScope,
 ): Modifier
+
+//TODO upstream https://youtrack.jetbrains.com/issue/CMP-7517
+internal expect suspend fun TextFieldSelectionManager.hasAvailableTextToPaste(): Boolean

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.internal.hasText
 import androidx.compose.foundation.text.DesktopTextContextMenuItems
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Copy
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Cut
@@ -79,4 +80,8 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         textFieldItem(SelectAll, enabled = canSelectAll()) { selectAll() }
         separator()
     }
+}
+
+internal actual suspend fun TextFieldSelectionManager.hasAvailableTextToPaste(): Boolean {
+    return clipboard?.getClipEntry()?.hasText() == true
 }

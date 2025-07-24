@@ -78,3 +78,8 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         separator()
     }
 }
+
+// the paste state is needed to show or hide the "paste" context menu item.
+// in browsers we don't want to bother users by a permission request,
+// so we return unconditionally true
+internal actual suspend fun TextFieldSelectionManager.hasAvailableTextToPaste(): Boolean = true
