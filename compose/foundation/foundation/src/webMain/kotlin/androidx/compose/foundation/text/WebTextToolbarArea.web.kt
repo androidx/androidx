@@ -87,26 +87,30 @@ private fun WebTextToolbarPopup() {
         popupPositionProvider = popupPositionProvider,
         onDismiss = { /* visibility depends on a text selection */ },
         contextMenuBuilderBlock = {
-            item(
-                label = { getString(Strings.Copy) },
-                enabled = menu.onCopyRequested != null,
-                onClick = { menu.onCopyRequested?.invoke() }
-            )
-            item(
-                label = { getString(Strings.Paste) },
-                enabled = menu.onPasteRequested != null,
-                onClick = { menu.onPasteRequested?.invoke() }
-            )
-            item(
-                label = { getString(Strings.Cut) },
-                enabled = menu.onCutRequested != null,
-                onClick = { menu.onCutRequested?.invoke() }
-            )
-            item(
-                label = { getString(Strings.SelectAll) },
-                enabled = menu.onSelectAllRequested != null,
-                onClick = { menu.onSelectAllRequested?.invoke() }
-            )
+            if (menu.onCopyRequested != null) {
+                item(
+                    label = { getString(Strings.Copy) },
+                    onClick = { menu.onCopyRequested?.invoke() }
+                )
+            }
+            if (menu.onPasteRequested != null) {
+                item(
+                    label = { getString(Strings.Paste) },
+                    onClick = { menu.onPasteRequested?.invoke() }
+                )
+            }
+            if (menu.onCutRequested != null) {
+                item(
+                    label = { getString(Strings.Cut) },
+                    onClick = { menu.onCutRequested?.invoke() }
+                )
+            }
+            if (menu.onSelectAllRequested != null) {
+                item(
+                    label = { getString(Strings.SelectAll) },
+                    onClick = { menu.onSelectAllRequested?.invoke() }
+                )
+            }
         }
     )
 }
