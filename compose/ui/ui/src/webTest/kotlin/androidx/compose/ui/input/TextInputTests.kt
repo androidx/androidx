@@ -31,7 +31,12 @@ import androidx.compose.ui.TestInputState
 import androidx.compose.ui.WebApplicationScope
 import androidx.compose.ui.events.InputEvent
 import androidx.compose.ui.events.InputEventInit
+import androidx.compose.ui.events.beforeInput
+import androidx.compose.ui.events.compositionEnd
+import androidx.compose.ui.events.compositionStart
 import androidx.compose.ui.events.keyEvent
+import androidx.compose.ui.events.mobileKeyDown
+import androidx.compose.ui.events.mobileKeyUp
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
@@ -42,7 +47,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -111,7 +115,14 @@ abstract class TextInputTests : OnCanvasTests {
         focusRequester.requestFocus()
         waitForHtmlInput()
 
-        sendToHtmlInput(keyEvent("a"), keyEvent("b"), keyEvent("c"))
+        sendToHtmlInput(
+            keyEvent("a"),
+            beforeInput(inputType = "insertText", data = "a"),
+            keyEvent("b"),
+            beforeInput(inputType = "insertText", data = "b"),
+            keyEvent("c"),
+            beforeInput(inputType = "insertText", data = "c"),
+        )
 
         inputHolder.awaitAndAssertTextEquals("abc")
 
@@ -161,10 +172,15 @@ abstract class TextInputTests : OnCanvasTests {
 
         sendToHtmlInput(
             keyEvent("s"),
+            beforeInput(inputType = "insertText", data = "s"),
             keyEvent("t"),
+            beforeInput(inputType = "insertText", data = "t"),
             keyEvent("e"),
+            beforeInput(inputType = "insertText", data = "e"),
             keyEvent("p"),
-            keyEvent("1")
+            beforeInput(inputType = "insertText", data = "p"),
+            keyEvent("1"),
+            beforeInput(inputType = "insertText", data = "1"),
         )
 
         textFieldValue.awaitAndAssertTextEquals("step1")
@@ -172,6 +188,7 @@ abstract class TextInputTests : OnCanvasTests {
         sendToHtmlInput(
             keyEvent("Backspace", code = "Backspace"),
             keyEvent("X"),
+            beforeInput(inputType = "insertText", data = "X"),
         )
 
         textFieldValue.awaitAndAssertTextEquals(
@@ -202,6 +219,7 @@ abstract class TextInputTests : OnCanvasTests {
 
         sendToHtmlInput(
             keyEvent("x"),
+            beforeInput(inputType = "insertText", data = "x"),
             keyEvent("x", type = "keyup")
         )
 
@@ -235,6 +253,7 @@ abstract class TextInputTests : OnCanvasTests {
 
         sendToHtmlInput(
             keyEvent("b"),
+            beforeInput(inputType = "insertText", data = "b"),
             keyEvent("b", type = "keyup")
         )
 
@@ -312,14 +331,16 @@ abstract class TextInputTests : OnCanvasTests {
 
         sendToHtmlInput(
             keyEvent("a"),
-            keyEvent("a", repeat = true),
             beforeInput("insertText", "a"),
             keyEvent("a", repeat = true),
             keyEvent("a", repeat = true),
             keyEvent("a", repeat = true),
             keyEvent("a", repeat = true),
+            keyEvent("a", repeat = true),
             keyEvent("b"),
-            keyEvent("c")
+            beforeInput(inputType = "insertText", data = "b"),
+            keyEvent("c"),
+            beforeInput(inputType = "insertText", data = "c"),
         )
 
 
@@ -359,10 +380,13 @@ abstract class TextInputTests : OnCanvasTests {
             keyEvent("ArrowLeft", code = "ArrowLeft", repeat = true),
             keyEvent("ArrowLeft", code = "ArrowLeft", type = "keyup"),
             keyEvent("a"),
+            beforeInput(inputType = "insertText", data = "a"),
             keyEvent("a", type = "keyup"),
             keyEvent("b"),
+            beforeInput(inputType = "insertText", data = "b"),
             keyEvent("b", type = "keyup"),
             keyEvent("c"),
+            beforeInput(inputType = "insertText", data = "c"),
             keyEvent("c", type = "keyup"),
         )
 
@@ -406,10 +430,15 @@ abstract class TextInputTests : OnCanvasTests {
 
         sendToHtmlInput(
             keyEvent("s"),
+            beforeInput(inputType = "insertText", data = "s"),
             keyEvent("t"),
+            beforeInput(inputType = "insertText", data = "t"),
             keyEvent("e"),
+            beforeInput(inputType = "insertText", data = "e"),
             keyEvent("p"),
-            keyEvent("1")
+            beforeInput(inputType = "insertText", data = "p"),
+            keyEvent("1"),
+            beforeInput(inputType = "insertText", data = "1"),
         )
 
         inputHolder1.awaitAndAssertTextEquals("step1")
@@ -422,24 +451,13 @@ abstract class TextInputTests : OnCanvasTests {
             keyEvent("t"),
             keyEvent("e"),
             keyEvent("p"),
-            keyEvent("2")
+            keyEvent("2"),
+            beforeInput(inputType = "insertText", data = "step2"),
         )
 
         inputHolder2.awaitAndAssertTextEquals("step2")
     }
 }
-
-private fun compositionStart(data: String = "") =
-    CompositionEvent("compositionstart", CompositionEventInit(data = data))
-
-private fun compositionEnd(data: String) =
-    CompositionEvent("compositionend", CompositionEventInit(data = data))
-
-private fun beforeInput(inputType: String, data: String?) =
-    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data))
-
-private fun mobileKeyDown() = keyEvent(type = "keydown", key = "Unidentified", code = "")
-private fun mobileKeyUp() = keyEvent(type = "keydown", key = "Unidentified", code = "")
 
 class BasicTextFieldTests : TextInputTests() {
 

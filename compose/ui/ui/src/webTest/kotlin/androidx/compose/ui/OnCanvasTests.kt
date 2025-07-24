@@ -175,12 +175,24 @@ internal class WebApplicationScope(
         awaitWithYield()
     }
 
+    /**
+     * awaitAnimationFrame is needed for text input tests,
+     * due to DomInputStrategy implementation relying on animation frame events.
+     */
+    private suspend fun awaitAnimationFrame() {
+        suspendCoroutine { continuation ->
+            window.requestAnimationFrame { continuation.resumeWith(Result.success(Unit)) }
+        }
+    }
+
     suspend fun TestInputState.awaitAndAssertTextEquals(expected: String, message: String? = null) {
+        awaitAnimationFrame()
         awaitIdle()
         assertEquals(expected = expected, actual = text, message = message)
     }
 
     suspend fun TestInputState.awaitAndAssertTextMatches(expected: Regex, message: String? = null) {
+        awaitAnimationFrame()
         awaitIdle()
         assertTrue(expected.matches(text), message)
     }

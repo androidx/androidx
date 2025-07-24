@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.events
 
+import org.w3c.dom.events.CompositionEvent
+import org.w3c.dom.events.CompositionEventInit
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.KeyboardEventInit
 import org.w3c.dom.events.MouseEvent
@@ -57,6 +59,18 @@ internal fun keyEvent(
     return keyboardEventInit
         .keyEvent(type)
 }
+
+internal fun compositionStart(data: String = "") =
+    CompositionEvent("compositionstart", CompositionEventInit(data = data))
+
+internal fun compositionEnd(data: String) =
+    CompositionEvent("compositionend", CompositionEventInit(data = data))
+
+internal fun beforeInput(inputType: String, data: String?) =
+    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data))
+
+internal fun mobileKeyDown() = keyEvent(type = "keydown", key = "Unidentified", code = "")
+internal fun mobileKeyUp() = keyEvent(type = "keydown", key = "Unidentified", code = "")
 
 private fun DummyTouchEventInit(): TouchEventInit = js("({ changedTouches: [new Touch({identifier: 0, target: document})] })")
 

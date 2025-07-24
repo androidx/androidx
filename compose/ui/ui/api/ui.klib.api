@@ -5315,25 +5315,10 @@ final val androidx.compose.ui.platform/androidx_compose_ui_platform_BackingDomIn
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_DomInputStrategy$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_DomInputStrategy$stableprop|#static{}androidx_compose_ui_platform_DomInputStrategy$stableprop[0]
 
 // Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_AccentDialogue$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_AccentDialogue$stableprop|#static{}androidx_compose_ui_platform_EditState_AccentDialogue$stableprop[0]
+final val androidx.compose.ui.platform/androidx_compose_ui_platform_InputEvent$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_InputEvent$stableprop|#static{}androidx_compose_ui_platform_InputEvent$stableprop[0]
 
 // Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop|#static{}androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop[0]
-
-// Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_Default$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_Default$stableprop|#static{}androidx_compose_ui_platform_EditState_Default$stableprop[0]
-
-// Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop|#static{}androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop[0]
-
-// Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Accent$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Accent$stableprop|#static{}androidx_compose_ui_platform_RepeatMode_Accent$stableprop[0]
-
-// Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Default$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Default$stableprop|#static{}androidx_compose_ui_platform_RepeatMode_Default$stableprop[0]
-
-// Targets: [js, wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Unknown$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Unknown$stableprop|#static{}androidx_compose_ui_platform_RepeatMode_Unknown$stableprop[0]
+final val androidx.compose.ui.platform/androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop|#static{}androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop[0]
 
 // Targets: [js, wasmJs]
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop|#static{}androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop[0]
@@ -5405,25 +5390,10 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_BackingDomIn
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_DomInputStrategy$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_DomInputStrategy$stableprop_getter|androidx_compose_ui_platform_DomInputStrategy$stableprop_getter(){}[0]
 
 // Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_AccentDialogue$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_AccentDialogue$stableprop_getter|androidx_compose_ui_platform_EditState_AccentDialogue$stableprop_getter(){}[0]
+final fun androidx.compose.ui.platform/androidx_compose_ui_platform_InputEvent$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_InputEvent$stableprop_getter|androidx_compose_ui_platform_InputEvent$stableprop_getter(){}[0]
 
 // Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop_getter|androidx_compose_ui_platform_EditState_CompositeDialogue$stableprop_getter(){}[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_Default$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_Default$stableprop_getter|androidx_compose_ui_platform_EditState_Default$stableprop_getter(){}[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop_getter|androidx_compose_ui_platform_EditState_WaitingComposeActivity$stableprop_getter(){}[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Accent$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Accent$stableprop_getter|androidx_compose_ui_platform_RepeatMode_Accent$stableprop_getter(){}[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Default$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Default$stableprop_getter|androidx_compose_ui_platform_RepeatMode_Default$stableprop_getter(){}[0]
-
-// Targets: [js, wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Unknown$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_RepeatMode_Unknown$stableprop_getter|androidx_compose_ui_platform_RepeatMode_Unknown$stableprop_getter(){}[0]
+final fun androidx.compose.ui.platform/androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop_getter|androidx_compose_ui_platform_NativeInputEventsProcessor$stableprop_getter(){}[0]
 
 // Targets: [js, wasmJs]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop_getter|androidx_compose_ui_platform_W3CTemporaryClipboard$stableprop_getter(){}[0]

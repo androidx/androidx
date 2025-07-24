@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Order with requestAnimationFrame</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1em;
+        }
+
+        #log {
+            white-space: pre-wrap;
+            border: 1px solid #ccc;
+            padding: 1em;
+            margin-top: 1em;
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+<h2>Keyboard Event Order Tracker</h2>
+<p>Click the input below and type something:</p>
+<input type="text" id="testInput" autofocus/>
+<div id="log"></div>
+
+<script>
+    const logContainer = document.getElementById('log');
+    const input = document.getElementById('testInput');
+
+    let rAFScheduled = false;
+
+    const log = (msg) => {
+        const time = performance.now().toFixed(2);
+        logContainer.textContent = `[${time} ms] ${msg}\n` + logContainer.textContent;
+        logContainer.scrollTop = 0;
+    };
+
+    const scheduleRAF = () => {
+        if (rAFScheduled) return;
+        rAFScheduled = true;
+        requestAnimationFrame(() => {
+            log('requestAnimationFrame\n');
+            rAFScheduled = false;
+        });
+    };
+
+    const eventLoggers = [
+        ['keydown', (e) => log(`keydown: ${e.key}, composing: ${e.isComposing}, type: ${e.type}`)],
+        ['keyup', (e) => log(`keyup: ${e.key}, type: ${e.type}`)],
+        ['beforeinput', (e) => log(`beforeinput: ${e.inputType}, type: ${e.type}, data: ${e.data}, isComposing: ${e.isComposing}, selection: (${input.selectionStart} - ${input.selectionEnd} / ${input.selectionDirection})`)],
+        ['compositionstart', (e) => log(`compositionstart --- type: ${e.type}`)],
+        ['compositionupdate', (e) => log(`compositionupdate --- type: ${e.type}`)],
+        ['compositionend', (e) => log(`compositionend --- type: ${e.type}`)],
+    ];
+
+    for (const [event, handler] of eventLoggers) {
+        input.addEventListener(event, (e) => {
+            handler(e);
+            scheduleRAF();
+        });
+    }
+</script>
+</body>
+</html>

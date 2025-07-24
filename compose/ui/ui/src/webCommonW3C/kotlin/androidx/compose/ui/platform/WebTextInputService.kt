@@ -72,8 +72,8 @@ internal abstract class WebTextInputService : PlatformTextInputService, InputAwa
         backingDomInput = BackingDomInput(
             imeOptions = imeOptions,
             composeCommunicator = object : ComposeCommandCommunicator {
-                override fun sendKeyboardEvent(keyboardEvent: KeyEvent): Boolean {
-                    return this@WebTextInputService.processKeyboardEvent(keyboardEvent)
+                override fun sendKeyboardEvent(keyboardEvent: KeyEvent) {
+                    this@WebTextInputService.processKeyboardEvent(keyboardEvent)
                 }
 
                 override fun sendEditCommand(commands: List<EditCommand>) {
