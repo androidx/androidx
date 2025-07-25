@@ -62,8 +62,8 @@ kotlin {
                 implementation "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.1"
                 implementation "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1"
                 implementation "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1"
-                implementation "org.jetbrains.androidx.savedstate:savedstate:1.3.1"
-                implementation "org.jetbrains.androidx.savedstate:savedstate-compose:1.3.1"
+                implementation project(":savedstate:savedstate")
+                implementation project(":savedstate:savedstate-compose")
             }
         }
 
