@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,4 +18,5 @@ package androidx.savedstate.internal
 
 import kotlin.reflect.KClass
 
-internal actual val KClass<*>?.commonQualifiedName: String? get() = this?.qualifiedName
+internal actual val KClass<*>?.canonicalName: String?
+    get() = this?.simpleName // `qualifiedName` reflection API is not supported yet in Web.

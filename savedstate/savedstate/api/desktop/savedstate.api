@@ -7,9 +7,7 @@ public final class androidx/savedstate/SavedState {
 
 public final class androidx/savedstate/SavedStateKt {
 	public static final fun read (Landroidx/savedstate/SavedState;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
-	public static final fun savedState (Landroidx/savedstate/SavedState;Lkotlin/jvm/functions/Function1;)Landroidx/savedstate/SavedState;
 	public static final fun savedState (Ljava/util/Map;Lkotlin/jvm/functions/Function1;)Landroidx/savedstate/SavedState;
-	public static synthetic fun savedState$default (Landroidx/savedstate/SavedState;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/savedstate/SavedState;
 	public static synthetic fun savedState$default (Ljava/util/Map;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/savedstate/SavedState;
 	public static final fun write (Landroidx/savedstate/SavedState;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 }
@@ -20,54 +18,49 @@ public final class androidx/savedstate/SavedStateReader {
 	public static final fun contains-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Z
 	public static final fun contentDeepEquals-impl (Landroidx/savedstate/SavedState;Landroidx/savedstate/SavedState;)Z
 	public static final fun contentDeepHashCode-impl (Landroidx/savedstate/SavedState;)I
-	public static final fun contentDeepToString-impl (Landroidx/savedstate/SavedState;)Ljava/lang/String;
 	public fun equals (Ljava/lang/Object;)Z
 	public static fun equals-impl (Landroidx/savedstate/SavedState;Ljava/lang/Object;)Z
 	public static final fun equals-impl0 (Landroidx/savedstate/SavedState;Landroidx/savedstate/SavedState;)Z
 	public static final fun getBoolean-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Z
 	public static final fun getBooleanArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Z
-	public static final fun getBooleanArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Z
-	public static final fun getBooleanOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Boolean;
+	public static final fun getBooleanArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[Z
+	public static final fun getBooleanOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Z
 	public static final fun getChar-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)C
 	public static final fun getCharArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[C
-	public static final fun getCharArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[C
-	public static final fun getCharOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Character;
+	public static final fun getCharArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[C
+	public static final fun getCharOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)C
 	public static final fun getCharSequence-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/CharSequence;
 	public static final fun getCharSequenceArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Ljava/lang/CharSequence;
-	public static final fun getCharSequenceArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Ljava/lang/CharSequence;
+	public static final fun getCharSequenceArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[Ljava/lang/CharSequence;
 	public static final fun getCharSequenceList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getCharSequenceListOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getCharSequenceOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/CharSequence;
+	public static final fun getCharSequenceListOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/util/List;
+	public static final fun getCharSequenceOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/CharSequence;
 	public static final fun getDouble-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)D
 	public static final fun getDoubleArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[D
-	public static final fun getDoubleArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[D
-	public static final fun getDoubleOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Double;
+	public static final fun getDoubleArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[D
+	public static final fun getDoubleOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)D
 	public static final fun getFloat-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)F
 	public static final fun getFloatArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[F
-	public static final fun getFloatArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[F
-	public static final fun getFloatOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Float;
+	public static final fun getFloatArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[F
+	public static final fun getFloatOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)F
 	public static final fun getInt-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)I
 	public static final fun getIntArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[I
-	public static final fun getIntArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[I
+	public static final fun getIntArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[I
 	public static final fun getIntList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getIntListOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getIntOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Integer;
+	public static final fun getIntListOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/util/List;
+	public static final fun getIntOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)I
 	public static final fun getLong-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)J
 	public static final fun getLongArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[J
-	public static final fun getLongArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[J
-	public static final fun getLongOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/Long;
+	public static final fun getLongArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[J
+	public static final fun getLongOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)J
 	public static final fun getSavedState-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Landroidx/savedstate/SavedState;
-	public static final fun getSavedStateArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Landroidx/savedstate/SavedState;
-	public static final fun getSavedStateArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Landroidx/savedstate/SavedState;
-	public static final fun getSavedStateList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getSavedStateListOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getSavedStateOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Landroidx/savedstate/SavedState;
+	public static final fun getSavedStateOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Landroidx/savedstate/SavedState;
 	public static final fun getString-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun getStringArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Ljava/lang/String;
-	public static final fun getStringArrayOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)[Ljava/lang/String;
+	public static final fun getStringArrayOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)[Ljava/lang/String;
 	public static final fun getStringList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getStringListOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/util/List;
-	public static final fun getStringOrNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun getStringListOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/util/List;
+	public static final fun getStringOrElse-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Ljava/lang/String;
 	public fun hashCode ()I
 	public static fun hashCode-impl (Landroidx/savedstate/SavedState;)I
 	public static final fun isEmpty-impl (Landroidx/savedstate/SavedState;)Z
@@ -80,7 +73,8 @@ public final class androidx/savedstate/SavedStateReader {
 }
 
 public final class androidx/savedstate/SavedStateReaderKt {
-	public static final fun keyOrValueNotFoundError (Ljava/lang/String;)Ljava/lang/Void;
+	public static final fun keyNotFoundError (Ljava/lang/String;)Ljava/lang/Void;
+	public static final fun valueNotFoundError (Ljava/lang/String;)Ljava/lang/Void;
 }
 
 public final class androidx/savedstate/SavedStateRegistry {
@@ -141,8 +135,6 @@ public final class androidx/savedstate/SavedStateWriter {
 	public static final fun putLongArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;[J)V
 	public static final fun putNull-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;)V
 	public static final fun putSavedState-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Landroidx/savedstate/SavedState;)V
-	public static final fun putSavedStateArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;[Landroidx/savedstate/SavedState;)V
-	public static final fun putSavedStateList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Ljava/util/List;)V
 	public static final fun putString-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Ljava/lang/String;)V
 	public static final fun putStringArray-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;[Ljava/lang/String;)V
 	public static final fun putStringList-impl (Landroidx/savedstate/SavedState;Ljava/lang/String;Ljava/util/List;)V
@@ -152,67 +144,21 @@ public final class androidx/savedstate/SavedStateWriter {
 	public final synthetic fun unbox-impl ()Landroidx/savedstate/SavedState;
 }
 
-public final class androidx/savedstate/serialization/ClassDiscriminatorMode {
-	public static final field ALL_OBJECTS I
-	public static final field INSTANCE Landroidx/savedstate/serialization/ClassDiscriminatorMode;
-	public static final field POLYMORPHIC I
-}
-
-public final class androidx/savedstate/serialization/SavedStateConfiguration {
-	public static final field Companion Landroidx/savedstate/serialization/SavedStateConfiguration$Companion;
-	public static final field DEFAULT Landroidx/savedstate/serialization/SavedStateConfiguration;
-	public synthetic fun <init> (Lkotlinx/serialization/modules/SerializersModule;IZLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun getClassDiscriminatorMode ()I
-	public final fun getEncodeDefaults ()Z
-	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
-}
-
-public final class androidx/savedstate/serialization/SavedStateConfiguration$Builder {
-	public final fun getClassDiscriminatorMode ()I
-	public final fun getEncodeDefaults ()Z
-	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
-	public final fun setClassDiscriminatorMode (I)V
-	public final fun setEncodeDefaults (Z)V
-	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
-}
-
-public final class androidx/savedstate/serialization/SavedStateConfiguration$Companion {
-}
-
-public final class androidx/savedstate/serialization/SavedStateConfigurationKt {
-	public static final fun SavedStateConfiguration (Landroidx/savedstate/serialization/SavedStateConfiguration;Lkotlin/jvm/functions/Function1;)Landroidx/savedstate/serialization/SavedStateConfiguration;
-	public static final fun SavedStateConfiguration (Lkotlin/jvm/functions/Function1;)Landroidx/savedstate/serialization/SavedStateConfiguration;
-	public static synthetic fun SavedStateConfiguration$default (Landroidx/savedstate/serialization/SavedStateConfiguration;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/savedstate/serialization/SavedStateConfiguration;
-}
-
 public final class androidx/savedstate/serialization/SavedStateDecoderKt {
 	public static final fun decodeFromSavedState (Lkotlinx/serialization/DeserializationStrategy;Landroidx/savedstate/SavedState;)Ljava/lang/Object;
-	public static final fun decodeFromSavedState (Lkotlinx/serialization/DeserializationStrategy;Landroidx/savedstate/SavedState;Landroidx/savedstate/serialization/SavedStateConfiguration;)Ljava/lang/Object;
-	public static synthetic fun decodeFromSavedState$default (Lkotlinx/serialization/DeserializationStrategy;Landroidx/savedstate/SavedState;Landroidx/savedstate/serialization/SavedStateConfiguration;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class androidx/savedstate/serialization/SavedStateEncoderKt {
 	public static final fun encodeToSavedState (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Landroidx/savedstate/SavedState;
-	public static final fun encodeToSavedState (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Landroidx/savedstate/serialization/SavedStateConfiguration;)Landroidx/savedstate/SavedState;
-	public static synthetic fun encodeToSavedState$default (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Landroidx/savedstate/serialization/SavedStateConfiguration;ILjava/lang/Object;)Landroidx/savedstate/SavedState;
 }
 
-public final class androidx/savedstate/serialization/SavedStateRegistryOwnerDelegateKt {
-	public static final fun saved (Landroidx/savedstate/SavedStateRegistryOwner;Lkotlinx/serialization/KSerializer;Ljava/lang/String;Landroidx/savedstate/serialization/SavedStateConfiguration;Lkotlin/jvm/functions/Function0;)Lkotlin/properties/ReadWriteProperty;
-	public static synthetic fun saved$default (Landroidx/savedstate/SavedStateRegistryOwner;Lkotlinx/serialization/KSerializer;Ljava/lang/String;Landroidx/savedstate/serialization/SavedStateConfiguration;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lkotlin/properties/ReadWriteProperty;
-}
-
-public final class androidx/savedstate/serialization/serializers/MutableStateFlowSerializer : kotlinx/serialization/KSerializer {
-	public fun <init> (Lkotlinx/serialization/KSerializer;)V
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lkotlinx/coroutines/flow/MutableStateFlow;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/coroutines/flow/MutableStateFlow;)V
+public final class androidx/savedstate/serialization/SavedStateRegistryOwnerDelegatesKt {
+	public static final fun saved (Landroidx/savedstate/SavedStateRegistryOwner;Ljava/lang/String;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function0;)Lkotlin/properties/ReadWriteProperty;
+	public static final fun saved (Landroidx/savedstate/SavedStateRegistryOwner;Lkotlinx/serialization/KSerializer;Lkotlin/jvm/functions/Function0;)Lkotlin/properties/ReadWriteProperty;
 }
 
 public final class androidx/savedstate/serialization/serializers/SavedStateSerializer : kotlinx/serialization/KSerializer {
-	public static final field INSTANCE Landroidx/savedstate/serialization/serializers/SavedStateSerializer;
+	public fun <init> ()V
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Landroidx/savedstate/SavedState;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;

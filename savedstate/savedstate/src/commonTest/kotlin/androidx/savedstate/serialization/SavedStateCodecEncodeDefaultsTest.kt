@@ -17,10 +17,12 @@
 package androidx.savedstate.serialization
 
 import androidx.kruth.assertThat
+import androidx.savedstate.IgnoreWebTarget
 import androidx.savedstate.serialization.utils.SavedStateSerializationBaseTest
 import kotlin.test.Test
 import kotlinx.serialization.Serializable
 
+@IgnoreWebTarget
 internal class SavedStateCodecEncodeDefaultsTest : SavedStateSerializationBaseTest() {
 
     @Test

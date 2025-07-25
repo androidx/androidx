@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.savedstate.internal
+package androidx.savedstate
 
-import platform.posix.PTHREAD_MUTEX_RECURSIVE
-
-internal actual val PTHREAD_MUTEX_RECURSIVE: Int = PTHREAD_MUTEX_RECURSIVE.toInt()
+/**
+ * Ignores a test on Kotlin/JS and Kotlin/Wasm targets.
+ *
+ * This annotation is a temporary measure to exclude tests in `commonTest` that currently fail on
+ * Web-based platforms (JS and Wasm). Many of these tests were written before official support for
+ * these targets and rely on assumptions that do not hold true in a web environment.
+ *
+ * TODO(mgalhardo): Refactor the annotated tests to be platform-agnostic and remove this annotation.
+ */
+internal expect annotation class IgnoreWebTarget()

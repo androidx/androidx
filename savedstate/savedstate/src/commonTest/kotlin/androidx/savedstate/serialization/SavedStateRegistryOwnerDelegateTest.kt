@@ -21,6 +21,7 @@ import androidx.kruth.assertThrows
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleRegistry
+import androidx.savedstate.IgnoreWebTarget
 import androidx.savedstate.RobolectricTest
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
@@ -41,6 +42,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 
+@IgnoreWebTarget
 internal class SavedStateRegistryOwnerDelegateTest : RobolectricTest() {
 
     @Test

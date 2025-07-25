@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.Test
 
+@IgnoreWebTarget
 internal class SavedStateTest : RobolectricTest() {
 
     @Test
