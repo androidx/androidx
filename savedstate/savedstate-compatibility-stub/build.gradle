@@ -1,0 +1,61 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
+}
+
+androidXMultiplatform {
+    android()
+    desktop()
+    ios()
+    linux()
+    mac()
+    js()
+    wasm()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                def version = project.findProperty('artifactRedirection.version.androidx.savedstate')
+                api("androidx.savedstate:savedstate:$version")
+            }
+        }
+    }
+}
+
+kotlin {
+    watchosArm64()
+    watchosArm32()
+    watchosX64()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    mingwX64()
+}
+
+android {
+    namespace = "androidx.savedstate"
+    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
+}
+
+androidx {
+    name = "Saved State"
+    type = LibraryType.PUBLISHED_LIBRARY
+    inceptionYear = "2018"
+    description = "Android Lifecycle Saved State"
+    metalavaK2UastEnabled = false
+}
