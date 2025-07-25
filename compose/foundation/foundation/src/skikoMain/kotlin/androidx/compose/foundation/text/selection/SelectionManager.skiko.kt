@@ -35,7 +35,7 @@ internal fun SelectionManager.contextMenuBuilder(
     }
 
     listOf(
-        selectionItem(Copy, enabled = isNonEmptySelection()) { copy() },
+        selectionItem(Copy, enabled = canCopy()) { copy() },
         selectionItem(SelectAll, enabled = !isEntireContainerSelected()) { selectAll() },
     )
 }

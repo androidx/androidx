@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.isWriteSupported
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.ContextMenuArea
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
@@ -101,10 +102,14 @@ internal fun SelectionContainer(
     manager.hapticFeedBack = LocalHapticFeedback.current
     manager.onCopyHandler =
         remember(coroutineScope, clipboard) {
-            { textToCopy ->
-                coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                    clipboard.setClipEntry(textToCopy.toClipEntry())
+            if (clipboard.isWriteSupported()) {
+                { textToCopy ->
+                    coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                        clipboard.setClipEntry(textToCopy.toClipEntry())
+                    }
                 }
+            } else {
+                null
             }
         }
     manager.textToolbar = LocalTextToolbar.current

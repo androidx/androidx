@@ -84,6 +84,9 @@ internal actual fun ClipEntry?.hasText(): Boolean {
     return transferable.isDataFlavorSupported(DataFlavor.stringFlavor)
 }
 
+internal actual fun androidx.compose.ui.platform.Clipboard.isReadSupported(): Boolean = true
+internal actual fun androidx.compose.ui.platform.Clipboard.isWriteSupported(): Boolean = true
+
 // Here we rely on the NativeClipboard directly instead of using ClipEntry,
 // because getClipEntry is a suspend function, but in ContextMenu.desktop.kt we have older code
 // expecting a synchronous execution.

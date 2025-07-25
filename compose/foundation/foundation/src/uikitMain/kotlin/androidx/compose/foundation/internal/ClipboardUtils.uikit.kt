@@ -20,6 +20,7 @@ package androidx.compose.foundation.internal
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 
 
@@ -36,3 +37,6 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 }
 
 internal actual fun ClipEntry?.hasText(): Boolean = this?.hasPlainText() ?: false
+
+internal actual fun Clipboard.isReadSupported(): Boolean = true
+internal actual fun Clipboard.isWriteSupported(): Boolean = true

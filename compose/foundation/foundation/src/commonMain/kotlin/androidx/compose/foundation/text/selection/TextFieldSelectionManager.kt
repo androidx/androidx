@@ -20,6 +20,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.internal.isReadSupported
+import androidx.compose.foundation.internal.isWriteSupported
 import androidx.compose.foundation.internal.readAnnotatedString
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
@@ -768,10 +770,13 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     private val hasSelection: Boolean
         get() = !value.selection.collapsed
 
-    internal fun canCopy(): Boolean = hasSelection && !isPassword
+    internal fun canCopy(): Boolean =
+        hasSelection && !isPassword && (clipboard?.isWriteSupported() == true)
 
     internal suspend fun updateClipboardEntry() {
-        hasAvailableTextToPaste = hasAvailableTextToPaste()
+        if (clipboard?.isReadSupported() == true) {
+            hasAvailableTextToPaste = hasAvailableTextToPaste()
+        }
     }
 
     private suspend fun notifyPlatformSelectionBehaviorsOnShowContextMenu() {
@@ -789,9 +794,11 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     }
 
     /** Only fully accurate if [updateClipboardEntry] has been called. */
-    internal fun canPaste(): Boolean = editable && hasAvailableTextToPaste
+    internal fun canPaste(): Boolean =
+        editable && (clipboard?.isReadSupported() == true) && hasAvailableTextToPaste
 
-    internal fun canCut(): Boolean = hasSelection && editable && !isPassword
+    internal fun canCut(): Boolean =
+        hasSelection && editable && !isPassword && clipboard?.isWriteSupported() == true
 
     internal fun canSelectAll(): Boolean = value.selection.length != value.text.length
 

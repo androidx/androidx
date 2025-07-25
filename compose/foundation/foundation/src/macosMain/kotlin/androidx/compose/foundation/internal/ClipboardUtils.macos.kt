@@ -22,6 +22,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.Clipboard
 
 
 internal actual suspend fun ClipEntry.readText(): String? = getPlainText()
@@ -37,6 +38,9 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 }
 
 internal actual fun ClipEntry?.hasText(): Boolean = this?.getPlainText() != null
+
+internal actual fun Clipboard.isReadSupported(): Boolean = true
+internal actual fun Clipboard.isWriteSupported(): Boolean = true
 
 internal fun NativeClipboard.hasText(): Boolean {
     return this.types?.contains(platform.AppKit.NSPasteboardTypeString) ?: false

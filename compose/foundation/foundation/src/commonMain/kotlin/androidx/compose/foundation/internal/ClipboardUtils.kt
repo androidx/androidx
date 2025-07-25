@@ -17,6 +17,7 @@
 package androidx.compose.foundation.internal
 
 import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.text.AnnotatedString
 
 // TODO: upstreaming the KDoc https://youtrack.jetbrains.com/issue/CMP-7544
@@ -43,3 +44,12 @@ internal expect fun AnnotatedString?.toClipEntry(): ClipEntry?
  * Otherwise, it returns false.
  */
 internal expect fun ClipEntry?.hasText(): Boolean
+
+/**
+ * All platforms except web always support both read and write operations.
+ * On the web, older browser versions have different APIs supported.
+ * We use this information for the context menu items.
+ */
+// TODO (o.karpovich): must be upstreamed https://youtrack.jetbrains.com/issue/CMP-7544 and its usages
+internal expect fun Clipboard.isReadSupported(): Boolean
+internal expect fun Clipboard.isWriteSupported(): Boolean

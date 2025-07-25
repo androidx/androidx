@@ -27,6 +27,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.internal.isReadSupported
+import androidx.compose.foundation.internal.isWriteSupported
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
@@ -1311,8 +1313,8 @@ internal class TextFieldSelectionState(
      * requires the selection to not be collapsed, the text field to be editable, and for it to NOT
      * be a password.
      */
-    fun canCut(): Boolean =
-        !textFieldState.visualText.selection.collapsed && editable && !isPassword
+    fun canCut(): Boolean = clipboard.isWriteSupported()
+        && !textFieldState.visualText.selection.collapsed && editable && !isPassword
 
     /**
      * The method for cutting text.
@@ -1342,7 +1344,9 @@ internal class TextFieldSelectionState(
      * Whether a copy operation can execute now and modify the clipboard. The copy operation
      * requires the selection to not be collapsed, and the text field to NOT be a password.
      */
-    fun canCopy(): Boolean = !textFieldState.visualText.selection.collapsed && !isPassword
+    fun canCopy(): Boolean = clipboard.isWriteSupported()
+        && !textFieldState.visualText.selection.collapsed
+        && !isPassword
 
     /**
      * The method for copying text.
@@ -1386,7 +1390,7 @@ internal class TextFieldSelectionState(
      * calling [updateClipboardEntry].
      */
     fun canPaste(): Boolean {
-        if (!editable) return false
+        if (!editable || !clipboard.isReadSupported()) return false
         // if receive content is not configured, we expect at least a text item to be present
         if (clipboardPasteState.hasText) return true
         // if receive content is configured, hasClip should be enough to show the paste option

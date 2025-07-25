@@ -804,13 +804,17 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         }
     }
 
+    // No need to show the "Copy" context menu item if onCopyHandler is not provided
+    internal fun canCopy(): Boolean =
+        onCopyHandler != null && isNonEmptySelection()
+
     private fun updateSelectionTextToolbar() {
         val textToolbar = textToolbar ?: return
         if (showToolbar && isInTouchMode) {
             val rect = getContentRect() ?: return
             textToolbar.showMenu(
                 rect = rect,
-                onCopyRequested = if (isNonEmptySelection()) ::toolbarCopy else null,
+                onCopyRequested = if (canCopy()) ::toolbarCopy else null,
                 onSelectAllRequested = if (isEntireContainerSelected()) null else ::selectAll,
                 onAutofillRequested = null,
             )
