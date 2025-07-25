@@ -64,7 +64,7 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
                 implementation("androidx.core:core-ktx:1.13.1")
-                implementation("androidx.core:core-viewtree:1.0.0-alpha01")
+                implementation("androidx.core:core-viewtree:1.0.0")
                 api(libs.kotlinStdlib)
             }
         }
@@ -107,10 +107,12 @@ androidXMultiplatform {
         }
 
         nativeMain {
+            dependsOn(commonMain)
             dependsOn(nonAndroidMain)
         }
 
         nativeTest {
+            dependsOn(commonTest)
             dependsOn(nonAndroidTest)
         }
 
@@ -191,5 +193,4 @@ androidx {
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
     metalavaK2UastEnabled = false
-    //kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -17,6 +17,7 @@
 package androidx.savedstate.serialization
 
 import androidx.kruth.assertThat
+import androidx.savedstate.IgnoreWebTarget
 import androidx.savedstate.RobolectricTest
 import androidx.savedstate.serialization.serializers.MutableStateFlowSerializer
 import kotlin.test.Test
@@ -26,6 +27,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 
+@IgnoreWebTarget
 internal class MutableStateFlowSerializerTest : RobolectricTest() {
 
     @Test

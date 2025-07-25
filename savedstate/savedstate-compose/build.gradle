@@ -128,7 +128,7 @@ android {
 androidx {
     name = "Saved State Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    inceptionYear = "2018"
+    inceptionYear = "2024"
     description = "Compose integration with Saved State"
     metalavaK2UastEnabled = false
 }

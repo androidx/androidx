@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.savedstate.internal
+package androidx.savedstate
 
-import kotlin.reflect.KClass
+import kotlin.test.Ignore
 
-internal actual val KClass<*>?.commonQualifiedName: String? get() = this?.qualifiedName
+internal actual typealias IgnoreWebTarget = Ignore
