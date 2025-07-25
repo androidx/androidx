@@ -93,7 +93,7 @@ import org.jetbrains.skiko.MainUIDispatcher
  * because underlying [MonotonicFrameClock] hasn't synchronized with any display, and produces
  * frames as fast as possible.
  *
- * All animation's should be created inside Composable content of the
+ * All animations should be created inside Composable content of the
  * [Window] / [DialogWindow] / [ComposePanel].
  *
  * @param exitProcessOnExit should `exitProcess(0)` be called after the application is closed.
