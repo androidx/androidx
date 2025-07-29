@@ -1878,11 +1878,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // Sometimes, while scrolling with reuse, a child LayoutNode, might not
         // require measure or layout at all, but at a minimum we need to update RectManager with
         // the correct information.
-        rectManager.onLayoutPositionChanged(
-            layoutNode,
-            layoutNode.layoutDelegate.measurePassDelegate.lastPosition,
-            true,
-        )
+        rectManager.onLayoutPositionChanged(layoutNode, true)
     }
 
     override fun onInteropViewLayoutChange(view: InteropView) {

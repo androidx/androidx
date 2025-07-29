@@ -728,4 +728,5 @@ private val EmptyLazyGridLayoutInfo =
         slotsPerLine = 0,
         coroutineScope = CoroutineScope(EmptyCoroutineContext),
         prefetchInfoRetriever = { emptyList() },
+        lineIndexProvider = { -1 },
     )

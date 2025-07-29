@@ -38,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -572,6 +573,74 @@ class RectListIntegrationTest {
 
         rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 100.dp)
         rule.onNodeWithTag("inner").assertRectDp(79.dp, -21.dp, 220.dp, 121.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testRotatedChildBoxOffset() {
+        rule.setContent {
+            Column(Modifier.testTag("outer").graphicsLayer { rotationZ = 45f }) {
+                Box(Modifier.height(100.dp))
+                Box(Modifier.testTag("inner").size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(-56.dp, 65.dp, 85.dp, 206.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testRotatedChildBoxOffsetUpdated() {
+        var rotation by mutableFloatStateOf(0f)
+        rule.setContent {
+            Column(Modifier.testTag("outer").graphicsLayer { rotationZ = rotation }) {
+                Box(Modifier.height(100.dp))
+                Box(Modifier.testTag("inner").size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(0.dp, 100.dp, 100.dp, 200.dp)
+
+        rule.runOnIdle { rotation = 45f }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(-56.dp, 65.dp, 85.dp, 206.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testRotatedGrandchildBoxOffset() {
+        rule.setContent {
+            Column(Modifier.testTag("outer").graphicsLayer { rotationZ = 45f }) {
+                Box(Modifier.height(100.dp))
+                Box { Box(Modifier.testTag("inner").size(100.dp)) }
+            }
+        }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(-56.dp, 65.dp, 85.dp, 206.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testRotatedGrandchildBoxOffsetUpdated() {
+        var rotation by mutableFloatStateOf(0f)
+        rule.setContent {
+            Column(Modifier.testTag("outer").graphicsLayer { rotationZ = rotation }) {
+                Box(Modifier.height(100.dp))
+                Box { Box(Modifier.testTag("inner").size(100.dp)) }
+            }
+        }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(0.dp, 100.dp, 100.dp, 200.dp)
+
+        rule.runOnIdle { rotation = 45f }
+
+        rule.onNodeWithTag("outer").assertRectDp(0.dp, 0.dp, 100.dp, 200.dp)
+        rule.onNodeWithTag("inner").assertRectDp(-56.dp, 65.dp, 85.dp, 206.dp)
     }
 
     @Test

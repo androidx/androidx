@@ -344,6 +344,10 @@ private fun rememberLazyGridMeasurePolicy(
                 result
             }
 
+            val lineIndexProvider: (itemIndex: Int) -> Int = { itemIndex ->
+                spanLayoutProvider.getLineIndexOfItem(itemIndex)
+            }
+
             val firstVisibleLineIndex: Int
             val firstVisibleLineScrollOffset: Int
 
@@ -405,6 +409,7 @@ private fun rememberLazyGridMeasurePolicy(
                     coroutineScope = coroutineScope,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     prefetchInfoRetriever = prefetchInfoRetriever,
+                    lineIndexProvider = lineIndexProvider,
                     graphicsContext = graphicsContext,
                     stickyItemsScrollBehavior = stickyItemsScrollBehavior,
                     layout = { width, height, placement ->

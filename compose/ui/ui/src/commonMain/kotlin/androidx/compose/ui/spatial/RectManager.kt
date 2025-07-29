@@ -96,6 +96,11 @@ internal class RectManager(
             rects.forEachUpdatedRect { id, topLeft, bottomRight ->
                 throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
             }
+            throttledCallbacks.forEachNewCallbackNeverInvoked { entry ->
+                rects.withTopLeftBottomRight(entry.id) { topLeft, bottomRight ->
+                    throttledCallbacks.fireWithUpdatedRect(entry, topLeft, bottomRight, currentTime)
+                }
+            }
             rects.clearUpdated()
         }
         if (isScreenOrWindowDirty) {
@@ -155,13 +160,12 @@ internal class RectManager(
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit,
     ): RegistrationHandle {
-        return throttledCallbacks.registerOnRectChanged(
-            id,
-            throttleMillis,
-            debounceMillis,
-            node,
-            callback,
-        )
+        return throttledCallbacks
+            .registerOnRectChanged(id, throttleMillis, debounceMillis, node, callback)
+            .also {
+                invalidate()
+                scheduleDebounceCallback(true)
+            }
     }
 
     fun registerOnGlobalLayoutCallback(
@@ -212,7 +216,7 @@ internal class RectManager(
             layoutNode.forEachChild {
                 // NOTE: this calls rectlist.move(...) so does not need to be recursive
                 // TODO: we could potentially move to a single call of `updateSubhierarchy(...)`
-                onLayoutPositionChanged(it, it.outerCoordinator.position, false)
+                onLayoutPositionChanged(it, false)
             }
             invalidateCallbacksFor(layoutNode)
         } else {
@@ -221,11 +225,7 @@ internal class RectManager(
         }
     }
 
-    fun onLayoutPositionChanged(
-        layoutNode: LayoutNode,
-        position: IntOffset,
-        firstPlacement: Boolean,
-    ) {
+    fun onLayoutPositionChanged(layoutNode: LayoutNode, firstPlacement: Boolean) {
         @OptIn(ExperimentalComposeUiApi::class) if (!ComposeUiFlags.isRectTrackingEnabled) return
         // Our goal here is to get the right "root" coordinates for every layout. We can use
         // LayoutCoordinates.localToRoot to calculate this somewhat readily, however this function
@@ -240,50 +240,21 @@ internal class RectManager(
         val width = delegate.measuredWidth
         val height = delegate.measuredHeight
 
-        val parent = layoutNode.parent
-        val offset: IntOffset
-
         val lastOffset = layoutNode.offsetFromRoot
         val lastSize = layoutNode.lastSize
         val lastWidth = lastSize.width
         val lastHeight = lastSize.height
 
-        var hasNonTranslationTransformations = false
+        recalculateOffsetFromRoot(layoutNode)
 
-        if (parent != null) {
-            val parentOffsetDirty = parent.outerToInnerOffsetDirty
-            val parentOffset = parent.offsetFromRoot
-            val prevOuterToInnerOffset = parent.outerToInnerOffset
-
-            offset =
-                if (parentOffset.isSet) {
-                    val parentOuterInnerOffset =
-                        if (parentOffsetDirty) {
-                            val it = parent.outerToInnerOffset()
-
-                            parent.outerToInnerOffset = it
-                            parent.outerToInnerOffsetDirty = false
-                            it
-                        } else {
-                            prevOuterToInnerOffset
-                        }
-                    hasNonTranslationTransformations = !parentOuterInnerOffset.isSet
-                    parentOffset + parentOuterInnerOffset + position
-                } else {
-                    layoutNode.outerCoordinator.positionInRoot()
-                }
-        } else {
-            // root
-            offset = position
-        }
+        val offset = layoutNode.offsetFromRoot
 
         // If unset is returned then that means there is a rotation/skew/scale
-        if (hasNonTranslationTransformations || !offset.isSet) {
-            insertOrUpdateTransformedNode(layoutNode, position, firstPlacement)
+        if (!offset.isSet) {
+            insertOrUpdateTransformedNode(layoutNode, firstPlacement)
             return
         }
 
-        layoutNode.offsetFromRoot = offset
         layoutNode.lastSize = IntSize(width, height)
 
         val l = offset.x
@@ -298,32 +269,60 @@ internal class RectManager(
         insertOrUpdate(layoutNode, firstPlacement, l, t, r, b)
     }
 
+    private fun recalculateOffsetFromRoot(layoutNode: LayoutNode) {
+        val position = layoutNode.outerCoordinator.position
+        val parent = layoutNode.parent
+        layoutNode.offsetFromRoot =
+            if (parent != null) {
+                if (!parent.offsetFromRoot.isSet) {
+                    recalculateOffsetFromRoot(parent)
+                }
+
+                val parentOffset = parent.offsetFromRoot
+                if (!parentOffset.isSet) {
+                    // if after recalculateOffsetFromRoot() on parent we still have unset return
+                    // unset
+                    IntOffset.Max
+                } else {
+                    val parentOuterInnerOffset =
+                        if (parent.outerToInnerOffsetDirty) {
+                            val it = parent.outerToInnerOffset()
+
+                            parent.outerToInnerOffset = it
+                            parent.outerToInnerOffsetDirty = false
+                            it
+                        } else {
+                            parent.outerToInnerOffset
+                        }
+                    if (!parentOuterInnerOffset.isSet) {
+                        IntOffset.Max
+                    } else {
+                        parentOffset + parentOuterInnerOffset + position
+                    }
+                }
+            } else {
+                // root
+                position
+            }
+    }
+
     private fun insertOrUpdateTransformedNodeSubhierarchy(layoutNode: LayoutNode) {
         layoutNode.forEachChild {
-            insertOrUpdateTransformedNode(it, it.outerCoordinator.position, false)
+            insertOrUpdateTransformedNode(it, false)
             insertOrUpdateTransformedNodeSubhierarchy(it)
         }
     }
 
     private val cachedRect = MutableRect(0f, 0f, 0f, 0f)
 
-    private fun insertOrUpdateTransformedNode(
-        layoutNode: LayoutNode,
-        position: IntOffset,
-        firstPlacement: Boolean,
-    ) {
+    private fun insertOrUpdateTransformedNode(layoutNode: LayoutNode, firstPlacement: Boolean) {
         val coord = layoutNode.outerCoordinator
         val delegate = layoutNode.measurePassDelegate
         val width = delegate.measuredWidth
         val height = delegate.measuredHeight
         val rect = cachedRect
 
-        rect.set(
-            left = position.x.toFloat(),
-            top = position.y.toFloat(),
-            right = (position.x + width).toFloat(),
-            bottom = (position.y + height).toFloat(),
-        )
+        rect.set(0f, 0f, width.toFloat(), height.toFloat())
 
         coord.boundingRectInRoot(rect)
 
@@ -373,28 +372,6 @@ internal class RectManager(
             )
         }
         invalidate()
-    }
-
-    private fun NodeCoordinator.positionInRoot(): IntOffset {
-        // TODO: can we use offsetFromRoot here to speed up calculation?
-        var position = Offset.Zero
-        var coordinator: NodeCoordinator? = this
-        while (coordinator != null) {
-            val layer = coordinator.layer
-            position += coordinator.position
-            coordinator = coordinator.wrappedBy
-            if (layer != null) {
-                val matrix = layer.underlyingMatrix
-                val analysis = matrix.analyzeComponents()
-                if (analysis == 0b11) continue
-                val hasNonTranslationComponents = analysis and 0b10 == 0
-                if (hasNonTranslationComponents) {
-                    return IntOffset.Max
-                }
-                position = matrix.map(position)
-            }
-        }
-        return position.round()
     }
 
     private fun NodeCoordinator.boundingRectInRoot(rect: MutableRect) {

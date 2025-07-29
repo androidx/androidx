@@ -21,7 +21,7 @@ import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
 import androidx.compose.foundation.gestures.snapping.sizeOnMainAxis
 import androidx.compose.foundation.lazy.layout.CacheWindowLogic
 import androidx.compose.foundation.lazy.layout.CacheWindowScope
-import androidx.compose.foundation.lazy.layout.InvalidItemIndex
+import androidx.compose.foundation.lazy.layout.InvalidIndex
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
 import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
@@ -144,14 +144,20 @@ private class LazyGridCacheWindowScope() : CacheWindowScope {
         get() = lineIndex(layoutInfo.orientation)
 
     override fun getLastIndexInLine(lineIndex: Int): Int {
-        val measureResult = layoutInfo as? LazyGridMeasureResult ?: return InvalidItemIndex
+        val measureResult = layoutInfo as? LazyGridMeasureResult ?: return InvalidIndex
         val itemsInLine = measureResult.prefetchInfoRetriever.invoke(lineIndex)
         return if (itemsInLine.isEmpty()) {
-            InvalidItemIndex
+            InvalidIndex
         } else {
             // the first index in this line plus the number of items in this line
             // gives me the last index in this line
             itemsInLine.first().first + itemsInLine.size - 1
         }
+    }
+
+    override fun getLastLineIndex(): Int {
+        val measureResult = layoutInfo as? LazyGridMeasureResult ?: return InvalidIndex
+        if (totalItemsCount == 0) return InvalidIndex
+        return measureResult.lineIndexProvider.invoke(totalItemsCount - 1)
     }
 }

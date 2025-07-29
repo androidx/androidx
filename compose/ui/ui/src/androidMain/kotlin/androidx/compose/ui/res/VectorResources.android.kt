@@ -93,7 +93,8 @@ internal fun loadVectorResourceInner(
             resourceParser.parseCurrentVectorNode(res, attrs, theme, builder, nestedGroups)
         parser.next()
     }
-    return ImageVectorCache.ImageVectorEntry(builder.build(), changingConfigurations)
+    val configFlags = changingConfigurations or resourceParser.config
+    return ImageVectorCache.ImageVectorEntry(builder.build(), configFlags)
 }
 
 /**

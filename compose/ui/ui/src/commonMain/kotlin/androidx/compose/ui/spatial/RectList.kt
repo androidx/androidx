@@ -409,6 +409,26 @@ internal class RectList {
         return false
     }
 
+    fun withTopLeftBottomRight(value: Int, block: (Long, Long) -> Unit): Boolean {
+        val value = value and Lower26Bits
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            // NOTE: We are assuming that the value can only be here once.
+            if (unpackMetaValue(meta) == value) {
+                val topLeft = items[i + 0]
+                val bottomRight = items[i + 1]
+                block(topLeft, bottomRight)
+                return true
+            }
+            i += LongsPerItem
+        }
+        return false
+    }
+
     operator fun contains(value: Int): Boolean {
         val value = value and Lower26Bits
         val items = items

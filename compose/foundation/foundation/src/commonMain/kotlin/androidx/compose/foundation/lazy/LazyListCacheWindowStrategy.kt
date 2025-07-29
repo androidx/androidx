@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.singleAxisViewportSize
 import androidx.compose.foundation.lazy.layout.CacheWindowLogic
 import androidx.compose.foundation.lazy.layout.CacheWindowScope
+import androidx.compose.foundation.lazy.layout.InvalidIndex
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
 import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
@@ -133,6 +134,11 @@ internal class LazyListCacheWindowScope() : CacheWindowScope {
         layoutInfo.visibleItemsInfo[indexInVisibleLines].index
 
     override fun getLastIndexInLine(lineIndex: Int): Int = lineIndex
+
+    override fun getLastLineIndex(): Int {
+        if (totalItemsCount == 0) return InvalidIndex
+        return totalItemsCount - 1
+    }
 }
 
 // we use 2 here because nested list have usually > 1 visible elements, so 2 is the minimum

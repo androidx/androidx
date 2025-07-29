@@ -93,7 +93,7 @@ internal class ComposerChangeListWriter(
     // If an up is recorded before the corresponding down is realized then it is simply removed
     // from the downNodes stack.
     private var pendingUps = 0
-    private var pendingDownNodes = Stack<Any?>()
+    private val pendingDownNodes = Stack<Any?>()
 
     private var removeFrom = -1
     private var moveFrom = -1
@@ -452,6 +452,16 @@ internal class ComposerChangeListWriter(
         startedGroup = false
         startedGroups.clear()
         writersReaderDelta = 0
+
+        implicitRootStart = true
+
+        pendingUps = 0
+        pendingDownNodes.clear()
+
+        removeFrom = -1
+        moveFrom = -1
+        moveTo = -1
+        moveCount = 0
     }
 
     fun deactivateCurrentGroup() {

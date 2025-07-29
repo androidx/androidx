@@ -282,6 +282,11 @@ private class CacheDrawModifierNodeImpl(
         cachedGraphicsContext?.releaseGraphicsLayers()
     }
 
+    override fun onReset() {
+        super.onReset()
+        invalidateDrawCache()
+    }
+
     override fun onMeasureResultChanged() {
         invalidateDrawCache()
     }

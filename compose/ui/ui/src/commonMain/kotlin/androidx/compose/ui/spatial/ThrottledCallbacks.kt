@@ -48,7 +48,7 @@ internal class ThrottledCallbacks {
 
         var topLeft: Long = 0
         var bottomRight: Long = 0
-        var lastInvokeMillis: Long = -throttleMillis
+        var lastInvokeMillis: Long = Long.MIN_VALUE
         var lastUninvokedFireMillis: Long = -1
 
         override fun unregister() {
@@ -187,6 +187,18 @@ internal class ThrottledCallbacks {
         }
     }
 
+    inline fun forEachNewCallbackNeverInvoked(callback: (Entry) -> Unit) {
+        rectChangedMap.forEachValue { entry ->
+            var next: Entry? = entry
+            while (next != null) {
+                if (entry.lastInvokeMillis == Long.MIN_VALUE) {
+                    callback(entry)
+                }
+                next = next.next
+            }
+        }
+    }
+
     /** Fires all [rectChangedMap] entries with latest window/screen info. */
     fun fireOnRectChangedEntries(currentMillis: Long) {
         val windowOffset = windowOffset
@@ -262,7 +274,7 @@ internal class ThrottledCallbacks {
         minDebounceDeadline = if (minDeadline == Long.MAX_VALUE) -1 else minDeadline
     }
 
-    private fun fireWithUpdatedRect(
+    internal fun fireWithUpdatedRect(
         entry: Entry,
         topLeft: Long,
         bottomRight: Long,
@@ -271,7 +283,10 @@ internal class ThrottledCallbacks {
         val lastInvokeMillis = entry.lastInvokeMillis
         val throttleMillis = entry.throttleMillis
         val debounceMillis = entry.debounceMillis
-        val pastThrottleDeadline = currentMillis - lastInvokeMillis >= throttleMillis
+        // We need to check separately for lastInvokeMillis being Long.MIN_VALUE because when it is,
+        // we will end up with Long overflow.
+        val pastThrottleDeadline =
+            currentMillis - lastInvokeMillis >= throttleMillis || lastInvokeMillis == Long.MIN_VALUE
         val zeroDebounce = debounceMillis == 0L
         val zeroThrottle = throttleMillis == 0L
 
@@ -315,7 +330,11 @@ internal class ThrottledCallbacks {
         currentMillis: Long,
     ) {
         val lastInvokeMillis = entry.lastInvokeMillis
-        val throttleOkay = currentMillis - lastInvokeMillis > entry.throttleMillis
+        // We need to check separately for lastInvokeMillis being Long.MIN_VALUE because when it is,
+        // we will end up with Long overflow.
+        val throttleOkay =
+            currentMillis - lastInvokeMillis > entry.throttleMillis ||
+                lastInvokeMillis == Long.MIN_VALUE
         val debounceOkay = entry.debounceMillis == 0L
         entry.lastUninvokedFireMillis = currentMillis
         if (throttleOkay && debounceOkay) {

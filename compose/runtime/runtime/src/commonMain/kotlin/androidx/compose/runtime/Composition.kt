@@ -426,8 +426,9 @@ internal val ObservableCompositionServiceKey =
     object : CompositionServiceKey<ObservableComposition> {}
 
 private const val RUNNING = 0
-private const val INCONSISTENT = 1
-private const val DISPOSED = 2
+private const val DEACTIVATED = 1
+private const val INCONSISTENT = 2
+private const val DISPOSED = 3
 
 /**
  * The implementation of the [Composition] interface.
@@ -629,54 +630,33 @@ internal class CompositionImpl(
         get() = synchronized(lock) { composer.hasPendingChanges }
 
     override fun setContent(content: @Composable () -> Unit) {
-        checkState()
-        composeInitial(content)
+        val wasDeactivated = clearDeactivated()
+        ensureRunning()
+
+        if (wasDeactivated) {
+            composeInitialWithReuse(content)
+        } else {
+            composeInitial(content)
+        }
     }
 
     override fun setContentWithReuse(content: @Composable () -> Unit) {
-        checkState()
-        composer.startReuseFromRoot()
+        clearDeactivated()
+        ensureRunning()
 
-        composeInitial(content)
-
-        composer.endReuseFromRoot()
+        composeInitialWithReuse(content)
     }
 
     override fun setPausableContent(content: @Composable () -> Unit): PausedComposition {
-        checkState()
-        val pausedComposition =
-            PausedCompositionImpl(
-                composition = this,
-                context = parent,
-                composer = composer,
-                content = content,
-                reusable = false,
-                abandonSet = abandonSet,
-                applier = applier,
-                lock = lock,
-            )
-        pendingPausedComposition = pausedComposition
-        return pausedComposition
+        val wasDeactivated = clearDeactivated()
+        return composeInitialPaused(reusable = wasDeactivated, content)
     }
 
     override fun setPausableContentWithReuse(content: @Composable () -> Unit): PausedComposition {
-        checkState()
-        checkPrecondition(pendingPausedComposition == null) {
-            "A pausable composition is in progress"
-        }
-        val pausedComposition =
-            PausedCompositionImpl(
-                composition = this,
-                context = parent,
-                composer = composer,
-                content = content,
-                reusable = true,
-                abandonSet = abandonSet,
-                applier = applier,
-                lock = lock,
-            )
-        pendingPausedComposition = pausedComposition
-        return pausedComposition
+        clearDeactivated()
+        ensureRunning()
+
+        return composeInitialPaused(reusable = true, content)
     }
 
     internal fun pausedCompositionFinished(ignoreSet: ScatterSet<RememberObserverHolder>?) {
@@ -692,13 +672,42 @@ internal class CompositionImpl(
         parent.composeInitial(this, composable)
     }
 
-    private fun checkState() {
+    private fun composeInitialPaused(
+        reusable: Boolean,
+        content: @Composable () -> Unit,
+    ): PausedComposition {
+        checkPrecondition(pendingPausedComposition == null) {
+            "A pausable composition is in progress"
+        }
+        val pausedComposition =
+            PausedCompositionImpl(
+                composition = this,
+                context = parent,
+                composer = composer,
+                content = content,
+                reusable = reusable,
+                abandonSet = abandonSet,
+                applier = applier,
+                lock = lock,
+            )
+        pendingPausedComposition = pausedComposition
+        return pausedComposition
+    }
+
+    private fun composeInitialWithReuse(content: @Composable () -> Unit) {
+        composer.startReuseFromRoot()
+        composeInitial(content)
+        composer.endReuseFromRoot()
+    }
+
+    private fun ensureRunning() {
         checkPrecondition(state == RUNNING) {
             when (state) {
                 INCONSISTENT ->
                     "A previous pausable composition for this composition was cancelled. This " +
                         "composition must be disposed."
                 DISPOSED -> "The composition is disposed"
+                DEACTIVATED -> "The composition should be activated before setting content."
                 else -> "" // Excluded by the precondition check
             }
         }
@@ -706,6 +715,15 @@ internal class CompositionImpl(
             "A pausable composition is in progress"
         }
     }
+
+    private fun clearDeactivated(): Boolean =
+        synchronized(lock) {
+            val isDeactivated = state == DEACTIVATED
+            if (isDeactivated) {
+                state = RUNNING
+            }
+            isDeactivated
+        }
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
     override fun setObserver(observer: CompositionObserver): CompositionObserverHandle {
@@ -1396,6 +1414,8 @@ internal class CompositionImpl(
             changes.clear()
             lateChanges.clear()
             composer.deactivate()
+
+            state = DEACTIVATED
         }
     }
 

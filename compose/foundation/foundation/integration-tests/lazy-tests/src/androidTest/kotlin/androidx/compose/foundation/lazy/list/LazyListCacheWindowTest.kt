@@ -205,6 +205,21 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         rule.onNodeWithTag("100").assertDoesNotExist() // window is full
     }
 
+    @Test
+    fun datasetChanged_noScrollHappened_shouldKeepAroundWithinBounds_notCrash() {
+        val numItems = mutableStateOf(100)
+
+        composeList(firstItem = 96, numItems = numItems, cacheWindow = viewportWindow)
+        rule.onNodeWithTag("96").assertIsDisplayed()
+        rule.onNodeWithTag("97").assertIsDisplayed()
+        rule.onNodeWithTag("97").assertExists()
+
+        rule.runOnIdle { numItems.value = 50 }
+        rule.onNodeWithTag("49").assertExists()
+        rule.onNodeWithTag("96").assertDoesNotExist()
+        rule.onNodeWithTag("97").assertDoesNotExist()
+    }
+
     private val activeNodes = mutableSetOf<Int>()
 
     private fun composeList(

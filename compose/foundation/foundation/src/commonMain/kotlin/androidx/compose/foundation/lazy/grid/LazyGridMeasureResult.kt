@@ -50,6 +50,8 @@ internal class LazyGridMeasureResult(
     val slotsPerLine: Int,
     /** Finds items on a line and their measurement constraints. Used for prefetching. */
     val prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
+    /** Finds the line for a given item. */
+    val lineIndexProvider: (itemIndex: Int) -> Int,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyGridLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyGridMeasuredItem>,
@@ -145,6 +147,7 @@ internal class LazyGridMeasureResult(
                 density = density,
                 slotsPerLine = slotsPerLine,
                 prefetchInfoRetriever = prefetchInfoRetriever,
+                lineIndexProvider = lineIndexProvider,
                 visibleItemsInfo = visibleItemsInfo,
                 viewportStartOffset = viewportStartOffset,
                 viewportEndOffset = viewportEndOffset,

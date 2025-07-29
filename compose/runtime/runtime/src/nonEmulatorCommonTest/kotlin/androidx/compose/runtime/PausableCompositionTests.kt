@@ -25,6 +25,7 @@ import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.mock.view
+import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.resume
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -589,6 +590,44 @@ class PausableCompositionTests {
         assertEquals(0, rememberObserver.rememberCount)
         assertEquals(0, rememberObserver.forgottenCount)
         assertEquals(1, rememberObserver.abandonedCount)
+    }
+
+    @Test
+    fun deactivateAnotherComposition() = compositionTest {
+        val awaiter = Awaiter()
+        var state by mutableStateOf(false)
+        var composition: ReusableComposition? = null
+
+        val workflow = workflow {
+            composition = this.composition
+
+            setContent()
+            resumeTillComplete { false }
+            apply()
+
+            state = true
+            Snapshot.sendApplyNotifications()
+            advance()
+
+            setContent()
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            Text("$state")
+            SideEffect {
+                if (state) {
+                    composition?.deactivate()
+                }
+            }
+
+            PausableContent(workflow) { Text("$state") }
+        }
+
+        awaiter.await()
     }
 }
 
