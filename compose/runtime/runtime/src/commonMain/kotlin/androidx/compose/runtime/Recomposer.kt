@@ -856,36 +856,40 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
     private fun clearKnownCompositionsLocked() {
-        registrationObservers?.forEach { observer ->
-            knownCompositionsLocked().forEach { composition ->
-                if (composition is ObservableComposition) {
-                    observer.onCompositionUnregistered(composition)
-                }
-            }
+        knownCompositionsLocked().forEach { composition ->
+            unregisterCompositionLocked(composition)
         }
         _knownCompositions.clear()
         _knownCompositionsCache = emptyList()
     }
 
-    @OptIn(ExperimentalComposeRuntimeApi::class)
     private fun removeKnownCompositionLocked(composition: ControlledComposition) {
         if (_knownCompositions.remove(composition)) {
             _knownCompositionsCache = null
-            registrationObservers?.forEach {
-                if (composition is ObservableComposition) {
-                    it.onCompositionUnregistered(composition)
-                }
+            unregisterCompositionLocked(composition)
+        }
+    }
+
+    private fun addKnownCompositionLocked(composition: ControlledComposition) {
+        _knownCompositions += composition
+        _knownCompositionsCache = null
+        registerCompositionLocked(composition)
+    }
+
+    @OptIn(ExperimentalComposeRuntimeApi::class)
+    private fun registerCompositionLocked(composition: ControlledComposition) {
+        registrationObservers?.forEach {
+            if (composition is ObservableComposition) {
+                it.onCompositionRegistered(composition)
             }
         }
     }
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
-    private fun addKnownCompositionLocked(composition: ControlledComposition) {
-        _knownCompositions += composition
-        _knownCompositionsCache = null
+    private fun unregisterCompositionLocked(composition: ControlledComposition) {
         registrationObservers?.forEach {
             if (composition is ObservableComposition) {
-                it.onCompositionRegistered(composition)
+                it.onCompositionUnregistered(composition)
             }
         }
     }
@@ -1212,24 +1216,34 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
         content: @Composable () -> Unit,
     ) {
         val composerWasComposing = composition.isComposing
+
+        val newComposition =
+            synchronized(stateLock) {
+                if (_state.value > State.ShuttingDown) {
+                    val new = composition !in knownCompositionsLocked()
+                    if (new) {
+                        addKnownCompositionLocked(composition)
+                    }
+                    new
+                } else {
+                    true
+                }
+            }
+
         try {
             composing(composition, null) { composition.composeContent(content) }
         } catch (e: Throwable) {
             processCompositionError(e, composition, recoverable = true)
+
+            if (newComposition) {
+                synchronized(stateLock) { removeKnownCompositionLocked(composition) }
+            }
             return
         }
 
         // TODO(b/143755743)
         if (!composerWasComposing) {
             Snapshot.notifyObjectsInitialized()
-        }
-
-        synchronized(stateLock) {
-            if (_state.value > State.ShuttingDown) {
-                if (composition !in knownCompositionsLocked()) {
-                    addKnownCompositionLocked(composition)
-                }
-            }
         }
 
         try {

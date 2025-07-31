@@ -76,6 +76,7 @@ internal fun measureLazyGrid(
     placementScopeInvalidator: ObservableScopeInvalidator,
     graphicsContext: GraphicsContext,
     prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
+    lineIndexProvider: (itemIndex: Int) -> Int,
     stickyItemsScrollBehavior: StickyItemsPlacement?,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): LazyGridMeasureResult {
@@ -128,6 +129,7 @@ internal fun measureLazyGrid(
             slotsPerLine = slotsPerLine,
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
+            lineIndexProvider = lineIndexProvider,
         )
     } else {
         var currentFirstLineIndex = firstVisibleLineIndex
@@ -456,6 +458,7 @@ internal fun measureLazyGrid(
             slotsPerLine = slotsPerLine,
             coroutineScope = coroutineScope,
             prefetchInfoRetriever = prefetchInfoRetriever,
+            lineIndexProvider = lineIndexProvider,
         )
     }
 }

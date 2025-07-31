@@ -225,8 +225,14 @@ internal constructor(
         }
 
         if (textChanged) {
-            // clear the undo history after a programmatic edit if the text content has changed
-            textUndoManager.clearHistory()
+            // programmatic edits contribute to undo history without merging
+            // developers can use TextFieldState.UndoState.clearHistory to clear the undo stack
+            recordEditForUndo(
+                previousValue = value,
+                postValue = newValue.toTextFieldCharSequence(),
+                changes = newValue.changes,
+                undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
+            )
         }
         syncMainBufferToTemporaryBuffer(
             temporaryBuffer = newValue,

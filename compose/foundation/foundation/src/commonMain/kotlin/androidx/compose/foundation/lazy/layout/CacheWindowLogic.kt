@@ -108,12 +108,13 @@ internal abstract class CacheWindowLogic(private val cacheWindow: LazyLayoutCach
          * We already have information about the number of items from before and it actually
          * changed.
          */
-        if (
-            previousPassItemCount != UnsetItemCount &&
-                previousPassDelta != 0.0f &&
-                previousPassItemCount != totalItemsCount
-        ) {
+        if (previousPassItemCount != UnsetItemCount && previousPassItemCount != totalItemsCount) {
             shouldRefillWindow = true
+            prefetchWindowStartLine = prefetchWindowStartLine.coerceAtLeast(0)
+            val lastLineIndex = getLastLineIndex()
+            if (lastLineIndex != InvalidIndex) {
+                prefetchWindowEndLine = prefetchWindowEndLine.coerceAtMost(lastLineIndex)
+            }
         }
 
         itemsCount = totalItemsCount
@@ -241,7 +242,7 @@ internal abstract class CacheWindowLogic(private val cacheWindow: LazyLayoutCach
 
             while (
                 prefetchWindowEndExtraSpace > 0 &&
-                    getLastIndexInLine(prefetchWindowEndLine) != InvalidItemIndex &&
+                    getLastIndexInLine(prefetchWindowEndLine) != InvalidIndex &&
                     getLastIndexInLine(prefetchWindowEndLine) < itemsCount - 1
             ) {
                 // If we get the same delta in the next frame, would we cover the extra space needed
@@ -422,7 +423,7 @@ internal abstract class CacheWindowLogic(private val cacheWindow: LazyLayoutCach
 
         if (
             nextPrefetchableLineIndex > 0 &&
-                getLastIndexInLine(nextPrefetchableLineIndex) != InvalidItemIndex &&
+                getLastIndexInLine(nextPrefetchableLineIndex) != InvalidIndex &&
                 getLastIndexInLine(nextPrefetchableLineIndex) < itemsCount
         ) {
             prefetchWindowHandles[nextPrefetchableLineIndex] =
@@ -453,6 +454,8 @@ internal interface CacheWindowScope {
     fun getVisibleItemLine(indexInVisibleLines: Int): Int
 
     fun getLastIndexInLine(lineIndex: Int): Int
+
+    fun getLastLineIndex(): Int
 }
 
 internal inline fun CacheWindowScope.forEachVisibleItem(
@@ -462,5 +465,5 @@ internal inline fun CacheWindowScope.forEachVisibleItem(
 }
 
 private const val InvalidItemSize = -1
-internal const val InvalidItemIndex = -1
+internal const val InvalidIndex = -1
 private const val UnsetItemCount = -1

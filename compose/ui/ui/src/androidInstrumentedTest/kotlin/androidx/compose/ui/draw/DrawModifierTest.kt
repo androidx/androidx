@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.IndicationNodeFactory
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
@@ -31,6 +30,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -928,6 +928,32 @@ class DrawModifierTest {
                 assertEquals(Color.Blue.toArgb(), getPixel(width - 2, height - 2))
             }
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testCacheInvalidatedAfterItemReused() {
+        val testTag = "testTag"
+        var key by mutableStateOf(true)
+        rule.setContent {
+            ReusableContent(key) {
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(10.dp)
+                            .drawWithCache {
+                                val graphicsLayer =
+                                    obtainGraphicsLayer().apply { record { drawContent() } }
+                                onDrawWithContent { drawLayer(graphicsLayer) }
+                            }
+                            .background(if (key) Color.Red else Color.Green)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Red }
+        rule.runOnIdle { key = false }
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Green }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

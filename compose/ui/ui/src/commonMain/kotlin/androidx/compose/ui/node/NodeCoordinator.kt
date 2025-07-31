@@ -397,6 +397,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             } else {
                 wrappedBy?.invalidateLayer()
             }
+            layoutNode.forEachChild { it.invalidateOffsetFromRoot() }
             invalidateAlignmentLinesFromPositionChange()
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
@@ -408,11 +409,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             layoutNode
                 .requireOwner()
                 .rectManager
-                .onLayoutPositionChanged(
-                    layoutNode,
-                    position,
-                    !layoutNode.measurePassDelegate.placedOnce,
-                )
+                .onLayoutPositionChanged(layoutNode, !layoutNode.measurePassDelegate.placedOnce)
         }
     }
 
@@ -1452,6 +1449,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                         layoutDelegate.measurePassDelegate
                             .notifyChildrenUsingCoordinatesWhilePlacing()
                     }
+                    layoutNode.invalidateOffsetFromRoot()
                     val owner = layoutNode.requireOwner()
                     owner.rectManager.onLayoutLayerPositionalPropertiesChanged(layoutNode)
                     if (layoutNode.globallyPositionedObservers > 0) {

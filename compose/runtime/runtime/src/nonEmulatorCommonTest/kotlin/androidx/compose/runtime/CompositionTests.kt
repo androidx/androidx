@@ -4865,6 +4865,20 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test
+    fun setContentDeactivated() = compositionTest {
+        var text = "test"
+        val content = @Composable { Text(text) }
+
+        compose(content)
+
+        (composition as ReusableComposition).deactivate()
+        text = "test2"
+        (composition as ReusableComposition).setContent(content)
+
+        validate { Text("test2") }
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch { channel.consumeEach { Snapshot.sendApplyNotifications() } }

@@ -117,6 +117,7 @@ private class OnLayoutRectChangedNode(
 
     override fun onDetach() {
         handle?.unregister()
+        handle = null
     }
 }
 
