@@ -44,7 +44,7 @@ fun ComposeViewport(
     )
 }
 
-expect internal fun InternalComposeViewport(
+internal expect fun InternalComposeViewport(
     viewportContainerId: String? = null,
     configure: ComposeViewportConfiguration.() -> Unit = {},
     content: @Composable () -> Unit = { }
@@ -52,4 +52,6 @@ expect internal fun InternalComposeViewport(
 
 // In K/JS target, an application can't start right away. We should wait until skiko.wasm is ready.
 // We'll do it implicitly, rather than asking the app developers to call it.
-expect internal fun onSkikoReady(block: () -> Unit)
+internal expect fun onSkikoReady(block: () -> Unit)
+
+internal expect fun onDomReady(block: () -> Unit)

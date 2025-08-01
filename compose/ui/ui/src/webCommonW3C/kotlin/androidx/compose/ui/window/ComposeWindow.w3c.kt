@@ -696,12 +696,15 @@ internal actual fun InternalComposeViewport(
     configure: ComposeViewportConfiguration.() -> Unit,
     content: @Composable () -> Unit
 ) {
-    val providedContainer = if (viewportContainerId != null) {
-        document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
-    } else {
-        document.body ?: error("failed to find <body> element")
+    onDomReady {
+        val providedContainer = if (viewportContainerId != null) {
+            document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
+        } else {
+            document.body ?: error("failed to find <body> element")
+        }
+
+        ComposeViewport(providedContainer, configure, content)
     }
-    ComposeViewport(providedContainer, configure, content)
 }
 
 /**
