@@ -171,8 +171,8 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
             project.extensions.configure(KotlinMultiplatformExtension::class.java) {
                 it.compilerOptions {
-                    languageVersion.set(KotlinVersion.KOTLIN_2_0)
-                    apiVersion.set(KotlinVersion.KOTLIN_2_0)
+                    languageVersion.set(KotlinVersion.KOTLIN_2_1)
+                    apiVersion.set(KotlinVersion.KOTLIN_2_1)
                 }
             }
         }

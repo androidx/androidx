@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalTime::class)
+
 package androidx.compose.material3.internal
 
 import androidx.compose.material3.CalendarLocale
 import androidx.compose.ui.text.intl.Locale
-import kotlinx.datetime.Instant
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
