@@ -50,8 +50,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api("org.jetbrains.compose.foundation:foundation:1.8.1")
-                api("org.jetbrains.compose.ui:ui-geometry:1.8.1")
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:ui:ui-geometry"))
                 api(project(":window:window-core"))
             }
         }

@@ -51,7 +51,7 @@ kotlin {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:adaptive:adaptive"))
-                implementation("org.jetbrains.compose.ui:ui:1.8.1")
+                implementation(project(":compose:ui:ui"))
                 implementation(project(":window:window-core"))
                 api(project(":annotation:annotation"))
             }
