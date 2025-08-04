@@ -16,8 +16,8 @@
 
 package androidx.compose.material3.adaptive.l10n
 
-import androidx.compose.material3.adaptive.layout.Strings
-import androidx.compose.material3.adaptive.layout.Translations
+import androidx.compose.material3.adaptive.layout.internal.Strings
+import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.sk() = mapOf(

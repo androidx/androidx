@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.material3.adaptive.layout.internal.format
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

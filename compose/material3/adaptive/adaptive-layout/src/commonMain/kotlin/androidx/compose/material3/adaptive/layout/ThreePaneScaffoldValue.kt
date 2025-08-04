@@ -142,7 +142,7 @@ fun calculateThreePaneScaffoldValue(
             var anchorPaneValue: PaneAdaptedValue? = null
             if (checkReflowedPane) {
                 (adaptStrategies[pane] as? AdaptStrategy.Reflow)?.apply {
-                    (this.targetPane as? ThreePaneScaffoldRole)?.apply {
+                    (this.reflowUnder as? ThreePaneScaffoldRole)?.apply {
                         reflowedPane = pane
                         anchorPane = this
                         anchorPaneValue = getAdaptedValue(anchorPane)

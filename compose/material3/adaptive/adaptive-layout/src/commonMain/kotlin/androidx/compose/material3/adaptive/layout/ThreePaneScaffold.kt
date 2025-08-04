@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
@@ -286,7 +287,9 @@ private class ThreePaneContentMeasurePolicy(
             if (coordinates == null) {
                 return@layout
             }
-            motionDataProvider.scaffoldSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+            val scaffoldSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+            motionDataProvider.scaffoldSize = scaffoldSize
+            val outerBounds = IntRect(0, 0, constraints.maxWidth, constraints.maxHeight)
             val expandedPanes =
                 getPanesMeasurablesWithValue(
                     paneOrder = paneOrder,
@@ -294,6 +297,7 @@ private class ThreePaneContentMeasurePolicy(
                     scaffoldValue = scaffoldValue,
                     secondaryMeasurable = secondaryMeasurable,
                     tertiaryMeasurable = tertiaryMeasurable,
+                    scaffoldSize = scaffoldSize,
                     paneValue = PaneAdaptedValue.Expanded,
                 )
             val reflowedPanes =
@@ -303,6 +307,7 @@ private class ThreePaneContentMeasurePolicy(
                     scaffoldValue = scaffoldValue,
                     secondaryMeasurable = secondaryMeasurable,
                     tertiaryMeasurable = tertiaryMeasurable,
+                    scaffoldSize = scaffoldSize,
                 ) {
                     it is PaneAdaptedValue.Reflowed
                 }
@@ -313,6 +318,7 @@ private class ThreePaneContentMeasurePolicy(
                     scaffoldValue = scaffoldValue,
                     secondaryMeasurable = secondaryMeasurable,
                     tertiaryMeasurable = tertiaryMeasurable,
+                    scaffoldSize = scaffoldSize,
                 ) {
                     it is PaneAdaptedValue.Levitated
                 }
@@ -323,6 +329,7 @@ private class ThreePaneContentMeasurePolicy(
                     scaffoldValue = scaffoldValue,
                     secondaryMeasurable = secondaryMeasurable,
                     tertiaryMeasurable = tertiaryMeasurable,
+                    scaffoldSize = scaffoldSize,
                     paneValue = PaneAdaptedValue.Hidden,
                 )
 
@@ -330,7 +337,6 @@ private class ThreePaneContentMeasurePolicy(
 
             val verticalSpacerSize = scaffoldDirective.horizontalPartitionSpacerSize.roundToPx()
             val horizontalSpacerSize = scaffoldDirective.verticalPartitionSpacerSize.roundToPx()
-            val outerBounds = IntRect(0, 0, constraints.maxWidth, constraints.maxHeight)
             if (!isLookingAhead) {
                 paneExpansionState.onMeasured(outerBounds.width, this@measure)
             }
@@ -615,6 +621,7 @@ private class ThreePaneContentMeasurePolicy(
         scaffoldValue: ThreePaneScaffoldValue,
         secondaryMeasurable: Measurable?,
         tertiaryMeasurable: Measurable?,
+        scaffoldSize: IntSize,
         paneValue: PaneAdaptedValue,
     ) =
         getPanesMeasurables(
@@ -623,6 +630,7 @@ private class ThreePaneContentMeasurePolicy(
             scaffoldValue,
             secondaryMeasurable,
             tertiaryMeasurable,
+            scaffoldSize,
         ) {
             it == paneValue
         }
@@ -634,6 +642,7 @@ private class ThreePaneContentMeasurePolicy(
         scaffoldValue: ThreePaneScaffoldValue,
         secondaryMeasurable: Measurable?,
         tertiaryMeasurable: Measurable?,
+        scaffoldSize: IntSize,
         predicate: (PaneAdaptedValue) -> Boolean,
     ): List<PaneMeasurable> {
         return buildList {
@@ -650,6 +659,7 @@ private class ThreePaneContentMeasurePolicy(
                                 scaffoldDirective.defaultPanePreferredWidth.roundToPx(),
                                 scaffoldDirective.defaultPanePreferredHeight.roundToPx(),
                                 this@getPanesMeasurables,
+                                scaffoldSize,
                             )
                         }
                         ThreePaneScaffoldRole.Secondary -> {
@@ -661,6 +671,7 @@ private class ThreePaneContentMeasurePolicy(
                                 scaffoldDirective.defaultPanePreferredWidth.roundToPx(),
                                 scaffoldDirective.defaultPanePreferredHeight.roundToPx(),
                                 this@getPanesMeasurables,
+                                scaffoldSize,
                             )
                         }
                         ThreePaneScaffoldRole.Tertiary -> {
@@ -672,6 +683,7 @@ private class ThreePaneContentMeasurePolicy(
                                 scaffoldDirective.defaultPanePreferredWidth.roundToPx(),
                                 scaffoldDirective.defaultPanePreferredHeight.roundToPx(),
                                 this@getPanesMeasurables,
+                                scaffoldSize,
                             )
                         }
                     }
@@ -688,6 +700,7 @@ private class ThreePaneContentMeasurePolicy(
         defaultPreferredWidth: Int,
         defaultPreferredHeight: Int,
         density: Density,
+        scaffoldSize: IntSize,
     ) {
         if (measurable != null) {
             add(
@@ -699,6 +712,7 @@ private class ThreePaneContentMeasurePolicy(
                     defaultPreferredWidth,
                     defaultPreferredHeight,
                     density,
+                    scaffoldSize,
                 )
             )
         }
@@ -945,22 +959,27 @@ private class PaneMeasurable(
     defaultPreferredWidth: Int,
     defaultPreferredHeight: Int,
     density: Density,
+    scaffoldSize: IntSize,
 ) {
     private val data =
         ((measurable.parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentDataImpl())
 
     var measuringWidth =
-        if (data.preferredWidth.isUnspecified) {
-            defaultPreferredWidth
-        } else {
+        if (data.preferredWidth.isSpecified) {
             with(density) { data.preferredWidth.roundToPx() }
+        } else if (data.preferredWidthInProportion != Int.MIN_VALUE) {
+            (scaffoldSize.width * data.preferredWidthInProportion / 100)
+        } else {
+            defaultPreferredWidth
         }
 
     var measuringHeight =
-        if (data.preferredHeight.isUnspecified) {
-            defaultPreferredHeight
-        } else {
+        if (data.preferredHeight.isSpecified) {
             with(density) { data.preferredHeight.roundToPx() }
+        } else if (data.preferredHeightInProportion != Int.MIN_VALUE) {
+            (scaffoldSize.width * data.preferredHeightInProportion / 100)
+        } else {
+            defaultPreferredHeight
         }
 
     // TODO(conradchen): uncomment it when we can expose PaneMargins

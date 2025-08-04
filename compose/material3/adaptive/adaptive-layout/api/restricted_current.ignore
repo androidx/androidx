@@ -5,8 +5,12 @@ AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScop
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.paneExpansionDraggable-TDGSqEk(androidx.compose.ui.Modifier,androidx.compose.material3.adaptive.layout.PaneExpansionState,float,androidx.compose.foundation.interaction.MutableInteractionSource,kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>)
 AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight(androidx.compose.ui.Modifier, float):
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight(androidx.compose.ui.Modifier,float)
+AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight(androidx.compose.ui.Modifier, int):
+    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight(androidx.compose.ui.Modifier,int)
 AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredHeight-3ABfNKs(androidx.compose.ui.Modifier, float):
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredHeight-3ABfNKs(androidx.compose.ui.Modifier,float)
+AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth(androidx.compose.ui.Modifier, int):
+    Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth(androidx.compose.ui.Modifier,int)
 AddedAbstractMethod: androidx.compose.material3.adaptive.layout.PaneScaffoldScope#preferredWidth-3ABfNKs(androidx.compose.ui.Modifier, float):
     Binary breaking change: Added method androidx.compose.material3.adaptive.layout.PaneScaffoldScope.preferredWidth-3ABfNKs(androidx.compose.ui.Modifier,float)
 

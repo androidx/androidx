@@ -16,7 +16,7 @@
 
 package androidx.compose.material3.adaptive.l10n
 
-import androidx.compose.material3.adaptive.layout.Translations
+import androidx.compose.material3.adaptive.layout.internal.Translations
 
 /**
  * Returns the translation for the given locale; `null` if there isn't one.
