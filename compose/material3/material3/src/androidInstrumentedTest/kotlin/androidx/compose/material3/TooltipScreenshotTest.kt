@@ -119,7 +119,8 @@ class TooltipScreenshotTest {
     private fun PlainTooltipTest() {
         val tooltipState = rememberTooltipState()
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
             tooltip = {
                 PlainTooltip(modifier = Modifier.testTag(TooltipTestTag)) {
                     Text("Tooltip Description")
@@ -136,7 +137,8 @@ class TooltipScreenshotTest {
     private fun RichTooltipTest() {
         val tooltipState = rememberTooltipState(isPersistent = true)
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
             tooltip = {
                 RichTooltip(
                     title = { Text("Title") },

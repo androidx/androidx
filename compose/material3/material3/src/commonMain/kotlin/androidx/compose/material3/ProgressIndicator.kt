@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -130,7 +131,8 @@ fun LinearProgressIndicator(
  *   reached the area of the overall indicator yet
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  * @param gapSize size of the gap between the progress indicator and the track
- * @param drawStopIndicator lambda that will be called to draw the stop indicator
+ * @param drawStopIndicator lambda that will be called to draw the stop indicator. Note that a
+ *   custom indicator implementation should also handle RTL layouts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -882,14 +884,9 @@ object ProgressIndicatorDefaults {
      * @param strokeCap stroke cap to use for the ends of this stop indicator
      */
     fun drawStopIndicator(drawScope: DrawScope, stopSize: Dp, color: Color, strokeCap: StrokeCap) {
-        with(drawScope) {
-            val adjustedStopSize =
-                min(stopSize.toPx(), size.height) // Stop can't be bigger than track
-            // The limit to prevent excessive padding when dealing with large progress height.
-            // TODO b/401511176 - Consider adding a new token.
-            val maxStopOffset = StopIndicatorTrailingSpace.toPx()
-            // Offset from end.
-            val stopOffset = ((size.height - adjustedStopSize) / 2).fastCoerceAtMost(maxStopOffset)
+
+        // Draws a circle or a square indicator according to the provided Cap.
+        fun DrawScope.drawIndicator(adjustedStopSize: Float, stopOffset: Float) {
             if (strokeCap == StrokeCap.Round) {
                 drawCircle(
                     color = color,
@@ -910,6 +907,22 @@ object ProgressIndicatorDefaults {
                         ),
                     size = Size(width = adjustedStopSize, height = adjustedStopSize),
                 )
+            }
+        }
+
+        with(drawScope) {
+            val adjustedStopSize =
+                min(stopSize.toPx(), size.height) // Stop can't be bigger than track
+            // The limit to prevent excessive padding when dealing with large progress height.
+            // TODO b/401511176 - Consider adding a new token.
+            val maxStopOffset = StopIndicatorTrailingSpace.toPx()
+            // Offset from end.
+            val stopOffset = ((size.height - adjustedStopSize) / 2).fastCoerceAtMost(maxStopOffset)
+            if (layoutDirection == LayoutDirection.Rtl) {
+                // Flip the direction by scaling with -1 on the X axis.
+                scale(scaleX = -1f, scaleY = 1f) { drawIndicator(adjustedStopSize, stopOffset) }
+            } else {
+                drawIndicator(adjustedStopSize, stopOffset)
             }
         }
     }

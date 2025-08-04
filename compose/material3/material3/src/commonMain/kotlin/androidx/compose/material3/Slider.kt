@@ -34,6 +34,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -49,6 +50,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.RangeSliderState.Companion.Saver
+import androidx.compose.material3.SliderDefaults.colors
 import androidx.compose.material3.SliderState.Companion.Saver
 import androidx.compose.material3.internal.IncreaseHorizontalSemanticsBounds
 import androidx.compose.material3.internal.IncreaseVerticalSemanticsBounds
@@ -92,9 +94,11 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.AlignmentLine
@@ -1234,34 +1238,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         enabled: Boolean = true,
         thumbSize: DpSize = ThumbSize,
-    ) {
-        val interactions = remember { mutableStateListOf<Interaction>() }
-        LaunchedEffect(interactionSource) {
-            interactionSource.interactions.collect { interaction ->
-                when (interaction) {
-                    is PressInteraction.Press -> interactions.add(interaction)
-                    is PressInteraction.Release -> interactions.remove(interaction.press)
-                    is PressInteraction.Cancel -> interactions.remove(interaction.press)
-                    is DragInteraction.Start -> interactions.add(interaction)
-                    is DragInteraction.Stop -> interactions.remove(interaction.start)
-                    is DragInteraction.Cancel -> interactions.remove(interaction.start)
-                }
-            }
-        }
-
-        val size =
-            if (interactions.isNotEmpty()) {
-                thumbSize.copy(width = thumbSize.width / 2)
-            } else {
-                thumbSize
-            }
-        Spacer(
-            modifier
-                .size(size)
-                .hoverable(interactionSource = interactionSource)
-                .background(colors.thumbColor(enabled), SliderTokens.HandleShape.value)
+    ) =
+        Thumb(
+            interactionSource = interactionSource,
+            modifier = modifier,
+            colors = colors,
+            enabled = enabled,
+            thumbSize = thumbSize,
+            isVertical = false,
         )
-    }
 
     /**
      * The Default thumb for [Slider], [VerticalSlider] and [RangeSlider]
@@ -1288,38 +1273,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         enabled: Boolean = true,
         thumbSize: DpSize = ThumbSize,
-    ) {
-        val interactions = remember { mutableStateListOf<Interaction>() }
-        LaunchedEffect(interactionSource) {
-            interactionSource.interactions.collect { interaction ->
-                when (interaction) {
-                    is PressInteraction.Press -> interactions.add(interaction)
-                    is PressInteraction.Release -> interactions.remove(interaction.press)
-                    is PressInteraction.Cancel -> interactions.remove(interaction.press)
-                    is DragInteraction.Start -> interactions.add(interaction)
-                    is DragInteraction.Stop -> interactions.remove(interaction.start)
-                    is DragInteraction.Cancel -> interactions.remove(interaction.start)
-                }
-            }
-        }
-
-        val size =
-            if (interactions.isNotEmpty()) {
-                if (sliderState.orientation == Vertical) {
-                    thumbSize.copy(height = thumbSize.height / 2)
-                } else {
-                    thumbSize.copy(width = thumbSize.width / 2)
-                }
-            } else {
-                thumbSize
-            }
-        Spacer(
-            modifier
-                .size(size)
-                .hoverable(interactionSource = interactionSource)
-                .background(colors.thumbColor(enabled), SliderTokens.HandleShape.value)
+    ) =
+        Thumb(
+            interactionSource = interactionSource,
+            modifier = modifier,
+            colors = colors,
+            enabled = enabled,
+            thumbSize = thumbSize,
+            isVertical = sliderState.orientation == Vertical,
         )
-    }
 
     /**
      * The Default track for [Slider] and [RangeSlider]
@@ -2190,6 +2152,50 @@ object SliderDefaults {
     val TickSize: Dp = SliderTokens.StopIndicatorSize
 
     private val trackPath = Path()
+}
+
+@Composable
+private fun Thumb(
+    interactionSource: MutableInteractionSource,
+    modifier: Modifier,
+    colors: SliderColors,
+    enabled: Boolean,
+    thumbSize: DpSize,
+    isVertical: Boolean,
+) {
+    val interactions = remember { mutableStateListOf<Interaction>() }
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is FocusInteraction.Focus -> interactions.add(interaction)
+                is FocusInteraction.Unfocus -> interactions.remove(interaction.focus)
+                is PressInteraction.Press -> interactions.add(interaction)
+                is PressInteraction.Release -> interactions.remove(interaction.press)
+                is PressInteraction.Cancel -> interactions.remove(interaction.press)
+                is DragInteraction.Start -> interactions.add(interaction)
+                is DragInteraction.Stop -> interactions.remove(interaction.start)
+                is DragInteraction.Cancel -> interactions.remove(interaction.start)
+            }
+        }
+    }
+
+    val size =
+        if (interactions.isNotEmpty()) {
+            if (isVertical) {
+                thumbSize.copy(height = thumbSize.height / 2)
+            } else {
+                thumbSize.copy(width = thumbSize.width / 2)
+            }
+        } else {
+            thumbSize
+        }
+    Spacer(
+        modifier
+            .size(size)
+            .hoverable(interactionSource = interactionSource)
+            .pointerHoverIcon(icon = PointerIcon.Hand)
+            .background(colors.thumbColor(enabled), SliderTokens.HandleShape.value)
+    )
 }
 
 private fun snapValueToTick(

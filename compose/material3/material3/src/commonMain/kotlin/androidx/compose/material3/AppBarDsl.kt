@@ -154,9 +154,18 @@ internal class ClickableAppBarItem(
     private val label: String,
 ) : AppBarItem {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun AppbarContent() {
-        IconButton(onClick = onClick, enabled = enabled, content = icon)
+        // Icon buttons should have a tooltip associated with them.
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text(label) } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(onClick = onClick, enabled = enabled, content = icon)
+        }
     }
 
     @Composable
@@ -180,14 +189,23 @@ internal class ToggleableAppBarItem(
     private val label: String,
 ) : AppBarItem {
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun AppbarContent() {
-        IconToggleButton(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            enabled = enabled,
-            content = icon,
-        )
+        // Icon buttons should have a tooltip associated with them.
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text(label) } },
+            state = rememberTooltipState(),
+        ) {
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                enabled = enabled,
+                content = icon,
+            )
+        }
     }
 
     @Composable

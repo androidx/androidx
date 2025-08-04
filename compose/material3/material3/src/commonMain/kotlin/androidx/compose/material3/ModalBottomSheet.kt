@@ -380,53 +380,54 @@ internal fun BoxScope.ModalBottomSheetContent(
                 val collapseActionLabel = getString(Strings.BottomSheetPartialExpandDescription)
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
-                Box(
-                    modifier =
-                        Modifier.align(Alignment.CenterHorizontally)
-                            .clickable {
-                                when (sheetState.currentValue) {
-                                    Expanded -> animateToDismiss()
-                                    PartiallyExpanded -> scope.launch { sheetState.expand() }
-                                    else -> scope.launch { sheetState.show() }
+                DragHandleWithTooltip {
+                    Box(
+                        modifier =
+                            Modifier.clickable {
+                                    when (sheetState.currentValue) {
+                                        Expanded -> animateToDismiss()
+                                        PartiallyExpanded -> scope.launch { sheetState.expand() }
+                                        else -> scope.launch { sheetState.show() }
+                                    }
                                 }
-                            }
-                            .semantics(mergeDescendants = true) {
-                                // Provides semantics to interact with the bottomsheet based on its
-                                // current value.
-                                if (sheetGesturesEnabled) {
-                                    with(sheetState) {
-                                        dismiss(dismissActionLabel) {
-                                            animateToDismiss()
-                                            true
-                                        }
-                                        if (currentValue == PartiallyExpanded) {
-                                            expand(expandActionLabel) {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        Expanded
-                                                    )
-                                                ) {
-                                                    scope.launch { sheetState.expand() }
-                                                }
+                                .semantics(mergeDescendants = true) {
+                                    // Provides semantics to interact with the bottomsheet based on
+                                    // its current value.
+                                    if (sheetGesturesEnabled) {
+                                        with(sheetState) {
+                                            dismiss(dismissActionLabel) {
+                                                animateToDismiss()
                                                 true
                                             }
-                                        } else if (hasPartiallyExpandedState) {
-                                            collapse(collapseActionLabel) {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        PartiallyExpanded
-                                                    )
-                                                ) {
-                                                    scope.launch { partialExpand() }
+                                            if (currentValue == PartiallyExpanded) {
+                                                expand(expandActionLabel) {
+                                                    if (
+                                                        anchoredDraggableState.confirmValueChange(
+                                                            Expanded
+                                                        )
+                                                    ) {
+                                                        scope.launch { sheetState.expand() }
+                                                    }
+                                                    true
                                                 }
-                                                true
+                                            } else if (hasPartiallyExpandedState) {
+                                                collapse(collapseActionLabel) {
+                                                    if (
+                                                        anchoredDraggableState.confirmValueChange(
+                                                            PartiallyExpanded
+                                                        )
+                                                    ) {
+                                                        scope.launch { partialExpand() }
+                                                    }
+                                                    true
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                ) {
-                    dragHandle()
+                    ) {
+                        dragHandle()
+                    }
                 }
             }
             content()

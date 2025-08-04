@@ -34,6 +34,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipState
@@ -65,7 +66,8 @@ fun TooltipDemo() {
             val textFieldTooltipState = rememberTooltipState()
             val scope = rememberCoroutineScope()
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                 tooltip = { PlainTooltip { Text(textFieldTooltipText) } },
                 state = textFieldTooltipState,
             ) {
@@ -96,7 +98,10 @@ fun TooltipDemo() {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(listData) { item ->
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
                     tooltip = { PlainTooltip { Text("${item.itemName} added to list") } },
                     state = item.addedTooltipState,
                 ) {
@@ -115,7 +120,10 @@ fun ListItemCard(itemName: String, onDelete: () -> Unit) {
             headlineContent = { Text(itemName) },
             trailingContent = {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
                     tooltip = { PlainTooltip { Text("Delete $itemName") } },
                     state = rememberTooltipState(),
                     enableUserInput = true,

@@ -322,8 +322,8 @@ internal class DateInputValidator(
         if (!yearRange.contains(dateToValidate.year)) {
             return formatString(
                 errorDateOutOfYearRange,
-                yearRange.first.toLocalString(),
-                yearRange.last.toLocalString(),
+                yearRange.first.toLocalString(locale = locale),
+                yearRange.last.toLocalString(locale = locale),
             )
         }
         // Check that the provided SelectableDates allows this date to be selected.

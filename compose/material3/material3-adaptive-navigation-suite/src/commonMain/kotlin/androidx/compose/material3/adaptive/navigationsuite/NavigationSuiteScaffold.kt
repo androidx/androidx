@@ -653,9 +653,8 @@ fun NavigationSuite(
                 modifier = modifier.heightIn(min = TallNavigationBarHeight),
                 containerColor = colors.navigationBarContainerColor,
                 contentColor = colors.navigationBarContentColor,
-            ) {
-                movableContent()
-            }
+                content = movableContent,
+            )
         }
         // It's advised to to use NavigationSuiteType.WideNavigationRail instead of
         // NavigationSuiteType.NavigationRail.

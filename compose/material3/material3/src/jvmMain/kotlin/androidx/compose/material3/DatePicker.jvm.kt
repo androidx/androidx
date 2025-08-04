@@ -298,7 +298,7 @@ fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  */
 @RequiresApi(26)
 @ExperimentalMaterial3Api
-fun DatePickerState.getDisplayedMonth(): YearMonth? =
+fun DatePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
 /**
@@ -373,7 +373,7 @@ fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  */
 @RequiresApi(26)
 @ExperimentalMaterial3Api
-fun DateRangePickerState.getDisplayedMonth(): YearMonth? =
+fun DateRangePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
 /** Returns a [YearMonth] representation of the given [millisUtcFirstOfMonth] UTC milliseconds. */

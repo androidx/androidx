@@ -1923,7 +1923,7 @@ internal fun Month(
                                 forContentDescription = true,
                             ) ?: ""
                         Day(
-                            text = (dayNumber + 1).toLocalString(),
+                            text = (dayNumber + 1).toLocalString(locale = locale),
                             modifier = Modifier,
                             selected = startDateSelected || endDateSelected,
                             onClick = { onDateSelectionChange(dateInMillis) },
@@ -2087,7 +2087,7 @@ private fun YearPicker(
         ) {
             items(yearRange.count()) {
                 val selectedYear = it + yearRange.first
-                val localizedYear = selectedYear.toLocalString()
+                val localizedYear = selectedYear.toLocalString(locale = calendarModel.locale)
                 Year(
                     text = localizedYear,
                     modifier =
@@ -2279,7 +2279,8 @@ private fun IconButtonWithTooltip(
     enabled: Boolean = true,
 ) {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = { PlainTooltip { Text(contentDescription) } },
         state = rememberTooltipState(),
     ) {

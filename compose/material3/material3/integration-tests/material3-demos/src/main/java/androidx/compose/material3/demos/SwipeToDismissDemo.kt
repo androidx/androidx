@@ -35,7 +35,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +77,7 @@ fun SwipeToDismissDemo() {
     // will animate to red if you're swiping left or green if you're swiping right. When you let
     // go, the item will animate out of the way if you're swiping left (like deleting an email) or
     // back to its default position if you're swiping right (like marking an email as read/unread).
+    val scope = rememberCoroutineScope()
     LazyColumn {
         items(items) { item ->
             var unread by remember { mutableStateOf(false) }
@@ -131,7 +131,7 @@ fun SwipeToDismissDemo() {
                 onDismiss = { dismissDirection ->
                     if (dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
                         unread = !unread
-                        dismissState.reset()
+                        scope.launch { dismissState.reset() }
                     }
                 },
             ) {
@@ -164,7 +164,6 @@ fun SwipeToDismissDemo() {
                     )
                 }
             }
-            LaunchedEffect(dismissState.settledValue) {}
         }
     }
 }

@@ -43,7 +43,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -334,62 +333,68 @@ private fun StandardBottomSheet(
                     getString(Strings.BottomSheetPartialExpandDescription)
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
-                Box(
-                    modifier =
-                        Modifier.align(CenterHorizontally)
-                            .clickable {
-                                when (state.currentValue) {
-                                    Expanded ->
-                                        scope.launch {
-                                            if (!state.skipHiddenState) {
-                                                state.hide()
-                                            } else {
-                                                state.partialExpand()
+                DragHandleWithTooltip {
+                    Box(
+                        modifier =
+                            Modifier.clickable {
+                                    when (state.currentValue) {
+                                        Expanded ->
+                                            scope.launch {
+                                                if (!state.skipHiddenState) {
+                                                    state.hide()
+                                                } else {
+                                                    state.partialExpand()
+                                                }
                                             }
-                                        }
-                                    PartiallyExpanded -> scope.launch { state.expand() }
-                                    else -> scope.launch { state.show() }
+
+                                        PartiallyExpanded -> scope.launch { state.expand() }
+                                        else -> scope.launch { state.show() }
+                                    }
                                 }
-                            }
-                            .semantics(mergeDescendants = true) {
-                                with(state) {
-                                    // Provides semantics to interact with the bottomsheet if there
-                                    // is more than one anchor to swipe to and swiping is enabled.
-                                    if (
-                                        anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled
-                                    ) {
-                                        if (currentValue == PartiallyExpanded) {
-                                            if (
-                                                anchoredDraggableState.confirmValueChange(Expanded)
-                                            ) {
-                                                expand(expandActionLabel) {
-                                                    scope.launch { expand() }
-                                                    true
+                                .semantics(mergeDescendants = true) {
+                                    with(state) {
+                                        // Provides semantics to interact with the bottomsheet if
+                                        // there is more than one anchor to swipe to and swiping is
+                                        // enabled.
+                                        if (
+                                            anchoredDraggableState.anchors.size > 1 &&
+                                                sheetSwipeEnabled
+                                        ) {
+                                            if (currentValue == PartiallyExpanded) {
+                                                if (
+                                                    anchoredDraggableState.confirmValueChange(
+                                                        Expanded
+                                                    )
+                                                ) {
+                                                    expand(expandActionLabel) {
+                                                        scope.launch { expand() }
+                                                        true
+                                                    }
+                                                }
+                                            } else {
+                                                if (
+                                                    anchoredDraggableState.confirmValueChange(
+                                                        PartiallyExpanded
+                                                    )
+                                                ) {
+                                                    collapse(partialExpandActionLabel) {
+                                                        scope.launch { partialExpand() }
+                                                        true
+                                                    }
                                                 }
                                             }
-                                        } else {
-                                            if (
-                                                anchoredDraggableState.confirmValueChange(
-                                                    PartiallyExpanded
-                                                )
-                                            ) {
-                                                collapse(partialExpandActionLabel) {
-                                                    scope.launch { partialExpand() }
+                                            if (!state.skipHiddenState) {
+                                                dismiss(dismissActionLabel) {
+                                                    scope.launch { hide() }
                                                     true
                                                 }
-                                            }
-                                        }
-                                        if (!state.skipHiddenState) {
-                                            dismiss(dismissActionLabel) {
-                                                scope.launch { hide() }
-                                                true
                                             }
                                         }
                                     }
                                 }
-                            }
-                ) {
-                    dragHandle()
+                    ) {
+                        dragHandle()
+                    }
                 }
             }
             content()

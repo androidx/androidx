@@ -46,6 +46,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.getSelectedDate
@@ -252,7 +253,8 @@ fun DateRangePickerSample() {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                 tooltip = { PlainTooltip { Text("Close") } },
                 state = rememberTooltipState(),
             ) {
@@ -304,7 +306,8 @@ fun DateRangePickerApi26Sample() {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
                 tooltip = { PlainTooltip { Text("Close") } },
                 state = rememberTooltipState(),
             ) {

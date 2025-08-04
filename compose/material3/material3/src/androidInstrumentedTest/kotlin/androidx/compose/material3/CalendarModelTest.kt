@@ -323,6 +323,13 @@ internal class CalendarModelTest(private val model: CalendarModel) {
             .isEqualTo(legacyModel.formatWithSkeleton(month, "MMMy"))
     }
 
+    @Test
+    fun toLocalStringFormat() {
+        assertThat(2.toLocalString(locale = Locale.forLanguageTag("en"))).isEqualTo("2")
+        assertThat(2.toLocalString(locale = Locale.forLanguageTag("ar-u-nu-arab"))).isEqualTo("٢")
+        assertThat(2.toLocalString(locale = Locale.forLanguageTag("ar-u-nu-latn"))).isEqualTo("2")
+    }
+
     internal companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic

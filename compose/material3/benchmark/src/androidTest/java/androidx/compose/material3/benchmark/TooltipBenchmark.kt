@@ -22,6 +22,7 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipScope
@@ -89,11 +90,13 @@ private class TooltipTestCase(val tooltipType: TooltipType) :
         when (tooltipType) {
             TooltipType.Plain -> {
                 tooltip = { PlainTooltipTest() }
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above)
             }
             TooltipType.Rich -> {
                 tooltip = { RichTooltipTest() }
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider()
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above)
             }
         }
 

@@ -24,6 +24,7 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
@@ -44,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -423,6 +425,22 @@ object BottomSheetDefaults {
         ) {
             Box(Modifier.size(width = width, height = height))
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ColumnScope.DragHandleWithTooltip(content: @Composable (() -> Unit)) {
+    val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)
+    // We need outer box for alignment because TooltipBox's modifier is only applied to its anchor.
+    Box(Modifier.align(CenterHorizontally)) {
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text(dragHandleDescription) } },
+            state = rememberTooltipState(),
+            content = content,
+        )
     }
 }
 
