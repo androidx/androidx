@@ -490,10 +490,6 @@ internal class ComposeSceneMediator(
 
         unsubscribe(contentComponent)
 
-        interopContainer.root.removeContainerListener(interopContainerListener)
-        // Since rendering will not happen after, we need to execute all scheduled updates
-        interopContainer.dispose()
-
         container.remove(contentComponent)
         container.remove(invisibleComponent)
         container.transferHandler = null
@@ -501,6 +497,11 @@ internal class ComposeSceneMediator(
 
         scene.close()
         skiaLayerComponent.dispose()
+
+        interopContainer.root.removeContainerListener(interopContainerListener)
+        // Since rendering will not happen after, we need to execute all scheduled updates
+        interopContainer.dispose()
+
         _onComponentAttached = null
     }
 

@@ -53,6 +53,7 @@ import javax.swing.JFrame
 import javax.swing.JPanel
 import junit.framework.TestCase.assertTrue
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -504,6 +505,42 @@ class ComposePanelTest {
 
             assertEquals(1, enterEvents)
             assertEquals(1, exitEvents)
+        } finally {
+            window.dispose()
+        }
+    }
+
+    @Test
+    fun `ComposePanel clears SwingPanels when removed`() = runApplicationTest {
+        val jPanels = mutableListOf<JPanel>()
+        val composePanel = ComposePanel()
+        composePanel.setContent {
+            SwingPanel(
+                factory = {
+                    JPanel().also {
+                        it.size = Dimension(100, 100)
+                        jPanels.add(it)
+                    }
+                },
+                modifier = Modifier.size(100.dp)
+            )
+        }
+
+        val window = JFrame()
+        window.size = Dimension(200, 200)
+        try {
+            window.contentPane.add(composePanel, BorderLayout.CENTER)
+            window.isVisible = true
+            awaitIdle()
+            window.contentPane.remove(composePanel)
+            awaitIdle()
+            window.contentPane.add(composePanel)
+            awaitIdle()
+
+            assertEquals(2, jPanels.size)
+            assertFalse(composePanel.isAncestorOf(jPanels[0]))
+            assertTrue(composePanel.isAncestorOf(jPanels[1]))
+            assertTrue(jPanels[1].isShowing)
         } finally {
             window.dispose()
         }
