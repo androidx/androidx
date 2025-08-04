@@ -339,8 +339,6 @@ internal class ComposeWindow(
         var offset = Offset.Zero
 
         addTypedEvent<TouchEvent>("touchstart") { event ->
-            event.preventDefault()
-
             canvas.getBoundingClientRect().apply {
                 offset = Offset(x = left.toFloat(), y = top.toFloat())
             }
@@ -349,17 +347,14 @@ internal class ComposeWindow(
         }
 
         addTypedEvent<TouchEvent>("touchmove") { event ->
-            event.preventDefault()
             onTouchEvent(event, offset)
         }
 
         addTypedEvent<TouchEvent>("touchend") { event ->
-            event.preventDefault()
             onTouchEvent(event, offset)
         }
 
         addTypedEvent<TouchEvent>("touchcancel") { event ->
-            event.preventDefault()
             onTouchEvent(event, offset)
         }
 
@@ -547,7 +542,7 @@ internal class ComposeWindow(
         }
 
         activeTouchOffset = pointers.firstOrNull()?.position
-        scene.sendPointerEvent(
+        val result = scene.sendPointerEvent(
             eventType = eventType,
             pointers = pointers,
             buttons = PointerButtons(),
@@ -557,6 +552,10 @@ internal class ComposeWindow(
             button = null
         )
         activeTouchOffset = null
+
+        if (result.anyChangeConsumed) {
+            event.preventDefault()
+        }
     }
 
     private fun onMouseEvent(
