@@ -642,7 +642,7 @@ class ThreePaneScaffoldValueTest {
                     ThreePaneScaffoldAdaptStrategies(
                         AdaptStrategy.Levitate(alignment = Alignment.TopCenter),
                         AdaptStrategy.Hide,
-                        AdaptStrategy.Reflow(targetPane = ThreePaneScaffoldRole.Secondary),
+                        AdaptStrategy.Reflow(reflowUnder = ThreePaneScaffoldRole.Secondary),
                     ),
                 currentDestination =
                     ThreePaneScaffoldDestinationItem<Any>(ThreePaneScaffoldRole.Primary),
@@ -668,7 +668,7 @@ class ThreePaneScaffoldValueTest {
                     ThreePaneScaffoldAdaptStrategies(
                         AdaptStrategy.Levitate(alignment = Alignment.TopCenter),
                         AdaptStrategy.Hide,
-                        AdaptStrategy.Reflow(targetPane = ThreePaneScaffoldRole.Primary),
+                        AdaptStrategy.Reflow(reflowUnder = ThreePaneScaffoldRole.Primary),
                     ),
                 currentDestination =
                     ThreePaneScaffoldDestinationItem<Any>(ThreePaneScaffoldRole.Primary),
@@ -690,7 +690,7 @@ class ThreePaneScaffoldValueTest {
                     ThreePaneScaffoldAdaptStrategies(
                         AdaptStrategy.Levitate(alignment = Alignment.TopCenter),
                         AdaptStrategy.Hide,
-                        AdaptStrategy.Reflow(targetPane = ThreePaneScaffoldRole.Primary),
+                        AdaptStrategy.Reflow(reflowUnder = ThreePaneScaffoldRole.Primary),
                     ),
                 currentDestination =
                     ThreePaneScaffoldDestinationItem<Any>(ThreePaneScaffoldRole.Secondary),

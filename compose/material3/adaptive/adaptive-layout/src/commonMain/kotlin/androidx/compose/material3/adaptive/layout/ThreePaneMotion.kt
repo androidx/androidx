@@ -17,9 +17,11 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.internal.getValue
+import androidx.compose.material3.adaptive.layout.internal.rememberRef
+import androidx.compose.material3.adaptive.layout.internal.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntSize
 import kotlin.jvm.JvmStatic
 
@@ -83,21 +85,19 @@ internal constructor(
 internal fun ThreePaneScaffoldState.calculateThreePaneMotion(
     ltrPaneOrder: ThreePaneScaffoldHorizontalOrder
 ): ThreePaneMotion {
-    class ThreePaneMotionHolder(var value: ThreePaneMotion)
-
-    val resultHolder = remember { ThreePaneMotionHolder(ThreePaneMotion.NoMotion) }
+    var result by rememberRef(ThreePaneMotion.NoMotion)
     if (currentState != targetState) {
         // Only update motions when the state changes to prevent unnecessary recomposition at the
         // end of state transitions.
         val paneMotions = calculatePaneMotion(currentState, targetState, ltrPaneOrder)
-        resultHolder.value =
+        result =
             ThreePaneMotion(
                 paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Primary)],
                 paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Secondary)],
                 paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Tertiary)],
             )
     }
-    return resultHolder.value
+    return result
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

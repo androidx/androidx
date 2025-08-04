@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.layout
+package androidx.compose.material3.adaptive.layout.internal
 
 import androidx.compose.material3.adaptive.l10n.en
 import androidx.compose.material3.adaptive.l10n.translationFor
@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.text.intl.Locale
 import kotlin.jvm.JvmInline
 

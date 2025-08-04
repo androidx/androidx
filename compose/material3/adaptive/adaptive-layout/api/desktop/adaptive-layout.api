@@ -12,9 +12,6 @@ public final class androidx/compose/material3/adaptive/layout/AdaptStrategy$Levi
 	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/ui/Alignment;Landroidx/compose/material3/adaptive/layout/Scrim;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/ui/Alignment;Landroidx/compose/material3/adaptive/layout/Scrim;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAlignment ()Landroidx/compose/ui/Alignment;
-	public final fun getScrim ()Landroidx/compose/material3/adaptive/layout/Scrim;
-	public final fun getStrategy-H_H46_c ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -41,7 +38,6 @@ public final class androidx/compose/material3/adaptive/layout/AdaptStrategy$Refl
 	public static final field $stable I
 	public fun <init> (Ljava/lang/Object;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getTargetPane ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -396,7 +392,9 @@ public abstract interface class androidx/compose/material3/adaptive/layout/PaneS
 	public abstract fun getDragToResizeState ()Landroidx/compose/material3/adaptive/layout/DragToResizeState;
 	public abstract fun getMinTouchTargetSize-D9Ej5fM ()F
 	public abstract fun getPreferredHeight-D9Ej5fM ()F
+	public abstract fun getPreferredHeightInProportion ()I
 	public abstract fun getPreferredWidth-D9Ej5fM ()F
+	public abstract fun getPreferredWidthInProportion ()I
 	public abstract fun isAnimatedPane ()Z
 }
 
@@ -405,7 +403,9 @@ public abstract interface class androidx/compose/material3/adaptive/layout/PaneS
 	public abstract fun getSaveableStateHolder ()Landroidx/compose/runtime/saveable/SaveableStateHolder;
 	public abstract fun paneExpansionDraggable-TDGSqEk (Landroidx/compose/ui/Modifier;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;FLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun paneExpansionDraggable-TDGSqEk$default (Landroidx/compose/material3/adaptive/layout/PaneScaffoldScope;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;FLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun preferredHeight (Landroidx/compose/ui/Modifier;I)Landroidx/compose/ui/Modifier;
 	public abstract fun preferredHeight-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+	public abstract fun preferredWidth (Landroidx/compose/ui/Modifier;I)Landroidx/compose/ui/Modifier;
 	public abstract fun preferredWidth-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
 }
 

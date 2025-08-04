@@ -17,10 +17,10 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
@@ -75,10 +75,10 @@ sealed interface ExtendedPaneScaffoldScope<Role, ScaffoldValue : PaneScaffoldVal
  */
 sealed interface PaneScaffoldScope {
     /**
-     * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
-     * will try its best to respect this width when the associated pane is rendered as a fixed pane,
-     * i.e., a pane that are not stretching to fill the remaining spaces. In case the modifier is
-     * not set or set to [Dp.Unspecified], the default preferred widths provided by
+     * This modifier specifies the preferred width for a pane in [Dp]s, and the pane scaffold
+     * implementation will try its best to respect this width when the associated pane is rendered
+     * as a fixed pane, i.e., a pane that are not stretching to fill the remaining spaces. In case
+     * the modifier is not set or set to [Dp.Unspecified], the default preferred widths provided by
      * [PaneScaffoldDirective] are supposed to be used.
      *
      * Note that the preferred width may not be applied when the associated pane has a higher
@@ -86,25 +86,74 @@ sealed interface PaneScaffoldScope {
      * stretches to fill the available width, or when there are hinges to avoid intersecting with
      * the scaffold, so the pane will be shrunk or expanded to respect the hinge areas.
      *
+     * Also note that if multiple [PaneScaffoldScope.preferredWidth] modifiers are applied, the last
+     * applied one will override all the previous settings.
+     *
+     * @sample androidx.compose.material3.adaptive.samples.PreferredSizeModifierInDpSample
      * @see PaneScaffoldDirective.defaultPanePreferredWidth
      */
     fun Modifier.preferredWidth(width: Dp): Modifier
 
     /**
-     * This modifier specifies the preferred height for a pane, and the pane scaffold implementation
-     * will try its best to respect this height when the associated pane is rendered as a reflowed
-     * or a levitated pane. In case the modifier is not set or set to [Dp.Unspecified], the default
-     * preferred heights provided by [PaneScaffoldDirective] are supposed to be used.
+     * This modifier specifies the preferred width for a pane as a proportion to the overall
+     * scaffold width, represented as an integer percentage value, and the pane scaffold
+     * implementation will try its best to respect this width when the associated pane is rendered
+     * as a fixed pane, i.e., a pane that is not stretching to fill the remaining spaces. In case
+     * the modifier is not set, the default preferred widths provided by [PaneScaffoldDirective] are
+     * supposed to be used.
+     *
+     * Note that the preferred width may not be applied when the associated pane has a higher
+     * priority than the rest of panes (for example, primary pane v.s. secondary pane) so it
+     * stretches to fill the available width, or when there are hinges to avoid intersecting with
+     * the scaffold, so the pane will be shrunk or expanded to respect the hinge areas.
+     *
+     * Also note that if multiple [PaneScaffoldScope.preferredWidth] modifiers are applied, the last
+     * applied one will override all the previous settings.
+     *
+     * @sample androidx.compose.material3.adaptive.samples.PreferredSizeModifierInProportionSample
+     * @see PaneScaffoldDirective.defaultPanePreferredWidth
+     */
+    fun Modifier.preferredWidth(@IntRange(0, 100) proportion: Int): Modifier
+
+    /**
+     * This modifier specifies the preferred height for a pane in [Dp]s, and the pane scaffold
+     * implementation will try its best to respect this height when the associated pane is rendered
+     * as a reflowed or a levitated pane. In case the modifier is not set or set to
+     * [Dp.Unspecified], the default preferred heights provided by [PaneScaffoldDirective] are
+     * supposed to be used.
      *
      * Note that the preferred height may not be applied when the associated pane is an expanded
      * pane so it stretches to fill the available height, or when there are hinges to avoid
      * intersecting with the scaffold, so the pane will be shrunk or expanded to respect the hinge
      * areas.
      *
-     * @see PaneScaffoldDirective.defaultPanePreferredWidth
+     * Also note that if multiple [PaneScaffoldScope.preferredHeight] modifiers are applied, the
+     * last applied one will override all the previous settings.
+     *
+     * @sample androidx.compose.material3.adaptive.samples.PreferredSizeModifierInDpSample
+     * @see PaneScaffoldDirective.defaultPanePreferredHeight
      */
-    // TODO(conradchen): Add usage samples when the scaffold impl supports reflowing/levitating
     fun Modifier.preferredHeight(height: Dp): Modifier
+
+    /**
+     * This modifier specifies the preferred height for a pane as a proportion to the overall
+     * scaffold height, represented in an integer percentage value, and the pane scaffold
+     * implementation will try its best to respect this height when the associated pane is rendered
+     * as a reflowed or a levitated pane. In case the modifier is not set, the default preferred
+     * heights provided by [PaneScaffoldDirective] are supposed to be used.
+     *
+     * Note that the preferred height may not be applied when the associated pane is an expanded
+     * pane so it stretches to fill the available height, or when there are hinges to avoid
+     * intersecting with the scaffold, so the pane will be shrunk or expanded to respect the hinge
+     * areas.
+     *
+     * Also note that if multiple [PaneScaffoldScope.preferredHeight] modifiers are applied, the
+     * last applied one will override all the previous settings.
+     *
+     * @sample androidx.compose.material3.adaptive.samples.PreferredSizeModifierInProportionSample
+     * @see PaneScaffoldDirective.defaultPanePreferredHeight
+     */
+    fun Modifier.preferredHeight(@IntRange(0, 100) proportion: Int): Modifier
 
     /**
      * The modifier that should be applied on a drag handle composable so the drag handle can be
@@ -193,16 +242,35 @@ internal abstract class PaneScaffoldScopeImpl(
 ) : PaneScaffoldScope {
     override fun Modifier.preferredWidth(width: Dp): Modifier {
         require(width == Dp.Unspecified || width > 0.dp) { "invalid width" }
-        return this.then(PreferredWidthElement(width))
+        return this.then(PreferredWidthElement(PreferredSize(dp = width)))
+    }
+
+    override fun Modifier.preferredWidth(proportion: Int): Modifier {
+        require(proportion >= 0 && proportion <= 100) { "invalid width proportion" }
+        return this.then(PreferredWidthElement(PreferredSize(proportion = proportion)))
     }
 
     override fun Modifier.preferredHeight(height: Dp): Modifier {
         require(height == Dp.Unspecified || height > 0.dp) { "invalid height" }
-        return this.then(PreferredHeightElement(height))
+        return this.then(PreferredHeightElement(PreferredSize(dp = height)))
+    }
+
+    override fun Modifier.preferredHeight(proportion: Int): Modifier {
+        require(proportion >= 0 && proportion <= 100) { "invalid width proportion" }
+        return this.then(PreferredHeightElement(PreferredSize(proportion = proportion)))
     }
 }
 
-private class PreferredWidthElement(private val width: Dp) :
+internal data class PreferredSize(
+    val dp: Dp = Dp.Unspecified,
+    val proportion: Int = Int.MIN_VALUE,
+) {
+    companion object {
+        val Unspecified = PreferredSize()
+    }
+}
+
+private class PreferredWidthElement(private val width: PreferredSize) :
     ModifierNodeElement<PreferredWidthNode>() {
     private val inspectorInfo = debugInspectorInfo {
         name = "preferredWidth"
@@ -232,14 +300,15 @@ private class PreferredWidthElement(private val width: Dp) :
     }
 }
 
-private class PreferredWidthNode(var width: Dp) : ParentDataModifierNode, Modifier.Node() {
+private class PreferredWidthNode(var width: PreferredSize) :
+    ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
         ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {
-            it.preferredWidth = width
+            it.preferredWidthInternal = width
         }
 }
 
-private class PreferredHeightElement(private val height: Dp) :
+private class PreferredHeightElement(private val height: PreferredSize) :
     ModifierNodeElement<PreferredHeightNode>() {
     private val inspectorInfo = debugInspectorInfo {
         name = "preferredHeight"
@@ -269,10 +338,11 @@ private class PreferredHeightElement(private val height: Dp) :
     }
 }
 
-private class PreferredHeightNode(var height: Dp) : ParentDataModifierNode, Modifier.Node() {
+private class PreferredHeightNode(var height: PreferredSize) :
+    ParentDataModifierNode, Modifier.Node() {
     override fun Density.modifyParentData(parentData: Any?) =
         ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {
-            it.preferredHeight = height
+            it.preferredHeightInternal = height
         }
 }
 
@@ -376,6 +446,22 @@ sealed interface PaneScaffoldParentData {
     val preferredHeight: Dp
 
     /**
+     * The preferred width of the pane as a proportion to the overall scaffold width, represented as
+     * an integer percentage value. It is supposed to be set via [PaneScaffoldScope.preferredWidth]
+     * on a pane composable, like [AnimatedPane]. Note that this won't take effect on drag handle
+     * composables with the default scaffold implementations.
+     */
+    val preferredWidthInProportion: Int
+
+    /**
+     * The preferred height of the pane as a proportion to the overall scaffold height, represented
+     * as an integer percentage value. It is supposed to be set via
+     * [PaneScaffoldScope.preferredHeight] on a pane composable, like [AnimatedPane]. Note that this
+     * won't take effect on drag handle composables with the default scaffold implementations.
+     */
+    val preferredHeightInProportion: Int
+
+    /**
      * `true` to indicate that the pane is an [AnimatedPane]; otherwise `false`. Note that this
      * won't take effect on drag handle composables with the default scaffold implementations.
      */
@@ -399,10 +485,22 @@ sealed interface PaneScaffoldParentData {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal data class PaneScaffoldParentDataImpl(
-    override var preferredWidth: Dp = Dp.Unspecified,
-    override var preferredHeight: Dp = Dp.Unspecified,
+    var preferredWidthInternal: PreferredSize = PreferredSize.Unspecified,
+    var preferredHeightInternal: PreferredSize = PreferredSize.Unspecified,
     var paneMargins: PaneMargins = PaneMargins.Unspecified,
     override var isAnimatedPane: Boolean = false,
     override var minTouchTargetSize: Dp = Dp.Unspecified,
     override var dragToResizeState: DragToResizeState? = null,
-) : PaneScaffoldParentData
+) : PaneScaffoldParentData {
+    override val preferredWidth: Dp
+        get() = preferredWidthInternal.dp
+
+    override val preferredHeight: Dp
+        get() = preferredHeightInternal.dp
+
+    override val preferredWidthInProportion: Int
+        get() = preferredWidthInternal.proportion
+
+    override val preferredHeightInProportion: Int
+        get() = preferredHeightInternal.proportion
+}

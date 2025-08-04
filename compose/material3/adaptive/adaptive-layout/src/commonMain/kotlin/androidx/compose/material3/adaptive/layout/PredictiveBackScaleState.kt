@@ -18,6 +18,9 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.internal.getValue
+import androidx.compose.material3.adaptive.layout.internal.rememberRef
+import androidx.compose.material3.adaptive.layout.internal.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
@@ -78,10 +81,13 @@ internal class PredictiveBackScaleState(
 @Composable
 internal fun ThreePaneScaffoldState.CollectPredictiveBackScale(
     predictiveBackScaleState: PredictiveBackScaleState
-) =
+) {
+    var previousValue by rememberRef(0f)
     LaunchedEffect(this) {
         snapshotFlow { progressFraction }
             .collect { value ->
+                if (value == previousValue) return@collect
+                previousValue = value
                 if (isPredictiveBackInProgress) {
                     val scale = convertStateProgressToPredictiveBackScale(value)
                     predictiveBackScaleState.scaleAnimatable.snapTo(scale)
@@ -90,6 +96,7 @@ internal fun ThreePaneScaffoldState.CollectPredictiveBackScale(
                 }
             }
     }
+}
 
 private fun convertStateProgressToPredictiveBackScale(fraction: Float): Float {
     // A decay curve such that: When fraction = 0, function returns 1.

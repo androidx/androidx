@@ -32,6 +32,8 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.PaneExpansionState.Companion.DefaultAnchoringAnimationSpec
 import androidx.compose.material3.adaptive.layout.PaneExpansionState.Companion.Unspecified
+import androidx.compose.material3.adaptive.layout.internal.Strings
+import androidx.compose.material3.adaptive.layout.internal.getString
 import androidx.compose.material3.adaptive.layout.internal.identityHashCode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable

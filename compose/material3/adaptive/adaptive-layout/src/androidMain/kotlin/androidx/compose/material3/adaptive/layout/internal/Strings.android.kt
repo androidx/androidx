@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.layout
+package androidx.compose.material3.adaptive.layout.internal
 
 import androidx.annotation.StringRes
+import androidx.compose.material3.adaptive.layout.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -24,44 +25,9 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.core.os.ConfigurationCompat
 import java.util.Locale
-
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings): String {
-    // Do a no-op reading so when LocalConfiguration changes, this function will be recomposed.
-    LocalConfiguration.current
-    val resources = LocalContext.current.resources
-    return resources.getString(string.value)
-}
-
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
-    val raw = getString(string)
-    val locale =
-        ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
-    return String.format(locale, raw, *formatArgs)
-}
-
-internal actual fun CompositionLocalConsumerModifierNode.getString(string: Strings): String {
-    // Force invalidation when LocalConfiguration changes.
-    currentValueOf(LocalConfiguration)
-    val context = currentValueOf(LocalContext)
-    val resources = context.resources
-    return resources.getString(string.value)
-}
-
-internal actual fun CompositionLocalConsumerModifierNode.getString(
-    string: Strings,
-    vararg formatArgs: Any,
-): String {
-    val raw = getString(string)
-    val configuration = currentValueOf(LocalConfiguration)
-    val locale = ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
-    return String.format(locale, raw, *formatArgs)
-}
 
 @JvmInline
 @Immutable
@@ -91,4 +57,38 @@ internal actual value class Strings(@StringRes val value: Int) {
             get() =
                 Strings(R.string.m3_adaptive_default_pane_expansion_end_offset_anchor_description)
     }
+}
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: Strings): String {
+    val resources = LocalResources.current
+    return resources.getString(string.value)
+}
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
+    val raw = getString(string)
+    val locale =
+        ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
+    return String.format(locale, raw, *formatArgs)
+}
+
+internal actual fun CompositionLocalConsumerModifierNode.getString(string: Strings): String {
+    // Force invalidation when LocalConfiguration changes.
+    currentValueOf(LocalConfiguration)
+    val context = currentValueOf(LocalContext)
+    val resources = context.resources
+    return resources.getString(string.value)
+}
+
+internal actual fun CompositionLocalConsumerModifierNode.getString(
+    string: Strings,
+    vararg formatArgs: Any,
+): String {
+    val raw = getString(string)
+    val configuration = currentValueOf(LocalConfiguration)
+    val locale = ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
+    return String.format(locale, raw, *formatArgs)
 }

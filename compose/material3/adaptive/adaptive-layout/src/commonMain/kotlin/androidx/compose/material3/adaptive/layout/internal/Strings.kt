@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.adaptive.layout
+package androidx.compose.material3.adaptive.layout.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable

@@ -55,21 +55,21 @@ sealed interface AdaptStrategy {
      * To provide custom adapt strategies, see the following sample:
      *
      * @sample androidx.compose.material3.adaptive.samples.reflowAdaptStrategySample
-     * @param targetPane the target pane of the reflowing, i.e., the pane that the reflowed pane
-     *   will be put under.
+     * @param reflowUnder the pane that the reflowed pane will be put under; within the context of
+     *   three pane scaffolds, the type of this parameter is supposed to be [ThreePaneScaffoldRole].
      */
     @Immutable
-    class Reflow(val targetPane: Any) : AdaptStrategy {
-        override fun toString() = "AdaptStrategy[Reflow to $targetPane]"
+    class Reflow(internal val reflowUnder: Any) : AdaptStrategy {
+        override fun toString() = "AdaptStrategy[Reflow to $reflowUnder]"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Reflow) return false
-            return targetPane == other.targetPane
+            return reflowUnder == other.reflowUnder
         }
 
         override fun hashCode(): Int {
-            return targetPane.hashCode()
+            return reflowUnder.hashCode()
         }
     }
 
@@ -100,9 +100,9 @@ sealed interface AdaptStrategy {
      */
     @Immutable
     class Levitate(
-        val strategy: Strategy = Strategy.Always,
-        val alignment: Alignment = Alignment.Center,
-        val scrim: Scrim? = null,
+        internal val strategy: Strategy = Strategy.Always,
+        internal val alignment: Alignment = Alignment.Center,
+        internal val scrim: Scrim? = null,
     ) : AdaptStrategy {
         override fun toString() =
             "AdaptStrategy[Levitate, type=$strategy, alignment=$alignment, scrim=$scrim]"

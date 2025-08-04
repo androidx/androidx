@@ -149,7 +149,7 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     ]
     targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/material3/adaptive/l10n")
     targetPackageName = "androidx.compose.material3.adaptive.l10n"
-    kotlinStringsPackageName = "androidx.compose.material3.adaptive.layout"
+    kotlinStringsPackageName = "androidx.compose.material3.adaptive.layout.internal"
     stringByResourceName = [
             // These come are from the material3.adaptive-layout module resources
             "m3_adaptive_default_pane_expansion_drag_handle_content_description": "defaultPaneExpansionDragHandleContentDescription",

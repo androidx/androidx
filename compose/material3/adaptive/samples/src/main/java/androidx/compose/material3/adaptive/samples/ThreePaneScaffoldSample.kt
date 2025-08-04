@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive.samples
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.IntRange
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -69,6 +70,7 @@ import androidx.compose.material3.adaptive.layout.Scrim
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.layout.rememberDragToResizeState
@@ -91,6 +93,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -282,7 +285,7 @@ fun SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet() {
         extraPane = {
             AnimatedPane(
                 modifier =
-                    Modifier.preferredWidth(480.dp)
+                    Modifier.preferredWidth(100)
                         .preferredHeight(412.dp)
                         .dragToResize(rememberDragToResizeState(dockedEdge = DockedEdge.Bottom))
             ) {
@@ -301,6 +304,42 @@ fun SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet() {
             ),
         paneExpansionDragHandle = { state -> PaneExpansionDragHandleSample(state) },
     )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Sampled
+@Composable
+fun ThreePaneScaffoldPaneScope.PreferredSizeModifierInDpSample(
+    modifier: Modifier = Modifier,
+    preferredWidth: Dp,
+    preferredHeight: Dp,
+    content: @Composable () -> Unit,
+) {
+    AnimatedPane(
+        modifier =
+            Modifier.preferredWidth(preferredWidth).preferredHeight(preferredHeight).then(modifier)
+    ) {
+        content()
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Sampled
+@Composable
+fun ThreePaneScaffoldPaneScope.PreferredSizeModifierInProportionSample(
+    modifier: Modifier = Modifier,
+    @IntRange(from = 0, to = 100) preferredWidthInProportion: Int,
+    @IntRange(from = 0, to = 100) preferredHeightInProportion: Int,
+    content: @Composable () -> Unit,
+) {
+    AnimatedPane(
+        modifier =
+            Modifier.preferredWidth(preferredWidthInProportion)
+                .preferredHeight(preferredHeightInProportion)
+                .then(modifier)
+    ) {
+        content()
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -331,7 +370,7 @@ fun <T> reflowAdaptStrategySample(): ThreePaneScaffoldNavigator<T> =
         adaptStrategies =
             ListDetailPaneScaffoldDefaults.adaptStrategies(
                 extraPaneAdaptStrategy =
-                    AdaptStrategy.Reflow(targetPane = ListDetailPaneScaffoldRole.Detail)
+                    AdaptStrategy.Reflow(reflowUnder = ListDetailPaneScaffoldRole.Detail)
             )
     )
 

@@ -15,12 +15,6 @@ package androidx.compose.material3.adaptive.layout {
     ctor public AdaptStrategy.Levitate();
     ctor @KotlinOnly public AdaptStrategy.Levitate(optional androidx.compose.material3.adaptive.layout.AdaptStrategy.Levitate.Strategy strategy, optional androidx.compose.ui.Alignment alignment, optional androidx.compose.material3.adaptive.layout.Scrim? scrim);
     ctor @BytecodeOnly public AdaptStrategy.Levitate(String!, androidx.compose.ui.Alignment!, androidx.compose.material3.adaptive.layout.Scrim!, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.ui.Alignment getAlignment();
-    method public androidx.compose.material3.adaptive.layout.Scrim? getScrim();
-    method @BytecodeOnly public String getStrategy-H_H46_c();
-    property public androidx.compose.ui.Alignment alignment;
-    property public androidx.compose.material3.adaptive.layout.Scrim? scrim;
-    property public androidx.compose.material3.adaptive.layout.AdaptStrategy.Levitate.Strategy strategy;
   }
 
   @kotlin.jvm.JvmInline public static final value class AdaptStrategy.Levitate.Strategy {
@@ -37,9 +31,7 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @androidx.compose.runtime.Immutable public static final class AdaptStrategy.Reflow implements androidx.compose.material3.adaptive.layout.AdaptStrategy {
-    ctor public AdaptStrategy.Reflow(Object targetPane);
-    method public Object getTargetPane();
-    property public Object targetPane;
+    ctor public AdaptStrategy.Reflow(Object reflowUnder);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi public interface AnimatedPaneOverride {
@@ -421,13 +413,17 @@ package androidx.compose.material3.adaptive.layout {
     method public androidx.compose.material3.adaptive.layout.DragToResizeState? getDragToResizeState();
     method @BytecodeOnly public float getMinTouchTargetSize-D9Ej5fM();
     method @BytecodeOnly public float getPreferredHeight-D9Ej5fM();
+    method public int getPreferredHeightInProportion();
     method @BytecodeOnly public float getPreferredWidth-D9Ej5fM();
+    method public int getPreferredWidthInProportion();
     method public boolean isAnimatedPane();
     property public abstract androidx.compose.material3.adaptive.layout.DragToResizeState? dragToResizeState;
     property public abstract boolean isAnimatedPane;
     property public abstract androidx.compose.ui.unit.Dp minTouchTargetSize;
     property public abstract androidx.compose.ui.unit.Dp preferredHeight;
+    property public abstract int preferredHeightInProportion;
     property public abstract androidx.compose.ui.unit.Dp preferredWidth;
+    property public abstract int preferredWidthInProportion;
   }
 
   public sealed interface PaneScaffoldScope {
@@ -436,8 +432,10 @@ package androidx.compose.material3.adaptive.layout {
     method public androidx.compose.ui.Modifier paneExpansionDraggable(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState state, float minTouchTargetSize, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? semanticsProperties);
     method @BytecodeOnly public androidx.compose.ui.Modifier paneExpansionDraggable-TDGSqEk(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState, float, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver!,kotlin.Unit!>?);
     method public androidx.compose.ui.Modifier preferredHeight(androidx.compose.ui.Modifier, float height);
+    method public androidx.compose.ui.Modifier preferredHeight(androidx.compose.ui.Modifier, @IntRange(from=0L, to=100L) int proportion);
     method @BytecodeOnly public androidx.compose.ui.Modifier preferredHeight-3ABfNKs(androidx.compose.ui.Modifier, float);
     method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, float width);
+    method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, @IntRange(from=0L, to=100L) int proportion);
     method @BytecodeOnly public androidx.compose.ui.Modifier preferredWidth-3ABfNKs(androidx.compose.ui.Modifier, float);
     property public abstract androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder;
   }

@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.l10n.translationFor
+import androidx.compose.material3.adaptive.layout.internal.Strings
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.Test
