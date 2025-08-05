@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.util.fastMap
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -65,9 +66,9 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
     override val weekdayNames: List<Pair<String, String>> =
         // This will start with Monday as the first day, according to ISO-8601.
         with(locale) {
-            DayOfWeek.values().map {
-                it.getDisplayName(TextStyle.FULL, /* locale= */ this) to
-                    it.getDisplayName(TextStyle.NARROW, /* locale= */ this)
+            DayOfWeek.entries.fastMap {
+                it.getDisplayName(TextStyle.FULL_STANDALONE, /* locale= */ this) to
+                    it.getDisplayName(TextStyle.NARROW_STANDALONE, /* locale= */ this)
             }
         }
 

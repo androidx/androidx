@@ -566,99 +566,86 @@ private fun ScrollableTabRowImpl(
                 }
             }
         }
+        Box(contentAlignment = Alignment.BottomStart) {
+            divider()
+            Layout(
+                contents = listOf(tabs, { scope.indicator() }),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .wrapContentSize(align = Alignment.CenterStart)
+                        .horizontalScroll(scrollState)
+                        .selectableGroup()
+                        .clipToBounds(),
+            ) { (tabMeasurables, indicatorMeasurables), constraints ->
+                val padding = edgePadding.roundToPx()
+                val tabCount = tabMeasurables.size
+                val layoutHeight =
+                    tabMeasurables.fastFold(initial = 0) { curr, measurable ->
+                        maxOf(curr, measurable.maxIntrinsicHeight(Constraints.Infinity))
+                    }
+                var layoutWidth = padding * 2
+                val tabConstraints =
+                    constraints.copy(
+                        minWidth = minTabWidth.roundToPx(),
+                        minHeight = layoutHeight,
+                        maxHeight = layoutHeight,
+                    )
 
-        Layout(
-            contents = listOf(tabs, divider, { scope.indicator() }),
-            modifier =
-                Modifier.fillMaxWidth()
-                    .wrapContentSize(align = Alignment.CenterStart)
-                    .horizontalScroll(scrollState)
-                    .selectableGroup()
-                    .clipToBounds(),
-        ) { (tabMeasurables, dividerMeasurables, indicatorMeasurables), constraints ->
-            val padding = edgePadding.roundToPx()
-            val tabCount = tabMeasurables.size
-            val layoutHeight =
-                tabMeasurables.fastFold(initial = 0) { curr, measurable ->
-                    maxOf(curr, measurable.maxIntrinsicHeight(Constraints.Infinity))
+                var left = edgePadding
+                val tabPlaceables = tabMeasurables.fastMap { it.measure(tabConstraints) }
+                // Get indicator widths based on incoming content size, not based on forced minimum
+                // width applied below.
+                val indicatorWidth = mutableIntListOf()
+                tabMeasurables.fastForEach {
+                    indicatorWidth.add(it.maxIntrinsicWidth(Constraints.Infinity))
                 }
-            var layoutWidth = padding * 2
-            val tabConstraints =
-                constraints.copy(
-                    minWidth = minTabWidth.roundToPx(),
-                    minHeight = layoutHeight,
-                    maxHeight = layoutHeight,
-                )
 
-            var left = edgePadding
-            val tabPlaceables = tabMeasurables.fastMap { it.measure(tabConstraints) }
-            // Get indicator widths based on incoming content size, not based on forced minimum
-            // width applied below.
-            val indicatorWidth = mutableIntListOf()
-            tabMeasurables.fastForEach {
-                indicatorWidth.add(it.maxIntrinsicWidth(Constraints.Infinity))
-            }
+                val positions =
+                    List(tabCount) { index ->
+                        val tabWidth = maxOf(minTabWidth, tabPlaceables[index].width.toDp())
+                        layoutWidth += tabWidth.roundToPx()
+                        // Enforce minimum touch target of 24.dp
+                        val contentWidth =
+                            maxOf(indicatorWidth[index].toDp() - (HorizontalTextPadding * 2), 24.dp)
+                        val tabPosition =
+                            TabPosition(left = left, width = tabWidth, contentWidth = contentWidth)
+                        left += tabWidth
+                        tabPosition
+                    }
+                scope.setTabPositions(positions)
 
-            val positions =
-                List(tabCount) { index ->
-                    val tabWidth = maxOf(minTabWidth, tabPlaceables[index].width.toDp())
-                    layoutWidth += tabWidth.roundToPx()
-                    // Enforce minimum touch target of 24.dp
-                    val contentWidth =
-                        maxOf(indicatorWidth[index].toDp() - (HorizontalTextPadding * 2), 24.dp)
-                    val tabPosition =
-                        TabPosition(left = left, width = tabWidth, contentWidth = contentWidth)
-                    left += tabWidth
-                    tabPosition
-                }
-            scope.setTabPositions(positions)
-
-            val dividerPlaceables =
-                dividerMeasurables.fastMap {
-                    it.measure(
-                        constraints.copy(
-                            minHeight = 0,
-                            minWidth = layoutWidth,
-                            maxWidth = layoutWidth,
+                val indicatorPlaceables =
+                    indicatorMeasurables.fastMap {
+                        it.measure(
+                            constraints.copy(
+                                minWidth = 0,
+                                maxWidth = positions[selectedTabIndex].contentWidth.roundToPx(),
+                                minHeight = 0,
+                                maxHeight = layoutHeight,
+                            )
                         )
+                    }
+
+                layout(layoutWidth, layoutHeight) {
+                    left = edgePadding
+                    tabPlaceables.fastForEachIndexed { index, placeable ->
+                        placeable.placeRelative(left.roundToPx(), 0)
+                        left += positions[index].width
+                    }
+
+                    indicatorPlaceables.fastForEach {
+                        val relativeOffset =
+                            max(0, (positions[selectedTabIndex].width.roundToPx() - it.width) / 2)
+                        it.placeRelative(relativeOffset, layoutHeight - it.height)
+                    }
+
+                    scrollableTabData.onLaidOut(
+                        density = this@Layout,
+                        edgeOffset = padding,
+                        tabPositions = positions,
+                        selectedTab = selectedTabIndex,
                     )
                 }
-
-            val indicatorPlaceables =
-                indicatorMeasurables.fastMap {
-                    it.measure(
-                        constraints.copy(
-                            minWidth = 0,
-                            maxWidth = positions[selectedTabIndex].contentWidth.roundToPx(),
-                            minHeight = 0,
-                            maxHeight = layoutHeight,
-                        )
-                    )
-                }
-
-            layout(layoutWidth, layoutHeight) {
-                left = edgePadding
-                tabPlaceables.fastForEachIndexed { index, placeable ->
-                    placeable.placeRelative(left.roundToPx(), 0)
-                    left += positions[index].width
-                }
-
-                dividerPlaceables.fastForEach { placeable ->
-                    placeable.placeRelative(0, layoutHeight - placeable.height)
-                }
-
-                indicatorPlaceables.fastForEach {
-                    val relativeOffset =
-                        max(0, (positions[selectedTabIndex].width.roundToPx() - it.width) / 2)
-                    it.placeRelative(relativeOffset, layoutHeight - it.height)
-                }
-
-                scrollableTabData.onLaidOut(
-                    density = this@Layout,
-                    edgeOffset = padding,
-                    tabPositions = positions,
-                    selectedTab = selectedTabIndex,
-                )
             }
         }
     }
@@ -765,6 +752,7 @@ internal class TabIndicatorOffsetNode(
     }
 }
 
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 private fun TabRowWithSubcomposeImpl(
     modifier: Modifier,
@@ -834,6 +822,7 @@ private fun TabRowWithSubcomposeImpl(
     }
 }
 
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 private fun ScrollableTabRowWithSubcomposeImpl(
     selectedTabIndex: Int,

@@ -41,13 +41,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopSearchBar
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -75,10 +80,22 @@ fun SimpleSearchBarSample() {
                 placeholder = { Text("Search...") },
                 leadingIcon = {
                     if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        IconButton(
-                            onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Back") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
+                            IconButton(
+                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                )
+                            }
                         }
                     } else {
                         Icon(Icons.Default.Search, contentDescription = null)
@@ -118,10 +135,22 @@ fun FullScreenSearchBarScaffoldSample() {
                 placeholder = { Text("Search...") },
                 leadingIcon = {
                     if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        IconButton(
-                            onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Back") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
+                            IconButton(
+                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                )
+                            }
                         }
                     } else {
                         Icon(Icons.Default.Search, contentDescription = null)
@@ -180,10 +209,22 @@ fun DockedSearchBarScaffoldSample() {
                 placeholder = { Text("Search...") },
                 leadingIcon = {
                     if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        IconButton(
-                            onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Back") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
+                            IconButton(
+                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back",
+                                )
+                            }
                         }
                     } else {
                         Icon(Icons.Default.Search, contentDescription = null)

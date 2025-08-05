@@ -117,9 +117,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -147,7 +147,6 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
@@ -188,7 +187,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sign
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -233,18 +231,15 @@ fun SearchBar(
     tonalElevation: Dp = SearchBarDefaults.TonalElevation,
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
 ) {
-    // Disable when collapsed to avoid keyboard flicker when the expanded search bar opens.
-    DisableSoftKeyboard {
-        Surface(
-            modifier = modifier.onGloballyPositioned { state.collapsedCoords = it },
-            shape = shape,
-            color = colors.containerColor,
-            contentColor = contentColorFor(colors.containerColor),
-            tonalElevation = tonalElevation,
-            shadowElevation = shadowElevation,
-            content = inputField,
-        )
-    }
+    Surface(
+        modifier = modifier.onGloballyPositioned { state.collapsedCoords = it },
+        shape = shape,
+        color = colors.containerColor,
+        contentColor = contentColorFor(colors.containerColor),
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        content = inputField,
+    )
 }
 
 /**
@@ -1349,6 +1344,11 @@ object SearchBarDefaults {
                         val expandOnDownKey = !isInTouchMode && !searchBarState.isExpanded
                         if (expandOnDownKey && it.key == Key.DirectionDown) {
                             coroutineScope.launch { searchBarState.animateToExpanded() }
+                            return@onPreviewKeyEvent true
+                        }
+                        // Make sure arrow key down moves to list of suggestions.
+                        if (searchBarState.isExpanded && it.key == Key.DirectionDown) {
+                            focusManager.moveFocus(FocusDirection.Down)
                             return@onPreviewKeyEvent true
                         }
                         false
@@ -2579,12 +2579,6 @@ private fun FullScreenSearchBarLayout(
 
 private fun BackEventProgress.InProgress?.transform(): Float =
     if (this == null) 0f else PredictiveBack.transform(this.progress)
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun DisableSoftKeyboard(content: @Composable () -> Unit) {
-    InterceptPlatformTextInput(interceptor = { _, _ -> awaitCancellation() }, content = content)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 private val SearchBarState.collapsedBounds: IntRect

@@ -22,16 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-
-@Composable
-internal actual fun windowContainerWidthInPx(): Int {
-    return with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.roundToPx() }
-}
 
 /**
  * Plain tooltip that provides a descriptive message.
@@ -67,8 +60,8 @@ fun TooltipScope.PlainTooltipAndroid(
     content: @Composable () -> Unit,
 ) =
     PlainTooltip(
+        caretShape = TooltipDefaults.caretShape(caretSize),
         modifier = modifier,
-        caretSize = caretSize,
         maxWidth = TooltipDefaults.plainTooltipMaxWidth,
         shape = shape,
         contentColor = contentColor,
@@ -111,8 +104,8 @@ fun TooltipScope.PlainTooltipAndroid(
     content: @Composable () -> Unit,
 ) {
     PlainTooltip(
+        caretShape = TooltipDefaults.caretShape(caretSize),
         modifier = modifier,
-        caretSize = caretSize,
         maxWidth = maxWidth,
         shape = shape,
         contentColor = contentColor,
@@ -160,10 +153,10 @@ fun TooltipScope.RichTooltipAndroid(
     text: @Composable () -> Unit,
 ) =
     RichTooltip(
+        caretShape = TooltipDefaults.caretShape(caretSize),
         modifier = modifier,
         title = title,
         action = action,
-        caretSize = caretSize,
         maxWidth = TooltipDefaults.richTooltipMaxWidth,
         shape = shape,
         colors = colors,
@@ -208,10 +201,10 @@ fun TooltipScope.RichTooltipAndroid(
     text: @Composable () -> Unit,
 ) {
     RichTooltip(
+        caretShape = TooltipDefaults.caretShape(caretSize),
         modifier = modifier,
         title = title,
         action = action,
-        caretSize = caretSize,
         maxWidth = maxWidth,
         shape = shape,
         colors = colors,

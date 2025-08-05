@@ -309,7 +309,7 @@ fun SwipeToDismissBox(
     enableDismissFromStartToEnd: Boolean = true,
     enableDismissFromEndToStart: Boolean = true,
     gesturesEnabled: Boolean = true,
-    onDismiss: suspend (SwipeToDismissBoxValue) -> Unit = {},
+    onDismiss: (SwipeToDismissBoxValue) -> Unit = {},
     content: @Composable RowScope.() -> Unit,
 ) {
     Box(

@@ -174,6 +174,11 @@ import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithCaret
+import androidx.compose.material3.samples.PlainTooltipWithCaretBelowAnchor
+import androidx.compose.material3.samples.PlainTooltipWithCaretEndOfAnchor
+import androidx.compose.material3.samples.PlainTooltipWithCaretLeftOfAnchor
+import androidx.compose.material3.samples.PlainTooltipWithCaretRightOfAnchor
+import androidx.compose.material3.samples.PlainTooltipWithCaretStartOfAnchor
 import androidx.compose.material3.samples.PlainTooltipWithCustomCaret
 import androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
 import androidx.compose.material3.samples.PrimaryIconTabs
@@ -2524,6 +2529,46 @@ val TooltipsExamples =
             isExpressive = false,
         ) {
             PlainTooltipWithCaret()
+        },
+        Example(
+            name = "PlainTooltipWithCaretBelowAnchor",
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PlainTooltipWithCaretBelowAnchor()
+        },
+        Example(
+            name = "PlainTooltipWithCaretLeftOfAnchor",
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PlainTooltipWithCaretLeftOfAnchor()
+        },
+        Example(
+            name = "PlainTooltipWithCaretRightOfAnchor",
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PlainTooltipWithCaretRightOfAnchor()
+        },
+        Example(
+            name = "PlainTooltipWithCaretStartOfAnchor",
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PlainTooltipWithCaretStartOfAnchor()
+        },
+        Example(
+            name = "PlainTooltipWithCaretEndOfAnchor",
+            description = TooltipsExampleDescription,
+            sourceUrl = TooltipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PlainTooltipWithCaretEndOfAnchor()
         },
         Example(
             name = "PlainTooltipWithCustomCaret",

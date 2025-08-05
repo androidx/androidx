@@ -434,6 +434,60 @@
     </issue>
 
     <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                startThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                endThumb = { SliderDefaults.Thumb(MutableInteractionSource()) },"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        interactionSource = MutableInteractionSource(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        interactionSource = MutableInteractionSource(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        interactionSource = MutableInteractionSource(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        interactionSource = MutableInteractionSource(),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SliderTest.kt"/>
+    </issue>
+
+    <issue
         id="ComposableLambdaParameterNaming"
         message="Composable lambda parameter should be named `content`"
         errorLine1="        trailingIcon: (@Composable () -> Unit)? = null,"
@@ -593,42 +647,6 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TimePickerTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            scope.launch { topState.show() }"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            scope.launch { bottomState.show() }"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            scope.launch { topState.show() }"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            scope.launch { bottomState.show() }"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TooltipTest.kt"/>
     </issue>
 
     <issue

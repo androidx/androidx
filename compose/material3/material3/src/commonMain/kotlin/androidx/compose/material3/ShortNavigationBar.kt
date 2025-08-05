@@ -123,11 +123,10 @@ fun ShortNavigationBar(
 object DefaultShortNavigationBarOverride : ShortNavigationBarOverride {
     @Composable
     override fun ShortNavigationBarOverrideScope.ShortNavigationBar() {
-        Surface(color = containerColor, contentColor = contentColor) {
+        Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
             Layout(
                 modifier =
-                    modifier
-                        .windowInsetsPadding(windowInsets)
+                    Modifier.windowInsetsPadding(windowInsets)
                         .defaultMinSize(minHeight = NavigationBarTokens.ContainerHeight)
                         .selectableGroup(),
                 content = content,

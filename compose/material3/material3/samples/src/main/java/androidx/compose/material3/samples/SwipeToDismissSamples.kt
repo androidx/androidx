@@ -31,11 +31,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.launch
 
 @Preview
 @Sampled
@@ -43,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun SwipeToDismissListItems() {
     val dismissState = rememberSwipeToDismissBoxState()
     var isVisible by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
     if (isVisible) {
         SwipeToDismissBox(
             state = dismissState,
@@ -61,7 +64,7 @@ fun SwipeToDismissListItems() {
                 if (direction == SwipeToDismissBoxValue.EndToStart) {
                     isVisible = false
                 } else {
-                    dismissState.reset()
+                    scope.launch { dismissState.reset() }
                 }
             },
         ) {

@@ -20,6 +20,7 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,11 +49,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TextFieldLabelPosition
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,13 +68,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -135,8 +145,15 @@ fun TextFieldWithIcons() {
         label = { Text("Label") },
         leadingIcon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
         trailingIcon = {
-            IconButton(onClick = { state.clearText() }) {
-                Icon(Icons.Filled.Clear, contentDescription = "Clear text")
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = { PlainTooltip { Text("Clear text") } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { state.clearText() }) {
+                    Icon(Icons.Filled.Clear, contentDescription = "Clear text")
+                }
             }
         },
     )
@@ -251,12 +268,19 @@ fun PasswordTextField() {
             if (passwordHidden) TextObfuscationMode.RevealLastTyped
             else TextObfuscationMode.Visible,
         trailingIcon = {
-            IconButton(onClick = { passwordHidden = !passwordHidden }) {
-                val visibilityIcon =
-                    if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                // Provide localized description for accessibility services
-                val description = if (passwordHidden) "Show password" else "Hide password"
-                Icon(imageVector = visibilityIcon, contentDescription = description)
+            // Provide localized description for accessibility services
+            val description = if (passwordHidden) "Show password" else "Hide password"
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = { PlainTooltip { Text(description) } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                    val visibilityIcon =
+                        if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    Icon(imageVector = visibilityIcon, contentDescription = description)
+                }
             }
         },
     )
@@ -329,9 +353,25 @@ fun TextArea() {
 fun CustomTextFieldUsingDecorator() {
     val state = rememberTextFieldState()
     val interactionSource = remember { MutableInteractionSource() }
+    val customColors =
+        TextFieldDefaults.colors(
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.Gray,
+            focusedIndicatorColor = Color.Blue,
+            cursorColor = Color.Green,
+        )
     val enabled = true
     val isError = false
     val lineLimits = TextFieldLineLimits.SingleLine
+
+    val textColor =
+        LocalTextStyle.current.color.takeOrElse {
+            customColors.textColor(
+                enabled = enabled,
+                isError = isError,
+                focused = interactionSource.collectIsFocusedAsState().value,
+            )
+        }
 
     BasicTextField(
         state = state,
@@ -339,7 +379,10 @@ fun CustomTextFieldUsingDecorator() {
         interactionSource = interactionSource,
         enabled = enabled,
         lineLimits = lineLimits,
-        textStyle = LocalTextStyle.current,
+        // Colors of non-decorator elements (such as text color or cursor color)
+        // must be passed to BasicTextField
+        textStyle = LocalTextStyle.current.merge(TextStyle(color = textColor)),
+        cursorBrush = SolidColor(customColors.cursorColor),
         decorator =
             TextFieldDefaults.decorator(
                 state = state,
@@ -353,6 +396,7 @@ fun CustomTextFieldUsingDecorator() {
                         enabled = enabled,
                         isError = isError,
                         interactionSource = interactionSource,
+                        colors = customColors,
                         // Update indicator line thickness
                         unfocusedIndicatorLineThickness = 2.dp,
                         focusedIndicatorLineThickness = 4.dp,
@@ -368,9 +412,25 @@ fun CustomTextFieldUsingDecorator() {
 fun CustomOutlinedTextFieldUsingDecorator() {
     val state = rememberTextFieldState()
     val interactionSource = remember { MutableInteractionSource() }
+    val customColors =
+        OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.Gray,
+            focusedBorderColor = Color.Blue,
+            cursorColor = Color.Green,
+        )
     val enabled = true
     val isError = false
     val lineLimits = TextFieldLineLimits.SingleLine
+
+    val textColor =
+        LocalTextStyle.current.color.takeOrElse {
+            customColors.textColor(
+                enabled = enabled,
+                isError = isError,
+                focused = interactionSource.collectIsFocusedAsState().value,
+            )
+        }
 
     BasicTextField(
         state = state,
@@ -378,7 +438,10 @@ fun CustomOutlinedTextFieldUsingDecorator() {
         interactionSource = interactionSource,
         enabled = enabled,
         lineLimits = lineLimits,
-        textStyle = LocalTextStyle.current,
+        // Colors of non-decorator elements (such as text color or cursor color)
+        // must be passed to BasicTextField
+        textStyle = LocalTextStyle.current.merge(TextStyle(color = textColor)),
+        cursorBrush = SolidColor(customColors.cursorColor),
         decorator =
             OutlinedTextFieldDefaults.decorator(
                 state = state,
@@ -392,6 +455,7 @@ fun CustomOutlinedTextFieldUsingDecorator() {
                         enabled = enabled,
                         isError = isError,
                         interactionSource = interactionSource,
+                        colors = customColors,
                         // Update border thickness and shape
                         shape = RectangleShape,
                         unfocusedBorderThickness = 2.dp,
@@ -408,9 +472,25 @@ fun CustomOutlinedTextFieldUsingDecorator() {
 fun CustomTextFieldBasedOnDecorationBox() {
     var text by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
+    val customColors =
+        TextFieldDefaults.colors(
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.Gray,
+            focusedIndicatorColor = Color.Blue,
+            cursorColor = Color.Green,
+        )
     val enabled = true
     val isError = false
     val singleLine = true
+
+    val textColor =
+        LocalTextStyle.current.color.takeOrElse {
+            customColors.textColor(
+                enabled = enabled,
+                isError = isError,
+                focused = interactionSource.collectIsFocusedAsState().value,
+            )
+        }
 
     BasicTextField(
         value = text,
@@ -419,7 +499,10 @@ fun CustomTextFieldBasedOnDecorationBox() {
         interactionSource = interactionSource,
         enabled = enabled,
         singleLine = singleLine,
-        textStyle = LocalTextStyle.current,
+        // Colors of non-decoration-box elements (such as text color or cursor color)
+        // must be passed to BasicTextField
+        textStyle = LocalTextStyle.current.merge(TextStyle(color = textColor)),
+        cursorBrush = SolidColor(customColors.cursorColor),
         decorationBox = { innerTextField ->
             TextFieldDefaults.DecorationBox(
                 value = text,
@@ -434,6 +517,7 @@ fun CustomTextFieldBasedOnDecorationBox() {
                         enabled = enabled,
                         isError = isError,
                         interactionSource = interactionSource,
+                        colors = customColors,
                         // Update indicator line thickness
                         unfocusedIndicatorLineThickness = 2.dp,
                         focusedIndicatorLineThickness = 4.dp,
@@ -450,9 +534,25 @@ fun CustomTextFieldBasedOnDecorationBox() {
 fun CustomOutlinedTextFieldBasedOnDecorationBox() {
     var text by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
+    val customColors =
+        OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.Gray,
+            focusedBorderColor = Color.Blue,
+            cursorColor = Color.Green,
+        )
     val enabled = true
     val isError = false
     val singleLine = true
+
+    val textColor =
+        LocalTextStyle.current.color.takeOrElse {
+            customColors.textColor(
+                enabled = enabled,
+                isError = isError,
+                focused = interactionSource.collectIsFocusedAsState().value,
+            )
+        }
 
     BasicTextField(
         value = text,
@@ -461,7 +561,10 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
         interactionSource = interactionSource,
         enabled = enabled,
         singleLine = singleLine,
-        textStyle = LocalTextStyle.current,
+        // Colors of non-decoration-box elements (such as text color or cursor color)
+        // must be passed to BasicTextField
+        textStyle = LocalTextStyle.current.merge(TextStyle(color = textColor)),
+        cursorBrush = SolidColor(customColors.cursorColor),
         decorationBox = { innerTextField ->
             OutlinedTextFieldDefaults.DecorationBox(
                 value = text,
@@ -476,6 +579,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                         enabled = enabled,
                         isError = isError,
                         interactionSource = interactionSource,
+                        colors = customColors,
                         // Update border thickness and shape
                         shape = RectangleShape,
                         unfocusedBorderThickness = 2.dp,

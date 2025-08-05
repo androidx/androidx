@@ -52,6 +52,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
@@ -64,6 +65,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -73,8 +75,8 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.window.PopupPositionProvider
+import kotlin.jvm.JvmInline
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
@@ -96,7 +98,7 @@ import kotlinx.coroutines.withTimeout
  *   but assistive-tech users will need to swipe or drag to get to the first element of the
  *   component.
  * @param enableUserInput [Boolean] which determines if this TooltipBox will handle long press and
- *   mouse hover to trigger the tooltip through the state provided.
+ *   mouse hover, and keyboard focus to trigger the tooltip through the state provided.
  * @param content the composable that the tooltip will anchor to.
  */
 @Deprecated(
@@ -132,6 +134,47 @@ fun TooltipBox(
  * Tooltips provide a descriptive message for an anchor. It can be used to call the users attention
  * to the anchor.
  *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaret
+ *
+ * Plain tooltip with caret shown on long press which is placed below the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretBelowAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed left of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretLeftOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed right of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretRightOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed start of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretStartOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed end of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretEndOfAnchor
+ *
+ * Plain tooltip shown on long press with a custom caret:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCustomCaret
+ *
+ * Tooltip that is invoked when the anchor is long pressed:
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipSample
+ *
+ * If control of when the tooltip is shown is desired please see
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
+ *
+ * Rich tooltip with caret shown on long press:
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipWithCaretSample
+ *
+ * Rich tooltip shown on long press with a custom caret
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
  * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip relative
  *   to the anchor content.
  * @param tooltip the composable that will be used to populate the tooltip's content.
@@ -195,6 +238,26 @@ fun TooltipBox(
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithCaret
  *
+ * Plain tooltip with caret shown on long press which is placed below the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretBelowAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed left of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretLeftOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed right of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretRightOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed start of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretStartOfAnchor
+ *
+ * Plain tooltip with caret shown on long press which is placed end of the anchor:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaretEndOfAnchor
+ *
  * Plain tooltip shown on long press with a custom caret:
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithCustomCaret
@@ -227,8 +290,8 @@ fun TooltipBox(
  *   but assistive-tech users will need to swipe or drag to get to the first element of the
  *   component. For certain a11y cases, such as when the tooltip has an action and Talkback is on,
  *   focusable will be forced to true to allow for the correct a11y behavior.
- * @param enableUserInput [Boolean] which determines if this TooltipBox will handle long press and
- *   mouse hover to trigger the tooltip through the state provided.
+ * @param enableUserInput [Boolean] which determines if this TooltipBox will handle long press and,
+ *   mouse hover, and keyboard focus to trigger the tooltip through the state provided.
  * @param hasAction whether the associated tooltip contains an action.
  * @param content the composable that the tooltip will anchor to.
  */
@@ -248,7 +311,7 @@ fun TooltipBox(
     @Suppress("DEPRECATION")
     val transition = updateTransition(state.transition, label = "tooltip transition")
     val anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
-    val scope = remember { TooltipScopeImpl { anchorBounds.value } }
+    val scope = remember { TooltipScopeImpl({ anchorBounds.value }, positionProvider) }
 
     val wrappedContent: @Composable () -> Unit = {
         Box(modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }) { content() }
@@ -287,35 +350,30 @@ sealed interface TooltipScope {
      * the caret pointing to the anchor content.
      */
     fun MeasureScope.obtainAnchorBounds(): LayoutCoordinates?
+
+    /**
+     * Used to obtain the [PopupPositionProvider] used. This can be used to help draw the caret
+     * pointing to the anchor content.
+     */
+    fun obtainPositionProvider(): PopupPositionProvider
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-internal class TooltipScopeImpl(val getAnchorBounds: () -> LayoutCoordinates?) : TooltipScope {
+internal class TooltipScopeImpl(
+    val getAnchorBounds: () -> LayoutCoordinates?,
+    val positionProvider: PopupPositionProvider,
+) : TooltipScope {
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     override fun Modifier.drawCaret(
         draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
     ): Modifier = this.drawWithCache { draw(getAnchorBounds()) }
 
     override fun MeasureScope.obtainAnchorBounds(): LayoutCoordinates? = getAnchorBounds()
+
+    override fun obtainPositionProvider(): PopupPositionProvider = positionProvider
 }
 
-/**
- * Plain tooltip that provides a descriptive message.
- *
- * Usually used with [TooltipBox].
- *
- * @param modifier the [Modifier] to be applied to the tooltip.
- * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
- *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
- *   in Dp.Unspecified for this parameter if no caret is desired.
- * @param maxWidth the maximum width for the plain tooltip
- * @param shape the [Shape] that should be applied to the tooltip container.
- * @param contentColor [Color] that will be applied to the tooltip's content.
- * @param containerColor [Color] that will be applied to the tooltip's container.
- * @param tonalElevation the tonal elevation of the tooltip.
- * @param shadowElevation the shadow elevation of the tooltip.
- * @param content the composable that will be used to populate the tooltip's content.
- */
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 @ExperimentalMaterial3Api
 fun TooltipScope.PlainTooltip(
@@ -328,25 +386,76 @@ fun TooltipScope.PlainTooltip(
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 0.dp,
     content: @Composable () -> Unit,
+) =
+    PlainTooltip(
+        modifier,
+        TooltipDefaults.caretShape(caretSize),
+        maxWidth,
+        shape,
+        contentColor,
+        containerColor,
+        tonalElevation,
+        shadowElevation,
+        content,
+    )
+
+/**
+ * Plain tooltip that provides a descriptive message.
+ *
+ * Usually used with [TooltipBox].
+ *
+ * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param caretShape [shape] for the caret of the tooltip. If a default caret is desired with a
+ *   specific dimension please use [TooltipDefaults.caretShape]. To see the default dimensions
+ *   please see [TooltipDefaults.caretSize]. If no caret is desired, please pass in null.
+ * @param maxWidth the maximum width for the plain tooltip
+ * @param shape the [Shape] that should be applied to the tooltip container.
+ * @param contentColor [Color] that will be applied to the tooltip's content.
+ * @param containerColor [Color] that will be applied to the tooltip's container.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
+ * @param content the composable that will be used to populate the tooltip's content.
+ */
+@Composable
+@ExperimentalMaterial3Api
+fun TooltipScope.PlainTooltip(
+    modifier: Modifier = Modifier,
+    caretShape: (Shape)? = null,
+    maxWidth: Dp = TooltipDefaults.plainTooltipMaxWidth,
+    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
+    contentColor: Color = TooltipDefaults.plainTooltipContentColor,
+    containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
+    content: @Composable () -> Unit,
 ) {
-    val caretPath = remember { mutableStateOf(Path()) }
-    val drawCaretModifier =
-        if (caretSize.isSpecified) {
-            val density = LocalDensity.current
-            val windowContainerWidthInPx = windowContainerWidthInPx()
+    val tooltipShape: Shape
+    val tooltipModifier: Modifier
+    if (caretShape != null) {
+        val transformationMatrix = remember { mutableStateOf(Matrix()) }
+        val density = LocalDensity.current
+        val windowContainerSize = LocalWindowInfo.current.containerSize
+        tooltipModifier =
             Modifier.layoutCaret(
-                    caretPath,
+                    transformationMatrix,
                     density,
-                    windowContainerWidthInPx,
-                    caretSize,
+                    windowContainerSize,
                     { obtainAnchorBounds() },
+                    obtainPositionProvider(),
                 )
                 .then(modifier)
-        } else modifier
-    val tooltipCaretShape = remember(shape) { TooltipCaretShape(shape, caretPath) }
+        tooltipShape =
+            remember(shape, caretShape) {
+                TooltipCaretShape(transformationMatrix, shape, caretShape)
+            }
+    } else {
+        tooltipShape = shape
+        tooltipModifier = modifier
+    }
+
     Surface(
-        modifier = drawCaretModifier,
-        shape = tooltipCaretShape,
+        modifier = tooltipModifier,
+        shape = tooltipShape,
         color = containerColor,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
@@ -371,25 +480,7 @@ fun TooltipScope.PlainTooltip(
     }
 }
 
-/**
- * Rich text tooltip that allows the user to pass in a title, text, and action. Tooltips are used to
- * provide a descriptive message.
- *
- * Usually used with [TooltipBox]
- *
- * @param modifier the [Modifier] to be applied to the tooltip.
- * @param title An optional title for the tooltip.
- * @param action An optional action for the tooltip.
- * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
- *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
- *   in Dp.Unspecified for this parameter if no caret is desired.
- * @param maxWidth the maximum width for the rich tooltip
- * @param shape the [Shape] that should be applied to the tooltip container.
- * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
- * @param tonalElevation the tonal elevation of the tooltip.
- * @param shadowElevation the shadow elevation of the tooltip.
- * @param text the composable that will be used to populate the rich tooltip's text.
- */
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 @ExperimentalMaterial3Api
 fun TooltipScope.RichTooltip(
@@ -403,30 +494,85 @@ fun TooltipScope.RichTooltip(
     tonalElevation: Dp = ElevationTokens.Level0,
     shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     text: @Composable () -> Unit,
+) =
+    RichTooltip(
+        modifier,
+        title,
+        action,
+        TooltipDefaults.caretShape(caretSize),
+        maxWidth,
+        shape,
+        colors,
+        tonalElevation,
+        shadowElevation,
+        text,
+    )
+
+/**
+ * Rich text tooltip that allows the user to pass in a title, text, and action. Tooltips are used to
+ * provide a descriptive message.
+ *
+ * Usually used with [TooltipBox]
+ *
+ * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param title An optional title for the tooltip.
+ * @param action An optional action for the tooltip.
+ * @param caretShape [shape] for the caret of the tooltip. If a default caret is desired with a
+ *   specific dimension please use [TooltipDefaults.caretShape]. To see the default dimensions
+ *   please see [TooltipDefaults.caretSize]. If no caret is desired, please pass in null.
+ * @param maxWidth the maximum width for the plain tooltip
+ * @param shape the [Shape] that should be applied to the tooltip container.
+ * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
+ * @param text the composable that will be used to populate the rich tooltip's text.
+ */
+@Composable
+@ExperimentalMaterial3Api
+fun TooltipScope.RichTooltip(
+    modifier: Modifier = Modifier,
+    title: (@Composable () -> Unit)? = null,
+    action: (@Composable () -> Unit)? = null,
+    caretShape: (Shape)? = null,
+    maxWidth: Dp = TooltipDefaults.richTooltipMaxWidth,
+    shape: Shape = TooltipDefaults.richTooltipContainerShape,
+    colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
+    tonalElevation: Dp = ElevationTokens.Level0,
+    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
+    text: @Composable () -> Unit,
 ) {
-    val caretPath = remember { mutableStateOf(Path()) }
-    val drawCaretModifier =
-        if (caretSize.isSpecified) {
-            val density = LocalDensity.current
-            val windowContainerWidthInPx = windowContainerWidthInPx()
+    val tooltipShape: Shape
+    val tooltipModifier: Modifier
+    if (caretShape != null) {
+        val transformationMatrix = remember { mutableStateOf(Matrix()) }
+        val density = LocalDensity.current
+        val windowContainerSize = LocalWindowInfo.current.containerSize
+        tooltipModifier =
             Modifier.layoutCaret(
-                    caretPath,
+                    transformationMatrix,
                     density,
-                    windowContainerWidthInPx,
-                    caretSize,
+                    windowContainerSize,
                     { obtainAnchorBounds() },
+                    obtainPositionProvider(),
                 )
                 .then(modifier)
-        } else modifier
-    val tooltipCaretShape = remember(shape) { TooltipCaretShape(shape, caretPath) }
+        tooltipShape =
+            remember(shape, caretShape) {
+                TooltipCaretShape(transformationMatrix, shape, caretShape)
+            }
+    } else {
+        tooltipShape = shape
+        tooltipModifier = modifier
+    }
+
     Surface(
         modifier =
-            drawCaretModifier.sizeIn(
+            tooltipModifier.sizeIn(
                 minWidth = TooltipMinWidth,
                 maxWidth = maxWidth,
                 minHeight = TooltipMinHeight,
             ),
-        shape = tooltipCaretShape,
+        shape = tooltipShape,
         color = colors.containerColor,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
@@ -496,6 +642,17 @@ object TooltipDefaults {
 
     /** The default maximum width for rich tooltips. */
     val richTooltipMaxWidth: Dp = 320.dp
+
+    /** The default caret shape used for tooltips and is [TooltipDefaults.caretSize] dimensions. */
+    fun caretShape() = DefaultCaretShape
+
+    /**
+     * The caret shape used for tooltips.
+     *
+     * @param caretSize [DpSize] used to draw the caret shape
+     */
+    fun caretShape(caretSize: DpSize = TooltipDefaults.caretSize): Shape =
+        DefaultTooltipCaretShape(caretSize)
 
     /**
      * Method to create a [RichTooltipColors] for [RichTooltip] using [RichTooltipTokens] to obtain
@@ -627,6 +784,16 @@ object TooltipDefaults {
      *
      * @param spacingBetweenTooltipAndAnchor the spacing between the tooltip and the anchor content.
      */
+    @Deprecated(
+        "Deprecated in favor of rememberTooltipPositionProvider API that " +
+            "takes a preferred positioning. Please use rememberTooltipPositionProvider with " +
+            "TooltipAnchorPosition.Above if this same behavior is desired.",
+        replaceWith =
+            ReplaceWith(
+                "rememberTooltipPositionProvider(TooltipAnchorPosition.ABOVE, spacingBetweenTooltipAndAnchor)"
+            ),
+        level = DeprecationLevel.WARNING,
+    )
     @Composable
     fun rememberTooltipPositionProvider(
         spacingBetweenTooltipAndAnchor: Dp = SpacingBetweenTooltipAndAnchor
@@ -667,6 +834,28 @@ object TooltipDefaults {
             }
         }
     }
+
+    /**
+     * [PopupPositionProvider] that should be used with either [RichTooltip] or [PlainTooltip]. It
+     * correctly positions the tooltip in respect to the anchor content.
+     *
+     * @param positioning [TooltipAnchorPosition] that determines where the tooltip is placed
+     *   relative to the anchor.
+     * @param spacingBetweenTooltipAndAnchor the spacing between the tooltip and the anchor content.
+     */
+    @Composable
+    fun rememberTooltipPositionProvider(
+        positioning: TooltipAnchorPosition,
+        spacingBetweenTooltipAndAnchor: Dp = SpacingBetweenTooltipAndAnchor,
+    ): PopupPositionProvider {
+        val tooltipAnchorSpacing =
+            with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
+        return remember(tooltipAnchorSpacing, positioning) {
+            TooltipPositionProviderImpl(positioning, tooltipAnchorSpacing)
+        }
+    }
+
+    internal val DefaultCaretShape = DefaultTooltipCaretShape(caretSize)
 }
 
 @Stable
@@ -713,6 +902,42 @@ class RichTooltipColors(
         result = 31 * result + titleContentColor.hashCode()
         result = 31 * result + actionContentColor.hashCode()
         return result
+    }
+}
+
+@JvmInline
+@ExperimentalMaterial3Api
+value class TooltipAnchorPosition private constructor(private val value: Int) {
+    override fun toString(): String {
+        return when (this) {
+            Above -> "Above"
+            Below -> "Below"
+            Left -> "Left"
+            Right -> "Right"
+            Start -> "Start"
+            End -> "End"
+            else -> "Invalid"
+        }
+    }
+
+    companion object {
+        /** Places the tooltip above the anchor */
+        val Above = TooltipAnchorPosition(1)
+
+        /** Places the tooltip below the anchor */
+        val Below = TooltipAnchorPosition(2)
+
+        /** Places the tooltip on the left of the anchor */
+        val Left = TooltipAnchorPosition(3)
+
+        /** Places the tooltip on the right of the anchor */
+        val Right = TooltipAnchorPosition(4)
+
+        /** Places the tooltip at the start of the anchor */
+        val Start = TooltipAnchorPosition(5)
+
+        /** Places the tooltip at the end of the anchor */
+        val End = TooltipAnchorPosition(6)
     }
 }
 
@@ -768,6 +993,160 @@ fun TooltipState(
     )
 
 @OptIn(ExperimentalMaterial3Api::class)
+private class TooltipPositionProviderImpl(
+    val type: TooltipAnchorPosition,
+    val tooltipAnchorSpacing: Int,
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        return when (type) {
+            TooltipAnchorPosition.Left -> leftPositioning(anchorBounds, popupContentSize)
+            TooltipAnchorPosition.Right ->
+                rightPositioning(anchorBounds, popupContentSize, windowSize)
+            TooltipAnchorPosition.Above ->
+                abovePositioning(anchorBounds, popupContentSize, windowSize)
+            TooltipAnchorPosition.Below ->
+                belowPositioning(anchorBounds, popupContentSize, windowSize)
+            TooltipAnchorPosition.Start ->
+                startPositioning(layoutDirection, anchorBounds, popupContentSize, windowSize)
+            TooltipAnchorPosition.End ->
+                endPositioning(layoutDirection, anchorBounds, popupContentSize, windowSize)
+            else -> abovePositioning(anchorBounds, popupContentSize, windowSize)
+        }
+    }
+
+    fun leftPositioning(anchorBounds: IntRect, popupContentSize: IntSize): IntOffset {
+        // Horizontal alignment preference: left -> right
+        // Vertical preference: center
+
+        // Tooltip prefers to be to the left of the anchor
+        var x = anchorBounds.left - (popupContentSize.width + tooltipAnchorSpacing)
+
+        if (x < 0) {
+            // Flip the tooltip to be on the right if
+            // it collides with the left side of the screen
+            x = anchorBounds.right + tooltipAnchorSpacing
+        }
+
+        // We vertically center the tooltip with the anchor
+        var y = (anchorBounds.top + anchorBounds.bottom - popupContentSize.height) / 2
+        return IntOffset(x, y)
+    }
+
+    fun rightPositioning(
+        anchorBounds: IntRect,
+        popupContentSize: IntSize,
+        windowSize: IntSize,
+    ): IntOffset {
+        // Horizontal alignment preference: right -> left
+        // Vertical preference: center
+
+        // Tooltip prefers to be to the right of the anchor
+        var x = anchorBounds.right + tooltipAnchorSpacing
+
+        if (x + popupContentSize.width > windowSize.width) {
+            // Flip the tooltip to be on the left if
+            // it collides with the right side of the screen
+            x = anchorBounds.left - (popupContentSize.width + tooltipAnchorSpacing)
+        }
+
+        // We vertically center the tooltip with the anchor
+        var y = (anchorBounds.top + anchorBounds.bottom - popupContentSize.height) / 2
+        return IntOffset(x, y)
+    }
+
+    fun abovePositioning(
+        anchorBounds: IntRect,
+        popupContentSize: IntSize,
+        windowSize: IntSize,
+    ): IntOffset {
+        // Horizontal alignment preference: middle -> start -> end
+        // Vertical preference: above -> below
+
+        // Tooltip prefers to be center aligned horizontally.
+        var x = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+
+        if (x < 0) {
+            // Make tooltip start aligned if colliding with the
+            // left side of the screen
+            x = anchorBounds.left
+        } else if (x + popupContentSize.width > windowSize.width) {
+            // Make tooltip end aligned if colliding with the
+            // right side of the screen
+            x = anchorBounds.right - popupContentSize.width
+        }
+
+        // Tooltip prefers to be above the anchor,
+        // but if this causes the tooltip to overlap with the anchor
+        // then we place it below the anchor
+        var y = anchorBounds.top - popupContentSize.height - tooltipAnchorSpacing
+        if (y < 0) y = anchorBounds.bottom + tooltipAnchorSpacing
+        return IntOffset(x, y)
+    }
+
+    fun belowPositioning(
+        anchorBounds: IntRect,
+        popupContentSize: IntSize,
+        windowSize: IntSize,
+    ): IntOffset {
+        // Horizontal alignment preference: middle -> start -> end
+        // Vertical preference: below -> above
+
+        // Tooltip prefers to be center aligned horizontally.
+        var x = anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+
+        if (x < 0) {
+            // Make tooltip start aligned if colliding with the
+            // left side of the screen
+            x = anchorBounds.left
+        } else if (x + popupContentSize.width > windowSize.width) {
+            // Make tooltip end aligned if colliding with the
+            // right side of the screen
+            x = anchorBounds.right - popupContentSize.width
+        }
+
+        // Tooltip prefers to be below the anchor,
+        // but if this causes the tooltip to overlap with the anchor
+        // then we place it above the anchor
+        var y = anchorBounds.bottom + tooltipAnchorSpacing
+        if (y + popupContentSize.height > windowSize.height) {
+            y = anchorBounds.top - popupContentSize.height - tooltipAnchorSpacing
+        }
+        return IntOffset(x, y)
+    }
+
+    fun startPositioning(
+        layoutDirection: LayoutDirection,
+        anchorBounds: IntRect,
+        popupContentSize: IntSize,
+        windowSize: IntSize,
+    ): IntOffset {
+        return if (layoutDirection == LayoutDirection.Ltr) {
+            leftPositioning(anchorBounds, popupContentSize)
+        } else {
+            rightPositioning(anchorBounds, popupContentSize, windowSize)
+        }
+    }
+
+    fun endPositioning(
+        layoutDirection: LayoutDirection,
+        anchorBounds: IntRect,
+        popupContentSize: IntSize,
+        windowSize: IntSize,
+    ): IntOffset {
+        return if (layoutDirection == LayoutDirection.Ltr) {
+            rightPositioning(anchorBounds, popupContentSize, windowSize)
+        } else {
+            leftPositioning(anchorBounds, popupContentSize)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Stable
 private class TooltipStateImpl(
     initialIsVisible: Boolean,
@@ -818,6 +1197,9 @@ private class TooltipStateImpl(
     /** Dismiss the tooltip associated with this [TooltipState] if it's currently being shown. */
     override fun dismiss() {
         transition.targetState = false
+        if (isPersistent) {
+            job?.cancel()
+        }
     }
 
     /** Cleans up [mutatorMutex] when the tooltip associated with this state leaves Composition. */
@@ -933,77 +1315,295 @@ internal fun caretX(tooltipWidth: Float, screenWidthPx: Int, anchorBounds: Rect)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 private fun Modifier.layoutCaret(
-    caretPath: MutableState<Path>,
+    transformationMatrix: MutableState<Matrix>,
     density: Density,
-    windowContainerWidthInPx: Int,
-    caretSize: DpSize,
+    windowContainerSize: IntSize,
     getAnchorLayoutCoordinates: MeasureScope.() -> LayoutCoordinates?,
+    positionProvider: PopupPositionProvider,
 ): Modifier =
     this.layout { measurables, constraints ->
         val placeable = measurables.measure(constraints)
         val width = placeable.width
         val height = placeable.height
+        val windowContainerWidthInPx = windowContainerSize.width
+        val windowContainerHeightInPx = windowContainerSize.height
         val tooltipWidth = width.toFloat()
         val tooltipHeight = height.toFloat()
         val anchorLayoutCoordinates = getAnchorLayoutCoordinates()
 
-        val path = Path()
-
         if (anchorLayoutCoordinates != null) {
-            val caretHeightPx: Int
-            val caretWidthPx: Int
             val screenWidthPx: Int
             val tooltipAnchorSpacing: Int
             with(density) {
-                caretHeightPx = caretSize.height.roundToPx()
-                caretWidthPx = caretSize.width.roundToPx()
                 screenWidthPx = windowContainerWidthInPx
                 tooltipAnchorSpacing = SpacingBetweenTooltipAndAnchor.roundToPx()
             }
             val anchorBounds = anchorLayoutCoordinates.boundsInWindow()
             val anchorTop = anchorBounds.top
-            val isCaretTop = anchorTop - tooltipHeight - tooltipAnchorSpacing < 0
+            val anchorBottom = anchorBounds.bottom
+            val anchorRight = anchorBounds.right
+            val anchorLeft = anchorBounds.left
             val tooltipWidth: Float = tooltipWidth
             val tooltipHeight: Float = tooltipHeight
             val caretY =
-                if (isCaretTop) {
-                    0f
+                if (positionProvider is TooltipPositionProviderImpl) {
+                    when (positionProvider.type) {
+                        TooltipAnchorPosition.Left,
+                        TooltipAnchorPosition.Right,
+                        TooltipAnchorPosition.Start,
+                        TooltipAnchorPosition.End -> {
+                            tooltipHeight / 2
+                        }
+                        TooltipAnchorPosition.Above -> {
+                            if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
+                                0f
+                            } else {
+                                tooltipHeight
+                            }
+                        }
+                        TooltipAnchorPosition.Below -> {
+                            if (
+                                anchorBottom + tooltipHeight + tooltipAnchorSpacing >
+                                    windowContainerHeightInPx
+                            ) {
+                                tooltipHeight
+                            } else {
+                                0f
+                            }
+                        }
+                        else -> {
+                            if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
+                                0f
+                            } else {
+                                tooltipHeight
+                            }
+                        }
+                    }
                 } else {
-                    tooltipHeight
+                    // If a custom position provider is given
+                    // we treat it like AbovePositionProvider.
+                    if (anchorTop - tooltipHeight - tooltipAnchorSpacing < 0) {
+                        0f
+                    } else {
+                        tooltipHeight
+                    }
                 }
 
-            val position = Offset(x = caretX(tooltipWidth, screenWidthPx, anchorBounds), y = caretY)
+            val position =
+                if (positionProvider is TooltipPositionProviderImpl) {
+                    when (positionProvider.type) {
+                        TooltipAnchorPosition.Left -> {
+                            val caretX =
+                                if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                                    // We are placing the tooltip to the right of the anchor
+                                    0f
+                                } else {
+                                    tooltipWidth
+                                }
+                            Offset(x = caretX, y = caretY)
+                        }
+                        TooltipAnchorPosition.Right -> {
+                            val caretX =
+                                if (
+                                    anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                        windowContainerWidthInPx
+                                ) {
+                                    // We are placing the tooltip to the left of the anchor
+                                    tooltipWidth
+                                } else {
+                                    0f
+                                }
+                            Offset(x = caretX, y = caretY)
+                        }
+                        TooltipAnchorPosition.Start -> {
+                            val caretX =
+                                if (layoutDirection == LayoutDirection.Ltr) {
+                                    if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                                        // We are placing the tooltip to the right of the anchor
+                                        0f
+                                    } else {
+                                        tooltipWidth
+                                    }
+                                } else {
+                                    if (
+                                        anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                            windowContainerWidthInPx
+                                    ) {
+                                        // We are placing the tooltip to the left of the anchor
+                                        tooltipWidth
+                                    } else {
+                                        0f
+                                    }
+                                }
+                            Offset(x = caretX, y = caretY)
+                        }
+                        TooltipAnchorPosition.End -> {
+                            val caretX =
+                                if (layoutDirection == LayoutDirection.Ltr) {
+                                    if (
+                                        anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                            windowContainerWidthInPx
+                                    ) {
+                                        // We are placing the tooltip to the left of the anchor
+                                        tooltipWidth
+                                    } else {
+                                        0f
+                                    }
+                                } else {
+                                    if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                                        // We are placing the tooltip to the right of the anchor
+                                        0f
+                                    } else {
+                                        tooltipWidth
+                                    }
+                                }
+                            Offset(x = caretX, y = caretY)
+                        }
+                        else -> {
+                            Offset(
+                                x = caretX(tooltipWidth, screenWidthPx, anchorBounds),
+                                y = caretY,
+                            )
+                        }
+                    }
+                } else {
+                    Offset(x = caretX(tooltipWidth, screenWidthPx, anchorBounds), y = caretY)
+                }
 
-            if (isCaretTop) {
-                path.apply {
-                    moveTo(x = position.x, y = position.y)
-                    lineTo(x = position.x + caretWidthPx / 2, y = position.y)
-                    lineTo(x = position.x, y = position.y - caretHeightPx)
-                    lineTo(x = position.x - caretWidthPx / 2, y = position.y)
-                    close()
+            // Translate matrix to position
+            val matrix = Matrix()
+            matrix.translate(x = position.x, y = position.y)
+
+            // We rotate matrix depending on positioning of the tooltip
+            if (positionProvider is TooltipPositionProviderImpl) {
+                when (positionProvider.type) {
+                    TooltipAnchorPosition.Left -> {
+                        // Need to rotate it about the z axis by 90 degrees
+                        if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                            // Tooltip is being placed to the right of the anchor
+                            matrix.rotateZ(90f)
+                        } else {
+                            matrix.rotateZ(-90f)
+                        }
+                    }
+                    TooltipAnchorPosition.Right -> {
+                        // Need to rotate it about the z axis by 90 degrees
+                        if (
+                            anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                windowContainerWidthInPx
+                        ) {
+                            // Tooltip is being placed to the left of the anchor
+                            matrix.rotateZ(-90f)
+                        } else {
+                            matrix.rotateZ(90f)
+                        }
+                    }
+                    TooltipAnchorPosition.Start -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            // Need to rotate it about the z axis by 90 degrees
+                            if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                                // Tooltip is being placed to the right of the anchor
+                                matrix.rotateZ(90f)
+                            } else {
+                                matrix.rotateZ(-90f)
+                            }
+                        } else {
+                            // Need to rotate it about the z axis by 90 degrees
+                            if (
+                                anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                    windowContainerWidthInPx
+                            ) {
+                                // Tooltip is being placed to the left of the anchor
+                                matrix.rotateZ(-90f)
+                            } else {
+                                matrix.rotateZ(90f)
+                            }
+                        }
+                    }
+                    TooltipAnchorPosition.End -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            // Need to rotate it about the z axis by 90 degrees
+                            if (
+                                anchorRight + tooltipAnchorSpacing + tooltipWidth >
+                                    windowContainerWidthInPx
+                            ) {
+                                // Tooltip is being placed to the left of the anchor
+                                matrix.rotateZ(-90f)
+                            } else {
+                                matrix.rotateZ(90f)
+                            }
+                        } else {
+                            // Need to rotate it about the z axis by 90 degrees
+                            if (anchorLeft - tooltipAnchorSpacing - tooltipWidth < 0) {
+                                // Tooltip is being placed to the right of the anchor
+                                matrix.rotateZ(90f)
+                            } else {
+                                matrix.rotateZ(-90f)
+                            }
+                        }
+                    }
+                    else -> {
+                        if (caretY == 0f) {
+                            // caret needs to be placed above tooltip
+                            // Need to rotate it about the x axis by 180 degrees
+                            matrix.rotateX(180f)
+                        }
+                    }
                 }
             } else {
-                path.apply {
-                    moveTo(x = position.x, y = position.y)
-                    lineTo(x = position.x + caretWidthPx / 2, y = position.y)
-                    lineTo(x = position.x, y = position.y + caretHeightPx.toFloat())
-                    lineTo(x = position.x - caretWidthPx / 2, y = position.y)
-                    close()
+                if (caretY == 0f) {
+                    // caret needs to be placed above tooltip
+                    // Need to rotate it about the x axis by 180 degrees
+                    matrix.rotateX(180f)
                 }
             }
-
-            caretPath.value = path
+            transformationMatrix.value = matrix
         }
         layout(width, height) { placeable.place(0, 0) }
     }
 
+@ExperimentalMaterial3Api
+/**
+ * Default [Shape] of the caret used by tooltips.
+ *
+ * @param caretSize the size of the caret used
+ */
+class DefaultTooltipCaretShape(val caretSize: DpSize = TooltipDefaults.caretSize) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val caretPath = Path()
+        val caretWidthPx: Float
+        val caretHeightPx: Float
+        with(density) {
+            caretWidthPx = caretSize.width.toPx()
+            caretHeightPx = caretSize.height.toPx()
+        }
+
+        caretPath.apply {
+            moveTo(x = 0f, 0f)
+            lineTo(x = caretWidthPx / 2, y = 0f)
+            lineTo(x = 0f, y = caretHeightPx)
+            lineTo(x = -caretWidthPx / 2, y = 0f)
+            close()
+        }
+
+        return Outline.Generic(caretPath)
+    }
+}
+
 private class TooltipCaretShape(
+    private val transformationMatrix: MutableState<Matrix>,
     private val tooltipShape: Shape,
-    private val caretPath: MutableState<Path>,
+    private val caretShape: Shape,
 ) : Shape {
     val tooltipPath = Path()
     val combinedPath = Path()
+    val caretPath = Path()
 
     override fun createOutline(
         size: Size,
@@ -1012,8 +1612,10 @@ private class TooltipCaretShape(
     ): Outline {
         tooltipPath.reset()
         combinedPath.reset()
+        caretPath.reset()
 
         val tooltipOutline = tooltipShape.createOutline(size, layoutDirection, density)
+        val caretOutline = caretShape.createOutline(size, layoutDirection, density)
 
         when (tooltipOutline) {
             is Outline.Generic -> tooltipPath.addPath(tooltipOutline.path)
@@ -1021,17 +1623,20 @@ private class TooltipCaretShape(
             is Outline.Rectangle -> tooltipPath.addRect(tooltipOutline.rect)
         }
 
-        combinedPath.op(
-            path1 = tooltipPath,
-            path2 = caretPath.value,
-            operation = PathOperation.Union,
-        )
+        // Applies the given caret shape to the caret path that will be manipulated
+        when (caretOutline) {
+            is Outline.Generic -> caretPath.addPath(caretOutline.path)
+            is Outline.Rounded -> caretPath.addRoundRect(caretOutline.roundRect)
+            is Outline.Rectangle -> caretPath.addRect(caretOutline.rect)
+        }
+
+        caretPath.transform(transformationMatrix.value)
+
+        combinedPath.op(path1 = tooltipPath, path2 = caretPath, operation = PathOperation.Union)
 
         return Outline.Generic(combinedPath)
     }
 }
-
-@Composable internal expect fun windowContainerWidthInPx(): Int
 
 internal val SpacingBetweenTooltipAndAnchor = 4.dp
 internal val TooltipMinHeight = 24.dp
