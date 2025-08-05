@@ -102,7 +102,7 @@ internal class ComposeContainer(
 
     savedState: SavedState? = null,
 
-    private val layerType: LayerType = ComposeFeatureFlags.layerType,
+    private val layerType: LayerType = ComposeFeatureFlags.layerType.value,
     private val renderSettings: RenderSettings = RenderSettings.SkiaSurface(),
 ) : WindowFocusListener,
     WindowListener,

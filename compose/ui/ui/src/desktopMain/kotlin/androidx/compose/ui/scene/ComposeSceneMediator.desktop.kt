@@ -148,7 +148,8 @@ internal class ComposeSceneMediator(
      * @see ComposeFeatureFlags.useInteropBlending
      */
     private val useInteropBlending: Boolean
-        get() = ComposeFeatureFlags.useInteropBlending && skiaLayerComponent.interopBlendingSupported
+        get() = ComposeFeatureFlags.useInteropBlending.value &&
+            skiaLayerComponent.interopBlendingSupported
 
     /**
      * Adding any components below [contentComponent] makes our bridge non-transparent on macOS.

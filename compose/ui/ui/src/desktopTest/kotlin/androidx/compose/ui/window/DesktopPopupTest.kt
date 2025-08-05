@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -38,6 +40,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import java.awt.Window
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -253,5 +257,33 @@ class DesktopPopupTest {
             .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
+    }
+
+    @Test
+    fun nonFocusablePopup_withWindowLayerType_doesNotGrabFocus() {
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnWindow) {
+            runApplicationTest {
+                lateinit var window: Window
+                var showPopup by mutableStateOf(false)
+                launchTestWindowApplication {
+                    window = this.window
+                    Box(Modifier.size(100.dp))
+                    if (showPopup) {
+                        Popup(
+                            properties = PopupProperties(focusable = false)
+                        ) {
+                            Box(Modifier.size(50.dp))
+                        }
+                    }
+                }
+
+                awaitIdle()
+                assertTrue(window.isFocused)
+
+                showPopup = true
+                awaitIdle()
+                assertTrue(window.isFocused)
+            }
+        }
     }
 }

@@ -56,7 +56,7 @@ internal class ComposeWindowPanel(
         window = window,
         windowContainer = this,
         savedState = savedState,
-        layerType = ComposeFeatureFlags.layerType.let {
+        layerType = ComposeFeatureFlags.layerType.value.let {
             // LayerType.OnComponent may can only be used with rendering via Swing graphics,
             // but it's always disabled here. Using fallback instead of [check] to support
             // opening separate windows from [ComposePanel] with such layer type.

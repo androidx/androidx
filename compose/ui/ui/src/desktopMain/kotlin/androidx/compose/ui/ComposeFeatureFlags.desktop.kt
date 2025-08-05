@@ -54,7 +54,7 @@ internal object ComposeFeatureFlags {
      * The default value is `OnSameCanvas`, implying that new layers
      * (such as for [Popup] and [Dialog]) are created within the initial canvas.
      */
-    val layerType: LayerType by lazy {
+    val layerType = FeatureFlag {
         LayerType.parse(System.getProperty("compose.layers.type"))
     }
 
@@ -71,7 +71,7 @@ internal object ComposeFeatureFlags {
      *
      * @see androidx.compose.ui.awt.RenderSettings.SwingGraphics
      */
-    val useSwingGraphicsInComposePanel: Boolean by lazy {
+    val useSwingGraphicsInComposePanel = FeatureFlag {
         System.getProperty("compose.swing.render.on.graphics").toBoolean()
     }
 
@@ -85,7 +85,24 @@ internal object ComposeFeatureFlags {
      * - On macOS, render and event dispatching order differs. It means that interop view might
      *   catch the mouse event even if visually it renders below Compose content
      */
-    val useInteropBlending: Boolean by lazy {
+    val useInteropBlending = FeatureFlag {
         System.getProperty("compose.interop.blending").toBoolean()
+    }
+}
+
+
+internal class FeatureFlag<T: Any>(defaultValueGetter: () -> T) {
+    private val defaultValue: T by lazy(defaultValueGetter)
+    private var override: T? = null
+    val value: T
+        get() = override ?: defaultValue
+
+    fun withOverride(value: T, block: () -> Unit) {
+        this.override = value
+        try {
+            block()
+        } finally {
+            this.override = null
+        }
     }
 }
