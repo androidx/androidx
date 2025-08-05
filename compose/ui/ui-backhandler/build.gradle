@@ -46,7 +46,7 @@ kotlin {
                 implementation(project(":annotation:annotation"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
             }
         }
 

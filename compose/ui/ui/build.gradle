@@ -170,11 +170,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api project(":compose:ui:ui-text")
                 api project(":compose:ui:ui-unit")
                 api project(":compose:ui:ui-util")
-                api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.1")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.1")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
+                api(project(":lifecycle:lifecycle-common"))
+                implementation(project(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
+                implementation(project(":lifecycle:lifecycle-viewmodel"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             }
 
             androidMain.dependencies {
@@ -219,13 +219,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(notMobileMain)
                 dependencies {
                     implementation(libs.kotlinStdlibJdk8)
-
-                    // TODO revert after https://youtrack.jetbrains.com/issue/CMP-8582/androidx.lifecyclelifecycle-viewmodel-savedstate-desktop2.9.1-depend-on-an-Android-artifact-in-pom is fixed and the dependency is upgraded
-                    // lifecycle-viewmodel-savedstate-desktop:2.9.1 is broken for Maven projects.
-                    // See https://youtrack.jetbrains.com/issue/CMP-8577/Maven-project-doesnt-work-with-1.9.0-alpha03
-                    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate-desktop:2.9.1") {
-                        exclude group: "androidx.lifecycle", module: "lifecycle-viewmodel"
-                    }
                 }
             }
 

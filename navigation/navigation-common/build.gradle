@@ -59,10 +59,10 @@ androidXMultiplatform {
             dependencies {
                 api "androidx.annotation:annotation:1.9.1"
                 api "androidx.collection:collection:1.5.0"
-                api "org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.1"
-                api "org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.1"
-                api "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.1"
-                api "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1"
+                api project(":lifecycle:lifecycle-common")
+                api project(":lifecycle:lifecycle-runtime")
+                api project(":lifecycle:lifecycle-viewmodel")
+                api project(":lifecycle:lifecycle-viewmodel-savedstate")
                 api project(":savedstate:savedstate")
 
                 api(libs.kotlinStdlib)
