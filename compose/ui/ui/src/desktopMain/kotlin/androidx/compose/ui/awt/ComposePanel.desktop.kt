@@ -168,7 +168,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     override fun getPreferredSize(): Dimension? = if (isPreferredSizeSet) {
         super.getPreferredSize()
     } else  {
-        _composeContainer?.preferredSize
+        _composeContainer?.preferredSize ?: Dimension(0, 0)
     }
 
     /**

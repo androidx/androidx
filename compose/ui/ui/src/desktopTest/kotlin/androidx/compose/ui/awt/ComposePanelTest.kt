@@ -54,6 +54,7 @@ import javax.swing.JPanel
 import junit.framework.TestCase.assertTrue
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -544,5 +545,15 @@ class ComposePanelTest {
         } finally {
             window.dispose()
         }
+    }
+
+    @Test
+    fun `ComposePanel returns non-null preferred size before added to hierarchy`() = runApplicationTest {
+        val composePanel = ComposePanel()
+        composePanel.setContent {
+            Text("Hello")
+        }
+
+        assertNotNull(composePanel.preferredSize)
     }
 }
