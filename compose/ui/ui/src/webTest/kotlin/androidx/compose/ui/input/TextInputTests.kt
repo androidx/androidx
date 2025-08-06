@@ -39,6 +39,7 @@ import androidx.compose.ui.events.mobileKeyDown
 import androidx.compose.ui.events.mobileKeyUp
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlin.math.absoluteValue
@@ -52,20 +53,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import org.w3c.dom.DataTransfer
 import org.w3c.dom.HTMLTextAreaElement
-import org.w3c.dom.events.CompositionEvent
-import org.w3c.dom.events.CompositionEventInit
+import org.w3c.dom.clipboard.ClipboardEvent
+import org.w3c.dom.clipboard.ClipboardEventInit
 import org.w3c.dom.events.Event
 
 abstract class TextInputTests : OnCanvasTests {
 
-    internal abstract suspend fun createTestInputState(): TestInputState
+    internal abstract suspend fun createTestInputState(
+        initialText: String = "",
+        initialSelection: TextRange = TextRange(initialText.length)
+    ): TestInputState
 
     internal fun currentHtmlInput() = getShadowRoot().querySelector("textarea") as HTMLTextAreaElement
 
-    internal suspend fun WebApplicationScope.createApplicationWithHolder(): TestInputState {
+    internal suspend fun WebApplicationScope.createApplicationWithHolder(
+        initialText: String = "",
+        initialSelection: TextRange = TextRange(initialText.length)
+    ): TestInputState {
         val focusRequester = FocusRequester()
-        val textFieldStateHolder = createTestInputState()
+        val textFieldStateHolder = createTestInputState(initialText, initialSelection)
 
         createComposeWindow {
             textFieldStateHolder.createBasicTextField(focusRequester)
@@ -457,6 +465,45 @@ abstract class TextInputTests : OnCanvasTests {
 
         inputHolder2.awaitAndAssertTextEquals("step2")
     }
+
+    @Test
+    fun pasteEvent() = runApplicationTest {
+        val textFieldValue =  createApplicationWithHolder(initialText = "A ")
+        textFieldValue.awaitAndAssertTextEquals("A ")
+
+        sendToHtmlInput(
+            clipboardEvent(type = "paste").also {
+                it.clipboardData!!.setData("text/plain", "QWERTY")
+            }
+        )
+
+        textFieldValue.awaitAndAssertTextEquals("A QWERTY")
+    }
+
+    @Test
+    fun copyEvent() = runApplicationTest {
+        createApplicationWithHolder("HELLO", TextRange(1, 5))
+        awaitIdle()
+
+        val copyEvent = clipboardEvent(type = "copy")
+        sendToHtmlInput(copyEvent)
+        awaitIdle()
+
+        assertEquals("ELLO", copyEvent.clipboardData!!.getData("text/plain"))
+    }
+
+    @Test
+    fun cutEvent() = runApplicationTest {
+        val textFieldValue =  createApplicationWithHolder("HELLO", TextRange(1, 4))
+        awaitIdle()
+
+        val cutEvent = clipboardEvent(type = "cut")
+        sendToHtmlInput(cutEvent)
+        awaitIdle()
+
+        assertEquals("ELL", cutEvent.clipboardData!!.getData("text/plain"))
+        assertEquals("HO", textFieldValue.text)
+    }
 }
 
 class BasicTextFieldTests : TextInputTests() {
@@ -477,7 +524,13 @@ class BasicTextFieldTests : TextInputTests() {
         }
     }
 
-    override suspend fun createTestInputState(): TestInputState = TextFieldValueHolder(mutableStateOf(TextFieldValue()))
+    override suspend fun createTestInputState(
+        initialText: String,
+        initialSelection: TextRange
+    ): TestInputState = TextFieldValueHolder(
+        mutableStateOf(
+            value = TextFieldValue(text = initialText, selection = initialSelection))
+    )
 }
 
 class BasicTextFieldTests2 : TextInputTests() {
@@ -494,5 +547,13 @@ class BasicTextFieldTests2 : TextInputTests() {
         }
     }
 
-    override suspend fun createTestInputState(): TestInputState = TextFieldStateHolder(TextFieldState())
+    override suspend fun createTestInputState(
+        initialText: String,
+        initialSelection: TextRange
+    ): TestInputState = TextFieldStateHolder(TextFieldState(initialText, initialSelection))
 }
+
+// The default API doesn't work correctly on FF :(, so we do it manually
+private fun clipboardEvent(type: String): ClipboardEvent = js(""" 
+        new ClipboardEvent(type, { 'clipboardData': new DataTransfer() })
+    """)
