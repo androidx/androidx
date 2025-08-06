@@ -316,22 +316,20 @@ class AssertionsTest {
     @Test
     fun testAssertIsNotFocused() = runComposeUiTest {
         setContent {
-            setContent {
-                val focusRequester = remember { FocusRequester() }
-                Box(
-                    Modifier
-                        .testTag("tag1")
-                        .focusRequester(focusRequester)
-                        .focusable()
-                )
-                Box(
-                    Modifier
-                        .testTag("tag2")
-                        .focusable()
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
+            val focusRequester = remember { FocusRequester() }
+            Box(
+                Modifier
+                    .testTag("tag1")
+                    .focusRequester(focusRequester)
+                    .focusable()
+            )
+            Box(
+                Modifier
+                    .testTag("tag2")
+                    .focusable()
+            )
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
             }
         }
 
