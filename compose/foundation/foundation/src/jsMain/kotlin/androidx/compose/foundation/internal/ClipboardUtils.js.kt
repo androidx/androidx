@@ -58,10 +58,10 @@ internal actual fun ClipEntry?.hasText(): Boolean {
 }
 
 internal actual fun Clipboard.isReadSupported(): Boolean =
-    js("window.navigator.clipboard && window.navigator.clipboard.read")
+    js("Boolean(window.navigator.clipboard && window.navigator.clipboard.read)")
 
 internal actual fun Clipboard.isWriteSupported(): Boolean =
-    js("window.navigator.clipboard && (window.navigator.clipboard.write || window.navigator.clipboard.writeText)")
+    js("Boolean(window.navigator.clipboard && (window.navigator.clipboard.write || window.navigator.clipboard.writeText))")
 
 @Suppress("UNUSED_PARAMETER")
 private fun doesJsArrayContainValue(jsArray: Array<*>, value: Any): Boolean =
