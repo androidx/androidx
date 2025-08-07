@@ -77,6 +77,7 @@ def addMavenRepositories(RepositoryHandler handler) {
                 includeModule("com.android.tools", "r8")
             }
         }
+        handler.maven { url = "https://redirector.kotlinlang.org/maven/dev" }
     }
     // Ordering appears to be important: b/229733266
     def androidPluginRepoOverride = System.getenv("GRADLE_PLUGIN_REPO")
