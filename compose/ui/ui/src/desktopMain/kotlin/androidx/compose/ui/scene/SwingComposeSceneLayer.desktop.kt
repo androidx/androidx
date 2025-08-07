@@ -55,6 +55,10 @@ internal class SwingComposeSceneLayer(
             super.addNotify()
             mediator?.onComponentAttached()
             onUpdateBounds()
+
+            if (focusable) {
+                mediator?.contentComponent?.requestFocusInWindow()
+            }
         }
 
         override fun paint(g: Graphics) {
@@ -66,7 +70,6 @@ internal class SwingComposeSceneLayer(
         }
     }.also {
         it.layout = null
-        it.isFocusable = focusable
         it.isOpaque = false
         it.background = Color.Transparent.toAwtColor()
         it.size = Dimension(windowContainer.width, windowContainer.height)
@@ -88,7 +91,7 @@ internal class SwingComposeSceneLayer(
     override var focusable: Boolean = focusable
         set(value) {
             field = value
-            container.isFocusable = value
+            mediator?.contentComponent?.isFocusable = value
         }
 
     override var scrimColor: Color? = null
@@ -115,6 +118,7 @@ internal class SwingComposeSceneLayer(
         ).also {
             it.onWindowTransparencyChanged(true)
             it.contentComponent.size = container.size
+            it.contentComponent.isFocusable = focusable
         }
 
         // TODO: Currently it works only with offscreen rendering

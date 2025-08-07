@@ -97,7 +97,7 @@ internal class FeatureFlag<T: Any>(defaultValueGetter: () -> T) {
     val value: T
         get() = override ?: defaultValue
 
-    fun withOverride(value: T, block: () -> Unit) {
+    inline fun withOverride(value: T, block: () -> Unit) {
         this.override = value
         try {
             block()

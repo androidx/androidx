@@ -60,8 +60,8 @@ import androidx.compose.ui.unit.round
  * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button
  * on Android or escape key on desktop.
  * If true, pressing the back button will call onDismissRequest. Note that [focusable] must be
- * set to true in order to receive key events such as the back button - if the popup is not
- * focusable then this property does nothing.
+ * set to true to receive key events such as the back button - if the popup is not focusable then
+ * this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
  * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
@@ -106,9 +106,9 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
          * Temporary hack to skip unsupported arguments from Android source set.
          * Should be removed after upstreaming changes from JetBrains' fork.
          *
-         * After skip this unsupported argument, you must name all subsequent arguments.
+         * After skipping this unsupported argument, you must name all later arguments.
          */
-        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
+        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE", "UNUSED_PARAMETER")
         vararg unsupported: Nothing,
 
         clippingEnabled: Boolean,
@@ -159,7 +159,7 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
  * @param focusable Indicates if the popup can grab the focus.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
  * Return true to stop propagation of this event. If you return false, the key event will be
@@ -208,7 +208,7 @@ fun Popup(
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param popupPositionProvider Provides the screen position of the popup.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param focusable Indicates if the popup can grab the focus.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
@@ -264,7 +264,7 @@ fun Popup(
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param content The content to be displayed inside the popup.
  */
@@ -293,7 +293,7 @@ actual fun Popup(
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param popupPositionProvider Provides the screen position of the popup.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param content The content to be displayed inside the popup.
  */
@@ -328,7 +328,7 @@ actual fun Popup(
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
@@ -371,7 +371,7 @@ fun Popup(
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param popupPositionProvider Provides the screen position of the popup.
- * @param onDismissRequest Executes when the user clicks outside of the popup.
+ * @param onDismissRequest Executes when the user clicks outside the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].

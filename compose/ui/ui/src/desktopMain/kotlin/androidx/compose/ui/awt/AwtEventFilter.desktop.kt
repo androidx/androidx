@@ -39,23 +39,8 @@ internal interface AwtEventListener {
 internal class AwtEventListeners(
     private vararg val listeners: AwtEventListener
 ) : AwtEventListener {
-    override fun onMouseEvent(event: MouseEvent): Boolean {
-        for (listener in listeners) {
-            if (listener.onMouseEvent(event)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun onKeyEvent(event: KeyEvent): Boolean {
-        for (listener in listeners) {
-            if (listener.onKeyEvent(event)) {
-                return true
-            }
-        }
-        return false
-    }
+    override fun onMouseEvent(event: MouseEvent) = listeners.any { it.onMouseEvent(event) }
+    override fun onKeyEvent(event: KeyEvent) = listeners.any { it.onKeyEvent(event) }
 }
 
 internal open class AwtEventFilter : AwtEventListener {

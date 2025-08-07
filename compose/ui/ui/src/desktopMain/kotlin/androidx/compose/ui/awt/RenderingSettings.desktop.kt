@@ -34,16 +34,17 @@ sealed class RenderSettings {
      * Renders Compose content to a Swing provided offscreen buffer, with presentation controlled
      * by Swing.
      *
-     * This approach provides better integration with Swing components and prevents transitional 
-     * rendering issues when panels are being shown, hidden or resized. It also enables proper 
+     * This approach provides better integration with Swing components and prevents transitional
+     * rendering issues when panels are being shown, hidden or resized. It also enables proper
      * layering when combining Swing components and Compose panels.
      *
      * Note: This approach requires an additional copy from offscreen texture to Swing graphics
      * on each re-draw, which may result in some performance penalty (proportional to the size)
      * compared to [SkiaSurface].
      */
+    @Suppress("CanSealedSubClassBeObject")
     @ExperimentalComposeUiApi
-    class SwingGraphics: RenderSettings()
+    class SwingGraphics : RenderSettings()
 
     /**
      * Renders Compose content directly to a GPU surface for better performance.

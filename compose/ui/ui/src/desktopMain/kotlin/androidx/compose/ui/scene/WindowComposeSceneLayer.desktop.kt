@@ -79,6 +79,9 @@ internal class WindowComposeSceneLayer(
         override fun addNotify() {
             super.addNotify()
             mediator?.onComponentAttached()
+            if (focusable) {
+                mediator?.contentComponent?.requestFocusInWindow()
+            }
         }
     }.also {
         it.layout = null
@@ -99,6 +102,7 @@ internal class WindowComposeSceneLayer(
         set(value) {
             field = value
             layerWindow.focusableWindowState = value
+            mediator?.contentComponent?.isFocusable = value
         }
 
     override var scrimColor: Color? = null
@@ -121,6 +125,7 @@ internal class WindowComposeSceneLayer(
             it.onWindowTransparencyChanged(true)
             it.sceneBoundsInPx = boundsInPx
             it.contentComponent.size = windowContainer.size
+            it.contentComponent.isFocusable = focusable
         }
         onUpdateBounds()
 

@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.awt
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
@@ -29,18 +31,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.sendCharTypedEvents
+import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.ThrowUncaughtExceptionRule
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
 import androidx.savedstate.SavedState
@@ -556,4 +569,74 @@ class ComposePanelTest {
 
         assertNotNull(composePanel.preferredSize)
     }
+
+    @Test
+    fun focusablePopup_withComponentLayerType_inComposePanel_grabsFocus() {
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnComponent) {
+            ComposeFeatureFlags.useSwingGraphicsInComposePanel.withOverride(true) {
+                val window = JFrame()
+                try {
+                    runApplicationTest {
+                        var showPopup by mutableStateOf(false)
+                        var dismissPopupRequested = false
+                        val keyEventsOnParent = mutableListOf<KeyEvent>()
+
+                        val composePanel = ComposePanel()
+                        composePanel.setContent {
+                            val focusRequester = remember { FocusRequester() }
+                            Box(Modifier
+                                .size(100.dp)
+                                .background(Color.Yellow)
+                                .focusRequester(focusRequester)
+                                .focusable()
+                                .onKeyEvent {
+                                    keyEventsOnParent.add(it)
+                                }
+                            )
+                            LaunchedEffect(Unit) {
+                                focusRequester.requestFocus()
+                            }
+
+                            if (showPopup) {
+                                Popup(
+                                    properties = PopupProperties(
+                                        focusable = true,
+                                        dismissOnBackPress = true,
+                                    ),
+                                    onDismissRequest = {
+                                        dismissPopupRequested = true
+                                    }
+                                ) {
+                                    Box(Modifier.size(50.dp))
+                                }
+                            }
+                        }
+
+                        composePanel.windowContainer = window.layeredPane
+
+                        window.contentPane.add(composePanel, BorderLayout.CENTER)
+                        window.pack()
+                        window.isVisible = true
+                        composePanel.requestFocusInWindow()
+
+                        awaitIdle()
+                        window.sendCharTypedEvents('a')
+                        awaitIdle()
+                        assertTrue(keyEventsOnParent.isNotEmpty())
+
+                        keyEventsOnParent.clear()
+                        showPopup = true
+                        awaitIdle()
+                        window.sendKeyEvent(java.awt.event.KeyEvent.VK_ESCAPE)
+                        awaitIdle()
+                        assertTrue(keyEventsOnParent.isEmpty())
+                        assertTrue(dismissPopupRequested)
+                    }
+                } finally {
+                    window.dispose()
+                }
+            }
+        }
+    }
+
 }
