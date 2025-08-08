@@ -63,6 +63,10 @@ fun Dialog(
     content = content
 )
 
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced by DialogWindow with alwaysOnTop parameter",
+)
 @Composable
 fun DialogWindow(
     onCloseRequest: () -> Unit,
