@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 
@@ -67,12 +66,8 @@ public class FingerprintManagerCompat {
      */
     @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
     public boolean hasEnrolledFingerprints() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
-            return (fp != null) && Api23Impl.hasEnrolledFingerprints(fp);
-        } else {
-            return false;
-        }
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        return (fp != null) && Api23Impl.hasEnrolledFingerprints(fp);
     }
 
     /**
@@ -82,12 +77,8 @@ public class FingerprintManagerCompat {
      */
     @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
     public boolean isHardwareDetected() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
-            return (fp != null) && Api23Impl.isHardwareDetected(fp);
-        } else {
-            return false;
-        }
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        return (fp != null) && Api23Impl.isHardwareDetected(fp);
     }
 
     /**
@@ -136,32 +127,26 @@ public class FingerprintManagerCompat {
     public void authenticate(@Nullable CryptoObject crypto, int flags,
             @Nullable CancellationSignal cancel, @NonNull AuthenticationCallback callback,
             @Nullable Handler handler) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
-            if (fp != null) {
-                Api23Impl.authenticate(fp, wrapCryptoObject(crypto), cancel, flags,
-                        wrapCallback(callback), handler);
-            }
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        if (fp != null) {
+            Api23Impl.authenticate(fp, wrapCryptoObject(crypto), cancel, flags,
+                    wrapCallback(callback), handler);
         }
     }
 
-    @RequiresApi(23)
     private static @Nullable FingerprintManager getFingerprintManagerOrNull(
             @NonNull Context context) {
         return Api23Impl.getFingerprintManagerOrNull(context);
     }
 
-    @RequiresApi(23)
     private static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
         return Api23Impl.wrapCryptoObject(cryptoObject);
     }
 
-    @RequiresApi(23)
     static CryptoObject unwrapCryptoObject(FingerprintManager.CryptoObject cryptoObject) {
         return Api23Impl.unwrapCryptoObject(cryptoObject);
     }
 
-    @RequiresApi(23)
     private static FingerprintManager.AuthenticationCallback wrapCallback(
             final AuthenticationCallback callback) {
         return new FingerprintManager.AuthenticationCallback() {
@@ -292,7 +277,6 @@ public class FingerprintManagerCompat {
         public void onAuthenticationFailed() { }
     }
 
-    @RequiresApi(23)
     static class Api23Impl {
         private Api23Impl() {
             // This class is not instantiable.
@@ -324,7 +308,7 @@ public class FingerprintManagerCompat {
         public static FingerprintManager getFingerprintManagerOrNull(Context context) {
             if (Build.VERSION.SDK_INT == 23) {
                 return context.getSystemService(FingerprintManager.class);
-            } else if (Build.VERSION.SDK_INT > 23 && context.getPackageManager()
+            } else if (context.getPackageManager()
                     .hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
                 return context.getSystemService(FingerprintManager.class);
             } else {

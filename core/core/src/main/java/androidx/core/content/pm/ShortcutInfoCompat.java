@@ -171,7 +171,6 @@ public class ShortcutInfoCompat {
 
     /**
      */
-    @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     private PersistableBundle buildLegacyExtrasBundle() {
         if (mExtras == null) {

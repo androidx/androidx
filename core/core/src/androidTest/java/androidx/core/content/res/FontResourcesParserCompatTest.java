@@ -30,7 +30,6 @@ import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
-import android.os.Build;
 import android.util.Base64;
 
 import androidx.core.provider.FontRequest;
@@ -102,12 +101,6 @@ public class FontResourcesParserCompatTest {
 
     @Test
     public void testParseAndroidAttrs() throws XmlPullParserException, IOException {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
-            // The following tests are only expected to pass on v22+ devices. The android
-            // resources are stripped in older versions and hence won't be parsed.
-            return;
-        }
-
         @SuppressLint("ResourceType")
         XmlResourceParser parser = mResources.getXml(R.font.samplexmlfontforparsing2);
 

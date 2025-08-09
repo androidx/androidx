@@ -180,7 +180,6 @@ import java.util.Map;
  *     Represents files in the root of your app's external media area. The root path of this
  *     subdirectory is the same as the value returned by the first result of
  *     {@link Context#getExternalMediaDirs() Context.getExternalMediaDirs()}.
- *     <p><strong>Note:</strong> this directory is only available on API 21+ devices.</p>
  *     </li>
  * </ul>
  * <p>

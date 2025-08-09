@@ -21,15 +21,9 @@ import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableContainer;
-import android.graphics.drawable.InsetDrawable;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -38,19 +32,11 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * Helper for accessing features in {@link android.graphics.drawable.Drawable}.
  */
 public final class DrawableCompat {
-    private static final String TAG = "DrawableCompat";
-
-    private static Method sSetLayoutDirectionMethod;
-    private static boolean sSetLayoutDirectionMethodFetched;
-
-    private static Method sGetLayoutDirectionMethod;
-    private static boolean sGetLayoutDirectionMethodFetched;
 
     /**
      * Call {@link Drawable#jumpToCurrentState() Drawable.jumpToCurrentState()}.
@@ -200,38 +186,13 @@ public final class DrawableCompat {
 
     /**
      * Removes the color filter from the given drawable.
+     *
+     * @deprecated Call {@link Drawable#clearColorFilter()} directly.
      */
+    @Deprecated
     @SuppressWarnings("unused")
     public static void clearColorFilter(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            // We can use clearColorFilter() safely on M+
-            drawable.clearColorFilter();
-        } else {
-            drawable.clearColorFilter();
-
-            // API 21 + 22 have an issue where clearing a color filter on a DrawableContainer
-            // will not propagate to all of its children. To workaround this we unwrap the drawable
-            // to find any DrawableContainers, and then unwrap those to clear the filter on its
-            // children manually
-            if (drawable instanceof InsetDrawable) {
-                clearColorFilter(((InsetDrawable) drawable).getDrawable());
-            } else if (drawable instanceof WrappedDrawable) {
-                clearColorFilter(((WrappedDrawable) drawable).getWrappedDrawable());
-            } else if (drawable instanceof DrawableContainer) {
-                final DrawableContainer container = (DrawableContainer) drawable;
-                final DrawableContainer.DrawableContainerState state =
-                        (DrawableContainer.DrawableContainerState) container.getConstantState();
-                if (state != null) {
-                    Drawable child;
-                    for (int i = 0, count = state.getChildCount(); i < count; i++) {
-                        child = state.getChild(i);
-                        if (child != null) {
-                            clearColorFilter(child);
-                        }
-                    }
-                }
-            }
-        }
+        drawable.clearColorFilter();
     }
 
     /**
@@ -277,21 +238,16 @@ public final class DrawableCompat {
      *
      * @param drawable The Drawable to process
      * @return A drawable capable of being tinted across all API levels.
+     * @deprecated Call methods on {@link drawable} directly.
      *
      * @see #setTint(Drawable, int)
      * @see #setTintList(Drawable, ColorStateList)
      * @see #setTintMode(Drawable, PorterDuff.Mode)
      * @see #unwrap(Drawable)
      */
+    @Deprecated
     public static @NonNull Drawable wrap(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return drawable;
-        } else {
-            if (!(drawable instanceof TintAwareDrawable)) {
-                return new WrappedDrawableApi21(drawable);
-            }
-            return drawable;
-        }
+        return drawable;
     }
 
     /**
@@ -324,34 +280,12 @@ public final class DrawableCompat {
      * @return {@code true} if the layout direction change has caused the
      *         appearance of the drawable to change such that it needs to be
      *         re-drawn, {@code false} otherwise
-     * @see #getLayoutDirection(Drawable)
+     * @deprecated Call {@link Drawable#setLayoutDirection(int)} directly.
+     * @see Drawable#getLayoutDirection()
      */
+    @Deprecated
     public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.setLayoutDirection(drawable, layoutDirection);
-        } else {
-            if (!sSetLayoutDirectionMethodFetched) {
-                try {
-                    sSetLayoutDirectionMethod =
-                            Drawable.class.getDeclaredMethod("setLayoutDirection", int.class);
-                    sSetLayoutDirectionMethod.setAccessible(true);
-                } catch (NoSuchMethodException e) {
-                    Log.i(TAG, "Failed to retrieve setLayoutDirection(int) method", e);
-                }
-                sSetLayoutDirectionMethodFetched = true;
-            }
-
-            if (sSetLayoutDirectionMethod != null) {
-                try {
-                    sSetLayoutDirectionMethod.invoke(drawable, layoutDirection);
-                    return true;
-                } catch (Exception e) {
-                    Log.i(TAG, "Failed to invoke setLayoutDirection(int) via reflection", e);
-                    sSetLayoutDirectionMethod = null;
-                }
-            }
-            return false;
-        }
+        return drawable.setLayoutDirection(layoutDirection);
     }
 
     /**
@@ -359,95 +293,14 @@ public final class DrawableCompat {
      *
      * @return One of {@link ViewCompat#LAYOUT_DIRECTION_LTR},
      *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}
-     * @see #setLayoutDirection(Drawable, int)
+     * @deprecated Call {@link Drawable#getLayoutDirection()} directly.
+     * @see Drawable#setLayoutDirection(int)
      */
-    @SuppressWarnings("ConstantConditions")
+    @Deprecated
     public static int getLayoutDirection(@NonNull Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getLayoutDirection(drawable);
-        } else {
-            if (!sGetLayoutDirectionMethodFetched) {
-                try {
-                    sGetLayoutDirectionMethod =
-                            Drawable.class.getDeclaredMethod("getLayoutDirection");
-                    sGetLayoutDirectionMethod.setAccessible(true);
-                } catch (NoSuchMethodException e) {
-                    Log.i(TAG, "Failed to retrieve getLayoutDirection() method", e);
-                }
-                sGetLayoutDirectionMethodFetched = true;
-            }
-
-            if (sGetLayoutDirectionMethod != null) {
-                try {
-                    return (int) sGetLayoutDirectionMethod.invoke(drawable);
-                } catch (Exception e) {
-                    Log.i(TAG, "Failed to invoke getLayoutDirection() via reflection", e);
-                    sGetLayoutDirectionMethod = null;
-                }
-            }
-            return View.LAYOUT_DIRECTION_LTR;
-        }
+        return drawable.getLayoutDirection();
     }
 
     private DrawableCompat() {
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setHotspot(Drawable drawable, float x, float y) {
-            drawable.setHotspot(x, y);
-        }
-
-        static void setTint(Drawable drawable, int tintColor) {
-            drawable.setTint(tintColor);
-        }
-
-        static void setTintList(Drawable drawable, ColorStateList tint) {
-            drawable.setTintList(tint);
-        }
-
-        static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
-            drawable.setTintMode(tintMode);
-        }
-
-        static void applyTheme(Drawable drawable, Resources.Theme t) {
-            drawable.applyTheme(t);
-        }
-
-        static boolean canApplyTheme(Drawable drawable) {
-            return drawable.canApplyTheme();
-        }
-
-        static ColorFilter getColorFilter(Drawable drawable) {
-            return drawable.getColorFilter();
-        }
-
-        static void inflate(Drawable drawable, Resources r, XmlPullParser parser,
-                AttributeSet attrs, Resources.Theme theme)
-                throws XmlPullParserException, IOException {
-            drawable.inflate(r, parser, attrs, theme);
-        }
-
-        static void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
-            drawable.setHotspotBounds(left, top, right, bottom);
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
-            return drawable.setLayoutDirection(layoutDirection);
-        }
-
-        static int getLayoutDirection(Drawable drawable) {
-            return drawable.getLayoutDirection();
-        }
     }
 }

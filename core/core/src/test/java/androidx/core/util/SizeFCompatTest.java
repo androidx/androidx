@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.annotation.TargetApi;
 import android.util.SizeF;
 
 import org.junit.Test;
@@ -70,14 +69,12 @@ public class SizeFCompatTest {
         assertThat(new SizeFCompat(10.2f, 20.4f).toString()).isEqualTo("10.2x20.4");
     }
 
-    @TargetApi(23)
     @Config(sdk = 23)
     @Test
     public void toSizeF() {
         assertThat(new SizeFCompat(10.2f, 20.4f).toSizeF()).isEqualTo(new SizeF(10.2f, 20.4f));
     }
 
-    @TargetApi(23)
     @Config(sdk = 23)
     @Test
     public void toSizeFCompat() {

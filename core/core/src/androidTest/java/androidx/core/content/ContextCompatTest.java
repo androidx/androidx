@@ -311,10 +311,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
-    public void getSystemServiceNameCallsRealMethodOn23() {
-        // We explicitly test for platform delegation on API 23+ because the compat implementation
-        // only handles pre-23 service types.
-
+    public void getSystemServiceNameCallsRealMethod() {
         final AtomicBoolean called = new AtomicBoolean();
         Context c = new ContextWrapper(mContext) {
             @Override
@@ -341,10 +338,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
-    public void getSystemServiceCallsRealMethodOn23() {
-        // We explicitly test for platform delegation on API 23+ because the compat implementation
-        // only handles pre-23 service types.
-
+    public void getSystemServiceCallsRealMethod() {
         final AtomicBoolean called = new AtomicBoolean();
         Context c = new ContextWrapper(mContext) {
             // Note: we're still checking the name lookup here because the non-name method is
@@ -378,13 +372,9 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         assertEquals("Unthemed color load", 0xFFFF8090,
                 ContextCompat.getColor(mContext, R.color.text_color));
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // The following test is only expected to pass on v23+ devices. The result of
-            // calling theme-aware getColor() in pre-v23 is undefined.
-            assertEquals("Themed yellow color load",
-                    ContextCompat.getColor(mContext, R.color.simple_themed_selector),
-                    0xFFF0B000);
-        }
+        assertEquals("Themed yellow color load",
+                ContextCompat.getColor(mContext, R.color.simple_themed_selector),
+                0xFFF0B000);
     }
 
     @Test
@@ -400,20 +390,16 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
                 unthemedColorStateList.getColorForState(
                         new int[]{android.R.attr.state_pressed}, 0));
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getColorStateList() in pre-v23 is undefined.
-            ColorStateList themedYellowColorStateList =
-                    ContextCompat.getColorStateList(mContext, R.color.complex_themed_selector);
-            assertEquals("Themed yellow color state list load: default", 0xFFF0B000,
-                    themedYellowColorStateList.getDefaultColor());
-            assertEquals("Themed yellow color state list load: focused", 0xFFF0A020,
-                    themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_focused}, 0));
-            assertEquals("Themed yellow color state list load: pressed", 0xFFE0A040,
-                    themedYellowColorStateList.getColorForState(
-                            new int[]{android.R.attr.state_pressed}, 0));
-        }
+        ColorStateList themedYellowColorStateList =
+                ContextCompat.getColorStateList(mContext, R.color.complex_themed_selector);
+        assertEquals("Themed yellow color state list load: default", 0xFFF0B000,
+                themedYellowColorStateList.getDefaultColor());
+        assertEquals("Themed yellow color state list load: focused", 0xFFF0A020,
+                themedYellowColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_focused}, 0));
+        assertEquals("Themed yellow color state list load: pressed", 0xFFE0A040,
+                themedYellowColorStateList.getColorForState(
+                        new int[]{android.R.attr.state_pressed}, 0));
     }
 
     @Test
@@ -423,14 +409,10 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
                 unthemedDrawable, mContext.getResources().getColor(R.color.test_red));
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            // The following test is only expected to pass on v23+ devices. The result of
-            // calling theme-aware getDrawable() in pre-v23 is undefined.
-            Drawable themedYellowDrawable =
-                    ContextCompat.getDrawable(mContext, R.drawable.themed_drawable);
-            TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
-                    themedYellowDrawable, 0xFFF0B000);
-        }
+        Drawable themedYellowDrawable =
+                ContextCompat.getDrawable(mContext, R.drawable.themed_drawable);
+        TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
+                themedYellowDrawable, 0xFFF0B000);
     }
 
     @Test
@@ -438,9 +420,7 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
         final int expectedWidth = scaleFromDensity(7, DisplayMetrics.DENSITY_LOW,
                 mContext.getResources().getDisplayMetrics().densityDpi);
 
-        // Ensure we retrieve the correct drawable configuration. Specifically,
-        // this tests a workaround for a bug in drawable configuration that
-        // exists on API < 16 for references to drawables.
+        // Ensure we retrieve the correct drawable configuration
         Drawable referencedDrawable = ContextCompat.getDrawable(mContext,
                 R.drawable.aliased_drawable);
         assertEquals("Drawable configuration does not match DisplayMetrics",

@@ -157,30 +157,15 @@ internal class Utils {
             callAttributes: CallAttributesCompat,
             handle: PhoneAccountHandle,
         ): Bundle {
-            return if (VERSION.SDK_INT >= VERSION_CODES.M) {
-                Api23PlusImpl.createExtras(callAttributes, handle)
-            } else {
-                Bundle()
+            val extras = Bundle()
+            extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle)
+            if (!callAttributes.isOutgoingCall()) {
+                extras.putParcelable(
+                    TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                    callAttributes.address,
+                )
             }
-        }
-
-        @RequiresApi(VERSION_CODES.M)
-        private object Api23PlusImpl {
-            @JvmStatic
-            fun createExtras(
-                callAttributes: CallAttributesCompat,
-                handle: PhoneAccountHandle,
-            ): Bundle {
-                val extras = Bundle()
-                extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle)
-                if (!callAttributes.isOutgoingCall()) {
-                    extras.putParcelable(
-                        TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
-                        callAttributes.address,
-                    )
-                }
-                return extras
-            }
+            return extras
         }
     }
 }

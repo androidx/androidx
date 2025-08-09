@@ -94,8 +94,6 @@ import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
  *   , it will be cropped and scaled. The workaround is to respectively assign
  *   `windowSplashScreenAnimatedIcon` and `windowSplashScreenIconBackgroundColor` to the values of
  *   the adaptive icon `foreground` and `background`.
- * - On API 21-22, The icon isn't displayed until the application starts, only the background is
- *   visible.
  *
  * # Design
  * The splash screen icon uses the same specifications as

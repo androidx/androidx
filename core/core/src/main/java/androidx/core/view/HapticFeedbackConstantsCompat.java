@@ -363,11 +363,6 @@ public final class HapticFeedbackConstantsCompat {
                     break;
             }
         }
-        if (Build.VERSION.SDK_INT < 23) {
-            if (feedbackConstant == CONTEXT_CLICK) {
-                feedbackConstant = CLOCK_TICK;
-            }
-        }
         return feedbackConstant;
     }
 

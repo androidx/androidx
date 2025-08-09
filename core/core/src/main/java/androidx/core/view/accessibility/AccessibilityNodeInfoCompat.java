@@ -464,8 +464,8 @@ public class AccessibilityNodeInfoCompat {
          * @see View#requestRectangleOnScreen(Rect)
          */
         public static final AccessibilityActionCompat ACTION_SHOW_ON_SCREEN =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN,
                         android.R.id.accessibilityActionShowOnScreen, null, null, null);
 
         /**
@@ -481,40 +481,40 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityNodeInfoCompat#getCollectionInfo()
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_TO_POSITION =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION
-                        : null, android.R.id.accessibilityActionScrollToPosition, null, null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION,
+                        android.R.id.accessibilityActionScrollToPosition, null, null,
                         ScrollToPositionArguments.class);
 
         /**
          * Action to scroll the node content up.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_UP =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP,
                         android.R.id.accessibilityActionScrollUp, null, null, null);
         /**
          * Action to scroll the node content left.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_LEFT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT,
                         android.R.id.accessibilityActionScrollLeft, null, null, null);
 
         /**
          * Action to scroll the node content down.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_DOWN =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN,
                         android.R.id.accessibilityActionScrollDown, null, null, null);
 
         /**
          * Action to scroll the node content right.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_RIGHT =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT,
                         android.R.id.accessibilityActionScrollRight, null, null, null);
 
         /**
@@ -565,8 +565,8 @@ public class AccessibilityNodeInfoCompat {
          * <p>{@link #isContextClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
-                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
-                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK : null,
+                new AccessibilityActionCompat(
+                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK,
                         android.R.id.accessibilityActionContextClick, null, null, null);
 
         /**
@@ -4208,11 +4208,7 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is context clickable.
      */
     public boolean isContextClickable() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return mInfo.isContextClickable();
-        } else {
-            return false;
-        }
+        return mInfo.isContextClickable();
     }
 
     /**
@@ -4227,9 +4223,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setContextClickable(boolean contextClickable) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            mInfo.setContextClickable(contextClickable);
-        }
+        mInfo.setContextClickable(contextClickable);
     }
 
     /**
@@ -4701,11 +4695,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #setTraversalBefore(android.view.View, int)
      */
     public AccessibilityNodeInfoCompat getTraversalBefore() {
-        if (Build.VERSION.SDK_INT >= 22) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalBefore());
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalBefore());
     }
 
     /**
@@ -4723,9 +4713,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #getTraversalBefore()
      */
     public void setTraversalBefore(View view) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            mInfo.setTraversalBefore(view);
-        }
+        mInfo.setTraversalBefore(view);
     }
 
     /**
@@ -4750,9 +4738,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setTraversalBefore(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            mInfo.setTraversalBefore(root, virtualDescendantId);
-        }
+        mInfo.setTraversalBefore(root, virtualDescendantId);
     }
 
     /**
@@ -4766,11 +4752,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #setTraversalAfter(android.view.View, int)
      */
     public AccessibilityNodeInfoCompat getTraversalAfter() {
-        if (Build.VERSION.SDK_INT >= 22) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalAfter());
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getTraversalAfter());
     }
 
     /**
@@ -4788,9 +4770,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #getTraversalAfter()
      */
     public void setTraversalAfter(View view) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            mInfo.setTraversalAfter(view);
-        }
+        mInfo.setTraversalAfter(view);
     }
 
     /**
@@ -4814,9 +4794,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setTraversalAfter(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            mInfo.setTraversalAfter(root, virtualDescendantId);
-        }
+        mInfo.setTraversalAfter(root, virtualDescendantId);
     }
 
     /**

@@ -840,16 +840,14 @@ public class ShortcutManagerCompat {
 
     private static ShortcutInfoCompatSaver<?> getShortcutInfoSaverInstance(Context context) {
         if (sShortcutInfoCompatSaver == null) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                try {
-                    ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                    Class<?> saver = Class.forName(
-                            "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
-                    Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
-                    sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(
-                            null, context);
-                } catch (Exception e) { /* Do nothing */ }
-            }
+            try {
+                ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
+                Class<?> saver = Class.forName(
+                        "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
+                Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
+                sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(
+                        null, context);
+            } catch (Exception e) { /* Do nothing */ }
 
             if (sShortcutInfoCompatSaver == null) {
                 // Implementation not available. Instantiate to the default no-op impl.

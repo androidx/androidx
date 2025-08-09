@@ -319,7 +319,6 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
     @Test
     @UiThreadTest
-    @SdkSuppress(minSdkVersion = 20) // dispatchApplyWindowInsets only works on API 20+
     public void dispatchApplyWindowInsets_correctReturnValue() {
         final View view = mActivityTestRule.getActivity().findViewById(R.id.container);
 

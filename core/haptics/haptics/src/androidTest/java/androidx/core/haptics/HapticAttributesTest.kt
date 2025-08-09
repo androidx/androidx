@@ -248,12 +248,6 @@ class VibrationToHapticAttributesTest {
 @SmallTest
 class HapticAttributesTest {
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.KITKAT_WATCH)
-    @Test
-    fun toAttributes_belowApi21_returnsNull() {
-        assertThat(HapticAttributes(HapticAttributes.USAGE_TOUCH).toAttributes()).isNull()
-    }
-
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun toAttributes_api21To32_returnsAudioAttributes() {

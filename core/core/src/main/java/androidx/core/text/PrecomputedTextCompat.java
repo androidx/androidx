@@ -60,10 +60,9 @@ import java.util.concurrent.FutureTask;
  * layout information will be included in this instance, {@link android.widget.TextView} or
  * {@link StaticLayout} will not have to recalculate this information.
  *
- * On API 29 or later, there is full PrecomputedText support by framework. From API 21 to API 27,
+ * On API 29 or later, there is full PrecomputedText support by framework. From API 23 to API 27,
  * PrecomputedTextCompat relies on internal text layout cache. PrecomputedTextCompat immediately
- * computes the text layout in the constuctor to warm up the internal text layout cache. On API 20
- * or before, PrecomputedTextCompat does nothing.
+ * computes the text layout in the constructor to warm up the internal text layout cache.
  *
  * Note that any {@link android.text.NoCopySpan} attached to the original text won't be passed to
  * PrecomputedText.
@@ -116,12 +115,8 @@ public class PrecomputedTextCompat implements Spannable {
              */
             public Builder(@NonNull TextPaint paint) {
                 mPaint = paint;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    mBreakStrategy = Layout.BREAK_STRATEGY_HIGH_QUALITY;
-                    mHyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NORMAL;
-                } else {
-                    mBreakStrategy = mHyphenationFrequency = 0;
-                }
+                mBreakStrategy = Layout.BREAK_STRATEGY_HIGH_QUALITY;
+                mHyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NORMAL;
                 mTextDir = TextDirectionHeuristics.FIRSTSTRONG_LTR;
             }
 
@@ -130,14 +125,11 @@ public class PrecomputedTextCompat implements Spannable {
              *
              * The default value is {@link Layout#BREAK_STRATEGY_HIGH_QUALITY}.
              *
-             * On API 22 and below, this has no effect as there is no line break strategy.
-             *
              * @param strategy the break strategy
              * @return PrecomputedTextCompat.Builder instance
              * @see StaticLayout.Builder#setBreakStrategy
              * @see android.widget.TextView#setBreakStrategy
              */
-            @RequiresApi(23)
             public Builder setBreakStrategy(int strategy) {
                 mBreakStrategy = strategy;
                 return this;
@@ -148,14 +140,11 @@ public class PrecomputedTextCompat implements Spannable {
              *
              * The default value is {@link Layout#HYPHENATION_FREQUENCY_NORMAL}.
              *
-             * On API 22 and below, this has no effect as there is no hyphenation frequency.
-             *
              * @param frequency the hyphenation frequency
              * @return PrecomputedTextCompat.Builder instance
              * @see StaticLayout.Builder#setHyphenationFrequency
              * @see android.widget.TextView#setHyphenationFrequency
              */
-            @RequiresApi(23)
             public Builder setHyphenationFrequency(int frequency) {
                 mHyphenationFrequency = frequency;
                 return this;
@@ -165,9 +154,6 @@ public class PrecomputedTextCompat implements Spannable {
              * Set the text direction heuristic.
              *
              * The default value is {@link TextDirectionHeuristics#FIRSTSTRONG_LTR}.
-             *
-             * On API 17 or before, text direction heuristics cannot be modified, so this method
-             * does nothing.
              *
              * @param textDir the text direction heuristic for resolving bidi behavior
              * @return PrecomputedTextCompat.Builder instance
@@ -226,9 +212,6 @@ public class PrecomputedTextCompat implements Spannable {
         /**
          * Returns the {@link TextDirectionHeuristic} for this text.
          *
-         * On API 17 and below, this returns null, otherwise returns non-null
-         * TextDirectionHeuristic.
-         *
          * @return the {@link TextDirectionHeuristic}
          */
         public @Nullable TextDirectionHeuristic getTextDirection() {
@@ -238,11 +221,8 @@ public class PrecomputedTextCompat implements Spannable {
         /**
          * Returns the break strategy for this text.
          *
-         * On API 22 and below, this returns 0.
-         *
          * @return the line break strategy
          */
-        @RequiresApi(23)
         public int getBreakStrategy() {
             return mBreakStrategy;
         }
@@ -250,11 +230,8 @@ public class PrecomputedTextCompat implements Spannable {
         /**
          * Returns the hyphenation frequency for this text.
          *
-         * On API 22 and below, this returns 0.
-         *
          * @return the hyphenation frequency
          */
-        @RequiresApi(23)
         public int getHyphenationFrequency() {
             return mHyphenationFrequency;
         }
@@ -265,15 +242,12 @@ public class PrecomputedTextCompat implements Spannable {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean equalsWithoutTextDirection(@NonNull Params other) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (mBreakStrategy != other.getBreakStrategy()) {
-                    return false;
-                }
-                if (mHyphenationFrequency != other.getHyphenationFrequency()) {
-                    return false;
-                }
+            if (mBreakStrategy != other.getBreakStrategy()) {
+                return false;
             }
-
+            if (mHyphenationFrequency != other.getHyphenationFrequency()) {
+                return false;
+            }
             if (mPaint.getTextSize() != other.getTextPaint().getTextSize()) {
                 return false;
             }
@@ -436,17 +410,12 @@ public class PrecomputedTextCompat implements Spannable {
             // No framework support for PrecomputedText
             // Compute text layout and throw away StaticLayout for the purpose of warming up the
             // internal text layout cache.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
-                        Integer.MAX_VALUE)
-                        .setBreakStrategy(params.getBreakStrategy())
-                        .setHyphenationFrequency(params.getHyphenationFrequency())
-                        .setTextDirection(params.getTextDirection())
-                        .build();
-            } else {
-                new StaticLayout(text, params.getTextPaint(), Integer.MAX_VALUE,
-                        Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
-            }
+            StaticLayout.Builder.obtain(text, 0, text.length(), params.getTextPaint(),
+                    Integer.MAX_VALUE)
+                    .setBreakStrategy(params.getBreakStrategy())
+                    .setHyphenationFrequency(params.getHyphenationFrequency())
+                    .setTextDirection(params.getTextDirection())
+                    .build();
 
             return new PrecomputedTextCompat(text, params, result);
         } finally {

@@ -83,12 +83,6 @@ public final class LocationManagerCompat {
     /**
      * Returns the current enabled/disabled state of location.
      *
-     * <p>NOTE: Calling this method on API levels prior to 20 <i>may</i> require the
-     * {@link android.Manifest.permission#ACCESS_FINE_LOCATION ACCESS_FINE_LOCATION} or
-     * {@link android.Manifest.permission#ACCESS_COARSE_LOCATION ACCESS_COARSE_LOCATION}
-     * permission if run on non-standard Android devices. The vast majority of devices should not
-     * require either permission to be present for this method.
-     *
      * @return {@code true} if location is enabled or {@code false} if location is disabled
      */
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {

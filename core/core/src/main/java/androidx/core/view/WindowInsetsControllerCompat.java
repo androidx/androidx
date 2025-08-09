@@ -134,10 +134,8 @@ public final class WindowInsetsControllerCompat {
             mImpl = new Impl30(window, this, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 26) {
             mImpl = new Impl26(window, softwareKeyboardControllerCompat);
-        } else if (SDK_INT >= 23) {
-            mImpl = new Impl23(window, softwareKeyboardControllerCompat);
         } else {
-            mImpl = new Impl20(window, softwareKeyboardControllerCompat);
+            mImpl = new Impl23(window, softwareKeyboardControllerCompat);
         }
     }
 
@@ -199,8 +197,6 @@ public final class WindowInsetsControllerCompat {
     /**
      * Checks if the foreground of the status bar is set to light.
      * <p>
-     * This method always returns false on API < 23.
-     * <p>
      * If this value is being set in the theme (via {@link android.R.attr#windowLightStatusBar}),
      * then the correct value will only be returned once attached to the window.
      * <p>
@@ -217,8 +213,6 @@ public final class WindowInsetsControllerCompat {
     /**
      * If true, changes the foreground color of the status bars to light so that the items on the
      * bar can be read clearly. If false, reverts to the default appearance.
-     * <p>
-     * This method has no effect on API < 23.
      * <p>
      * Once this method is called, modifying `systemUiVisibility` directly to change the
      * appearance is undefined behavior.
@@ -565,7 +559,6 @@ public final class WindowInsetsControllerCompat {
         }
     }
 
-    @RequiresApi(23)
     private static class Impl23 extends Impl20 {
 
         Impl23(@NonNull Window window,

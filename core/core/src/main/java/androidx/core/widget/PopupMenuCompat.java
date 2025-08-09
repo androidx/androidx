@@ -16,7 +16,6 @@
 
 package androidx.core.widget;
 
-import android.os.Build;
 import android.view.View.OnTouchListener;
 import android.widget.PopupMenu;
 
@@ -32,8 +31,7 @@ public final class PopupMenuCompat {
     }
 
     /**
-     * On API {@link Build.VERSION_CODES#KITKAT} and higher, returns
-     * an {@link OnTouchListener} that can be added to the anchor view to
+     * Returns an {@link OnTouchListener} that can be added to the anchor view to
      * implement drag-to-open behavior.
      * <p>
      * When the listener is set on a view, touching that view and dragging

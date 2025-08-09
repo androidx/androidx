@@ -166,7 +166,7 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
                 counter::incrementAndGet;
 
         // Ensure that the method wrapper works as intended.
-        ActivityCompat.Api23Impl.onSharedElementsReady(listener);
+        listener.onSharedElementsReady();
         assertEquals(1, counter.get());
 
         // Ensure that the callback wrapper calls the method wrapper.

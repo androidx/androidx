@@ -37,7 +37,6 @@ public class ICUCompatTest {
 
     @Test
     public void testMaximizeAndGetScriptWithScriptTag() {
-        // Script tags were added to java.util.Locale only on API 21.
         assertEquals("Visp", ICUCompat.maximizeAndGetScript(Locale.forLanguageTag("en-Visp-US")));
     }
 

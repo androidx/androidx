@@ -321,7 +321,7 @@ public object RemoteViewsCompat {
     @RequiresApi(31)
     @JvmStatic
     public fun RemoteViews.setCompoundButtonIcon(@IdRes viewId: Int, icon: Icon?) {
-        Api23Impl.setIcon(this, viewId, "setButtonIcon", icon)
+        setIcon(viewId, "setButtonIcon", icon)
     }
 
     /**
@@ -1661,7 +1661,7 @@ public object RemoteViewsCompat {
     @RequiresApi(31)
     @JvmStatic
     public fun RemoteViews.setSwitchThumbIcon(@IdRes viewId: Int, icon: Icon?) {
-        Api23Impl.setIcon(this, viewId, "setThumbIcon", icon)
+        setIcon(viewId, "setThumbIcon", icon)
     }
 
     /**
@@ -1811,7 +1811,7 @@ public object RemoteViewsCompat {
     @RequiresApi(31)
     @JvmStatic
     public fun RemoteViews.setSwitchTrackIcon(@IdRes viewId: Int, icon: Icon?) {
-        Api23Impl.setIcon(this, viewId, "setTrackIcon", icon)
+        setIcon(viewId, "setTrackIcon", icon)
     }
 
     /**
@@ -1917,7 +1917,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setTextClockFormat12Hour(@IdRes viewId: Int, format: CharSequence?) {
-        requireSdk(17, "setFormat12Hour")
         setCharSequence(viewId, "setFormat12Hour", format)
     }
 
@@ -1956,7 +1955,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setTextClockFormat24Hour(@IdRes viewId: Int, format: CharSequence?) {
-        requireSdk(17, "setFormat24Hour")
         setCharSequence(viewId, "setFormat24Hour", format)
     }
 
@@ -1995,7 +1993,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setTextClockTimeZone(@IdRes viewId: Int, timeZone: String?) {
-        requireSdk(17, "setTimeZone")
         setString(viewId, "setTimeZone", timeZone)
     }
 
@@ -2031,7 +2028,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setTextViewCompoundDrawablePadding(@IdRes viewId: Int, @Px pad: Int) {
-        requireSdk(16, "setCompoundDrawablePadding")
         setInt(viewId, "setCompoundDrawablePadding", pad)
     }
 
@@ -2143,7 +2139,6 @@ public object RemoteViewsCompat {
         @IdRes viewId: Int,
         fontFeatureSettings: String,
     ) {
-        requireSdk(21, "setFontFeatureSettings")
         setString(viewId, "setFontFeatureSettings", fontFeatureSettings)
     }
 
@@ -2378,7 +2373,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setTextViewLetterSpacing(@IdRes viewId: Int, letterSpacing: Float) {
-        requireSdk(21, "setLetterSpacing")
         setFloat(viewId, "setLetterSpacing", letterSpacing)
     }
 
@@ -3358,7 +3352,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setViewLayoutDirection(@IdRes viewId: Int, layoutDirection: Int) {
-        requireSdk(17, "setLayoutDirection")
         setInt(viewId, "setLayoutDirection", layoutDirection)
     }
 
@@ -3605,7 +3598,6 @@ public object RemoteViewsCompat {
      */
     @JvmStatic
     public fun RemoteViews.setViewStubInflatedId(@IdRes viewId: Int, inflatedId: Int) {
-        requireSdk(16, "setInflatedId")
         setInt(viewId, "setInflatedId", inflatedId)
     }
 
@@ -3622,7 +3614,6 @@ public object RemoteViewsCompat {
         @IdRes viewId: Int,
         @LayoutRes layoutResource: Int,
     ) {
-        requireSdk(16, "setLayoutResource")
         setInt(viewId, "setLayoutResource", layoutResource)
     }
 
@@ -3753,14 +3744,6 @@ public object RemoteViewsCompat {
     private fun requireSdk(minSdk: Int, method: String) {
         require(Build.VERSION.SDK_INT >= minSdk) {
             "$method is only available on SDK $minSdk and higher"
-        }
-    }
-
-    @RequiresApi(23)
-    private object Api23Impl {
-        @JvmStatic
-        fun setIcon(rv: RemoteViews, @IdRes id: Int, method: String, icon: Icon?) {
-            rv.setIcon(id, method, icon)
         }
     }
 

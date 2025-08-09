@@ -732,25 +732,23 @@ public class AccessibilityDelegateCompatTest extends
         mView.requestSendAccessibilityEvent(childView, event);
         verify(bridgedCompat).onRequestSendAccessibilityEvent(mView, childView, event);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            final AccessibilityNodeProviderCompat providerCompat =
-                    new AccessibilityNodeProviderCompat() {
-                        @Override
-                        public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(
-                                int virtualViewId) {
-                            return AccessibilityNodeInfoCompat.wrap(info);
-                        }
-                    };
-            when(bridgedCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
-            AccessibilityNodeProvider provider = mView.getAccessibilityNodeProvider();
-            assertEquals(info, provider.createAccessibilityNodeInfo(0));
+        final AccessibilityNodeProviderCompat providerCompat =
+                new AccessibilityNodeProviderCompat() {
+                    @Override
+                    public AccessibilityNodeInfoCompat createAccessibilityNodeInfo(
+                            int virtualViewId) {
+                        return AccessibilityNodeInfoCompat.wrap(info);
+                    }
+                };
+        when(bridgedCompat.getAccessibilityNodeProvider(mView)).thenReturn(providerCompat);
+        AccessibilityNodeProvider provider = mView.getAccessibilityNodeProvider();
+        assertEquals(info, provider.createAccessibilityNodeInfo(0));
 
-            final Bundle bundle = new Bundle();
-            mView.performAccessibilityAction(
-                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-            verify(bridgedCompat).performAccessibilityAction(
-                    mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-        }
+        final Bundle bundle = new Bundle();
+        mView.performAccessibilityAction(
+                AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+        verify(bridgedCompat).performAccessibilityAction(
+                mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
     }
 
     private AccessibilityNodeInfoCompat getNodeCompatForView(View view) {

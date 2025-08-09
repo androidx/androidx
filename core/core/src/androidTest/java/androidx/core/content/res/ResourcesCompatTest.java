@@ -76,21 +76,17 @@ public class ResourcesCompatTest {
                 ResourcesCompat.getColor(mResources, R.color.text_color, null),
                 0xFFFF8090);
 
-        if (SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getColor() in pre-v23 is undefined.
-            final Resources.Theme yellowTheme = mResources.newTheme();
-            yellowTheme.applyStyle(R.style.YellowTheme, true);
-            assertEquals("Themed yellow color load", 0xFFF0B000,
-                    ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
-                            yellowTheme));
+        final Resources.Theme yellowTheme = mResources.newTheme();
+        yellowTheme.applyStyle(R.style.YellowTheme, true);
+        assertEquals("Themed yellow color load", 0xFFF0B000,
+                ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
+                        yellowTheme));
 
-            final Resources.Theme lilacTheme = mResources.newTheme();
-            lilacTheme.applyStyle(R.style.LilacTheme, true);
-            assertEquals("Themed lilac color load", 0xFFF080F0,
-                    ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
-                            lilacTheme));
-        }
+        final Resources.Theme lilacTheme = mResources.newTheme();
+        lilacTheme.applyStyle(R.style.LilacTheme, true);
+        assertEquals("Themed lilac color load", 0xFFF080F0,
+                ResourcesCompat.getColor(mResources, R.color.simple_themed_selector,
+                        lilacTheme));
     }
 
     @Test
@@ -145,24 +141,20 @@ public class ResourcesCompatTest {
         TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
                 unthemedDrawable, mResources.getColor(R.color.test_red));
 
-        if (SDK_INT >= 23) {
-            // The following tests are only expected to pass on v23+ devices. The result of
-            // calling theme-aware getDrawable() in pre-v23 is undefined.
-            final Resources.Theme yellowTheme = mResources.newTheme();
-            yellowTheme.applyStyle(R.style.YellowTheme, true);
-            final Drawable themedYellowDrawable =
-                    ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable,
-                            yellowTheme);
-            TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
-                    themedYellowDrawable, 0xFFF0B000);
+        final Resources.Theme yellowTheme = mResources.newTheme();
+        yellowTheme.applyStyle(R.style.YellowTheme, true);
+        final Drawable themedYellowDrawable =
+                ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable,
+                        yellowTheme);
+        TestUtils.assertAllPixelsOfColor("Themed yellow drawable load",
+                themedYellowDrawable, 0xFFF0B000);
 
-            final Resources.Theme lilacTheme = mResources.newTheme();
-            lilacTheme.applyStyle(R.style.LilacTheme, true);
-            final Drawable themedLilacDrawable =
-                    ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable, lilacTheme);
-            TestUtils.assertAllPixelsOfColor("Themed lilac drawable load",
-                    themedLilacDrawable, 0xFFF080F0);
-        }
+        final Resources.Theme lilacTheme = mResources.newTheme();
+        lilacTheme.applyStyle(R.style.LilacTheme, true);
+        final Drawable themedLilacDrawable =
+                ResourcesCompat.getDrawable(mResources, R.drawable.themed_drawable, lilacTheme);
+        TestUtils.assertAllPixelsOfColor("Themed lilac drawable load",
+                themedLilacDrawable, 0xFFF080F0);
     }
 
     @Test
@@ -225,12 +217,6 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetDrawableForDensityThemed() throws Throwable {
-        if (SDK_INT < 21) {
-            // The following tests are only expected to pass on v21+ devices. The result of
-            // calling theme-aware getDrawableForDensity() in pre-v21 is undefined.
-            return;
-        }
-
         // Density- and theme-aware drawable loading for now only works partially. This test
         // checks only for theming of a tinted bitmap XML drawable, but not correct scaling.
 

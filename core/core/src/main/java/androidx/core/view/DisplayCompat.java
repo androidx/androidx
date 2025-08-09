@@ -27,7 +27,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.view.Display;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.core.view.RoundedCornerCompat.Position;
 
@@ -58,25 +57,7 @@ public final class DisplayCompat {
      * determine support for 4k on Android TV devices.
      */
     public static @NonNull ModeCompat getMode(@NonNull Context context, @NonNull Display display) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.getMode(context, display);
-        }
-        // Prior to display modes, the best we can do is return the display size as the display
-        // mode.
-        return new ModeCompat(getDisplaySize(context, display));
-    }
-
-    private static @NonNull Point getDisplaySize(@NonNull Context context,
-            @NonNull Display display) {
-        // If a workaround for the display size is present, use it.
-        Point displaySize = getCurrentDisplaySizeFromWorkarounds(context, display);
-        if (displaySize != null) {
-            return displaySize;
-        }
-
-        displaySize = new Point();
-        display.getRealSize(displaySize);
-        return displaySize;
+        return Api23Impl.getMode(context, display);
     }
 
     /**
@@ -86,12 +67,7 @@ public final class DisplayCompat {
     @SuppressLint("ArrayReturn")
     public static ModeCompat @NonNull [] getSupportedModes(
                 @NonNull Context context, @NonNull Display display) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.getSupportedModes(context, display);
-        }
-        // Prior to display modes, the best we can do is return the current mode - the
-        // current display size wrapped in a ModeCompat object.
-        return new ModeCompat[] { getMode(context, display) };
+        return Api23Impl.getSupportedModes(context, display);
     }
 
     /**
@@ -214,12 +190,7 @@ public final class DisplayCompat {
      * Does the current display mode have the largest physical size of all supported modes?
      */
     static boolean isCurrentModeTheLargestMode(@NonNull Display display) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.isCurrentModeTheLargestMode(display);
-        } else {
-            // Prior to modes, the current mode is always the largest display mode.
-            return true;
-        }
+        return Api23Impl.isCurrentModeTheLargestMode(display);
     }
 
     /**
@@ -239,7 +210,6 @@ public final class DisplayCompat {
         return null;
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     static class Api23Impl {
         private Api23Impl() {}
 
@@ -339,12 +309,10 @@ public final class DisplayCompat {
          *
          * @param mode the wrapped Display.Mode object
          */
-        @RequiresApi(Build.VERSION_CODES.M)
         ModeCompat(Display.@NonNull Mode mode, boolean isNative) {
             Preconditions.checkNotNull(mode, "mode == null, can't wrap a null reference");
             // This simplifies the getPhysicalWidth() / getPhysicalHeight functions below
-            mPhysicalSize = new Point(Api23Impl.getPhysicalWidth(mode),
-                    Api23Impl.getPhysicalHeight(mode));
+            mPhysicalSize = new Point(mode.getPhysicalWidth(), mode.getPhysicalHeight());
             mMode = mode;
             mIsNative = isNative;
         }
@@ -357,7 +325,6 @@ public final class DisplayCompat {
          * @param physicalSize the true physical size of the display mode
          *
          */
-        @RequiresApi(Build.VERSION_CODES.M)
         ModeCompat(Display.@NonNull Mode mode, @NonNull Point physicalSize) {
             Preconditions.checkNotNull(mode, "mode == null, can't wrap a null reference");
             Preconditions.checkNotNull(physicalSize, "physicalSize == null");
@@ -397,24 +364,8 @@ public final class DisplayCompat {
         /**
          * Returns the wrapped object Display.Mode, which may be null if no mode is available.
          */
-        @RequiresApi(Build.VERSION_CODES.M)
         public Display.@Nullable Mode toMode() {
             return mMode;
-        }
-
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() {
-                // This class is not instantiable.
-            }
-
-            static int getPhysicalWidth(Display.Mode mode) {
-                return mode.getPhysicalWidth();
-            }
-
-            static int getPhysicalHeight(Display.Mode mode) {
-                return mode.getPhysicalHeight();
-            }
         }
     }
 }

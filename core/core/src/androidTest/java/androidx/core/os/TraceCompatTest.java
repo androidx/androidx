@@ -98,14 +98,7 @@ public final class TraceCompatTest {
     @After
     public void stopAtrace() throws IOException {
         if (TRACE_AVAILABLE) {
-            // Since API 23, 'async_stop' will work. On lower API levels it was broken
-            // (see aosp/157142)
-            if (Build.VERSION.SDK_INT >= 23) {
-                executeCommand("atrace --async_stop");
-            } else {
-                // Ensure tracing is not currently running by performing a short synchronous trace.
-                executeCommand("atrace -t 0");
-            }
+            executeCommand("atrace --async_stop");
         }
     }
 

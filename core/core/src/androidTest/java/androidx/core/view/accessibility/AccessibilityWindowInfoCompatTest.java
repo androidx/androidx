@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.annotation.TargetApi;
 import android.graphics.Region;
 import android.os.Build;
 import android.os.LocaleList;
@@ -42,7 +41,6 @@ import java.util.Locale;
 @RunWith(AndroidJUnit4.class)
 public class AccessibilityWindowInfoCompatTest {
 
-    @TargetApi(21)
     private AccessibilityWindowInfoCompat obtainedWrappedWindowCompat() {
         AccessibilityWindowInfo accessibilityWindowInfo = AccessibilityWindowInfo.obtain();
         return AccessibilityWindowInfoCompat.wrapNonNullInstance(accessibilityWindowInfo);

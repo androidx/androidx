@@ -101,6 +101,8 @@ public final class AlarmManagerCompat {
      * typically comes from {@link PendingIntent#getBroadcast
      * IntentSender.getBroadcast()}.
      *
+     * @deprecated Call {@link AlarmManager#setAndAllowWhileIdle(int, long, PendingIntent)} directly.
+     *
      * @see AlarmManager#set(int, long, PendingIntent)
      * @see #setExactAndAllowWhileIdle
      * @see AlarmManager#cancel
@@ -112,13 +114,10 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
+    @Deprecated
     public static void setAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setAndAllowWhileIdle(alarmManager, type, triggerAtMillis, operation);
-        } else {
-            alarmManager.set(type, triggerAtMillis, operation);
-        }
+        alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
     }
 
     /**
@@ -204,6 +203,8 @@ public final class AlarmManagerCompat {
      *        typically comes from {@link PendingIntent#getBroadcast
      *        IntentSender.getBroadcast()}.
      *
+     * @deprecated Call {@link AlarmManager#setExactAndAllowWhileIdle(int, long, PendingIntent)} directly.
+     *
      * @see AlarmManager#set
      * @see AlarmManager#setRepeating
      * @see AlarmManager#setWindow
@@ -216,13 +217,10 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
+    @Deprecated
     public static void setExactAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setExactAndAllowWhileIdle(alarmManager, type, triggerAtMillis, operation);
-        } else {
-            AlarmManagerCompat.setExact(alarmManager, type, triggerAtMillis, operation);
-        }
+        alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
     }
 
     /**
@@ -272,23 +270,6 @@ public final class AlarmManagerCompat {
         static AlarmManager.AlarmClockInfo createAlarmClockInfo(long triggerTime,
                 PendingIntent showIntent) {
             return new AlarmManager.AlarmClockInfo(triggerTime, showIntent);
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setAndAllowWhileIdle(AlarmManager alarmManager, int type, long triggerAtMillis,
-                PendingIntent operation) {
-            alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
-        }
-
-        static void setExactAndAllowWhileIdle(AlarmManager alarmManager, int type,
-                long triggerAtMillis, PendingIntent operation) {
-            alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
         }
     }
 

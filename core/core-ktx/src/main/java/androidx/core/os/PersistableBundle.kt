@@ -16,20 +16,18 @@
 
 package androidx.core.os
 
-import android.os.Build
 import android.os.PersistableBundle
-import androidx.annotation.RequiresApi
 
 /**
  * Returns a new [PersistableBundle] with the given key/value pairs as elements.
  *
- * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On API
- * 22 and later [Boolean] and [BooleanArray] are also supported.
+ * Supported value types are [Int], [Long], [Double], [Boolean], and [String] and arrays of these
+ * types.
  *
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
 fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
-    val persistableBundle = PersistableBundleApi21ImplKt.createPersistableBundle(pairs.size)
+    val persistableBundle = PersistableBundle(pairs.size)
     pairs.forEach { (key, value) ->
         PersistableBundleApi21ImplKt.putValue(persistableBundle, key, value)
     }
@@ -38,19 +36,19 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
 
 /** Returns a new empty [PersistableBundle]. */
 fun persistableBundleOf(): PersistableBundle {
-    return PersistableBundleApi21ImplKt.createPersistableBundle(0)
+    return PersistableBundle(0)
 }
 
 /**
  * Covert this map to a [PersistableBundle] with the key/value pairs as elements.
  *
- * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On API
- * 22 and later [Boolean] and [BooleanArray] are also supported.
+ * Supported value types are [Int], [Long], [Double], [Boolean], and [String] and arrays of these
+ * types.
  *
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
 fun Map<String, Any?>.toPersistableBundle(): PersistableBundle {
-    val persistableBundle = PersistableBundleApi21ImplKt.createPersistableBundle(this.size)
+    val persistableBundle = PersistableBundle(this.size)
 
     for ((key, value) in this) {
         PersistableBundleApi21ImplKt.putValue(persistableBundle, key, value)
@@ -64,25 +62,13 @@ fun Map<String, Any?>.toPersistableBundle(): PersistableBundle {
 // Jetifier to keep them grouped with other members of the core-ktx module.
 private object PersistableBundleApi21ImplKt {
     @JvmStatic
-    fun createPersistableBundle(capacity: Int): PersistableBundle = PersistableBundle(capacity)
-
-    @JvmStatic
     fun putValue(persistableBundle: PersistableBundle, key: String?, value: Any?) {
         persistableBundle.apply {
             when (value) {
                 null -> putString(key, null) // Any nullable type will suffice.
 
                 // Scalars
-                is Boolean -> {
-                    if (Build.VERSION.SDK_INT >= 22) {
-                        PersistableBundleApi22ImplKt.putBoolean(this, key, value)
-                    } else {
-                        throw IllegalArgumentException(
-                            "Unsupported value type boolean for key \"$key\" (requires API level " +
-                                "22+)"
-                        )
-                    }
-                }
+                is Boolean -> putBoolean(key, value)
                 is Double -> putDouble(key, value)
                 is Int -> putInt(key, value)
                 is Long -> putLong(key, value)
@@ -92,16 +78,7 @@ private object PersistableBundleApi21ImplKt {
                 is PersistableBundle -> putPersistableBundle(key, value)
 
                 // Scalar arrays
-                is BooleanArray -> {
-                    if (Build.VERSION.SDK_INT >= 22) {
-                        PersistableBundleApi22ImplKt.putBooleanArray(this, key, value)
-                    } else {
-                        throw IllegalArgumentException(
-                            "Unsupported value type boolean[] for key \"$key\" (requires API " +
-                                "level 22+)"
-                        )
-                    }
-                }
+                is BooleanArray -> putBooleanArray(key, value)
                 is DoubleArray -> putDoubleArray(key, value)
                 is IntArray -> putIntArray(key, value)
                 is LongArray -> putLongArray(key, value)
@@ -125,23 +102,10 @@ private object PersistableBundleApi21ImplKt {
                 else -> {
                     val valueType = value.javaClass.canonicalName
                     throw IllegalArgumentException(
-                        "Unsupported value type $valueType for key " + "\"$key\""
+                        "Unsupported value type $valueType for key \"$key\""
                     )
                 }
             }
         }
-    }
-}
-
-@RequiresApi(22)
-private object PersistableBundleApi22ImplKt {
-    @JvmStatic
-    fun putBoolean(persistableBundle: PersistableBundle, key: String?, value: Boolean) {
-        persistableBundle.putBoolean(key, value)
-    }
-
-    @JvmStatic
-    fun putBooleanArray(persistableBundle: PersistableBundle, key: String?, value: BooleanArray) {
-        persistableBundle.putBooleanArray(key, value)
     }
 }

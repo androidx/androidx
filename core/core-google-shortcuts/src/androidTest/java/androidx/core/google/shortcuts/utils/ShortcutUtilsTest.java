@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -65,15 +64,9 @@ public class ShortcutUtilsTest {
         Intent intent = Intent.parseUri("http://www.google.com", 0);
 
         String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(context, intent, null);
-
         String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
-        String expectedShortcutUrlApi21 =
-                "intent://www.google.com#Intent;scheme=http;action=android.intent.action.VIEW;end";
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-            assertThat(shortcutUrl).isEqualTo(expectedShortcutUrlApi21);
-        } else {
-            assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
-        }
+
+        assertThat(shortcutUrl).isEqualTo(expectedShortcutUrl);
     }
 
     @Test
@@ -92,15 +85,9 @@ public class ShortcutUtilsTest {
         assertThat(trampolineIntent.getAction()).isEqualTo(SHORTCUT_LISTENER_INTENT_FILTER_ACTION);
         assertThat(trampolineIntent.getStringExtra(SHORTCUT_TAG_KEY)).isNotEmpty();
         String expectedShortcutUrl = "intent://www.google.com#Intent;scheme=http;end";
-        String expectedShortcutUrlApi21 =
-                "intent://www.google.com#Intent;scheme=http;action=android.intent.action.VIEW;end";
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-            assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY)).isEqualTo(
-                    expectedShortcutUrlApi21);
-        } else {
-            assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY)).isEqualTo(
-                    expectedShortcutUrl);
-        }
+
+        assertThat(trampolineIntent.getStringExtra(SHORTCUT_URL_KEY))
+                .isEqualTo(expectedShortcutUrl);
     }
 
     @Test

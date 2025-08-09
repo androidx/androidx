@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.Display;
@@ -316,22 +315,12 @@ public class ActivityCompat extends ContextCompat {
      *
      * <p>Note that this is <em>not</em> a security feature -- you can not trust the
      * referrer information, applications can spoof it.</p>
+     *
+     * @deprecated Call {@link Activity#getReferrer()} directly.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public static @Nullable Uri getReferrer(@NonNull Activity activity) {
-        if (Build.VERSION.SDK_INT >= 22) {
-            return Api22Impl.getReferrer(activity);
-        }
-        Intent intent = activity.getIntent();
-        Uri referrer = intent.getParcelableExtra("android.intent.extra.REFERRER");
-        if (referrer != null) {
-            return referrer;
-        }
-        String referrerName = intent.getStringExtra("android.intent.extra.REFERRER_NAME");
-        if (referrerName != null) {
-            return Uri.parse(referrerName);
-        }
-        return null;
+        return activity.getReferrer();
     }
 
     /**
@@ -378,7 +367,7 @@ public class ActivityCompat extends ContextCompat {
         android.app.SharedElementCallback frameworkCallback = callback != null
                 ? new SharedElementCallback21Impl(callback)
                 : null;
-        Api21Impl.setEnterSharedElementCallback(activity, frameworkCallback);
+        activity.setEnterSharedElementCallback(frameworkCallback);
     }
 
     /**
@@ -396,7 +385,7 @@ public class ActivityCompat extends ContextCompat {
         android.app.SharedElementCallback frameworkCallback = callback != null
                 ? new SharedElementCallback21Impl(callback)
                 : null;
-        Api21Impl.setExitSharedElementCallback(activity, frameworkCallback);
+        activity.setExitSharedElementCallback(frameworkCallback);
     }
 
     public static void postponeEnterTransition(@NonNull Activity activity) {
@@ -523,33 +512,11 @@ public class ActivityCompat extends ContextCompat {
             }
         }
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (activity instanceof RequestPermissionsRequestCodeValidator) {
-                ((RequestPermissionsRequestCodeValidator) activity)
-                        .validateRequestPermissionsRequestCode(requestCode);
-            }
-            Api23Impl.requestPermissions(activity, permissions, requestCode);
-        } else if (activity instanceof OnRequestPermissionsResultCallback) {
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    final int[] grantResults = new int[permissionsArray.length];
-
-                    PackageManager packageManager = activity.getPackageManager();
-                    String packageName = activity.getPackageName();
-
-                    final int permissionCount = permissionsArray.length;
-                    for (int i = 0; i < permissionCount; i++) {
-                        grantResults[i] = packageManager.checkPermission(
-                                permissionsArray[i], packageName);
-                    }
-
-                    ((OnRequestPermissionsResultCallback) activity).onRequestPermissionsResult(
-                            requestCode, permissionsArray, grantResults);
-                }
-            });
+        if (activity instanceof RequestPermissionsRequestCodeValidator) {
+            ((RequestPermissionsRequestCodeValidator) activity)
+                    .validateRequestPermissionsRequestCode(requestCode);
         }
+        activity.requestPermissions(permissions, requestCode);
     }
 
     /**
@@ -573,10 +540,9 @@ public class ActivityCompat extends ContextCompat {
             return Api32Impl.shouldShowRequestPermissionRationale(activity, permission);
         } else if (Build.VERSION.SDK_INT == 31) {
             return Api31Impl.shouldShowRequestPermissionRationale(activity, permission);
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.shouldShowRequestPermissionRationale(activity, permission);
+        } else {
+            return activity.shouldShowRequestPermissionRationale(permission);
         }
-        return false;
     }
 
     /**
@@ -736,11 +702,10 @@ public class ActivityCompat extends ContextCompat {
         }
 
         @Override
-        @RequiresApi(23) // Callback added on 23.
         public void onSharedElementsArrived(List<String> sharedElementNames,
                 List<View> sharedElements, final OnSharedElementsReadyListener listener) {
             mCallback.onSharedElementsArrived(sharedElementNames, sharedElements,
-                    () -> Api23Impl.onSharedElementsReady(listener));
+                    listener::onSharedElementsReady);
         }
     }
 
@@ -813,34 +778,6 @@ public class ActivityCompat extends ContextCompat {
         }
     }
 
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setEnterSharedElementCallback(Activity activity,
-                android.app.SharedElementCallback callback) {
-            activity.setEnterSharedElementCallback(callback);
-        }
-
-        static void setExitSharedElementCallback(Activity activity,
-                android.app.SharedElementCallback callback) {
-            activity.setExitSharedElementCallback(callback);
-        }
-
-    }
-
-    @RequiresApi(22)
-    static class Api22Impl {
-        private Api22Impl() {
-            // This class is not instantiable.
-        }
-
-        static Uri getReferrer(Activity activity) {
-            return activity.getReferrer();
-        }
-    }
-
     @RequiresApi(28)
     static class Api28Impl {
         private Api28Impl() {
@@ -850,26 +787,6 @@ public class ActivityCompat extends ContextCompat {
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
         static <T> T requireViewById(Activity activity, int id) {
             return (T) activity.requireViewById(id);
-        }
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
-            activity.requestPermissions(permissions, requestCode);
-        }
-
-        static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
-            return activity.shouldShowRequestPermissionRationale(permission);
-        }
-
-        static void onSharedElementsReady(Object onSharedElementsReadyListener) {
-            ((android.app.SharedElementCallback.OnSharedElementsReadyListener)
-                    onSharedElementsReadyListener).onSharedElementsReady();
         }
     }
 }

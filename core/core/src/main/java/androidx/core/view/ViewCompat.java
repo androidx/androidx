@@ -548,21 +548,6 @@ public class ViewCompat {
 
     private static boolean sTryHiddenViewTransformMatrixToGlobal = true;
 
-    private static ThreadLocal<Rect> sThreadLocalRect;
-
-    private static Rect getEmptyTempRect() {
-        if (sThreadLocalRect == null) {
-            sThreadLocalRect = new ThreadLocal<>();
-        }
-        Rect rect = sThreadLocalRect.get();
-        if (rect == null) {
-            rect = new Rect();
-            sThreadLocalRect.set(rect);
-        }
-        rect.setEmpty();
-        return rect;
-    }
-
     /**
      * Stores debugging information about attributes. This should be called in a constructor by
      * every custom {@link View} that uses a custom styleable. If the custom view does not call it,
@@ -3035,11 +3020,7 @@ public class ViewCompat {
      * @return WindowInsetsCompat from the top of the view hierarchy or null if View is detached
      */
     public static @Nullable WindowInsetsCompat getRootWindowInsets(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getRootWindowInsets(view);
-        } else {
-            return Api21Impl.getRootWindowInsets(view);
-        }
+        return Api23Impl.getRootWindowInsets(view);
     }
 
     /**
@@ -3404,28 +3385,13 @@ public class ViewCompat {
 
     /**
      * Applies a tint to the background drawable.
-     * <p>
-     * This will always take effect when running on API v21 or newer. When running on platforms
-     * previous to API v21, it will only take effect if {@code view} implements the
-     * {@code TintableBackgroundView} interface.
+     *
+     * @deprecated Call {@link View#setBackgroundTintList(ColorStateList)} directly.
      */
+    @Deprecated
     public static void setBackgroundTintList(@NonNull View view,
             @Nullable ColorStateList tintList) {
         view.setBackgroundTintList(tintList);
-
-        if (Build.VERSION.SDK_INT == 21) {
-            // Work around a bug in L that did not update the state of the background
-            // after applying the tint
-            Drawable background = view.getBackground();
-            boolean hasTint = (view.getBackgroundTintList() != null)
-                    || (view.getBackgroundTintMode() != null);
-            if ((background != null) && hasTint) {
-                if (background.isStateful()) {
-                    background.setState(view.getDrawableState());
-                }
-                view.setBackground(background);
-            }
-        }
     }
 
     /**
@@ -3443,27 +3409,12 @@ public class ViewCompat {
      * Specifies the blending mode used to apply the tint specified by
      * {@link #setBackgroundTintList(android.view.View, android.content.res.ColorStateList)} to
      * the background drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     * <p>
-     * This will always take effect when running on API v21 or newer. When running on platforms
-     * previous to API v21, it will only take effect if {@code view} implement the
-     * {@code TintableBackgroundView} interface.
+     *
+     * @deprecated Call {@link View#setBackgroundTintMode(PorterDuff.Mode)} directly.
      */
+    @Deprecated
     public static void setBackgroundTintMode(@NonNull View view, PorterDuff.@Nullable Mode mode) {
         view.setBackgroundTintMode(mode);
-
-        if (Build.VERSION.SDK_INT == 21) {
-            // Work around a bug in L that did not update the state of the background
-            // after applying the tint
-            Drawable background = view.getBackground();
-            boolean hasTint = (view.getBackgroundTintList() != null)
-                    || (view.getBackgroundTintMode() != null);
-            if ((background != null) && hasTint) {
-                if (background.isStateful()) {
-                    background.setState(view.getDrawableState());
-                }
-                view.setBackground(background);
-            }
-        }
     }
 
     // TODO: getters for various view properties (rotation, etc)
@@ -3938,46 +3889,12 @@ public class ViewCompat {
      *
      * @param view view that needs to be offset.
      * @param offset the number of pixels to offset the view by
+     *
+     * @deprecated Call {@link View#offsetTopAndBottom(int)} directly.
      */
+    @Deprecated
     public static void offsetTopAndBottom(@NonNull View view, int offset) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            view.offsetTopAndBottom(offset);
-        } else {
-            final Rect parentRect = getEmptyTempRect();
-            boolean needInvalidateWorkaround = false;
-
-            final ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                final View p = (View) parent;
-                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
-                // If the view currently does not currently intersect the parent (and is therefore
-                // not displayed) we may need need to invalidate
-                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
-                        view.getRight(), view.getBottom());
-            }
-
-            // Now offset, invoking the API 14+ implementation (which contains its own workarounds)
-            compatOffsetTopAndBottom(view, offset);
-
-            // The view has now been offset, so let's intersect the Rect and invalidate where
-            // the View is now displayed
-            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
-                    view.getRight(), view.getBottom())) {
-                ((View) parent).invalidate(parentRect);
-            }
-        }
-    }
-
-    private static void compatOffsetTopAndBottom(View view, int offset) {
         view.offsetTopAndBottom(offset);
-        if (view.getVisibility() == VISIBLE) {
-            tickleInvalidationFlag(view);
-
-            ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                tickleInvalidationFlag((View) parent);
-            }
-        }
     }
 
     /**
@@ -3985,52 +3902,12 @@ public class ViewCompat {
      *
      * @param view view which needs to be offset.
      * @param offset the number of pixels to offset the view by
+     *
+     * @deprecated Call {@link View#offsetLeftAndRight(int)} directly.
      */
+    @Deprecated
     public static void offsetLeftAndRight(@NonNull View view, int offset) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            view.offsetLeftAndRight(offset);
-        } else {
-            final Rect parentRect = getEmptyTempRect();
-            boolean needInvalidateWorkaround = false;
-
-            final ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                final View p = (View) parent;
-                parentRect.set(p.getLeft(), p.getTop(), p.getRight(), p.getBottom());
-                // If the view currently does not currently intersect the parent (and is therefore
-                // not displayed) we may need need to invalidate
-                needInvalidateWorkaround = !parentRect.intersects(view.getLeft(), view.getTop(),
-                        view.getRight(), view.getBottom());
-            }
-
-            // Now offset, invoking the API 14+ implementation (which contains its own workarounds)
-            compatOffsetLeftAndRight(view, offset);
-
-            // The view has now been offset, so let's intersect the Rect and invalidate where
-            // the View is now displayed
-            if (needInvalidateWorkaround && parentRect.intersect(view.getLeft(), view.getTop(),
-                    view.getRight(), view.getBottom())) {
-                ((View) parent).invalidate(parentRect);
-            }
-        }
-    }
-
-    private static void compatOffsetLeftAndRight(View view, int offset) {
         view.offsetLeftAndRight(offset);
-        if (view.getVisibility() == VISIBLE) {
-            tickleInvalidationFlag(view);
-
-            ViewParent parent = view.getParent();
-            if (parent instanceof View) {
-                tickleInvalidationFlag((View) parent);
-            }
-        }
-    }
-
-    private static void tickleInvalidationFlag(View view) {
-        final float y = view.getTranslationY();
-        view.setTranslationY(y + 1);
-        view.setTranslationY(y);
     }
 
     /**
@@ -4097,13 +3974,14 @@ public class ViewCompat {
      * @param indicators a bitmask of indicators that should be enabled, or
      *                   {@code 0} to disable all indicators
      *
+     * @deprecated Call {@link View#setScrollIndicators(int)} directly.
+     *
      * @see #setScrollIndicators(View, int, int)
      * @see #getScrollIndicators(View)
      */
+    @Deprecated
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setScrollIndicators(view, indicators);
-        }
+        view.setScrollIndicators(indicators);
     }
 
     /**
@@ -4132,14 +4010,15 @@ public class ViewCompat {
      *             </ul>
      * @param mask the mask for scroll indicators.
      *
+     * @deprecated Call {@link View#setScrollIndicators(int, int)} directly.
+     *
      * @see #setScrollIndicators(View, int)
      * @see #getScrollIndicators(View)
      */
+    @Deprecated
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators,
             @ScrollIndicators int mask) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Api23Impl.setScrollIndicators(view, indicators, mask);
-        }
+        view.setScrollIndicators(indicators, mask);
     }
 
     /**
@@ -4155,12 +4034,12 @@ public class ViewCompat {
      * @param view view for which to get the state.
      *
      * @return a bitmask representing the enabled scroll indicators
+     *
+     * @deprecated Call {@link View#getScrollIndicators()} directly.
      */
+    @Deprecated
     public static int getScrollIndicators(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.getScrollIndicators(view);
-        }
-        return 0;
+        return view.getScrollIndicators();
     }
 
     /**
@@ -5146,11 +5025,6 @@ public class ViewCompat {
             // This class is not instantiable.
         }
 
-        // Only called on SDK 21 and 22
-        public static @Nullable WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
-            return WindowInsetsCompat.Api21ReflectionHolder.getRootWindowInsets(v);
-        }
-
         static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
                 @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
             WindowInsets platformInsets = insets.toWindowInsets();
@@ -5249,7 +5123,6 @@ public class ViewCompat {
 
     }
 
-    @RequiresApi(23)
     private static class Api23Impl {
         private Api23Impl() {
             // This class is not instantiable.
@@ -5265,18 +5138,6 @@ public class ViewCompat {
             insets.setRootWindowInsets(insets);
             insets.copyRootViewBounds(v.getRootView());
             return insets;
-        }
-
-        static void setScrollIndicators(@NonNull View view, int indicators) {
-            view.setScrollIndicators(indicators);
-        }
-
-        static void setScrollIndicators(@NonNull View view, int indicators, int mask) {
-            view.setScrollIndicators(indicators, mask);
-        }
-
-        static int getScrollIndicators(@NonNull View view) {
-            return view.getScrollIndicators();
         }
     }
 

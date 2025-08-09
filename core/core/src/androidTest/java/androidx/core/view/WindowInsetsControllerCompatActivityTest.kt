@@ -21,7 +21,6 @@ import android.os.Build
 import android.view.View
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
 import androidx.test.core.app.ActivityScenario
@@ -345,7 +344,6 @@ public class WindowInsetsControllerCompatActivityTest {
         scenario.close()
     }
 
-    @RequiresApi(23) //  ViewCompat.getRootWindowInsets()
     private fun View.assertInsetsVisibility(type: Int, expectedVisibility: Boolean) {
         val latch = CountDownLatch(1)
         var loop = true

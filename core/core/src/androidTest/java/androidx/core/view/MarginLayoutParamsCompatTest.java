@@ -17,7 +17,6 @@ package androidx.core.view;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -69,17 +68,10 @@ public class MarginLayoutParamsCompatTest {
 
         MarginLayoutParamsCompat.setLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            assertEquals("Mapping right to start under RTL", 80,
-                    MarginLayoutParamsCompat.getMarginStart(mlp));
-            assertEquals("Mapping left to end under RTL", 50,
-                    MarginLayoutParamsCompat.getMarginEnd(mlp));
-        } else {
-            assertEquals("Mapping left to start under RTL on older devices", 50,
-                    MarginLayoutParamsCompat.getMarginStart(mlp));
-            assertEquals("Mapping right to end under RTL on older devices", 80,
-                    MarginLayoutParamsCompat.getMarginEnd(mlp));
-        }
+        assertEquals("Mapping right to start under RTL", 80,
+                MarginLayoutParamsCompat.getMarginStart(mlp));
+        assertEquals("Mapping left to end under RTL", 50,
+                MarginLayoutParamsCompat.getMarginEnd(mlp));
     }
 
     @Test
@@ -154,27 +146,13 @@ public class MarginLayoutParamsCompatTest {
 
         // While there's no guarantee that left/right margin fields have been set / resolved
         // prior to the resolveLayoutDirection call, they should be now
-        if (Build.VERSION.SDK_INT >= 17) {
-            assertEquals("Default left margin field under RTL", 0, mlp.leftMargin);
-            assertEquals("Resolved right margin field under RTL", 50, mlp.rightMargin);
-        } else {
-            assertEquals("Resolved left margin field under RTL on older devices",
-                    50, mlp.leftMargin);
-            assertEquals("Default right margin field under RTL on older devices",
-                    0, mlp.rightMargin);
-        }
+        assertEquals("Default left margin field under RTL", 0, mlp.leftMargin);
+        assertEquals("Resolved right margin field under RTL", 50, mlp.rightMargin);
 
         MarginLayoutParamsCompat.setMarginEnd(mlp, 80);
         MarginLayoutParamsCompat.resolveLayoutDirection(mlp, View.LAYOUT_DIRECTION_RTL);
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            assertEquals("Resolved left margin field under RTL", 80, mlp.leftMargin);
-            assertEquals("Keeping right margin field under RTL", 50, mlp.rightMargin);
-        } else {
-            assertEquals("Resolved right margin field under RTL on older devices",
-                    80, mlp.rightMargin);
-            assertEquals("Keeping left margin field under RTL on older devices",
-                    50, mlp.leftMargin);
-        }
+        assertEquals("Resolved left margin field under RTL", 80, mlp.leftMargin);
+        assertEquals("Keeping right margin field under RTL", 50, mlp.rightMargin);
     }
 }

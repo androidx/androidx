@@ -50,7 +50,7 @@ public final class ConfigurationCompat {
     }
 
     /**
-     * Set the {@link Locale} into {@link Configuration}. This API is no-op on API 16 and earlier.
+     * Set the {@link Locale} into {@link Configuration}.
      */
     public static void setLocales(
             @NonNull Configuration configuration, @NonNull LocaleListCompat locales) {

@@ -1208,12 +1208,10 @@ public class NotificationCompat {
             // TODO: Copy custom RemoteViews from the Notification.
 
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
-            if (Build.VERSION.SDK_INT >= 23) {
-                this.mSmallIcon = Api23Impl.getSmallIcon(notification);
-                Icon largeIcon = Api23Impl.getLargeIcon(notification);
-                if (largeIcon != null) {
-                    this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
-                }
+            this.mSmallIcon = notification.getSmallIcon();
+            Icon largeIcon = notification.getLargeIcon();
+            if (largeIcon != null) {
+                this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
             }
 
             // Add actions from the notification.
@@ -1375,7 +1373,6 @@ public class NotificationCompat {
          *
          * @param icon The small Icon object to use
          */
-        @RequiresApi(23)
         public @NonNull Builder setSmallIcon(@NonNull IconCompat icon) {
             this.mSmallIcon = icon.toIcon(mContext);
             return this;
@@ -1703,7 +1700,6 @@ public class NotificationCompat {
          * should be called on bitmaps before putting them in an {@code Icon} and passing them
          * into this function.
          */
-        @RequiresApi(23)
         public @NonNull Builder setLargeIcon(@Nullable Icon icon) {
             mLargeIcon = icon == null ? null : IconCompat.createFromIcon(icon);
             return this;
@@ -2695,24 +2691,6 @@ public class NotificationCompat {
 
         /**
          * A class for wrapping calls to {@link Notification.Builder} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() { }
-
-            static Icon getSmallIcon(Notification notification) {
-                return notification.getSmallIcon();
-            }
-
-            static Icon getLargeIcon(Notification notification) {
-                return notification.getLargeIcon();
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.Builder} methods which
          * were added in API 24; these calls must be wrapped to avoid performance issues.
          * See the UnsafeNewApiCall lint rule for more details.
          */
@@ -3314,7 +3292,6 @@ public class NotificationCompat {
         /**
          * Override the large icon when the big notification is shown.
          */
-        @RequiresApi(23)
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Icon i) {
             mBigLargeIcon = i == null ? null : IconCompat.createFromIcon(i);
             mBigLargeIconSet = true;
@@ -3357,19 +3334,12 @@ public class NotificationCompat {
             if (mBigLargeIconSet) {
                 if (mBigLargeIcon == null) {
                     style.bigLargeIcon((Bitmap) null);
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                } else {
                     Context context = null;
                     if (builder instanceof NotificationCompatBuilder) {
                         context = ((NotificationCompatBuilder) builder).getContext();
                     }
-                    Api23Impl.setBigLargeIcon(style, mBigLargeIcon.toIcon(context));
-                } else if (mBigLargeIcon.getType() == IconCompat.TYPE_BITMAP) {
-                    // Before M, only the Bitmap setter existed
-                    style.bigLargeIcon(mBigLargeIcon.getBitmap());
-                } else {
-                    // TODO(b/172282791): When we add #bigLargeIcon(Icon) we'll need to support
-                    // other icon types here by rendering them into a new Bitmap.
-                    style.bigLargeIcon((Bitmap) null);
+                    style.bigLargeIcon(mBigLargeIcon.toIcon(context));
                 }
             }
             if (mSummaryTextSet) {
@@ -3415,10 +3385,8 @@ public class NotificationCompat {
 
         private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
             if (bitmapOrIcon != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (bitmapOrIcon instanceof Icon) {
-                        return IconCompat.createFromIcon((Icon) bitmapOrIcon);
-                    }
+                if (bitmapOrIcon instanceof Icon) {
+                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
                 }
                 if (bitmapOrIcon instanceof Bitmap) {
                     return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
@@ -3437,25 +3405,6 @@ public class NotificationCompat {
             extras.remove(EXTRA_PICTURE);
             extras.remove(EXTRA_PICTURE_ICON);
             extras.remove(EXTRA_SHOW_BIG_PICTURE_WHEN_COLLAPSED);
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        private static class Api23Impl {
-            private Api23Impl() {
-            }
-
-            /**
-             * Calls {@link Notification.BigPictureStyle#bigLargeIcon(Icon)}
-             */
-            @RequiresApi(23)
-            static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
-                style.bigLargeIcon(icon);
-            }
         }
 
         /**
@@ -4673,7 +4622,6 @@ public class NotificationCompat {
          * Sets an optional icon to be displayed with {@link #setVerificationText(CharSequence)
          * text} as a verification status of the caller.
          */
-        @RequiresApi(23)
         public @NonNull CallStyle setVerificationIcon(@Nullable Icon verificationIcon) {
             mVerificationIcon = verificationIcon == null ? null :
                     IconCompat.createFromIcon(verificationIcon);
@@ -4785,13 +4733,7 @@ public class NotificationCompat {
                 }
             }
             if (mVerificationIcon != null) {
-                if (Build.VERSION.SDK_INT >= 23) {
-                    extras.putParcelable(EXTRA_VERIFICATION_ICON, Api23Impl.castToParcelable(
-                            mVerificationIcon.toIcon(mBuilder.mContext)));
-                } else {
-                    extras.putParcelable(EXTRA_VERIFICATION_ICON_COMPAT,
-                            mVerificationIcon.toBundle());
-                }
+                extras.putParcelable(EXTRA_VERIFICATION_ICON, mVerificationIcon.toIcon(mBuilder.mContext));
             }
             extras.putCharSequence(EXTRA_VERIFICATION_TEXT, mVerificationText);
             extras.putParcelable(EXTRA_ANSWER_INTENT, mAnswerIntent);
@@ -4879,9 +4821,8 @@ public class NotificationCompat {
                 // Adds person information to the notification.
                 if (mPerson != null) {
                     // Adds the caller icon, if available.
-                    if (Build.VERSION.SDK_INT >= 23 && mPerson.getIcon() != null) {
-                        Api23Impl.setLargeIcon(builder,
-                                mPerson.getIcon().toIcon(mBuilder.mContext));
+                    if (mPerson.getIcon() != null) {
+                        builder.setLargeIcon(mPerson.getIcon().toIcon(mBuilder.mContext));
                     }
 
                     // Adds the caller person as being relevant to this notification.
@@ -5014,49 +4955,6 @@ public class NotificationCompat {
                 resultActions.add(lastAction);
             }
             return resultActions;
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() {
-            }
-
-            static void setLargeIcon(Notification.Builder builder,
-                    Icon icon) {
-                builder.setLargeIcon(icon);
-            }
-
-            static Notification.Action.Builder createActionBuilder(
-                    Icon icon,
-                    CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-            }
-
-            static Parcelable castToParcelable(Icon icon) {
-                return icon;
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.CallStyle} methods which
-         * were added in API 24; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(24)
-        static class Api24Impl {
-            private Api24Impl() {
-            }
-
-            static Notification.Action.Builder setAllowGeneratedReplies(
-                    Notification.Action.Builder builder, boolean allowGeneratedReplies) {
-                return builder.setAllowGeneratedReplies(allowGeneratedReplies);
-            }
         }
 
         /**
@@ -5661,7 +5559,7 @@ public class NotificationCompat {
                     context = mBuilder.mContext;
                 }
 
-                if (context == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                if (context == null) {
                     return;
                 }
 
@@ -5699,14 +5597,12 @@ public class NotificationCompat {
             mProgressPoints = getProgressPointsFromBundleList(
                     BundleCompat.getParcelableArrayList(
                             extras, EXTRA_PROGRESS_POINTS, Bundle.class));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                mTrackerIcon = asIconCompat(
-                       BundleCompat.getParcelable(extras, EXTRA_PROGRESS_TRACKER_ICON, Icon.class));
-                mStartIcon = asIconCompat(
-                       BundleCompat.getParcelable(extras, EXTRA_PROGRESS_START_ICON, Icon.class));
-                mEndIcon = asIconCompat(
-                       BundleCompat.getParcelable(extras, EXTRA_PROGRESS_END_ICON, Icon.class));
-            }
+            mTrackerIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_TRACKER_ICON, Icon.class));
+            mStartIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_START_ICON, Icon.class));
+            mEndIcon = asIconCompat(
+                   BundleCompat.getParcelable(extras, EXTRA_PROGRESS_END_ICON, Icon.class));
         }
 
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -5725,10 +5621,8 @@ public class NotificationCompat {
 
         private static @Nullable IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
             if (bitmapOrIcon != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (bitmapOrIcon instanceof Icon) {
-                        return IconCompat.createFromIcon((Icon) bitmapOrIcon);
-                    }
+                if (bitmapOrIcon instanceof Icon) {
+                    return IconCompat.createFromIcon((Icon) bitmapOrIcon);
                 }
                 if (bitmapOrIcon instanceof Bitmap) {
                     return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
@@ -6616,9 +6510,9 @@ public class NotificationCompat {
             @RestrictTo(LIBRARY_GROUP_PREFIX)
             public static @NonNull Builder fromAndroidAction(Notification.@NonNull Action action) {
                 final Builder builder;
-                if (Build.VERSION.SDK_INT >= 23 && Api23Impl.getIcon(action) != null) {
+                if (action.getIcon() != null) {
                     IconCompat iconCompat = IconCompat.createFromIconOrNullIfZeroResId(
-                            Api23Impl.getIcon(action));
+                            action.getIcon());
                     builder = new NotificationCompat.Action.Builder(iconCompat, action.title,
                             action.actionIntent);
                 } else {
@@ -6864,20 +6758,6 @@ public class NotificationCompat {
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
                         mShowsUserInterface, mIsContextual, mAuthenticationRequired);
-            }
-
-            /**
-             * A class for wrapping calls to {@link Notification.Action.Builder} methods which
-             * were added in API 23; these calls must be wrapped to avoid performance issues.
-             * See the UnsafeNewApiCall lint rule for more details.
-             */
-            @RequiresApi(23)
-            static class Api23Impl {
-                private Api23Impl() { }
-
-                static Icon getIcon(Notification.Action action) {
-                    return action.getIcon();
-                }
             }
 
             /**
@@ -7544,21 +7424,10 @@ public class NotificationCompat {
         }
 
         private static Notification.Action getActionFromActionCompat(Action actionCompat) {
-            Notification.Action.Builder actionBuilder;
-            if (Build.VERSION.SDK_INT >= 23) {
-                IconCompat iconCompat = actionCompat.getIconCompat();
-                actionBuilder = Api23Impl.createBuilder(
-                        iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
-            } else {
-                IconCompat icon = actionCompat.getIconCompat();
-                int iconResId = 0;
-                if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
-                    iconResId = icon.getResId();
-                }
-                actionBuilder = Api20Impl.createBuilder(iconResId, actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
-            }
+            IconCompat iconCompat = actionCompat.getIconCompat();
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(
+                    iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
+                    actionCompat.getActionIntent());
             Bundle actionExtras;
             if (actionCompat.getExtras() != null) {
                 actionExtras = new Bundle(actionCompat.getExtras());
@@ -8215,31 +8084,11 @@ public class NotificationCompat {
         static class Api20Impl {
             private Api20Impl() { }
 
-            static Notification.Action.Builder createBuilder(int icon, CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
-            }
-
             public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
                     int i) {
                 // Cast to Notification.Action (added in API 19) must happen in static inner class.
                 return NotificationCompat.getActionCompatFromAction(
                         (Notification.Action) parcelables.get(i));
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
-         * were added in API 23; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(23)
-        static class Api23Impl {
-            private Api23Impl() { }
-
-            static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
-                    PendingIntent intent) {
-                return new Notification.Action.Builder(icon, title, intent);
             }
         }
 
@@ -9635,24 +9484,17 @@ public class NotificationCompat {
         final boolean authRequired =
                 Build.VERSION.SDK_INT >= 31 ? Api31Impl.isAuthenticationRequired(action) : false;
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (Api23Impl.getIcon(action) == null && action.icon != 0) {
-                return new Action(action.icon, action.title, action.actionIntent,
-                        action.getExtras(), remoteInputs, null,
-                        allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
-                        authRequired);
-            }
-            IconCompat icon = Api23Impl.getIcon(action) == null
-                    ? null : IconCompat.createFromIconOrNullIfZeroResId(Api23Impl.getIcon(action));
-            return new Action(icon, action.title, action.actionIntent, action.getExtras(),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction,
-                    showsUserInterface, isContextual, authRequired);
-        } else {
+        if (action.getIcon() == null && action.icon != 0) {
             return new Action(action.icon, action.title, action.actionIntent,
-                    action.getExtras(),
-                    remoteInputs, null, allowGeneratedReplies, semanticAction,
-                    showsUserInterface, isContextual, authRequired);
+                    action.getExtras(), remoteInputs, null,
+                    allowGeneratedReplies, semanticAction, showsUserInterface, isContextual,
+                    authRequired);
         }
+        IconCompat icon = action.getIcon() == null ? null
+                : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
+        return new Action(icon, action.title, action.actionIntent, action.getExtras(),
+                remoteInputs, null, allowGeneratedReplies, semanticAction,
+                showsUserInterface, isContextual, authRequired);
     }
 
     /** Returns the invisible actions contained within the given notification. */
@@ -9987,20 +9829,6 @@ public class NotificationCompat {
     @Deprecated
     @SuppressWarnings("PrivateConstructorForUtilityClass")
     public NotificationCompat() {
-    }
-
-    /**
-     * A class for wrapping calls to {@link Notification} methods which
-     * were added in API 23; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() { }
-
-        static Icon getIcon(Notification.Action action) {
-            return action.getIcon();
-        }
     }
 
     /**
