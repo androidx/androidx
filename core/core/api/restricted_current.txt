@@ -554,7 +554,7 @@ package androidx.core.app {
     ctor public NotificationCompat.BigPictureStyle();
     ctor public NotificationCompat.BigPictureStyle(androidx.core.app.NotificationCompat.Builder?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.Bitmap?);
-    method @RequiresApi(23) public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.drawable.Icon?);
+    method public androidx.core.app.NotificationCompat.BigPictureStyle bigLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.Bitmap?);
     method @RequiresApi(31) public androidx.core.app.NotificationCompat.BigPictureStyle bigPicture(android.graphics.drawable.Icon?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? getPictureIcon(android.os.Bundle?);
@@ -656,7 +656,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setGroupAlertBehavior(@androidx.core.app.NotificationCompat.GroupAlertBehavior int);
     method public androidx.core.app.NotificationCompat.Builder setGroupSummary(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.Bitmap?);
-    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.drawable.Icon?);
+    method public androidx.core.app.NotificationCompat.Builder setLargeIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder setLocalOnly(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
@@ -675,7 +675,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat?);
     method public androidx.core.app.NotificationCompat.Builder setShowWhen(boolean);
     method public androidx.core.app.NotificationCompat.Builder setSilent(boolean);
-    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setSmallIcon(androidx.core.graphics.drawable.IconCompat);
+    method public androidx.core.app.NotificationCompat.Builder setSmallIcon(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.app.NotificationCompat.Builder setSmallIcon(int);
     method public androidx.core.app.NotificationCompat.Builder setSmallIcon(int, int);
     method public androidx.core.app.NotificationCompat.Builder setSortKey(String?);
@@ -707,7 +707,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.CallStyle setDeclineButtonColorHint(@ColorInt int);
     method public androidx.core.app.NotificationCompat.CallStyle setIsVideo(boolean);
     method public androidx.core.app.NotificationCompat.CallStyle setVerificationIcon(android.graphics.Bitmap?);
-    method @RequiresApi(23) public androidx.core.app.NotificationCompat.CallStyle setVerificationIcon(android.graphics.drawable.Icon?);
+    method public androidx.core.app.NotificationCompat.CallStyle setVerificationIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.CallStyle setVerificationText(CharSequence?);
     field public static final int CALL_TYPE_INCOMING = 1; // 0x1
     field public static final int CALL_TYPE_ONGOING = 2; // 0x2
@@ -1059,7 +1059,7 @@ package androidx.core.app {
   public class Person {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromAndroidPerson(android.app.Person);
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
-    method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromPersistableBundle(android.os.PersistableBundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromPersistableBundle(android.os.PersistableBundle);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public String? getKey();
     method public CharSequence? getName();
@@ -1070,7 +1070,7 @@ package androidx.core.app {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();
     method public androidx.core.app.Person.Builder toBuilder();
     method public android.os.Bundle toBundle();
-    method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.PersistableBundle toPersistableBundle();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.PersistableBundle toPersistableBundle();
   }
 
   public static class Person.Builder {
@@ -1964,9 +1964,9 @@ package androidx.core.graphics.drawable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addToShortcutIntent(android.content.Intent, android.graphics.drawable.Drawable?, android.content.Context);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void checkResource(android.content.Context);
     method public static androidx.core.graphics.drawable.IconCompat? createFromBundle(android.os.Bundle);
-    method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.content.Context, android.graphics.drawable.Icon);
-    method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.graphics.drawable.Icon);
-    method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIconOrNullIfZeroResId(android.graphics.drawable.Icon);
+    method public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.content.Context, android.graphics.drawable.Icon);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat createFromIcon(android.graphics.drawable.Icon);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIconOrNullIfZeroResId(android.graphics.drawable.Icon);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(android.net.Uri);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(String);
@@ -1987,8 +1987,8 @@ package androidx.core.graphics.drawable {
     method public androidx.core.graphics.drawable.IconCompat setTintList(android.content.res.ColorStateList?);
     method public androidx.core.graphics.drawable.IconCompat setTintMode(android.graphics.PorterDuff.Mode?);
     method public android.os.Bundle toBundle();
-    method @Deprecated @RequiresApi(23) public android.graphics.drawable.Icon toIcon();
-    method @RequiresApi(23) public android.graphics.drawable.Icon toIcon(android.content.Context?);
+    method @Deprecated public android.graphics.drawable.Icon toIcon();
+    method public android.graphics.drawable.Icon toIcon(android.content.Context?);
     field public static final int TYPE_ADAPTIVE_BITMAP = 5; // 0x5
     field public static final int TYPE_BITMAP = 1; // 0x1
     field public static final int TYPE_DATA = 3; // 0x3
@@ -2695,7 +2695,7 @@ package androidx.core.service.quicksettings {
 
 package androidx.core.telephony {
 
-  @RequiresApi(22) public class SubscriptionManagerCompat {
+  public class SubscriptionManagerCompat {
     method public static int getSlotIndex(int);
   }
 
@@ -2787,8 +2787,8 @@ package androidx.core.text {
   public static final class PrecomputedTextCompat.Params {
     ctor @RequiresApi(28) public PrecomputedTextCompat.Params(android.text.PrecomputedText.Params);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean equalsWithoutTextDirection(androidx.core.text.PrecomputedTextCompat.Params);
-    method @RequiresApi(23) public int getBreakStrategy();
-    method @RequiresApi(23) public int getHyphenationFrequency();
+    method public int getBreakStrategy();
+    method public int getHyphenationFrequency();
     method public android.text.TextDirectionHeuristic? getTextDirection();
     method public android.text.TextPaint getTextPaint();
   }
@@ -2796,8 +2796,8 @@ package androidx.core.text {
   public static class PrecomputedTextCompat.Params.Builder {
     ctor public PrecomputedTextCompat.Params.Builder(android.text.TextPaint);
     method public androidx.core.text.PrecomputedTextCompat.Params build();
-    method @RequiresApi(23) public androidx.core.text.PrecomputedTextCompat.Params.Builder! setBreakStrategy(int);
-    method @RequiresApi(23) public androidx.core.text.PrecomputedTextCompat.Params.Builder! setHyphenationFrequency(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setBreakStrategy(int);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setHyphenationFrequency(int);
     method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setTextDirection(android.text.TextDirectionHeuristic);
   }
 
@@ -3142,7 +3142,7 @@ package androidx.core.view {
     method public int getPhysicalHeight();
     method public int getPhysicalWidth();
     method @Deprecated public boolean isNative();
-    method @RequiresApi(android.os.Build.VERSION_CODES.M) public android.view.Display.Mode? toMode();
+    method public android.view.Display.Mode? toMode();
   }
 
   public final class DisplayCutoutCompat {
@@ -3955,8 +3955,8 @@ package androidx.core.view {
     method public void setContentDescription(CharSequence);
     method public void setDimens(int, int, int, int, int, int);
     method public void setText(CharSequence);
-    method @RequiresApi(23) public android.view.ViewStructure toViewStructure();
-    method @RequiresApi(23) public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
+    method public android.view.ViewStructure toViewStructure();
+    method public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
   }
 
   public final class WindowCompat {
