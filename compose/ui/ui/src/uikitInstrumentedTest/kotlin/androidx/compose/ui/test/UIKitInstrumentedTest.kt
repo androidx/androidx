@@ -49,10 +49,21 @@ import platform.Foundation.runUntilDate
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDelegateProtocol
 import platform.UIKit.UIColor
+import platform.UIKit.UIInterfaceOrientationLandscapeLeft
+import platform.UIKit.UIInterfaceOrientationLandscapeRight
+import platform.UIKit.UIInterfaceOrientationMask
+import platform.UIKit.UIInterfaceOrientationMaskAll
+import platform.UIKit.UIInterfaceOrientationMaskLandscapeLeft
+import platform.UIKit.UIInterfaceOrientationMaskLandscapeRight
+import platform.UIKit.UIInterfaceOrientationMaskPortrait
+import platform.UIKit.UIInterfaceOrientationMaskPortraitUpsideDown
+import platform.UIKit.UIInterfaceOrientationPortrait
+import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 import platform.UIKit.UIScreen
 import platform.UIKit.UITouch
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
+import platform.UIKit.attemptRotationToDeviceOrientation
 import platform.UIKit.endEditing
 import platform.UIKit.systemBackgroundColor
 import platform.darwin.NSObject
@@ -90,7 +101,7 @@ internal class UIKitInstrumentedTest {
     val appDelegate = MockAppDelegate()
     val keyboardHeight: Dp get() =
         KeyboardVisibilityListener.keyboardFrame.useContents { size.height.dp }
-    val screenSize: DpSize = screen.bounds().useContents { DpSize(size.width.dp, size.height.dp) }
+    val screenSize: DpSize get() = screen.bounds().useContents { DpSize(size.width.dp, size.height.dp) }
     internal lateinit var hostingViewController: ComposeHostingViewController
 
     private val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
@@ -103,6 +114,7 @@ internal class UIKitInstrumentedTest {
 
     fun setContent(
         configure: ComposeUIViewControllerConfiguration.() -> Unit = {},
+        interfaceOrientation: UIInterfaceOrientationMask = UIInterfaceOrientationMaskPortrait,
         content: @Composable () -> Unit
     ) {
         hostingViewController = ComposeHostingViewController(
@@ -117,6 +129,10 @@ internal class UIKitInstrumentedTest {
 
         appDelegate.setUpWindow(hostingViewController)
         waitForIdle()
+
+        if (appDelegate.requestInterfaceOrientationChangeIfNeeded(interfaceOrientation)) {
+            delay(700)
+        }
     }
 
     fun tearDown() {
@@ -275,6 +291,8 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
     private var _window: UIWindow? = null
     override fun window(): UIWindow? = _window
 
+    private var supportedInterfaceOrientations: UIInterfaceOrientationMask = UIInterfaceOrientationMaskAll
+
     fun setUpWindow(viewController: UIViewController) {
         UIApplication.sharedApplication().setDelegate(this)
 
@@ -293,5 +311,39 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
         val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         window.rootViewController = UIViewController()
         window.makeKeyAndVisible()
+    }
+
+    /**
+     * Applies the requested interface orientation if it differs from the current one.
+     *
+     * @return true if a rotation was requested, false if no change was necessary.
+     */
+    fun requestInterfaceOrientationChangeIfNeeded(
+        requestedInterfaceOrientationMask: UIInterfaceOrientationMask
+    ): Boolean {
+        val currentInterfaceOrientation = window?.windowScene?.interfaceOrientation
+
+        val currentInterfaceOrientationMask: UIInterfaceOrientationMask = when (currentInterfaceOrientation) {
+            UIInterfaceOrientationPortrait -> UIInterfaceOrientationMaskPortrait
+            UIInterfaceOrientationPortraitUpsideDown -> UIInterfaceOrientationMaskPortraitUpsideDown
+            UIInterfaceOrientationLandscapeLeft -> UIInterfaceOrientationMaskLandscapeLeft
+            UIInterfaceOrientationLandscapeRight -> UIInterfaceOrientationMaskLandscapeRight
+            else -> UIInterfaceOrientationMaskAll
+        }
+
+        if (requestedInterfaceOrientationMask != currentInterfaceOrientationMask) {
+            supportedInterfaceOrientations = requestedInterfaceOrientationMask
+            UIViewController.attemptRotationToDeviceOrientation()
+            return true
+        }
+
+        return false
+    }
+
+    override fun application(
+        application: UIApplication,
+        supportedInterfaceOrientationsForWindow: UIWindow?
+    ): UIInterfaceOrientationMask {
+        return supportedInterfaceOrientations
     }
 }

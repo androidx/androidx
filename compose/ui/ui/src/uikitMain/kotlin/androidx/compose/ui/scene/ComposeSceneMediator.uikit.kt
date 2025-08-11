@@ -310,13 +310,6 @@ internal class ComposeSceneMediator(
     private val windowInsetsManager = UIKitWindowInsetsManager(interfaceOrientation = interfaceOrientationState)
 
     /**
-     * Used for testing purposes.
-     */
-    fun updateSafeAreaInsets(insets: PlatformInsets) {
-        windowInsetsManager.safeAreaInsets.value = insets
-    }
-
-    /**
      * A callback to define whether the precondition for the user input view hit test is met.
      *
      * @param point Point in the interaction view coordinate space.
@@ -566,7 +559,7 @@ internal class ComposeSceneMediator(
                                 start = initialSafeAreaInsets,
                                 stop = _overlayView.safeAreaInsets.toPlatformInsets(density),
                                 fraction = progress
-                            )
+                        )
                         size = lerp(
                             start = initialSize,
                             stop = currentViewSize,

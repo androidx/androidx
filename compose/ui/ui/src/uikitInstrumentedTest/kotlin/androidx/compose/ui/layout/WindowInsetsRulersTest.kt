@@ -19,6 +19,7 @@ package androidx.compose.ui.layout
 import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -27,15 +28,22 @@ import androidx.compose.ui.layout.WindowInsetsRulers.Companion.DisplayCutout
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.test.runUIKitInstrumentedTest
-import androidx.compose.ui.uikit.InterfaceOrientation
+import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toPlatformInsets
 import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.UIKit.UIInterfaceOrientationMaskLandscapeLeft
+import platform.UIKit.UIInterfaceOrientationMaskLandscapeRight
+import platform.UIKit.UIInterfaceOrientationMaskPortrait
+import platform.UIKit.UIInterfaceOrientationMaskPortraitUpsideDown
+import platform.UIKit.UIView
 
+@OptIn(ExperimentalForeignApi::class)
 class WindowInsetsRulersTest {
 
     private var contentSize: IntSize = IntSize.Zero
@@ -43,103 +51,79 @@ class WindowInsetsRulersTest {
     private val displayCutoutRects = mutableObjectListOf<IntRect?>()
 
     @Test
-    fun testDisplayCutoutsCountForPortrait() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.Portrait)
+    fun testDisplayCutoutsForPortrait() = runUIKitInstrumentedTest {
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskPortrait) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertNotNull(insetsRect)
-        assertFalse(displayCutoutRects.any { it == null })
         assertEquals(1, displayCutoutRects.size)
+        assertEquals(
+            IntRect(0, 0, screenSizePx.width, hostingViewController.view.safeAreaPlatformInsets.top),
+            displayCutoutRects.first()
+        )
     }
 
     @Test
-    fun testDisplayCutoutsCountForLandscapeLeft() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.LandscapeLeft)
-
-        waitForIdle()
+    fun testDisplayCutoutsForLandscapeLeft() = runUIKitInstrumentedTest {
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertNotNull(insetsRect)
-        assertFalse(displayCutoutRects.any { it == null })
         assertEquals(1, displayCutoutRects.size)
+        assertEquals(
+            IntRect(screenSizePx.width - hostingViewController.view.safeAreaPlatformInsets.right,0,screenSizePx.width,screenSizePx.height),
+            displayCutoutRects.first()
+        )
     }
 
     @Test
-    fun testDisplayCutoutsCountForLandscapeRight() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.LandscapeRight)
-
-        waitForIdle()
+    fun testDisplayCutoutsForLandscapeRight() = runUIKitInstrumentedTest {
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertNotNull(insetsRect)
-        assertFalse(displayCutoutRects.any { it == null })
         assertEquals(1, displayCutoutRects.size)
-    }
-
-    @Test
-    fun testDisplayCutoutsCountForPortraitUpsideDown() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.PortraitUpsideDown)
-
-        waitForIdle()
-
-        assertNotNull(insetsRect)
-        assertFalse(displayCutoutRects.any { it == null })
-        assertEquals(1, displayCutoutRects.size)
+        assertEquals(
+            IntRect(0,0,hostingViewController.view.safeAreaPlatformInsets.left,screenSizePx.height),
+            displayCutoutRects.first()
+        )
     }
 
     @Test
     fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortrait() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.Portrait)
-
-        waitForIdle()
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskPortrait) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertEquals(boundingRectFromDisplayCutouts, insetsRect)
     }
 
     @Test
     fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeLeft() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.LandscapeLeft)
-
-        waitForIdle()
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeLeft) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertEquals(boundingRectFromDisplayCutouts, insetsRect)
     }
 
     @Test
     fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsLandscapeRight() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.LandscapeRight)
-
-        waitForIdle()
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskLandscapeRight) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertEquals(boundingRectFromDisplayCutouts, insetsRect)
     }
 
     @Test
     fun testDisplayCutoutWindowInsetsRulersBoundedByDisplayCutoutsPortraitUpsideDown() = runUIKitInstrumentedTest {
-        setSimpleRulerContent(mutableStateOf(DisplayCutout))
-
-        hostingViewController.updateSafeAreaInsets(PlatformInsets(1,2,3,4))
-        hostingViewController.updateInterfaceOrientation(InterfaceOrientation.PortraitUpsideDown)
-
-        waitForIdle()
+        setContent(interfaceOrientation = UIInterfaceOrientationMaskPortraitUpsideDown) {
+            SimpleRulerContent(rulerState = mutableStateOf(DisplayCutout))
+        }
 
         assertEquals(boundingRectFromDisplayCutouts, insetsRect)
     }
@@ -177,25 +161,24 @@ class WindowInsetsRulersTest {
         return IntRect(left, top, right, bottom)
     }
 
-    private fun UIKitInstrumentedTest.setSimpleRulerContent(rulerState: State<WindowInsetsRulers>) {
-        setContent {
-            Box(
-                Modifier.fillMaxSize()
-                    .onPlaced {
-                        contentSize = it.size
-                    }
-                    .rulerToRect(rulerState.value) {
-                        insetsRect = it
-                        displayCutoutRects.clear()
-                        if (rulerState.value == DisplayCutout) {
-                            val cutouts = getDisplayCutoutBounds()
-                            cutouts.forEach { cutoutRulers ->
-                                displayCutoutRects.add(readRulers(cutoutRulers))
-                            }
+    @Composable
+    private fun SimpleRulerContent(rulerState: State<WindowInsetsRulers>) {
+        Box(
+            Modifier.fillMaxSize()
+                .onPlaced {
+                    contentSize = it.size
+                }
+                .rulerToRect(rulerState.value) {
+                    insetsRect = it
+                    displayCutoutRects.clear()
+                    if (rulerState.value == DisplayCutout) {
+                        val cutouts = getDisplayCutoutBounds()
+                        cutouts.forEach { cutoutRulers ->
+                            displayCutoutRects.add(readRulers(cutoutRulers))
                         }
                     }
-            )
-        }
+                }
+        )
     }
 
     private fun PlacementScope.readRulers(rulers: RectRulers): IntRect? {
@@ -219,4 +202,10 @@ class WindowInsetsRulersTest {
             block(readRulers(ruler.current))
         }
     }
+
+    private val UIKitInstrumentedTest.screenSizePx get() = with(density) {
+        IntSize(screenSize.width.roundToPx(), screenSize.height.roundToPx())
+    }
+
+    private val UIView.safeAreaPlatformInsets: PlatformInsets get() = safeAreaInsets.toPlatformInsets(density)
 }

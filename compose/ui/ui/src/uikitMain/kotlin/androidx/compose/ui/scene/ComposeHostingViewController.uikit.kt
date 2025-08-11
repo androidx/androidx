@@ -79,7 +79,6 @@ import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGSize
 import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 import platform.UIKit.UIApplication
-import platform.UIKit.UIEdgeInsets
 import platform.UIKit.UIStatusBarAnimation
 import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UITraitCollection
@@ -224,14 +223,6 @@ internal class ComposeHostingViewController(
 
     fun updateInterfaceOrientation(orientation: InterfaceOrientation) {
         interfaceOrientationState.value = orientation
-    }
-
-    /**
-     * Used for testing purposes.
-     * Updates safe area insets on the main compose scene mediator.
-     */
-    fun updateSafeAreaInsets(insets: PlatformInsets) {
-        mediator?.updateSafeAreaInsets(insets)
     }
 
 
