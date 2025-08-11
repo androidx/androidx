@@ -4262,6 +4262,12 @@ public final class androidx/compose/ui/window/DesktopPopup_desktopKt {
 	public static final fun rememberCursorPositionProvider-B5uucgQ (JLandroidx/compose/ui/Alignment;FLandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/window/PopupPositionProvider;
 }
 
+public final class androidx/compose/ui/window/DialogModalityType$Companion {
+	public final fun getApplicationModal ()Landroidx/compose/ui/window/DialogModalityType;
+	public final fun getDocumentModal ()Landroidx/compose/ui/window/DialogModalityType;
+	public final fun getModeless ()Landroidx/compose/ui/window/DialogModalityType;
+}
+
 public final class androidx/compose/ui/window/DialogProperties {
 	public static final field $stable I
 	public fun <init> (ZZZ)V

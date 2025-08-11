@@ -35,6 +35,7 @@ import androidx.compose.ui.util.setPositionSafely
 import androidx.compose.ui.util.setSizeSafely
 import androidx.compose.ui.util.setUndecoratedSafely
 import androidx.compose.ui.util.windowListenerRef
+import androidx.compose.ui.window.DialogModalityType
 import androidx.compose.ui.window.DialogState
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.DialogWindowScope
@@ -192,6 +193,7 @@ fun SwingDialog(
     alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    modalityType: ModalityType = ModalityType.DOCUMENT_MODAL,
     init: (ComposeDialog) -> Unit,
     content: @Composable DialogWindowScope.() -> Unit
 ) {
@@ -206,6 +208,7 @@ fun SwingDialog(
     val currentEnabled by rememberUpdatedState(enabled)
     val currentFocusable by rememberUpdatedState(focusable)
     val currentAlwaysOnTop by rememberUpdatedState(alwaysOnTop)
+    val currentModalityType by rememberUpdatedState(modalityType)
     val currentOnCloseRequest by rememberUpdatedState(onCloseRequest)
 
     val updater = remember(::ComponentUpdater)
@@ -238,8 +241,8 @@ fun SwingDialog(
             val graphicsConfiguration = WindowLocationTracker.lastActiveGraphicsConfiguration
             val dialog = if (owner != null) {
                 ComposeDialog(
-                    owner,
-                    ModalityType.DOCUMENT_MODAL,
+                    owner = owner,
+                    modalityType = currentModalityType,
                     graphicsConfiguration = graphicsConfiguration
                 )
             } else {
@@ -291,6 +294,7 @@ fun SwingDialog(
                 set(currentEnabled, dialog::setEnabled)
                 set(currentFocusable, dialog::setFocusableWindowState)
                 set(currentAlwaysOnTop, dialog::setAlwaysOnTop)
+                set(currentModalityType, dialog::setModalityType)
                 set(currentDecoration.resizerThickness, dialog::undecoratedResizerThickness::set)
             }
             if (state.size != appliedState.size) {
@@ -308,4 +312,15 @@ fun SwingDialog(
         },
         content = content
     )
+}
+
+/**
+ * Returns the AWT [java.awt.Dialog.ModalityType] corresponding to the given Compose
+ * [DialogModalityType].
+ */
+internal fun DialogModalityType.toAwtModalityType(): ModalityType = when (this) {
+    DialogModalityType.Modeless -> ModalityType.MODELESS
+    DialogModalityType.DocumentModal -> ModalityType.DOCUMENT_MODAL
+    DialogModalityType.ApplicationModal -> ModalityType.APPLICATION_MODAL
+    else -> error("Unknown dialog modality type: $this")
 }

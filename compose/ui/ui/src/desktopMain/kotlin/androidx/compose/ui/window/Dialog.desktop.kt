@@ -21,6 +21,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.SwingDialog
+import androidx.compose.ui.awt.toAwtModalityType
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEvent
 import java.awt.Window
@@ -58,6 +59,7 @@ fun Dialog(
     enabled = enabled,
     focusable = focusable,
     alwaysOnTop = false,
+    modalityType = DialogModalityType.DocumentModal,
     onPreviewKeyEvent = onPreviewKeyEvent,
     onKeyEvent = onKeyEvent,
     content = content
@@ -95,6 +97,7 @@ fun DialogWindow(
         enabled = enabled,
         focusable = focusable,
         alwaysOnTop = false,
+        modalityType = DialogModalityType.DocumentModal,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
         content = content
@@ -189,6 +192,7 @@ fun DialogWindow(
         enabled = enabled,
         focusable = focusable,
         alwaysOnTop = alwaysOnTop,
+        modalityType = DialogModalityType.DocumentModal,
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
         content = content,
@@ -244,6 +248,7 @@ fun DialogWindow(
  * @param focusable Whether the dialog can receive focus.
  * @param alwaysOnTop whether the dialog will always be on top of other windows and dialogs in the
  * application.
+ * @param modalityType Modality type for the dialog.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
  * Return true to stop propagation of this event. If you return false, the key event will be
@@ -262,12 +267,13 @@ fun DialogWindow(
     visible: Boolean = true,
     title: String = "Untitled",
     icon: Painter? = null,
-    decoration: WindowDecoration,
+    decoration: WindowDecoration = WindowDecoration.SystemDefault,
     transparent: Boolean = false,
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
     alwaysOnTop: Boolean = false,
+    modalityType: DialogModalityType,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable DialogWindowScope.() -> Unit
@@ -284,6 +290,7 @@ fun DialogWindow(
         enabled = enabled,
         focusable = focusable,
         alwaysOnTop = alwaysOnTop,
+        modalityType = modalityType.toAwtModalityType(),
         onPreviewKeyEvent = onPreviewKeyEvent,
         onKeyEvent = onKeyEvent,
         init = { },
@@ -394,4 +401,40 @@ interface DialogWindowScope : WindowScope {
      * [ComposeDialog] that was created inside [androidx.compose.ui.window.DialogWindow].
      */
     override val window: ComposeDialog
+}
+
+/**
+ * Modal dialogs block all input to some windows.
+ *
+ * [DialogModalityType] defines the which set of windows input is blocked to.
+ */
+@ExperimentalComposeUiApi
+class DialogModalityType private constructor(val name: String) {
+    override fun toString() = name
+
+    companion object {
+        /**
+         * Indicates the dialog should be non-modal, i.e., should not block any windows.
+         *
+         * In AWT, this corresponds to [java.awt.Dialog.ModalityType.MODELESS].
+         */
+        val Modeless = DialogModalityType("Modeless")
+
+        /**
+         * Indicates the dialog should block windows from the same document, except its own
+         * descendants.
+         *
+         * A document is a top-level window without an owner.
+         *
+         * In AWT, this corresponds to [java.awt.Dialog.ModalityType.DOCUMENT_MODAL].
+         */
+        val DocumentModal = DialogModalityType("Document")
+
+        /**
+         * Indicates the dialog should block windows from the same application.
+         *
+         * In AWT, this corresponds to [java.awt.Dialog.ModalityType.APPLICATION_MODAL].
+         */
+        val ApplicationModal = DialogModalityType("Application")
+    }
 }
