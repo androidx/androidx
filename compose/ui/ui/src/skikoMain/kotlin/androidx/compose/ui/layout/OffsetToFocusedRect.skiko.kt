@@ -119,15 +119,15 @@ internal fun Density.adjustedToFocusedRectOffset(
         IntOffset(
             x = directionalFocusOffset(
                 contentSize = size.width.toFloat(),
-                contentInsetStart = insets.left.toPx(),
-                contentInsetEnd = insets.right.toPx(),
+                contentInsetStart = insets.left.toFloat(),
+                contentInsetEnd = insets.right.toFloat(),
                 focusStart = focusedRect.left,
                 focusEnd = focusedRect.right
             ),
             y = directionalFocusOffset(
                 contentSize = size.height.toFloat(),
-                contentInsetStart = insets.top.toPx(),
-                contentInsetEnd = insets.bottom.toPx(),
+                contentInsetStart = insets.top.toFloat(),
+                contentInsetEnd = insets.bottom.toFloat(),
                 focusStart = focusedRect.top,
                 focusEnd = focusedRect.bottom,
             )

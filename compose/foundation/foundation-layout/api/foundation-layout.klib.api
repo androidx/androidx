@@ -1,7 +1,5 @@
 // Klib ABI Dump
 // Targets: [iosArm64.uikitArm64, iosSimulatorArm64.uikitSimArm64, iosX64.uikitX64, js, macosArm64, macosX64, wasmJs]
-// Alias: ios => [iosArm64.uikitArm64, iosSimulatorArm64.uikitSimArm64, iosX64.uikitX64]
-// Alias: macos => [macosArm64, macosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -246,11 +244,7 @@ final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_
 final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineBlockElement$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineBlockElement$stableprop|#static{}androidx_compose_foundation_layout_WithAlignmentLineBlockElement$stableprop[0]
 final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineElement$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_WithAlignmentLineElement$stableprop|#static{}androidx_compose_foundation_layout_WithAlignmentLineElement$stableprop[0]
 final val androidx.compose.foundation.layout/captionBar // androidx.compose.foundation.layout/captionBar|@androidx.compose.foundation.layout.WindowInsets.Companion{}captionBar[0]
-    // Targets: [js, macos, wasmJs]
     final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-captionBar>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/captionBar.<get-captionBar>|<get-captionBar>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-
-    // Targets: [ios]
-    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-captionBar>(): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/captionBar.<get-captionBar>|<get-captionBar>@androidx.compose.foundation.layout.WindowInsets.Companion(){}[0]
 final val androidx.compose.foundation.layout/displayCutout // androidx.compose.foundation.layout/displayCutout|@androidx.compose.foundation.layout.WindowInsets.Companion{}displayCutout[0]
     final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-displayCutout>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/displayCutout.<get-displayCutout>|<get-displayCutout>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final val androidx.compose.foundation.layout/ime // androidx.compose.foundation.layout/ime|@androidx.compose.foundation.layout.WindowInsets.Companion{}ime[0]

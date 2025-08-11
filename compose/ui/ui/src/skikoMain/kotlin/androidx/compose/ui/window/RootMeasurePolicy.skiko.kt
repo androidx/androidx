@@ -57,8 +57,8 @@ private fun Density.applyPlatformConstrains(
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean
 ): Constraints {
-    val horizontal = platformInsets.left.roundToPx() + platformInsets.right.roundToPx()
-    val vertical = platformInsets.top.roundToPx() + platformInsets.bottom.roundToPx()
+    val horizontal = platformInsets.left + platformInsets.right
+    val vertical = platformInsets.top + platformInsets.bottom
     val platformConstraints = constraints.offset(-horizontal, -vertical)
     return if (usePlatformDefaultWidth) {
         platformConstraints.constrain(
@@ -74,16 +74,16 @@ internal fun MeasureScope.positionWithInsets(
     size: IntSize,
     calculatePosition: (sizeWithoutInsets: IntSize) -> IntOffset,
 ): IntOffset {
-    val horizontal = insets.left.roundToPx() + insets.right.roundToPx()
-    val vertical = insets.top.roundToPx() + insets.bottom.roundToPx()
+    val horizontal = insets.left + insets.right
+    val vertical = insets.top + insets.bottom
     val sizeWithoutInsets = IntSize(
         width = size.width - horizontal,
         height = size.height - vertical
     )
     val position = calculatePosition(sizeWithoutInsets)
     val offset = IntOffset(
-        x = insets.left.roundToPx(),
-        y = insets.top.roundToPx()
+        x = insets.left,
+        y = insets.top
     )
     return position + offset
 }

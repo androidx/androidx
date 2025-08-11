@@ -214,9 +214,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(project(":compose:ui:ui-uikit"))
                 }
             }
-            notMobileMain.dependsOn(skikoMain)
             desktopMain {
-                dependsOn(notMobileMain)
+                dependsOn(skikoMain)
                 dependencies {
                     implementation(libs.kotlinStdlibJdk8)
                 }
@@ -225,8 +224,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             nonJvmMain.dependsOn(skikoMain)
             nativeMain.dependsOn(nonJvmMain)
             webMain.dependsOn(nonJvmMain)
-            webMain.dependsOn(notMobileMain)
-            macosMain.dependsOn(notMobileMain)
+            webMain.dependsOn(skikoMain)
+            macosMain.dependsOn(skikoMain)
 
             jsMain {
                 kotlin.srcDir("src/webCommonW3C/kotlin")

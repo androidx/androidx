@@ -37,3 +37,12 @@ actual val LocalLifecycleOwner get() = androidx.lifecycle.compose.LocalLifecycle
 val LocalPlatformScreenReader = staticCompositionLocalOf<PlatformScreenReader> {
     error("CompositionLocal LocalPlatformScreenReader not present")
 }
+
+/**
+ * The CompositionLocal that provides information about window insets associated with current
+ * scene.
+ */
+@InternalComposeUiApi
+val LocalPlatformWindowInsets = staticCompositionLocalOf<PlatformWindowInsets> {
+    error("CompositionLocal LocalPlatformWindowInsets not present")
+}

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -42,18 +41,16 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.isEqualTo
-import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformInsets
-import androidx.compose.ui.platform.PlatformInsetsConfig
+import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.WindowInfoImpl
-import androidx.compose.ui.platform.ZeroInsetsConfig
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.scene.ComposeScene
-import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.CanvasLayersComposeScene
+import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
@@ -69,8 +66,6 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.fail
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -79,36 +74,6 @@ import org.jetbrains.skia.Surface
 
 @OptIn(ExperimentalTestApi::class)
 class PopupTest {
-
-    private fun setPlatformInsets(insets: PlatformInsets) {
-        PlatformInsetsConfig = object : InsetsConfig {
-            override val safeInsets: PlatformInsets
-                @Composable get() = insets
-
-            override val ime: PlatformInsets
-                @Composable get() = PlatformInsets.Zero
-
-            @Composable
-            override fun excludeInsets(
-                safeInsets: Boolean,
-                ime: Boolean,
-                content: @Composable () -> Unit
-            ) {
-                content()
-            }
-        }
-    }
-
-    @BeforeTest
-    fun before() {
-        PlatformInsetsConfig = ZeroInsetsConfig
-    }
-
-    @AfterTest
-    fun after() {
-        PlatformInsetsConfig = ZeroInsetsConfig
-    }
-
     @Test
     fun passCompositionLocalsToPopup() = runSkikoComposeUiTest {
         val compositionLocal = staticCompositionLocalOf<Int> {
@@ -681,23 +646,30 @@ class PopupTest {
     fun popupBoundsWithPlatformInsets() = runSkikoComposeUiTest(
         size = Size(200f, 200f)
     ) {
-        setPlatformInsets(PlatformInsets(left = 5.dp, top = 50.dp, right = 5.dp, bottom = 10.dp))
+        val config = with(density) {
+            WindowInsetsConfigSystemBars(
+                insets = PlatformInsets(left = 5.dp, top = 50.dp, right = 5.dp, bottom = 10.dp)
+            )
+        }
+
         setContent {
-            Popup(
-                popupPositionProvider = object : PopupPositionProvider {
-                    override fun calculatePosition(
-                        anchorBounds: IntRect,
-                        windowSize: IntSize,
-                        layoutDirection: LayoutDirection,
-                        popupContentSize: IntSize
-                    ): IntOffset = IntOffset.Zero
+            CompositionLocalProvider(LocalPlatformWindowInsets provides config) {
+                Popup(
+                    popupPositionProvider = object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = IntOffset.Zero
+                    }
+                ) {
+                    Box(Modifier.fillMaxSize().testTag("box1"))
                 }
-            ) {
-                Box(Modifier.fillMaxSize().testTag("box1"))
-            }
-            Box(Modifier.offset(30.dp, 100.dp)) {
-                Popup {
-                    Box(Modifier.size(50.dp).testTag("box2"))
+                Box(Modifier.offset(30.dp, 100.dp)) {
+                    Popup {
+                        Box(Modifier.size(50.dp).testTag("box2"))
+                    }
                 }
             }
         }
@@ -770,4 +742,10 @@ class PopupTest {
             scene.close()
         }
     }
+}
+
+private fun WindowInsetsConfigSystemBars(
+    insets: PlatformInsets
+): PlatformWindowInsets = object : PlatformWindowInsets {
+    override val systemBars: PlatformInsets get() = insets
 }

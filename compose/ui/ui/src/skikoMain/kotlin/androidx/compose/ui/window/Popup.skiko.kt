@@ -38,9 +38,10 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
-import androidx.compose.ui.platform.PlatformInsetsConfig
+import androidx.compose.ui.platform.exclude
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.Content
 import androidx.compose.ui.scene.rememberComposeSceneLayer
@@ -465,9 +466,9 @@ private fun PopupLayout(
             layoutDirection = layoutDirection,
             parentBoundsInWindow = parentBoundsInWindow
         )
-        PlatformInsetsConfig.excludeInsets(
-            safeInsets = properties.usePlatformInsets,
-            ime = false,
+        LocalPlatformWindowInsets.current.exclude(
+            properties.usePlatformInsets,
+            false
         ) {
             Layout(
                 content = currentContent,
@@ -479,10 +480,12 @@ private fun PopupLayout(
 }
 
 private val PopupProperties.platformInsets: PlatformInsets
-    @Composable get() = if (usePlatformInsets) {
-        PlatformInsetsConfig.safeInsets
-    } else {
-        PlatformInsets.Zero
+    @Composable get() {
+        return if (usePlatformInsets) {
+            LocalPlatformWindowInsets.current.systemBars
+        } else {
+            PlatformInsets.Zero
+        }
     }
 
 private fun Modifier.parentBoundsInWindow(
@@ -512,8 +515,8 @@ private fun rememberPopupMeasurePolicy(
         val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
             // Position provider works in coordinates without insets.
             val boundsWithoutInsets = parentBoundsInWindow.translate(
-                -platformInsets.left.roundToPx(),
-                -platformInsets.top.roundToPx()
+                -platformInsets.left,
+                -platformInsets.top
             )
             val positionInWindow = popupPositionProvider.calculatePosition(
                 anchorBounds = boundsWithoutInsets,

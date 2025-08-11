@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.uikit
+package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.unit.dp
-
+internal actual const val HistorySize: Int = 20
 
 /**
- * Composition local for height that is overlapped with keyboard over Compose view.
+ * Some platforms (e.g. iOS) filter certain gestures during velocity calculation.
  */
-@InternalComposeUiApi
-val LocalKeyboardOverlapHeight = compositionLocalOf { 0.dp }
+internal actual fun VelocityTracker1D.shouldUseDataPoints(
+    points: FloatArray,
+    times: FloatArray,
+    count: Int,
+    afterPointerStop: Boolean
+): Boolean = true

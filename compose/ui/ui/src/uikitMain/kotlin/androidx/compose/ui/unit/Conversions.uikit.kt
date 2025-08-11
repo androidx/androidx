@@ -25,7 +25,6 @@ import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGSize
 import platform.CoreGraphics.CGSizeMake
-import platform.UIKit.NSDirectionalEdgeInsets
 import platform.UIKit.UIEdgeInsets
 
 internal fun CGPoint.asDpOffset(): DpOffset = DpOffset(x.dp, y.dp)
@@ -46,21 +45,13 @@ internal fun DpRect.asCGRect() = CGRectMake(
     height.value.toDouble()
 )
 
-internal fun CValue<UIEdgeInsets>.toPlatformInsets() = useContents {
-    PlatformInsets(
-        left = left.dp,
-        top = top.dp,
-        right = right.dp,
-        bottom = bottom.dp
-    )
-}
-
-// TODO: Consider LTR/RTL
-internal fun CValue<NSDirectionalEdgeInsets>.toPlatformInsets() = useContents {
-    PlatformInsets(
-        left = leading.dp,
-        top = top.dp,
-        right = trailing.dp,
-        bottom = bottom.dp
-    )
+internal fun CValue<UIEdgeInsets>.toPlatformInsets(density: Density) = useContents {
+    with(density) {
+        PlatformInsets(
+            left = left.dp,
+            top = top.dp,
+            right = right.dp,
+            bottom = bottom.dp
+        )
+    }
 }

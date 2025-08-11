@@ -140,6 +140,11 @@ interface PlatformContext {
 
     val dragAndDropManager: PlatformDragAndDropManager get() = EmptyDragAndDropManager
 
+    /**
+     * The value that will be provided to [LocalPlatformWindowInsets] by default.
+     */
+    val windowInsets: PlatformWindowInsets get() = DefaultPlatformWindowInsets
+
     var isKeepScreenOnEnabled: Boolean
         get() = false
         set(value) {}
@@ -275,6 +280,7 @@ private object EmptyFocusManager : FocusManager {
 }
 
 private object EmptyDragAndDropManager : PlatformDragAndDropManager
+private object DefaultPlatformWindowInsets : PlatformWindowInsets
 
 /**
  * Helper delegate to re-send missing events to a new listener.

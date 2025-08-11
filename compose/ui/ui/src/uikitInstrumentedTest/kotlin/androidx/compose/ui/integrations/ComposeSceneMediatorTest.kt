@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.integrations
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.backhandler.UIKitBackGestureDispatcher
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.scene.PlatformLayersComposeScene
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -101,6 +103,7 @@ class ComposeSceneMediatorTest {
                 density = Density(1f),
                 getTopLeftOffsetInWindow = { IntOffset.Companion.Zero }
             ),
+            interfaceOrientationState = mutableStateOf(InterfaceOrientation.Portrait),
             composeSceneFactory = { invalidate, platformContext ->
                 PlatformLayersComposeScene(
                     density = Density(1f)

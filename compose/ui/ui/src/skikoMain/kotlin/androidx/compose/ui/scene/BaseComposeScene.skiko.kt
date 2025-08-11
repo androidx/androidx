@@ -41,6 +41,7 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.LocalPlatformScreenReader
+import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.util.trace
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
@@ -152,6 +153,7 @@ internal abstract class BaseComposeScene(
                     LocalComposeScene provides this,
                     LocalComposeSceneContext provides composeSceneContext,
                     LocalPlatformScreenReader provides composeSceneContext.platformContext.screenReader,
+                    LocalPlatformWindowInsets provides composeSceneContext.platformContext.windowInsets,
                     content = content
                 )
             }
