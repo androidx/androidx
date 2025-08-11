@@ -88,11 +88,8 @@ public final class CompoundButtonCompat {
     /**
      * Returns the drawable used as the compound button image
      *
-     * @deprecated Call {@link CompoundButton#getButtonDrawable()} directly.
-     *
      * @see CompoundButton#setButtonDrawable(Drawable)
      */
-    @Deprecated
     public static @Nullable Drawable getButtonDrawable(@NonNull CompoundButton button) {
         return button.getButtonDrawable();
     }

@@ -3385,10 +3385,7 @@ public class ViewCompat {
 
     /**
      * Applies a tint to the background drawable.
-     *
-     * @deprecated Call {@link View#setBackgroundTintList(ColorStateList)} directly.
      */
-    @Deprecated
     public static void setBackgroundTintList(@NonNull View view,
             @Nullable ColorStateList tintList) {
         view.setBackgroundTintList(tintList);
@@ -3409,10 +3406,7 @@ public class ViewCompat {
      * Specifies the blending mode used to apply the tint specified by
      * {@link #setBackgroundTintList(android.view.View, android.content.res.ColorStateList)} to
      * the background drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     *
-     * @deprecated Call {@link View#setBackgroundTintMode(PorterDuff.Mode)} directly.
      */
-    @Deprecated
     public static void setBackgroundTintMode(@NonNull View view, PorterDuff.@Nullable Mode mode) {
         view.setBackgroundTintMode(mode);
     }
@@ -3889,10 +3883,7 @@ public class ViewCompat {
      *
      * @param view view that needs to be offset.
      * @param offset the number of pixels to offset the view by
-     *
-     * @deprecated Call {@link View#offsetTopAndBottom(int)} directly.
      */
-    @Deprecated
     public static void offsetTopAndBottom(@NonNull View view, int offset) {
         view.offsetTopAndBottom(offset);
     }
@@ -3902,10 +3893,7 @@ public class ViewCompat {
      *
      * @param view view which needs to be offset.
      * @param offset the number of pixels to offset the view by
-     *
-     * @deprecated Call {@link View#offsetLeftAndRight(int)} directly.
      */
-    @Deprecated
     public static void offsetLeftAndRight(@NonNull View view, int offset) {
         view.offsetLeftAndRight(offset);
     }
@@ -3974,12 +3962,9 @@ public class ViewCompat {
      * @param indicators a bitmask of indicators that should be enabled, or
      *                   {@code 0} to disable all indicators
      *
-     * @deprecated Call {@link View#setScrollIndicators(int)} directly.
-     *
      * @see #setScrollIndicators(View, int, int)
      * @see #getScrollIndicators(View)
      */
-    @Deprecated
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators) {
         view.setScrollIndicators(indicators);
     }
@@ -4010,12 +3995,9 @@ public class ViewCompat {
      *             </ul>
      * @param mask the mask for scroll indicators.
      *
-     * @deprecated Call {@link View#setScrollIndicators(int, int)} directly.
-     *
      * @see #setScrollIndicators(View, int)
      * @see #getScrollIndicators(View)
      */
-    @Deprecated
     public static void setScrollIndicators(@NonNull View view, @ScrollIndicators int indicators,
             @ScrollIndicators int mask) {
         view.setScrollIndicators(indicators, mask);
@@ -4034,10 +4016,7 @@ public class ViewCompat {
      * @param view view for which to get the state.
      *
      * @return a bitmask representing the enabled scroll indicators
-     *
-     * @deprecated Call {@link View#getScrollIndicators()} directly.
      */
-    @Deprecated
     public static int getScrollIndicators(@NonNull View view) {
         return view.getScrollIndicators();
     }

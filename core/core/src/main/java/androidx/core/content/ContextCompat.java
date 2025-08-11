@@ -422,11 +422,8 @@ public class ContextCompat {
      * @return A single color value in the form 0xAARRGGBB.
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
-     *
-     * @deprecated Call {@link Context#getColor(int)} directly.
      */
     @ColorInt
-    @Deprecated
     public static int getColor(@NonNull Context context, @ColorRes int id) {
         return context.getColor(id);
     }
@@ -600,10 +597,8 @@ public class ContextCompat {
      * @param context      Context to retrieve service from.
      * @param serviceClass The class of the desired service.
      * @return The service or null if the class is not a supported system service.
-     * @deprecated Call {@link Context#getSystemService(Class)} directly.
      * @see Context#getSystemService(Class)
      */
-    @Deprecated
     public static <T> @Nullable T getSystemService(@NonNull Context context,
             @NonNull Class<T> serviceClass) {
         return context.getSystemService(serviceClass);
@@ -697,10 +692,8 @@ public class ContextCompat {
      * @param context      Context to retrieve service name from.
      * @param serviceClass The class of the desired service.
      * @return The service name or null if the class is not a supported system service.
-     * @deprecated Call {@link Context#getSystemServiceName(Class)} directly.
      * @see Context#getSystemServiceName(Class)
      */
-    @Deprecated
     public static @Nullable String getSystemServiceName(@NonNull Context context,
             @NonNull Class<?> serviceClass) {
         return context.getSystemServiceName(serviceClass);

@@ -210,10 +210,7 @@ public final class TextViewCompat {
      *
      * @param textView The TextView against which to invoke the method.
      * @param resId    The resource identifier of the style to apply.
-     *
-     * @deprecated Call {@link TextView#setTextAppearance(int)} directly.
      */
-    @Deprecated
     public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
         textView.setTextAppearance(resId);
     }

@@ -101,8 +101,6 @@ public final class AlarmManagerCompat {
      * typically comes from {@link PendingIntent#getBroadcast
      * IntentSender.getBroadcast()}.
      *
-     * @deprecated Call {@link AlarmManager#setAndAllowWhileIdle(int, long, PendingIntent)} directly.
-     *
      * @see AlarmManager#set(int, long, PendingIntent)
      * @see #setExactAndAllowWhileIdle
      * @see AlarmManager#cancel
@@ -114,7 +112,6 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
-    @Deprecated
     public static void setAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
@@ -203,8 +200,6 @@ public final class AlarmManagerCompat {
      *        typically comes from {@link PendingIntent#getBroadcast
      *        IntentSender.getBroadcast()}.
      *
-     * @deprecated Call {@link AlarmManager#setExactAndAllowWhileIdle(int, long, PendingIntent)} directly.
-     *
      * @see AlarmManager#set
      * @see AlarmManager#setRepeating
      * @see AlarmManager#setWindow
@@ -217,7 +212,6 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
      */
-    @Deprecated
     public static void setExactAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);

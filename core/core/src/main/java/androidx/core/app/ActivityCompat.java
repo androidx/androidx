@@ -315,10 +315,7 @@ public class ActivityCompat extends ContextCompat {
      *
      * <p>Note that this is <em>not</em> a security feature -- you can not trust the
      * referrer information, applications can spoof it.</p>
-     *
-     * @deprecated Call {@link Activity#getReferrer()} directly.
      */
-    @Deprecated
     public static @Nullable Uri getReferrer(@NonNull Activity activity) {
         return activity.getReferrer();
     }

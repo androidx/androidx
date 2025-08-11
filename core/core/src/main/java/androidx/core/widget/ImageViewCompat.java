@@ -29,20 +29,14 @@ import org.jspecify.annotations.Nullable;
 public class ImageViewCompat {
     /**
      * Return the tint applied to the image drawable, if specified.
-     *
-     * @deprecated Call {@link ImageView#getImageTintList()} directly.
      */
-    @Deprecated
     public static @Nullable ColorStateList getImageTintList(@NonNull ImageView view) {
         return view.getImageTintList();
     }
 
     /**
      * Applies a tint to the image drawable.
-     *
-     * @deprecated Call {@link ImageView#setImageTintList(ColorStateList)} directly.
      */
-    @Deprecated
     public static void setImageTintList(@NonNull ImageView view,
             @Nullable ColorStateList tintList) {
         view.setImageTintList(tintList);
@@ -50,10 +44,7 @@ public class ImageViewCompat {
 
     /**
      * Return the blending mode used to apply the tint to the image drawable, if specified.
-     *
-     * @deprecated Call {@link ImageView#getImageTintMode()} directly.
      */
-    @Deprecated
     public static PorterDuff.@Nullable Mode getImageTintMode(@NonNull ImageView view) {
         return view.getImageTintMode();
     }
@@ -62,10 +53,7 @@ public class ImageViewCompat {
      * Specifies the blending mode used to apply the tint specified by
      * {@link #setImageTintList(ImageView, ColorStateList)}
      * to the image drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
-     *
-     * @deprecated Call {@link ImageView#setImageTintMode(PorterDuff.Mode)} directly.
      */
-    @Deprecated
     public static void setImageTintMode(@NonNull ImageView view, PorterDuff.@Nullable Mode mode) {
         view.setImageTintMode(mode);
     }

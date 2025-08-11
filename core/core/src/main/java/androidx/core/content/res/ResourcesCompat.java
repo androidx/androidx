@@ -125,9 +125,7 @@ public final class ResourcesCompat {
      * @return Drawable An object that can be used to draw this resource.
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *                           not exist.
-     * @deprecated Call {@link Resources#getDrawable(int, Theme)} directly.
      */
-    @Deprecated
     public static @Nullable Drawable getDrawable(@NonNull Resources res, @DrawableRes int id,
             @Nullable Theme theme) throws NotFoundException {
         return res.getDrawable(id, theme);
@@ -149,9 +147,7 @@ public final class ResourcesCompat {
      * @return Drawable An object that can be used to draw this resource.
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *                           not exist.
-     * @deprecated Call {@link Resources#getDrawableForDensity(int, int, Theme)} directly.
      */
-    @Deprecated
     public static @Nullable Drawable getDrawableForDensity(@NonNull Resources res,
             @DrawableRes int id, int density, @Nullable Theme theme) throws NotFoundException {
         return res.getDrawableForDensity(id, density, theme);
@@ -171,10 +167,8 @@ public final class ResourcesCompat {
      * @return A single color value in the form {@code 0xAARRGGBB}.
      * @throws NotFoundException Throws NotFoundException if the given ID does
      *                           not exist.
-     * @deprecated Call {@link Resources#getColor(int, Theme)} directly.
      */
     @ColorInt
-    @Deprecated
     public static int getColor(@NonNull Resources res, @ColorRes int id, @Nullable Theme theme)
             throws NotFoundException {
         return res.getColor(id, theme);

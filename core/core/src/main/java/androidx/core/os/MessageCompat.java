@@ -50,12 +50,9 @@ public final class MessageCompat {
      * @param message message for this to set the mode.
      * @param async True if the message is asynchronous.
      *
-     * @deprecated Call {@link Message#setAsynchronous(boolean)} directly.
-     *
      * @see #isAsynchronous(Message)
      * @see Message#setAsynchronous(boolean)
      */
-    @Deprecated
     public static void setAsynchronous(@NonNull Message message, boolean async) {
         message.setAsynchronous(async);
     }
@@ -66,12 +63,9 @@ public final class MessageCompat {
      *
      * @return True if the message is asynchronous.
      *
-     * @deprecated Call {@link Message#isAsynchronous()} directly.
-     *
      * @see #setAsynchronous(Message, boolean)
      * @see Message#isAsynchronous()
      */
-    @Deprecated
     public static boolean isAsynchronous(@NonNull Message message) {
         return message.isAsynchronous();
     }

@@ -842,10 +842,7 @@ public final class NotificationManagerCompat {
      * The interruption filter defines which notifications are allowed to
      * interrupt the user (e.g. via sound &amp; vibration) and is applied
      * globally.
-     *
-     * @deprecated Call {@link NotificationManager#getCurrentInterruptionFilter()} directly.
      */
-    @Deprecated
     public @InterruptionFilter int getCurrentInterruptionFilter() {
         return mNotificationManager.getCurrentInterruptionFilter();
     }

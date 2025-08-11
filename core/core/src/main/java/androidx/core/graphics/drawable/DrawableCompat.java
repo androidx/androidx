@@ -186,10 +186,7 @@ public final class DrawableCompat {
 
     /**
      * Removes the color filter from the given drawable.
-     *
-     * @deprecated Call {@link Drawable#clearColorFilter()} directly.
      */
-    @Deprecated
     @SuppressWarnings("unused")
     public static void clearColorFilter(@NonNull Drawable drawable) {
         drawable.clearColorFilter();
@@ -238,14 +235,12 @@ public final class DrawableCompat {
      *
      * @param drawable The Drawable to process
      * @return A drawable capable of being tinted across all API levels.
-     * @deprecated Call methods on {@link drawable} directly.
      *
      * @see #setTint(Drawable, int)
      * @see #setTintList(Drawable, ColorStateList)
      * @see #setTintMode(Drawable, PorterDuff.Mode)
      * @see #unwrap(Drawable)
      */
-    @Deprecated
     public static @NonNull Drawable wrap(@NonNull Drawable drawable) {
         return drawable;
     }
@@ -280,10 +275,8 @@ public final class DrawableCompat {
      * @return {@code true} if the layout direction change has caused the
      *         appearance of the drawable to change such that it needs to be
      *         re-drawn, {@code false} otherwise
-     * @deprecated Call {@link Drawable#setLayoutDirection(int)} directly.
      * @see Drawable#getLayoutDirection()
      */
-    @Deprecated
     public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
         return drawable.setLayoutDirection(layoutDirection);
     }
@@ -293,10 +286,8 @@ public final class DrawableCompat {
      *
      * @return One of {@link ViewCompat#LAYOUT_DIRECTION_LTR},
      *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}
-     * @deprecated Call {@link Drawable#getLayoutDirection()} directly.
      * @see Drawable#setLayoutDirection(int)
      */
-    @Deprecated
     public static int getLayoutDirection(@NonNull Drawable drawable) {
         return drawable.getLayoutDirection();
     }

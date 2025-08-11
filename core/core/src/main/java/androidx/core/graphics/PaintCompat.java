@@ -41,9 +41,7 @@ public final class PaintCompat {
      * @param paint the paint instance to check
      * @param string the string to test whether there is glyph support
      * @return true if the typeface set on the given paint has a glyph for the string
-     * @deprecated Call {@link Paint#hasGlyph(String)} directly.
      */
-    @Deprecated
     public static boolean hasGlyph(@NonNull Paint paint, @NonNull String string) {
         return paint.hasGlyph(string);
     }

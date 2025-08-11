@@ -67,10 +67,7 @@ public final class AppOpsManagerCompat {
      *
      * @param permission The permission.
      * @return The app op associated with the permission or null.
-     *
-     * @deprecated Call {@link AppOpsManager#permissionToOp(String)} directly.
      */
-    @Deprecated
     public static @Nullable String permissionToOp(@NonNull String permission) {
         return AppOpsManager.permissionToOp(permission);
     }
