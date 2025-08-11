@@ -4969,6 +4969,9 @@ final val androidx.compose.ui.platform/androidx_compose_ui_platform_EmptyInputTr
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_IOSLifecycleOwner$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_IOSLifecycleOwner$stableprop|#static{}androidx_compose_ui_platform_IOSLifecycleOwner$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.platform/androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop|#static{}androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_PlatformWindowContext$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_PlatformWindowContext$stableprop|#static{}androidx_compose_ui_platform_PlatformWindowContext$stableprop[0]
 
 // Targets: [ios]
@@ -5171,6 +5174,9 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_EmptyInputTr
 
 // Targets: [ios]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_IOSLifecycleOwner$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_IOSLifecycleOwner$stableprop_getter|androidx_compose_ui_platform_IOSLifecycleOwner$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.platform/androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop_getter|androidx_compose_ui_platform_MotionDurationScaleImpl$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_PlatformWindowContext$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_PlatformWindowContext$stableprop_getter|androidx_compose_ui_platform_PlatformWindowContext$stableprop_getter(){}[0]

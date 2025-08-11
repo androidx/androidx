@@ -57,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setAccessibilityElements:(nullable NSArray *)accessibilityElements;
 
+- (BOOL)drawsFocusRingWhenChildrenFocused;
+
 @end
 
 NS_ASSUME_NONNULL_END

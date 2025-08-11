@@ -38,4 +38,12 @@
     return YES;
 }
 
+- (BOOL)_drawsFocusRingWhenChildrenFocused {
+    return [self drawsFocusRingWhenChildrenFocused];
+}
+
+- (BOOL)drawsFocusRingWhenChildrenFocused {
+    return YES;
+}
+
 @end

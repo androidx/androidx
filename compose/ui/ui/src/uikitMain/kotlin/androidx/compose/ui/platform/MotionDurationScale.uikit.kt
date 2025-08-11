@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+package androidx.compose.ui.platform
 
-@interface CMPScrollView : UIScrollView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.MotionDurationScale
 
-- (BOOL)accessibilityScrollUpPageSupported;
-- (BOOL)accessibilityScrollDownPageSupported;
-- (BOOL)accessibilityScrollLeftPageSupported;
-- (BOOL)accessibilityScrollRightPageSupported;
-
-- (BOOL)drawsFocusRingWhenChildrenFocused;
-
-@end
+internal class MotionDurationScaleImpl: MotionDurationScale {
+    override var scaleFactor by mutableStateOf(1f)
+}

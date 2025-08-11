@@ -97,6 +97,14 @@ NS_ASSUME_NONNULL_BEGIN
     [super setAccessibilityElements:accessibilityElements];
 }
 
+- (BOOL)_drawsFocusRingWhenChildrenFocused {
+    return [self drawsFocusRingWhenChildrenFocused];
+}
+
+- (BOOL)drawsFocusRingWhenChildrenFocused {
+    return NO;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -37,6 +37,8 @@ internal class UIKitTransparentContainerView(
         bounces = false
     }
 
+    override fun drawsFocusRingWhenChildrenFocused(): Boolean = false
+
     fun runOnceOnAppeared(block: () -> Unit) {
         onAppeared = {
             block()
