@@ -10,13 +10,4 @@
             file="src/androidTest/java/androidx/core/widget/RemoteViewsCompatTest.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/widget/RemoteViewsCompat.kt"/>
-    </issue>
-
 </issues>
