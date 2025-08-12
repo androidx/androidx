@@ -14,5 +14,26 @@
   limitations under the License.
   -->
 
-<color xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/windowSplashScreenBackground" />
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="fill">
+        <color android:color="?attr/windowSplashScreenBackground" />
+    </item>
+    <item
+        android:drawable="?windowSplashScreenAnimatedIcon"
+        android:gravity="center"
+        android:width="@dimen/splashscreen_icon_size_no_background"
+        android:height="@dimen/splashscreen_icon_size_no_background" />
+
+    <!-- We mask the outer bounds of the icon like we do on Android 12 -->
+    <item
+        android:gravity="center"
+        android:width="@dimen/splashscreen_icon_mask_size_no_background"
+        android:height="@dimen/splashscreen_icon_mask_size_no_background">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="@dimen/splashscreen_icon_mask_stroke_no_background"
+                android:color="?windowSplashScreenBackground" />
+        </shape>
+    </item>
+</layer-list>

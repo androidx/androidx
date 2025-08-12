@@ -60,13 +60,13 @@
     <dimen name="notification_small_icon_size_as_large">24dp</dimen>
 
     <!-- the margin at the beginning of the notification content -->
-    <dimen name="notification_content_margin_start">8dp</dimen>
+    <dimen name="notification_content_margin_start">0dp</dimen>
 
     <!-- image margin on the large icon in the narrow media template -->
-    <dimen name="notification_media_narrow_margin">@dimen/notification_content_margin_start</dimen>
+    <dimen name="notification_media_narrow_margin">12dp</dimen>
 
     <!-- the top padding of the notification content -->
-    <dimen name="notification_main_column_padding_top">10dp</dimen>
+    <dimen name="notification_main_column_padding_top">0dp</dimen>
 
     <!-- the paddingtop on the right side of the notification (for time etc.) -->
     <dimen name="notification_right_side_padding_top">4dp</dimen>

@@ -758,27 +758,6 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
-        <location
-            file="src/main/res/drawable-v21"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `layout`.">
-        <location
-            file="src/main/res/layout-v21"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v21"/>
-    </issue>
-
-    <issue
         id="KotlinPropertyAccess"
         message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `parent` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public AccessibilityNodeInfoCompat getParent() {"

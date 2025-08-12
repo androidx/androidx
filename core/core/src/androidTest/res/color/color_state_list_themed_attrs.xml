@@ -14,11 +14,10 @@
      limitations under the License.
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:color="?android:attr/colorForeground"
         android:state_enabled="false"
-        app:alpha="0.5" />
-    <item android:color="?android:attr/colorForeground" />
+        android:alpha="0.5"/>
+    <item android:color="?android:attr/colorForeground"/>
 </selector>

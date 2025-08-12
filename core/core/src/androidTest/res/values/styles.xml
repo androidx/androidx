@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="TestActivityTheme" parent="@android:style/Theme.Holo">
+    <style name="TestActivityTheme" parent="@android:style/Theme.Material">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
     <style name="TextMediumStyle" parent="@android:style/TextAppearance.Medium">

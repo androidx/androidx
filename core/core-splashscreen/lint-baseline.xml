@@ -19,11 +19,4 @@
             file="src/androidTest/java/androidx/core/splashscreen/test/SplashscreenParametrizedTest.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v23`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
-        <location
-            file="src/main/res/drawable-v23"/>
-    </issue>
-
 </issues>
