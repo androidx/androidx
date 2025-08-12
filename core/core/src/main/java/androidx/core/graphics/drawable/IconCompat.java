@@ -598,15 +598,15 @@ public class IconCompat extends CustomVersionedParcelable {
                         BitmapFactory.decodeByteArray((byte[]) mObj1, mInt1, mInt2)
                 );
             case TYPE_URI:
-                InputStream is = getUriInputStream(context);
-                if (is != null) {
+                try (InputStream is = getUriInputStream(context)) {
                     return new BitmapDrawable(context.getResources(),
                             BitmapFactory.decodeStream(is));
+                } catch (Exception e) {
+                    Log.e(TAG, "Unable to load image from URI: " + getUri(), e);
                 }
                 break;
             case TYPE_URI_ADAPTIVE_BITMAP:
-                is = getUriInputStream(context);
-                if (is != null) {
+                try (InputStream is = getUriInputStream(context)) {
                     if (Build.VERSION.SDK_INT >= 26) {
                         return Api26Impl.createAdaptiveIconDrawable(null,
                                 new BitmapDrawable(context.getResources(),
@@ -616,6 +616,8 @@ public class IconCompat extends CustomVersionedParcelable {
                                 createLegacyIconFromAdaptiveIcon(
                                         BitmapFactory.decodeStream(is), false));
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "Unable to load image from URI_ADAPTIVE_BITMAP: " + getUri(), e);
                 }
                 break;
         }
@@ -1269,6 +1271,11 @@ public class IconCompat extends CustomVersionedParcelable {
                     } else {
                         icon = Icon.createWithBitmap(createLegacyIconFromAdaptiveIcon(
                                 BitmapFactory.decodeStream(is), false));
+                    }
+                    try {
+                        is.close();
+                    } catch (Exception e) {
+                        /* ignore */
                     }
                     break;
                 default:
