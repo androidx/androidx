@@ -759,24 +759,6 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 23 &amp;&amp; extras.containsKey(EXTRA_VERIFICATION_ICON)) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/PackageManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
         message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 23. Merge all the resources in this folder into `drawable`.">
         <location
             file="src/main/res/drawable-v21"/>

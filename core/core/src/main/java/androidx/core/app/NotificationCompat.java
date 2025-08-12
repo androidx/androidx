@@ -4695,7 +4695,7 @@ public class NotificationCompat {
             } else if (extras.containsKey(EXTRA_CALL_PERSON_COMPAT)) {
                 mPerson = Person.fromBundle(extras.getBundle(EXTRA_CALL_PERSON_COMPAT));
             }
-            if (Build.VERSION.SDK_INT >= 23 && extras.containsKey(EXTRA_VERIFICATION_ICON)) {
+            if (extras.containsKey(EXTRA_VERIFICATION_ICON)) {
                 mVerificationIcon = IconCompat.createFromIcon((Icon) extras.getParcelable(
                         EXTRA_VERIFICATION_ICON));
             } else if (extras.containsKey(EXTRA_VERIFICATION_ICON_COMPAT)) {
