@@ -40,9 +40,3 @@ enum class InterfaceOrientation(private val rawValue: UIInterfaceOrientation) {
         }
     }
 }
-
-/**
- * Composition local for [InterfaceOrientation]
- */
-@InternalComposeUiApi
-val LocalInterfaceOrientation = staticCompositionLocalOf { InterfaceOrientation.Portrait }
