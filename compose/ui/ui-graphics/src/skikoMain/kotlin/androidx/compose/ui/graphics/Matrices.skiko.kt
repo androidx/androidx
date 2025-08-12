@@ -133,4 +133,6 @@ fun prepareTransformationMatrix(
 
 // Copy from Android's frameworks/base/libs/hwui/utils/MathUtils.h
 private const val NON_ZERO_EPSILON = 0.001f
+
+@Suppress("NOTHING_TO_INLINE")
 private inline fun Float.isZero(): Boolean = abs(this) <= NON_ZERO_EPSILON

@@ -28,6 +28,7 @@ import java.io.InputStream
  *
  * @throws IllegalArgumentException if there is no [resourcePath] in resources
  */
+@Suppress("DEPRECATION")
 @Deprecated("Migrate to the Compose resources library. See https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html")
 inline fun <T> useResource(
     resourcePath: String,
@@ -42,6 +43,7 @@ inline fun <T> useResource(
  * @throws IllegalArgumentException if there is no [resourcePath] in resources
  */
 @PublishedApi
+@Suppress("DEPRECATION")
 @Deprecated("Migrate to the Compose resources library. See https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html")
 internal fun openResource(
     resourcePath: String,

@@ -28,9 +28,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
-import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillManager
-import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
@@ -436,8 +434,11 @@ internal class RootNodeOwner(
         override val accessibilityManager = DefaultAccessibilityManager()
         override val graphicsContext get() = this@RootNodeOwner.graphicsContext
         override val textToolbar get() = platformContext.textToolbar
-        override val autofillTree = AutofillTree()
-        override val autofill: Autofill?  get() = null
+        @Suppress("DEPRECATION")
+        override val autofillTree = androidx.compose.ui.autofill.AutofillTree()
+        @Suppress("DEPRECATION")
+        override val autofill: androidx.compose.ui.autofill.Autofill?
+            get() = null
         // TODO https://youtrack.jetbrains.com/issue/CMP-1572
         override val autofillManager: AutofillManager? get() = null
         override val density get() = this@RootNodeOwner.density
@@ -809,7 +810,7 @@ internal class RootNodeOwner(
         }
 
         @ExperimentalComposeUiApi
-        override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+        override fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {
         }
     }
 

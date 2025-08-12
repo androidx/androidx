@@ -119,6 +119,7 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
 private fun TextFieldCharSequence.toTextFieldValue() =
     TextFieldValue(toString(), selection, composition)
 
+@Suppress("NOTHING_TO_INLINE")
 @OptIn(ExperimentalComposeUiApi::class)
 private inline fun (() -> TextFieldCharSequence).asTextEditorState() = object : TextEditorState {
 

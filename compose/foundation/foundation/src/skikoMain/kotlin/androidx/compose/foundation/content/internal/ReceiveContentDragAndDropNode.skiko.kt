@@ -17,12 +17,12 @@
 package androidx.compose.foundation.content.internal
 
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 
 internal actual fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
     dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
 ): DragAndDropTargetModifierNode {
-    TODO("Not yet implemented")
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-1263
+    throw NotImplementedError()
 }

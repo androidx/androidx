@@ -4273,7 +4273,6 @@ public final class androidx/compose/ui/window/DialogProperties {
 	public fun <init> (ZZZ)V
 	public synthetic fun <init> (ZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (ZZZZZJILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZ[Ljava/lang/Void;Z)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDismissOnBackPress ()Z
 	public final fun getDismissOnClickOutside ()Z
@@ -4379,7 +4378,6 @@ public final class androidx/compose/ui/window/PopupProperties {
 	public static final field $stable I
 	public fun <init> (ZZZZ)V
 	public synthetic fun <init> (ZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (ZZZ[Ljava/lang/Void;Z)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getClippingEnabled ()Z
 	public final fun getDismissOnBackPress ()Z

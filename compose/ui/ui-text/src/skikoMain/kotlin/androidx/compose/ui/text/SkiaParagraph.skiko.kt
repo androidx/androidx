@@ -657,6 +657,7 @@ internal class SkiaParagraph(
     /**
      * Check if the given offset is in the given range.
      */
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun checkOffsetIsValid(offset: Int) {
         requirePrecondition(offset in 0..text.length) {
             "offset($offset) is out of bounds [0,${text.length}]"

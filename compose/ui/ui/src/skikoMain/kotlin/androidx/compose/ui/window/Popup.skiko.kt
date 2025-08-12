@@ -97,31 +97,6 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
         usePlatformInsets = true,
     )
 
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
-        focusable: Boolean,
-        dismissOnBackPress: Boolean,
-        dismissOnClickOutside: Boolean,
-
-        /*
-         * Temporary hack to skip unsupported arguments from Android source set.
-         * Should be removed after upstreaming changes from JetBrains' fork.
-         *
-         * After skipping this unsupported argument, you must name all later arguments.
-         */
-        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE", "UNUSED_PARAMETER")
-        vararg unsupported: Nothing,
-
-        clippingEnabled: Boolean,
-    ) : this(
-        focusable = focusable,
-        dismissOnBackPress = dismissOnBackPress,
-        dismissOnClickOutside = dismissOnClickOutside,
-        clippingEnabled = clippingEnabled,
-        usePlatformDefaultWidth = false,
-        usePlatformInsets = true,
-    )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PopupProperties) return false

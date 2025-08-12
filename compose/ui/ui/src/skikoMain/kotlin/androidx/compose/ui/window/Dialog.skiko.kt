@@ -91,30 +91,6 @@ actual class DialogProperties @ExperimentalComposeUiApi constructor(
         scrimColor = DefaultScrimColor,
     )
 
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    constructor(
-        dismissOnBackPress: Boolean,
-        dismissOnClickOutside: Boolean,
-
-        /*
-         * Temporary hack to skip unsupported arguments from Android source set.
-         * Should be removed after upstreaming changes from JetBrains' fork.
-         *
-         * After skip this unsupported argument, you must name all subsequent arguments.
-         */
-        @Suppress("FORBIDDEN_VARARG_PARAMETER_TYPE")
-        vararg unsupported: Nothing,
-
-        usePlatformDefaultWidth: Boolean,
-    ) : this(
-        dismissOnBackPress = dismissOnBackPress,
-        dismissOnClickOutside = dismissOnClickOutside,
-        usePlatformDefaultWidth = usePlatformDefaultWidth,
-        usePlatformInsets = true,
-        useSoftwareKeyboardInset = true,
-        scrimColor = DefaultScrimColor,
-    )
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DialogProperties) return false

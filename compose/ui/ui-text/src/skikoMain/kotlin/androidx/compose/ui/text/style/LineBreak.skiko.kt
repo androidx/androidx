@@ -26,12 +26,12 @@ actual value class LineBreak private constructor(
     internal val mask: Int
 ) {
     actual companion object {
-        actual val Simple: LineBreak = LineBreak(1)
+        @Stable actual val Simple: LineBreak = LineBreak(1)
 
-        actual val Heading: LineBreak = LineBreak(2)
+        @Stable actual val Heading: LineBreak = LineBreak(2)
 
-        actual val Paragraph: LineBreak = LineBreak(3)
+        @Stable actual val Paragraph: LineBreak = LineBreak(3)
 
-        actual val Unspecified: LineBreak = LineBreak(4)
+        @Stable actual val Unspecified: LineBreak = LineBreak(4)
     }
 }

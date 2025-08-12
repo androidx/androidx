@@ -32,4 +32,6 @@ internal actual fun createPlatformRippleNode(
     return CommonRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
 }
 
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 internal actual typealias PlatformRipple = CommonRipple

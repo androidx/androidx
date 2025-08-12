@@ -49,9 +49,10 @@ import org.xml.sax.InputSource
  * @param resourcePath  path to the resource
  * @return [Painter] used for drawing the loaded resource
  */
+@Composable
+@Suppress("DEPRECATION")
 @Deprecated("Migrate to the Compose resources library. See https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-images-resources.html " +
     "If you need to load resources specificly from Java classpath, you should still use the new resource library and use a snippet from https://github.com/JetBrains/compose-multiplatform-core/pull/1457")
-@Composable
 fun painterResource(
     resourcePath: String
 ): Painter  = when (resourcePath.substringAfterLast(".")) {
@@ -61,6 +62,7 @@ fun painterResource(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun rememberSvgResource(resourcePath: String): Painter {
     val density = LocalDensity.current
     return remember(resourcePath, density) {
@@ -71,6 +73,7 @@ private fun rememberSvgResource(resourcePath: String): Painter {
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun rememberVectorXmlResource(resourcePath: String): Painter {
     val density = LocalDensity.current
     val image = remember(resourcePath, density) {
@@ -82,6 +85,7 @@ private fun rememberVectorXmlResource(resourcePath: String): Painter {
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun rememberBitmapResource(resourcePath: String): Painter {
     val image = remember(resourcePath) {
         useResource(resourcePath, ::loadImageBitmap)

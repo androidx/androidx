@@ -353,7 +353,6 @@ internal class FontCache {
             }
             is GenericFontFamily -> fontFamily.aliases
             is DefaultFontFamily -> FontFamily.SansSerif.aliases
-            else -> throw IllegalArgumentException("Unknown font family type: $fontFamily")
         }
 }
 

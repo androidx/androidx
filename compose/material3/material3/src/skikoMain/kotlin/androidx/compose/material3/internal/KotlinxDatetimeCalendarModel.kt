@@ -43,8 +43,8 @@ internal class KotlinxDatetimeCalendarModel(locale: CalendarLocale) : CalendarMo
             val localDate = Clock.System.now().toLocalDateTime(systemTZ)
             return CalendarDate(
                 year = localDate.year,
-                month = localDate.monthNumber,
-                dayOfMonth = localDate.dayOfMonth,
+                month = localDate.month.number,
+                dayOfMonth = localDate.day,
                 utcTimeMillis = localDate.date
                     .atTime(Midnight)
                     .toInstant(TimeZone.UTC)
@@ -145,7 +145,7 @@ internal class KotlinxDatetimeCalendarModel(locale: CalendarLocale) : CalendarMo
 
         return CalendarMonth(
             year = dateTime.year,
-            month = dateTime.monthNumber,
+            month = dateTime.month.number,
             numberOfDays = dateTime.month
                 .numberOfDays(dateTime.year.isLeapYear()),
             daysFromStartOfWeekToFirstOfMonth = monthStart

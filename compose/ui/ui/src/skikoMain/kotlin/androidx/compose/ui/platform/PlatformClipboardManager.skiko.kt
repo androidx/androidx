@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.text.AnnotatedString
 import org.jetbrains.skiko.ClipboardManager as SkikoCLipboardManager
 
+@Suppress("DEPRECATION")
 internal class PlatformClipboardManager : ClipboardManager {
     val skikoClipboardManager = SkikoCLipboardManager()
 

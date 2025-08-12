@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/420551535
+
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1265/Implement-rememberDefaultPrefetchExecutor
+// TODO: https://youtrack.jetbrains.com/issue/CMP-1265
 
-/**
- * Remembers the platform-specific implementation for scheduling lazy layout item prefetch
- * (pre-composing next items in advance during the scrolling).
- */
 @Composable
 @ExperimentalFoundationApi
 internal actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {

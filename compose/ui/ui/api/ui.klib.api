@@ -2213,7 +2213,6 @@ final class androidx.compose.ui.spatial/RelativeLayoutBounds { // androidx.compo
 
 final class androidx.compose.ui.window/DialogProperties { // androidx.compose.ui.window/DialogProperties|null[0]
     constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/DialogProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
-    constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlin/Array<out kotlin/Nothing>..., kotlin/Boolean) // androidx.compose.ui.window/DialogProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Array<out|kotlin.Nothing>...;kotlin.Boolean){}[0]
 
     final val dismissOnBackPress // androidx.compose.ui.window/DialogProperties.dismissOnBackPress|{}dismissOnBackPress[0]
         final fun <get-dismissOnBackPress>(): kotlin/Boolean // androidx.compose.ui.window/DialogProperties.dismissOnBackPress.<get-dismissOnBackPress>|<get-dismissOnBackPress>(){}[0]
@@ -2234,7 +2233,6 @@ final class androidx.compose.ui.window/DialogProperties { // androidx.compose.ui
 
 final class androidx.compose.ui.window/PopupProperties { // androidx.compose.ui.window/PopupProperties|null[0]
     constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
-    constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Array<out kotlin/Nothing>..., kotlin/Boolean) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Array<out|kotlin.Nothing>...;kotlin.Boolean){}[0]
 
     final val clippingEnabled // androidx.compose.ui.window/PopupProperties.clippingEnabled|{}clippingEnabled[0]
         final fun <get-clippingEnabled>(): kotlin/Boolean // androidx.compose.ui.window/PopupProperties.clippingEnabled.<get-clippingEnabled>|<get-clippingEnabled>(){}[0]

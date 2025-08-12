@@ -20,13 +20,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1349/Implement-LocalBringIntoViewSpec
 /**
  * A composition local to customize the focus scrolling behavior used by some scrollable containers.
  * [LocalBringIntoViewSpec] has a platform defined default behavior.
  */
 @ExperimentalFoundationApi
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec> =
     staticCompositionLocalOf {
         BringIntoViewSpec.DefaultBringIntoViewSpec

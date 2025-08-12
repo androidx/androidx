@@ -200,16 +200,16 @@ private value class ValuePlatformInsets(
     ): this(checkBoundsAndPackInsets(left, top, right, bottom))
 
     override val left: Int
-        inline get() = ((packedValue ushr 48) and 0xFFFF).toInt()
+        get() = ((packedValue ushr 48) and 0xFFFF).toInt()
 
     override val top: Int
-        inline get() = ((packedValue ushr 32) and 0xFFFF).toInt()
+        get() = ((packedValue ushr 32) and 0xFFFF).toInt()
 
     override val right: Int
-        inline get() = ((packedValue ushr 16) and 0xFFFF).toInt()
+        get() = ((packedValue ushr 16) and 0xFFFF).toInt()
 
     override val bottom: Int
-        inline get() = (packedValue and 0xFFFF).toInt()
+        get() = (packedValue and 0xFFFF).toInt()
 
     override fun toString(): String {
         return "ValueInsets($left, $top, $right, $bottom)"

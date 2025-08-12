@@ -310,6 +310,13 @@ public abstract interface class androidx/compose/ui/text/Paragraph {
 	public static synthetic fun paint-hn5TExg$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
 }
 
+public final class androidx/compose/ui/text/Paragraph$DefaultImpls {
+	public static synthetic fun getLineEnd$default (Landroidx/compose/ui/text/Paragraph;IZILjava/lang/Object;)I
+	public static synthetic fun paint-LG529CI$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+	public static synthetic fun paint-RPmYEkk$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;JLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;ILjava/lang/Object;)V
+	public static synthetic fun paint-hn5TExg$default (Landroidx/compose/ui/text/Paragraph;Landroidx/compose/ui/graphics/Canvas;Landroidx/compose/ui/graphics/Brush;FLandroidx/compose/ui/graphics/Shadow;Landroidx/compose/ui/text/style/TextDecoration;Landroidx/compose/ui/graphics/drawscope/DrawStyle;IILjava/lang/Object;)V
+}
+
 public abstract interface class androidx/compose/ui/text/ParagraphIntrinsics {
 	public fun getHasStaleResolvedFonts ()Z
 	public abstract fun getMaxIntrinsicWidth ()F
