@@ -173,10 +173,11 @@ fun testContentDirectionLocaleFallback(text: String, locale: String) {
                         localeList = LocaleList(Locale(locale)),
                         textDirection = TextDirection.Content
                     ),
+                    annotations = emptyList(),
                     density = LocalDensity.current,
                     fontFamilyResolver = LocalFontFamilyResolver.current,
                 ),
-                constraints = Constraints.fixedWidth(size.width)
+                constraints = Constraints(maxWidth = size.width)
             )
             Canvas(
                 Modifier.size(
