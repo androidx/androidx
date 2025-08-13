@@ -76,15 +76,16 @@ public final class ICUCompat {
         } else {
             try {
                 final Object[] args = new Object[] { locale };
+                Locale localeWithSubtags = (Locale) sAddLikelySubtagsMethod.invoke(null, args);
                 // ULocale.addLikelySubtags(ULocale) is @NonNull
                 //noinspection ConstantConditions
-                return Api21Impl.getScript((Locale) sAddLikelySubtagsMethod.invoke(null, args));
+                return localeWithSubtags.getScript();
             } catch (InvocationTargetException e) {
                 Log.w(TAG, e);
             } catch (IllegalAccessException e) {
                 Log.w(TAG, e);
             }
-            return Api21Impl.getScript(locale);
+            return locale.getScript();
         }
     }
     private ICUCompat() {
@@ -106,16 +107,6 @@ public final class ICUCompat {
 
         static String getScript(Object uLocale) {
             return ((ULocale) uLocale).getScript();
-        }
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static String getScript(Locale locale) {
-            return locale.getScript();
         }
     }
 }

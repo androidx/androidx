@@ -23,9 +23,8 @@ import android.view.animation.PathInterpolator;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Helper for creating path-based {@link Interpolator} instances. On API 21 or newer, the
- * platform implementation will be used and on older platforms a compatible alternative
- * implementation will be used.
+ * Helper for creating path-based {@link Interpolator} instances. The platform implementation will
+ * be used.
  */
 public final class PathInterpolatorCompat {
 
@@ -46,7 +45,7 @@ public final class PathInterpolatorCompat {
      * @return the {@link Interpolator} representing the {@link Path}
      */
     public static @NonNull Interpolator create(@NonNull Path path) {
-        return Api21Impl.createPathInterpolator(path);
+        return new PathInterpolator(path);
     }
 
     /**
@@ -58,7 +57,7 @@ public final class PathInterpolatorCompat {
      * @return the {@link Interpolator} representing the quadratic Bezier curve
      */
     public static @NonNull Interpolator create(float controlX, float controlY) {
-        return Api21Impl.createPathInterpolator(controlX, controlY);
+        return new PathInterpolator(controlX, controlY);
     }
 
     /**
@@ -73,25 +72,6 @@ public final class PathInterpolatorCompat {
      */
     public static @NonNull Interpolator create(float controlX1, float controlY1,
             float controlX2, float controlY2) {
-        return Api21Impl.createPathInterpolator(controlX1, controlY1, controlX2, controlY2);
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static Interpolator createPathInterpolator(Path path) {
-            return new PathInterpolator(path);
-        }
-
-        static Interpolator createPathInterpolator(float controlX, float controlY) {
-            return new PathInterpolator(controlX, controlY);
-        }
-
-        static Interpolator createPathInterpolator(float controlX1, float controlY1,
-                float controlX2, float controlY2) {
-            return new PathInterpolator(controlX1, controlY1, controlX2, controlY2);
-        }
+        return new PathInterpolator(controlX1, controlY1, controlX2, controlY2);
     }
 }

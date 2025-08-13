@@ -61,8 +61,8 @@ public final class AlarmManagerCompat {
     @SuppressLint("MissingPermission")
     public static void setAlarmClock(@NonNull AlarmManager alarmManager, long triggerTime,
             @NonNull PendingIntent showIntent, @NonNull PendingIntent operation) {
-        Api21Impl.setAlarmClock(alarmManager,
-                Api21Impl.createAlarmClockInfo(triggerTime, showIntent), operation);
+        AlarmManager.AlarmClockInfo info = new AlarmManager.AlarmClockInfo(triggerTime, showIntent);
+        alarmManager.setAlarmClock(info, operation);
     }
 
     /**
@@ -249,22 +249,6 @@ public final class AlarmManagerCompat {
     }
 
     private AlarmManagerCompat() {
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setAlarmClock(AlarmManager alarmManager, Object info,
-                PendingIntent operation) {
-            alarmManager.setAlarmClock((AlarmManager.AlarmClockInfo) info, operation);
-        }
-
-        static AlarmManager.AlarmClockInfo createAlarmClockInfo(long triggerTime,
-                PendingIntent showIntent) {
-            return new AlarmManager.AlarmClockInfo(triggerTime, showIntent);
-        }
     }
 
     @RequiresApi(31)

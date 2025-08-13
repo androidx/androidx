@@ -47,7 +47,7 @@ public final class CompoundButtonCompat {
      */
     public static void setButtonTintList(@NonNull CompoundButton button,
             @Nullable ColorStateList tint) {
-        Api21Impl.setButtonTintList(button, tint);
+        button.setButtonTintList(tint);
     }
 
     /**
@@ -56,7 +56,7 @@ public final class CompoundButtonCompat {
      * @see #setButtonTintList(CompoundButton, ColorStateList)
      */
     public static @Nullable ColorStateList getButtonTintList(@NonNull CompoundButton button) {
-        return Api21Impl.getButtonTintList(button);
+        return button.getButtonTintList();
     }
 
     /**
@@ -73,7 +73,7 @@ public final class CompoundButtonCompat {
      */
     public static void setButtonTintMode(@NonNull CompoundButton button,
             PorterDuff.@Nullable Mode tintMode) {
-        Api21Impl.setButtonTintMode(button, tintMode);
+        button.setButtonTintMode(tintMode);
     }
 
     /**
@@ -82,7 +82,7 @@ public final class CompoundButtonCompat {
      * @see #setButtonTintMode(CompoundButton, PorterDuff.Mode)
      */
     public static PorterDuff.@Nullable Mode getButtonTintMode(@NonNull CompoundButton button) {
-        return Api21Impl.getButtonTintMode(button);
+        return button.getButtonTintMode();
     }
 
     /**
@@ -92,27 +92,5 @@ public final class CompoundButtonCompat {
      */
     public static @Nullable Drawable getButtonDrawable(@NonNull CompoundButton button) {
         return button.getButtonDrawable();
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static void setButtonTintList(CompoundButton compoundButton, ColorStateList tint) {
-            compoundButton.setButtonTintList(tint);
-        }
-
-        static ColorStateList getButtonTintList(CompoundButton compoundButton) {
-            return compoundButton.getButtonTintList();
-        }
-
-        static void setButtonTintMode(CompoundButton compoundButton, PorterDuff.Mode tintMode) {
-            compoundButton.setButtonTintMode(tintMode);
-        }
-
-        static PorterDuff.Mode getButtonTintMode(CompoundButton compoundButton) {
-            return compoundButton.getButtonTintMode();
-        }
     }
 }

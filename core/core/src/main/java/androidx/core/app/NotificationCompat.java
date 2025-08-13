@@ -7329,7 +7329,8 @@ public class NotificationCompat {
                 if (parcelables != null) {
                     Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
-                        actions[i] = Api20Impl.getActionCompatFromAction(parcelables, i);
+                        actions[i] = getActionCompatFromAction(
+                                (Notification.Action) parcelables.get(i));
                     }
                     Collections.addAll(mActions, (Action[]) actions);
                 }
@@ -8074,22 +8075,6 @@ public class NotificationCompat {
                 mFlags |= mask;
             } else {
                 mFlags &= ~mask;
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.WearableExtender} methods which
-         * were added in API 20; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        static class Api20Impl {
-            private Api20Impl() { }
-
-            public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
-                    int i) {
-                // Cast to Notification.Action (added in API 19) must happen in static inner class.
-                return NotificationCompat.getActionCompatFromAction(
-                        (Notification.Action) parcelables.get(i));
             }
         }
 

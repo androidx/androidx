@@ -156,7 +156,7 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     }
 
     private static String getLikelyScript(Locale locale) {
-        final String script = Api21Impl.getScript(locale);
+        final String script = locale.getScript();
         if (!script.isEmpty()) {
             return script;
         } else {
@@ -260,15 +260,5 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
     public Locale getFirstMatch(String @NonNull [] supportedLocales) {
         return computeFirstMatch(Arrays.asList(supportedLocales),
                 false /* assume English is not supported */);
-    }
-
-    static class Api21Impl {
-        private Api21Impl() {
-            // This class is not instantiable.
-        }
-
-        static String getScript(Locale locale) {
-            return locale.getScript();
-        }
     }
 }
