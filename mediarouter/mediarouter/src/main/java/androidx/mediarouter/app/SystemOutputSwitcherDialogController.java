@@ -203,10 +203,26 @@ public final class SystemOutputSwitcherDialogController {
 
     private static boolean isSuitableDeviceAlreadyConnectedAsAudioOutput(
             @NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 23) {
-            return Api23Impl.isSuitableDeviceAlreadyConnectedAsAudioOutput(context);
+        AudioManager audioManager = context.getSystemService(AudioManager.class);
+        AudioDeviceInfo[] audioDeviceInfos = audioManager.getDevices(
+                AudioManager.GET_DEVICES_OUTPUTS);
+        for (AudioDeviceInfo device : audioDeviceInfos) {
+            switch (device.getType()) {
+                case AudioDeviceInfo.TYPE_BLE_BROADCAST:
+                case AudioDeviceInfo.TYPE_BLE_HEADSET:
+                case AudioDeviceInfo.TYPE_BLE_SPEAKER:
+                case AudioDeviceInfo.TYPE_BLUETOOTH_A2DP:
+                case AudioDeviceInfo.TYPE_HEARING_AID:
+                case AudioDeviceInfo.TYPE_LINE_ANALOG:
+                case AudioDeviceInfo.TYPE_LINE_DIGITAL:
+                case AudioDeviceInfo.TYPE_USB_DEVICE:
+                case AudioDeviceInfo.TYPE_USB_HEADSET:
+                case AudioDeviceInfo.TYPE_WIRED_HEADPHONES:
+                case AudioDeviceInfo.TYPE_WIRED_HEADSET:
+                    return true;
+            }
         }
-        return true;
+        return false;
     }
 
     @RequiresApi(30)
@@ -228,35 +244,6 @@ public final class SystemOutputSwitcherDialogController {
 
         static boolean showSystemOutputSwitcher(MediaRouter2 mediaRouter2) {
             return mediaRouter2.showSystemOutputSwitcher();
-        }
-    }
-
-    @RequiresApi(23)
-    static final class Api23Impl {
-        private Api23Impl() {
-        }
-
-        public static boolean isSuitableDeviceAlreadyConnectedAsAudioOutput(Context context) {
-            AudioManager audioManager = context.getSystemService(AudioManager.class);
-            AudioDeviceInfo[] audioDeviceInfos = audioManager.getDevices(
-                    AudioManager.GET_DEVICES_OUTPUTS);
-            for (AudioDeviceInfo device : audioDeviceInfos) {
-                switch (device.getType()) {
-                    case AudioDeviceInfo.TYPE_BLE_BROADCAST:
-                    case AudioDeviceInfo.TYPE_BLE_HEADSET:
-                    case AudioDeviceInfo.TYPE_BLE_SPEAKER:
-                    case AudioDeviceInfo.TYPE_BLUETOOTH_A2DP:
-                    case AudioDeviceInfo.TYPE_HEARING_AID:
-                    case AudioDeviceInfo.TYPE_LINE_ANALOG:
-                    case AudioDeviceInfo.TYPE_LINE_DIGITAL:
-                    case AudioDeviceInfo.TYPE_USB_DEVICE:
-                    case AudioDeviceInfo.TYPE_USB_HEADSET:
-                    case AudioDeviceInfo.TYPE_WIRED_HEADPHONES:
-                    case AudioDeviceInfo.TYPE_WIRED_HEADSET:
-                        return true;
-                }
-            }
-            return false;
         }
     }
 }

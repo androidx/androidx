@@ -35,7 +35,6 @@ import android.os.Build;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
@@ -96,7 +95,6 @@ public class SystemOutputSwitcherDialogControllerTest {
         }
     }
 
-    @RequiresApi(23)
     private static void setupConnectedAudioOutput(int... deviceTypes) {
         ShadowAudioManager shadowAudioManager = shadowOf(
                 ApplicationProvider.getApplicationContext().getSystemService(AudioManager.class));

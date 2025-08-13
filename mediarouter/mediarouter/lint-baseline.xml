@@ -46,22 +46,4 @@
             file="src/main/java/androidx/mediarouter/media/RemotePlaybackClient.java"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/SystemOutputSwitcherDialogController.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/SystemOutputSwitcherDialogController.java"/>
-    </issue>
-
 </issues>
