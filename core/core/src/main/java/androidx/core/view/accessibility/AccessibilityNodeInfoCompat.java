@@ -108,7 +108,7 @@ public class AccessibilityNodeInfoCompat {
      * </p>
      * <p class="note">
      * <strong>Note:</strong> Views which support these actions should invoke
-     * {@link ViewCompat#setImportantForAccessibility(View, int)} with
+     * {@link View#setImportantForAccessibility(int)} with
      * {@link ViewCompat#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
      * {@link android.accessibilityservice.AccessibilityService} can discover the set of supported
      * actions.
@@ -5082,7 +5082,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The live region mode, or
      *         {@link ViewCompat#ACCESSIBILITY_LIVE_REGION_NONE} if the view is
      *         not a live region.
-     * @see ViewCompat#getAccessibilityLiveRegion(View)
+     * @see View#getAccessibilityLiveRegion()
      */
     public int getLiveRegion() {
         return mInfo.getLiveRegion();
@@ -5098,7 +5098,7 @@ public class AccessibilityNodeInfoCompat {
      * @param mode The live region mode, or
      *        {@link ViewCompat#ACCESSIBILITY_LIVE_REGION_NONE} if the view is
      *        not a live region.
-     * @see ViewCompat#setAccessibilityLiveRegion(View, int)
+     * @see View#setAccessibilityLiveRegion(int)
      */
     public void setLiveRegion(int mode) {
         mInfo.setLiveRegion(mode);
@@ -6422,7 +6422,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * <p>
      * Testing or debugging tools should create this {@link AccessibilityNodeInfoCompat} node using
-     * {@link ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)}
+     * {@link View#onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)}
      * or {@link AccessibilityNodeProviderCompat} and call this
      * method, then navigate and interact with the node tree by calling methods on the node.
      * Calling this method more than once on the same node is a no-op. After calling this method,

@@ -61,8 +61,7 @@ public interface TintableCompoundButton {
      *                 {@code null} to clear tint
      *
      * @see #getSupportButtonTintMode()
-     * @see androidx.core.graphics.drawable.DrawableCompat#setTintMode(Drawable,
-     * PorterDuff.Mode)
+     * @see Drawable#setTintMode(PorterDuff.Mode)
      */
     void setSupportButtonTintMode(PorterDuff.@Nullable Mode tintMode);
 

@@ -22,6 +22,7 @@ import android.app.AppOpsManager;
 import android.content.Context;
 import android.os.Binder;
 
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
@@ -35,21 +36,33 @@ public final class AppOpsManagerCompat {
     /**
      * Result from {@link #noteOp}: the given caller is allowed to
      * perform the given operation.
+     *
+     * @deprecated Call {@link AppOpsManager#MODE_ALLOWED} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "AppOpsManager.MODE_ALLOWED", imports = "android.app.AppOpsManager")
     public static final int MODE_ALLOWED = AppOpsManager.MODE_ALLOWED;
 
     /**
      * Result from {@link #noteOp}: the given caller is not allowed to perform
      * the given operation, and this attempt should <em>silently fail</em> (it
      * should not cause the app to crash).
+     *
+     * @deprecated Call {@link AppOpsManager#MODE_IGNORED} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "AppOpsManager.MODE_IGNORED", imports = "android.app.AppOpsManager")
     public static final int MODE_IGNORED = AppOpsManager.MODE_IGNORED;
 
     /**
      * Result from {@link #noteOpNoThrow}: the
      * given caller is not allowed to perform the given operation, and this attempt should
      * cause it to have a fatal error, typically a {@link SecurityException}.
+     *
+     * @deprecated Call {@link AppOpsManager#MODE_ERRORED} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "AppOpsManager.MODE_ERRORED", imports = "android.app.AppOpsManager")
     public static final int MODE_ERRORED = AppOpsManager.MODE_ERRORED;
 
     /**
@@ -57,7 +70,11 @@ public final class AppOpsManagerCompat {
      * security check.  This mode is not normally used; it should only be used
      * with appop permissions, and callers must explicitly check for it and
      * deal with it.
+     *
+     * @deprecated Call {@link AppOpsManager#MODE_DEFAULT} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "AppOpsManager.MODE_DEFAULT", imports = "android.app.AppOpsManager")
     public static final int MODE_DEFAULT = AppOpsManager.MODE_DEFAULT;
 
     private AppOpsManagerCompat() {}
@@ -67,7 +84,10 @@ public final class AppOpsManagerCompat {
      *
      * @param permission The permission.
      * @return The app op associated with the permission or null.
+     * @deprecated Call {@link AppOpsManager#permissionToOp(String)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "AppOpsManager.permissionToOp(permission)")
     public static @Nullable String permissionToOp(@NonNull String permission) {
         return AppOpsManager.permissionToOp(permission);
     }
@@ -75,16 +95,16 @@ public final class AppOpsManagerCompat {
     /**
      * Make note of an application performing an operation.  Note that you must pass
      * in both the uid and name of the application to be checked; this function will verify
-     * that these two match, and if not, return {@link #MODE_IGNORED}.  If this call
+     * that these two match, and if not, return {@link AppOpsManager#MODE_IGNORED}.  If this call
      * succeeds, the last execution time of the operation for this app will be updated to
      * the current time.
      * @param context Your context.
      * @param op The operation to note.  One of the OPSTR_* constants.
      * @param uid The user id of the application attempting to perform the operation.
      * @param packageName The name of the application attempting to perform the operation.
-     * @return Returns {@link #MODE_ALLOWED} if the operation is allowed, or
-     * {@link #MODE_IGNORED} if it is not allowed and should be silently ignored (without
-     * causing the app to crash).
+     * @return Returns {@link AppOpsManager#MODE_ALLOWED} if the operation is allowed, or
+     * {@link AppOpsManager#MODE_IGNORED} if it is not allowed and should be silently ignored
+     * (without causing the app to crash).
      * @throws SecurityException If the app has been configured to crash on this op.
      */
     public static int noteOp(@NonNull Context context, @NonNull String op, int uid,
@@ -96,7 +116,7 @@ public final class AppOpsManagerCompat {
 
     /**
      * Like {@link #noteOp} but instead of throwing a {@link SecurityException} it
-     * returns {@link #MODE_ERRORED}.
+     * returns {@link AppOpsManager#MODE_ERRORED}.
      */
     public static int noteOpNoThrow(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
@@ -110,15 +130,15 @@ public final class AppOpsManagerCompat {
      * application when handling an IPC. Note that you must pass the package name
      * of the application that is being proxied while its UID will be inferred from
      * the IPC state; this function will verify that the calling uid and proxied
-     * package name match, and if not, return {@link #MODE_IGNORED}. If this call
+     * package name match, and if not, return {@link AppOpsManager#MODE_IGNORED}. If this call
      * succeeds, the last execution time of the operation for the proxied app and
      * your app will be updated to the current time.
      * @param context Your context.
      * @param op The operation to note.  One of the OPSTR_* constants.
      * @param proxiedPackageName The name of the application calling into the proxy application.
-     * @return Returns {@link #MODE_ALLOWED} if the operation is allowed, or
-     * {@link #MODE_IGNORED} if it is not allowed and should be silently ignored (without
-     * causing the app to crash).
+     * @return Returns {@link AppOpsManager#MODE_ALLOWED} if the operation is allowed, or
+     * {@link AppOpsManager#MODE_IGNORED} if it is not allowed and should be silently ignored
+     * (without causing the app to crash).
      * @throws SecurityException If the app has been configured to crash on this op.
      */
     public static int noteProxyOp(@NonNull Context context, @NonNull String op,
@@ -129,7 +149,7 @@ public final class AppOpsManagerCompat {
 
     /**
      * Like {@link #noteProxyOp(Context, String, String)} but instead
-     * of throwing a {@link SecurityException} it returns {@link #MODE_ERRORED}.
+     * of throwing a {@link SecurityException} it returns {@link AppOpsManager#MODE_ERRORED}.
      */
     public static int noteProxyOpNoThrow(@NonNull Context context, @NonNull String op,
             @NonNull String proxiedPackageName) {
@@ -145,9 +165,9 @@ public final class AppOpsManagerCompat {
      * @param proxyUid The uid of the proxy application.
      * @param op The operation to note.  One of the OPSTR_* constants.
      * @param proxiedPackageName The name of the application calling into the proxy application.
-     * @return Returns {@link #MODE_ALLOWED} if the operation is allowed, or
-     * @link #MODE_IGNORED} if it is not allowed and should be silently ignored (without
-     * causing the app to crash).
+     * @return Returns {@link AppOpsManager#MODE_ALLOWED} if the operation is allowed, or
+     * {@link AppOpsManager#MODE_IGNORED} if it is not allowed and should be silently ignored
+     * (without causing the app to crash).
      */
     public static int checkOrNoteProxyOp(@NonNull Context context, int proxyUid,
             @NonNull String op, @NonNull String proxiedPackageName) {
@@ -157,7 +177,7 @@ public final class AppOpsManagerCompat {
             int proxiedUid = Binder.getCallingUid();
             int checkProxiedOpResult = Api29Impl.checkOpNoThrow(appOpsManager, op, proxiedUid,
                     proxiedPackageName);
-            if (checkProxiedOpResult != MODE_ALLOWED) {
+            if (checkProxiedOpResult != AppOpsManager.MODE_ALLOWED) {
                 return checkProxiedOpResult;
             }
 
@@ -191,7 +211,7 @@ public final class AppOpsManagerCompat {
         static int checkOpNoThrow(@Nullable AppOpsManager appOpsManager,
                 @NonNull String op, int uid, @NonNull String packageName) {
             if (appOpsManager == null) {
-                return MODE_IGNORED;
+                return AppOpsManager.MODE_IGNORED;
             }
 
             return appOpsManager.checkOpNoThrow(op, uid, packageName);

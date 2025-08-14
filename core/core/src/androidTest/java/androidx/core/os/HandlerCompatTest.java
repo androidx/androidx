@@ -126,7 +126,7 @@ public final class HandlerCompatTest {
         Message message = Message.obtain(handler, new Runnable() {
             @Override
             public void run() {
-                isAsync.set(MessageCompat.isAsynchronous(self.get()));
+                isAsync.set(self.get().isAsynchronous());
                 latch.countDown();
             }
         });
@@ -160,7 +160,7 @@ public final class HandlerCompatTest {
         Handler handler = HandlerCompat.createAsync(mThread.getLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
-                isAsync.set(MessageCompat.isAsynchronous(msg));
+                isAsync.set(msg.isAsynchronous());
                 latch.countDown();
                 return true;
             }

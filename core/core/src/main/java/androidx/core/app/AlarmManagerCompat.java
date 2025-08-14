@@ -22,6 +22,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Build;
 
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
@@ -36,7 +37,7 @@ public final class AlarmManagerCompat {
      * The system may choose to display information about this alarm to the user.
      *
      * <p>
-     * This method is like {@link #setExact}, but implies
+     * This method is like {@link AlarmManager#setExact}, but implies
      * {@link AlarmManager#RTC_WAKEUP}.
      *
      * @param alarmManager AlarmManager instance used to set the alarm
@@ -51,7 +52,7 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#set
      * @see AlarmManager#setRepeating
      * @see AlarmManager#setWindow
-     * @see #setExact
+     * @see AlarmManager#setExact
      * @see AlarmManager#cancel
      * @see AlarmManager#getNextAlarmClock()
      * @see android.content.Context#sendBroadcast
@@ -102,7 +103,7 @@ public final class AlarmManagerCompat {
      * IntentSender.getBroadcast()}.
      *
      * @see AlarmManager#set(int, long, PendingIntent)
-     * @see #setExactAndAllowWhileIdle
+     * @see AlarmManager#setExactAndAllowWhileIdle
      * @see AlarmManager#cancel
      * @see android.content.Context#sendBroadcast
      * @see android.content.Context#registerReceiver
@@ -111,7 +112,10 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#ELAPSED_REALTIME_WAKEUP
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
+     * @deprecated Call {@link AlarmManager#setAndAllowWhileIdle(int, long, PendingIntent)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation)")
     public static void setAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
@@ -155,17 +159,17 @@ public final class AlarmManagerCompat {
      * @deprecated Call {@link AlarmManager#setExact(int, long, PendingIntent)} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "alarmManager.setExact(type, triggerAtMillis, operation)")
+    @ReplaceWith(expression = "alarmManager.setExact(type, triggerAtMillis, operation)")
     public static void setExact(@NonNull AlarmManager alarmManager, int type, long triggerAtMillis,
             @NonNull PendingIntent operation) {
         alarmManager.setExact(type, triggerAtMillis, operation);
     }
 
     /**
-     * Like {@link #setExact}, but this alarm will be allowed to execute
+     * Like {@link AlarmManager#setExact}, but this alarm will be allowed to execute
      * even when the system is in low-power idle modes.  If you don't need exact scheduling of
      * the alarm but still need to execute while idle, consider using
-     * {@link #setAndAllowWhileIdle}.  This type of alarm must <b>only</b>
+     * {@link AlarmManager#setAndAllowWhileIdle}.  This type of alarm must <b>only</b>
      * be used for situations where it is actually required that the alarm go off while in
      * idle -- a reasonable example would be for a calendar notification that should make a
      * sound so the user is aware of it.  When the alarm is dispatched, the app will also be
@@ -211,7 +215,10 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#ELAPSED_REALTIME_WAKEUP
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
+     * @deprecated Call {@link AlarmManager#setExactAndAllowWhileIdle(int, long, PendingIntent)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation)")
     public static void setExactAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);

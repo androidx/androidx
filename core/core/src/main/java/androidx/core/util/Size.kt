@@ -70,6 +70,7 @@ public inline operator fun SizeF.component2(): Float = height
  * val (w, h) = mySize
  * ```
  */
+@Deprecated("Use SizeF.component1()")
 public inline operator fun SizeFCompat.component1(): Float = width
 
 /**
@@ -80,4 +81,5 @@ public inline operator fun SizeFCompat.component1(): Float = width
  * val (w, h) = mySize
  * ```
  */
+@Deprecated("Use SizeF.component2()")
 public inline operator fun SizeFCompat.component2(): Float = height

@@ -18,6 +18,7 @@ package androidx.core.content;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -99,7 +100,7 @@ public final class PermissionChecker {
             return PERMISSION_DENIED;
         }
 
-        String op = AppOpsManagerCompat.permissionToOp(permission);
+        String op = AppOpsManager.permissionToOp(permission);
         if (op == null) {
             return PERMISSION_GRANTED;
         }
@@ -124,7 +125,7 @@ public final class PermissionChecker {
             checkOpResult = AppOpsManagerCompat.noteProxyOpNoThrow(context, op, packageName);
         }
 
-        return checkOpResult == AppOpsManagerCompat.MODE_ALLOWED ? PERMISSION_GRANTED :
+        return checkOpResult == AppOpsManager.MODE_ALLOWED ? PERMISSION_GRANTED :
                 PERMISSION_DENIED_APP_OP;
     }
 

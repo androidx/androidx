@@ -25,7 +25,6 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
-import androidx.core.widget.TextViewCompat;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 
@@ -134,7 +133,7 @@ public class TextViewActions {
                 uiController.loopMainThreadUntilIdle();
 
                 TextView textView = (TextView) view;
-                TextViewCompat.setTextAppearance(textView, styleResId);
+                textView.setTextAppearance(styleResId);
 
                 uiController.loopMainThreadUntilIdle();
             }
@@ -163,7 +162,7 @@ public class TextViewActions {
                 uiController.loopMainThreadUntilIdle();
 
                 TextView textView = (TextView) view;
-                TextViewCompat.setCompoundDrawablesRelative(textView, start, top, end, bottom);
+                textView.setCompoundDrawablesRelative(start, top, end, bottom);
 
                 uiController.loopMainThreadUntilIdle();
             }
@@ -192,8 +191,7 @@ public class TextViewActions {
                 uiController.loopMainThreadUntilIdle();
 
                 TextView textView = (TextView) view;
-                TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        textView, start, top, end, bottom);
+                textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
 
                 uiController.loopMainThreadUntilIdle();
             }
@@ -222,8 +220,7 @@ public class TextViewActions {
                 uiController.loopMainThreadUntilIdle();
 
                 TextView textView = (TextView) view;
-                TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                        textView, start, top, end, bottom);
+                textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
 
                 uiController.loopMainThreadUntilIdle();
             }

@@ -225,16 +225,14 @@ public class AccessibilityDelegateCompat {
      * text content.
      * <p>
      * The default implementation behaves as
-     * {@link ViewCompat#onPopulateAccessibilityEvent(View, AccessibilityEvent)
-     * ViewCompat#onPopulateAccessibilityEvent(AccessibilityEvent)} for
+     * {@link View#onPopulateAccessibilityEvent(AccessibilityEvent)} for
      * the case of no accessibility delegate been set.
      * </p>
      *
      * @param host The View hosting the delegate.
      * @param event The accessibility event which to populate.
      *
-     * @see ViewCompat#onPopulateAccessibilityEvent(View ,AccessibilityEvent)
-     *      ViewCompat#onPopulateAccessibilityEvent(View, AccessibilityEvent)
+     * @see View#onPopulateAccessibilityEvent(AccessibilityEvent)
      */
     public void onPopulateAccessibilityEvent(@NonNull View host,
             @NonNull AccessibilityEvent event) {
@@ -246,16 +244,14 @@ public class AccessibilityDelegateCompat {
      * the host View which is the event source.
      * <p>
      * The default implementation behaves as
-     * {@link ViewCompat#onInitializeAccessibilityEvent(View v, AccessibilityEvent event)
-     * ViewCompat#onInitalizeAccessibilityEvent(View v, AccessibilityEvent event)} for
+     * {@link View#onInitializeAccessibilityEvent(AccessibilityEvent)} for
      * the case of no accessibility delegate been set.
      * </p>
      *
      * @param host The View hosting the delegate.
      * @param event The event to initialize.
      *
-     * @see ViewCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)
-     *      ViewCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)
+     * @see View#onInitializeAccessibilityEvent(AccessibilityEvent)
      */
     public void onInitializeAccessibilityEvent(@NonNull View host,
             @NonNull AccessibilityEvent event) {
@@ -266,16 +262,14 @@ public class AccessibilityDelegateCompat {
      * Initializes an {@link AccessibilityNodeInfoCompat} with information about the host view.
      * <p>
      * The default implementation behaves as
-     * {@link ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
-     * ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)} for
+     * {@link View#onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)} for
      * the case of no accessibility delegate been set.
      * </p>
      *
      * @param host The View hosting the delegate.
      * @param info The instance to initialize.
      *
-     * @see ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
-     *      ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
+     * @see View#onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo)
      */
     public void onInitializeAccessibilityNodeInfo(@NonNull View host,
             @NonNull AccessibilityNodeInfoCompat info) {

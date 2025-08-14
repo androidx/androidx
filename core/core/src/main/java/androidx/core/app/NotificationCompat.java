@@ -70,7 +70,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -5071,7 +5070,7 @@ public class NotificationCompat {
         private @NonNull Action makeAction(int icon, int title, Integer colorInt,
                 int defaultColorRes, PendingIntent intent) {
             if (colorInt == null) {
-                colorInt = ContextCompat.getColor(mBuilder.mContext, defaultColorRes);
+                colorInt = mBuilder.mContext.getColor(defaultColorRes);
             }
             SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
             stringBuilder.append(mBuilder.mContext.getResources().getString(title));

@@ -40,10 +40,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * Return the handle to a system-level service by class.
  *
- * @see ContextCompat.getSystemService
+ * @see Context.getSystemService
  */
-public inline fun <reified T : Any> Context.getSystemService(): T? =
-    ContextCompat.getSystemService(this, T::class.java)
+public inline fun <reified T : Any> Context.getSystemService(): T? = getSystemService(T::class.java)
 
 /**
  * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute values in [set]

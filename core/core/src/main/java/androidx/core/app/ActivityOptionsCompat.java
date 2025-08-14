@@ -354,7 +354,7 @@ public class ActivityOptionsCompat {
 
     /**
      * Returns the created options as a Bundle, which can be passed to
-     * {@link androidx.core.content.ContextCompat#startActivity(Context, android.content.Intent, Bundle)}.
+     * {@link Context#startActivity(android.content.Intent, Bundle)}.
      * Note that the returned Bundle is still owned by the ActivityOptions
      * object; you must not modify it, but can supply it to the startActivity
      * methods that take an options Bundle.

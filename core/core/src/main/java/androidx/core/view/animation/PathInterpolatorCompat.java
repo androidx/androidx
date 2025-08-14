@@ -20,12 +20,17 @@ import android.graphics.Path;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 
+import androidx.annotation.ReplaceWith;
+
 import org.jspecify.annotations.NonNull;
 
 /**
  * Helper for creating path-based {@link Interpolator} instances. The platform implementation will
  * be used.
+ *
+ * @deprecated Use {@link PathInterpolator} instead.
  */
+@Deprecated
 public final class PathInterpolatorCompat {
 
     private PathInterpolatorCompat() {
@@ -43,7 +48,14 @@ public final class PathInterpolatorCompat {
      *
      * @param path the {@link Path} to use to make the line representing the {@link Interpolator}
      * @return the {@link Interpolator} representing the {@link Path}
+     * @deprecated Call {@link PathInterpolator#PathInterpolator(Path) new PathInterpolator(Path)}
+     * directly.
      */
+    @Deprecated
+    @ReplaceWith(
+            expression = "new PathInterpolator(path)",
+            imports = "android.view.animation.PathInterpolator"
+    )
     public static @NonNull Interpolator create(@NonNull Path path) {
         return new PathInterpolator(path);
     }
@@ -55,7 +67,14 @@ public final class PathInterpolatorCompat {
      * @param controlX the x coordinate of the quadratic Bezier control point
      * @param controlY the y coordinate of the quadratic Bezier control point
      * @return the {@link Interpolator} representing the quadratic Bezier curve
+     * @deprecated Call {@link PathInterpolator#PathInterpolator(float, float) new
+     * PathInterpolator(float, float)} directly.
      */
+    @Deprecated
+    @ReplaceWith(
+            expression = "new PathInterpolator(controlX, controlY)",
+            imports = "android.view.animation.PathInterpolator"
+    )
     public static @NonNull Interpolator create(float controlX, float controlY) {
         return new PathInterpolator(controlX, controlY);
     }
@@ -69,7 +88,14 @@ public final class PathInterpolatorCompat {
      * @param controlX2 the x coordinate of the second control point of the cubic Bezier
      * @param controlY2 the y coordinate of the second control point of the cubic Bezier
      * @return the {@link Interpolator} representing the cubic Bezier curve
+     * @deprecated Call {@link PathInterpolator#PathInterpolator(float, float, float, float)
+     * new PathInterpolator(float, float, float, float)} directly.
      */
+    @Deprecated
+    @ReplaceWith(
+            expression = "new PathInterpolator(controlX1, controlY1, controlX2, controlY2)",
+            imports = "android.view.animation.PathInterpolator"
+    )
     public static @NonNull Interpolator create(float controlX1, float controlY1,
             float controlX2, float controlY2) {
         return new PathInterpolator(controlX1, controlY1, controlX2, controlY2);

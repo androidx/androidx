@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ReplaceWith;
 import androidx.core.view.ViewCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -34,8 +35,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 /**
- * Helper for accessing features in {@link android.graphics.drawable.Drawable}.
+ * Helper for accessing features in {@link Drawable}.
+ *
+ * @deprecated Use {@link Drawable} directly.
  */
+@Deprecated
 public final class DrawableCompat {
 
     /**
@@ -45,7 +49,7 @@ public final class DrawableCompat {
      *
      * @deprecated Use {@link Drawable#jumpToCurrentState()} directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "drawable.jumpToCurrentState()")
+    @ReplaceWith(expression = "drawable.jumpToCurrentState()")
     @Deprecated
     public static void jumpToCurrentState(@NonNull Drawable drawable) {
         drawable.jumpToCurrentState();
@@ -55,9 +59,6 @@ public final class DrawableCompat {
      * Set whether this Drawable is automatically mirrored when its layout
      * direction is RTL (right-to left). See
      * {@link android.util.LayoutDirection}.
-     * <p>
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#KITKAT} device
-     * this method does nothing.
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param mirrored Set to true if the Drawable should be mirrored, false if
@@ -65,7 +66,7 @@ public final class DrawableCompat {
      * @deprecated Call {@link Drawable#setAutoMirrored(boolean)} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "drawable.setAutoMirrored(mirrored)")
+    @ReplaceWith(expression = "drawable.setAutoMirrored(mirrored)")
     public static void setAutoMirrored(@NonNull Drawable drawable, boolean mirrored) {
         drawable.setAutoMirrored(mirrored);
     }
@@ -73,9 +74,6 @@ public final class DrawableCompat {
     /**
      * Tells if this Drawable will be automatically mirrored when its layout
      * direction is RTL right-to-left. See {@link android.util.LayoutDirection}.
-     * <p>
-     * If running on a pre-{@link android.os.Build.VERSION_CODES#KITKAT} device
-     * this method returns false.
      *
      * @param drawable The Drawable against which to invoke the method.
      * @return boolean Returns true if this Drawable will be automatically
@@ -83,7 +81,7 @@ public final class DrawableCompat {
      * @deprecated Call {@link Drawable#isAutoMirrored()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "drawable.isAutoMirrored()")
+    @ReplaceWith(expression = "drawable.isAutoMirrored()")
     public static boolean isAutoMirrored(@NonNull Drawable drawable) {
         return drawable.isAutoMirrored();
     }
@@ -94,7 +92,10 @@ public final class DrawableCompat {
      * @param drawable The Drawable against which to invoke the method.
      * @param x The X coordinate of the center of the hotspot
      * @param y The Y coordinate of the center of the hotspot
+     * @deprecated Call {@link Drawable#setHotspot(float, float)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setHotspot(x, y)")
     public static void setHotspot(@NonNull Drawable drawable, float x, float y) {
         drawable.setHotspot(x, y);
     }
@@ -108,7 +109,10 @@ public final class DrawableCompat {
      * @param top position in pixels of the top bound
      * @param right position in pixels of the right bound
      * @param bottom position in pixels of the bottom bound
+     * @deprecated Call {@link Drawable#setHotspotBounds(int, int, int, int)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setHotspotBounds(left, top, right, bottom)")
     public static void setHotspotBounds(@NonNull Drawable drawable, int left, int top,
             int right, int bottom) {
         drawable.setHotspotBounds(left, top, right, bottom);
@@ -119,7 +123,10 @@ public final class DrawableCompat {
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tint     Color to use for tinting this drawable
+     * @deprecated Call {@link Drawable#setTint(int)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setTint(tint)")
     public static void setTint(@NonNull Drawable drawable, @ColorInt int tint) {
         drawable.setTint(tint);
     }
@@ -129,7 +136,10 @@ public final class DrawableCompat {
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tint     Color state list to use for tinting this drawable, or null to clear the tint
+     * @deprecated Call {@link Drawable#setTintList(ColorStateList)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setTintList(tint)")
     public static void setTintList(@NonNull Drawable drawable, @Nullable ColorStateList tint) {
         drawable.setTintList(tint);
     }
@@ -139,7 +149,10 @@ public final class DrawableCompat {
      *
      * @param drawable The Drawable against which to invoke the method.
      * @param tintMode A Porter-Duff blending mode
+     * @deprecated Call {@link Drawable#setTintMode(PorterDuff.Mode)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setTintMode(tintMode)")
     public static void setTintMode(@NonNull Drawable drawable, PorterDuff.@Nullable Mode tintMode) {
         drawable.setTintMode(tintMode);
     }
@@ -152,7 +165,7 @@ public final class DrawableCompat {
      * @deprecated Call {@link Drawable#getAlpha()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "drawable.getAlpha()")
+    @ReplaceWith(expression = "drawable.getAlpha()")
     @SuppressWarnings("unused")
     public static int getAlpha(@NonNull Drawable drawable) {
         return drawable.getAlpha();
@@ -160,16 +173,20 @@ public final class DrawableCompat {
 
     /**
      * Applies the specified theme to this Drawable and its children.
+     * @deprecated Call {@link Drawable#applyTheme(Resources.Theme)} directly.
      */
-    @SuppressWarnings("unused")
+    @Deprecated
+    @ReplaceWith(expression = "drawable.applyTheme(theme)")
     public static void applyTheme(@NonNull Drawable drawable, Resources.@NonNull Theme theme) {
         drawable.applyTheme(theme);
     }
 
     /**
      * Whether a theme can be applied to this Drawable and its children.
+     * @deprecated Call {@link Drawable#canApplyTheme()} directly.
      */
-    @SuppressWarnings("unused")
+    @Deprecated
+    @ReplaceWith(expression = "drawable.canApplyTheme()")
     public static boolean canApplyTheme(@NonNull Drawable drawable) {
         return drawable.canApplyTheme();
     }
@@ -178,16 +195,21 @@ public final class DrawableCompat {
      * Returns the current color filter, or {@code null} if none set.
      *
      * @return the current color filter, or {@code null} if none set
+     * @deprecated Call {@link Drawable#getColorFilter()} directly.
      */
-    @SuppressWarnings("unused")
+    @Deprecated
+    @ReplaceWith(expression = "drawable.getColorFilter()")
     public static @Nullable ColorFilter getColorFilter(@NonNull Drawable drawable) {
         return drawable.getColorFilter();
     }
 
     /**
      * Removes the color filter from the given drawable.
+     *
+     * @deprecated Call {@link Drawable#clearColorFilter()} directly.
      */
-    @SuppressWarnings("unused")
+    @Deprecated
+    @ReplaceWith(expression = "drawable.clearColorFilter()")
     public static void clearColorFilter(@NonNull Drawable drawable) {
         drawable.clearColorFilter();
     }
@@ -202,7 +224,10 @@ public final class DrawableCompat {
      * @param theme Theme to apply, may be null
      * @throws XmlPullParserException
      * @throws IOException
+     * @deprecated Call {@link Drawable#inflate(Resources, XmlPullParser, AttributeSet, Resources.Theme)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.inflate(res, parser, attrs, theme)")
     public static void inflate(@NonNull Drawable drawable, @NonNull Resources res,
             @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
             Resources.@Nullable Theme theme)
@@ -236,11 +261,14 @@ public final class DrawableCompat {
      * @param drawable The Drawable to process
      * @return A drawable capable of being tinted across all API levels.
      *
-     * @see #setTint(Drawable, int)
-     * @see #setTintList(Drawable, ColorStateList)
-     * @see #setTintMode(Drawable, PorterDuff.Mode)
+     * @see Drawable#setTint(int)
+     * @see Drawable#setTintList(ColorStateList)
+     * @see Drawable#setTintMode(PorterDuff.Mode)
      * @see #unwrap(Drawable)
+     * @deprecated Call methods on {@link drawable} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable")
     public static @NonNull Drawable wrap(@NonNull Drawable drawable) {
         return drawable;
     }
@@ -254,7 +282,10 @@ public final class DrawableCompat {
      * @return the unwrapped {@link Drawable} or {@code drawable} if it hasn't been wrapped.
      *
      * @see #wrap(Drawable)
+     * @deprecated Call methods on {@link Drawable} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable")
     @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     public static <T extends Drawable> T unwrap(@NonNull Drawable drawable) {
         if (drawable instanceof WrappedDrawable) {
@@ -276,7 +307,10 @@ public final class DrawableCompat {
      *         appearance of the drawable to change such that it needs to be
      *         re-drawn, {@code false} otherwise
      * @see Drawable#getLayoutDirection()
+     * @deprecated Call {@link Drawable#setLayoutDirection(int)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.setLayoutDirection(layoutDirection)")
     public static boolean setLayoutDirection(@NonNull Drawable drawable, int layoutDirection) {
         return drawable.setLayoutDirection(layoutDirection);
     }
@@ -287,7 +321,10 @@ public final class DrawableCompat {
      * @return One of {@link ViewCompat#LAYOUT_DIRECTION_LTR},
      *         {@link ViewCompat#LAYOUT_DIRECTION_RTL}
      * @see Drawable#setLayoutDirection(int)
+     * @deprecated Call {@link Drawable#getLayoutDirection()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "drawable.getLayoutDirection()")
     public static int getLayoutDirection(@NonNull Drawable drawable) {
         return drawable.getLayoutDirection();
     }

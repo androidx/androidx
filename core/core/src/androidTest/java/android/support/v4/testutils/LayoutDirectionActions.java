@@ -20,7 +20,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.view.View;
 
-import androidx.core.view.ViewCompat;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 
@@ -46,7 +45,7 @@ public class LayoutDirectionActions {
             public void perform(UiController uiController, View view) {
                 uiController.loopMainThreadUntilIdle();
 
-                ViewCompat.setLayoutDirection(view, layoutDirection);
+                view.setLayoutDirection(layoutDirection);
 
                 uiController.loopMainThreadUntilIdle();
             }

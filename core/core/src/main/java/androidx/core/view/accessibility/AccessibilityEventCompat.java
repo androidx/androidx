@@ -110,7 +110,7 @@ public final class AccessibilityEventCompat {
      *     {@link android.app.Activity#setTitle(CharSequence)} and
      *     {@link androidx.core.view.ViewCompat#setAccessibilityPaneTitle(View, CharSequence)} )}.
      *     </li>
-     *     <li>Use {@link androidx.core.view.ViewCompat#setAccessibilityLiveRegion(View, int)}
+     *     <li>Use {@link View#setAccessibilityLiveRegion(int)}
      *     to inform the user of changes to critical views within the user interface. These
      *     should still be used sparingly as they may generate announcements every time a View is
      *     updated.</li>

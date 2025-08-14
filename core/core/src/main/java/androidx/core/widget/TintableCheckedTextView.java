@@ -68,8 +68,7 @@ public interface TintableCheckedTextView {
      *                 {@code null} to clear tint
      *
      * @see #getSupportCheckMarkTintMode()
-     * @see androidx.core.graphics.drawable.DrawableCompat#setTintMode(Drawable,
-     * PorterDuff.Mode)
+     * @see Drawable#setTintMode(PorterDuff.Mode)
      */
     void setSupportCheckMarkTintMode(PorterDuff.@Nullable Mode tintMode);
 

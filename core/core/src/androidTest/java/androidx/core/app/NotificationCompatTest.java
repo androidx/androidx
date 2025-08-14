@@ -70,7 +70,6 @@ import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.app.NotificationCompat.Style;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -3118,7 +3117,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // Check that the decline action has the suggested color and title.
         assertEquals(mContext.getString(R.string.call_notification_hang_up_action),
                 notification.actions[0].title.toString());
-        assertEquals(ContextCompat.getColor(mContext, R.color.call_notification_decline_color),
+        assertEquals(mContext.getColor(R.color.call_notification_decline_color),
                 ((SpannableStringBuilder) notification.actions[0].title).getSpans(0,
                         notification.actions[0].title.length(),
                         ForegroundColorSpan.class)[0].getForegroundColor());
@@ -3126,7 +3125,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // Check that the answer action has the suggested color and title.
         assertEquals(mContext.getString(R.string.call_notification_answer_action),
                 notification.actions[1].title.toString());
-        assertEquals(ContextCompat.getColor(mContext, R.color.call_notification_answer_color),
+        assertEquals(mContext.getColor(R.color.call_notification_answer_color),
                 ((SpannableStringBuilder) notification.actions[1].title).getSpans(0,
                         notification.actions[1].title.length(),
                         ForegroundColorSpan.class)[0].getForegroundColor());

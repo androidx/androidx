@@ -21,14 +21,17 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.widget.CompoundButton;
 
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.annotation.ReplaceWith;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Helper for accessing {@link CompoundButton}.
+ *
+ * @deprecated Use {@link CompoundButton} directly.
  */
+@Deprecated
 public final class CompoundButtonCompat {
     private CompoundButtonCompat() {}
 
@@ -38,13 +41,15 @@ public final class CompoundButtonCompat {
      * <p>
      * Subsequent calls to {@link CompoundButton#setButtonDrawable(Drawable)} should
      * automatically mutate the drawable and apply the specified tint and tint
-     * mode using {@link DrawableCompat#setTintList(Drawable, ColorStateList)}.
+     * mode using {@link Drawable#setTintList(ColorStateList)}.
      *
      * @param button button for which to apply the tint.
      * @param tint the tint to apply, may be {@code null} to clear tint
-     *
-     * @see #setButtonTintList(CompoundButton, ColorStateList)
+     * @see CompoundButton#setButtonTintList(ColorStateList)
+     * @deprecated Call {@link CompoundButton#setButtonTintList(ColorStateList)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "button.setButtonTintList(tint)")
     public static void setButtonTintList(@NonNull CompoundButton button,
             @Nullable ColorStateList tint) {
         button.setButtonTintList(tint);
@@ -53,24 +58,29 @@ public final class CompoundButtonCompat {
     /**
      * Returns the tint applied to the button drawable
      *
-     * @see #setButtonTintList(CompoundButton, ColorStateList)
+     * @see CompoundButton#setButtonTintList(ColorStateList)
+     * @deprecated Call {@link CompoundButton#getButtonTintList()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "button.getButtonTintList()")
     public static @Nullable ColorStateList getButtonTintList(@NonNull CompoundButton button) {
         return button.getButtonTintList();
     }
 
     /**
      * Specifies the blending mode used to apply the tint specified by
-     * {@link #setButtonTintList(CompoundButton, ColorStateList)}} to the button drawable. The
+     * {@link CompoundButton#setButtonTintList(ColorStateList)}} to the button drawable. The
      * default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
      * @param button button for which to apply the tint mode.
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
-     *
-     * @see #getButtonTintMode(CompoundButton)
-     * @see DrawableCompat#setTintMode(Drawable, PorterDuff.Mode)
+     * @see CompoundButton#getButtonTintMode()
+     * @see Drawable#setTintMode(PorterDuff.Mode)
+     * @deprecated Call {@link CompoundButton#setButtonTintMode(PorterDuff.Mode)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "button.setButtonTintMode(tintMode)")
     public static void setButtonTintMode(@NonNull CompoundButton button,
             PorterDuff.@Nullable Mode tintMode) {
         button.setButtonTintMode(tintMode);
@@ -79,8 +89,11 @@ public final class CompoundButtonCompat {
     /**
      * @return the blending mode used to apply the tint to the button drawable
      * @attr name android:buttonTintMode
-     * @see #setButtonTintMode(CompoundButton, PorterDuff.Mode)
+     * @see CompoundButton#setButtonTintMode(PorterDuff.Mode)
+     * @deprecated Call {@link CompoundButton#getButtonTintMode()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "button.getButtonTintMode()")
     public static PorterDuff.@Nullable Mode getButtonTintMode(@NonNull CompoundButton button) {
         return button.getButtonTintMode();
     }
@@ -89,7 +102,10 @@ public final class CompoundButtonCompat {
      * Returns the drawable used as the compound button image
      *
      * @see CompoundButton#setButtonDrawable(Drawable)
+     * @deprecated Call {@link CompoundButton#getButtonDrawable()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "button.getButtonDrawable()")
     public static @Nullable Drawable getButtonDrawable(@NonNull CompoundButton button) {
         return button.getButtonDrawable();
     }

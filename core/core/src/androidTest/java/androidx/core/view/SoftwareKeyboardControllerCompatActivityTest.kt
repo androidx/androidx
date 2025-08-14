@@ -234,7 +234,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
             WindowInsetsCompat.CONSUMED
         }
 
-        scenario.onActivity { ViewCompat.requestApplyInsets(this) }
+        scenario.onActivity { requestApplyInsets() }
 
         try {
             // Perform the action

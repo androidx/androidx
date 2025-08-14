@@ -213,8 +213,8 @@ public final class ShareCompat {
      * <p>During the calling activity's lifecycle, if data within the share intent must
      * change the app should change that state in one of several ways:</p>
      * <ul>
-     * <li>Call {@link ActivityCompat#invalidateOptionsMenu(Activity)}. If the app uses the
-     * Action Bar its menu will be recreated and rebuilt.
+     * <li>Call {@link Activity#invalidateOptionsMenu()}. If the app uses the Action Bar its
+     * menu will be recreated and rebuilt.
      * If not, the activity will receive a call to {@link Activity#onPrepareOptionsMenu(Menu)}
      * the next time the user presses the menu key to open the options menu panel. The activity
      * can then call configureMenuItem again with a new or altered IntentBuilder to reconfigure
