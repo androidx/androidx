@@ -43,12 +43,12 @@ package androidx.core.app {
 
   public class ActivityCompat extends androidx.core.content.ContextCompat {
     ctor protected ActivityCompat();
-    method public static void finishAffinity(android.app.Activity);
-    method public static void finishAfterTransition(android.app.Activity);
-    method public static android.net.Uri? getReferrer(android.app.Activity);
+    method @Deprecated public static void finishAffinity(android.app.Activity);
+    method @Deprecated public static void finishAfterTransition(android.app.Activity);
+    method @Deprecated public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
     method public static boolean isLaunchedFromBubble(android.app.Activity);
-    method public static void postponeEnterTransition(android.app.Activity);
+    method @Deprecated public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
@@ -58,9 +58,9 @@ package androidx.core.app {
     method public static void setLocusContext(android.app.Activity, androidx.core.content.LocusIdCompat?, android.os.Bundle?);
     method public static void setPermissionCompatDelegate(androidx.core.app.ActivityCompat.PermissionCompatDelegate?);
     method public static boolean shouldShowRequestPermissionRationale(android.app.Activity, String);
-    method public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle?);
-    method public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
-    method public static void startPostponedEnterTransition(android.app.Activity);
+    method @Deprecated public static void startActivityForResult(android.app.Activity, android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public static void startIntentSenderForResult(android.app.Activity, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public static void startPostponedEnterTransition(android.app.Activity);
   }
 
   public static interface ActivityCompat.OnRequestPermissionsResultCallback {
@@ -102,9 +102,9 @@ package androidx.core.app {
   public final class AlarmManagerCompat {
     method public static boolean canScheduleExactAlarms(android.app.AlarmManager);
     method public static void setAlarmClock(android.app.AlarmManager, long, android.app.PendingIntent, android.app.PendingIntent);
-    method public static void setAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method @Deprecated public static void setAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
     method @Deprecated public static void setExact(android.app.AlarmManager, int, long, android.app.PendingIntent);
-    method public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
+    method @Deprecated public static void setExactAndAllowWhileIdle(android.app.AlarmManager, int, long, android.app.PendingIntent);
   }
 
   @RequiresApi(28) public class AppComponentFactory extends android.app.AppComponentFactory {
@@ -133,11 +133,11 @@ package androidx.core.app {
     method public static int noteOpNoThrow(android.content.Context, String, int, String);
     method public static int noteProxyOp(android.content.Context, String, String);
     method public static int noteProxyOpNoThrow(android.content.Context, String, String);
-    method public static String? permissionToOp(String);
-    field public static final int MODE_ALLOWED = 0; // 0x0
-    field public static final int MODE_DEFAULT = 3; // 0x3
-    field public static final int MODE_ERRORED = 2; // 0x2
-    field public static final int MODE_IGNORED = 1; // 0x1
+    method @Deprecated public static String? permissionToOp(String);
+    field @Deprecated public static final int MODE_ALLOWED = 0; // 0x0
+    field @Deprecated public static final int MODE_DEFAULT = 3; // 0x3
+    field @Deprecated public static final int MODE_ERRORED = 2; // 0x2
+    field @Deprecated public static final int MODE_IGNORED = 1; // 0x1
   }
 
   @Deprecated public final class BundleCompat {
@@ -1361,26 +1361,26 @@ package androidx.core.content {
     method public static android.content.Context createAttributionContext(android.content.Context, String?);
     method public static android.content.Context? createDeviceProtectedStorageContext(android.content.Context);
     method public static String? getAttributionTag(android.content.Context);
-    method public static java.io.File getCodeCacheDir(android.content.Context);
-    method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
+    method @Deprecated public static java.io.File getCodeCacheDir(android.content.Context);
+    method @Deprecated @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
     method public static android.content.Context getContextForLanguage(android.content.Context);
     method public static java.io.File? getDataDir(android.content.Context);
     method public static android.view.Display getDisplayOrDefault(@DisplayContext android.content.Context);
-    method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
+    method @Deprecated public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
     method @Deprecated public static java.io.File![] getExternalCacheDirs(android.content.Context);
     method @Deprecated public static java.io.File![] getExternalFilesDirs(android.content.Context, String?);
     method public static java.util.concurrent.Executor getMainExecutor(android.content.Context);
-    method public static java.io.File? getNoBackupFilesDir(android.content.Context);
+    method @Deprecated public static java.io.File? getNoBackupFilesDir(android.content.Context);
     method @Deprecated public static java.io.File![] getObbDirs(android.content.Context);
     method public static String getString(android.content.Context, int);
-    method public static <T> T? getSystemService(android.content.Context, Class<T>);
-    method public static String? getSystemServiceName(android.content.Context, Class<? extends java.lang.Object!>);
+    method @Deprecated public static <T> T? getSystemService(android.content.Context, Class<T>);
+    method @Deprecated public static String? getSystemServiceName(android.content.Context, Class<? extends java.lang.Object!>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
-    method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, int);
+    method @Deprecated public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, int);
     method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, String?, android.os.Handler?, int);
-    method public static boolean startActivities(android.content.Context, android.content.Intent![]);
-    method public static boolean startActivities(android.content.Context, android.content.Intent![], android.os.Bundle?);
+    method @Deprecated public static boolean startActivities(android.content.Context, android.content.Intent![]);
+    method @Deprecated public static boolean startActivities(android.content.Context, android.content.Intent![], android.os.Bundle?);
     method @Deprecated public static void startActivity(android.content.Context, android.content.Intent, android.os.Bundle?);
     method public static void startForegroundService(android.content.Context, android.content.Intent);
     field public static final int RECEIVER_EXPORTED = 2; // 0x2
@@ -1656,10 +1656,10 @@ package androidx.core.content.res {
   public final class ResourcesCompat {
     method public static void clearCachesForTheme(android.content.res.Resources.Theme);
     method public static android.graphics.Typeface? getCachedFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
-    method @ColorInt public static int getColor(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
+    method @Deprecated @ColorInt public static int getColor(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static android.content.res.ColorStateList? getColorStateList(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
-    method public static android.graphics.drawable.Drawable? getDrawable(android.content.res.Resources, @DrawableRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
-    method public static android.graphics.drawable.Drawable? getDrawableForDensity(android.content.res.Resources, @DrawableRes int, int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
+    method @Deprecated public static android.graphics.drawable.Drawable? getDrawable(android.content.res.Resources, @DrawableRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
+    method @Deprecated public static android.graphics.drawable.Drawable? getDrawableForDensity(android.content.res.Resources, @DrawableRes int, int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static float getFloat(android.content.res.Resources, @DimenRes int);
     method public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
     method public static void getFont(android.content.Context, @FontRes int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler?) throws android.content.res.Resources.NotFoundException;
@@ -1937,7 +1937,7 @@ package androidx.core.graphics {
   }
 
   public final class PaintCompat {
-    method public static boolean hasGlyph(android.graphics.Paint, String);
+    method @Deprecated public static boolean hasGlyph(android.graphics.Paint, String);
     method public static boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
   }
 
@@ -2095,25 +2095,25 @@ package androidx.core.graphics.drawable {
     method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
   }
 
-  public final class DrawableCompat {
-    method public static void applyTheme(android.graphics.drawable.Drawable, android.content.res.Resources.Theme);
-    method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
-    method public static void clearColorFilter(android.graphics.drawable.Drawable);
+  @Deprecated public final class DrawableCompat {
+    method @Deprecated public static void applyTheme(android.graphics.drawable.Drawable, android.content.res.Resources.Theme);
+    method @Deprecated public static boolean canApplyTheme(android.graphics.drawable.Drawable);
+    method @Deprecated public static void clearColorFilter(android.graphics.drawable.Drawable);
     method @Deprecated public static int getAlpha(android.graphics.drawable.Drawable);
-    method public static android.graphics.ColorFilter? getColorFilter(android.graphics.drawable.Drawable);
-    method public static int getLayoutDirection(android.graphics.drawable.Drawable);
-    method public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method @Deprecated public static android.graphics.ColorFilter? getColorFilter(android.graphics.drawable.Drawable);
+    method @Deprecated public static int getLayoutDirection(android.graphics.drawable.Drawable);
+    method @Deprecated public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method @Deprecated public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
     method @Deprecated public static void jumpToCurrentState(android.graphics.drawable.Drawable);
     method @Deprecated public static void setAutoMirrored(android.graphics.drawable.Drawable, boolean);
-    method public static void setHotspot(android.graphics.drawable.Drawable, float, float);
-    method public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
-    method public static boolean setLayoutDirection(android.graphics.drawable.Drawable, int);
-    method public static void setTint(android.graphics.drawable.Drawable, @ColorInt int);
-    method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
-    method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode?);
-    method public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
-    method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
+    method @Deprecated public static void setHotspot(android.graphics.drawable.Drawable, float, float);
+    method @Deprecated public static void setHotspotBounds(android.graphics.drawable.Drawable, int, int, int, int);
+    method @Deprecated public static boolean setLayoutDirection(android.graphics.drawable.Drawable, int);
+    method @Deprecated public static void setTint(android.graphics.drawable.Drawable, @ColorInt int);
+    method @Deprecated public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
+    method @Deprecated public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode?);
+    method @Deprecated public static <T extends android.graphics.drawable.Drawable> T unwrap(android.graphics.drawable.Drawable);
+    method @Deprecated public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
   public final class DrawableKt {
@@ -2546,9 +2546,9 @@ package androidx.core.os {
     method @Deprecated @RequiresApi(24) public static androidx.core.os.LocaleListCompat! wrap(Object!);
   }
 
-  public final class MessageCompat {
-    method public static boolean isAsynchronous(android.os.Message);
-    method public static void setAsynchronous(android.os.Message, boolean);
+  @Deprecated public final class MessageCompat {
+    method @Deprecated public static boolean isAsynchronous(android.os.Message);
+    method @Deprecated public static void setAsynchronous(android.os.Message, boolean);
   }
 
   public class OperationCanceledException extends java.lang.RuntimeException {
@@ -3191,21 +3191,21 @@ package androidx.core.util {
     method public static Runnable asRunnable(kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
-  public final class SizeFCompat {
-    ctor public SizeFCompat(float, float);
-    method public float getHeight();
-    method public float getWidth();
-    method public android.util.SizeF toSizeF();
-    method public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
+  @Deprecated public final class SizeFCompat {
+    ctor @Deprecated public SizeFCompat(float, float);
+    method @Deprecated public float getHeight();
+    method @Deprecated public float getWidth();
+    method @Deprecated public android.util.SizeF toSizeF();
+    method @Deprecated public static androidx.core.util.SizeFCompat toSizeFCompat(android.util.SizeF);
   }
 
   public final class SizeKt {
     method public static inline operator int component1(android.util.Size);
     method public static inline operator float component1(android.util.SizeF);
-    method public static inline operator float component1(androidx.core.util.SizeFCompat);
+    method @Deprecated public static inline operator float component1(androidx.core.util.SizeFCompat);
     method public static inline operator int component2(android.util.Size);
     method public static inline operator float component2(android.util.SizeF);
-    method public static inline operator float component2(androidx.core.util.SizeFCompat);
+    method @Deprecated public static inline operator float component2(androidx.core.util.SizeFCompat);
   }
 
   public final class SparseArrayKt {
@@ -3894,11 +3894,11 @@ package androidx.core.view {
     method public static androidx.core.view.WindowInsetsCompat computeSystemWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat, android.graphics.Rect);
     method public static androidx.core.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
-    method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
-    method public static boolean dispatchNestedPreFling(android.view.View, float, float);
-    method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[]?, int[]?);
+    method @Deprecated public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
+    method @Deprecated public static boolean dispatchNestedPreFling(android.view.View, float, float);
+    method @Deprecated public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[]?, int[]?);
     method public static boolean dispatchNestedPreScroll(android.view.View, int, int, int[]?, int[]?, int);
-    method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]?);
+    method @Deprecated public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]?);
     method public static boolean dispatchNestedScroll(android.view.View, int, int, int, int, int[]?, int);
     method public static void dispatchNestedScroll(android.view.View, int, int, int, int, int[]?, int, int[]);
     method public static void dispatchStartTemporaryDetach(android.view.View);
@@ -3910,12 +3910,12 @@ package androidx.core.view {
     method @UiThread public static CharSequence? getAccessibilityPaneTitle(android.view.View);
     method @Deprecated public static float getAlpha(android.view.View!);
     method public static androidx.core.view.autofill.AutofillIdCompat? getAutofillId(android.view.View);
-    method public static android.content.res.ColorStateList? getBackgroundTintList(android.view.View);
-    method public static android.graphics.PorterDuff.Mode? getBackgroundTintMode(android.view.View);
+    method @Deprecated public static android.content.res.ColorStateList? getBackgroundTintList(android.view.View);
+    method @Deprecated public static android.graphics.PorterDuff.Mode? getBackgroundTintMode(android.view.View);
     method @Deprecated public static android.graphics.Rect? getClipBounds(android.view.View);
     method public static androidx.core.view.contentcapture.ContentCaptureSessionCompat? getContentCaptureSession(android.view.View);
     method @Deprecated public static android.view.Display? getDisplay(android.view.View);
-    method public static float getElevation(android.view.View);
+    method @Deprecated public static float getElevation(android.view.View);
     method @Deprecated public static boolean getFitsSystemWindows(android.view.View);
     method @Deprecated public static int getImportantForAccessibility(android.view.View);
     method public static int getImportantForAutofill(android.view.View);
@@ -3943,21 +3943,21 @@ package androidx.core.view {
     method @Deprecated public static float getRotationY(android.view.View!);
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
-    method public static int getScrollIndicators(android.view.View);
+    method @Deprecated public static int getScrollIndicators(android.view.View);
     method @UiThread public static CharSequence? getStateDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
-    method public static String? getTransitionName(android.view.View);
+    method @Deprecated public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
-    method public static float getTranslationZ(android.view.View);
+    method @Deprecated public static float getTranslationZ(android.view.View);
     method @Deprecated public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
     method @Deprecated public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
-    method public static float getZ(android.view.View);
+    method @Deprecated public static float getZ(android.view.View);
     method public static boolean hasAccessibilityDelegate(android.view.View);
     method public static boolean hasExplicitFocusable(android.view.View);
-    method public static boolean hasNestedScrollingParent(android.view.View);
+    method @Deprecated public static boolean hasNestedScrollingParent(android.view.View);
     method public static boolean hasNestedScrollingParent(android.view.View, int);
     method @Deprecated public static boolean hasOnClickListeners(android.view.View);
     method @Deprecated public static boolean hasOverlappingRendering(android.view.View);
@@ -3965,21 +3965,21 @@ package androidx.core.view {
     method @UiThread public static boolean isAccessibilityHeading(android.view.View);
     method @Deprecated public static boolean isAttachedToWindow(android.view.View);
     method public static boolean isFocusedByDefault(android.view.View);
-    method public static boolean isImportantForAccessibility(android.view.View);
+    method @Deprecated public static boolean isImportantForAccessibility(android.view.View);
     method public static boolean isImportantForAutofill(android.view.View);
     method public static boolean isImportantForContentCapture(android.view.View);
     method @Deprecated public static boolean isInLayout(android.view.View);
     method public static boolean isKeyboardNavigationCluster(android.view.View);
     method @Deprecated public static boolean isLaidOut(android.view.View);
     method @Deprecated public static boolean isLayoutDirectionResolved(android.view.View);
-    method public static boolean isNestedScrollingEnabled(android.view.View);
+    method @Deprecated public static boolean isNestedScrollingEnabled(android.view.View);
     method @Deprecated public static boolean isOpaque(android.view.View!);
     method @Deprecated public static boolean isPaddingRelative(android.view.View);
     method @UiThread public static boolean isScreenReaderFocusable(android.view.View);
     method @Deprecated public static void jumpDrawablesToCurrentState(android.view.View!);
     method public static android.view.View? keyboardNavigationClusterSearch(android.view.View, android.view.View?, int);
-    method public static void offsetLeftAndRight(android.view.View, int);
-    method public static void offsetTopAndBottom(android.view.View, int);
+    method @Deprecated public static void offsetLeftAndRight(android.view.View, int);
+    method @Deprecated public static void offsetTopAndBottom(android.view.View, int);
     method public static androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
     method @Deprecated public static void onInitializeAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
     method @Deprecated public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
@@ -3995,7 +3995,7 @@ package androidx.core.view {
     method public static void removeAccessibilityAction(android.view.View, int);
     method public static void removeOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static void replaceAccessibilityAction(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat, CharSequence?, androidx.core.view.accessibility.AccessibilityViewCommand?);
-    method public static void requestApplyInsets(android.view.View);
+    method @Deprecated public static void requestApplyInsets(android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.View, @IdRes int);
     method @Deprecated public static int resolveSizeAndState(int, int, int);
     method public static boolean restoreDefaultFocus(android.view.View);
@@ -4009,12 +4009,12 @@ package androidx.core.view {
     method public static void setAutofillHints(android.view.View, java.lang.String!...?);
     method public static void setAutofillId(android.view.View, androidx.core.view.autofill.AutofillIdCompat?);
     method @Deprecated public static void setBackground(android.view.View, android.graphics.drawable.Drawable?);
-    method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList?);
-    method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode?);
+    method @Deprecated public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList?);
+    method @Deprecated public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode?);
     method @Deprecated public static void setChildrenDrawingOrderEnabled(android.view.ViewGroup!, boolean);
     method @Deprecated public static void setClipBounds(android.view.View, android.graphics.Rect?);
     method public static void setContentCaptureSession(android.view.View, androidx.core.view.contentcapture.ContentCaptureSessionCompat?);
-    method public static void setElevation(android.view.View, float);
+    method @Deprecated public static void setElevation(android.view.View, float);
     method @Deprecated public static void setFitsSystemWindows(android.view.View!, boolean);
     method public static void setFocusedByDefault(android.view.View, boolean);
     method @Deprecated public static void setHasTransientState(android.view.View, boolean);
@@ -4026,7 +4026,7 @@ package androidx.core.view {
     method @Deprecated public static void setLayerPaint(android.view.View, android.graphics.Paint?);
     method @Deprecated public static void setLayerType(android.view.View!, int, android.graphics.Paint!);
     method @Deprecated public static void setLayoutDirection(android.view.View, int);
-    method public static void setNestedScrollingEnabled(android.view.View, boolean);
+    method @Deprecated public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setNextClusterForwardId(android.view.View, int);
     method public static void setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener?);
     method public static void setOnReceiveContentListener(android.view.View, String![]?, androidx.core.view.OnReceiveContentListener?);
@@ -4042,23 +4042,23 @@ package androidx.core.view {
     method @Deprecated public static void setScaleX(android.view.View!, float);
     method @Deprecated public static void setScaleY(android.view.View!, float);
     method @UiThread public static void setScreenReaderFocusable(android.view.View, boolean);
-    method public static void setScrollIndicators(android.view.View, int);
-    method public static void setScrollIndicators(android.view.View, int, int);
+    method @Deprecated public static void setScrollIndicators(android.view.View, int);
+    method @Deprecated public static void setScrollIndicators(android.view.View, int, int);
     method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
-    method public static void setTransitionName(android.view.View, String?);
+    method @Deprecated public static void setTransitionName(android.view.View, String?);
     method @Deprecated public static void setTranslationX(android.view.View!, float);
     method @Deprecated public static void setTranslationY(android.view.View!, float);
-    method public static void setTranslationZ(android.view.View, float);
+    method @Deprecated public static void setTranslationZ(android.view.View, float);
     method public static void setWindowInsetsAnimationCallback(android.view.View, androidx.core.view.WindowInsetsAnimationCompat.Callback?);
     method @Deprecated public static void setX(android.view.View!, float);
     method @Deprecated public static void setY(android.view.View!, float);
-    method public static void setZ(android.view.View, float);
+    method @Deprecated public static void setZ(android.view.View, float);
     method public static boolean startDragAndDrop(android.view.View, android.content.ClipData?, android.view.View.DragShadowBuilder, Object?, int);
-    method public static boolean startNestedScroll(android.view.View, int);
+    method @Deprecated public static boolean startNestedScroll(android.view.View, int);
     method public static boolean startNestedScroll(android.view.View, int, int);
-    method public static void stopNestedScroll(android.view.View);
+    method @Deprecated public static void stopNestedScroll(android.view.View);
     method public static void stopNestedScroll(android.view.View, int);
     method public static void transformMatrixToGlobal(android.view.View, android.graphics.Matrix);
     method public static void updateDragShadow(android.view.View, android.view.View.DragShadowBuilder);
@@ -4273,13 +4273,13 @@ package androidx.core.view {
     method public void onAnimationUpdate(android.view.View);
   }
 
-  public class ViewStructureCompat {
-    method public void setClassName(String);
-    method public void setContentDescription(CharSequence);
-    method public void setDimens(int, int, int, int, int, int);
-    method public void setText(CharSequence);
-    method public android.view.ViewStructure toViewStructure();
-    method public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
+  @Deprecated public class ViewStructureCompat {
+    method @Deprecated public void setClassName(String);
+    method @Deprecated public void setContentDescription(CharSequence);
+    method @Deprecated public void setDimens(int, int, int, int, int, int);
+    method @Deprecated public void setText(CharSequence);
+    method @Deprecated public android.view.ViewStructure toViewStructure();
+    method @Deprecated public static androidx.core.view.ViewStructureCompat toViewStructureCompat(android.view.ViewStructure);
   }
 
   public final class WindowCompat {
@@ -5135,10 +5135,10 @@ package androidx.core.view.accessibility {
 
 package androidx.core.view.animation {
 
-  public final class PathInterpolatorCompat {
-    method public static android.view.animation.Interpolator create(android.graphics.Path);
-    method public static android.view.animation.Interpolator create(float, float);
-    method public static android.view.animation.Interpolator create(float, float, float, float);
+  @Deprecated public final class PathInterpolatorCompat {
+    method @Deprecated public static android.view.animation.Interpolator create(android.graphics.Path);
+    method @Deprecated public static android.view.animation.Interpolator create(float, float);
+    method @Deprecated public static android.view.animation.Interpolator create(float, float, float, float);
   }
 
 }
@@ -5156,7 +5156,7 @@ package androidx.core.view.contentcapture {
 
   public class ContentCaptureSessionCompat {
     method public android.view.autofill.AutofillId? newAutofillId(long);
-    method public androidx.core.view.ViewStructureCompat? newVirtualViewStructure(android.view.autofill.AutofillId, long);
+    method @Deprecated public androidx.core.view.ViewStructureCompat? newVirtualViewStructure(android.view.autofill.AutofillId, long);
     method public void notifyViewTextChanged(android.view.autofill.AutofillId, CharSequence?);
     method public void notifyViewsAppeared(java.util.List<android.view.ViewStructure!>);
     method public void notifyViewsDisappeared(long[]);
@@ -5293,20 +5293,20 @@ package androidx.core.widget {
     field public static final float RELATIVE_UNSPECIFIED = 0.0f;
   }
 
-  public final class CheckedTextViewCompat {
+  @Deprecated public final class CheckedTextViewCompat {
     method @Deprecated public static android.graphics.drawable.Drawable? getCheckMarkDrawable(android.widget.CheckedTextView);
-    method public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
-    method public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
-    method public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
-    method public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
+    method @Deprecated public static android.content.res.ColorStateList? getCheckMarkTintList(android.widget.CheckedTextView);
+    method @Deprecated public static android.graphics.PorterDuff.Mode? getCheckMarkTintMode(android.widget.CheckedTextView);
+    method @Deprecated public static void setCheckMarkTintList(android.widget.CheckedTextView, android.content.res.ColorStateList?);
+    method @Deprecated public static void setCheckMarkTintMode(android.widget.CheckedTextView, android.graphics.PorterDuff.Mode?);
   }
 
-  public final class CompoundButtonCompat {
-    method public static android.graphics.drawable.Drawable? getButtonDrawable(android.widget.CompoundButton);
-    method public static android.content.res.ColorStateList? getButtonTintList(android.widget.CompoundButton);
-    method public static android.graphics.PorterDuff.Mode? getButtonTintMode(android.widget.CompoundButton);
-    method public static void setButtonTintList(android.widget.CompoundButton, android.content.res.ColorStateList?);
-    method public static void setButtonTintMode(android.widget.CompoundButton, android.graphics.PorterDuff.Mode?);
+  @Deprecated public final class CompoundButtonCompat {
+    method @Deprecated public static android.graphics.drawable.Drawable? getButtonDrawable(android.widget.CompoundButton);
+    method @Deprecated public static android.content.res.ColorStateList? getButtonTintList(android.widget.CompoundButton);
+    method @Deprecated public static android.graphics.PorterDuff.Mode? getButtonTintMode(android.widget.CompoundButton);
+    method @Deprecated public static void setButtonTintList(android.widget.CompoundButton, android.content.res.ColorStateList?);
+    method @Deprecated public static void setButtonTintMode(android.widget.CompoundButton, android.graphics.PorterDuff.Mode?);
   }
 
   public class ContentLoadingProgressBar extends android.widget.ProgressBar {
@@ -5334,11 +5334,11 @@ package androidx.core.widget {
     method @Deprecated public void setSize(int, int);
   }
 
-  public class ImageViewCompat {
-    method public static android.content.res.ColorStateList? getImageTintList(android.widget.ImageView);
-    method public static android.graphics.PorterDuff.Mode? getImageTintMode(android.widget.ImageView);
-    method public static void setImageTintList(android.widget.ImageView, android.content.res.ColorStateList?);
-    method public static void setImageTintMode(android.widget.ImageView, android.graphics.PorterDuff.Mode?);
+  @Deprecated public class ImageViewCompat {
+    method @Deprecated public static android.content.res.ColorStateList? getImageTintList(android.widget.ImageView);
+    method @Deprecated public static android.graphics.PorterDuff.Mode? getImageTintMode(android.widget.ImageView);
+    method @Deprecated public static void setImageTintList(android.widget.ImageView, android.content.res.ColorStateList?);
+    method @Deprecated public static void setImageTintMode(android.widget.ImageView, android.graphics.PorterDuff.Mode?);
   }
 
   public final class ListPopupWindowCompat {
@@ -5410,11 +5410,11 @@ package androidx.core.widget {
     method public static android.view.View.OnTouchListener? getDragToOpenListener(Object);
   }
 
-  public final class PopupWindowCompat {
-    method public static boolean getOverlapAnchor(android.widget.PopupWindow);
-    method public static int getWindowLayoutType(android.widget.PopupWindow);
-    method public static void setOverlapAnchor(android.widget.PopupWindow, boolean);
-    method public static void setWindowLayoutType(android.widget.PopupWindow, int);
+  @Deprecated public final class PopupWindowCompat {
+    method @Deprecated public static boolean getOverlapAnchor(android.widget.PopupWindow);
+    method @Deprecated public static int getWindowLayoutType(android.widget.PopupWindow);
+    method @Deprecated public static void setOverlapAnchor(android.widget.PopupWindow, boolean);
+    method @Deprecated public static void setWindowLayoutType(android.widget.PopupWindow, int);
     method @Deprecated public static void showAsDropDown(android.widget.PopupWindow, android.view.View, int, int, int);
   }
 
@@ -5467,7 +5467,7 @@ package androidx.core.widget {
     method public static void setLineHeight(android.widget.TextView, @IntRange(from=0) @Px int);
     method public static void setLineHeight(android.widget.TextView, int, @FloatRange(from=0) float);
     method public static void setPrecomputedText(android.widget.TextView, androidx.core.text.PrecomputedTextCompat);
-    method public static void setTextAppearance(android.widget.TextView, @StyleRes int);
+    method @Deprecated public static void setTextAppearance(android.widget.TextView, @StyleRes int);
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
