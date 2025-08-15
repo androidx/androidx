@@ -62,7 +62,6 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
@@ -150,8 +149,6 @@ class ExposedDropdownMenuTest {
         onNodeWithTag(MenuItemTag).assertIsDisplayed()
     }
 
-    // Fails on iOS currently
-    @Ignore
     @Test
     fun edm_doesNotExpand_ifTouchEndsOutsideBounds() = runComposeUiTest {
         var textFieldBounds = Rect.Zero
