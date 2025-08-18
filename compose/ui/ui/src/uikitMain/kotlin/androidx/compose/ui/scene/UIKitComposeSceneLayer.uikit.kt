@@ -29,8 +29,8 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.uikit.InterfaceOrientation
+import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.embedSubview
@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.FocusedViewsList
-import androidx.compose.ui.window.MetalView
 import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGPoint
@@ -55,13 +54,12 @@ internal class UIKitComposeSceneLayer(
     private val onClosed: (UIKitComposeSceneLayer) -> Unit,
     private val createComposeSceneContext: (PlatformContext) -> ComposeSceneContext,
     private val hostCompositionLocals: @Composable (@Composable () -> Unit) -> Unit,
-    private val metalView: MetalView,
+    private val layersViewController: ComposeLayersViewController,
     private val initDensity: Density,
     private val initLayoutDirection: LayoutDirection,
     private val onAccessibilityChanged: () -> Unit,
     onFocusBehavior: OnFocusBehavior,
     focusedViewsList: FocusedViewsList?,
-    windowContext: PlatformWindowContext,
     compositionContext: CompositionContext,
     private val coroutineContext: CoroutineContext,
     private val enableBackGesture: Boolean,
@@ -93,9 +91,9 @@ internal class UIKitComposeSceneLayer(
     private val mediator = ComposeSceneMediator(
         onFocusBehavior = onFocusBehavior,
         focusedViewsList = focusedViewsList,
-        windowContext = windowContext,
+        windowContext = layersViewController.windowContext,
         coroutineContext = compositionContext.effectCoroutineContext,
-        redrawer = metalView.redrawer,
+        redrawer = layersViewController.metalView.redrawer,
         composeSceneFactory = ::createComposeScene,
         backGestureDispatcher = backGestureDispatcher,
         interfaceOrientationState = interfaceOrientationState
@@ -148,7 +146,7 @@ internal class UIKitComposeSceneLayer(
 
     fun render(canvas: Canvas, nanoTime: Long) {
         if (scrimColor != null) {
-            val rect = metalView.bounds.asDpRect().toRect(density)
+            val rect = layersViewController.metalView.bounds.asDpRect().toRect(density)
 
             canvas.drawRect(rect, scrimPaint)
         }
@@ -179,6 +177,7 @@ internal class UIKitComposeSceneLayer(
         content: @Composable () -> Unit
     ) = CompositionLocalProvider(
         LocalBackGestureDispatcher provides backGestureDispatcher,
+        LocalUIViewController provides layersViewController,
         content = content
     )
 

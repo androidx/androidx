@@ -4,7 +4,6 @@ package androidx.compose.mpp.demo
 import androidx.compose.mpp.demo.bugs.IosBugs
 import androidx.compose.mpp.demo.bugs.StartRecompositionCheck
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController

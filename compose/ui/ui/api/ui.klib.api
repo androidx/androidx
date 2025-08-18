@@ -4991,6 +4991,9 @@ final val androidx.compose.ui.platform/androidx_compose_ui_platform_UiKitPlatfor
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeHostingViewController$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeHostingViewController$stableprop|#static{}androidx_compose_ui_scene_ComposeHostingViewController$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeLayersViewController$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeLayersViewController$stableprop|#static{}androidx_compose_ui_scene_ComposeLayersViewController$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeSceneMediator$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeSceneMediator$stableprop|#static{}androidx_compose_ui_scene_ComposeSceneMediator$stableprop[0]
 
 // Targets: [ios]
@@ -4998,9 +5001,6 @@ final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneL
 
 // Targets: [ios]
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop|#static{}androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop[0]
-
-// Targets: [ios]
-final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop|#static{}androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop|#static{}androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop[0]
@@ -5198,6 +5198,9 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_UiKitPlatfor
 final fun androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeHostingViewController$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeHostingViewController$stableprop_getter|androidx_compose_ui_scene_ComposeHostingViewController$stableprop_getter(){}[0]
 
 // Targets: [ios]
+final fun androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeLayersViewController$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeLayersViewController$stableprop_getter|androidx_compose_ui_scene_ComposeLayersViewController$stableprop_getter(){}[0]
+
+// Targets: [ios]
 final fun androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeSceneMediator$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_ComposeSceneMediator$stableprop_getter|androidx_compose_ui_scene_ComposeSceneMediator$stableprop_getter(){}[0]
 
 // Targets: [ios]
@@ -5205,9 +5208,6 @@ final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneL
 
 // Targets: [ios]
 final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter|androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter(){}[0]
-
-// Targets: [ios]
-final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop_getter|androidx_compose_ui_scene_UIKitComposeSceneLayersHolder$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter|androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter(){}[0]

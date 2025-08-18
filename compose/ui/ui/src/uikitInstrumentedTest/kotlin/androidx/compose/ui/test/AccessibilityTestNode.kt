@@ -52,6 +52,8 @@ import platform.UIKit.UIAccessibilityTraitToggleButton
 import platform.UIKit.UIAccessibilityTraitUpdatesFrequently
 import platform.UIKit.UIAccessibilityTraits
 import platform.UIKit.UIView
+import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
 import platform.UIKit.accessibilityCustomActions
 import platform.UIKit.accessibilityElementAtIndex
 import platform.UIKit.accessibilityElementCount
@@ -76,32 +78,41 @@ import platform.darwin.NSObject
  */
 @OptIn(ExperimentalForeignApi::class)
 internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode {
-    fun buildNode(element: NSObject, level: Int): AccessibilityTestNode {
+    fun buildNode(element: NSObject): AccessibilityTestNode {
         val children = mutableListOf<AccessibilityTestNode>()
         val elements = element.accessibilityElements()
 
         if (elements != null) {
             elements.forEach {
-                children.add(buildNode(it as NSObject, level = level + 1))
+                children.add(buildNode(it as NSObject))
             }
         } else {
             val count = element.accessibilityElementCount()
             if (count == NSIntegerMax) {
                 when {
                     element is UIView -> {
-                        element.subviews.mapNotNull {
-                            children.add(buildNode(it as UIView, level = level + 1))
+                        element.subviews.forEach {
+                            children.add(buildNode(it as UIView))
+                        }
+                    }
+                    element is UIWindowScene -> {
+                        element.windows.forEach {
+                            children.add(buildNode(it as UIWindow))
                         }
                     }
                 }
             } else if (count > 0) {
-                (0 until count).mapNotNull {
+                (0 until count).forEach {
                     val child = element.accessibilityElementAtIndex(it) as NSObject
-                    children.add(buildNode(child, level = level + 1))
+                    children.add(buildNode(child))
                 }
             } else if (element is UIView) {
-                element.subviews.mapNotNull {
-                    children.add(buildNode(it as UIView, level = level + 1))
+                element.subviews.forEach {
+                    children.add(buildNode(it as UIView))
+                }
+            } else if (element is UIWindowScene) {
+                element.windows.forEach {
+                    children.add(buildNode(it as UIWindow))
                 }
             }
         }
@@ -122,7 +133,7 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
         }
     }
 
-    return buildNode(appDelegate.window!!, 0)
+    return buildNode(appDelegate.window!!.windowScene!!)
 }
 
 private val allAccessibilityTraits = mapOf(

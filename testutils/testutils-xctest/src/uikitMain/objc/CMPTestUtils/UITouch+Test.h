@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
                     tapCount:(NSInteger)tapCount
                     fromEdge:(BOOL)fromEdge;
 
++ (UIEvent *)getTouchesEvent;
+
 @property (assign) UITouchPhase phase;
 @property (assign) CGPoint locationInWindow;
 

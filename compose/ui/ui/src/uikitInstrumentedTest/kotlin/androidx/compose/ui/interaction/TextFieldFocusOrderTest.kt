@@ -33,6 +33,24 @@ import platform.UIKit.UIView
 
 class TextFieldFocusOrderTest {
     @Test
+    fun testModalTextFieldsFocusOnDialogAppear() = runUIKitInstrumentedTest {
+        val dialogFocusRequester = FocusRequester()
+
+        setContent {
+            TextField("Text 0", {})
+
+            Dialog({}) {
+                TextField("Text 1", {}, modifier = Modifier.focusRequester(dialogFocusRequester))
+                LaunchedEffect(Unit) {
+                    dialogFocusRequester.requestFocus()
+                }
+            }
+        }
+
+        assertEquals("Text 1", findFocusedUITextInput()?.text)
+    }
+
+    @Test
     fun testModalTextFieldsRefocus() = runUIKitInstrumentedTest {
         val showDialog1 = mutableStateOf(false)
         val showDialog2 = mutableStateOf(false)
@@ -49,18 +67,18 @@ class TextFieldFocusOrderTest {
             if (showDialog1.value) {
                 Dialog({}) {
                     TextField("Text 1", {}, modifier = Modifier.focusRequester(focusRequester1))
-                }
-                LaunchedEffect(Unit) {
-                    focusRequester1.requestFocus()
+                    LaunchedEffect(Unit) {
+                        focusRequester1.requestFocus()
+                    }
                 }
             }
 
             if (showDialog2.value) {
                 Dialog({}) {
                     TextField("Text 2", {}, modifier = Modifier.focusRequester(focusRequester2))
-                }
-                LaunchedEffect(Unit) {
-                    focusRequester2.requestFocus()
+                    LaunchedEffect(Unit) {
+                        focusRequester2.requestFocus()
+                    }
                 }
             }
         }
@@ -87,8 +105,8 @@ class TextFieldFocusOrderTest {
     @Test
     fun testModalTextFieldsRefocusWhenParentDismissed() = runUIKitInstrumentedTest {
         val showTextField = mutableStateOf(true)
-        val showDialog1 = mutableStateOf(true)
-        val showDialog2 = mutableStateOf(true)
+        val showDialog1 = mutableStateOf(false)
+        val showDialog2 = mutableStateOf(false)
         val focusRequester0 = FocusRequester()
         val focusRequester1 = FocusRequester()
         val focusRequester2 = FocusRequester()
@@ -104,21 +122,26 @@ class TextFieldFocusOrderTest {
             if (showDialog1.value) {
                 Dialog({}) {
                     TextField("Text 1", {}, modifier = Modifier.focusRequester(focusRequester1))
-                }
-                LaunchedEffect(Unit) {
-                    focusRequester1.requestFocus()
+                    LaunchedEffect(Unit) {
+                        focusRequester1.requestFocus()
+                    }
                 }
             }
 
             if (showDialog2.value) {
                 Dialog({}) {
                     TextField("Text 2", {}, modifier = Modifier.focusRequester(focusRequester2))
-                }
-                LaunchedEffect(Unit) {
-                    focusRequester2.requestFocus()
+                    LaunchedEffect(Unit) {
+                        focusRequester2.requestFocus()
+                    }
                 }
             }
         }
+
+        showDialog1.value = true
+        waitForIdle()
+        showDialog2.value = true
+        waitForIdle()
 
         assertEquals("Text 2", findFocusedUITextInput()?.text)
 
@@ -141,7 +164,7 @@ class TextFieldFocusOrderTest {
     }
 
     private fun UIKitInstrumentedTest.findFocusedUITextInput(): UITextInputProtocol? {
-        val window = hostingViewController.view.window ?: return null
+        val windowScene = hostingViewController.view.window?.windowScene ?: return null
 
         fun findFirstResponder(view: UIView): UIView? {
             if (view.isFirstResponder) {
@@ -153,6 +176,8 @@ class TextFieldFocusOrderTest {
             return null
         }
 
-        return findFirstResponder(view = window) as? UITextInputProtocol
+        return windowScene.windows.reversed().firstNotNullOfOrNull {
+            findFirstResponder(view = it as UIView)
+        } as? UITextInputProtocol
     }
 }

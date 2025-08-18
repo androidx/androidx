@@ -69,6 +69,10 @@ typedef struct {
     return [[UITouch alloc] initAtPoint:point inWindow:window tapCount:tapCount fromEdge:fromEdge];
 }
 
++ (UIEvent *)getTouchesEvent {
+    return [UIApplication.sharedApplication _touchesEvent];
+}
+
 - (id)initAtPoint:(CGPoint)point inWindow:(UIWindow *)window tapCount:(NSInteger)tapCount fromEdge:(BOOL)fromEdge {
 	self = [super init];
     if (self) {

@@ -21,6 +21,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.scene.ComposeHostingViewController
 import androidx.compose.ui.test.utils.center
+import androidx.compose.ui.test.utils.getTouchesEvent
 import androidx.compose.ui.test.utils.moveToLocationOnWindow
 import androidx.compose.ui.test.utils.toCGPoint
 import androidx.compose.ui.test.utils.touchDown
@@ -29,8 +30,10 @@ import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.window.KeyboardVisibilityListener
@@ -63,10 +66,13 @@ import platform.UIKit.UIScreen
 import platform.UIKit.UITouch
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
 import platform.UIKit.attemptRotationToDeviceOrientation
 import platform.UIKit.endEditing
 import platform.UIKit.systemBackgroundColor
 import platform.darwin.NSObject
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 
 /**
  * Sets up the test environment for iOS instrumented tests, runs the given [test][testBlock]
@@ -102,6 +108,16 @@ internal class UIKitInstrumentedTest {
     val keyboardHeight: Dp get() =
         KeyboardVisibilityListener.keyboardFrame.useContents { size.height.dp }
     val screenSize: DpSize get() = screen.bounds().useContents { DpSize(size.width.dp, size.height.dp) }
+    val safeDrawingRect: DpRect get() = screen.bounds().asDpRect().let { rect ->
+        hostingViewController.view.safeAreaInsets.useContents {
+            DpRect(
+                left = rect.left + Dp(this.left.toFloat()),
+                top = rect.top + Dp(this.top.toFloat()),
+                right = rect.right - Dp(this.right.toFloat()),
+                bottom = rect.bottom - Dp(this.bottom.toFloat()),
+            )
+        }
+    }
     internal lateinit var hostingViewController: ComposeHostingViewController
 
     private val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
@@ -193,7 +209,15 @@ internal class UIKitInstrumentedTest {
             toView = appDelegate.window()
         )
 
-        return appDelegate.window()!!.touchDown(positionOnWindow.asDpOffset())
+        val window = appDelegate.window()!!
+            .windowScene!!
+            .windows
+            .findLast {
+                it as UIWindow
+                it.hitTest(position.toCGPoint(), it.getTouchesEvent()) != null
+            } as UIWindow
+
+        return window.touchDown(positionOnWindow.asDpOffset())
     }
 
     /**
@@ -298,19 +322,26 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
 
         _window = UIWindow(frame = UIScreen.mainScreen.bounds)
         _window?.backgroundColor = UIColor.systemBackgroundColor
+        _window?.windowScene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
 
         _window?.rootViewController = viewController
         _window?.makeKeyAndVisible()
     }
 
     fun cleanUp() {
-        _window?.resignKeyWindow()
-        _window?.rootViewController = null
-        _window = null
-
         val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         window.rootViewController = UIViewController()
         window.makeKeyAndVisible()
+        window.windowScene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
+        dispatch_async(dispatch_get_main_queue()) {
+            window.windowScene = null
+            window.resignKeyWindow()
+        }
+
+        _window?.resignKeyWindow()
+        _window?.windowScene = null
+        _window?.rootViewController = UIViewController()
+        _window = null
     }
 
     /**

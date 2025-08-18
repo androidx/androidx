@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.ui.unit.asDpSize
 import kotlin.math.max
 import kotlinx.cinterop.CValue
-import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
@@ -27,12 +26,12 @@ import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectEqualToRect
 import platform.CoreGraphics.CGRectMake
-import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIColor
 import platform.UIKit.UIEvent
 import platform.UIKit.UIGraphicsImageRenderer
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageView
+import platform.UIKit.UIScreen
 import platform.UIKit.UITraitCollection
 import platform.UIKit.UIUserInterfaceStyle
 import platform.UIKit.UIView
@@ -42,7 +41,7 @@ import platform.UIKit.UIWindow
 internal class ComposeView(
     private val useOpaqueConfiguration: Boolean,
     private val transparentForTouches: Boolean,
-): UIView(frame = CGRectZero.readValue()) {
+): UIView(frame = UIScreen.mainScreen.bounds) {
     init {
         setClipsToBounds(true)
         setOpaque(useOpaqueConfiguration)
@@ -92,7 +91,7 @@ internal class ComposeView(
         metalView?.let {
             addSubview(metalView)
         }
-        setNeedsLayout()
+        updateLayout()
         window?.let(onDidMoveToWindow)
     }
 
