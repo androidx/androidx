@@ -96,8 +96,12 @@ internal abstract class DesktopComposeSceneLayer(
     override var boundsInWindow: IntRect = IntRect.Zero
         set(value) {
             field = value
+            isBoundsInWindowSet = true
             boundsEventFilter.bounds = value.toAwtRectangle(density)
         }
+
+    protected var isBoundsInWindowSet: Boolean = false
+        private set
 
     final override var compositionLocalContext: CompositionLocalContext?
         get() = mediator?.compositionLocalContext
@@ -142,7 +146,7 @@ internal abstract class DesktopComposeSceneLayer(
                 right = boundsInWindow.right + maxDrawInflate.right,
                 bottom = boundsInWindow.bottom + maxDrawInflate.bottom
             )
-            onUpdateBounds()
+            onDrawBoundsChanged()
         }
 
     /**
@@ -170,9 +174,9 @@ internal abstract class DesktopComposeSceneLayer(
     }
 
     /**
-     * Called when bounds of the layer has been updated.
+     * Called when [drawBounds] has changed.
      */
-    open fun onUpdateBounds() {
+    open fun onDrawBoundsChanged() {
     }
 
     /**
@@ -239,7 +243,7 @@ internal abstract class DesktopComposeSceneLayer(
     }
 
     private inner class BoundsEventFilter(
-        var bounds: Rectangle,
+        var bounds: Rectangle?,
     ) : AwtEventFilter() {
         private val MouseEvent.isInBounds: Boolean
             get() {
@@ -248,7 +252,7 @@ internal abstract class DesktopComposeSceneLayer(
                 } else {
                     point
                 }
-                return bounds.contains(localPoint)
+                return bounds?.contains(localPoint) ?: false
             }
 
         override fun shouldSendMouseEvent(event: MouseEvent): Boolean {

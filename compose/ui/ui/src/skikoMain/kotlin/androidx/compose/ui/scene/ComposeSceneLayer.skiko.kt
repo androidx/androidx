@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
@@ -33,12 +34,12 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.Popup
@@ -46,8 +47,10 @@ import androidx.compose.ui.window.PopupProperties
 
 /**
  * An extra layer for the [ComposeScene].
- * This is utilized to display content as a new [LayoutNode] tree.
- * It is designed to be implemented by platform as adapter for separate platform view/canvas.
+ *
+ * This is used to display content as a new [LayoutNode] tree.
+ * It is designed to be implemented by the platform as the adapter for a separate platform
+ * view/canvas.
  *
  * @see Popup
  * @see Dialog
@@ -65,9 +68,10 @@ interface ComposeSceneLayer {
     var layoutDirection: LayoutDirection
 
     /**
-     * The real bounds of content in pixels relative to [WindowInfo.containerSize].
+     * The real bounds of content, in pixels, relative to [WindowInfo.containerSize].
+     *
      * This property is used to set the position and size of [Popup]/[Dialog].
-     * The implementation should be ready to react on the changes in size/position that can
+     * The implementation should be ready to react to the changes in size/position that can
      * happen during recompositions.
      */
     var boundsInWindow: IntRect
@@ -212,4 +216,13 @@ internal fun ComposeSceneLayer.Content(content: @Composable () -> Unit) {
         }
         onDispose {  }
     }
+}
+
+/**
+ * Returns whether the layer contains [point].
+ *
+ * @param point An offset relative to the layer's container.
+ */
+internal fun ComposeSceneLayer.contains(point: Offset): Boolean {
+    return boundsInWindow.contains(point.round())
 }

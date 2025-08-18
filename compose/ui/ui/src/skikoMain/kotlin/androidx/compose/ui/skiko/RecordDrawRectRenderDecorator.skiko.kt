@@ -32,7 +32,7 @@ internal class RecordDrawRectRenderDecorator(
     private val pictureRecorder = PictureRecorder()
     private val bbhFactory = RTreeFactory()
     private var drawRect = Rect.Zero
-        private set(value) {
+        set(value) {
             if (value != field) {
                 field = value
                 onDrawRectChange(value)

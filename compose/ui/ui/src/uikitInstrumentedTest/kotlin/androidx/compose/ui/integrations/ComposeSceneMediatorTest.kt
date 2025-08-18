@@ -50,7 +50,7 @@ class ComposeSceneMediatorTest {
         mediator.density = Density(2f)
         mediator.layoutDirection = LayoutDirection.Rtl
         mediator.compositionLocalContext = null
-        mediator.interactionBounds = IntRect.Companion.Zero
+        mediator.interactionBounds = IntRect.Zero
         mediator.isAccessibilityEnabled = true
         mediator.prepareAndGetSizeTransitionAnimation().invoke(10.milliseconds)
     }
@@ -101,10 +101,10 @@ class ComposeSceneMediatorTest {
             backGestureDispatcher = UIKitBackGestureDispatcher(
                 enableBackGesture = false,
                 density = Density(1f),
-                getTopLeftOffsetInWindow = { IntOffset.Companion.Zero }
+                getTopLeftOffsetInWindow = { IntOffset.Zero }
             ),
             interfaceOrientationState = mutableStateOf(InterfaceOrientation.Portrait),
-            composeSceneFactory = { invalidate, platformContext ->
+            composeSceneFactory = { _, _ ->
                 PlatformLayersComposeScene(
                     density = Density(1f)
                 )

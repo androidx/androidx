@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.awt
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +34,7 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
@@ -247,7 +247,7 @@ class ComposePanelTest {
                 savedState = composePanel.saveState()
             }
 
-            testPanel(savedState) { composePanel ->
+            testPanel(savedState) { _ ->
                 assertThat(lastState).isEqualTo(6)
             }
         } finally {
@@ -639,4 +639,51 @@ class ComposePanelTest {
         }
     }
 
+    @Test
+    fun unfocusablePopupLayer_withComponentLayerType_inComposePanel_isSizedCorrectly() {
+        ComposeFeatureFlags.layerType.withOverride(LayerType.OnComponent) {
+            ComposeFeatureFlags.useSwingGraphicsInComposePanel.withOverride(true) {
+                val window = JFrame()
+                try {
+                    var showPopup by mutableStateOf(false)
+                    runApplicationTest {
+                        val composePanel = ComposePanel()
+                        composePanel.setContent {
+                            Box(Modifier
+                                .size(200.dp)
+                                .background(Color.Yellow)
+                            )
+                            if (showPopup) {
+                                Popup(
+                                    properties = PopupProperties(focusable = false),
+                                ) {
+                                    Box(Modifier
+                                        .size(50.dp)
+                                        .background(Color.Blue)
+                                    )
+                                }
+                            }
+                        }
+
+                        composePanel.windowContainer = window.layeredPane
+
+                        window.contentPane.add(composePanel, BorderLayout.NORTH)
+                        window.pack()
+                        window.isVisible = true
+
+                        awaitIdle()
+
+                        val initialChildren = window.layeredPane.components
+                        showPopup = true
+                        awaitIdle()
+                        val newLayer = (window.layeredPane.components.toSet() - initialChildren).single()
+                        assertEquals(50, newLayer.size.width)
+                        assertEquals(50, newLayer.size.height)
+                    }
+                } finally {
+                    window.dispose()
+                }
+            }
+        }
+    }
 }

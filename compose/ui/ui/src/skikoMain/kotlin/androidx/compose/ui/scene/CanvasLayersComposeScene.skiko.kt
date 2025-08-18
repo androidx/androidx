@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -221,7 +220,7 @@ private class CanvasLayersComposeSceneImpl(
 
     override fun hitTestInteropView(position: Offset): InteropView? {
         forEachLayerReversed { layer ->
-            if (layer.isInBounds(position)) {
+            if (layer.contains(position)) {
                 return layer.owner.hitTestInteropView(position)
             } else if (layer == focusedLayer) {
                 return null
@@ -276,7 +275,7 @@ private class CanvasLayersComposeSceneImpl(
      */
     private fun hoveredOwner(event: PointerInputEvent): RootNodeOwner {
         val position = event.pointers.first().position
-        return layers.fastLastOrNull { it.isInBounds(position) }?.owner ?: mainOwner
+        return layers.fastLastOrNull { it.contains(position) }?.owner ?: mainOwner
     }
 
     /**
@@ -308,8 +307,8 @@ private class CanvasLayersComposeSceneImpl(
         val position = event.pointers.first().position
         forEachLayerReversed { layer ->
 
-            // If the position of in bounds of the owner - send event to it and stop processing
-            if (layer.isInBounds(position)) {
+            // If the position is in bounds of the owner - send event to it and stop processing
+            if (layer.contains(position)) {
                 // The layer doesn't have any offset from [mainOwner], so we don't need to
                 // convert event coordinates here.
                 val result = layer.owner.onPointerInput(event)
@@ -615,8 +614,6 @@ private class CanvasLayersComposeSceneImpl(
 
         override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset =
             positionInWindow // [ComposeScene] is equal to window in this implementation.
-
-        fun isInBounds(position: Offset) = boundsInWindow.contains(position.round())
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
             if (!event.isMouseOrSingleTouch()) {

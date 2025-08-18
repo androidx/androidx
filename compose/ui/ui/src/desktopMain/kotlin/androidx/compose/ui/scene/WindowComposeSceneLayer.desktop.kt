@@ -127,7 +127,7 @@ internal class WindowComposeSceneLayer(
             it.contentComponent.size = windowContainer.size
             it.contentComponent.isFocusable = focusable
         }
-        onUpdateBounds()
+        onDrawBoundsChanged()
 
         layerWindow.isVisible = true
 
@@ -151,7 +151,7 @@ internal class WindowComposeSceneLayer(
 
     override fun onWindowContainerPositionChanged() {
         val scaledRectangle = drawBounds.toAwtRectangle(density)
-        setDialogLocation(scaledRectangle.x, scaledRectangle.y)
+        setWindowContainerLocation(scaledRectangle.x, scaledRectangle.y)
     }
 
     override fun onWindowContainerSizeChanged() {
@@ -170,9 +170,9 @@ internal class WindowComposeSceneLayer(
         layerWindow.repaint()
     }
 
-    override fun onUpdateBounds() {
+    override fun onDrawBoundsChanged() {
         val scaledRectangle = drawBounds.toAwtRectangle(density)
-        setDialogLocation(scaledRectangle.x, scaledRectangle.y)
+        setWindowContainerLocation(scaledRectangle.x, scaledRectangle.y)
         layerWindow.setSize(scaledRectangle.width, scaledRectangle.height)
         mediator?.contentComponent?.setSize(scaledRectangle.width, scaledRectangle.height)
         mediator?.sceneBoundsInPx = Rect(
@@ -221,7 +221,7 @@ internal class WindowComposeSceneLayer(
         )
     }
 
-    private fun setDialogLocation(x: Int, y: Int) {
+    private fun setWindowContainerLocation(x: Int, y: Int) {
         if (!windowContainer.isShowing) {
             return
         }
