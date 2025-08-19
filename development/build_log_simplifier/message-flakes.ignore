@@ -142,7 +142,7 @@ Could not read index from network cache: null
 Using custom version .* of AGP due to GRADLE_PLUGIN_VERSION being set\.
 Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
-Publishing Build Scan\.\.\.
+Publishing Build Scan to Develocity\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/AndroidXDemos/src/main/java/com/example/androidx/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
