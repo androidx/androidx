@@ -225,15 +225,10 @@ val testWebWasm = tasks.register("testWebWasm") {
 tasks.register("testUIKit") {
     val suffix = if (System.getProperty("os.arch") == "aarch64") "SimArm64Test" else "X64Test"
     val uikitTestSubtaskName = "uikit$suffix"
-    // TODO: Migrate iosInstrumentedTest to kotlin 2.1.0
-    //  https://youtrack.jetbrains.com/issue/CMP-7390/Migrate-iosInstrumentedTest-target-to-kotlin-2.1.0
-    //  Kotlin 2.1.0 doesn't support declaring multiple targets of the same type
-    // val instrumentedTestSubtaskName = "uikitInstrumented$suffix"
 
     dependsOn(":compose:runtime:runtime:$uikitTestSubtaskName")
     dependsOn(":compose:ui:ui-text:$uikitTestSubtaskName")
     dependsOn(":compose:ui:ui:$uikitTestSubtaskName")
-    // dependsOn(":compose:ui:ui:$instrumentedTestSubtaskName")
     dependsOn(":compose:material3:material3:$uikitTestSubtaskName")
     dependsOn(":compose:foundation:foundation:$uikitTestSubtaskName")
     dependsOn(":collection:collection:$uikitTestSubtaskName")
