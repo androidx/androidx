@@ -31,7 +31,7 @@ import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 
 @Composable
-actual fun NavHost(
+public actual fun NavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier,

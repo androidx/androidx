@@ -92,4 +92,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2025"
     description = "Provides BackHandler in Compose Multiplatform projects"
+    legacyDisableKotlinStrictApiMode = true
 }

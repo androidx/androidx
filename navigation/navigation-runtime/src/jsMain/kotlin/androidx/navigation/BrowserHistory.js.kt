@@ -44,7 +44,7 @@ import org.w3c.dom.Window
 @Suppress("UnusedReceiverParameter")
 @Deprecated(message = "Use bindToBrowserNavigation", replaceWith = ReplaceWith("navController.bindToBrowserNavigation(getBackStackEntryRoute)"))
 @ExperimentalBrowserHistoryApi
-suspend fun Window.bindToNavigation(
+public suspend fun Window.bindToNavigation(
     navController: NavController,
     getBackStackEntryRoute: ((entry: NavBackStackEntry) -> String)? = null
 ) {

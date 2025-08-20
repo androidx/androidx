@@ -38,7 +38,7 @@ import androidx.navigation.compose.internal.DefaultNavTransitions
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-actual fun NavHost(
+public actual fun NavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier,

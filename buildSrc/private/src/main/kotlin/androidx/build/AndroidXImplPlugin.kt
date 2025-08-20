@@ -81,9 +81,11 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -358,18 +360,13 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 task.compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
             }
 
-            val isAndroidProject = project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                project.plugins.hasPlugin(AppPlugin::class.java)
-            // Explicit API mode is broken for Android projects
-            // https://youtrack.jetbrains.com/issue/KT-37652
-            if (extension.shouldEnforceKotlinStrictApiMode() && !isAndroidProject) {
-                project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                    // Workaround for https://youtrack.jetbrains.com/issue/KT-37652
-                    if (task.name.endsWith("TestKotlin")) return@configureEach
-                    if (task.name.endsWith("TestKotlinJvm")) return@configureEach
-                    task.compilerOptions.freeCompilerArgs.addAll(listOf("-Xexplicit-api=strict"))
+            val kotlinExtension = project.extensions.getByType<KotlinProjectExtension>()
+            kotlinExtension.explicitApi =
+                if (extension.shouldEnforceKotlinStrictApiMode()) {
+                    ExplicitApiMode.Strict
+                } else {
+                    ExplicitApiMode.Disabled
                 }
-            }
         }
         // setup a partial docs artifact that can be used to generate offline docs, if requested.
         AndroidXKmpDocsImplPlugin.setupPartialDocsArtifact(project)

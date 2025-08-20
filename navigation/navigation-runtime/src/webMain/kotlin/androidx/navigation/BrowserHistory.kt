@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 @RequiresOptIn(message = "This is an experimental browser API.")
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalBrowserHistoryApi
+public annotation class ExperimentalBrowserHistoryApi
 
 /**
  * Binds the browser window state to the given navigation controller.
@@ -233,8 +233,8 @@ internal external interface BrowserConsole {
     fun warn(msg: String)
 }
 
-external fun decodeURIComponent(str: String): String
-external fun encodeURIComponent(str: String): String
+internal external fun decodeURIComponent(str: String): String
+internal external fun encodeURIComponent(str: String): String
 
 
 /**
@@ -261,7 +261,7 @@ external fun encodeURIComponent(str: String): String
  * @param getBackStackEntryRoute An optional function that returns the route to show for a given [NavBackStackEntry].
  */
 @ExperimentalBrowserHistoryApi
-suspend fun NavController.bindToBrowserNavigation(
+public suspend fun NavController.bindToBrowserNavigation(
     getBackStackEntryRoute: ((entry: NavBackStackEntry) -> String)? = null
 ) {
     @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")

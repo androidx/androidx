@@ -160,7 +160,6 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

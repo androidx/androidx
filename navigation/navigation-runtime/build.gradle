@@ -170,6 +170,4 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
-    metalavaK2UastEnabled = true
-    legacyDisableKotlinStrictApiMode = true
 }

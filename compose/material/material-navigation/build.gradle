@@ -93,6 +93,7 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Compose Material integration with Navigation"
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {
