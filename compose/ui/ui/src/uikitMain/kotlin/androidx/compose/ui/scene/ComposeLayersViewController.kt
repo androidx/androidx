@@ -106,12 +106,12 @@ internal class ComposeLayersViewController(
         windowContext.setWindowContainer(window)
         window.rootViewController = this
         window.windowLevel = UIWindowLevelAlert + 1
-        window.makeKeyAndVisible()
+        window.setHidden(false)
     }
 
     private fun hide() {
         window.rootViewController = null
-        window.resignKeyWindow()
+        window.setHidden(true)
     }
 
     fun dispose() {
