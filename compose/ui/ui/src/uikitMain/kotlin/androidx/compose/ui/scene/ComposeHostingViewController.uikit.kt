@@ -41,6 +41,7 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.uikit.PlistSanityCheck
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.embedSubview
+import androidx.compose.ui.uikit.utils.CMPKeyValueObserver
 import androidx.compose.ui.uikit.utils.CMPViewController
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -65,6 +66,8 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.CPointed
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
 import kotlinx.coroutines.CoroutineScope
@@ -74,6 +77,9 @@ import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
 import platform.CoreGraphics.CGSize
+import platform.Foundation.NSKeyValueObservingOptionNew
+import platform.Foundation.addObserver
+import platform.Foundation.removeObserver
 import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 import platform.UIKit.UIApplication
 import platform.UIKit.UIStatusBarAnimation
@@ -83,6 +89,7 @@ import platform.UIKit.UIUserInterfaceLayoutDirection
 import platform.UIKit.UIUserInterfaceStyle
 import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
@@ -112,6 +119,9 @@ internal class ComposeHostingViewController(
     private var savableStateRegistry = SaveableStateRegistry(
         restoredValues = null, canBeSaved = { true }
     )
+    private val interfaceOrientationObserver = SceneGeometryObserver {
+        updateInterfaceOrientationState()
+    }
 
     private val backGestureDispatcher = UIKitBackGestureDispatcher(
         enableBackGesture = configuration.enableBackGesture,
@@ -142,15 +152,12 @@ internal class ComposeHostingViewController(
      */
     private val currentInterfaceOrientation: InterfaceOrientation?
         get() {
-            // Modern: https://developer.apple.com/documentation/uikit/uiwindowscene/3198088-interfaceorientation?language=objc
-            // Deprecated: https://developer.apple.com/documentation/uikit/uiapplication/1623026-statusbarorientation?language=objc
             return InterfaceOrientation.getByRawValue(
-                if (available(OS.Ios to OSVersion(13))) {
-                    view.window?.windowScene?.interfaceOrientation
-                        ?: UIApplication.sharedApplication.statusBarOrientation
+                if (available(OS.Ios to OSVersion(16))) {
+                    view.window?.windowScene?.effectiveGeometry?.interfaceOrientation
                 } else {
-                    UIApplication.sharedApplication.statusBarOrientation
-                }
+                    view.window?.windowScene?.interfaceOrientation
+                } ?: UIApplication.sharedApplication.statusBarOrientation
             )
         }
 
@@ -201,6 +208,8 @@ internal class ComposeHostingViewController(
 
     private fun onDidMoveToWindow(window: UIWindow?) {
         backGestureDispatcher.onDidMoveToWindow(window, rootView)
+        interfaceOrientationObserver.windowScene = window?.windowScene
+
         val windowContainer = window ?: return
 
         updateInterfaceOrientationState()
@@ -219,7 +228,6 @@ internal class ComposeHostingViewController(
     fun updateInterfaceOrientation(orientation: InterfaceOrientation) {
         interfaceOrientationState.value = orientation
     }
-
 
     override fun viewWillTransitionToSize(
         size: CValue<CGSize>,
@@ -332,6 +340,7 @@ internal class ComposeHostingViewController(
                 updateMotionSpeed()
             }
         }
+        interfaceOrientationObserver.isObservingEnabled = true
 
         backGestureDispatcher.onDidMoveToWindow(view.window, rootView)
         onAccessibilityChanged()
@@ -359,6 +368,8 @@ internal class ComposeHostingViewController(
 
         layersHolder?.disposeIfNeeded()
         layersHolder = null
+
+        interfaceOrientationObserver.isObservingEnabled = false
     }
 
     @OptIn(NativeRuntimeApi::class)
@@ -560,3 +571,52 @@ private class ComposeLayersHolder(
         layersViewController = null
     }
 }
+
+private class SceneGeometryObserver(
+    val onGeometryChanged: () -> Unit
+): CMPKeyValueObserver() {
+    private val observingKey = "effectiveGeometry"
+
+    var windowScene: UIWindowScene? = null
+        set(value) {
+            if (field == value) return
+            removeObserverIfNeeded()
+            field = value
+            addObserverIfNeeded()
+        }
+
+    var isObservingEnabled = false
+        set(value) {
+            if (field == value) return
+            field = value
+            if (value) {
+                addObserverIfNeeded()
+            } else {
+                removeObserverIfNeeded()
+            }
+        }
+
+    private var isObservingAdded = false
+
+    private fun addObserverIfNeeded() {
+        if (isObservingEnabled && !isObservingAdded) {
+            isObservingAdded = true
+            windowScene?.addObserver(this, observingKey, NSKeyValueObservingOptionNew, null)
+        }
+    }
+
+    private fun removeObserverIfNeeded() {
+        windowScene?.removeObserver(this, observingKey)
+        isObservingAdded = false
+    }
+
+    override fun observeValueForKeyPath(
+        keyPath: String?,
+        ofObject: Any?,
+        change: Map<Any?, *>?,
+        context: CPointer<out CPointed>?
+    ) {
+        onGeometryChanged()
+    }
+}
+

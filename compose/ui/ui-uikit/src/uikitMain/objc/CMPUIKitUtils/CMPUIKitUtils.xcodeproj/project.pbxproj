@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		991A97F72E1FB99300B47130 /* CMPScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 991A97F62E1FB99300B47130 /* CMPScrollView.m */; };
+		992EDDFB2E55EC8400FB44C5 /* CMPKeyValueObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 992EDDFA2E55EC8400FB44C5 /* CMPKeyValueObserver.m */; };
 		9968C35B2D76FE16005E8DE4 /* CMPPanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9968C35A2D76FE16005E8DE4 /* CMPPanGestureRecognizer.m */; };
 		9968C3612D7746BD005E8DE4 /* CMPHoverGestureHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9968C3602D7746BD005E8DE4 /* CMPHoverGestureHandler.m */; };
 		9968C38B2D7892DF005E8DE4 /* CMPScreenEdgePanGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9968C38A2D7892DF005E8DE4 /* CMPScreenEdgePanGestureRecognizer.m */; };
@@ -66,6 +67,8 @@
 /* Begin PBXFileReference section */
 		991A97F52E1FB99300B47130 /* CMPScrollView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPScrollView.h; sourceTree = "<group>"; };
 		991A97F62E1FB99300B47130 /* CMPScrollView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPScrollView.m; sourceTree = "<group>"; };
+		992EDDF92E55EC8400FB44C5 /* CMPKeyValueObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPKeyValueObserver.h; sourceTree = "<group>"; };
+		992EDDFA2E55EC8400FB44C5 /* CMPKeyValueObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPKeyValueObserver.m; sourceTree = "<group>"; };
 		9968C3592D76FE16005E8DE4 /* CMPPanGestureRecognizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPPanGestureRecognizer.h; sourceTree = "<group>"; };
 		9968C35A2D76FE16005E8DE4 /* CMPPanGestureRecognizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPPanGestureRecognizer.m; sourceTree = "<group>"; };
 		9968C35F2D7746BD005E8DE4 /* CMPHoverGestureHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPHoverGestureHandler.h; sourceTree = "<group>"; };
@@ -147,6 +150,8 @@
 				99D97A872BF73A9B0035552B /* CMPEditMenuView.m */,
 				991A97F52E1FB99300B47130 /* CMPScrollView.h */,
 				991A97F62E1FB99300B47130 /* CMPScrollView.m */,
+				992EDDF92E55EC8400FB44C5 /* CMPKeyValueObserver.h */,
+				992EDDFA2E55EC8400FB44C5 /* CMPKeyValueObserver.m */,
 				EA4B52942C2EDEF200FBB55C /* CMPGestureRecognizer.h */,
 				EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */,
 				9968C35F2D7746BD005E8DE4 /* CMPHoverGestureHandler.h */,
@@ -351,6 +356,7 @@
 				99D97A882BF73A9B0035552B /* CMPEditMenuView.m in Sources */,
 				EABD912B2BC02B5F00455279 /* CMPInteropWrappingView.m in Sources */,
 				EADD02902C9846D9003F66E8 /* CMPDragInteractionProxy.m in Sources */,
+				992EDDFB2E55EC8400FB44C5 /* CMPKeyValueObserver.m in Sources */,
 				EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */,
 				9968C3612D7746BD005E8DE4 /* CMPHoverGestureHandler.m in Sources */,
 				EA4B52962C2EDEF200FBB55C /* CMPGestureRecognizer.m in Sources */,
