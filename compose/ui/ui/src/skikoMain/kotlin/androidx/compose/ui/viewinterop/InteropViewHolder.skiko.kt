@@ -39,7 +39,7 @@ private fun abstractInvocationError(name: String): Nothing {
  */
 internal open class InteropViewHolder(
     val container: InteropContainer,
-    val group: InteropViewGroup,
+    open val group: InteropViewGroup,
     private val compositeKeyHashCode: CompositeKeyHashCode,
     measurePolicy: MeasurePolicy
 ) : ComposeNodeLifecycleCallback {

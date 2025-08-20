@@ -22,12 +22,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.SwingInteropViewHolder
 import java.awt.Component
 import java.awt.Container
+import java.awt.Dimension
 import java.awt.event.FocusEvent
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
@@ -51,7 +61,7 @@ val NoOpUpdate: Component.() -> Unit = {}
  * @param update The callback to be invoked after the layout is inflated.
  */
 @Composable
-public fun <T : Component> SwingPanel(
+fun <T : Component> SwingPanel(
     background: Color = Color.White,
     factory: () -> T,
     modifier: Modifier = Modifier,
@@ -82,15 +92,14 @@ public fun <T : Component> SwingPanel(
             container = interopContainer,
             group = group,
             focusSwitcher = focusSwitcher,
-            compositeKeyHashCode = compositeKeyHashCode
+            compositeKeyHashCode = compositeKeyHashCode,
+            measurePolicy = AwtContentMeasurePolicy(group)
         )
     }
 
     InteropView(
-        factory = {
-            interopViewHolder
-        },
-        modifier.then(focusSwitcher.modifier),
+        factory = { interopViewHolder },
+        modifier = modifier.then(focusSwitcher.modifier),
         update = {
             it.background = background.toAwtColor()
             update(it)
@@ -119,8 +128,11 @@ internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
  */
 internal class SwingInteropViewGroup(
     key: CompositeKeyHashCode,
-    private val focusComponent: Component
+    private val focusComponent: Component,
 ) : JPanel() {
+
+    internal var onInvalidate: (() -> Unit)? = null
+
     init {
         name = "SwingPanel #${key.toString(MaxSupportedRadix)}"
         layout = null
@@ -149,9 +161,72 @@ internal class SwingInteropViewGroup(
         }
         isFocusCycleRoot = true
     }
+
+    override fun getPreferredSize(): Dimension {
+        return components[0].preferredSize
+    }
+
+    override fun getMinimumSize(): Dimension {
+        return components[0].minimumSize
+    }
+
+    override fun getMaximumSize(): Dimension {
+        return components[0].maximumSize
+    }
+
+    override fun invalidate() {
+        super.invalidate()
+        onInvalidate?.invoke()
+    }
 }
 
 /**
  * The maximum radix available for conversion to and from strings.
  */
-private val MaxSupportedRadix = 36
+private const val MaxSupportedRadix = 36
+
+private class AwtContentMeasurePolicy(
+    val component: Component,
+) : MeasurePolicy {
+
+    private fun Density.awtToPx(awtPx: Int): Int = awtPx.dp.roundToPx()
+
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        val prefSize = component.preferredSize
+        val width = awtToPx(prefSize.width).coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = awtToPx(prefSize.height).coerceIn(constraints.minHeight, constraints.maxHeight)
+        return layout(width, height) {}
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ): Int {
+        return awtToPx(component.minimumSize.width)
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ): Int {
+        return awtToPx(component.minimumSize.height)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int
+    ): Int {
+        return awtToPx(component.maximumSize.width)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int
+    ): Int {
+        return awtToPx(component.maximumSize.height)
+    }
+}
+

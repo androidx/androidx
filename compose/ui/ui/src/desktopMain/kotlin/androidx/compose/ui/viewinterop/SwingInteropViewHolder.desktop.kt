@@ -19,6 +19,7 @@ package androidx.compose.ui.viewinterop
 import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.InteropFocusSwitcher
+import androidx.compose.ui.awt.SwingInteropViewGroup
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.draw.drawBehind
@@ -44,17 +45,16 @@ import org.jetbrains.skiko.ClipRectangle
 internal class SwingInteropViewHolder<T : Component>(
     factory: () -> T,
     container: InteropContainer,
-    group: InteropViewGroup,
+    override val group: SwingInteropViewGroup,
     focusSwitcher: InteropFocusSwitcher,
     compositeKeyHashCode: CompositeKeyHashCode,
+    measurePolicy: MeasurePolicy
 ) : TypedInteropViewHolder<T>(
-    factory,
-    container,
-    group,
-    compositeKeyHashCode,
-    MeasurePolicy { _, constraints ->
-        layout(constraints.minWidth, constraints.minHeight) {}
-    }
+    factory = factory,
+    interopContainer = container,
+    group = group,
+    compositeKeyHashCode = compositeKeyHashCode,
+    measurePolicy = measurePolicy
 ), ClipRectangle {
     private var clipBounds: IntRect? = null
 
@@ -71,9 +71,6 @@ internal class SwingInteropViewHolder<T : Component>(
 
         override fun focusLost(e: FocusEvent) = Unit
     }
-
-    override fun getInteropView(): InteropView =
-        typedInteropView
 
     init {
         group.add(typedInteropView)
@@ -127,6 +124,9 @@ internal class SwingInteropViewHolder<T : Component>(
         root.add(group, index)
         super.insertInteropView(root, index)
         container.root.addFocusListener(focusListener)
+        group.onInvalidate = {
+            layoutNode.invalidateMeasurements()
+        }
     }
 
     override fun changeInteropViewIndex(root: InteropViewGroup, index: Int) {
@@ -137,6 +137,7 @@ internal class SwingInteropViewHolder<T : Component>(
         root.remove(group)
         super.removeInteropView(root)
         container.root.removeFocusListener(focusListener)
+        group.onInvalidate = null
     }
 
     override val x: Float

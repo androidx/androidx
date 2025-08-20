@@ -19,10 +19,14 @@ package androidx.compose.ui.awt
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutBoundsHolder
+import androidx.compose.ui.layout.layoutBounds
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.sendMousePress
 import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.sendMouseWheelEvent
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.runApplicationTest
@@ -33,6 +37,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -124,5 +129,38 @@ class SwingPanelTest {
         } finally {
             window.dispose()
         }
+    }
+
+    @Test
+    fun swingPanelIsSizedToContentPreferredSize() = runApplicationTest(useDelay = true) {
+        val panel = JPanel()
+
+        panel.preferredSize = Dimension(100, 100)
+
+        val layoutBounds = LayoutBoundsHolder()
+        lateinit var density: Density
+        launchTestApplication {
+            Window(onCloseRequest = {}) {
+                SwingPanel(
+                    modifier = Modifier.layoutBounds(layoutBounds),
+                    factory = { panel }
+                )
+                density = LocalDensity.current
+            }
+        }
+
+        fun assertPanelSizeIsItsPreferredSize() {
+            assertEquals((panel.preferredSize.width * density.density).roundToInt(), layoutBounds.bounds?.width)
+            assertEquals((panel.preferredSize.height * density.density).roundToInt(), layoutBounds.bounds?.height)
+        }
+
+        awaitIdle()
+        assertPanelSizeIsItsPreferredSize()
+
+        // Also check that when the preferred size is updated, the SwingPanel is resized
+        panel.preferredSize = Dimension(200, 200)
+        panel.invalidate()
+        awaitIdle()
+        assertPanelSizeIsItsPreferredSize()
     }
 }
