@@ -329,10 +329,13 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
     }
 
     fun cleanUp() {
+        val scene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
+        val allWindows = scene?.windows ?: emptyList<UIWindow>()
+
         val window = UIWindow(frame = UIScreen.mainScreen.bounds)
         window.rootViewController = UIViewController()
         window.makeKeyAndVisible()
-        window.windowScene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
+        window.windowScene = scene
         dispatch_async(dispatch_get_main_queue()) {
             window.windowScene = null
             window.resignKeyWindow()
@@ -342,6 +345,10 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
         _window?.windowScene = null
         _window?.rootViewController = UIViewController()
         _window = null
+
+        allWindows.forEach {
+            (it as UIWindow).setHidden(true)
+        }
     }
 
     /**

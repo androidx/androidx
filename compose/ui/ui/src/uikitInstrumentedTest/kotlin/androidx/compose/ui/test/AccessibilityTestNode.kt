@@ -96,7 +96,7 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
                         }
                     }
                     element is UIWindowScene -> {
-                        element.windows.forEach {
+                        element.windows.filter { !(it as UIWindow).isHidden() }.forEach {
                             children.add(buildNode(it as UIWindow))
                         }
                     }
@@ -111,7 +111,7 @@ internal fun UIKitInstrumentedTest.getAccessibilityTree(): AccessibilityTestNode
                     children.add(buildNode(it as UIView))
                 }
             } else if (element is UIWindowScene) {
-                element.windows.forEach {
+                element.windows.filter { !(it as UIWindow).isHidden() }.forEach {
                     children.add(buildNode(it as UIWindow))
                 }
             }

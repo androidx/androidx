@@ -133,7 +133,6 @@ import platform.UIKit.accessibilityElementCount
 import platform.UIKit.accessibilityElements
 import platform.UIKit.accessibilityFrame
 import platform.UIKit.isAccessibilityElement
-import platform.UIKit.setAccessibilityElements
 import platform.darwin.NSObject
 import platform.objc.objc_getProtocol
 import platform.objc.protocol_isEqual
@@ -513,7 +512,7 @@ private class AccessibilityElement(
         children.forEach { it.setAccessibilityContainer(this) }
     }
 
-    override fun focusEffect(): UIFocusEffect? = UIFocusHaloEffect.effectWithRect(
+    override fun focusEffect(): UIFocusEffect = UIFocusHaloEffect.effectWithRect(
         rect = convertRect(rect = bounds, toCoordinateSpace = mediator.view)
     )
 
@@ -1142,18 +1141,6 @@ internal class AccessibilityMediator(
                 invalidationChannel.receive()
                 hasPendingInvalidations = true
 
-                if (keyboardFocusedElementKey != null) {
-                    // Do nothing.
-                    // When full keyboard access is enabled, the selection rectangle can be updated
-                    // on every frame. To improve the user experience, we should update the
-                    // accessibility tree as quickly as possible.
-                } else {
-                    // Estimated delay between the iOS Accessibility Engine sync intervals.
-                    // There is no reason to post change notifications more frequently because the iOS
-                    // Accessibility Engine will ignore them.
-                    delay(100)
-                }
-
                 while (invalidationChannel.tryReceive().isSuccess) {
                     // Do nothing, just consume the channel
                     // Workaround for the channel buffering two invalidations despite the capacity of 1
@@ -1171,6 +1158,18 @@ internal class AccessibilityMediator(
                     refocusKeyboardElementIfNeeded()
                     root.element = null
                     UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, null)
+                }
+
+                if (keyboardFocusedElementKey != null) {
+                    // Do nothing.
+                    // When full keyboard access is enabled, the selection rectangle can be updated
+                    // on every frame. To improve the user experience, we should update the
+                    // accessibility tree as quickly as possible.
+                } else {
+                    // Estimated delay between the iOS Accessibility Engine sync intervals.
+                    // There is no reason to post change notifications more frequently because the
+                    // iOS Accessibility Engine will ignore them.
+                    delay(100)
                 }
             }
         }
