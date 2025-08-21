@@ -19,6 +19,8 @@ package androidx.graphics.shapes
 import androidx.collection.FloatList
 import androidx.collection.MutableFloatList
 import kotlin.jvm.JvmField
+import kotlin.math.abs
+import kotlin.math.min
 
 /**
  * Checks if the given progress is in the given progress range, since progress is in the [0..1)
@@ -68,6 +70,8 @@ internal class DoubleMapper(vararg mappings: Pair<Float, Float>) {
             sourceValues.add(mappings[i].first)
             targetValues.add(mappings[i].second)
         }
+        // Both source values and target values should be monotonically increasing, with the
+        // exception of maybe one time (since progress wraps around).
         validateProgress(sourceValues)
         validateProgress(targetValues)
     }
@@ -83,16 +87,39 @@ internal class DoubleMapper(vararg mappings: Pair<Float, Float>) {
                 // We need any 2 points in the (x, x) diagonal, with x in the [0, 1) range,
                 // We spread them as much as possible to minimize float errors.
                 0f to 0f,
-                0.5f to 0.5f
+                0.5f to 0.5f,
             )
     }
 }
 
-// TODO(performance): Make changes to satisfy the lint warnings for unnecessary iterators creation.
+// Verify that a list of progress values are all in the range [0.0, 1.0) and is monotonically
+// increasing, with the exception of maybe one time in which the progress wraps around, this check
+// needs to include all pairs of consecutive elements in the list plus the last to first element
+// pair.
+// For example: (0.0, 0.3, 0.6) is a valid list, so are (0.3, 0.6, 0.0) and (0.6, 0.3, 0.0).
+// On the other hand, something like (0.5, 0.0, 0.7) is not (since it goes down twice, from 0.5 to
+// 0.0 and then from to 0.7 to 0.5).
 internal fun validateProgress(p: FloatList) {
-    require(p.fold(true) { res, curr -> res && curr in 0f..1f }) {
-        "FloatMapping - Progress outside of range: " + p.joinToString()
+    var prev = p.last()
+    var wraps = 0
+    for (i in 0 until p.size) {
+        val curr = p[i]
+        require(curr >= 0f && curr < 1f) {
+            "FloatMapping - Progress outside of range: " + p.joinToString()
+        }
+        require(progressDistance(curr, prev) > DistanceEpsilon) {
+            "FloatMapping - Progress repeats a value: " + p.joinToString()
+        }
+        if (curr < prev) {
+            wraps++
+            require(wraps <= 1) {
+                "FloatMapping - Progress wraps more than once: " + p.joinToString()
+            }
+        }
+        prev = curr
     }
-    val wraps = (1 until p.size).count { p[it] < p[it - 1] }
-    require(wraps <= 1) { "FloatMapping - Progress wraps more than once: " + p.joinToString() }
 }
+
+// Distance between two progress values.
+// Since progress wraps around, we consider a difference of 0.99 as a distance of 0.01
+internal fun progressDistance(p1: Float, p2: Float) = abs(p1 - p2).let { min(it, 1f - it) }

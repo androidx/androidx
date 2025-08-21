@@ -19,7 +19,12 @@ package androidx.graphics.lowlatency
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
+import android.view.PixelCopy
+import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlUtils
@@ -31,6 +36,7 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -57,7 +63,7 @@ class LowLatencyCanvasViewTest {
 
                     override fun onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                        transaction: SurfaceControlCompat.Transaction
+                        transaction: SurfaceControlCompat.Transaction,
                     ) {
                         frontBufferRenderLatch.countDown()
                     }
@@ -68,7 +74,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.BLUE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -91,9 +97,10 @@ class LowLatencyCanvasViewTest {
             scenarioCallback = { _ ->
                 assertTrue(redrawSceneLatch.await(3000, TimeUnit.MILLISECONDS))
             },
+            usePixelCopy = true,
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -117,7 +124,7 @@ class LowLatencyCanvasViewTest {
                 var lowLatencyView: LowLatencyCanvasView? = null
                 scenario.onActivity {
                     val view = it.getLowLatencyCanvasView()
-                    view.post { drawLatch.countDown() }
+                    view.viewTreeObserver.registerFrameCommitCallback { drawLatch.countDown() }
                     resumeLatch.countDown()
                     lowLatencyView = view
                 }
@@ -128,14 +135,15 @@ class LowLatencyCanvasViewTest {
                 scenario.onActivity {
                     lowLatencyView?.let {
                         it.clear()
-                        it.post { clearLatch.countDown() }
+                        it.viewTreeObserver.registerFrameCommitCallback { clearLatch.countDown() }
                     }
                 }
                 assertTrue(clearLatch.await(3000, TimeUnit.MILLISECONDS))
             },
+            usePixelCopy = true,
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.WHITE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -179,7 +187,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -200,7 +208,7 @@ class LowLatencyCanvasViewTest {
 
                     override fun onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                        transaction: SurfaceControlCompat.Transaction
+                        transaction: SurfaceControlCompat.Transaction,
                     ) {
                         transaction.setAlpha(frontBufferedLayerSurfaceControl, 0f)
                         renderFrontBufferLatch.countDown()
@@ -212,7 +220,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.WHITE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -220,7 +228,8 @@ class LowLatencyCanvasViewTest {
     private fun lowLatencyViewTest(
         renderCallbacks: LowLatencyCanvasView.Callback,
         scenarioCallback: (ActivityScenario<LowLatencyActivity>) -> Unit,
-        validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean
+        usePixelCopy: Boolean = false,
+        validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean,
     ) {
         val renderLatch = CountDownLatch(1)
         val executor = Executors.newSingleThreadExecutor()
@@ -236,11 +245,11 @@ class LowLatencyCanvasViewTest {
 
                 override fun onFrontBufferedLayerRenderComplete(
                     frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                    transaction: SurfaceControlCompat.Transaction
+                    transaction: SurfaceControlCompat.Transaction,
                 ) {
                     renderCallbacks.onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl,
-                        transaction
+                        transaction,
                     )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         transaction.addTransactionCommittedListener(
@@ -249,7 +258,7 @@ class LowLatencyCanvasViewTest {
                                 override fun onTransactionCommitted() {
                                     renderLatch.countDown()
                                 }
-                            }
+                            },
                         )
                     } else {
                         renderLatch.countDown()
@@ -259,9 +268,11 @@ class LowLatencyCanvasViewTest {
         val createdLatch = CountDownLatch(1)
         val destroyLatch = CountDownLatch(1)
         var lowLatencyView: LowLatencyCanvasView? = null
+        var window: Window? = null
         val scenario =
             ActivityScenario.launch(LowLatencyActivity::class.java).onActivity { activity ->
                 with(activity) {
+                    window = activity.window
                     setOnDestroyCallback { destroyLatch.countDown() }
                     lowLatencyView =
                         activity.getLowLatencyCanvasView().apply { setRenderCallback(callbacks) }
@@ -283,12 +294,35 @@ class LowLatencyCanvasViewTest {
         }
 
         try {
-            SurfaceControlUtils.validateOutput { bitmap ->
-                val left = coords[0]
-                val top = coords[1]
-                val right = coords[0] + width
-                val bottom = coords[1] + height
-                validateBitmap(bitmap, left, top, right, bottom)
+            if (usePixelCopy) {
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val copyThread = HandlerThread("copyThread").apply { start() }
+                val copyHandler = Handler(copyThread.looper)
+                val copyLatch = CountDownLatch(1)
+                PixelCopy.request(
+                    window!!,
+                    Rect(coords[0], coords[1], coords[0] + width, coords[1] + height),
+                    bitmap,
+                    { result: Int ->
+                        try {
+                            assertEquals(result, PixelCopy.SUCCESS)
+                            validateBitmap(bitmap, 0, 0, width, height)
+                        } finally {
+                            copyThread.quit()
+                            copyLatch.countDown()
+                        }
+                    },
+                    copyHandler,
+                )
+                assertTrue(copyLatch.await(3000, TimeUnit.MILLISECONDS))
+            } else {
+                SurfaceControlUtils.validateOutput { bitmap ->
+                    val left = coords[0]
+                    val top = coords[1]
+                    val right = coords[0] + width
+                    val bottom = coords[1] + height
+                    validateBitmap(bitmap, left, top, right, bottom)
+                }
             }
         } finally {
             scenario.moveToState(Lifecycle.State.DESTROYED)

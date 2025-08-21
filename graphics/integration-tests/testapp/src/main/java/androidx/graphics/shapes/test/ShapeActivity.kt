@@ -146,7 +146,7 @@ open class ShapeActivity : Activity() {
                 radius = 1f,
                 innerRadius = .4f,
                 rounding = starRounding,
-                innerRounding = CornerRounding.Unrounded
+                innerRounding = CornerRounding.Unrounded,
             )
         )
         shapes.add(
@@ -166,7 +166,7 @@ open class ShapeActivity : Activity() {
                 numVerticesPerRadius = 10,
                 rounding = CornerRounding(.5f),
                 innerRadiusRatio = .5f,
-                innerRounding = CornerRounding(.2f)
+                innerRounding = CornerRounding(.2f),
             )
         )
 

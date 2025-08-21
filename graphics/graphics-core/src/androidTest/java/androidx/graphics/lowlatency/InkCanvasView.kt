@@ -37,7 +37,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
                 canvas: Canvas,
                 bufferWidth: Int,
                 bufferHeight: Int,
-                param: FloatArray
+                param: FloatArray,
             ) {
                 with(mLinesDrawable) {
                     setBounds(0, 0, bufferWidth, bufferHeight)
@@ -52,7 +52,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
                 canvas: Canvas,
                 bufferWidth: Int,
                 bufferHeight: Int,
-                params: Collection<FloatArray>
+                params: Collection<FloatArray>,
             ) {
                 mSceneParams.addAll(params)
                 with(mLinesDrawable) {

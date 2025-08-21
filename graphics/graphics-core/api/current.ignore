@@ -5,3 +5,9 @@ AddedMethod: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#Builder():
     Added constructor androidx.graphics.opengl.egl.EGLConfigAttributes.Builder()
 AddedMethod: androidx.graphics.opengl.egl.EGLManager#EGLManager():
     Added constructor androidx.graphics.opengl.egl.EGLManager()
+
+
+RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#to(int, int):
+    Source breaking change: method androidx.graphics.opengl.egl.EGLConfigAttributes.Builder.to(int,int) can no longer be resolved from Java source
+RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributesKt#EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit>):
+    Source breaking change: method androidx.graphics.opengl.egl.EGLConfigAttributesKt.EGLConfigAttributes(kotlin.jvm.functions.Function1<androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit>) can no longer be resolved from Java source

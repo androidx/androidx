@@ -139,7 +139,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private var mHeight = -1
 
     /** Transform to be used for pre-rotation of content */
-    private var mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+    private var mProducerBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
 
     /** Flag determining if the front buffered layer is the current render destination */
     private val mFrontBufferTarget = AtomicBoolean(false)
@@ -163,7 +163,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * Transform applied when drawing the scene to the View's Canvas to invert the pre-rotation
      * applied to the buffer when submitting to the front buffered SurfaceControl
      */
-    private val mInverseTransform = Matrix()
+    private val mConsumerBufferTransform = Matrix()
 
     /**
      * Flag to determine if the buffer has been drawn by this View on the last call to
@@ -184,7 +184,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
                 update(width, height)
             }
@@ -201,7 +201,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
             override fun surfaceRedrawNeededAsync(
                 holder: SurfaceHolder,
-                drawingFinished: Runnable
+                drawingFinished: Runnable,
             ) {
                 drawAsync(drawingFinished)
             }
@@ -227,22 +227,27 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     internal fun update(width: Int, height: Int) {
-        val transformHint = BufferTransformHintResolver().getBufferTransformHint(this)
-        if (mWidth == width && mHeight == height && mTransform == transformHint) {
+        val producerTransformHint = BufferTransformHintResolver().getBufferTransformHint(this)
+        if (
+            mWidth == width &&
+                mHeight == height &&
+                mProducerBufferTransform == producerTransformHint
+        ) {
             // Updating with same config, ignoring
             return
         }
         releaseInternal()
 
         val bufferTransformer = BufferTransformer()
-        val inverse = bufferTransformer.invertBufferTransform(transformHint)
-        bufferTransformer.computeTransform(width, height, inverse)
+        val consumerBufferTransform = bufferTransformer.invertBufferTransform(producerTransformHint)
+        bufferTransformer.computeTransform(width, height, producerTransformHint)
         BufferTransformHintResolver.configureTransformMatrix(
-                mInverseTransform,
+                mConsumerBufferTransform,
                 bufferTransformer.bufferWidth.toFloat(),
                 bufferTransformer.bufferHeight.toFloat(),
-                inverse
+                producerTransformHint,
             )
+            // TODO shouldn't invert?
             .apply { invert(this) }
 
         val frontBufferSurfaceControl =
@@ -275,7 +280,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     bufferTransformer.bufferWidth,
                     bufferTransformer.bufferHeight,
                     HardwareBuffer.RGBA_8888,
-                    inverse,
+                    producerTransformHint,
                     mHandlerThread,
                     object : SingleBufferedCanvasRenderer.RenderCallbacks<Unit> {
 
@@ -294,7 +299,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
                         override fun onBufferReady(
                             hardwareBuffer: HardwareBuffer,
-                            syncFenceCompat: SyncFenceCompat?
+                            syncFenceCompat: SyncFenceCompat?,
                         ) {
                             mHardwareBuffer = hardwareBuffer
                             mBufferFence = syncFenceCompat
@@ -321,15 +326,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                                 null
                                             } else {
                                                 syncFenceCompat
-                                            }
+                                            },
                                         )
                                         .setVisibility(frontBufferSurfaceControl, true)
                                 if (
-                                    transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM
+                                    consumerBufferTransform !=
+                                        BufferTransformHintResolver.UNKNOWN_TRANSFORM
                                 ) {
                                     transaction.setBufferTransform(
                                         frontBufferSurfaceControl,
-                                        transformHint
+                                        consumerBufferTransform,
                                     )
                                 }
                                 if (isAndroidUPlus) {
@@ -337,7 +343,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                 }
                                 mCallback?.onFrontBufferedLayerRenderComplete(
                                     frontBufferSurfaceControl,
-                                    transaction
+                                    transaction,
                                 )
                                 transaction.commit()
                                 syncFenceCompat?.close()
@@ -371,7 +377,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                             // Execute the pending runnable and mark as consumed
                             mDrawCompleteRunnable.getAndSet(null)?.run()
                         }
-                    }
+                    },
                 )
                 .apply {
                     this.colorSpace = colorSpace
@@ -383,7 +389,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         mFrontBufferedSurfaceControl = frontBufferSurfaceControl
         mWidth = width
         mHeight = height
-        mTransform = transformHint
+        mProducerBufferTransform = producerTransformHint
     }
 
     /**
@@ -493,7 +499,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         mSceneBitmapDrawn =
             if (!mClearPending.get() && !isRenderingToFrontBuffer() && sceneBitmap != null) {
                 canvas.save()
-                canvas.setMatrix(mInverseTransform)
+                canvas.setMatrix(mConsumerBufferTransform)
                 canvas.drawBitmap(sceneBitmap, 0f, 0f, null)
                 canvas.restore()
                 true
@@ -521,7 +527,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     internal fun releaseInternal(
         cancelPending: Boolean = true,
-        onReleaseCallback: (() -> Unit)? = null
+        onReleaseCallback: (() -> Unit)? = null,
     ) {
         val renderer = mFrontBufferedRenderer
         if (renderer != null) {
@@ -534,13 +540,20 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             mSceneBitmap = null
             mWidth = -1
             mHeight = -1
-            mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
+            mProducerBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
             mHardwareBuffer = null
             mBufferFence = null
             mSceneBitmapDrawn = false
 
             renderer.release(cancelPending) {
-                frontBufferedLayerSurfaceControl?.release()
+                if (frontBufferedLayerSurfaceControl?.isValid() == true) {
+                    SurfaceControlCompat.Transaction().apply {
+                        reparent(frontBufferedLayerSurfaceControl, null)
+                        commit()
+                        close()
+                    }
+                    frontBufferedLayerSurfaceControl.release()
+                }
                 onReleaseCallback?.invoke()
                 if (hardwareBuffer != null && !hardwareBuffer.isClosed) {
                     hardwareBuffer.close()
@@ -623,12 +636,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * @param width Logical width of the content that is being rendered.
          * @param height Logical height of the content that is being rendered.
          */
-        @WorkerThread
-        fun onDrawFrontBufferedLayer(
-            canvas: Canvas,
-            width: Int,
-            height: Int,
-        )
+        @WorkerThread fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int)
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but
@@ -646,7 +654,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }

@@ -52,7 +52,7 @@ import androidx.annotation.RestrictTo
     D_FP32,
     DS_FP32UI8,
     S_UI8,
-    YCBCR_P010
+    YCBCR_P010,
 )
 annotation class HardwareBufferFormat
 

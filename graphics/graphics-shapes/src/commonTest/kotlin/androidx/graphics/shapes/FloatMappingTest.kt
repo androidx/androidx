@@ -16,10 +16,10 @@
 
 package androidx.graphics.shapes
 
-import androidx.test.filters.SmallTest
-import org.junit.Test
+import androidx.kruth.assertThrows
+import kotlin.test.Test
+import kotlinx.test.IgnoreJsTarget
 
-@SmallTest
 class FloatMappingTest {
     @Test fun identityMappingTest() = validateMapping(DoubleMapper.Identity) { it }
 
@@ -41,6 +41,7 @@ class FloatMappingTest {
             (x + 0.5f) % 1f
         }
 
+    @IgnoreJsTarget // FIXME Due to float rounding issue, values near "mod" boundary don't match
     @Test
     fun sourceWrapsTest() =
         validateMapping(
@@ -59,8 +60,9 @@ class FloatMappingTest {
             it
         }
 
+    @IgnoreJsTarget // FIXME Due to float rounding issue, values near "mod" boundary don't match
     @Test
-    fun multiplePointTes() =
+    fun multiplePointTest() =
         validateMapping(mapper = DoubleMapper(0.4f to 0.2f, 0.5f to 0.22f, 0f to 0.8f)) { x ->
             if (x < 0.4f) {
                 (0.8f + x) % 1f
@@ -71,6 +73,20 @@ class FloatMappingTest {
                 0.22f + (x - 0.5f) * 1.16f
             }
         }
+
+    @Test
+    fun targetDoubleWrapThrows() {
+        assertThrows(IllegalArgumentException::class) {
+            DoubleMapper(0.0f to 0.0f, 0.3f to 0.6f, 0.6f to 0.3f, 0.9f to 0.9f)
+        }
+    }
+
+    @Test
+    fun sourceDoubleWrapThrows() {
+        assertThrows(IllegalArgumentException::class) {
+            DoubleMapper(0.0f to 0.0f, 0.6f to 0.3f, 0.3f to 0.6f, 0.9f to 0.9f)
+        }
+    }
 
     private fun validateMapping(mapper: DoubleMapper, expectedFunction: (Float) -> Float) {
         (0..9999).forEach { i ->

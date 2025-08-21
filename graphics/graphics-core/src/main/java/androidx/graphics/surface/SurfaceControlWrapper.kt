@@ -49,21 +49,21 @@ internal class JniBindings {
         external fun nTransactionReparent(
             surfaceTransaction: Long,
             surfaceControl: Long,
-            newParent: Long
+            newParent: Long,
         )
 
         @JvmStatic
         @JniVisible
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
-            listener: SurfaceControlCompat.TransactionCompletedListener
+            listener: SurfaceControlCompat.TransactionCompletedListener,
         )
 
         @JvmStatic
         @JniVisible
         external fun nTransactionSetOnCommit(
             surfaceTransaction: Long,
-            listener: SurfaceControlCompat.TransactionCommittedListener
+            listener: SurfaceControlCompat.TransactionCommittedListener,
         )
 
         @JvmStatic @JniVisible external fun nDupFenceFd(syncFence: SyncFenceV19): Int
@@ -74,7 +74,7 @@ internal class JniBindings {
             surfaceTransaction: Long,
             surfaceControl: Long,
             hardwareBuffer: HardwareBuffer?,
-            acquireFieldFd: SyncFenceV19
+            acquireFieldFd: SyncFenceV19,
         )
 
         @JvmStatic
@@ -86,7 +86,7 @@ internal class JniBindings {
             bufferHeight: Int,
             dstWidth: Int,
             dstHeight: Int,
-            transformation: Int
+            transformation: Int,
         )
 
         @JvmStatic
@@ -94,7 +94,7 @@ internal class JniBindings {
         external fun nSetVisibility(
             surfaceTransaction: Long,
             surfaceControl: Long,
-            visibility: Byte
+            visibility: Byte,
         )
 
         @JvmStatic
@@ -129,7 +129,7 @@ internal class JniBindings {
             left: Int,
             top: Int,
             right: Int,
-            bottom: Int
+            bottom: Int,
         )
 
         @JvmStatic
@@ -138,7 +138,7 @@ internal class JniBindings {
             surfaceTransaction: Long,
             surfaceControl: Long,
             x: Float,
-            y: Float
+            y: Float,
         )
 
         @JvmStatic
@@ -147,7 +147,7 @@ internal class JniBindings {
             surfaceTransaction: Long,
             surfaceControl: Long,
             scaleX: Float,
-            scaleY: Float
+            scaleY: Float,
         )
 
         @JvmStatic
@@ -155,7 +155,7 @@ internal class JniBindings {
         external fun nSetBufferTransform(
             surfaceTransaction: Long,
             surfaceControl: Long,
-            transformation: Int
+            transformation: Int,
         )
 
         @JvmStatic
@@ -177,7 +177,7 @@ internal class JniBindings {
             surfaceControl: Long,
             frameRate: Float,
             compatibility: Int,
-            changeFrameRateStrategy: Int
+            changeFrameRateStrategy: Int,
         )
 
         init {
@@ -274,7 +274,7 @@ internal class SurfaceControlWrapper {
         @Suppress("PairedRegistration")
         fun addTransactionCommittedListener(
             executor: Executor?,
-            listener: SurfaceControlCompat.TransactionCommittedListener
+            listener: SurfaceControlCompat.TransactionCommittedListener,
         ): Transaction {
             var listenerWrapper = listener
             if (executor != null) {
@@ -309,13 +309,13 @@ internal class SurfaceControlWrapper {
         fun setBuffer(
             surfaceControl: SurfaceControlWrapper,
             hardwareBuffer: HardwareBuffer?,
-            syncFence: SyncFenceV19 = SyncFenceV19(-1)
+            syncFence: SyncFenceV19 = SyncFenceV19(-1),
         ): Transaction {
             JniBindings.nSetBuffer(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
                 hardwareBuffer,
-                syncFence
+                syncFence,
             )
             return this
         }
@@ -325,7 +325,7 @@ internal class SurfaceControlWrapper {
             JniBindings.nSetDataSpace(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                dataSpace
+                dataSpace,
             )
             return this
         }
@@ -344,7 +344,7 @@ internal class SurfaceControlWrapper {
             JniBindings.nSetVisibility(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                if (visibility) 1 else 0
+                if (visibility) 1 else 0,
             )
             return this
         }
@@ -366,7 +366,7 @@ internal class SurfaceControlWrapper {
             JniBindings.nSetZOrder(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                zOrder
+                zOrder,
             )
             return this
         }
@@ -386,7 +386,7 @@ internal class SurfaceControlWrapper {
             JniBindings.nSetDamageRegion(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                region?.bounds
+                region?.bounds,
             )
             return this
         }
@@ -406,12 +406,12 @@ internal class SurfaceControlWrapper {
          */
         fun reparent(
             surfaceControl: SurfaceControlWrapper,
-            newParent: SurfaceControlWrapper?
+            newParent: SurfaceControlWrapper?,
         ): Transaction {
             JniBindings.nTransactionReparent(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                newParent?.mNativeSurfaceControl ?: 0L
+                newParent?.mNativeSurfaceControl ?: 0L,
             )
             return this
         }
@@ -447,7 +447,7 @@ internal class SurfaceControlWrapper {
             JniBindings.nSetBufferTransparency(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                if (isOpaque) 2 else 0
+                if (isOpaque) 2 else 0,
             )
             return this
         }
@@ -468,7 +468,7 @@ internal class SurfaceControlWrapper {
                 JniBindings.nSetBufferAlpha(
                     mNativeSurfaceTransaction,
                     surfaceControl.mNativeSurfaceControl,
-                    alpha
+                    alpha,
                 )
             }
             return this
@@ -498,7 +498,7 @@ internal class SurfaceControlWrapper {
                     0,
                     0,
                     0,
-                    0
+                    0,
                 )
             } else {
                 JniBindings.nSetCrop(
@@ -507,7 +507,7 @@ internal class SurfaceControlWrapper {
                     crop.left,
                     crop.top,
                     crop.right,
-                    crop.bottom
+                    crop.bottom,
                 )
             }
 
@@ -528,7 +528,7 @@ internal class SurfaceControlWrapper {
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
                 x,
-                y
+                y,
             )
             return this
         }
@@ -546,13 +546,13 @@ internal class SurfaceControlWrapper {
         fun setScale(
             surfaceControl: SurfaceControlWrapper,
             scaleX: Float,
-            scaleY: Float
+            scaleY: Float,
         ): Transaction {
             JniBindings.nSetScale(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
                 scaleX,
-                scaleY
+                scaleY,
             )
             return this
         }
@@ -576,12 +576,12 @@ internal class SurfaceControlWrapper {
         @RequiresApi(Build.VERSION_CODES.S)
         fun setBufferTransform(
             surfaceControl: SurfaceControlWrapper,
-            transformation: Int
+            transformation: Int,
         ): Transaction {
             JniBindings.nSetBufferTransform(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                transformation
+                transformation,
             )
             return this
         }
@@ -592,7 +592,7 @@ internal class SurfaceControlWrapper {
             height: Int,
             dstWidth: Int,
             dstHeight: Int,
-            transformation: Int
+            transformation: Int,
         ): Transaction {
             JniBindings.nSetGeometry(
                 mNativeSurfaceTransaction,
@@ -601,7 +601,7 @@ internal class SurfaceControlWrapper {
                 height,
                 dstWidth,
                 dstHeight,
-                transformation
+                transformation,
             )
             return this
         }
@@ -610,14 +610,14 @@ internal class SurfaceControlWrapper {
             surfaceControl: SurfaceControlWrapper,
             frameRate: Float,
             compatibility: Int,
-            changeFrameRateStrategy: Int
+            changeFrameRateStrategy: Int,
         ): Transaction {
             JniBindings.nSetFrameRate(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
                 frameRate,
                 compatibility,
-                changeFrameRateStrategy
+                changeFrameRateStrategy,
             )
             return this
         }

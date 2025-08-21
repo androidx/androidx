@@ -46,24 +46,10 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
         }
     }
 
-    val (m1, m2) =
-        if (filteredFeatures1.size > filteredFeatures2.size) {
-            doMapping(filteredFeatures2, filteredFeatures1) to filteredFeatures2
-        } else {
-            filteredFeatures1 to doMapping(filteredFeatures1, filteredFeatures2)
-        }
+    val featureProgressMapping = doMapping(filteredFeatures1, filteredFeatures2)
 
-    // Performance: Equivalent to `m1.zip(m2).map { (f1, f2) -> f1.progress to f2.progress }` and
-    // done to zip and create a Pairs list without creating unnecessary Iterators.
-    val mm = buildList {
-        for (i in m1.indices) {
-            if (i == m2.size) break
-            add(m1[i].progress to m2[i].progress)
-        }
-    }
-
-    debugLog(LOG_TAG) { mm.joinToString { "${it.first} -> ${it.second}" } }
-    return DoubleMapper(*mm.toTypedArray()).also { dm ->
+    debugLog(LOG_TAG) { featureProgressMapping.joinToString { "${it.first} -> ${it.second}" } }
+    return DoubleMapper(*featureProgressMapping.toTypedArray()).also { dm ->
         debugLog(LOG_TAG) {
             val N = 10
             "Map: " +
@@ -73,6 +59,103 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
                     (dm.mapBack(i.toFloat() / N)).toStringWithLessPrecision()
                 }
         }
+    }
+}
+
+internal data class DistanceVertex(
+    val distance: Float,
+    val f1: ProgressableFeature,
+    val f2: ProgressableFeature,
+)
+
+/**
+ * Returns a mapping of the features between features1 and features2. The return is a list of pairs
+ * in which the first element is the progress of a feature in features1 and the second element is
+ * the progress of the feature in features2 that we mapped it to. The list is sorted by the first
+ * element. To do this:
+ * 1) Compute the distance for all pairs of features in (features1 x features2),
+ * 2) Sort ascending by by such distance
+ * 3) Try to add them, from smallest distance to biggest, ensuring that: a) The features we are
+ *    mapping haven't been mapped yet. b) We are not adding a crossing in the mapping. Since the
+ *    mapping is sorted by the first element of each pair, this means that the second elements of
+ *    each pair are monotonically increasing, except maybe one time (Counting all pair of
+ *    consecutive elements, and the last element to first element).
+ */
+internal fun doMapping(
+    features1: List<ProgressableFeature>,
+    features2: List<ProgressableFeature>,
+): List<Pair<Float, Float>> {
+    debugLog(LOG_TAG) { "Shape1 progresses: " + features1.map { it.progress }.joinToString() }
+    debugLog(LOG_TAG) { "Shape2 progresses: " + features2.map { it.progress }.joinToString() }
+    val distanceVertexList =
+        buildList {
+                for (f1 in features1) {
+                    for (f2 in features2) {
+                        val d = featureDistSquared(f1.feature, f2.feature)
+                        if (d != Float.MAX_VALUE) add(DistanceVertex(d, f1, f2))
+                    }
+                }
+            }
+            .sortedBy { it.distance }
+
+    // Special cases.
+    if (distanceVertexList.isEmpty()) return IdentityMapping
+    if (distanceVertexList.size == 1)
+        return distanceVertexList.first().let {
+            val f1 = it.f1.progress
+            val f2 = it.f2.progress
+            listOf(f1 to f2, (f1 + 0.5f) % 1f to (f2 + 0.5f) % 1f)
+        }
+
+    return MappingHelper().apply { distanceVertexList.forEach { addMapping(it.f1, it.f2) } }.mapping
+}
+
+private val IdentityMapping = listOf(0f to 0f, 0.5f to 0.5f)
+
+private class MappingHelper() {
+    // List of mappings from progress in the start shape to progress in the end shape.
+    // We keep this list sorted by the first element.
+    val mapping = mutableListOf<Pair<Float, Float>>()
+
+    // Which features in the start shape have we used and which in the end shape.
+    private val usedF1 = mutableSetOf<ProgressableFeature>()
+    private val usedF2 = mutableSetOf<ProgressableFeature>()
+
+    fun addMapping(f1: ProgressableFeature, f2: ProgressableFeature) {
+        // We don't want to map the same feature twice.
+        if (f1 in usedF1 || f2 in usedF2) return
+
+        // Ret is sorted, find where we need to insert this new mapping.
+        val index = mapping.binarySearchBy(f1.progress) { it.first }
+        require(index < 0) { "There can't be two features with the same progress" }
+
+        val insertionIndex = -index - 1
+        val n = mapping.size
+
+        // We can always add the first 1 element
+        if (n >= 1) {
+            val (before1, before2) = mapping[(insertionIndex + n - 1) % n]
+            val (after1, after2) = mapping[insertionIndex % n]
+
+            // We don't want features that are way too close to each other, that will make the
+            // DoubleMapper unstable
+            if (
+                progressDistance(f1.progress, before1) < DistanceEpsilon ||
+                    progressDistance(f1.progress, after1) < DistanceEpsilon ||
+                    progressDistance(f2.progress, before2) < DistanceEpsilon ||
+                    progressDistance(f2.progress, after2) < DistanceEpsilon
+            ) {
+                return
+            }
+
+            // When we have 2 or more elements, we need to ensure we are not adding extra crossings.
+            if (n > 1 && !progressInRange(f2.progress, before2, after2)) return
+        }
+
+        // All good, we can add the mapping.
+        mapping.add(insertionIndex, f1.progress to f2.progress)
+        usedF1.add(f1)
+        usedF2.add(f2)
     }
 }
 
@@ -90,41 +173,14 @@ internal fun featureDistSquared(f1: Feature, f2: Feature): Float {
         debugLog(LOG_TAG) { "*** Feature distance ∞ for convex-vs-concave corners" }
         return Float.MAX_VALUE
     }
-    val c1x = (f1.cubics.first().anchor0X + f1.cubics.last().anchor1X) / 2f
-    val c1y = (f1.cubics.first().anchor0Y + f1.cubics.last().anchor1Y) / 2f
-    val c2x = (f2.cubics.first().anchor0X + f2.cubics.last().anchor1X) / 2f
-    val c2y = (f2.cubics.first().anchor0Y + f2.cubics.last().anchor1Y) / 2f
-    val dx = c1x - c2x
-    val dy = c1y - c2y
-    return dx * dx + dy * dy
+    return (featureRepresentativePoint(f1) - featureRepresentativePoint(f2)).getDistanceSquared()
 }
 
-/**
- * Returns a mapping of the features in f2 that best map to the features in f1. The result will be a
- * list of features in f2 that is the size of f1. This is done to figure out what the best features
- * are in f2 that map to the existing features in f1. For example, if f1 has 3 features and f2 has
- * 4, we want to know what the 3 features are in f2 that map to the features in f1 (then we will
- * create a placeholder feature in the smaller shape for the morph).
- */
-internal fun doMapping(f1: MeasuredFeatures, f2: MeasuredFeatures): MeasuredFeatures {
-    // Pick the first mapping in a greedy way.
-    val ix = f2.indices.minBy { featureDistSquared(f1[0].feature, f2[it].feature) }
-
-    val m = f1.size
-    val n = f2.size
-
-    val ret = mutableListOf(f2[ix])
-    var lastPicked = ix
-    for (i in 1 until m) {
-        // Check the indices we can pick, which one is better.
-        // Leave enough items in f2 to pick matches for the items left in f1.
-        val last = (ix - (m - i)).let { if (it > lastPicked) it else it + n }
-        val best =
-            (lastPicked + 1..last).minBy { featureDistSquared(f1[i].feature, f2[it % n].feature) }
-        ret.add(f2[best % n])
-        lastPicked = best
-    }
-    return ret
+// TODO: b/378441547 - Move to explicit parameter / expose?
+internal fun featureRepresentativePoint(feature: Feature): Point {
+    val x = (feature.cubics.first().anchor0X + feature.cubics.last().anchor1X) / 2f
+    val y = (feature.cubics.first().anchor0Y + feature.cubics.last().anchor1Y) / 2f
+    return Point(x, y)
 }
 
 private val LOG_TAG = "FeatureMapping"

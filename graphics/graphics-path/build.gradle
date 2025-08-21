@@ -21,20 +21,26 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation('androidx.core:core:1.12.0')
+    implementation("androidx.core:core:1.12.0")
 
-    androidTestImplementation("androidx.annotation:annotation:1.7.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation("androidx.core:core-ktx:1.12.0")
+
+    androidTestImplementation("androidx.annotation:annotation:1.8.1")
     androidTestImplementation("androidx.core:core-ktx:1.12.0")
     androidTestImplementation("androidx.test:core:1.5.0@aar")
     androidTestImplementation(libs.testExtJunit)
@@ -45,7 +51,7 @@ dependencies {
 }
 
 android {
-    namespace "androidx.graphics.path"
+    namespace = "androidx.graphics.path"
 
     defaultConfig {
         externalNativeBuild {
@@ -77,17 +83,17 @@ android {
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
-            version libs.versions.cmake.get()
+            version = libs.versions.cmake.get()
         }
     }
 }
 
 androidx {
     name = "Android Graphics Path"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_PATH
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

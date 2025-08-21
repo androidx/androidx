@@ -35,7 +35,7 @@ class PathIterator
 constructor(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    val tolerance: Float = 0.25f
+    val tolerance: Float = 0.25f,
 ) : Iterator<PathSegment> {
 
     private val implementation: PathIteratorImpl =
@@ -52,7 +52,7 @@ constructor(
          * Conic segments are returned as quadratic approximations. The quality of the approximation
          * is defined by a tolerance value.
          */
-        AsQuadratics
+        AsQuadratics,
     }
 
     /**

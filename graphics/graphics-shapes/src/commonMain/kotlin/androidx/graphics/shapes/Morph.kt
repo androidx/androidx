@@ -62,7 +62,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
     @JvmOverloads
     fun calculateBounds(
         bounds: FloatArray = FloatArray(4),
-        approximate: Boolean = true
+        approximate: Boolean = true,
     ): FloatArray {
         start.calculateBounds(bounds, approximate)
         val minX = bounds[0]
@@ -129,7 +129,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
                             interpolate(
                                 _morphMatch[i].first.points[it],
                                 _morphMatch[i].second.points[it],
-                                progress
+                                progress,
                             )
                         }
                     )
@@ -147,7 +147,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
                         lastCubic.control1X,
                         lastCubic.control1Y,
                         firstCubic.anchor0X,
-                        firstCubic.anchor0Y
+                        firstCubic.anchor0Y,
                     )
                 )
         }
@@ -173,7 +173,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
     inline fun forEachCubic(
         progress: Float,
         mutableCubic: MutableCubic = MutableCubic(),
-        callback: (MutableCubic) -> Unit
+        callback: (MutableCubic) -> Unit,
     ) {
         for (i in morphMatch.indices) {
             mutableCubic.interpolate(morphMatch[i].first, morphMatch[i].second, progress)
@@ -217,10 +217,8 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
 
             // Measure polygons, returns lists of measured cubics for each polygon, which
             // we then use to match start/end curves
-            val measuredPolygon1 =
-                MeasuredPolygon.measurePolygon(AngleMeasurer(p1.centerX, p1.centerY), p1)
-            val measuredPolygon2 =
-                MeasuredPolygon.measurePolygon(AngleMeasurer(p2.centerX, p2.centerY), p2)
+            val measuredPolygon1 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p1)
+            val measuredPolygon2 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p2)
 
             // features1 and 2 will contain the list of corners (just the inner circular curve)
             // along with the progress at the middle of those corners. These measurement values

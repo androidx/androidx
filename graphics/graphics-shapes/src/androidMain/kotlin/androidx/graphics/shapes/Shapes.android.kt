@@ -70,7 +70,7 @@ private fun pathFromCubics(path: Path, cubics: List<Cubic>) {
             cubic.control1X,
             cubic.control1Y,
             cubic.anchor1X,
-            cubic.anchor1Y
+            cubic.anchor1Y,
         )
     }
     path.close()

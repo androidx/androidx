@@ -46,7 +46,7 @@ internal class SingleBufferedCanvasRenderer<T>(
     @HardwareBufferFormat bufferFormat: Int,
     private val transformHint: Int,
     handlerThread: HandlerThreadExecutor,
-    private val callbacks: RenderCallbacks<T>
+    private val callbacks: RenderCallbacks<T>,
 ) {
 
     interface RenderCallbacks<T> {
@@ -66,7 +66,7 @@ internal class SingleBufferedCanvasRenderer<T>(
         height: Int,
         bufferTransformer: BufferTransformer,
         handlerThread: HandlerThreadExecutor,
-        callbacks: RenderCallbacks<T>
+        callbacks: RenderCallbacks<T>,
     ) : this(
         width,
         height,
@@ -75,7 +75,7 @@ internal class SingleBufferedCanvasRenderer<T>(
         HardwareBuffer.RGBA_8888,
         bufferTransformer.computedTransform,
         handlerThread,
-        callbacks
+        callbacks,
     )
 
     private val mRenderNode =
@@ -84,7 +84,7 @@ internal class SingleBufferedCanvasRenderer<T>(
                 0,
                 0,
                 this@SingleBufferedCanvasRenderer.width,
-                this@SingleBufferedCanvasRenderer.height
+                this@SingleBufferedCanvasRenderer.height,
             )
         }
 
@@ -94,7 +94,7 @@ internal class SingleBufferedCanvasRenderer<T>(
             object : RenderQueue.FrameProducer {
                 override fun renderFrame(
                     executor: Executor,
-                    requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
+                    requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit,
                 ) {
                     mHardwareBufferRenderer.obtainRenderRequest().apply {
                         if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
@@ -111,18 +111,18 @@ internal class SingleBufferedCanvasRenderer<T>(
             object : RenderQueue.FrameCallback {
                 override fun onFrameComplete(
                     hardwareBuffer: HardwareBuffer,
-                    fence: SyncFenceCompat?
+                    fence: SyncFenceCompat?,
                 ) {
                     callbacks.onBufferReady(hardwareBuffer, fence)
                 }
 
                 override fun onFrameCancelled(
                     hardwareBuffer: HardwareBuffer,
-                    fence: SyncFenceCompat?
+                    fence: SyncFenceCompat?,
                 ) {
                     callbacks.onBufferCancelled(hardwareBuffer, fence)
                 }
-            }
+            },
         )
 
     private val mVisibleFlag = AtomicBoolean(false)

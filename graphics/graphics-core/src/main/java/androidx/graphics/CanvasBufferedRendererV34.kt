@@ -41,12 +41,12 @@ internal class CanvasBufferedRendererV34(
     private val mFormat: Int,
     private val mUsage: Long,
     maxBuffers: Int,
-    private val mFdMonitor: SharedFileDescriptorMonitor? = obtainSharedFdMonitor()
+    private val mFdMonitor: SharedFileDescriptorMonitor? = obtainSharedFdMonitor(),
 ) : CanvasBufferedRenderer.Impl {
 
     private data class HardwareBufferProvider(
         private val buffer: HardwareBuffer,
-        val renderer: HardwareBufferRenderer
+        val renderer: HardwareBufferRenderer,
     ) : BufferPool.BufferProvider {
         override val hardwareBuffer: HardwareBuffer
             get() = buffer
@@ -77,6 +77,7 @@ internal class CanvasBufferedRendererV34(
     private var mAmbientShadowAlpha: Float = 0f
     private var mSpotShadowAlpha: Float = 0f
     private var mPreserveContents = false
+    private var mCurrentBufferProvider: HardwareBufferProvider? = null
 
     private fun obtainBufferEntry(): HardwareBufferProvider =
         mPool.obtain {
@@ -87,6 +88,7 @@ internal class CanvasBufferedRendererV34(
     override fun close() {
         mPool.close()
         mFdMonitor?.decrementRef()
+        mCurrentBufferProvider?.renderer?.close()
     }
 
     override fun isClosed(): Boolean = mPool.isClosed
@@ -95,7 +97,7 @@ internal class CanvasBufferedRendererV34(
     override fun draw(
         request: CanvasBufferedRenderer.RenderRequest,
         executor: Executor,
-        callback: Consumer<CanvasBufferedRenderer.RenderResult>
+        callback: Consumer<CanvasBufferedRenderer.RenderResult>,
     ) {
         val contentNode = mContentNode
         val shouldDraw =
@@ -122,7 +124,9 @@ internal class CanvasBufferedRendererV34(
         val transform = request.transform
         executor.execute {
             if (!isClosed()) {
-                with(obtainBufferEntry()) {
+                val bufferProvider = obtainBufferEntry()
+                mCurrentBufferProvider = bufferProvider
+                with(bufferProvider) {
                     renderer.apply {
                         setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
                         setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
@@ -137,7 +141,7 @@ internal class CanvasBufferedRendererV34(
                                     CanvasBufferedRenderer.RenderResult(
                                         hardwareBuffer,
                                         SyncFenceCompat(result.fence),
-                                        result.status
+                                        result.status,
                                     )
                                 )
                             }
@@ -165,7 +169,7 @@ internal class CanvasBufferedRendererV34(
         lightX: Float,
         lightY: Float,
         lightZ: Float,
-        lightRadius: Float
+        lightRadius: Float,
     ) {
         mLightX = lightX
         mLightY = lightY

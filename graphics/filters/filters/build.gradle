@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,17 +30,14 @@ plugins {
 }
 
 dependencies {
-    def media3Version = '1.0.0'
-
     api(libs.kotlinStdlib)
 
-    // Add dependencies here
-    implementation("androidx.annotation:annotation:1.1.0")
-    implementation('androidx.media3:media3-effect:' + media3Version)
-    implementation('androidx.media3:media3-common:' + media3Version)
-    implementation('androidx.media3:media3-ui:' + media3Version)
-    implementation('androidx.media3:media3-exoplayer:' + media3Version)
-    implementation('androidx.media3:media3-transformer:' + media3Version)
+    implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.media3:media3-effect:1.0.0")
+    implementation("androidx.media3:media3-common:1.0.0")
+    implementation("androidx.media3:media3-ui:1.0.0")
+    implementation("androidx.media3:media3-exoplayer:1.0.0")
+    implementation("androidx.media3:media3-transformer:1.0.0")
 
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
@@ -54,14 +51,13 @@ dependencies {
 }
 
 android {
-    namespace "androidx.graphics.filters"
+    namespace = "androidx.graphics.filters"
 }
 
 androidx {
     name = "androidx.graphics.filters:filters"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Apply visual filters to images, video or UI in real time."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

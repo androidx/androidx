@@ -47,7 +47,6 @@ import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.pillStar
 import androidx.graphics.shapes.toPath
-import kotlin.math.min
 import kotlinx.coroutines.launch
 
 /**
@@ -71,7 +70,7 @@ fun ProgressHolder() {
             width = 1.8f,
             height = .4f,
             rounding = CornerRounding(1f),
-            startLocation = startLocation.floatValue
+            startLocation = startLocation.floatValue,
         )
     val scope = rememberCoroutineScope()
     val pathMeasure = PathMeasure()
@@ -80,14 +79,14 @@ fun ProgressHolder() {
     Column {
         Slider(
             value = startLocation.floatValue.coerceIn(0f, 1f),
-            onValueChange = { startLocation.floatValue = it }
+            onValueChange = { startLocation.floatValue = it },
         )
         Box(
             Modifier.clickable { scope.launch { doAnimation(progress) } }
                 .fillMaxSize()
                 .drawWithContent {
                     drawContent()
-                    val scale = min(size.width, size.height) / 2
+                    val scale = size.minDimension / 2
                     val m = Matrix()
                     m.translate(size.width / 2, size.height / 2, 0f)
                     m.scale(scale, scale)
@@ -108,6 +107,6 @@ private suspend fun doAnimation(progress: Animatable<Float, AnimationVector1D>) 
     progress.snapTo(0f)
     progress.animateTo(
         1f,
-        infiniteRepeatable(tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse)
+        infiniteRepeatable(tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
     )
 }

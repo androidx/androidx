@@ -19,7 +19,11 @@ package androidx.graphics.shapes.testcompose
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pinch
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -27,23 +31,32 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-data class PanZoomRotateModel(
-    var zoom: MutableState<Float> = mutableFloatStateOf(1f),
-    var offset: MutableState<Offset> = mutableStateOf(Offset.Zero),
-    var angle: MutableState<Float> = mutableFloatStateOf(0f)
+data class PanZoomRotateBoxState(
+    var zoom: MutableState<Float> = mutableFloatStateOf(START_ZOOM),
+    var offset: MutableState<Offset> = mutableStateOf(START_OFFSET),
+    var angle: MutableState<Float> = mutableFloatStateOf(START_ANGLE),
 ) {
     fun reset() {
-        zoom.value = 1f
-        offset.value = Offset.Zero
-        angle.value = 0f
+        zoom.value = START_ZOOM
+        offset.value = START_OFFSET
+        angle.value = START_ANGLE
+    }
+
+    fun hasChanged() =
+        zoom.value != START_ZOOM || offset.value != START_OFFSET || angle.value != START_ANGLE
+
+    fun mapOut(p: Offset): Offset {
+        return ((p.rotate(angle.value.toRadians()) - offset.value) * zoom.value)
     }
 }
 
@@ -55,16 +68,18 @@ data class PanZoomRotateModel(
 @Composable
 fun PanZoomRotateBox(
     modifier: Modifier = Modifier,
-    model: PanZoomRotateModel = remember { PanZoomRotateModel() },
+    state: PanZoomRotateBoxState = remember { PanZoomRotateBoxState() },
     allowRotation: Boolean = true,
     allowZoom: Boolean = true,
     allowPan: Boolean = true,
-    content: @Composable BoxScope.() -> Unit
+    showInteraction: Boolean = true,
+    content: @Composable BoxScope.() -> Unit,
 ) {
-    with(model) {
+    with(state) {
         Box(modifier = modifier) {
             Box(
-                Modifier.pointerInput(Unit) {
+                Modifier.fillMaxSize()
+                    .pointerInput(Unit) {
                         detectTransformGestures(
                             onGesture = { centroid, pan, gestureZoom, gestureRotate ->
                                 val actualRotation = if (allowRotation) gestureRotate else 0f
@@ -100,16 +115,22 @@ fun PanZoomRotateBox(
                         rotationZ = angle.value
                         transformOrigin = TransformOrigin(0f, 0f)
                     },
-                content = content
+                content = content,
             )
-            Button(onClick = { model.reset() }) { Text("Reset View") }
+            if (showInteraction && hasChanged()) {
+                Button(onClick = { state.reset() }) {
+                    Text("Reset View", textAlign = TextAlign.Center)
+                }
+            } else if (showInteraction) {
+                Icon(Icons.Default.Pinch, "Zoom in", Modifier.alpha(0.2f))
+            }
         }
     }
 }
 
 internal fun Float.toRadians() = this * PI.toFloat() / 180f
 
-internal fun Offset.rotate90() = Offset(-y, x)
+private fun Offset.rotate90() = Offset(-y, x)
 
 internal fun directionVector(angleRadians: Float) = Offset(cos(angleRadians), sin(angleRadians))
 
@@ -117,3 +138,7 @@ private fun Offset.rotate(angleRadians: Float): Offset {
     val vec = directionVector(angleRadians)
     return vec * x + vec.rotate90() * y
 }
+
+private const val START_ZOOM = 1f
+private const val START_ANGLE = 0f
+private val START_OFFSET = Offset.Zero

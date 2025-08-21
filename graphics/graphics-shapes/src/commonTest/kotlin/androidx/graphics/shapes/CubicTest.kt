@@ -16,14 +16,12 @@
 
 package androidx.graphics.shapes
 
-import androidx.test.filters.SmallTest
 import kotlin.math.max
 import kotlin.math.min
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-@SmallTest
 class CubicTest {
 
     // These points create a roughly circular arc in the upper-right quadrant around (0,0)
@@ -97,19 +95,19 @@ class CubicTest {
         var plusCubic = cubic + offsetCubic
         assertPointsEqualish(
             p0 + Point(offsetCubic.anchor0X, offsetCubic.anchor0Y),
-            Point(plusCubic.anchor0X, plusCubic.anchor0Y)
+            Point(plusCubic.anchor0X, plusCubic.anchor0Y),
         )
         assertPointsEqualish(
             p1 + Point(offsetCubic.control0X, offsetCubic.control0Y),
-            Point(plusCubic.control0X, plusCubic.control0Y)
+            Point(plusCubic.control0X, plusCubic.control0Y),
         )
         assertPointsEqualish(
             p2 + Point(offsetCubic.control1X, offsetCubic.control1Y),
-            Point(plusCubic.control1X, plusCubic.control1Y)
+            Point(plusCubic.control1X, plusCubic.control1Y),
         )
         assertPointsEqualish(
             p3 + Point(offsetCubic.anchor1X, offsetCubic.anchor1Y),
-            Point(plusCubic.anchor1X, plusCubic.anchor1Y)
+            Point(plusCubic.anchor1X, plusCubic.anchor1Y),
         )
     }
 
@@ -150,12 +148,12 @@ class CubicTest {
         assertBetween(
             Point(cubic.anchor0X, cubic.anchor0Y),
             Point(cubic.anchor1X, cubic.anchor1Y),
-            Point(split0.anchor1X, split0.anchor1Y)
+            Point(split0.anchor1X, split0.anchor1Y),
         )
         assertBetween(
             Point(cubic.anchor0X, cubic.anchor0Y),
             Point(cubic.anchor1X, cubic.anchor1Y),
-            Point(split1.anchor0X, split1.anchor0Y)
+            Point(split1.anchor0X, split1.anchor0Y),
         )
     }
 
@@ -165,7 +163,7 @@ class CubicTest {
         assertBetween(
             Point(cubic.anchor0X, cubic.anchor0Y),
             Point(cubic.anchor1X, cubic.anchor1Y),
-            halfway
+            halfway,
         )
         val straightLineCubic = Cubic.straightLine(p0.x, p0.y, p3.x, p3.y)
         halfway = straightLineCubic.pointOnCurve(.5f)
@@ -190,19 +188,24 @@ class CubicTest {
         transformedCubic = cubic.transformed(transform)
         assertPointsEqualish(
             Point(cubic.anchor0X, cubic.anchor0Y) + translationVector,
-            Point(transformedCubic.anchor0X, transformedCubic.anchor0Y)
+            Point(transformedCubic.anchor0X, transformedCubic.anchor0Y),
         )
         assertPointsEqualish(
             Point(cubic.control0X, cubic.control0Y) + translationVector,
-            Point(transformedCubic.control0X, transformedCubic.control0Y)
+            Point(transformedCubic.control0X, transformedCubic.control0Y),
         )
         assertPointsEqualish(
             Point(cubic.control1X, cubic.control1Y) + translationVector,
-            Point(transformedCubic.control1X, transformedCubic.control1Y)
+            Point(transformedCubic.control1X, transformedCubic.control1Y),
         )
         assertPointsEqualish(
             Point(cubic.anchor1X, cubic.anchor1Y) + translationVector,
-            Point(transformedCubic.anchor1X, transformedCubic.anchor1Y)
+            Point(transformedCubic.anchor1X, transformedCubic.anchor1Y),
         )
+    }
+
+    @Test
+    fun emptyCubicHasZeroLength() {
+        assertTrue(Cubic.empty(10f, 10f).zeroLength())
     }
 }

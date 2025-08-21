@@ -85,7 +85,7 @@ class CustomShapeActivity : ShapeActivity() {
             RoundedPolygon(
                 4,
                 perVertexRounding =
-                    listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20)
+                    listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20),
             )
         shapes.add(shape.transformed(mRotateNeg45))
 
@@ -109,7 +109,7 @@ class CustomShapeActivity : ShapeActivity() {
             RoundedPolygon(
                 4,
                 perVertexRounding =
-                    listOf(cornerRound100, cornerRound100, cornerRound20, cornerRound20)
+                    listOf(cornerRound100, cornerRound100, cornerRound20, cornerRound20),
             )
         shapes.add(shape.transformed(mRotateNeg45))
 
@@ -119,7 +119,7 @@ class CustomShapeActivity : ShapeActivity() {
                 1.8f,
                 1f,
                 perVertexRounding =
-                    listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100)
+                    listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100),
             )
         shapes.add(shape)
 
@@ -154,7 +154,7 @@ class CustomShapeActivity : ShapeActivity() {
                 inset,
                 0f,
                 1f,
-                0f
+                0f,
             )
         var pvRounding =
             listOf(
@@ -171,7 +171,7 @@ class CustomShapeActivity : ShapeActivity() {
                 cornerRound100,
                 cornerRound100,
                 unrounded,
-                cornerRound100
+                cornerRound100,
             )
         shapes.add(RoundedPolygon(sandwichPoints, perVertexRounding = pvRounding))
 
@@ -300,7 +300,7 @@ class CustomShapeActivity : ShapeActivity() {
                 radius = 2f,
                 innerRadius = 1.15f,
                 rounding = smoothRound,
-                innerRounding = unrounded
+                innerRounding = unrounded,
             )
         )
 
@@ -310,7 +310,7 @@ class CustomShapeActivity : ShapeActivity() {
                     4,
                     innerRadius = .2f,
                     rounding = cornerRound40,
-                    innerRounding = unrounded
+                    innerRounding = unrounded,
                 )
                 .transformed(mRotate45)
         )
@@ -321,7 +321,7 @@ class CustomShapeActivity : ShapeActivity() {
                     8,
                     innerRadius = .65f,
                     rounding = cornerRound30,
-                    innerRounding = unrounded
+                    innerRounding = unrounded,
                 )
                 .transformed(rotationMatrix(360f / 16))
         )
@@ -350,7 +350,7 @@ class CustomShapeActivity : ShapeActivity() {
                 -1f,
                 -1f,
                 -.4f,
-                -.5f
+                -.5f,
             )
         pvRounding =
             listOf(
@@ -361,7 +361,7 @@ class CustomShapeActivity : ShapeActivity() {
                 unrounded,
                 cornerRound100,
                 cornerRound100,
-                unrounded
+                unrounded,
             )
         shape = RoundedPolygon(points, perVertexRounding = pvRounding)
         m.setRotate(-90f)
@@ -437,7 +437,7 @@ class CustomShapeActivity : ShapeActivity() {
                 5 * pixelSize,
                 -2 * pixelSize,
                 6 * pixelSize,
-                -2 * pixelSize
+                -2 * pixelSize,
             )
         shapes.add(RoundedPolygon(points, unrounded))
 

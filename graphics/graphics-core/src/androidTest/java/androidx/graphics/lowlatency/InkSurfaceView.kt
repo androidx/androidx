@@ -48,7 +48,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 Color.red(Color.CYAN) / 255f,
                 Color.green(Color.CYAN) / 255f,
                 Color.blue(Color.CYAN) / 255f,
-                0.5f
+                0.5f,
             )
             .toArgb()
 
@@ -57,7 +57,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 Color.red(Color.MAGENTA) / 255f,
                 Color.green(Color.MAGENTA) / 255f,
                 Color.blue(Color.MAGENTA) / 255f,
-                0.5f
+                0.5f,
             )
             .toArgb()
 
@@ -83,7 +83,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
-                param: FloatArray
+                param: FloatArray,
             ) {
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 Matrix.orthoM(
@@ -94,7 +94,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                     0f,
                     bufferInfo.height.toFloat(),
                     -1f,
-                    1f
+                    1f,
                 )
                 Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
                 val vWidth = this@InkSurfaceView.width.toFloat()
@@ -115,7 +115,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 height: Int,
                 bufferInfo: BufferInfo,
                 transform: FloatArray,
-                params: Collection<FloatArray>
+                params: Collection<FloatArray>,
             ) {
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 GLES20.glClearColor(0f, 0f, 0f, 0f)
@@ -128,7 +128,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                     0f,
                     bufferInfo.height.toFloat(),
                     -1f,
-                    1f
+                    1f,
                 )
                 Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
                 mSceneParams.addAll(params)

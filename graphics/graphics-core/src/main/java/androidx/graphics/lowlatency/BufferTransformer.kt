@@ -64,9 +64,7 @@ internal class BufferTransformer {
             else -> BufferTransformHintResolver.UNKNOWN_TRANSFORM // Return unknown transform
         }
 
-    /**
-     * Compute the corresponding transform to apply to take into account buffer transformation hints
-     */
+    /** Update the [transform] matrix to reflect the given buffer [transformHint]. */
     fun computeTransform(width: Int, height: Int, transformHint: Int) {
         val fWidth = width.toFloat()
         val fHeight = height.toFloat()
