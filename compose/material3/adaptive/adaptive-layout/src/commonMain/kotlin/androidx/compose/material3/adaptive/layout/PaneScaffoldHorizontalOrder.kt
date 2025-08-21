@@ -19,14 +19,14 @@ package androidx.compose.material3.adaptive.layout
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 
 @ExperimentalMaterial3AdaptiveApi
-internal interface PaneScaffoldHorizontalOrder<T> {
+internal interface PaneScaffoldHorizontalOrder<Role : PaneScaffoldRole> {
     val size: Int
 
-    fun indexOf(role: T): Int
+    fun indexOf(role: Role): Int
 
-    fun forEach(action: (T) -> Unit)
+    fun forEach(action: (Role) -> Unit)
 
-    fun forEachIndexed(action: (Int, T) -> Unit)
+    fun forEachIndexed(action: (Int, Role) -> Unit)
 
-    fun forEachIndexedReversed(action: (Int, T) -> Unit)
+    fun forEachIndexedReversed(action: (Int, Role) -> Unit)
 }

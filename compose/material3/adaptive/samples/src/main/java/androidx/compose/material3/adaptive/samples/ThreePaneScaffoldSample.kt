@@ -18,7 +18,7 @@ package androidx.compose.material3.adaptive.samples
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.IntRange
+import androidx.annotation.FloatRange
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -57,6 +57,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDragHandle
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AdaptStrategy
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.DockedEdge
@@ -73,6 +74,7 @@ import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.rememberDragToResizeState
 import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
@@ -186,6 +188,7 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
             rememberPaneExpansionState(
                 keyProvider = scaffoldNavigator.scaffoldValue,
                 anchors = PaneExpansionAnchors,
+                initialAnchoredIndex = 1,
             ),
         paneExpansionDragHandle = { state -> PaneExpansionDragHandleSample(state) },
     )
@@ -253,16 +256,16 @@ fun SupportingPaneScaffoldSample() {
 @Composable
 fun SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet() {
     val coroutineScope = rememberCoroutineScope()
+    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
     val scaffoldNavigator =
         rememberSupportingPaneScaffoldNavigator<NavItemData>(
+            scaffoldDirective = scaffoldDirective,
             adaptStrategies =
                 SupportingPaneScaffoldDefaults.adaptStrategies(
                     extraPaneAdaptStrategy =
-                        AdaptStrategy.Levitate(
-                            strategy = AdaptStrategy.Levitate.Strategy.SinglePaneOnly,
-                            alignment = Alignment.BottomCenter,
-                        )
-                )
+                        AdaptStrategy.Levitate(alignment = Alignment.BottomCenter)
+                            .onlyIfSinglePane(scaffoldDirective)
+                ),
         )
     val extraItems = listOf("Extra content")
     val selectedItem = NavItemData(index = 0, showExtra = true)
@@ -285,7 +288,7 @@ fun SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet() {
         extraPane = {
             AnimatedPane(
                 modifier =
-                    Modifier.preferredWidth(100)
+                    Modifier.preferredWidth(1f)
                         .preferredHeight(412.dp)
                         .dragToResize(rememberDragToResizeState(dockedEdge = DockedEdge.Bottom))
             ) {
@@ -328,8 +331,8 @@ fun ThreePaneScaffoldPaneScope.PreferredSizeModifierInDpSample(
 @Composable
 fun ThreePaneScaffoldPaneScope.PreferredSizeModifierInProportionSample(
     modifier: Modifier = Modifier,
-    @IntRange(from = 0, to = 100) preferredWidthInProportion: Int,
-    @IntRange(from = 0, to = 100) preferredHeightInProportion: Int,
+    @FloatRange(from = 0.0, to = 1.0) preferredWidthInProportion: Float,
+    @FloatRange(from = 0.0, to = 1.0) preferredHeightInProportion: Float,
     content: @Composable () -> Unit,
 ) {
     AnimatedPane(
@@ -385,23 +388,25 @@ fun <T> reflowAdaptStrategySample(): ThreePaneScaffoldNavigator<T> =
 @Composable
 fun <T> levitateAdaptStrategySample(): ThreePaneScaffoldNavigator<T> {
     val coroutineScope = rememberCoroutineScope()
+    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
     var navigator: ThreePaneScaffoldNavigator<T>? = null
     navigator =
         rememberListDetailPaneScaffoldNavigator<T>(
+            scaffoldDirective = scaffoldDirective,
             adaptStrategies =
                 ListDetailPaneScaffoldDefaults.adaptStrategies(
                     extraPaneAdaptStrategy =
                         AdaptStrategy.Levitate(
-                            strategy = AdaptStrategy.Levitate.Strategy.SinglePaneOnly,
-                            alignment = Alignment.Center,
-                            scrim =
-                                Scrim(
-                                    onClick = {
-                                        coroutineScope.launch { navigator?.navigateBack() }
-                                    }
-                                ),
-                        )
-                )
+                                alignment = Alignment.Center,
+                                scrim =
+                                    Scrim(
+                                        onClick = {
+                                            coroutineScope.launch { navigator?.navigateBack() }
+                                        }
+                                    ),
+                            )
+                            .onlyIfSinglePane(scaffoldDirective)
+                ),
         )
     return navigator
 }
@@ -807,8 +812,8 @@ private fun RadioButtonRow(
 private val PaneExpansionAnchors =
     listOf(
         PaneExpansionAnchor.Proportion(0f),
-        PaneExpansionAnchor.Offset.fromStart(360.dp),
+        PaneExpansionAnchor.Offset.fromStart(240.dp),
         PaneExpansionAnchor.Proportion(0.5f),
-        PaneExpansionAnchor.Offset.fromEnd(360.dp),
+        PaneExpansionAnchor.Offset.fromEnd(240.dp),
         PaneExpansionAnchor.Proportion(1f),
     )

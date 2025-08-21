@@ -57,7 +57,7 @@ import kotlin.math.min
  */
 @Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
 @ExperimentalMaterial3AdaptiveApi
-sealed interface PaneScaffoldMotionDataProvider<Role> {
+sealed interface PaneScaffoldMotionDataProvider<Role : PaneScaffoldRole> {
     /**
      * The scaffold's current size. Note that the value of the field will only be updated during
      * measurement of the scaffold and before the first measurement the value will be
@@ -119,7 +119,7 @@ sealed interface PaneScaffoldMotionDataProvider<Role> {
  * @param action action to perform on each [PaneMotionData].
  */
 @ExperimentalMaterial3AdaptiveApi
-inline fun <Role> PaneScaffoldMotionDataProvider<Role>.forEach(
+inline fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>.forEach(
     action: (Role, PaneMotionData) -> Unit
 ) {
     for (i in 0 until count) {
@@ -134,7 +134,7 @@ inline fun <Role> PaneScaffoldMotionDataProvider<Role>.forEach(
  * @param action action to perform on each [PaneMotionData].
  */
 @ExperimentalMaterial3AdaptiveApi
-inline fun <Role> PaneScaffoldMotionDataProvider<Role>.forEachReversed(
+inline fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>.forEachReversed(
     action: (Role, PaneMotionData) -> Unit
 ) {
     for (i in count - 1 downTo 0) {
@@ -374,7 +374,8 @@ internal val PaneScaffoldMotionDataProvider<*>.slideOutToRightOffset: Int
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @VisibleForTesting
-internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHiddenPaneCurrentLeft(role: Role): Int {
+internal fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>
+    .getHiddenPaneCurrentLeft(role: Role): Int {
     var currentLeft = 0
     forEach { paneRole, data ->
         // Find the right edge of the shown pane next to the left.
@@ -392,7 +393,9 @@ internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHiddenPaneCurrentLef
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @VisibleForTesting
-internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHidingPaneTargetLeft(role: Role): Int {
+internal fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>.getHidingPaneTargetLeft(
+    role: Role
+): Int {
     var targetLeft = 0
     forEach { paneRole, data ->
         // Find the right edge of the shown pane next to the left.
@@ -417,7 +420,9 @@ internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHidingPaneTargetLeft
  * @param role the role of the pane that is supposed to perform the [EnterTransition] when showing.
  */
 @ExperimentalMaterial3AdaptiveApi
-fun <Role> PaneScaffoldMotionDataProvider<Role>.calculateDefaultEnterTransition(role: Role) =
+fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>.calculateDefaultEnterTransition(
+    role: Role
+) =
     when (this[role].motion) {
         PaneMotion.EnterFromLeft ->
             slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideInFromLeftOffset }
@@ -451,7 +456,9 @@ fun <Role> PaneScaffoldMotionDataProvider<Role>.calculateDefaultEnterTransition(
  * @param role the role of the pane that is supposed to perform the [ExitTransition] when hiding.
  */
 @ExperimentalMaterial3AdaptiveApi
-fun <Role> PaneScaffoldMotionDataProvider<Role>.calculateDefaultExitTransition(role: Role) =
+fun <Role : PaneScaffoldRole> PaneScaffoldMotionDataProvider<Role>.calculateDefaultExitTransition(
+    role: Role
+) =
     when (this[role].motion) {
         PaneMotion.ExitToLeft ->
             slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideOutToLeftOffset }
@@ -625,10 +632,10 @@ sealed interface PaneMotion {
 }
 
 @ExperimentalMaterial3AdaptiveApi
-internal fun <T> calculatePaneMotion(
-    previousScaffoldValue: PaneScaffoldValue<T>,
-    currentScaffoldValue: PaneScaffoldValue<T>,
-    paneOrder: PaneScaffoldHorizontalOrder<T>,
+internal fun <Role : PaneScaffoldRole> calculatePaneMotion(
+    previousScaffoldValue: PaneScaffoldValue<Role>,
+    currentScaffoldValue: PaneScaffoldValue<Role>,
+    paneOrder: PaneScaffoldHorizontalOrder<Role>,
 ): List<PaneMotion> {
     val numOfPanes = paneOrder.size
     val paneMotionTypes = Array(numOfPanes) { PaneMotion.Type.Hidden }

@@ -24,14 +24,17 @@ import androidx.compose.animation.core.Easing
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.MutableThreePaneScaffoldState
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.layout.calculateThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
@@ -43,18 +46,30 @@ import androidx.navigation3.ui.Scene
 import kotlinx.coroutines.CancellationException
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal class ListDetailScene<T : Any>(
+internal sealed interface ThreePaneScaffoldType {
+    class ListDetail(val detailPlaceholder: @Composable ThreePaneScaffoldScope.() -> Unit) :
+        ThreePaneScaffoldType
+
+    object SupportingPane : ThreePaneScaffoldType
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal class ThreePaneScaffoldScene<T : Any>(
     override val key: Any,
     val onBack: (Int) -> Unit,
     val backNavBehavior: BackNavigationBehavior,
     val directive: PaneScaffoldDirective,
-    /** All backstack entries, including those not relevant to the list-detail scaffold scene. */
+    val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
+    /** All backstack entries, including those not relevant to the three pane scaffold scene. */
     val allEntries: List<NavEntry<T>>,
-    /** The entries in the backstack that are handled by this list-detail scaffold scene. */
+    /** The entries in the backstack that are handled by this three pane scaffold scene. */
     val scaffoldEntries: List<NavEntry<T>>,
     /** The indices of [allEntries] that result in [scaffoldEntries]. */
     val scaffoldEntryIndices: IntList,
-    val detailPlaceholder: @Composable ThreePaneScaffoldScope.() -> Unit,
+    /** [scaffoldEntries], but each entry is converted to [ThreePaneScaffoldDestinationItem]. */
+    val entriesAsNavItems: List<ThreePaneScaffoldDestinationItem<Any>>,
+    val getPaneRole: (NavEntry<T>) -> ThreePaneScaffoldRole?,
+    val scaffoldType: ThreePaneScaffoldType,
 ) : Scene<T> {
     override val entries: List<NavEntry<T>>
         get() = scaffoldEntries
@@ -62,19 +77,16 @@ internal class ListDetailScene<T : Any>(
     override val previousEntries: List<NavEntry<T>>
         get() = onBackResult.previousEntries
 
-    private val entriesAsNavItems: List<ThreePaneScaffoldDestinationItem<Any>> =
-        entries.map { it.toNavItem()!! }
-
     val currentScaffoldValue: ThreePaneScaffoldValue
         get() = calculateScaffoldValue(destinationHistory = entriesAsNavItems)
 
     class OnBackResult<T : Any>(
         /**
-         * The previous scaffold value of the list-detail scaffold once a back event is handled.
+         * The previous scaffold value of the three pane scaffold once a back event is handled.
          *
          * If this value is null, it means that either:
          * - there is no previous NavEntry in the backstack, or
-         * - the back event leaves the list-detail scaffold scene and is therefore not handled
+         * - the back event leaves the three pane scaffold scene and is therefore not handled
          *   internally.
          */
         val previousScaffoldValue: ThreePaneScaffoldValue?,
@@ -104,7 +116,7 @@ internal class ListDetailScene<T : Any>(
                 // Back event leaves the scaffold
                 return OnBackResult(
                     previousScaffoldValue = null,
-                    previousEntries = allEntries.subList(0, index + 1).toList(),
+                    previousEntries = ArrayList(allEntries.subList(0, index + 1)),
                 )
             }
             if (index == prevDestAbsoluteIndex) {
@@ -115,7 +127,7 @@ internal class ListDetailScene<T : Any>(
                     )
                 return OnBackResult(
                     previousScaffoldValue = previousScaffoldValue,
-                    previousEntries = allEntries.subList(0, index + 1).toList(),
+                    previousEntries = ArrayList(allEntries.subList(0, index + 1)),
                 )
             }
         }
@@ -179,7 +191,7 @@ internal class ListDetailScene<T : Any>(
         calculateThreePaneScaffoldValue(
             maxHorizontalPartitions = directive.maxHorizontalPartitions,
             maxVerticalPartitions = directive.maxVerticalPartitions,
-            adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
+            adaptStrategies = adaptStrategies,
             destinationHistory = destinationHistory,
         )
 
@@ -207,9 +219,22 @@ internal class ListDetailScene<T : Any>(
             }
         }
 
-        val lastList = entries.findLast { it.paneRole == ListDetailPaneScaffoldRole.List }
-        val lastDetail = entries.findLast { it.paneRole == ListDetailPaneScaffoldRole.Detail }
-        val lastExtra = entries.findLast { it.paneRole == ListDetailPaneScaffoldRole.Extra }
+        if (scaffoldType is ThreePaneScaffoldType.ListDetail) {
+            ListDetailContent(scaffoldState, scaffoldType.detailPlaceholder)
+        } else { // Supporting pane
+            SupportingPaneContent(scaffoldState)
+        }
+    }
+
+    @Suppress("ComposableLambdaParameterNaming")
+    @Composable
+    private fun ListDetailContent(
+        scaffoldState: ThreePaneScaffoldState,
+        detailPlaceholder: @Composable ThreePaneScaffoldScope.() -> Unit,
+    ) {
+        val lastList = entries.findLast { getPaneRole(it) == ListDetailPaneScaffoldRole.List }
+        val lastDetail = entries.findLast { getPaneRole(it) == ListDetailPaneScaffoldRole.Detail }
+        val lastExtra = entries.findLast { getPaneRole(it) == ListDetailPaneScaffoldRole.Extra }
 
         ListDetailPaneScaffold(
             directive = directive,
@@ -219,25 +244,22 @@ internal class ListDetailScene<T : Any>(
             extraPane = lastExtra?.let { { AnimatedPane { it.Content() } } },
         )
     }
-}
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val <T : Any> NavEntry<T>.paneRole: ThreePaneScaffoldRole?
-    get() {
-        val metadata =
-            this.metadata[ListDetailSceneStrategy.ListDetailRoleKey]
-                as? ListDetailSceneStrategy.PaneMetadata ?: return null
-        return when (metadata) {
-            is ListDetailSceneStrategy.ListMetadata -> ListDetailPaneScaffoldRole.List
-            is ListDetailSceneStrategy.DetailMetadata -> ListDetailPaneScaffoldRole.Detail
-            is ListDetailSceneStrategy.ExtraMetadata -> ListDetailPaneScaffoldRole.Extra
-        }
+    @Composable()
+    private fun SupportingPaneContent(scaffoldState: ThreePaneScaffoldState) {
+        val lastMain = entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Main }
+        val lastSupporting =
+            entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Supporting }
+        val lastExtra = entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Extra }
+
+        SupportingPaneScaffold(
+            directive = directive,
+            scaffoldState = scaffoldState,
+            mainPane = lastMain?.let { { AnimatedPane { it.Content() } } } ?: {},
+            supportingPane = lastSupporting?.let { { AnimatedPane { it.Content() } } } ?: {},
+            extraPane = lastExtra?.let { { AnimatedPane { it.Content() } } },
+        )
     }
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private fun <T : Any> NavEntry<T>.toNavItem(): ThreePaneScaffoldDestinationItem<Any>? {
-    val role = this.paneRole ?: return null
-    return ThreePaneScaffoldDestinationItem(pane = role, contentKey = this.contentKey)
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
