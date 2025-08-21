@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.savedstate.serialization
 
 import android.os.Parcel
+import androidx.savedstate.SavedState
 
 actual fun platformEncodeDecode(savedState: SavedState, doMarshalling: Boolean): SavedState {
-    val parcel =
+    val inParcel =
         Parcel.obtain().apply {
             savedState.writeToParcel(this, 0)
             setDataPosition(0)
         }
-    val newParcel =
+    val outParcel =
         if (doMarshalling) {
-            val bytes = parcel.marshall()
+            val bytes = inParcel.marshall()
             Parcel.obtain().apply {
                 unmarshall(bytes, 0, bytes.size)
                 setDataPosition(0)
             }
         } else {
-            parcel
+            inParcel
         }
-    return newParcel.readBundle(savedState::class.java.classLoader)!!
+
+    try {
+        return outParcel.readBundle(savedState::class.java.classLoader)!!
+    } finally {
+        // Always recycle the original parcel
+        inParcel.recycle()
+        // Recycle the decoded parcel only if it's different
+        if (outParcel !== inParcel) {
+            outParcel.recycle()
+        }
+    }
 }

@@ -22,6 +22,7 @@ import androidx.savedstate.savedState
 import androidx.savedstate.write
 import kotlin.jvm.JvmOverloads
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -34,12 +35,17 @@ import kotlinx.serialization.serializer
  * Serializes the [value] of type [T] into an equivalent [SavedState] using [KSerializer] retrieved
  * from the reified type parameter.
  *
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
  * @sample androidx.savedstate.encode
  * @param value The serializable object to encode.
  * @param configuration The [SavedStateConfiguration] to use. Defaults to
  *   [SavedStateConfiguration.DEFAULT].
  * @return The encoded [SavedState].
  * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
  */
 public inline fun <reified T : Any> encodeToSavedState(
     value: T,
@@ -50,6 +56,10 @@ public inline fun <reified T : Any> encodeToSavedState(
 /**
  * Serializes and encodes the given [value] to [SavedState] using the given [serializer].
  *
+ * **Format not stable:** The internal structure of the returned [SavedState] is subject to change
+ * in future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
  * @sample androidx.savedstate.encodeWithExplicitSerializerAndConfig
  * @param serializer The serializer to use.
  * @param value The serializable object to encode.
@@ -57,6 +67,7 @@ public inline fun <reified T : Any> encodeToSavedState(
  *   [SavedStateConfiguration.DEFAULT].
  * @return The encoded [SavedState].
  * @throws SerializationException in case of any encoding-specific error.
+ * @see decodeFromSavedState
  */
 @JvmOverloads
 public fun <T : Any> encodeToSavedState(
@@ -78,7 +89,7 @@ public fun <T : Any> encodeToSavedState(
 @OptIn(ExperimentalSerializationApi::class)
 internal class SavedStateEncoder(
     internal val savedState: SavedState,
-    private val configuration: SavedStateConfiguration
+    private val configuration: SavedStateConfiguration,
 ) : AbstractEncoder() {
 
     internal var key: String = ""
@@ -100,10 +111,7 @@ internal class SavedStateEncoder(
         return true
     }
 
-    private fun checkDiscriminatorCollisions(
-        savedState: SavedState,
-        elementName: String,
-    ) {
+    private fun checkDiscriminatorCollisions(savedState: SavedState, elementName: String) {
         if (configuration.classDiscriminatorMode == ClassDiscriminatorMode.ALL_OBJECTS) {
             val hasClassDiscriminator = savedState.read { contains(CLASS_DISCRIMINATOR_KEY) }
             val hasConflictingElementName = elementName == CLASS_DISCRIMINATOR_KEY
@@ -249,7 +257,7 @@ internal class SavedStateEncoder(
     @Suppress("UNCHECKED_CAST")
     private fun <T> encodeFormatSpecificTypes(
         serializer: SerializationStrategy<T>,
-        value: T
+        value: T,
     ): Boolean {
         val encoded = encodeFormatSpecificTypesOnPlatform(serializer, value)
         if (!encoded) {
@@ -276,5 +284,5 @@ internal class SavedStateEncoder(
  */
 internal expect fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
     strategy: SerializationStrategy<T>,
-    value: T
+    value: T,
 ): Boolean

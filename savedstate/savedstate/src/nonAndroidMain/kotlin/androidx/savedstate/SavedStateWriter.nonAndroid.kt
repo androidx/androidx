@@ -27,9 +27,7 @@ import kotlin.jvm.JvmName
 @JvmInline
 public actual value class SavedStateWriter
 @PublishedApi
-internal actual constructor(
-    private actual val source: SavedState,
-) {
+internal actual constructor(private actual val source: SavedState) {
 
     public actual fun putBoolean(key: String, value: Boolean) {
         source.map[key] = value

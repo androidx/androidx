@@ -27,7 +27,7 @@ import android.util.SizeF
 import android.util.SparseArray
 import androidx.core.os.bundleOf
 import androidx.kruth.assertThat
-import androidx.savedstate.SavedStateCodecTestUtils.encodeDecode
+import androidx.savedstate.serialization.SavedStateCodecTestUtils.encodeDecode
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
 import androidx.savedstate.serialization.serializers.JavaSerializableSerializer
@@ -72,7 +72,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
         @Serializable
         data class MyModel(
             @Serializable(with = MyUUIDSerializer::class) val uuid: UUID,
-            @Serializable(with = MySizeSerializer::class) val size: Size
+            @Serializable(with = MySizeSerializer::class) val size: Size,
         )
         val uuid2 = UUID.randomUUID()
         MyModel(uuid2, Size(3, 5)).encodeDecode {
@@ -98,7 +98,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     "i" to 1,
                     "s" to "foo",
                     "a" to intArrayOf(1, 3, 5),
-                    "ss" to bundleOf("s" to "bar")
+                    "ss" to bundleOf("s" to "bar"),
                 )
             )
             .encodeDecode(
@@ -117,7 +117,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                             assertThat(getString("s")).isEqualTo("bar")
                         }
                     }
-                }
+                },
             )
 
         // Bundle at root.
@@ -140,7 +140,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
         @Serializable
         data class MyModel(
             @Serializable(with = SizeSerializer::class) val size: Size,
-            @Serializable(with = SizeFSerializer::class) val sizeF: SizeF
+            @Serializable(with = SizeFSerializer::class) val sizeF: SizeF,
         )
 
         MyModel(Size(128, 256), SizeF(1.23f, 4.56f)).encodeDecode {
@@ -263,7 +263,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getCharSequenceArray("").contentEquals(myCharSequenceArray)).isTrue()
-            }
+            },
         )
         CharSequenceArrayContainer(myCharSequenceArray)
             .encodeDecode(
@@ -271,7 +271,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 checkEncoded = {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getCharSequenceArray("value")).isEqualTo(myCharSequenceArray)
-                }
+                },
             )
 
         @Serializable
@@ -284,7 +284,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getParcelableArray<MyParcelable>("").contentEquals(myParcelableArray))
                     .isTrue()
-            }
+            },
         )
         ParcelableArrayContainer(myParcelableArray)
             .encodeDecode(
@@ -293,7 +293,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getParcelableArray<MyParcelable>("value"))
                         .isEqualTo(myParcelableArray)
-                }
+                },
             )
 
         @Serializable data class CharSequenceListContainer(val value: List<CharSequence>)
@@ -303,7 +303,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getCharSequenceList("")).isEqualTo(myCharSequenceList)
-            }
+            },
         )
         CharSequenceListContainer(myCharSequenceList).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -318,7 +318,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getParcelableList<MyParcelable>("")).isEqualTo(myParcelableList)
-            }
+            },
         )
         ParcelableListContainer(myParcelableList).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -347,7 +347,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getSparseParcelableArray<Parcelable>(""))
                     .isEqualTo(mySparseParcelableArray)
-            }
+            },
         )
         SparseParcelableArrayContainer(mySparseParcelableArray)
             .encodeDecode(
@@ -362,7 +362,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getSparseParcelableArray<Parcelable>("value"))
                         .isEqualTo(mySparseParcelableArray)
-                }
+                },
             )
     }
 
@@ -398,7 +398,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getSparseParcelableArray<Parcelable>("value"))
                         .isEqualTo(mySparseParcelableArray)
-                }
+                },
             )
     }
 
@@ -413,7 +413,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getCharSequenceArray("").contentEquals(myCharSequenceArray)).isTrue()
-            }
+            },
         )
         CharSequenceArrayContainer(myCharSequenceArray)
             .encodeDecode(
@@ -421,7 +421,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 checkEncoded = {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getCharSequenceArray("value")).isEqualTo(myCharSequenceArray)
-                }
+                },
             )
 
         @Serializable
@@ -434,7 +434,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getParcelableArray<MyParcelable>("").contentEquals(myParcelableArray))
                     .isTrue()
-            }
+            },
         )
         ParcelableArrayContainer(myParcelableArray)
             .encodeDecode(
@@ -443,7 +443,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getParcelableArray<MyParcelable>("value"))
                         .isEqualTo(myParcelableArray)
-                }
+                },
             )
 
         @Serializable data class CharSequenceListContainer(val value: List<CharSequence>)
@@ -453,7 +453,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getCharSequenceList("")).isEqualTo(myCharSequenceList)
-            }
+            },
         )
         CharSequenceListContainer(myCharSequenceList).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -468,7 +468,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getParcelableList<MyParcelable>("")).isEqualTo(myParcelableList)
-            }
+            },
         )
         ParcelableListContainer(myParcelableList).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -498,7 +498,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getSparseParcelableArray<Parcelable>(""))
                     .isEqualTo(mySparseParcelableArray)
-            }
+            },
         )
         SparseParcelableArrayContainer(mySparseParcelableArray)
             .encodeDecode(
@@ -513,7 +513,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getSparseParcelableArray<Parcelable>("value"))
                         .isEqualTo(mySparseParcelableArray)
-                }
+                },
             )
     }
 
@@ -538,7 +538,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(
                         getParcelableArray<MyParcelable>("value").contentEquals(myParcelableArray)
                     )
-                }
+                },
             )
 
         @Serializable
@@ -554,7 +554,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             checkEncoded = {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getParcelableList<MyParcelable>("")).isEqualTo(myParcelableList)
-            }
+            },
         )
         ParcelableListContainer(myParcelableList).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -586,7 +586,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getSparseParcelableArray<Parcelable>(""))
                     .isEqualTo(mySparseParcelableArray)
-            }
+            },
         )
         SparseParcelableArrayContainer(mySparseParcelableArray)
             .encodeDecode(
@@ -601,7 +601,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getSparseParcelableArray<Parcelable>("value"))
                         .isEqualTo(mySparseParcelableArray)
-                }
+                },
             )
     }
 
@@ -623,7 +623,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                 checkEncoded = {
                     assertThat(size()).isEqualTo(1)
                     assertThat(getCharSequence("").toString()).isEqualTo("foo")
-                }
+                },
             )
         MyParcelable(3, "foo", 3.14).encodeDecode<Parcelable> {
             assertThat(size()).isEqualTo(1)
@@ -640,7 +640,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     .isEqualTo(
                         arrayOf<Parcelable>(
                             MyParcelable(3, "foo", 3.14),
-                            MyParcelable(4, "bar", 1.73)
+                            MyParcelable(4, "bar", 1.73),
                         )
                     )
             }
@@ -655,7 +655,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     .isEqualTo(
                         listOf<Parcelable>(
                             MyParcelable(3, "foo", 3.14),
-                            MyParcelable(4, "bar", 1.73)
+                            MyParcelable(4, "bar", 1.73),
                         )
                     )
             }
@@ -691,7 +691,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     } else {
                         error("VERSION.SDK_INT < S")
                     }
-                }
+                },
             )
     }
 
@@ -719,7 +719,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
                     assertThat(getString("1")).isEqualTo("bar")
                     assertThat(isNull("2")).isTrue()
                 }
-            }
+            },
         )
     }
 }

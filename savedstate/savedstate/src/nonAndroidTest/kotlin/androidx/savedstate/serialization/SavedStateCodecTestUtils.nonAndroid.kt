@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.savedstate.serialization
+
+import androidx.savedstate.SavedState
 
 // No parceling in non-Android platforms.
 actual fun platformEncodeDecode(savedState: SavedState, doMarshalling: Boolean): SavedState =

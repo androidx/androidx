@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.savedstate.serialization
 
 import androidx.kruth.assertThat
-import androidx.savedstate.serialization.SavedStateConfiguration
-import androidx.savedstate.serialization.decodeFromSavedState
-import androidx.savedstate.serialization.encodeToSavedState
+import androidx.savedstate.SavedState
+import androidx.savedstate.SavedStateReader
+import androidx.savedstate.read
 import kotlinx.serialization.KSerializer
 
 /**
@@ -49,7 +49,7 @@ internal object SavedStateCodecTestUtils {
         checkDecoded: (T, T) -> Unit = { decoded, original ->
             assertThat(decoded).isEqualTo(original)
         },
-        checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) }
+        checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) },
     ) {
         val encoded =
             if (serializer == null) {

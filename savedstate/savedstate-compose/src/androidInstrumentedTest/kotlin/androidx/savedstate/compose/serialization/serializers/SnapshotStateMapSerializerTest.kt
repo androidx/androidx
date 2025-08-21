@@ -88,7 +88,7 @@ internal class SnapshotStateMapSerializerTest {
 
     private inline fun <reified K, reified V> doTest(
         original: SnapshotStateMap<K, V>,
-        serializer: SnapshotStateMapSerializer<K, V> = SnapshotStateMapSerializer<K, V>()
+        serializer: SnapshotStateMapSerializer<K, V> = SnapshotStateMapSerializer<K, V>(),
     ) {
         val serialized = encodeToSavedState(serializer, original)
         val deserialized = decodeFromSavedState(serializer, serialized)

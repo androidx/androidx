@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+package androidx.savedstate.serialization
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import androidx.savedstate.SavedStateCodecTestUtils.encodeDecode
-import androidx.savedstate.serialization.SavedStateConfiguration
-import androidx.savedstate.serialization.decodeFromSavedState
-import androidx.savedstate.serialization.encodeToSavedState
+import androidx.savedstate.IgnoreWebTarget
+import androidx.savedstate.RobolectricTest
+import androidx.savedstate.SavedState
+import androidx.savedstate.read
+import androidx.savedstate.savedState
+import androidx.savedstate.serialization.SavedStateCodecTestUtils.encodeDecode
 import androidx.savedstate.serialization.serializers.SavedStateSerializer
+import androidx.savedstate.write
 import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,6 +47,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import kotlinx.serialization.serializer
 
+@IgnoreWebTarget
 @ExperimentalSerializationApi
 internal class SavedStateCodecTest : RobolectricTest() {
     @Test
@@ -408,7 +412,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
         // Should use base type for encoding/decoding.
         Node.Add(Node.Operand(3), Node.Operand(5)).encodeDecode<Node> {
             assertThat(size()).isEqualTo(2)
-            assertThat(getString("type")).isEqualTo("androidx.savedstate.Node.Add")
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.serialization.Node.Add")
             getSavedState("value").read {
                 getSavedState("lhs").read {
                     assertThat(size()).isEqualTo(1)
@@ -463,7 +467,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
         @Serializable
         data class D(
             val i: Int = 3,
-            @EncodeDefault(EncodeDefault.Mode.ALWAYS) val s: String? = "foo"
+            @EncodeDefault(EncodeDefault.Mode.ALWAYS) val s: String? = "foo",
         )
         D(i = 5).encodeDecode {
             assertThat(size()).isEqualTo(2)
@@ -480,7 +484,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
         // Nullable in parent
         G(i = 3).encodeDecode<F> {
             assertThat(size()).isEqualTo(2)
-            assertThat(getString("type")).isEqualTo("androidx.savedstate.G")
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.serialization.G")
             getSavedState("value").read {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getInt("i")).isEqualTo(3)
@@ -516,7 +520,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
                             assertThat(getString("s")).isEqualTo("bar")
                         }
                     }
-                }
+                },
             )
 
         val origin = savedState {
@@ -606,7 +610,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
         // Specifying `ContextualSerializer` explicitly.
         MyColor(1, 3, 5).encodeDecode(
             configuration = config,
-            serializer = ContextualSerializer(MyColor::class)
+            serializer = ContextualSerializer(MyColor::class),
         ) {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntArray("")).isEqualTo(intArrayOf(1, 3, 5))
@@ -642,10 +646,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
         Circle(3).encodeDecode<Shape>(
             configuration = config,
             // This is needed only in Kotlin/Native.
-            serializer = PolymorphicSerializer(Shape::class)
+            serializer = PolymorphicSerializer(Shape::class),
         ) {
             assertThat(size()).isEqualTo(2)
-            assertThat(getString("type")).isEqualTo("androidx.savedstate.Circle")
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.serialization.Circle")
             getSavedState("value").read {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getInt("radius")).isEqualTo(3)
@@ -654,10 +658,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
         Rectangle(3, 5).encodeDecode<Shape>(
             configuration = config,
             // This is needed only in Kotlin/Native.
-            serializer = PolymorphicSerializer(Shape::class)
+            serializer = PolymorphicSerializer(Shape::class),
         ) {
             assertThat(size()).isEqualTo(2)
-            assertThat(getString("type")).isEqualTo("androidx.savedstate.Rectangle")
+            assertThat(getString("type")).isEqualTo("androidx.savedstate.serialization.Rectangle")
             getSavedState("value").read {
                 assertThat(size()).isEqualTo(2)
                 assertThat(getInt("width")).isEqualTo(3)
@@ -707,7 +711,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(2)
                     assertThat(getString("name")).isEqualTo("foo")
                     assertThat(getInt("age")).isEqualTo(99)
-                }
+                },
             )
     }
 
@@ -726,7 +730,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
                     assertThat(size()).isEqualTo(2)
                     assertThat(getString("name")).isEqualTo("foo")
                     assertThat(getInt("age")).isEqualTo(99)
-                }
+                },
             )
     }
 }
@@ -741,7 +745,7 @@ private fun keyOrValueNotFoundErrorMessage(key: String): String {
 data class MyTreeNode<T>(
     val value: T,
     val left: MyTreeNode<T>? = null,
-    val right: MyTreeNode<T>? = null
+    val right: MyTreeNode<T>? = null,
 )
 
 // `@Serializable` is needed for using the enum as root in native and js.
@@ -749,7 +753,7 @@ data class MyTreeNode<T>(
 enum class MyEnum {
     A,
     B,
-    C
+    C,
 }
 
 @Serializable @JvmInline private value class MyValueClassToString(val value: String)

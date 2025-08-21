@@ -26,9 +26,7 @@ import kotlin.jvm.JvmName
 @JvmInline
 public actual value class SavedStateReader
 @PublishedApi
-internal actual constructor(
-    private actual val source: SavedState,
-) {
+internal actual constructor(private actual val source: SavedState) {
 
     public actual fun getBoolean(key: String): Boolean {
         return source.map[key] as? Boolean ?: keyOrValueNotFoundError(key)
@@ -100,7 +98,8 @@ internal actual constructor(
     }
 
     public actual fun getCharSequenceListOrNull(key: String): List<CharSequence>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? List<CharSequence>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? List<CharSequence>
     }
 
     public actual fun getIntList(key: String): List<Int> {
@@ -109,7 +108,8 @@ internal actual constructor(
     }
 
     public actual fun getIntListOrNull(key: String): List<Int>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? List<Int>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? List<Int>
     }
 
     public actual fun getSavedStateList(key: String): List<SavedState> {
@@ -118,7 +118,8 @@ internal actual constructor(
     }
 
     public actual fun getSavedStateListOrNull(key: String): List<SavedState>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? List<SavedState>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? List<SavedState>
     }
 
     public actual fun getStringList(key: String): List<String> {
@@ -127,7 +128,8 @@ internal actual constructor(
     }
 
     public actual fun getStringListOrNull(key: String): List<String>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? List<String>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? List<String>
     }
 
     public actual fun getCharArray(key: String): CharArray {
@@ -144,7 +146,8 @@ internal actual constructor(
     }
 
     public actual fun getCharSequenceArrayOrNull(key: String): Array<CharSequence>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? Array<CharSequence>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? Array<CharSequence>
     }
 
     public actual fun getBooleanArray(key: String): BooleanArray {
@@ -193,7 +196,8 @@ internal actual constructor(
     }
 
     public actual fun getSavedStateArrayOrNull(key: String): Array<SavedState>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? Array<SavedState>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? Array<SavedState>
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -202,7 +206,8 @@ internal actual constructor(
     }
 
     public actual fun getStringArrayOrNull(key: String): Array<String>? {
-        @Suppress("UNCHECKED_CAST") return source.map[key] as? Array<String>
+        @Suppress("UNCHECKED_CAST")
+        return source.map[key] as? Array<String>
     }
 
     public actual fun getSavedState(key: String): SavedState {

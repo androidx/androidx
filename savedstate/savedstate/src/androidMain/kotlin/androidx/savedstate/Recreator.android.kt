@@ -59,7 +59,7 @@ internal class Recreator(private val owner: SavedStateRegistryOwner) : Lifecycle
                 throw IllegalStateException(
                     "Class ${clazz.simpleName} must have " +
                         "default constructor in order to be automatically recreated",
-                    e
+                    e,
                 )
             }
         constructor.isAccessible = true

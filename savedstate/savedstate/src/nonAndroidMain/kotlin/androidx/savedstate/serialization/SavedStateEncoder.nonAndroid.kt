@@ -20,7 +20,7 @@ import kotlinx.serialization.SerializationStrategy
 
 internal actual fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
     strategy: SerializationStrategy<T>,
-    value: T
+    value: T,
 ): Boolean {
     return false
 }

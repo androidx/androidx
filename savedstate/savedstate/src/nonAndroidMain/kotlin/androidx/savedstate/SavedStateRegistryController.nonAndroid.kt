@@ -20,9 +20,7 @@ import androidx.savedstate.internal.SavedStateRegistryImpl
 import kotlin.jvm.JvmStatic
 
 public actual class SavedStateRegistryController
-private actual constructor(
-    private val impl: SavedStateRegistryImpl,
-) {
+private actual constructor(private val impl: SavedStateRegistryImpl) {
 
     public actual val savedStateRegistry: SavedStateRegistry = SavedStateRegistry(impl)
 

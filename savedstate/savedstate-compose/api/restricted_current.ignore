@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.savedstate.compose.serialization.serializers.MutableStateSerializerKt#MutableStateSerializer():
+    Binary breaking change: method androidx.savedstate.compose.serialization.serializers.MutableStateSerializerKt.MutableStateSerializer() has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializerKt#SnapshotStateListSerializer():
+    Binary breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializerKt.SnapshotStateListSerializer() has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt#SnapshotStateMapSerializer():
+    Binary breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt.SnapshotStateMapSerializer() has been removed from bytecode
+
+
+RemovedFromJava: androidx.savedstate.compose.serialization.serializers.MutableStateSerializerKt#MutableStateSerializer():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.MutableStateSerializerKt.MutableStateSerializer() can no longer be resolved from Java source
+RemovedFromJava: androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializerKt#SnapshotStateListSerializer():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializerKt.SnapshotStateListSerializer() can no longer be resolved from Java source
+RemovedFromJava: androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt#SnapshotStateMapSerializer():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt.SnapshotStateMapSerializer() can no longer be resolved from Java source

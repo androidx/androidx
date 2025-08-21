@@ -31,9 +31,7 @@ import java.io.Serializable
 @JvmInline
 public actual value class SavedStateWriter
 @PublishedApi
-internal actual constructor(
-    private actual val source: SavedState,
-) {
+internal actual constructor(private actual val source: SavedState) {
 
     /**
      * Stores an [IBinder] value associated with the specified key in the [IBinder].
@@ -158,7 +156,7 @@ internal actual constructor(
 
     public actual fun putCharSequenceArray(
         key: String,
-        @Suppress("ArrayReturn") value: Array<CharSequence>
+        @Suppress("ArrayReturn") value: Array<CharSequence>,
     ) {
         source.putCharSequenceArray(key, value)
     }
@@ -199,7 +197,7 @@ internal actual constructor(
      */
     public fun <T : Parcelable> putParcelableArray(
         key: String,
-        @Suppress("ArrayReturn") value: Array<T>
+        @Suppress("ArrayReturn") value: Array<T>,
     ) {
         source.putParcelableArray(key, value)
     }

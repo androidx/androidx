@@ -26,10 +26,7 @@ import androidx.savedstate.internal.SavedStateRegistryImpl
  * This objects lifetime is bound to the lifecycle of owning component: when activity or fragment is
  * recreated, new instance of the object is created as well.
  */
-public expect class SavedStateRegistry
-internal constructor(
-    impl: SavedStateRegistryImpl,
-) {
+public expect class SavedStateRegistry internal constructor(impl: SavedStateRegistryImpl) {
 
     /** This interface marks a component that contributes to saved state. */
     public fun interface SavedStateProvider {

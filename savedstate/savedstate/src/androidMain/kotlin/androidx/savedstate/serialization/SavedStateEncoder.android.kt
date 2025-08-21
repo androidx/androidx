@@ -33,7 +33,7 @@ import kotlinx.serialization.SerializationStrategy
 @Suppress("UNCHECKED_CAST")
 internal actual fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
     strategy: SerializationStrategy<T>,
-    value: T
+    value: T,
 ): Boolean {
     when (strategy.descriptor) {
         polymorphicCharSequenceDescriptor ->
@@ -60,7 +60,7 @@ internal actual fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
         nullablePolymorphicSparseParcelableArrayDescriptor ->
             SparseParcelableArraySerializer.serialize(
                 this,
-                value as android.util.SparseArray<Parcelable>
+                value as android.util.SparseArray<Parcelable>,
             )
         else -> return false
     }
