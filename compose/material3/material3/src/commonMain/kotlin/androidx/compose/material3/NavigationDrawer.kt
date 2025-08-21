@@ -160,7 +160,7 @@ class DrawerState(
      */
     val currentValue: DrawerValue
         get() {
-            return anchoredDraggableState.currentValue
+            return anchoredDraggableState.settledValue
         }
 
     /** Whether the state is currently animating. */

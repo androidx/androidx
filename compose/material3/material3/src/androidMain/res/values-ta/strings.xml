@@ -77,8 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"மணிநேரம்"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"நிமிடங்களுக்கு"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"மணிநேரத்திற்கு"</string>
-    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"நேர உள்ளீட்டிற்காக, எழுத்து உள்ளீட்டு முறைக்கு மாற்றும்"</string>
-    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"நேர உள்ளீட்டிற்காக, கடிகாரப் பயன்முறைக்கு மாற்றும்"</string>
+    <!-- no translation found for m3c_time_picker_toggle_keyboard (4323189593686596153) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_toggle_touch (1380272826693645088) -->
+    <skip />
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"நேரத்தைத் தேர்ந்தெடுங்கள்"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"நேரத்தை டைப் செய்யுங்கள்"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"பாதையை மூடும்"</string>

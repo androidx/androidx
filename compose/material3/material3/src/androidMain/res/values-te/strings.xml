@@ -77,8 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"గంట"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"నిమిషాలను ఎంచుకోవడం కోసం"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"గంటలను ఎంచుకోవడం కోసం"</string>
-    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"సమయాన్ని ఇన్‌పుట్‌గా ఎంటర్ చేయడం కోసం టెక్స్ట్ ఇన్‌పుట్ మోడ్‌కు మారండి"</string>
-    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"సమయాన్ని ఇన్‌పుట్‌గా ఎంటర్ చేయడం కోసం గడియారం మోడ్‌కు మారండి"</string>
+    <!-- no translation found for m3c_time_picker_toggle_keyboard (4323189593686596153) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_toggle_touch (1380272826693645088) -->
+    <skip />
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"సమయాన్ని ఎంచుకోండి"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"సమయాన్ని ఎంటర్ చేయండి"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"రైలును మూసివేయండి"</string>

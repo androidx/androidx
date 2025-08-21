@@ -147,12 +147,20 @@ private fun WrappedAnchor(
 ) {
     val scope = rememberCoroutineScope()
     val longPressLabel = BasicTooltipStrings.label()
+    val receivedKeyboardFocus = remember { mutableStateOf(false) }
     Box(
         modifier =
             modifier
                 .handleGestures(enableUserInput, state)
                 .anchorSemantics(longPressLabel, enableUserInput, state, scope)
-                .keyboardBehavior(enableUserInput, state, scope, hasAction, forceKeyboardFocusable)
+                .keyboardBehavior(
+                    enableUserInput,
+                    state,
+                    scope,
+                    hasAction,
+                    forceKeyboardFocusable,
+                    receivedKeyboardFocus,
+                )
     ) {
         content()
     }
@@ -293,15 +301,18 @@ private fun Modifier.keyboardBehavior(
     scope: CoroutineScope,
     hasAction: Boolean,
     forceKeyboardFocusable: MutableState<Boolean>,
+    receivedKeyboardFocus: MutableState<Boolean>,
 ): Modifier =
     if (enabled) {
         this.onFocusChanged {
                 scope.launch {
                     // Tooltip should show when anchor is keyboard focused.
                     if (it.isFocused) {
+                        receivedKeyboardFocus.value = true
                         state.show(MutatePriority.PreventUserInput)
                     }
-                    if (state.isVisible && !it.isFocused) {
+                    if (receivedKeyboardFocus.value && state.isVisible && !it.isFocused) {
+                        receivedKeyboardFocus.value = false
                         state.dismiss()
                     }
                 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="CheckResult"
@@ -893,6 +893,15 @@
     </issue>
 
     <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material3/DynamicTonalPalette.android.kt"/>
+    </issue>
+
+    <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="    keylines.forEach {"
@@ -962,24 +971,6 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/LoadingIndicatorTest.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable crossAxisSizes with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val crossAxisSizes = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable crossAxisPositions with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val crossAxisPositions = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
     </issue>
 
     <issue

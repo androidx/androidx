@@ -257,31 +257,36 @@ object TimePickerDialogDefaults {
      * @param displayMode the current display mode of the time picker
      * @param modifier the [Modifier] to be applied to this button
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun DisplayModeToggle(
         onDisplayModeChange: () -> Unit,
         displayMode: TimePickerDisplayMode,
         modifier: Modifier = Modifier,
     ) {
-        IconButton(modifier = modifier, onClick = onDisplayModeChange) {
-            val icon =
+        val contentDescription =
+            getString(
                 if (displayMode == TimePickerDisplayMode.Picker) {
-                    Icons.Outlined.Keyboard
+                    Strings.TimePickerToggleKeyboard
                 } else {
-                    Icons.Outlined.Schedule
+                    Strings.TimePickerToggleTouch
                 }
-
-            Icon(
-                imageVector = icon,
-                contentDescription =
-                    getString(
-                        if (displayMode == TimePickerDisplayMode.Picker) {
-                            Strings.TimePickerToggleTouch
-                        } else {
-                            Strings.TimePickerToggleKeyboard
-                        }
-                    ),
             )
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text(contentDescription) } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(modifier = modifier, onClick = onDisplayModeChange) {
+                val icon =
+                    if (displayMode == TimePickerDisplayMode.Picker) {
+                        Icons.Outlined.Keyboard
+                    } else {
+                        Icons.Outlined.Schedule
+                    }
+                Icon(imageVector = icon, contentDescription = contentDescription)
+            }
         }
     }
 

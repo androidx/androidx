@@ -20,18 +20,23 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.tokens.SearchBarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -57,12 +63,16 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.WindowInsets
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -73,12 +83,13 @@ import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -103,6 +114,7 @@ class SearchBarTest {
     private val IconTestTag = "Icon"
     private val BackTestTag = "Back"
     private val ContentTestTag = "Content"
+    private val BoxTestTag = "BoxTestTag"
 
     @Test
     fun searchBar_becomesExpandedAndFocusedOnClick_andNotExpandedAndUnfocusedOnBack() {
@@ -918,7 +930,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun topSearchBar_usesAndConsumesWindowInsets() {
+    fun appBarWithSearch_usesAndConsumesWindowInsets() {
         val parentTopInset = 10
         val searchBarTopInset = 25
 
@@ -931,7 +943,7 @@ class SearchBarTest {
             density = LocalDensity.current
             val searchBarState = rememberSearchBarState()
             Box(Modifier.windowInsetsPadding(WindowInsets(top = parentTopInset))) {
-                TopSearchBar(
+                AppBarWithSearch(
                     state = searchBarState,
                     modifier =
                         Modifier.onGloballyPositioned {
@@ -956,12 +968,14 @@ class SearchBarTest {
 
         assertThat(searchBarPosition.value!!.y.roundToInt()).isEqualTo(parentTopInset)
         assertThat(inputFieldPosition.value!!.y.roundToInt())
-            .isEqualTo(searchBarTopInset + with(density) { SearchBarAsTopBarPadding.roundToPx() })
+            .isEqualTo(
+                searchBarTopInset + with(density) { AppBarWithSearchVerticalPadding.roundToPx() }
+            )
         assertThat(childConsumedInsets.getTop(density)).isEqualTo(searchBarTopInset)
     }
 
     @Test
-    fun topSearchBar_scrollBehavior_showsAndHidesWithVerticalScroll() {
+    fun appBarWithSearch_scrollBehavior_showsAndHidesWithVerticalScroll() {
         rule.setMaterialContent(lightColorScheme()) { SearchBarWithScrollableContent() }
 
         rule.onNodeWithTag(SearchBarTestTag).assertIsDisplayed()
@@ -978,7 +992,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun topSearchBar_scrollBehavior_showsAndHidesWithVerticalScroll_reverseLayout() {
+    fun appBarWithSearch_scrollBehavior_showsAndHidesWithVerticalScroll_reverseLayout() {
         rule.setMaterialContent(lightColorScheme()) {
             val reverseLayout = true
             val scrollBehavior =
@@ -1008,7 +1022,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun topSearchBar_scrollBehavior_scrollDisabled() {
+    fun appBarWithSearch_scrollBehavior_scrollDisabled() {
         var canScroll by mutableStateOf(true)
         rule.setMaterialContent(lightColorScheme()) {
             val scrollBehavior =
@@ -1049,7 +1063,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun topSearchBar_scrollBehavior_restoresOffsetState() {
+    fun appBarWithSearch_scrollBehavior_restoresOffsetState() {
         val restorationTester = StateRestorationTester(rule)
         var scrollBehavior: SearchBarScrollBehavior? = null
         restorationTester.setContent {
@@ -1069,6 +1083,67 @@ class SearchBarTest {
             assertThat(scrollBehavior!!.scrollOffsetLimit).isEqualTo(-350f)
             assertThat(scrollBehavior!!.scrollOffset).isEqualTo(-300f)
         }
+    }
+
+    @Test
+    fun appBarWithSearch_correctlyPadsWhenParentHandlesInsetsAndContentPaddingIsUsed() {
+        val appBarHeightDp = SearchBarTokens.ContainerHeight + AppBarWithSearchVerticalPadding * 2
+        val siblingBoxHeightDp = 40.dp
+        val appBarContentPaddingTopDp = 20.dp
+        val statusBarHeightDp = 10.dp
+
+        // The test illustrates "sibling problem": inset consumption isn't shared between sibling
+        // components. If one uses an inset, its siblings aren't aware. In the example the parent
+        // consumes insets.
+        rule.setMaterialContent(lightColorScheme()) {
+            val statusBarInsets =
+                Insets.of(0, with(LocalDensity.current) { statusBarHeightDp.roundToPx() }, 0, 0)
+            val windowInsets =
+                WindowInsetsCompat.Builder()
+                    .setInsets(WindowInsetsCompat.Type.statusBars(), statusBarInsets)
+                    .build()
+            val searchBarState = rememberSearchBarState()
+            DeviceConfigurationOverride(DeviceConfigurationOverride.WindowInsets(windowInsets)) {
+                Column(
+                    modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
+                ) {
+                    AppBarWithSearch(
+                        modifier = Modifier.testTag(SearchBarTestTag),
+                        state = searchBarState,
+                        inputField = {
+                            InputField(
+                                searchBarState = searchBarState,
+                                textFieldState = rememberTextFieldState(),
+                            )
+                        },
+                        contentPadding = PaddingValues(top = appBarContentPaddingTopDp),
+                    )
+                    Box(
+                        modifier =
+                            Modifier.testTag(BoxTestTag)
+                                .fillMaxWidth()
+                                .height(siblingBoxHeightDp)
+                                .windowInsetsPadding(WindowInsets.statusBars),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("Sibling Box")
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithTag(SearchBarTestTag)
+            .assertTopPositionInRootIsEqualTo(statusBarHeightDp)
+            .assertHeightIsAtLeast(appBarHeightDp + appBarContentPaddingTopDp)
+        rule
+            .onNodeWithTag(BoxTestTag)
+            .assertHeightIsEqualTo(siblingBoxHeightDp)
+            .assertTopPositionInRootIsEqualTo(
+                appBarContentPaddingTopDp + appBarHeightDp + statusBarHeightDp
+            )
     }
 
     @Composable
@@ -1101,7 +1176,7 @@ class SearchBarTest {
         Scaffold(
             modifier = Modifier.nestedScroll(searchBarScrollBehavior.nestedScrollConnection),
             topBar = {
-                TopSearchBar(
+                AppBarWithSearch(
                     modifier = Modifier.testTag(SearchBarTestTag),
                     scrollBehavior = searchBarScrollBehavior,
                     state = searchBarState,
@@ -1111,6 +1186,19 @@ class SearchBarTest {
                             textFieldState = textFieldState,
                             onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = "Account",
+                            )
+                        }
                     },
                 )
             },

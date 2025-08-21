@@ -710,7 +710,7 @@ class SliderTest {
             down(center)
             moveBy(Offset(slop, 0f))
             moveBy(Offset(100f, 0f))
-            expected = calculateFraction(left, right, centerX + 100)
+            expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
@@ -744,7 +744,7 @@ class SliderTest {
             moveBy(Offset(-width.toFloat(), 0f))
             moveBy(Offset(width.toFloat() + 100f, 0f))
             up()
-            expected = calculateFraction(left, right, centerX + 100)
+            expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
@@ -873,7 +873,7 @@ class SliderTest {
             moveBy(Offset(100f, 0f))
             up()
             // subtract here as we're in rtl and going in the opposite direction
-            expected = calculateFraction(left, right, centerX - 100)
+            expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
@@ -910,7 +910,7 @@ class SliderTest {
             moveBy(Offset(width.toFloat() + 100f, 0f))
             up()
             // subtract here as we're in rtl and going in the opposite direction
-            expected = calculateFraction(left, right, centerX - 100)
+            expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
@@ -942,7 +942,7 @@ class SliderTest {
             moveBy(Offset(100f, 0f))
             up()
             // subtract here as we're in rtl and going in the opposite direction
-            expected = calculateFraction(left, right, centerX + 100)
+            expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0.5f)
@@ -969,12 +969,12 @@ class SliderTest {
         var expected = 0f
 
         rule.onNodeWithTag(tag).performTouchInput {
-            down(center)
-            moveBy(Offset(-slop - 1, 0f))
+            down(Offset(center.x - 1f, center.y))
+            moveBy(Offset(-slop, 0f))
             moveBy(Offset(-100f, 0f))
             up()
             // subtract here as we're in rtl and going in the opposite direction
-            expected = calculateFraction(left, right, centerX - 100)
+            expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isWithin(SliderTolerance).of(expected)
@@ -1243,9 +1243,9 @@ class SliderTest {
 
         rule.runOnIdle {
             Truth.assertThat(startRecompositionCounter.outerRecomposition).isEqualTo(1)
-            Truth.assertThat(startRecompositionCounter.innerRecomposition).isEqualTo(3)
+            Truth.assertThat(startRecompositionCounter.innerRecomposition).isEqualTo(2)
             Truth.assertThat(endRecompositionCounter.outerRecomposition).isEqualTo(1)
-            Truth.assertThat(endRecompositionCounter.innerRecomposition).isEqualTo(3)
+            Truth.assertThat(endRecompositionCounter.innerRecomposition).isEqualTo(2)
         }
     }
 
@@ -1339,7 +1339,7 @@ class SliderTest {
             moveBy(Offset(slop, 0f))
             moveBy(Offset(100f, 0f))
             up()
-            expected = calculateFraction(left, right, centerX + 100)
+            expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
             Truth.assertThat(state.activeRangeStart).isEqualTo(0f)

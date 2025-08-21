@@ -454,6 +454,31 @@ class TooltipTest {
     }
 
     @Test
+    fun plainTooltip_initialIsVisible_True() {
+        lateinit var state: TooltipState
+
+        rule.setMaterialContent(lightColorScheme()) {
+            state = rememberTooltipState(initialIsVisible = true)
+
+            Column {
+                Box(Modifier.size(30.dp).testTag("FirstElement").focusTarget())
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip(content = {}) },
+                    state = state,
+                ) {
+                    Box(Modifier.size(30.dp).focusTarget())
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(state.isVisible).isTrue() }
+    }
+
+    @Test
     fun plainTooltip_keyboardFocus_showsTooltip() {
         lateinit var state: TooltipState
         var changedToVisible = false

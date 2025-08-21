@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.window.DialogProperties
 
 /**
@@ -99,9 +100,16 @@ actual fun DatePickerDialog(
                         contentColor = DialogTokens.ActionLabelTextColor.value,
                         textStyle = DialogTokens.ActionLabelTextFont.value,
                     ) {
+                        val buttonPaddingFromMICS =
+                            LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                                ButtonDefaults.MinHeight
                         AlertDialogFlowRow(
                             mainAxisSpacing = DialogButtonsMainAxisSpacing,
-                            crossAxisSpacing = DialogButtonsCrossAxisSpacing,
+                            crossAxisSpacing =
+                                (DialogButtonsCrossAxisSpacing - buttonPaddingFromMICS).coerceIn(
+                                    0.dp,
+                                    DialogButtonsCrossAxisSpacing,
+                                ),
                         ) {
                             confirmButton()
                             dismissButton?.invoke()
@@ -115,4 +123,4 @@ actual fun DatePickerDialog(
 
 private val DialogButtonsPadding = PaddingValues(bottom = 8.dp, end = 6.dp)
 private val DialogButtonsMainAxisSpacing = 8.dp
-private val DialogButtonsCrossAxisSpacing = 12.dp
+private val DialogButtonsCrossAxisSpacing = 8.dp

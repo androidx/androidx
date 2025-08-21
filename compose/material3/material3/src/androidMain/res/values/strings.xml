@@ -117,9 +117,9 @@
     <!-- A label for a textfield that allows the user to input hours. It reads: Edit Box, for hour -->
     <string name="m3c_time_picker_hour_text_field">for hour</string>
     <!-- Accessibility string used for describing the button in time picker that changes the dialog to text input mode. [CHAR LIMIT=NONE] -->
-    <string name="m3c_time_picker_toggle_keyboard">Switch to text input mode for the time input</string>
+    <string name="m3c_time_picker_toggle_keyboard">Switch to text input mode</string>
     <!-- Accessibility string used for describing the button in time picker that changes the dialog to circular clock mode. [CHAR LIMIT=NONE] -->
-    <string name="m3c_time_picker_toggle_touch">Switch to clock mode for the time input</string>
+    <string name="m3c_time_picker_toggle_touch">Switch to clock mode</string>
     <!-- Title for a dialog that allows the user to select the time with a clock time picker. -->
     <string name="m3c_time_picker_dialog_title">Select Time</string>
     <!-- Title for a dialog that allows the user to enter the time with a text input. -->

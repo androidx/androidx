@@ -285,7 +285,8 @@ class SwipeToDismissTest {
     fun swipeDismiss_dismissBySwipe_disabled() {
         lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
         rule.setContent {
-            swipeToDismissBoxState = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled)
+            swipeToDismissBoxState =
+                rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd)
             SwipeToDismissBox(
                 state = swipeToDismissBoxState,
                 modifier = Modifier.testTag(swipeDismissTag),
@@ -311,6 +312,32 @@ class SwipeToDismissTest {
         advanceClock()
 
         rule.runOnIdle {
+            assertThat(swipeToDismissBoxState.currentValue)
+                .isEqualTo(SwipeToDismissBoxValue.Settled)
+        }
+    }
+
+    @Test
+    fun swipeDismiss_containsSettledAnchor_dismissAnchorsDisabled() {
+        lateinit var swipeToDismissBoxState: SwipeToDismissBoxState
+        rule.setContent {
+            swipeToDismissBoxState =
+                rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd)
+            LookaheadScope {
+                SwipeToDismissBox(
+                    state = swipeToDismissBoxState,
+                    modifier = Modifier.testTag(swipeDismissTag),
+                    enableDismissFromStartToEnd = false,
+                    enableDismissFromEndToStart = false,
+                    backgroundContent = {},
+                ) {
+                    Box(Modifier.fillMaxSize())
+                }
+            }
+        }
+        advanceClock()
+        rule.runOnIdle {
+            assertThat(swipeToDismissBoxState.anchoredDraggableState.anchors.size).isEqualTo(1)
             assertThat(swipeToDismissBoxState.currentValue)
                 .isEqualTo(SwipeToDismissBoxValue.Settled)
         }

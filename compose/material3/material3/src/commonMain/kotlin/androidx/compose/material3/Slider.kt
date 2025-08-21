@@ -131,7 +131,6 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -829,6 +828,8 @@ private fun SliderImpl(
                     reverseDirection,
                     state.onValueChange,
                     state.onValueChangeFinished,
+                    state.isRtl,
+                    state.orientation == Vertical,
                 )
                 .then(press)
                 .then(drag),
@@ -911,6 +912,8 @@ private fun Modifier.slideOnKeyEvents(
     reverseDirection: Boolean,
     onValueChangeState: ((Float) -> Unit)?,
     onValueChangeFinishedState: (() -> Unit)?,
+    isRtl: Boolean,
+    isVertical: Boolean,
 ): Modifier {
     require(steps >= 0) { "steps should be >= 0" }
     return this.onKeyEvent {
@@ -926,44 +929,82 @@ private fun Modifier.slideOnKeyEvents(
                 val actualSteps = if (steps > 0) steps + 1 else 100
                 val delta = rangeLength / actualSteps
                 val sign = if (reverseDirection) -1 else 1
-                when (it.key) {
-                    Key.DirectionUp -> {
-                        onValueChangeState((value + sign * delta).coerceIn(valueRange))
-                        true
+
+                if (it.key == Key.MoveHome) {
+                    onValueChangeState(valueRange.start)
+                    return@onKeyEvent true
+                } else if (it.key == Key.MoveEnd) {
+                    onValueChangeState(valueRange.endInclusive)
+                    return@onKeyEvent true
+                }
+                if (isVertical) {
+                    val signForLeftRight = if (isRtl) -1 else 1
+                    when (it.key) {
+                        Key.DirectionUp -> {
+                            onValueChangeState((value - sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionDown -> {
+                            onValueChangeState((value + sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionRight -> {
+                            onValueChangeState(
+                                (value + signForLeftRight * delta).coerceIn(valueRange)
+                            )
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionLeft -> {
+                            onValueChangeState(
+                                (value - signForLeftRight * delta).coerceIn(valueRange)
+                            )
+                            return@onKeyEvent true
+                        }
+                        Key.PageUp -> {
+                            val page = (actualSteps / 10).coerceIn(1, 10)
+                            onValueChangeState((value - page * sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.PageDown -> {
+                            val page = (actualSteps / 10).coerceIn(1, 10)
+                            onValueChangeState((value + page * sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        else -> return@onKeyEvent false
                     }
-                    Key.DirectionDown -> {
-                        onValueChangeState((value - sign * delta).coerceIn(valueRange))
-                        true
+                } else {
+                    when (it.key) {
+                        Key.DirectionRight -> {
+                            onValueChangeState((value + sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionLeft -> {
+                            onValueChangeState((value - sign * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionUp -> {
+                            onValueChangeState((value + delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.DirectionDown -> {
+                            onValueChangeState((value - delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.PageUp -> {
+                            val page = (actualSteps / 10).coerceIn(1, 10)
+                            onValueChangeState((value + page * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        Key.PageDown -> {
+                            val page = (actualSteps / 10).coerceIn(1, 10)
+                            onValueChangeState((value - page * delta).coerceIn(valueRange))
+                            return@onKeyEvent true
+                        }
+                        else -> return@onKeyEvent false
                     }
-                    Key.DirectionRight -> {
-                        onValueChangeState((value + sign * delta).coerceIn(valueRange))
-                        true
-                    }
-                    Key.DirectionLeft -> {
-                        onValueChangeState((value - sign * delta).coerceIn(valueRange))
-                        true
-                    }
-                    Key.MoveHome -> {
-                        onValueChangeState(valueRange.start)
-                        true
-                    }
-                    Key.MoveEnd -> {
-                        onValueChangeState(valueRange.endInclusive)
-                        true
-                    }
-                    Key.PageUp -> {
-                        val page = (actualSteps / 10).coerceIn(1, 10)
-                        onValueChangeState((value - page * delta).coerceIn(valueRange))
-                        true
-                    }
-                    Key.PageDown -> {
-                        val page = (actualSteps / 10).coerceIn(1, 10)
-                        onValueChangeState((value + page * delta).coerceIn(valueRange))
-                        true
-                    }
-                    else -> false
                 }
             }
+
             KeyEventType.KeyUp -> {
                 when (it.key) {
                     Key.DirectionUp,
@@ -975,12 +1016,13 @@ private fun Modifier.slideOnKeyEvents(
                     Key.PageUp,
                     Key.PageDown -> {
                         onValueChangeFinishedState?.invoke()
-                        true
+                        return@onKeyEvent true
                     }
-                    else -> false
+                    else -> return@onKeyEvent false
                 }
             }
-            else -> false
+
+            else -> return@onKeyEvent false
         }
     }
 }
@@ -2469,62 +2511,78 @@ private fun Modifier.rangeSliderPressDragModifier(
                 RangeSliderLogic(state, startInteractionSource, endInteractionSource)
             coroutineScope {
                 awaitEachGesture {
-                    val event = awaitFirstDown(requireUnconsumed = false)
-                    val interaction = DragInteraction.Start()
-                    var posX =
-                        if (state.isRtl) state.totalWidth - event.position.x else event.position.x
-                    val compare = rangeSliderLogic.compareOffsets(posX)
-                    var draggingStart =
-                        if (compare != 0) {
-                            compare < 0
-                        } else {
-                            state.rawOffsetStart > posX
-                        }
+                    val down = awaitFirstDown(requireUnconsumed = false)
 
-                    awaitSlop(event.id, event.type)?.let {
-                        val slop = viewConfiguration.pointerSlop(event.type)
-                        val shouldUpdateCapturedThumb =
-                            abs(state.rawOffsetEnd - posX) < slop &&
-                                abs(state.rawOffsetStart - posX) < slop
-                        if (shouldUpdateCapturedThumb) {
-                            val dir = it.second
-                            draggingStart = if (state.isRtl) dir >= 0f else dir < 0f
-                            posX += it.first.positionChange().x
-                        }
-                    }
+                    var drag: PointerInputChange?
+                    var overSlop = Offset.Zero
+                    val pointerSlop = viewConfiguration.pointerSlop(down.type)
 
-                    rangeSliderLogic.captureThumb(
-                        draggingStart,
-                        posX,
-                        interaction,
-                        this@coroutineScope,
+                    // Check if we've moved enough to be considered a drag interaction
+                    do {
+                        drag = awaitPointerEvent().changes.firstOrNull()
+                        if (drag != null) {
+                            overSlop += drag.positionChange()
+                        }
+                    } while (
+                        drag != null &&
+                            drag.pressed &&
+                            overSlop.getDistanceSquared() < pointerSlop * pointerSlop
                     )
 
-                    val finishInteraction =
-                        try {
-                            state.isDragging = true
-                            val success =
-                                horizontalDrag(pointerId = event.id) {
-                                    val deltaX = it.positionChange().x
-                                    state.onDrag(
-                                        draggingStart,
-                                        if (state.isRtl) -deltaX else deltaX,
-                                    )
-                                }
+                    val posX =
+                        if (state.isRtl) state.totalWidth - down.position.x else down.position.x
+                    val compare = rangeSliderLogic.compareOffsets(posX)
+                    val draggingStart =
+                        if (compare != 0) compare < 0 else state.rawOffsetStart > posX
+
+                    // Check if the drag is a vertical or horizontal drag
+                    if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
+                        val interaction = DragInteraction.Start()
+                        launch {
+                            rangeSliderLogic.activeInteraction(draggingStart).emit(interaction)
+                        }
+
+                        // Move to the initial touch point and the overSlop distance.
+                        val initialOffset =
+                            posX - (if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd)
+                        val totalDragOffset =
+                            initialOffset + (if (state.isRtl) -overSlop.x else overSlop.x)
+                        state.onDrag(draggingStart, totalDragOffset)
+
+                        // The main drag block now handles all subsequent movement.
+                        state.isDragging = true
+                        val success =
+                            horizontalDrag(down.id) { change ->
+                                val deltaX = change.positionChange().x
+                                state.onDrag(draggingStart, if (state.isRtl) -deltaX else deltaX)
+                                change.consume()
+                            }
+                        state.isDragging = false
+
+                        val finishInteraction =
                             if (success) {
                                 DragInteraction.Stop(interaction)
                             } else {
                                 DragInteraction.Cancel(interaction)
                             }
-                        } catch (e: CancellationException) {
-                            DragInteraction.Cancel(interaction)
-                        } finally {
-                            state.isDragging = false
-                        }
 
-                    state.gestureEndAction(draggingStart)
-                    launch {
-                        rangeSliderLogic.activeInteraction(draggingStart).emit(finishInteraction)
+                        state.gestureEndAction(draggingStart)
+                        launch {
+                            rangeSliderLogic
+                                .activeInteraction(draggingStart)
+                                .emit(finishInteraction)
+                        }
+                    } else if (drag?.pressed == false) {
+                        // Tap handling logic remains the same.
+                        val press = PressInteraction.Press(down.position)
+                        rangeSliderTapLogic(
+                            posX,
+                            draggingStart,
+                            state,
+                            rangeSliderLogic,
+                            press,
+                            PressInteraction.Release(press),
+                        )
                     }
                 }
             }
@@ -2532,6 +2590,25 @@ private fun Modifier.rangeSliderPressDragModifier(
     } else {
         this
     }
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CoroutineScope.rangeSliderTapLogic(
+    posX: Float,
+    draggingStart: Boolean,
+    state: RangeSliderState,
+    rangeSliderLogic: RangeSliderLogic,
+    startInteraction: Interaction,
+    endInteraction: Interaction,
+) {
+    val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
+    launch { interactionSource.emit(startInteraction) }
+
+    val offset = posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
+    state.onDrag(draggingStart, offset)
+
+    state.gestureEndAction(draggingStart)
+    launch { interactionSource.emit(endInteraction) }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 private class RangeSliderLogic(

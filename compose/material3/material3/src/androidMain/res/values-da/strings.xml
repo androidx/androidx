@@ -21,7 +21,7 @@
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Udvidet"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Skjult"</string>
     <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"Skift visningen af rullemenuen"</string>
-    <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"Afvis"</string>
+    <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"Luk"</string>
     <string name="m3c_snackbar_pane_title" msgid="3868801555855510515">"Underretning"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"Søg"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Forslag nedenfor"</string>
@@ -77,8 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"Time"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"til minutter"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"til timer"</string>
-    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"Skift til input-tilstand for tekst for at angive tidspunkt"</string>
-    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"Skift til urtilstand for at angive tidspunkt"</string>
+    <!-- no translation found for m3c_time_picker_toggle_keyboard (4323189593686596153) -->
+    <skip />
+    <!-- no translation found for m3c_time_picker_toggle_touch (1380272826693645088) -->
+    <skip />
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Vælg tidspunkt"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Angiv tidspunkt"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Luk bjælke"</string>

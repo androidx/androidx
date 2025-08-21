@@ -154,10 +154,8 @@ import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSa
 import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
 import androidx.compose.material3.samples.NavigationBarSample
-import androidx.compose.material3.samples.NavigationBarWithOnlySelectedLabelsSample
 import androidx.compose.material3.samples.NavigationRailBottomAlignSample
 import androidx.compose.material3.samples.NavigationRailSample
-import androidx.compose.material3.samples.NavigationRailWithOnlySelectedLabelsSample
 import androidx.compose.material3.samples.OneLineListItem
 import androidx.compose.material3.samples.OutlinedButtonSample
 import androidx.compose.material3.samples.OutlinedButtonWithAnimatedShapeSample
@@ -1555,14 +1553,6 @@ val NavigationBarExamples =
         ) {
             NavigationBarSample()
         },
-        Example(
-            name = "NavigationBarWithOnlySelectedLabelsSample",
-            description = NavigationBarExampleDescription,
-            sourceUrl = NavigationBarExampleSourceUrl,
-            isExpressive = false,
-        ) {
-            NavigationBarWithOnlySelectedLabelsSample()
-        },
     )
 
 private const val NavigationRailExampleDescription = "Navigation rail examples"
@@ -1624,14 +1614,6 @@ val NavigationRailExamples =
             isExpressive = false,
         ) {
             NavigationRailSample()
-        },
-        Example(
-            name = "NavigationRailWithOnlySelectedLabelsSample",
-            description = NavigationRailExampleDescription,
-            sourceUrl = NavigationRailExampleSourceUrl,
-            isExpressive = false,
-        ) {
-            NavigationRailWithOnlySelectedLabelsSample()
         },
         Example(
             name = "NavigationRailBottomAlignSample",
@@ -1859,7 +1841,7 @@ val SearchBarExamples =
             name = "FullScreenSearchBarScaffoldSample",
             description = SearchBarExampleDescription,
             sourceUrl = SearchBarExampleSourceUrl,
-            isExpressive = false,
+            isExpressive = true,
         ) {
             FullScreenSearchBarScaffoldSample()
         },

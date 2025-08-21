@@ -71,9 +71,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
@@ -82,6 +86,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -1181,7 +1186,7 @@ internal class FabVisibleNode(
     private var targetScale: Float,
     private var scaleAnimationSpec: AnimationSpec<Float>? = null,
     private var alphaAnimationSpec: AnimationSpec<Float>? = null,
-) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+) : DelegatingNode(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
 
     private val scaleAnimatable = Animatable(if (visible) 1f else 0f)
     private val alphaAnimatable = Animatable(if (visible) 1f else 0f)
@@ -1252,6 +1257,17 @@ internal class FabVisibleNode(
                         ?: currentValueOf(MaterialTheme.LocalMotionScheme).fastEffectsSpec(),
             )
         }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        if (alphaAnimatable.value == 0f) {
+            return layout(0, 0) {}
+        }
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 }
 
