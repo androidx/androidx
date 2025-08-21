@@ -35,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
@@ -298,6 +300,37 @@ class WindowInsetsPaddingTest {
         return dispatchApplyWindowInsets(windowInsets)
     }
 
+    @RequiresApi(33)
+    private fun sendDisplayCutoutInsetsWithCutoutPath(width: Int, height: Int): WindowInsetsCompat {
+        val centerWidth = width / 2
+        val centerHeight = height / 2
+
+        val left = AndroidRect(0, centerHeight, 10, centerHeight + 2)
+        val top = AndroidRect(centerWidth, 0, centerWidth + 2, 11)
+        val right = AndroidRect(width - 12, centerHeight, width, centerHeight + 2)
+        val bottom = AndroidRect(centerWidth, height - 13, centerWidth + 2, height)
+        val safeInsets = AndroidXInsets.of(10, 11, 12, 13)
+        val windowInsets =
+            WindowInsetsCompat.Builder()
+                .setInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(0, 11, 0, 0))
+                .setInsets(WindowInsetsCompat.Type.displayCutout(), safeInsets)
+                .setDisplayCutout(
+                    DisplayCutoutCompat(
+                        safeInsets,
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        AndroidXInsets.of(1, 2, 3, 4),
+                        android.graphics.Path().apply {
+                            addCircle(centerWidth + 1f, 5f, 1f, android.graphics.Path.Direction.CCW)
+                        },
+                    )
+                )
+                .build()
+        return dispatchApplyWindowInsets(windowInsets)
+    }
+
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun statusBarsPaddingApi21() {
@@ -464,6 +497,30 @@ class WindowInsetsPaddingTest {
         rule.runOnIdle {
             val expectedRect = Rect(1f, 2f, width - 3f, height - 4f)
             assertThat(coordinates.boundsInRoot()).isEqualTo(expectedRect)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cutoutPath() {
+        var cutoutPath: Path? = null
+        val coordinates = setInsetContent {
+            cutoutPath = WindowInsets.cutoutPath
+            Modifier.windowInsetsPadding(WindowInsets.displayCutout)
+        }
+
+        val (width, height) = rule.runOnIdle { coordinates.boundsInRoot().bottomRight.round() }
+
+        val insets = sendDisplayCutoutInsetsWithCutoutPath(width, height)
+        insets.assertIsConsumed(WindowInsetsCompat.Type.displayCutout())
+
+        rule.runOnIdle {
+            assertThat(
+                    cutoutPath
+                        ?.minus(Path().apply { addOval(Rect(Offset(width / 2 + 1f, 5f), 1f)) })
+                        ?.isEmpty
+                )
+                .isTrue()
         }
     }
 

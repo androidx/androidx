@@ -24,8 +24,11 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Brush.Companion.verticalGradient
 import androidx.compose.ui.util.fastIsFinite
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 
 @Immutable
@@ -422,7 +425,7 @@ internal fun Brush.toShaderBrush(): ShaderBrush =
     }
 
 @Immutable
-class SolidColor(val value: Color) : Brush() {
+class SolidColor(val value: Color) : Brush(), Interpolatable {
     override fun applyTo(size: Size, p: Paint, alpha: Float) {
         p.alpha = DefaultAlpha
         p.color =
@@ -449,18 +452,29 @@ class SolidColor(val value: Color) : Brush() {
     override fun toString(): String {
         return "SolidColor(value=$value)"
     }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other = other
+        if (other == null) {
+            other = SolidColor(Color.Transparent)
+        }
+        if (other is SolidColor) {
+            return SolidColor(lerp(value, other.value, t))
+        }
+        return null
+    }
 }
 
 /** Brush implementation used to apply a linear gradient on a given [Paint] */
 @Immutable
 class LinearGradient
 internal constructor(
-    private val colors: List<Color>,
-    private val stops: List<Float>? = null,
-    private val start: Offset,
-    private val end: Offset,
-    private val tileMode: TileMode = TileMode.Clamp,
-) : ShaderBrush() {
+    @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
+    @Suppress("PrimitiveInCollection") internal val stops: List<Float>? = null,
+    internal val start: Offset,
+    internal val end: Offset,
+    internal val tileMode: TileMode = TileMode.Clamp,
+) : ShaderBrush(), Interpolatable {
 
     override val intrinsicSize: Size
         get() =
@@ -514,18 +528,48 @@ internal constructor(
             endValue +
             "tileMode=$tileMode)"
     }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == null) {
+            other = SolidColor(Color.Transparent)
+        }
+        if (other is SolidColor) {
+            // if it's a solid color, it means the entire shape is filled in solid. We want to
+            // create a LinearGradient that creates a similar visual effect, so that we can lerp
+            // between it and the target gradient without causing visual jumps
+            other =
+                LinearGradient(
+                    colors = colors.fastMap { other.value },
+                    stops = stops, // use the same color stops
+                    start = start,
+                    end = end,
+                    tileMode = tileMode,
+                )
+        }
+        if (other is LinearGradient) {
+            return LinearGradient(
+                colors = lerpColorList(colors, other.colors, t),
+                stops = lerpNullableFloatList(stops, other.stops, t),
+                start = lerpSafe(start, other.start, t),
+                end = lerpSafe(end, other.end, t),
+                tileMode = if (t < 0.5f) tileMode else other.tileMode,
+            )
+        }
+        return null
+    }
 }
 
 /** Brush implementation used to apply a radial gradient on a given [Paint] */
 @Immutable
 class RadialGradient
 internal constructor(
-    private val colors: List<Color>,
-    private val stops: List<Float>? = null,
-    private val center: Offset,
-    private val radius: Float,
-    private val tileMode: TileMode = TileMode.Clamp,
-) : ShaderBrush() {
+    @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
+    @Suppress("PrimitiveInCollection") internal val stops: List<Float>? = null,
+    internal val center: Offset,
+    internal val radius: Float,
+    internal val tileMode: TileMode = TileMode.Clamp,
+) : ShaderBrush(), Interpolatable {
 
     override val intrinsicSize: Size
         get() =
@@ -588,6 +632,69 @@ internal constructor(
             radiusValue +
             "tileMode=$tileMode)"
     }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == null) {
+            other = SolidColor(Color.Transparent)
+        }
+        if (other is SolidColor) {
+            // if it's a solid color, it means the entire shape is filled in solid. We want to
+            // create a RadialGradient that creates a similar visual effect, so that we can lerp
+            // between it and the target gradient without causing visual jumps
+            other =
+                RadialGradient(
+                    colors = colors.fastMap { other.value },
+                    stops = stops, // use the same color stops
+                    center = center,
+                    radius = radius,
+                    tileMode = tileMode,
+                )
+        }
+        if (other is RadialGradient) {
+            return RadialGradient(
+                colors = lerpColorList(colors, other.colors, t),
+                stops = lerpNullableFloatList(stops, other.stops, t),
+                center = lerp(center, other.center, t),
+                radius = lerp(radius, other.radius, t),
+                tileMode = if (t < 0.5f) tileMode else other.tileMode,
+            )
+        }
+        return null
+    }
+}
+
+@Suppress("PrimitiveInCollection")
+internal fun lerpColorList(left: List<Color>, right: List<Color>, t: Float): List<Color> {
+    return List(maxOf(left.size, right.size)) {
+        val l = minOf(it, left.size - 1)
+        val r = minOf(it, right.size - 1)
+        lerp(left[l], right[r], t)
+    }
+}
+
+@Suppress("PrimitiveInCollection")
+internal fun lerpNullableFloatList(
+    left: List<Float>?,
+    right: List<Float>?,
+    t: Float,
+): List<Float>? {
+    if (right == null || left == null) return null
+    return lerpFloatList(left, right, t)
+}
+
+@Suppress("PrimitiveInCollection")
+internal fun lerpFloatList(left: List<Float>, right: List<Float>, t: Float): List<Float> {
+    return List(maxOf(left.size, right.size)) {
+        val l = minOf(it, left.size - 1)
+        val r = minOf(it, right.size - 1)
+        lerp(left[l], right[r], t)
+    }
+}
+
+internal fun lerpSafe(left: Offset, right: Offset, t: Float): Offset {
+    return if (left.isFinite && right.isFinite) lerp(left, right, t)
+    else if (t < 0.5f) left else right
 }
 
 /**
@@ -637,10 +744,10 @@ internal class CompositeShaderBrush(
 @Immutable
 class SweepGradient
 internal constructor(
-    private val center: Offset,
-    private val colors: List<Color>,
-    private val stops: List<Float>? = null,
-) : ShaderBrush() {
+    internal val center: Offset,
+    @Suppress("PrimitiveInCollection") internal val colors: List<Color>,
+    @Suppress("PrimitiveInCollection") internal val stops: List<Float>? = null,
+) : ShaderBrush(), Interpolatable {
 
     override fun createShader(size: Size): Shader =
         SweepGradientShader(
@@ -677,6 +784,29 @@ internal constructor(
     override fun toString(): String {
         val centerValue = if (center.isSpecified) "center=$center, " else ""
         return "SweepGradient(" + centerValue + "colors=$colors, stops=$stops)"
+    }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == null) {
+            other = SolidColor(Color.Transparent)
+        }
+        if (other is SolidColor) {
+            other =
+                SweepGradient(
+                    center = center,
+                    colors = colors.fastMap { other.value },
+                    stops = stops,
+                )
+        }
+        if (other is SweepGradient) {
+            return SweepGradient(
+                center = lerp(center, other.center, t),
+                colors = lerpColorList(colors, other.colors, t),
+                stops = lerpNullableFloatList(stops, other.stops, t),
+            )
+        }
+        return null
     }
 }
 

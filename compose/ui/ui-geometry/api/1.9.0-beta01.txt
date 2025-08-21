@@ -2,7 +2,7 @@
 package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class CornerRadius {
-    ctor public CornerRadius(long packedValue);
+    ctor @KotlinOnly public CornerRadius(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.geometry.CornerRadius! box-impl(long);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-impl(long);
@@ -129,7 +129,7 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Offset {
-    ctor public Offset(long packedValue);
+    ctor @KotlinOnly public Offset(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.geometry.Offset! box-impl(long);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-impl(long);
@@ -283,7 +283,8 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable public final class RoundRect {
-    ctor public RoundRect(float left, float top, float right, float bottom, optional long topLeftCornerRadius, optional long topRightCornerRadius, optional long bottomRightCornerRadius, optional long bottomLeftCornerRadius);
+    ctor @KotlinOnly public RoundRect(float left, float top, float right, float bottom, optional androidx.compose.ui.geometry.CornerRadius topLeftCornerRadius, optional androidx.compose.ui.geometry.CornerRadius topRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomLeftCornerRadius);
+    ctor @BytecodeOnly public RoundRect(float, float, float, float, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float component1();
     method public float component2();
     method public float component3();
@@ -365,7 +366,7 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Size {
-    ctor public Size(long packedValue);
+    ctor @KotlinOnly public Size(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.geometry.Size! box-impl(long);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-impl(long);

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.semantics
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
@@ -74,6 +76,7 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import org.junit.After
@@ -275,37 +278,114 @@ class SemanticsTests {
     @Test
     fun contentTypeProperty() {
         rule.setContent {
-            Box(
-                Modifier.testTag(TestTag).semantics {
-                    testProperty = ContentType.Username.toString()
-                }
-            )
+            SimpleTestLayout(
+                Modifier.testTag(TestTag).semantics { contentType = ContentType.Username }
+            ) {}
         }
 
         rule
-            .onNodeWithTag(TestTag)
-            .assertUnmergedTestPropertyEquals(ContentType.Username.toString())
+            .onNodeWithTag(TestTag, useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.ContentType, ContentType.Username)
+            )
 
-        rule.onNodeWithTag(TestTag).assertTestPropertyEquals(ContentType.Username.toString())
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.ContentType, ContentType.Username)
+            )
     }
 
     @Test
     fun contentDataTypeProperty() {
         rule.setContent {
-            Surface {
-                Box(
-                    Modifier.testTag(TestTag).semantics {
-                        testProperty = ContentDataType.Text.toString()
-                    }
-                )
-            }
+            SimpleTestLayout(
+                Modifier.testTag(TestTag).semantics { contentDataType = ContentDataType.Text }
+            ) {}
         }
 
         rule
-            .onNodeWithTag(TestTag)
-            .assertUnmergedTestPropertyEquals(ContentDataType.Text.toString())
+            .onNodeWithTag(TestTag, useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ContentDataType,
+                    ContentDataType.Text,
+                )
+            )
 
-        rule.onNodeWithTag(TestTag).assertTestPropertyEquals(ContentDataType.Text.toString())
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ContentDataType,
+                    ContentDataType.Text,
+                )
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun fillableDataProperty() {
+        rule.setContent {
+            SimpleTestLayout(
+                Modifier.testTag(TestTag).semantics { fillableData = FillableData("foo") }
+            ) {}
+        }
+
+        rule
+            .onNodeWithTag(TestTag, useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher("fillableData") {
+                    it.config.getOrNull(SemanticsProperties.FillableData)?.getCharSequence() ==
+                        "foo"
+                }
+            )
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("fillableData") {
+                    it.config.getOrNull(SemanticsProperties.FillableData)?.getCharSequence() ==
+                        "foo"
+                }
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun onFillDataAction() {
+        val actionLabel = "fill"
+        rule.setContent {
+            SimpleTestLayout(
+                Modifier.testTag(TestTag).semantics {
+                    onFillData(label = actionLabel, action = { true })
+                }
+            ) {}
+        }
+
+        rule
+            .onNodeWithTag(TestTag, useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher("fill") {
+                    it.config.getOrNull(SemanticsActions.OnFillData)?.label == actionLabel &&
+                        it.config
+                            .getOrNull(SemanticsActions.OnFillData)
+                            ?.action
+                            ?.invoke(FillableData("foo")) == true
+                }
+            )
+
+        rule
+            .onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("fill") {
+                    it.config.getOrNull(SemanticsActions.OnFillData)?.label == actionLabel &&
+                        it.config
+                            .getOrNull(SemanticsActions.OnFillData)
+                            ?.action
+                            ?.invoke(FillableData("foo")) == true
+                }
+            )
     }
 
     @Test
@@ -718,7 +798,7 @@ class SemanticsTests {
         rule
             .onNodeWithTag(TestTag)
             .assertDoesNotHaveProperty(SemanticsProperties.ContentDescription)
-        rule.onNodeWithContentDescription(label) // assert exists
+        rule.onNodeWithContentDescription(label).assertExists()
     }
 
     @Test
@@ -1235,6 +1315,16 @@ class SemanticsTests {
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
     assert(SemanticsMatcher.keyNotDefined(property))
+}
+
+fun SemanticsNodeInteraction.assertContentDataTypeEquals(
+    expected: ContentDataType
+): SemanticsNodeInteraction {
+    val actual = fetchSemanticsNode().config.getOrNull(SemanticsProperties.ContentDataType)
+    assert(actual == expected) {
+        "ContentDataType assertion failed.\nExpected: '$expected'\nActual: '$actual'"
+    }
+    return this
 }
 
 private val TestProperty =

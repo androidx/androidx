@@ -130,6 +130,7 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      * @param pathId the id of the path
      * @param percent the position on path
      * @param vOffset the vertical offset to position the string
+     * @param flags the flags to use
      */
     public static void apply(
             @NonNull WireBuffer buffer, int pathId, float percent, float vOffset, int flags) {

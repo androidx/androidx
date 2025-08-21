@@ -23,6 +23,7 @@ import android.text.TextPaint
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -170,7 +171,7 @@ class TextLayoutIntrinsicWidthTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 topRatio = -1f /* default: proportional */,
-                preserveMinimumHeight = false,
+                mode = LineHeightStyle.Mode.Fixed,
             )
         setSpan(span, start, end)
     }

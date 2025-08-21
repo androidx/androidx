@@ -131,6 +131,18 @@ class Painter {
     }
 
     /**
+     * Create a color filter that uses the specified color and Porter-Duff mode.
+     *
+     * @param colorId color as an id.
+     * @param mode The porter-duff mode that is applied
+     */
+    @NonNull
+    public Painter setPorterDuffColorIdFilter(int colorId, int mode) {
+        mPaint.setColorFilterId(colorId, mode);
+        return this;
+    }
+
+    /**
      * sets a shader that draws a linear gradient along a line.
      *
      * @param startX The x-coordinate for the start of the gradient line

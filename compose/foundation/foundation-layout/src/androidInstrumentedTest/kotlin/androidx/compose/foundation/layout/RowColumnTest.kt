@@ -764,6 +764,88 @@ class RowColumnTest : LayoutTest() {
             assertEquals(columnHeight, height[0] + height[1])
         }
 
+    @Test
+    fun testRow_withCustomVertical_alignment() {
+        with(density) {
+            val rowHeight = 200.dp
+            val centerAt = 50.dp.roundToPx()
+            val boxSize = 20.dp
+            var boxOffset = 0f
+            val drawLatch = CountDownLatch(1)
+
+            show {
+                Row(
+                    modifier = Modifier.size(width = 200.dp, height = rowHeight),
+                    verticalAlignment =
+                        object : Alignment.Vertical {
+                            override fun align(size: Int, space: Int): Int {
+                                val offset = centerAt - size / 2
+                                return offset.coerceIn(0, space - size)
+                            }
+                        },
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.size(boxSize).onGloballyPositioned { coordinates ->
+                                boxOffset = coordinates.positionInRoot().y
+                                drawLatch.countDown()
+                            }
+                    )
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val root = findComposeView()
+            waitForDraw(root)
+            val expectedOffset = (centerAt - boxSize.roundToPx() / 2).toFloat()
+            assertEquals(expectedOffset, boxOffset)
+        }
+    }
+
+    @Test
+    fun testColumn_withCustomHorizontal_alignment() {
+        with(density) {
+            val columnWidth = 300.dp
+            val centerAt = 100
+            val boxSize = 40.dp
+            var boxOffset = 0f
+            val drawLatch = CountDownLatch(1)
+
+            show {
+                Column(
+                    modifier = Modifier.size(width = columnWidth, height = 200.dp),
+                    horizontalAlignment =
+                        object : Alignment.Horizontal {
+                            override fun align(
+                                size: Int,
+                                space: Int,
+                                layoutDirection: LayoutDirection,
+                            ): Int {
+                                val offset = centerAt - size / 2
+                                return offset.coerceIn(0, space - size)
+                            }
+                        },
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.size(boxSize).onGloballyPositioned { coordinates ->
+                                boxOffset = coordinates.positionInRoot().x
+                                drawLatch.countDown()
+                            }
+                    )
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val root = findComposeView()
+            waitForDraw(root)
+            val expectedOffset = (centerAt - boxSize.roundToPx() / 2).toFloat()
+            assertEquals(expectedOffset, boxOffset)
+        }
+    }
+
     // endregion
 
     // region Cross axis alignment tests in Row

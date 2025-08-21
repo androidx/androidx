@@ -17,34 +17,62 @@
 package androidx.compose.ui.demos.graphics
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.innerShadow
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+object Neumphormism {
+    val DarkShadow =
+        Shadow(
+            radius = 12.dp,
+            spread = 0.dp,
+            offset = DpOffset(x = 4.dp, y = 4.dp),
+            color = Color(0x4D6C8DC2),
+        )
+
+    val LightShadow =
+        Shadow(
+            radius = 12.dp,
+            spread = 0.dp,
+            offset = DpOffset(x = (-4).dp, y = (-4).dp),
+            color = Color.White.copy(alpha = 0.8f),
+        )
+}
 
 @Composable
 fun ShadowsDemo() {
@@ -56,195 +84,621 @@ fun ShadowsDemo() {
                 .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        Text(text = "Inner Shadow", fontSize = 16.sp, color = Color.DarkGray)
-        InnerShadowDemo()
-
-        Text(text = "Outer Shadow", fontSize = 16.sp, color = Color.DarkGray)
-        OuterShadowDemo()
-
+        Text(text = "Demos", fontSize = 16.sp, color = Color.DarkGray)
+        Demos()
         Text(text = "Neumorphism", fontSize = 16.sp, color = Color.DarkGray)
         NeumorphismDemo()
-
-        Text(text = "Custom Shape Shadow ", fontSize = 16.sp, color = Color.DarkGray)
-        CustomShapeShadowDemo()
+        Text(text = "3D Buttons", fontSize = 16.sp, color = Color.DarkGray)
+        KeyboardButtons()
     }
 }
 
 @Composable
-private fun InnerShadowDemo() {
+private fun Demos() {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(text = "InnerShadows", fontSize = 12.sp, color = Color.DarkGray)
+        InnerShadows()
+        Text(text = "DropShadows", fontSize = 12.sp, color = Color.DarkGray)
+        DropShadows()
+    }
+}
+
+@Composable
+private fun InnerShadows() {
+    Row(
+        Modifier.height(150.dp).horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Box(
+            modifier =
+                Modifier.size(height = 100.dp, width = 70.dp)
+                    .innerShadow(
+                        shape = RectangleShape,
+                        shadow = Shadow(radius = 6.dp, spread = 0.dp, color = Color.Red),
+                    )
+        ) {}
+        InnerShadowWithOffset()
+        InnerShadowWithGradient()
+        InnerShadowWithGradientAndOffset()
+        InnerShadowWithArbitraryShape()
+
+        Spacer(modifier = Modifier.width(24.dp))
+    }
+}
+
+@Composable
+private fun InnerShadowWithOffset() {
     Box(
-        Modifier.height(70.dp)
-            .width(180.dp)
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .innerShadow(
-                shape = RoundedCornerShape(12.dp),
-                shadow =
-                    Shadow(
-                        radius = 12.dp,
-                        spread = 0.dp,
-                        offset = DpOffset(x = 10.dp, y = 10.dp),
-                        color = Color.Magenta,
-                    ),
-            )
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .innerShadow(
+                    shape = RectangleShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            color = Color.Red,
+                        ),
+                )
     ) {}
 }
 
 @Composable
-private fun OuterShadowDemo() {
+private fun InnerShadowWithGradient() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+
     Box(
-        Modifier.height(70.dp)
-            .width(180.dp)
-            .dropShadow(
-                shape = RoundedCornerShape(12.dp),
-                shadow =
-                    Shadow(
-                        radius = 15.dp,
-                        spread = 2.dp,
-                        offset = DpOffset(x = 8.dp, y = 8.dp),
-                        color = Color.Gray.copy(alpha = 0.7f),
-                    ),
-            )
-            .background(Color.White, RoundedCornerShape(12.dp))
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .innerShadow(
+                    shape = RectangleShape,
+                    shadow = Shadow(radius = 6.dp, spread = 0.dp, brush = sweepGradientBrush),
+                )
     ) {}
 }
 
+@Composable
+private fun InnerShadowWithGradientAndOffset() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+
+    Box(
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .innerShadow(
+                    shape = RectangleShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            brush = sweepGradientBrush,
+                        ),
+                )
+    ) {}
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun InnerShadowWithArbitraryShape() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+    val cookieShape = MaterialShapes.Cookie7Sided.toShape()
+
+    Box(
+        modifier =
+            Modifier.size(100.dp)
+                .innerShadow(
+                    shape = cookieShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            brush = sweepGradientBrush,
+                        ),
+                )
+    ) {}
+}
+
+@Composable
+private fun DropShadows() {
+    Row(
+        Modifier.height(150.dp).horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Spacer(modifier = Modifier.width(12.dp))
+        Box(
+            modifier =
+                Modifier.size(height = 100.dp, width = 70.dp)
+                    .dropShadow(
+                        shape = RectangleShape,
+                        shadow = Shadow(radius = 10.dp, spread = 0.dp, color = Color.Red),
+                    )
+                    .background(Color.White, RectangleShape)
+        ) {}
+        DropShadowWithOffset()
+        DropShadowWithGradient()
+        DropShadowWithGradientAndOffset()
+        DropShadowWithArbitraryShape()
+        Spacer(modifier = Modifier.width(24.dp))
+    }
+}
+
+@Composable
+private fun DropShadowWithOffset() {
+    Box(
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .dropShadow(
+                    shape = RectangleShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            color = Color.Red,
+                        ),
+                )
+                .background(Color.White, RectangleShape)
+    ) {}
+}
+
+@Composable
+private fun DropShadowWithGradient() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+
+    Box(
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .dropShadow(
+                    shape = RectangleShape,
+                    shadow = Shadow(radius = 6.dp, spread = 0.dp, brush = sweepGradientBrush),
+                )
+                .background(Color.White, RectangleShape)
+    ) {}
+}
+
+@Composable
+private fun DropShadowWithGradientAndOffset() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+
+    Box(
+        modifier =
+            Modifier.size(height = 100.dp, width = 70.dp)
+                .dropShadow(
+                    shape = RectangleShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            brush = sweepGradientBrush,
+                        ),
+                )
+                .background(Color.White, RectangleShape)
+    ) {}
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun DropShadowWithArbitraryShape() {
+    val sweepGradientBrush =
+        Brush.sweepGradient(
+            colors =
+                listOf(
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF2D55),
+                    Color(0xFFD400FF),
+                    Color(0xFF4A00E0),
+                    Color(0xFF4A00E0),
+                    Color(0xFFD400FF),
+                    Color(0xFFFF2D55),
+                    Color(0xFFFF8C00),
+                )
+        )
+    val cookieShape = MaterialShapes.Cookie7Sided.toShape()
+
+    Box(
+        modifier =
+            Modifier.size(100.dp)
+                .dropShadow(
+                    shape = cookieShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(10.dp, 10.dp),
+                            brush = sweepGradientBrush,
+                        ),
+                )
+                .background(Color.White, cookieShape)
+    ) {}
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NeumorphismDemo() {
     val buttonShape = RoundedCornerShape(24.dp)
+    val triangleShape = MaterialShapes.Triangle.toShape()
+    val cookieShape = MaterialShapes.Cookie7Sided.toShape()
     Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        Box(
-            Modifier.height(100.dp)
-                .width(200.dp)
-                .background(Color(0xFFE8E8E8), buttonShape)
-                .dropShadow(
-                    shape = buttonShape,
-                    shadow =
-                        Shadow(
-                            radius = 12.dp,
-                            spread = 0.dp,
-                            offset = DpOffset(x = (-8).dp, y = (-8).dp),
-                            color = Color.White.copy(0.7f),
-                        ),
-                )
-                .dropShadow(
-                    shape = buttonShape,
-                    shadow =
-                        Shadow(
-                            radius = 12.dp,
-                            spread = 0.dp,
-                            offset = DpOffset(x = 8.dp, y = 8.dp),
-                            color = Color.Black.copy(alpha = 0.2f),
-                        ),
-                )
-        ) {}
+        NeumorphButtons(
+            buttonShape = buttonShape,
+            triangleShape = triangleShape,
+            cookieShape = cookieShape,
+        )
 
-        Box(Modifier.height(200.dp).width(200.dp).background(Color(0xFFDFECF4))) {
-            Box(
-                modifier =
-                    Modifier.size(100.dp)
-                        .align(alignment = Alignment.Center)
-                        .dropShadow(
-                            shape = buttonShape,
-                            shadow =
-                                Shadow(
-                                    radius = 12.dp,
-                                    spread = 0.dp,
-                                    offset = DpOffset(x = (-8).dp, y = (-8).dp),
-                                    color = Color.White.copy(alpha = 0.8f),
-                                ),
-                        )
-                        .dropShadow(
-                            shape = buttonShape,
-                            shadow =
-                                Shadow(
-                                    radius = 12.dp,
-                                    spread = 0.dp,
-                                    offset = DpOffset(x = 8.dp, y = 8.dp),
-                                    color = Color(0x4D6C8DC2),
-                                ),
-                        )
-                        .background(Color(0xFFDFECF4), buttonShape)
-            )
+        NeumorphButtonPressed(
+            buttonShape = buttonShape,
+            triangleShape = triangleShape,
+            cookieShape = cookieShape,
+        )
+
+        NeumorphButtonLined(
+            buttonShape = buttonShape,
+            triangleShape = triangleShape,
+            cookieShape = cookieShape,
+        )
+    }
+}
+
+@Composable
+private fun NeumorphButtonLined(buttonShape: Shape, triangleShape: Shape, cookieShape: Shape) {
+    Row(
+        Modifier.height(100.dp)
+            .background(Color(0xFFDFECF4))
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Spacer(modifier = Modifier.width(24.dp))
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = buttonShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = buttonShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), buttonShape)
+                    .innerShadow(shape = buttonShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = buttonShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = triangleShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = triangleShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), triangleShape)
+                    .innerShadow(shape = triangleShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = triangleShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = CircleShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = CircleShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), CircleShape)
+                    .innerShadow(shape = CircleShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = CircleShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = cookieShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = cookieShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), cookieShape)
+                    .innerShadow(shape = cookieShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = cookieShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Spacer(modifier = Modifier.width(24.dp))
+    }
+}
+
+@Composable
+private fun NeumorphButtonPressed(buttonShape: Shape, triangleShape: Shape, cookieShape: Shape) {
+    Row(
+        Modifier.height(100.dp)
+            .background(Color(0xFFDFECF4))
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Spacer(modifier = Modifier.width(24.dp))
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .background(Color(0xFFDFECF4), triangleShape)
+                    .innerShadow(shape = buttonShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = buttonShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .background(Color(0xFFDFECF4), triangleShape)
+                    .innerShadow(shape = triangleShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = triangleShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .background(Color(0xFFDFECF4), triangleShape)
+                    .innerShadow(shape = CircleShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = CircleShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .background(Color(0xFFDFECF4), triangleShape)
+                    .innerShadow(shape = cookieShape, shadow = Neumphormism.LightShadow)
+                    .innerShadow(shape = cookieShape, shadow = Neumphormism.DarkShadow)
+        )
+
+        Spacer(modifier = Modifier.width(24.dp))
+    }
+}
+
+@Composable
+private fun NeumorphButtons(buttonShape: Shape, triangleShape: Shape, cookieShape: Shape) {
+    Row(
+        Modifier.height(100.dp)
+            .background(Color(0xFFDFECF4))
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Spacer(modifier = Modifier.width(24.dp))
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = buttonShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = buttonShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), buttonShape)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = triangleShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = triangleShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), triangleShape)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = CircleShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = CircleShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), CircleShape)
+        )
+
+        Box(
+            modifier =
+                Modifier.size(60.dp)
+                    .dropShadow(shape = cookieShape, shadow = Neumphormism.LightShadow)
+                    .dropShadow(shape = cookieShape, shadow = Neumphormism.DarkShadow)
+                    .background(Color(0xFFDFECF4), cookieShape)
+        )
+
+        Spacer(modifier = Modifier.width(24.dp))
+    }
+}
+
+object KeyboardButtonColors {
+    val Background = Color(0xFFFA9DAC)
+    val Surface = Color(0xFFFF8288)
+    val LightShadow = Color(0xFFD56C71)
+    val DarkShadow = Color(0xFF6C6C6C)
+    val TextColor = Color(0xFFFDEBC1)
+}
+
+@Composable
+private fun KeyboardButtons(modifier: Modifier = Modifier) {
+    val buttonShape = RoundedCornerShape(18.dp)
+    Box(
+        modifier =
+            modifier.fillMaxWidth().background(KeyboardButtonColors.Background).padding(32.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier =
+                Modifier.dropShadow(
+                        shape = buttonShape,
+                        shadow =
+                            Shadow(
+                                radius = 0.dp,
+                                spread = 0.5.dp,
+                                offset = DpOffset(0.6.dp, 0.6.dp),
+                                color = KeyboardButtonColors.LightShadow,
+                                alpha = 0.4f,
+                            ),
+                    )
+                    .dropShadow(
+                        shape = buttonShape,
+                        shadow =
+                            Shadow(
+                                radius = 20.dp,
+                                spread = 0.dp,
+                                offset = DpOffset(12.dp, 12.dp),
+                                color = KeyboardButtonColors.DarkShadow,
+                                alpha = 0.5f,
+                            ),
+                    )
+                    .clip(buttonShape)
+                    .background(KeyboardButtonColors.Surface)
+                    .innerShadow(
+                        shape = buttonShape,
+                        shadow =
+                            Shadow(
+                                radius = 0.2.dp,
+                                spread = 0.05.dp,
+                                offset = DpOffset(0.dp, 0.5.dp),
+                                color = Color.White.copy(alpha = 0.4f),
+                            ),
+                    )
+                    .padding(16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                NeumorphicKey {
+                    Text(
+                        text = "ESC",
+                        color = KeyboardButtonColors.TextColor,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+
+                NeumorphicKey {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Up Arrow",
+                        tint = KeyboardButtonColors.TextColor,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+
+                NeumorphicKey {
+                    Text(
+                        text = "↵",
+                        color = KeyboardButtonColors.TextColor,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun CustomShapeShadowDemo() {
-    val starShape =
-        object : Shape {
-
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density,
-            ): Outline {
-                return Outline.Generic(
-                    Path().apply {
-                        val width = size.width
-                        val height = size.height
-                        val centerX = width / 2f
-                        val centerY = height / 2f
-                        val outerRadius = width / 2f * 0.8f
-                        val innerRadius = outerRadius / 2.5f
-
-                        val angleIncrement = (Math.PI * 2 / 5).toFloat()
-                        moveTo(
-                            centerX + outerRadius * kotlin.math.cos(-Math.PI.toFloat() / 2),
-                            centerY + outerRadius * kotlin.math.sin(-Math.PI.toFloat() / 2),
-                        )
-
-                        for (i in 0 until 5) {
-                            val outerX =
-                                centerX +
-                                    outerRadius *
-                                        kotlin.math.cos(-Math.PI.toFloat() / 2 + angleIncrement * i)
-                            val outerY =
-                                centerY +
-                                    outerRadius *
-                                        kotlin.math.sin(-Math.PI.toFloat() / 2 + angleIncrement * i)
-                            lineTo(outerX, outerY)
-
-                            val innerX =
-                                centerX +
-                                    innerRadius *
-                                        kotlin.math.cos(
-                                            -Math.PI.toFloat() / 2 +
-                                                angleIncrement * i +
-                                                angleIncrement / 2
-                                        )
-                            val innerY =
-                                centerY +
-                                    innerRadius *
-                                        kotlin.math.sin(
-                                            -Math.PI.toFloat() / 2 +
-                                                angleIncrement * i +
-                                                angleIncrement / 2
-                                        )
-                            lineTo(innerX, innerY)
-                        }
-                        close()
-                    }
-                )
-            }
-        }
+private fun NeumorphicKey(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val buttonShape = RoundedCornerShape(4.dp)
 
     Box(
-        Modifier.size(150.dp)
-            .dropShadow(
-                shape = starShape,
-                shadow =
-                    Shadow(
-                        radius = 20.dp,
-                        spread = 0.dp,
-                        offset = DpOffset(x = 10.dp, y = 10.dp),
-                        color = Color.Blue.copy(alpha = 0.5f),
-                    ),
-            )
-            .background(Color.Yellow, starShape)
-            .innerShadow(
-                shape = starShape,
-                shadow = Shadow(radius = 10.dp, spread = 5.dp, color = Color.Magenta),
-            )
-    ) {}
+        modifier =
+            modifier
+                .size(48.dp)
+                .dropShadow(
+                    shape = buttonShape,
+                    shadow =
+                        Shadow(
+                            radius = 8.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(3.dp, 3.dp),
+                            color = Color.Black.copy(alpha = 0.3f),
+                        ),
+                )
+                .dropShadow(
+                    shape = buttonShape,
+                    shadow =
+                        Shadow(
+                            radius = 0.dp,
+                            spread = 1.dp,
+                            offset = DpOffset(0.6.dp, 0.6.dp),
+                            color = KeyboardButtonColors.DarkShadow,
+                            alpha = 0.4f,
+                        ),
+                )
+                .clip(buttonShape)
+                .background(KeyboardButtonColors.Surface)
+                .innerShadow(
+                    shape = buttonShape,
+                    shadow =
+                        Shadow(
+                            radius = 6.dp,
+                            spread = 0.dp,
+                            offset = DpOffset(4.dp, 4.dp),
+                            color = Color.Black.copy(alpha = 0.05f),
+                        ),
+                )
+                .innerShadow(
+                    shape = buttonShape,
+                    shadow =
+                        Shadow(
+                            radius = 0.2.dp,
+                            spread = 0.05.dp,
+                            offset = DpOffset(0.dp, 0.5.dp),
+                            color = Color.White.copy(alpha = 0.4f),
+                        ),
+                ),
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
+    }
 }

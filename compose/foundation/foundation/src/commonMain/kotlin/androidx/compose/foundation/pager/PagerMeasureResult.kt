@@ -19,6 +19,8 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +47,8 @@ internal class PagerMeasureResult(
     val extraPagesBefore: List<MeasuredPage> = emptyList(),
     val extraPagesAfter: List<MeasuredPage> = emptyList(),
     val coroutineScope: CoroutineScope,
+    val density: Density,
+    val childConstraints: Constraints,
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)
@@ -139,6 +143,8 @@ internal class PagerMeasureResult(
                 extraPagesBefore = extraPagesBefore,
                 extraPagesAfter = extraPagesAfter,
                 coroutineScope = coroutineScope,
+                density = density,
+                childConstraints = childConstraints,
             )
         } else {
             null

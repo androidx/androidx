@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.util.fastForEach
 import androidx.test.filters.MediumTest
@@ -129,7 +130,9 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
 
         asserter.applyAndAssert { selection = 23 to 24 }
 
-        performTouchGesture { enterTouchMode() }
+        performTouchGesture {
+            swipe(start = bounds.center, end = bounds.bottomCenter + Offset(0f, 10f))
+        }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true

@@ -104,6 +104,7 @@ public class HostActionMetadataOperation extends Operation
      *
      * @param buffer a WireBuffer
      * @param actionId the action id
+     * @param metadataId the metadata id
      */
     public static void apply(@NonNull WireBuffer buffer, int actionId, int metadataId) {
         buffer.start(OP_CODE);

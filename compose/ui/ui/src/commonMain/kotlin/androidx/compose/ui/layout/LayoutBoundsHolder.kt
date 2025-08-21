@@ -30,7 +30,7 @@ import androidx.compose.ui.spatial.RelativeLayoutBounds
  * An object which holds on to a (potentially) mutating [RelativeLayoutBounds] of a specific node.
  * This is meant to be used alongside the [layoutBounds] modifier and one of the visibility
  * modifiers [onFirstVisible] or [onVisibilityChanged] in situations where you want to understand
- * the visibility of a nide with respect to a specific viewport instead of with the window.
+ * the visibility of a node with respect to a specific viewport instead of with the window.
  *
  * @see layoutBounds
  * @see onFirstVisible

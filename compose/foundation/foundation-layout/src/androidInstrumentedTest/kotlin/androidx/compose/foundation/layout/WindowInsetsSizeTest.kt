@@ -365,8 +365,7 @@ class WindowInsetsSizeTest {
     ) {
         val coordinates = setInsetContent(modifier, layoutDirection)
 
-        val insets = sendInsets(type, sentInsets)
-        assertThat(insets.isConsumed)
+        sendInsets(type, sentInsets)
 
         rule.waitUntil {
             val view = findComposeView()

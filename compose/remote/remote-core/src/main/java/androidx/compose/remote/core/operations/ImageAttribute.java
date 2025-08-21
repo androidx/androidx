@@ -27,6 +27,7 @@ import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ import java.util.List;
 public class ImageAttribute extends PaintOperation {
     private static final int OP_CODE = Operations.ATTRIBUTE_IMAGE;
     private static final String CLASS_NAME = "ImageAttribute";
-    private final int[] mArgs;
+    private final int @Nullable [] mArgs;
     public int mId;
     int mImageId;
     short mType;
@@ -51,7 +52,7 @@ public class ImageAttribute extends PaintOperation {
      * @param type the type of value to return
      * @param args support for additional arguments (currently none)
      */
-    public ImageAttribute(int id, int imageId, short type, int[] args) {
+    public ImageAttribute(int id, int imageId, short type, int @Nullable [] args) {
         this.mId = id;
         this.mImageId = imageId;
         this.mType = type;
@@ -96,7 +97,7 @@ public class ImageAttribute extends PaintOperation {
      * @param args the value of the float
      */
     public static void apply(
-            @NonNull WireBuffer buffer, int id, int imageId, short type, int[] args) {
+            @NonNull WireBuffer buffer, int id, int imageId, short type, int @Nullable [] args) {
         buffer.start(OP_CODE);
         buffer.writeInt(id);
         buffer.writeInt(imageId);

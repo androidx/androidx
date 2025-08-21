@@ -40,6 +40,7 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -78,6 +79,7 @@ open class BasePagerTest(private val config: ParamConfig) :
     var pagerSize: Int = 0
     var placed = mutableSetOf<Int>()
     var focused = mutableSetOf<Int>()
+    val activeNodes = mutableSetOf<String>()
     var focusRequesters = mutableMapOf<Int, FocusRequester>()
     var pageSize: Int = 0
     lateinit var focusManager: FocusManager
@@ -125,10 +127,10 @@ open class BasePagerTest(private val config: ParamConfig) :
 
     @OptIn(ExperimentalFoundationApi::class)
     internal fun createPager(
+        modifier: Modifier = Modifier,
         initialPage: Int = 0,
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
-        modifier: Modifier = Modifier,
         beyondViewportPageCount: Int = config.beyondViewportPageCount,
         pageSize: () -> PageSize = { PageSize.Fill },
         userScrollEnabled: Boolean = true,
@@ -146,25 +148,36 @@ open class BasePagerTest(private val config: ParamConfig) :
         prefetchScheduler: PrefetchScheduler? = null,
         userLookahead: Boolean = config.useLookahead,
         bringIntoViewSpec: BringIntoViewSpec = DefaultBringIntoViewSpec,
-        pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) },
+        prefetchEnabled: Boolean = true,
+        pageContent: @Composable PagerScope.(page: Int) -> Unit = {
+            DisposableEffect(it) {
+                activeNodes.add(it.toString())
+                onDispose { activeNodes.remove(it.toString()) }
+            }
+            Page(index = it)
+        },
     ) {
-
         rule.setContent {
             ConfigurableLookaheadScope(userLookahead) {
                 val state =
                     if (prefetchScheduler == null) {
-                        rememberPagerState(initialPage, initialPageOffsetFraction, pageCount)
+                        remember(initialPage, initialPageOffsetFraction, pageCount) {
+                            PagerState(initialPage, initialPageOffsetFraction, pageCount).also {
+                                it.prefetchingEnabled = prefetchEnabled
+                            }
+                        }
                     } else {
                         remember {
                             object :
-                                PagerState(
-                                    initialPage,
-                                    initialPageOffsetFraction,
-                                    prefetchScheduler,
-                                ) {
-                                override val pageCount: Int
-                                    get() = pageCount()
-                            }
+                                    PagerState(
+                                        initialPage,
+                                        initialPageOffsetFraction,
+                                        prefetchScheduler,
+                                    ) {
+                                    override val pageCount: Int
+                                        get() = pageCount()
+                                }
+                                .also { it.prefetchingEnabled = prefetchEnabled }
                         }
                     }
                 pagerState = state
@@ -185,12 +198,12 @@ open class BasePagerTest(private val config: ParamConfig) :
                     scope = rememberCoroutineScope()
                     Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
                         HorizontalOrVerticalPager(
-                            state = state,
-                            beyondViewportPageCount = beyondViewportPageCount,
                             modifier =
                                 modifier.testTag(PagerTestTag).onSizeChanged {
                                     pagerSize = if (vertical) it.height else it.width
                                 },
+                            state = state,
+                            beyondViewportPageCount = beyondViewportPageCount,
                             pageSize = pageSize(),
                             userScrollEnabled = userScrollEnabled,
                             overscrollEffect = overscrollEffect(),
@@ -320,8 +333,8 @@ open class BasePagerTest(private val config: ParamConfig) :
 
     @Composable
     internal fun HorizontalOrVerticalPager(
-        state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         modifier: Modifier = Modifier,
+        state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         userScrollEnabled: Boolean = true,
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         reverseLayout: Boolean = false,

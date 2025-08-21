@@ -351,7 +351,7 @@ class WindowContentChangeTest {
                 @Suppress("DEPRECATION") AccessibilityEvent.obtain()
             }
             .apply {
-                packageName = "androidx.compose.ui.test"
+                packageName = "androidx.compose.ui.tests"
                 className = "android.view.View"
                 isEnabled = true
             }

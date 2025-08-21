@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
@@ -215,7 +214,6 @@ class AndroidTextContextMenuToolbarProviderTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenAnchorLayoutMoves_toolbarMoves() {
         var length by mutableIntStateOf(0)
@@ -251,7 +249,6 @@ class AndroidTextContextMenuToolbarProviderTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenAnchorLayoutScrolled_toolbarMoves() {
         val scrollState = ScrollState(0)
@@ -290,7 +287,6 @@ class AndroidTextContextMenuToolbarProviderTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenDataProviderPositionUpdates_toolbarMoves() {
         var offset by mutableStateOf(Offset.Zero)
@@ -315,7 +311,6 @@ class AndroidTextContextMenuToolbarProviderTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenDataProviderDataUpdates_positionDoesNotMove() {
         var itemNumber by mutableStateOf(1)

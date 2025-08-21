@@ -16,9 +16,12 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
+import androidx.compose.ui.node.requireLayoutCoordinates
+import androidx.compose.ui.node.requireOwner
 import kotlin.js.JsName
 
 /**
@@ -107,3 +110,30 @@ fun FocusTargetModifierNode(
     onFocusChange: ((previous: FocusState, current: FocusState) -> Unit)? = null,
 ): FocusTargetModifierNode =
     FocusTargetNode(focusability = focusability, onFocusChange = onFocusChange)
+
+/**
+ * Calculates the rectangular area in this node's coordinates that corresponds to the focus area of
+ * the focused node under this [FocusTargetModifierNode], including itself.
+ *
+ * This function returns `null` when;
+ * - This node is not focused and there is no focused descendant.
+ * - This node is detached from the composition hierarchy.
+ */
+fun FocusTargetModifierNode.getFocusedRect(): Rect? {
+    if (!node.isAttached) return null
+    // Reading focusState includes traversal and computation. We shouldn't do it twice.
+    val currentFocusState = focusState
+    // If there is nothing focused under this node, then we have no focus area.
+    if (!currentFocusState.hasFocus) return null
+    // Special case where the node itself is focused, not a descendant
+    if (currentFocusState.isFocused) {
+        return (this as FocusTargetNode).fetchFocusRect()
+    }
+
+    // The focused item is guaranteed to be under this node since we have focus. Now get the focus
+    // area defined by the focused child in our coordinates
+    return requireOwner()
+        .focusOwner
+        .activeFocusTargetNode
+        ?.fetchFocusRect(requireLayoutCoordinates())
+}

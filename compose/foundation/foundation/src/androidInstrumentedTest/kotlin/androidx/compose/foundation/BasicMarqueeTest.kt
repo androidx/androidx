@@ -975,8 +975,7 @@ class BasicMarqueeTest {
         rule.setContent {
             Box(Modifier.drawBehind { outerDraws++ }) {
                 TestMarqueeContent(
-                    marqueeModifier =
-                        Modifier.basicMarqueeWithTestParams().drawBehind { innerDraws++ }
+                    modifier = Modifier.basicMarqueeWithTestParams().drawBehind { innerDraws++ }
                 )
             }
         }
@@ -1124,8 +1123,8 @@ class BasicMarqueeTest {
     }
 
     @Composable
-    private fun TestMarqueeContent(marqueeModifier: Modifier) {
-        Row(Modifier.width(100.toDp()).background(BackgroundColor).then(marqueeModifier)) {
+    private fun TestMarqueeContent(modifier: Modifier) {
+        Row(Modifier.width(100.toDp()).background(BackgroundColor).then(modifier)) {
             Box(Modifier.size(100.toDp()).background(Color1))
             Box(Modifier.size(100.toDp()).background(Color2))
         }

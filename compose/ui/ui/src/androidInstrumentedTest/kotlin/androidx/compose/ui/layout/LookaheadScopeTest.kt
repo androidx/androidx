@@ -20,6 +20,9 @@ package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector2D
@@ -71,6 +74,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -94,6 +98,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -112,6 +117,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -135,6 +141,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -3030,6 +3037,7 @@ class LookaheadScopeTest {
                                     ) {
                                         Text(text = "Header ${element.title}")
                                     }
+
                                 is Element.Item -> {
                                     Row(Modifier.animateItem().padding(16.dp)) {
                                         Box(
@@ -3060,6 +3068,7 @@ class LookaheadScopeTest {
                                         Text(text = element.text)
                                     }
                                 }
+
                                 is Element.Divider -> {
                                     Box(Modifier.animateItem().fillMaxWidth().height(5.dp))
                                 }
@@ -3347,12 +3356,14 @@ class LookaheadScopeTest {
     @Test
     fun testReorderChildrenInLookaheadScope() {
         val list = mutableStateListOf(1, 2)
+
         data class Stats(
             var lookaheadMeasurementCount: Int = 0,
             var measurementCount: Int = 0,
             var lookaheadPlacementCount: Int = 0,
             var placementCount: Int = 0,
         )
+
         val boxStats = Stats()
         val rowStats = Stats()
         rule.setContent {
@@ -3418,6 +3429,135 @@ class LookaheadScopeTest {
             assertEquals(2, rowStats.lookaheadPlacementCount)
             assertEquals(2, rowStats.measurementCount)
             assertEquals(2, rowStats.placementCount)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testObtainLookaheadScopeCoordinates() {
+        var padding by mutableStateOf(20.dp)
+        var alignment by mutableStateOf(Alignment.Center)
+        var lookaheadRootParentInnerCoords: LayoutCoordinates? = null
+        var expectedLookaheadScopeCoordinates: LayoutCoordinates? = null
+        var actualLookaheadScopeCoordinates: LayoutCoordinates? = null
+
+        var lookaheadCoords: LayoutCoordinates? = null
+        var coords: LayoutCoordinates? = null
+
+        rule.setContent {
+            Box(
+                Modifier.padding(padding).onPlaced { lookaheadRootParentInnerCoords = it },
+                contentAlignment = alignment,
+            ) {
+                LookaheadScope {
+                    LazyColumn(Modifier.fillMaxSize(0.5f)) {
+                        items(5) { Box(Modifier.size(10.dp)) }
+                        item {
+                            Box(
+                                Modifier.layout { m, c ->
+                                        m.measure(c).run {
+                                            layout(width, height) {
+                                                expectedLookaheadScopeCoordinates =
+                                                    lookaheadScopeCoordinates
+                                                // Check that in lookahead pass and approach pass
+                                                // the returning lookahead scope coords is the same.
+                                                assertEquals(
+                                                    expectedLookaheadScopeCoordinates,
+                                                    lookaheadScopeCoordinates,
+                                                )
+                                                if (coordinates != null) {
+                                                    if (isLookingAhead) {
+                                                        lookaheadCoords = coordinates
+                                                    } else {
+                                                        coords = coordinates
+                                                    }
+                                                }
+                                                place(0, 0)
+                                            }
+                                        }
+                                    }
+                                    .onPlaced {
+                                        actualLookaheadScopeCoordinates =
+                                            it.lookaheadScopeCoordinates(this@LookaheadScope)
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertNotNull(lookaheadRootParentInnerCoords)
+            assertNotNull(coords)
+            assertNotNull(lookaheadCoords)
+            assertNotNull(expectedLookaheadScopeCoordinates)
+            assertNotNull(actualLookaheadScopeCoordinates)
+            val expectedApproachOffset =
+                expectedLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            val actualApproachOffset: Offset =
+                actualLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            assertEquals(expectedApproachOffset, actualApproachOffset)
+
+            // These two coordinates may not be the same instance, but they should be derived from
+            // the same LayoutModifierNode, therefore the positions should always be the same.
+            assertEquals(
+                lookaheadRootParentInnerCoords!!.positionInWindow(),
+                actualLookaheadScopeCoordinates!!.positionInWindow(),
+            )
+
+            coords = null
+            lookaheadCoords = null
+            actualLookaheadScopeCoordinates = null
+        }
+
+        rule.runOnIdle { alignment = Alignment.BottomEnd }
+
+        rule.runOnIdle {
+            assertNotNull(lookaheadRootParentInnerCoords)
+            assertNotNull(coords)
+            assertNotNull(lookaheadCoords)
+            assertNotNull(expectedLookaheadScopeCoordinates)
+            assertNotNull(actualLookaheadScopeCoordinates)
+            val expectedApproachOffset =
+                expectedLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            val actualApproachOffset: Offset =
+                actualLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            assertEquals(expectedApproachOffset, actualApproachOffset)
+
+            assertEquals(
+                lookaheadRootParentInnerCoords!!.positionInWindow(),
+                actualLookaheadScopeCoordinates!!.positionInWindow(),
+            )
+
+            // reset coords
+            coords = null
+            lookaheadCoords = null
+            actualLookaheadScopeCoordinates = null
+        }
+
+        rule.runOnIdle { padding = 123.dp }
+
+        rule.runOnIdle {
+            assertNotNull(lookaheadRootParentInnerCoords)
+            assertNotNull(coords)
+            assertNotNull(lookaheadCoords)
+            assertNotNull(expectedLookaheadScopeCoordinates)
+            assertNotNull(actualLookaheadScopeCoordinates)
+            val expectedApproachOffset =
+                expectedLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            val actualApproachOffset: Offset =
+                actualLookaheadScopeCoordinates!!.localPositionOf(coords!!)
+            assertEquals(expectedApproachOffset, actualApproachOffset)
+
+            assertEquals(
+                lookaheadRootParentInnerCoords!!.positionInWindow(),
+                actualLookaheadScopeCoordinates!!.positionInWindow(),
+            )
+
+            // reset coords
+            coords = null
+            lookaheadCoords = null
+            actualLookaheadScopeCoordinates = null
         }
     }
 
@@ -3554,6 +3694,326 @@ class LookaheadScopeTest {
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Test based on SharedElementClipReveal demo that verifies skipToLookaheadPosition maintains
+     * position during shared element transitions.
+     */
+    @OptIn(ExperimentalSharedTransitionApi::class)
+    @Test
+    fun testSharedElementClipRevealWithskipToLookaheadPosition() {
+        var target by mutableStateOf(true)
+        val columnPositions = mutableListOf<androidx.compose.ui.geometry.Offset>()
+
+        rule.setContent {
+            SharedTransitionLayout {
+                AnimatedContent<Boolean>(targetState = target) {
+                    if (it) {
+                        Box(Modifier.fillMaxSize()) {
+                            Button(
+                                modifier =
+                                    Modifier.align(Alignment.BottomCenter)
+                                        .testTag("toggle-button")
+                                        .sharedBounds(
+                                            rememberSharedContentState("clip"),
+                                            this@AnimatedContent,
+                                        ),
+                                onClick = { target = false },
+                            ) {
+                                Text("Toggle State")
+                            }
+                        }
+                    } else {
+                        Column(
+                            modifier =
+                                Modifier.testTag("shared-column")
+                                    .sharedBounds(
+                                        rememberSharedContentState("clip"),
+                                        this@AnimatedContent,
+                                        resizeMode =
+                                            SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                                    )
+                                    .clipToBounds()
+                                    .skipToLookaheadPosition()
+                                    .onGloballyPositioned { coordinates ->
+                                        columnPositions.add(coordinates.positionInRoot())
+                                    }
+                                    .fillMaxSize(0.5f)
+                                    .background(Color.Black),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text("Hello", fontSize = 80.sp, color = Color.White)
+                            Text("Shared", fontSize = 80.sp, color = Color.White)
+                            Text("Clip", fontSize = 80.sp, color = Color.White)
+                            Text("Bounds", fontSize = 80.sp, color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Wait for initial layout
+        rule.waitForIdle()
+
+        // Verify initial state - button should be visible
+        rule.onNodeWithText("Toggle State").assertExists()
+
+        // Trigger the transition by clicking the button
+        rule.onNodeWithTag("toggle-button").performClick()
+
+        // Wait for transition to complete
+        rule.waitForIdle()
+
+        // Verify the column is now visible
+        rule.onNodeWithTag("shared-column").assertExists()
+        rule.onNodeWithText("Hello").assertExists()
+        rule.onNodeWithText("Shared").assertExists()
+        rule.onNodeWithText("Clip").assertExists()
+        rule.onNodeWithText("Bounds").assertExists()
+
+        // Log all positions
+        println("testSharedElementClipRevealWithskipToLookaheadPosition - All positions:")
+        columnPositions.forEachIndexed { index, pos ->
+            println("  Position $index: (${pos.x}, ${pos.y})")
+        }
+
+        // Assert all positions are equal within delta < 1f for x and y
+        for (i in 1 until columnPositions.size) {
+            val prev = columnPositions[i - 1]
+            val curr = columnPositions[i]
+            assert(kotlin.math.abs(prev.x - curr.x) < 1f) {
+                "X position changed: ${prev.x} vs ${curr.x}. All positions: ${columnPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+            assert(kotlin.math.abs(prev.y - curr.y) < 1f) {
+                "Y position changed: ${prev.y} vs ${curr.y}. All positions: ${columnPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+        }
+    }
+
+    /**
+     * Test that verifies skipToLookaheadPosition works with multiple shared elements in a complex
+     * layout scenario.
+     */
+    @OptIn(ExperimentalSharedTransitionApi::class)
+    @Test
+    fun testMultipleSharedElementsWithskipToLookaheadPosition() {
+        var target by mutableStateOf(true)
+        val leftPositions = mutableListOf<Offset>()
+        val rightPositions = mutableListOf<Offset>()
+
+        rule.setContent {
+            SharedTransitionLayout(Modifier.fillMaxSize()) {
+                AnimatedContent<Boolean>(targetState = target) {
+                    if (it) {
+                        Box(Modifier.fillMaxSize()) {
+                            // Left shared element
+                            Box(
+                                modifier =
+                                    Modifier.align(Alignment.CenterStart)
+                                        .testTag("left-shared")
+                                        .size(100.dp)
+                                        .background(Color.Red)
+                                        .sharedBounds(
+                                            rememberSharedContentState("left"),
+                                            this@AnimatedContent,
+                                        ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("Left", color = Color.White)
+                            }
+
+                            // Right shared element
+                            Box(
+                                modifier =
+                                    Modifier.align(Alignment.CenterEnd)
+                                        .testTag("right-shared")
+                                        .size(100.dp)
+                                        .background(Color.Blue)
+                                        .sharedBounds(
+                                            rememberSharedContentState("right"),
+                                            this@AnimatedContent,
+                                        ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("Right", color = Color.White)
+                            }
+
+                            // Toggle button
+                            Button(
+                                modifier =
+                                    Modifier.align(Alignment.BottomCenter)
+                                        .testTag("multi-toggle")
+                                        .sharedElement(
+                                            rememberSharedContentState("toggle-element"),
+                                            this@AnimatedContent,
+                                        ),
+                                onClick = { target = false },
+                            ) {
+                                Text("Toggle")
+                            }
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            // Top row with left element
+                            Box(
+                                modifier =
+                                    Modifier.testTag("left-anchored")
+                                        .size(100.dp)
+                                        .background(Color.Red)
+                                        .sharedBounds(
+                                            rememberSharedContentState("left"),
+                                            this@AnimatedContent,
+                                        )
+                                        .skipToLookaheadPosition()
+                                        .onGloballyPositioned { coordinates ->
+                                            leftPositions.add(coordinates.positionInRoot())
+                                        },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("Left", color = Color.White)
+                            }
+
+                            // Middle content
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxWidth().height(200.dp).background(Color.Gray),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("Content", color = Color.White)
+                            }
+
+                            // Bottom row with right element
+                            Box(
+                                modifier =
+                                    Modifier.testTag("right-anchored")
+                                        .size(100.dp)
+                                        .background(Color.Blue)
+                                        .sharedBounds(
+                                            rememberSharedContentState("right"),
+                                            this@AnimatedContent,
+                                        )
+                                        .skipToLookaheadPosition()
+                                        .onGloballyPositioned { coordinates ->
+                                            rightPositions.add(coordinates.positionInRoot())
+                                        },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("Right", color = Color.White)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Wait for initial layout
+        rule.waitForIdle()
+
+        // Verify initial state
+        rule.onNodeWithTag("left-shared").assertExists()
+        rule.onNodeWithTag("right-shared").assertExists()
+
+        // Trigger transition
+        rule.onNodeWithTag("multi-toggle").performClick()
+
+        // Wait for transition to complete
+        rule.waitForIdle()
+
+        // Verify new state
+        rule.onNodeWithTag("left-anchored").assertExists()
+        rule.onNodeWithTag("right-anchored").assertExists()
+        rule.onNodeWithText("Content").assertExists()
+
+        // Assert all left positions are equal within delta < 1f for x and y
+        for (i in 1 until leftPositions.size) {
+            val prev = leftPositions[i - 1]
+            val curr = leftPositions[i]
+            assert(kotlin.math.abs(prev.x - curr.x) < 1f) {
+                "Left X position changed: ${prev.x} vs ${curr.x}. All left positions: ${leftPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+            assert(kotlin.math.abs(prev.y - curr.y) < 1f) {
+                "Left Y position changed: ${prev.y} vs ${curr.y}. All left positions: ${leftPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+        }
+        // Assert all right positions are equal within delta < 1f for x and y
+        for (i in 1 until rightPositions.size) {
+            val prev = rightPositions[i - 1]
+            val curr = rightPositions[i]
+            assert(kotlin.math.abs(prev.x - curr.x) < 1f) {
+                "Right X position changed: ${prev.x} vs ${curr.x}. All right positions: ${rightPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+            assert(kotlin.math.abs(prev.y - curr.y) < 1f) {
+                "Right Y position changed: ${prev.y} vs ${curr.y}. All right positions: ${rightPositions.joinToString { "(${it.x}, ${it.y})" }}"
+            }
+        }
+    }
+
+    /** Test that verifies skipToLookaheadPosition works correctly with conditional activation. */
+    @OptIn(ExperimentalSharedTransitionApi::class)
+    @Test
+    fun testConditionalskipToLookaheadPosition() {
+        var isEnabled by mutableStateOf(false)
+
+        var delta by mutableStateOf(10)
+
+        var actualPosition: Offset = Offset.Zero
+        var expectedLookaheadPosition: Offset = Offset.Zero
+        var untemperedPosition: Offset = Offset.Zero
+
+        rule.setContent {
+            SharedTransitionLayout {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .background(Color.Green)
+                            .offset { IntOffset(delta, delta) }
+                            .approachLayout({ true }, { true }) { m, c ->
+                                m.measure(c).run { layout(width, height) { place(delta, delta) } }
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                untemperedPosition = coordinates.positionInRoot()
+                            }
+                            .skipToLookaheadPosition(isEnabled = { isEnabled })
+                            .onGloballyPositioned { coordinates ->
+                                actualPosition = coordinates.positionInRoot()
+                                expectedLookaheadPosition =
+                                    coordinates.toLookaheadCoordinates().positionInRoot()
+                            },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("Conditional Element", color = Color.White)
+                }
+            }
+        }
+
+        // Wait for initial layout
+        rule.waitForIdle()
+
+        repeat(10) {
+            delta = (it + 1) * 10
+            rule.waitForIdle()
+
+            // Not yet enabled, expect to be the same as approach position
+            assertEquals(untemperedPosition, actualPosition)
+            assertNotEquals(expectedLookaheadPosition, actualPosition)
+        }
+
+        rule.runOnIdle { isEnabled = true }
+        rule.waitForIdle()
+
+        repeat(10) {
+            delta = (it + 1) * 10
+            rule.waitForIdle()
+
+            // Not yet enabled, expect to be the same as approach position
+            assertNotEquals(untemperedPosition, actualPosition)
+            assertEquals(expectedLookaheadPosition, actualPosition)
         }
     }
 

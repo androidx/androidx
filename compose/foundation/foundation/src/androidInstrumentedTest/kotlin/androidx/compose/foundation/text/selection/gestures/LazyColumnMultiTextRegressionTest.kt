@@ -74,7 +74,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -171,7 +170,6 @@ class LazyColumnMultiTextRegressionTest {
         updateHandlePositions()
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenScrollingTextOutOfViewUpwards_textToolbarCoercedToTop() = runTest {
         assertThat(textToolbarShown).isFalse()

@@ -21,9 +21,9 @@ import androidx.compose.foundation.gestures.detectRepeatingTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
-import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -67,10 +67,12 @@ internal fun Modifier.cupertinoTextFieldPointer(
             .pointerHoverIcon(PointerIcon.Text)
     } else {
         this
-            .selectionGestureInput(
-                mouseSelectionObserver = manager.mouseSelectionObserver,
-                textDragObserver = manager.touchSelectionObserver,
-            )
+            .pointerInput(manager.mouseSelectionObserver, manager.touchSelectionObserver) {
+                awaitSelectionGestures(
+                    manager.mouseSelectionObserver,
+                    manager.touchSelectionObserver,
+                )
+            }
             .pointerHoverIcon(PointerIcon.Text)
     }
 } else {

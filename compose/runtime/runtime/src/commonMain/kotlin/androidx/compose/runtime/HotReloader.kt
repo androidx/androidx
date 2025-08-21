@@ -104,6 +104,7 @@ public fun invalidateGroupsWithKey(key: Int): Unit = HotReloader.invalidateGroup
         "should be used instead."
 )
 @TestOnly
+@Suppress("ListIterator")
 public fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
     getCurrentCompositionErrors().mapNotNull { (cause, recoverable) ->
         (cause as? Exception ?: return@mapNotNull null) to recoverable

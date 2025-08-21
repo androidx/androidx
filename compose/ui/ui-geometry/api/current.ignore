@@ -1,17 +1,87 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.compose.ui.geometry.CornerRadius#getX():
-    Removed method androidx.compose.ui.geometry.CornerRadius.getX()
-RemovedMethod: androidx.compose.ui.geometry.CornerRadius#getY():
-    Removed method androidx.compose.ui.geometry.CornerRadius.getY()
-RemovedMethod: androidx.compose.ui.geometry.Offset#getX():
-    Removed method androidx.compose.ui.geometry.Offset.getX()
-RemovedMethod: androidx.compose.ui.geometry.Offset#getY():
-    Removed method androidx.compose.ui.geometry.Offset.getY()
-RemovedMethod: androidx.compose.ui.geometry.Size#getHeight():
-    Removed method androidx.compose.ui.geometry.Size.getHeight()
-RemovedMethod: androidx.compose.ui.geometry.Size#getMaxDimension():
-    Removed method androidx.compose.ui.geometry.Size.getMaxDimension()
-RemovedMethod: androidx.compose.ui.geometry.Size#getMinDimension():
-    Removed method androidx.compose.ui.geometry.Size.getMinDimension()
-RemovedMethod: androidx.compose.ui.geometry.Size#getWidth():
-    Removed method androidx.compose.ui.geometry.Size.getWidth()
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component5-kKHJgLs():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.component5-kKHJgLs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component6-kKHJgLs():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.component6-kKHJgLs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component7-kKHJgLs():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.component7-kKHJgLs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component8-kKHJgLs():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.component8-kKHJgLs() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#copy-MDFrsts(float, float, float, float, long, long, long, long):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.copy-MDFrsts(float,float,float,float,long,long,long,long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getCenter(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getCenter(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.ui.geometry.CornerRadius.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.CornerRadius.Companion.getZero()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getBottomCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getBottomCenter()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getBottomLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getBottomLeft()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getBottomRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getBottomRight()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getCenter()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getCenterLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getCenterLeft()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getCenterRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getCenterRight()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getSize()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getTopCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getTopCenter()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getTopLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getTopLeft()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#getTopRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getTopRight()
+RemovedMethod: androidx.compose.ui.geometry.Offset.Companion#getInfinite():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.Companion.getInfinite()
+RemovedMethod: androidx.compose.ui.geometry.Offset.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.geometry.Offset.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.Companion.getZero()
+RemovedMethod: androidx.compose.ui.geometry.OffsetKt#isFinite(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.isFinite(long)
+RemovedMethod: androidx.compose.ui.geometry.OffsetKt#isSpecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.isSpecified(long)
+RemovedMethod: androidx.compose.ui.geometry.OffsetKt#isUnspecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.geometry.Rect#getBottomCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getBottomCenter()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getBottomLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getBottomLeft()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getBottomRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getBottomRight()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getCenter()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getCenterLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getCenterLeft()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getCenterRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getCenterRight()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getSize()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getTopCenter():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getTopCenter()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getTopLeft():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getTopLeft()
+RemovedMethod: androidx.compose.ui.geometry.Rect#getTopRight():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getTopRight()
+RemovedMethod: androidx.compose.ui.geometry.RoundRect#getBottomLeftCornerRadius():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getBottomLeftCornerRadius()
+RemovedMethod: androidx.compose.ui.geometry.RoundRect#getBottomRightCornerRadius():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getBottomRightCornerRadius()
+RemovedMethod: androidx.compose.ui.geometry.RoundRect#getTopLeftCornerRadius():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getTopLeftCornerRadius()
+RemovedMethod: androidx.compose.ui.geometry.RoundRect#getTopRightCornerRadius():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getTopRightCornerRadius()
+RemovedMethod: androidx.compose.ui.geometry.Size.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Size.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.geometry.Size.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Size.Companion.getZero()
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#getCenter(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.getCenter(long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#isSpecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.isSpecified(long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#isUnspecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.isUnspecified(long)

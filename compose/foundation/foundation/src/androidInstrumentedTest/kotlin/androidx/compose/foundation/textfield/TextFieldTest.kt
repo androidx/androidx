@@ -779,7 +779,7 @@ class TextFieldTest : FocusedWindowTest {
                 value = TextFieldValue("Hello"),
                 onValueChange = {},
                 visualTransformation = { text ->
-                    TransformedText(text.toUpperCase(LocaleList("en_US")), OffsetMapping.Identity)
+                    TransformedText(text.toUpperCase(LocaleList("en-US")), OffsetMapping.Identity)
                 },
             )
         }

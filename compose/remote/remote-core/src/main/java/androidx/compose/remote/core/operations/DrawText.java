@@ -48,7 +48,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
     boolean mRtl = false;
 
     public DrawText(
-            int textID,
+            int textId,
             int start,
             int end,
             int contextStart,
@@ -56,7 +56,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
             float x,
             float y,
             boolean rtl) {
-        mTextID = textID;
+        mTextID = textId;
         mStart = start;
         mEnd = end;
         mContextStart = contextStart;
@@ -145,7 +145,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
      * Writes out the operation to the buffer
      *
      * @param buffer write the command to the buffer
-     * @param textID id of the text
+     * @param textId id of the text
      * @param start Start position
      * @param end end position
      * @param contextStart start of the context
@@ -156,7 +156,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
      */
     public static void apply(
             @NonNull WireBuffer buffer,
-            int textID,
+            int textId,
             int start,
             int end,
             int contextStart,
@@ -165,7 +165,7 @@ public class DrawText extends PaintOperation implements VariableSupport {
             float y,
             boolean rtl) {
         buffer.start(Operations.DRAW_TEXT_RUN);
-        buffer.writeInt(textID);
+        buffer.writeInt(textId);
         buffer.writeInt(start);
         buffer.writeInt(end);
         buffer.writeInt(contextStart);

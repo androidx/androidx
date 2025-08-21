@@ -363,7 +363,8 @@ package androidx.compose.material {
   }
 
   @androidx.compose.runtime.Stable public final class Colors {
-    ctor public Colors(long primary, long primaryVariant, long secondary, long secondaryVariant, long background, long surface, long error, long onPrimary, long onSecondary, long onBackground, long onSurface, long onError, boolean isLight);
+    ctor @KotlinOnly public Colors(androidx.compose.ui.graphics.Color primary, androidx.compose.ui.graphics.Color primaryVariant, androidx.compose.ui.graphics.Color secondary, androidx.compose.ui.graphics.Color secondaryVariant, androidx.compose.ui.graphics.Color background, androidx.compose.ui.graphics.Color surface, androidx.compose.ui.graphics.Color error, androidx.compose.ui.graphics.Color onPrimary, androidx.compose.ui.graphics.Color onSecondary, androidx.compose.ui.graphics.Color onBackground, androidx.compose.ui.graphics.Color onSurface, androidx.compose.ui.graphics.Color onError, boolean isLight);
+    ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, long, long, long, long, long, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onError, optional boolean isLight);
     method @BytecodeOnly public androidx.compose.material.Colors copy-pvPzIIM(long, long, long, long, long, long, long, long, long, long, long, long, boolean);
     method public long getBackground();
@@ -589,7 +590,8 @@ package androidx.compose.material {
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FixedThreshold implements androidx.compose.material.ThresholdConfig {
-    ctor @Deprecated public FixedThreshold(float offset);
+    ctor @KotlinOnly @Deprecated public FixedThreshold(androidx.compose.ui.unit.Dp offset);
+    ctor @BytecodeOnly @Deprecated public FixedThreshold(float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @Deprecated public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
     method @Deprecated public androidx.compose.material.FixedThreshold copy-0680j_4(float offset);
   }
@@ -809,7 +811,8 @@ package androidx.compose.material {
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
     ctor public RippleConfiguration();
-    ctor public RippleConfiguration(optional long color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
+    ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
+    ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public long getColor();
     method @BytecodeOnly public long getColor-0d7_KjU();
     method public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();

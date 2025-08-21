@@ -516,7 +516,6 @@ class TextFieldSelectionHandlesTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(state.selection).isEqualTo(TextRange(4, 7)) }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun doubleClickOnWhitespace_doesNotSelectWhitespace() {
         state = TextFieldState("abc def ghj")

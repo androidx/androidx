@@ -50,9 +50,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -207,7 +207,7 @@ class VelocityTrackingListParityTest {
         }
     }
 
-    @Ignore // b/373631123
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun equalLists_withEqualFlings_shouldFinishAtTheSameItem_largeFast() = runBlocking {
         val state = LazyListState()
@@ -250,7 +250,7 @@ class VelocityTrackingListParityTest {
         }
     }
 
-    @Ignore // b/371570954
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun equalLists_withEqualFlings_shouldFinishAtTheSameItem_largeVeryFast() = runBlocking {
         val state = LazyListState()

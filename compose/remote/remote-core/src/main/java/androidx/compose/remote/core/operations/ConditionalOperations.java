@@ -144,6 +144,13 @@ public class ConditionalOperations extends PaintOperation
     @Override
     public void paint(@NonNull PaintContext context) {
         RemoteContext remoteContext = context.getContext();
+        RemoteContext ctx = context.getContext();
+        for (Operation op : mList) {
+            if (op instanceof VariableSupport && op.isDirty()) {
+                op.markNotDirty();
+                ((VariableSupport) op).updateVariables(ctx);
+            }
+        }
         boolean run = false;
         switch (mType) {
             case TYPE_EQ:

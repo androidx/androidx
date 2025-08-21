@@ -1,80 +1,33 @@
 // Baseline format: 1.0
-[linuxX64]: Removed declaration androidx.compose.runtime/Immutable from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/Stable from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/StableMarker from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration (kotlinx.coroutines.flow/Flow<#A>).androidx.compose.runtime/collectAsState(#B, kotlin.coroutines/CoroutineContext) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentOf(kotlin/Function4<#A, #B, #C, #D, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentWithReceiverOf(kotlin/Function4<#A, #B, #C, #D, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentOf(kotlin/Function3<#A, #B, #C, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentWithReceiverOf(kotlin/Function3<#A, #B, #C, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentOf(kotlin/Function2<#A, #B, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentWithReceiverOf(kotlin/Function2<#A, #B, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration (kotlinx.coroutines.flow/StateFlow<#A>).androidx.compose.runtime/collectAsState(kotlin.coroutines/CoroutineContext) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentOf(kotlin/Function1<#A, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentWithReceiverOf(kotlin/Function1<#A, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/produceState(#A, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/produceState(#A, kotlin/Any?, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/produceState(#A, kotlin/Any?, kotlin/Any?, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/produceState(#A, kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/produceState(#A, kotlin/Array<out kotlin/Any?>, kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/rememberUpdatedState(#A) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime.internal/rememberComposableLambda(kotlin/Int, kotlin/Boolean, kotlin/Any) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/CompositionLocalProvider(androidx.compose.runtime/CompositionLocalContext, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/CompositionLocalProvider(androidx.compose.runtime/ProvidedValue<*>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/CompositionLocalProvider(kotlin/Array<out androidx.compose.runtime/ProvidedValue<*>>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/DisposableEffect(kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.runtime/DisposableEffectScope, androidx.compose.runtime/DisposableEffectResult>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/DisposableEffect(kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.runtime/DisposableEffectScope, androidx.compose.runtime/DisposableEffectResult>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/DisposableEffect(kotlin/Any?, kotlin/Function1<androidx.compose.runtime/DisposableEffectScope, androidx.compose.runtime/DisposableEffectResult>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/DisposableEffect(kotlin/Array<out kotlin/Any?>, kotlin/Function1<androidx.compose.runtime/DisposableEffectScope, androidx.compose.runtime/DisposableEffectResult>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/DisposableEffect(kotlin/Function1<androidx.compose.runtime/DisposableEffectScope, androidx.compose.runtime/DisposableEffectResult>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/LaunchedEffect(kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/LaunchedEffect(kotlin/Any?, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/LaunchedEffect(kotlin/Any?, kotlin/Any?, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/LaunchedEffect(kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/LaunchedEffect(kotlin/Array<out kotlin/Any?>, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/SideEffect(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/movableContentOf(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/rememberCompositionContext() from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ReusableComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>, kotlin/Function1<androidx.compose.runtime/SkippableUpdater<#A>, kotlin/Unit>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ReusableComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ReusableComposeNode(kotlin/Function0<#A>, kotlin/Function1<androidx.compose.runtime/Updater<#A>, kotlin/Unit>, kotlin/Function1<androidx.compose.runtime/SkippableUpdater<#A>, kotlin/Unit>, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/key(kotlin/Array<out kotlin/Any?>, kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/remember(kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/remember(kotlin/Any?, kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/remember(kotlin/Any?, kotlin/Any?, kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/remember(kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/remember(kotlin/Array<out kotlin/Any?>, kotlin/Function0<#A>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ReusableContent(kotlin/Any?, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/ReusableContentHost(kotlin/Boolean, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration androidx.compose.runtime/rememberCoroutineScope(kotlin/Function0<kotlin.coroutines/CoroutineContext>) from androidx.compose.runtime:runtime
-[linuxX64]: Removed declaration setContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/Composition
-[linuxX64]: Added declaration setContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/Composition
-[linuxX64]: Removed declaration composeContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/ControlledComposition
-[linuxX64]: Removed declaration setContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/ControlledComposition
-[linuxX64]: Added declaration composeContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/ControlledComposition
-[linuxX64]: Added declaration setContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/ControlledComposition
-[linuxX64]: Removed declaration setPausableContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/PausableComposition
-[linuxX64]: Removed declaration setPausableContentWithReuse(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/PausableComposition
-[linuxX64]: Removed declaration setContentWithReuse(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/PausableComposition
-[linuxX64]: Removed declaration setContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/PausableComposition
-[linuxX64]: Added declaration setPausableContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/PausableComposition
-[linuxX64]: Added declaration setPausableContentWithReuse(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/PausableComposition
-[linuxX64]: Added declaration setContentWithReuse(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/PausableComposition
-[linuxX64]: Added declaration setContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/PausableComposition
-[linuxX64]: Removed declaration setContentWithReuse(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/ReusableComposition
-[linuxX64]: Removed declaration setContent(kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime/ReusableComposition
-[linuxX64]: Added declaration setContentWithReuse(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/ReusableComposition
-[linuxX64]: Added declaration setContent(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) to androidx.compose.runtime/ReusableComposition
-[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.compose.runtime/CompositionLocal.current.<get-current>
-[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.compose.runtime/CompositionLocal.current.<get-current>
-[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.compose.runtime/currentComposer.<get-currentComposer>
-[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.compose.runtime/currentComposer.<get-currentComposer>
-[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.compose.runtime/currentCompositeKeyHash.<get-currentCompositeKeyHash>
-[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.compose.runtime/currentCompositeKeyHash.<get-currentCompositeKeyHash>
-[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.compose.runtime/currentCompositionLocalContext.<get-currentCompositionLocalContext>
-[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.compose.runtime/currentCompositionLocalContext.<get-currentCompositionLocalContext>
-[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.compose.runtime/currentRecomposeScope.<get-currentRecomposeScope>
-[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.compose.runtime/currentRecomposeScope.<get-currentRecomposeScope>
+[iosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[iosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[iosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[iosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[iosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[iosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[linuxArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[linuxArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[linuxX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[linuxX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[macosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[macosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[macosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[macosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[mingwX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[mingwX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[tvosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[tvosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[tvosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[tvosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[tvosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[tvosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[watchosArm32]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[watchosArm32]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[watchosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[watchosArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[watchosDeviceArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[watchosDeviceArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[watchosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[watchosSimulatorArm64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext
+[watchosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/Composer
+[watchosX64]: Added declaration scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>) to androidx.compose.runtime/CompositionContext

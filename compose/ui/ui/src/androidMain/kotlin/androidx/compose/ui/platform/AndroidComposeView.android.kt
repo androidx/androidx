@@ -35,6 +35,8 @@ import android.os.StrictMode
 import android.os.SystemClock
 import android.util.LongSparseArray
 import android.util.SparseArray
+import android.view.FocusFinder
+import android.view.GestureDetector
 import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
@@ -77,6 +79,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isAdaptiveRefreshRateEnabled
+import androidx.compose.ui.ComposeUiFlags.isIndirectTouchNavigationGestureDetectorEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -93,6 +96,7 @@ import androidx.compose.ui.autofill.PlatformAutofillManagerImpl
 import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
 import androidx.compose.ui.contentcapture.AndroidContentCaptureManager
+import androidx.compose.ui.contentcapture.ContentCaptureSessionWrapper
 import androidx.compose.ui.draganddrop.AndroidDragAndDropManager
 import androidx.compose.ui.draganddrop.ComposeDragShadowBuilder
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
@@ -104,7 +108,7 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.PlatformFocusOwner
-import androidx.compose.ui.focus.calculateBoundingRectRelativeTo
+import androidx.compose.ui.focus.calculateFocusRectRelativeTo
 import androidx.compose.ui.focus.focusRect
 import androidx.compose.ui.focus.is1dFocusSearch
 import androidx.compose.ui.focus.isBetterCandidate
@@ -131,7 +135,10 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
 import androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent
 import androidx.compose.ui.input.indirect.IndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.indirect.convertActionToIndirectTouchEventType
+import androidx.compose.ui.input.indirect.indirectPrimaryDirectionalScrollAxis
+import androidx.compose.ui.input.indirect.nativeEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.onKeyEvent
@@ -155,6 +162,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.layout.applyWindowInsetsRulers
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.InternalCoreApi
@@ -169,9 +177,10 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.node.requireLayoutCoordinates
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
-import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.relocation.BringIntoViewModifierNode
 import androidx.compose.ui.scrollcapture.ScrollCapture
@@ -198,8 +207,8 @@ import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.core.view.AccessibilityDelegateCompat
-import androidx.core.view.InputDeviceCompat.SOURCE_CLASS_POINTER
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
+import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 import androidx.core.view.MotionEventCompat.AXIS_SCROLL
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewConfigurationCompat.getScaledHorizontalScrollFactor
@@ -215,6 +224,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.abs
 
 /** Allows tests to inject a custom [PlatformTextInputService]. */
 internal var platformTextInputServiceInterceptor:
@@ -252,6 +262,14 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
      * [onRtlPropertiesChanged].
      */
     private var superclassInitComplete = true
+
+    // Allows tests to override the calculated primaryDirectionalMotionAxis from a MotionEvent (see
+    // [IndirectTouchEventNavigationSystemTests] for more details).
+    @OptIn(ExperimentalIndirectTouchTypeApi::class)
+    @VisibleForTesting
+    internal var primaryDirectionalMotionAxisOverride:
+        IndirectTouchEventPrimaryDirectionalMotionAxis? =
+        null
 
     override val sharedDrawScope = LayoutNodeDrawScope()
 
@@ -327,41 +345,43 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
      * Because AndroidComposeView always accepts focus, we have to divert focus to another View if
      * there is nothing focusable within. However, if there are only non focusable ComposeViews,
      * then the redirection can recurse infinitely. This makes sure that if that happens, then it
-     * can bail when it is detected
+     * can bail when it is detected.
+     *
+     * Note: Used only when ComposeUiFlags.isViewFocusFixEnabled is true.
      */
     private var processingRequestFocusForNextNonChildView = false
 
-    // When move focus is triggered by a key event, and move focus does not cause any focus change,
-    // we return the key event to the view system if focus search finds a suitable view which is not
-    // a compose sub-view. However if move focus is triggered programmatically, we have to manually
-    // implement this behavior because the view system does not have a moveFocus API.
-    override fun moveFocusInChildren(focusDirection: FocusDirection): Boolean {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (!ComposeUiFlags.isViewFocusFixEnabled) {
-            // The view system does not have an API corresponding to Enter/Exit.
-            if (focusDirection == Enter || focusDirection == Exit) return false
+    private fun moveFocusInChildrenCurrent(focusDirection: FocusDirection): Boolean {
+        // The view system does not have an API corresponding to Enter/Exit.
+        if (focusDirection == Enter || focusDirection == Exit) return false
 
-            val direction =
-                checkNotNull(focusDirection.toAndroidFocusDirection()) { "Invalid focus direction" }
-            val focusedRect = getEmbeddedViewFocusRect()?.toAndroidRect()
+        val direction =
+            checkPreconditionNotNull(focusDirection.toAndroidFocusDirection()) {
+                "Invalid focus direction"
+            }
+        val focusedRect = getEmbeddedViewFocusRect()?.toAndroidRect()
 
-            val nextView =
-                FocusFinderCompat.instance.let {
-                    if (focusedRect == null) {
-                        it.findNextFocus(this, findFocus(), direction)
-                    } else {
-                        it.findNextFocusFromRect(this, focusedRect, direction)
-                    }
+        val nextView =
+            FocusFinderCompat.instance.let {
+                if (focusedRect == null) {
+                    it.findNextFocus(this, findFocus(), direction)
+                } else {
+                    it.findNextFocusFromRect(this, focusedRect, direction)
                 }
-            return nextView?.requestInteropFocus(direction, focusedRect) ?: false
-        }
+            }
+        return nextView?.requestInteropFocus(direction, focusedRect) ?: false
+    }
+
+    private fun moveFocusInChildrenViewFocusFix(focusDirection: FocusDirection): Boolean {
         // The view system does not have an API corresponding to Enter/Exit.
         if (focusDirection == Enter || focusDirection == Exit || !hasFocus()) return false
 
         val androidViewsHandler = _androidViewsHandler ?: return false
 
         val direction =
-            checkNotNull(focusDirection.toAndroidFocusDirection()) { "Invalid focus direction" }
+            checkPreconditionNotNull(focusDirection.toAndroidFocusDirection()) {
+                "Invalid focus direction"
+            }
 
         val root = rootView as ViewGroup
 
@@ -396,6 +416,62 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         return nextView.requestInteropFocus(direction, focusedRect)
     }
 
+    private fun moveFocusInChildrenBypassUnfocusableComposeView(
+        focusDirection: FocusDirection
+    ): Boolean {
+        // The view system does not have an API corresponding to Enter/Exit.
+        if (focusDirection == Enter || focusDirection == Exit) return false
+
+        val direction =
+            checkPreconditionNotNull(focusDirection.toAndroidFocusDirection()) {
+                "Invalid focus direction"
+            }
+        val nextView = findNextViewInEmbeddedView(focusDirection)
+        return nextView?.requestInteropFocus(direction, null) ?: false
+    }
+
+    // If an embedded view has focus, we try to move focus within it first.
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun moveFocusInChildren(focusDirection: FocusDirection): Boolean =
+        when {
+            ComposeUiFlags.isViewFocusFixEnabled -> moveFocusInChildrenViewFocusFix(focusDirection)
+            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled ->
+                moveFocusInChildrenBypassUnfocusableComposeView(focusDirection)
+            else -> moveFocusInChildrenCurrent(focusDirection)
+        }
+
+    private fun findNextViewInEmbeddedView(focusDirection: FocusDirection): View? {
+        val activeFocusTargetNode =
+            focusOwner.activeFocusTargetNode
+                ?: error(
+                    "findNextViewInEmbeddedView called when owner does not have anything focused."
+                )
+        val direction =
+            checkPreconditionNotNull(focusDirection.toAndroidFocusDirection()) {
+                "Invalid focus direction"
+            }
+        val interopView = activeFocusTargetNode.requireLayoutNode().getInteropView()
+        val currentlyFocusedView = findFocus()
+
+        @OptIn(ExperimentalComposeUiApi::class)
+        val nextView =
+            if (SDK_INT < 26 && ComposeUiFlags.isPre26FocusFinderFixEnabled) {
+                FocusFinderCompat.instance.findNextFocus(
+                    rootView as ViewGroup,
+                    currentlyFocusedView,
+                    direction,
+                )
+            } else {
+                FocusFinder.getInstance()
+                    .findNextFocus(rootView as ViewGroup, currentlyFocusedView, direction)
+            }
+
+        if (nextView != null && interopView?.containsDescendant(nextView) == true) {
+            return nextView
+        }
+        return null
+    }
+
     // If this root view is focused, we can get the focus rect from focusOwner. But if a sub-view
     // has focus, the rect returned by focusOwner would be the bounds of the focus target
     // surrounding the embedded view. For a more accurate focus rect, we use the bounds of the
@@ -406,7 +482,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (isFocused) {
             focusOwner.getFocusRect()
         } else {
-            findFocus()?.calculateBoundingRectRelativeTo(this)
+            findFocus()?.calculateFocusRectRelativeTo(this)
         }
 
     // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
@@ -415,6 +491,43 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         Modifier.onKeyEvent { keyEvent ->
             val focusDirection = keyEvent.toFocusDirection()
             if (focusDirection == null || keyEvent.type != KeyDown) return@onKeyEvent false
+
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled) {
+                // If an embedded view has focus, attempt to move focus within it.
+                if (
+                    focusOwner.activeFocusTargetNode?.isInteropViewHost == true &&
+                        moveFocusInChildren(focusDirection)
+                ) {
+                    return@onKeyEvent true
+                }
+
+                val focusedRect = getEmbeddedViewFocusRect()
+                val focusWasMovedOrCancelled =
+                    focusOwner.focusSearch(focusDirection, focusedRect) {
+                        it.requestFocus(focusDirection)
+                    } ?: true
+
+                // Consume the key event if we moved focus or if focus search or requestFocus is
+                // cancelled.
+                if (focusWasMovedOrCancelled) return@onKeyEvent true
+
+                // We ideally don't consume the key event, and let the framework handle it. This
+                // will move to embedded views or sibling views as needed. However for 1D focus
+                // search focus might rollover and return back to this view. In that case we need
+                // to reset focus in Compose.
+                if (focusDirection.is1dFocusSearch()) {
+                    val direction = focusDirection.toAndroidFocusDirection() ?: FOCUS_FORWARD
+                    val nextView =
+                        FocusFinder.getInstance()
+                            .findNextFocus(rootView as ViewGroup, this, direction)
+                    if (nextView == null || nextView == this) {
+                        return@onKeyEvent focusOwner.resetFocus(focusDirection)
+                    }
+                }
+
+                return@onKeyEvent false
+            }
 
             val androidDirection = focusDirection.toAndroidFocusDirection()
 
@@ -446,11 +559,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // this view. We don't return false because we don't want to re-visit sub-views. They
             // will
             // instead be visited when the AndroidView around them gets a moveFocus(Enter)).
-
             if (androidDirection != null) {
                 val nextView = findNextNonChildView(androidDirection).takeIf { it != this }
                 if (nextView != null) {
-                    val androidRect = checkNotNull(focusedRect?.toAndroidRect()) { "Invalid rect" }
+                    val androidRect =
+                        checkPreconditionNotNull(focusedRect?.toAndroidRect()) { "Invalid rect" }
                     val rootView = rootView as ViewGroup
                     rootView.offsetDescendantRectToMyCoords(this, androidRect)
                     rootView.offsetRectIntoDescendantCoords(nextView, androidRect)
@@ -479,6 +592,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             } ?: true
         }
 
+    // Used only when ComposeUiFlags.isViewFocusFixEnabled is true.
     private fun findNextNonChildView(direction: Int): View? {
         var currentView: View? = this
         val focusFinder = FocusFinderCompat.instance
@@ -570,6 +684,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
+    /** The parent [AbstractComposeView], casted and cached lazily when used. */
+    private val parentAbstractComposeView: AbstractComposeView? by
+        lazy(LazyThreadSafetyMode.NONE) { this.parent as? AbstractComposeView }
+
     /**
      * Used for updating LocalConfiguration when configuration changes - consume LocalConfiguration
      * instead of changing this observer if you are writing a component that adapts to configuration
@@ -610,6 +728,20 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override val clipboard = AndroidClipboard(clipboardManager)
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
+        val exceptionHandler = uncaughtExceptionHandler
+        var command =
+            if (exceptionHandler != null) {
+                {
+                    try {
+                        command()
+                    } catch (e: Exception) {
+                        exceptionHandler.onUncaughtException(e)
+                    }
+                }
+            } else {
+                command
+            }
+
         if (handler?.looper === Looper.myLooper()) {
             command()
         } else {
@@ -697,7 +829,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     // on a different position, but also in the position of each of the grandparents as all these
     // positions add up to final global position)
     private val globalLayoutListener =
-        ViewTreeObserver.OnGlobalLayoutListener { updatePositionCacheAndDispatch() }
+        ViewTreeObserver.OnGlobalLayoutListener {
+            // make sure that we use an updated window position and matrix
+            lastMatrixRecalculationAnimationTime = 0
+            updatePositionCacheAndDispatch()
+        }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
     // this could affect our global position
@@ -883,6 +1019,14 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     /** Set to `true` when [sendHoverExitEvent] has been posted. */
     private var hoverExitReceived = false
 
+    // Enables event stream tracking for indirect touch navigation gestures.
+    private var indirectTouchNavigationGestureDetectorActiveForEventStream = false
+    // Determines scroll/swipe to next or previous focusable element for indirect touch events.
+    private val indirectTouchNavigationGestureDetector =
+        IndirectTouchNavigationGestureDetector(context) { direction ->
+            focusOwner.moveFocus(direction)
+        }
+
     /** Callback for [measureAndLayout] to update the pointer position 150ms after layout. */
     private val resendMotionEventOnLayout: () -> Unit = {
         val lastEvent = previousMotionEvent
@@ -962,6 +1106,25 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    override fun addFocusables(views: ArrayList<View?>?, direction: Int, focusableMode: Int) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        when {
+            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled -> {
+                if (focusOwner.hasFocusableContent()) {
+                    super.addFocusables(views, direction, focusableMode)
+
+                    // If we don't have focusables in compose, but only embedded views that are
+                    // focusable, the view framework's focus search will find these embedded
+                    // views directly.
+                    if (!focusOwner.hasNonInteropFocusableContent()) {
+                        views?.remove(this)
+                    }
+                }
+            }
+            else -> super.addFocusables(views, direction, focusableMode)
+        }
+    }
+
     /**
      * Avoid crash by not traversing assist structure. Autofill assistStructure will be dispatched
      * via `dispatchProvideAutofillStructure` from Android 8 and on. See b/251152083 and b/320768586
@@ -1013,14 +1176,25 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
 
         // Find the next subview if any using FocusFinder.
-        val nextView = FocusFinderCompat.instance.findNextFocus(this, focused, direction)
+        // Note: We use don't use this as the root for search because it can end up looping around
+        // the children. So we use rootView instead, and then check if the view returned by
+        // findNextFocus is a descendant of this view.
+        val root = rootView as ViewGroup
+        @OptIn(ExperimentalComposeUiApi::class)
+        val nextView =
+            if (SDK_INT < 26 && ComposeUiFlags.isPre26FocusFinderFixEnabled) {
+                    FocusFinderCompat.instance.findNextFocus(root, focused, direction)
+                } else {
+                    FocusFinder.getInstance().findNextFocus(root, focused, direction)
+                }
+                ?.takeIf { containsDescendant(it) }
 
         // Find the next composable using FocusOwner.
         val focusedBounds =
             if (focused === this) {
-                focusOwner.getFocusRect() ?: focused.calculateBoundingRectRelativeTo(this)
+                focusOwner.getFocusRect() ?: focused.calculateFocusRectRelativeTo(this)
             } else {
-                focused.calculateBoundingRectRelativeTo(this)
+                focused.calculateFocusRectRelativeTo(this)
             }
         val focusDirection = toFocusDirection(direction) ?: Down
         var focusTarget: FocusTargetNode? = null
@@ -1032,39 +1206,54 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
         return when {
             searchResult == null -> focused // Focus Search Cancelled.
-            focusTarget == null -> nextView ?: focused // No compose focus item
-            nextView == null -> this // No found View, so go to the found Compose focus item
-            focusDirection.is1dFocusSearch() -> super.focusSearch(focused, direction)
+            focusTarget == null ->
+                nextView ?: super.focusSearch(focused, direction) // No compose focus item.
+            nextView == null -> this // No view found, so go to the focus target.
+            focusDirection.is1dFocusSearch() -> {
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled) {
+                    // We bypass non focusable compose views, so if FocusFinder's focus search
+                    // reached this view, we have something focusable in compose. Embedded views
+                    // have associated focus targets, so they will be found using a compose focus
+                    // search. we don't need to call super.focusSearch().
+                    // Note: View.focusSearch is a public API. So when this is called directly,
+                    // returning this is still valid, because it sets isFocusable = true and
+                    // isFocusableInTouchMode = true.
+                    this
+                } else {
+                    super.focusSearch(focused, direction)
+                }
+            }
             isBetterCandidate(
                 focusTarget.focusRect(),
-                nextView.calculateBoundingRectRelativeTo(this),
+                nextView.calculateFocusRectRelativeTo(this),
                 focusedBounds,
                 focusDirection,
-            ) -> this // Compose focus is better than View focus
-            else -> nextView // View focus is better than Compose focus
+            ) -> this // Compose focus is better than View focus.
+            else -> nextView // View focus is better than Compose focus.
         }
     }
 
-    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (!ComposeUiFlags.isViewFocusFixEnabled) {
-            // This view is already focused.
-            if (isFocused) return true
+    fun requestFocusCurrent(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        // This view is already focused.
+        if (isFocused) return true
 
-            // If the root has focus, it means a sub-view is focused,
-            // and is trying to move focus within itself.
-            if (focusOwner.rootState.hasFocus) {
-                return super.requestFocus(direction, previouslyFocusedRect)
-            }
-
-            val focusDirection = toFocusDirection(direction) ?: Enter
-            return focusOwner.focusSearch(
-                focusDirection = focusDirection,
-                focusedRect = previouslyFocusedRect?.toComposeRect(),
-            ) {
-                it.requestFocus(focusDirection)
-            } == true
+        // If the root has focus, it means a sub-view is focused,
+        // and is trying to move focus within itself.
+        if (focusOwner.rootState.hasFocus) {
+            return super.requestFocus(direction, previouslyFocusedRect)
         }
+
+        val focusDirection = toFocusDirection(direction) ?: Enter
+        return focusOwner.focusSearch(
+            focusDirection = focusDirection,
+            focusedRect = previouslyFocusedRect?.toComposeRect(),
+        ) {
+            it.requestFocus(focusDirection)
+        } == true
+    }
+
+    fun requestFocusViewFocusFix(direction: Int, previouslyFocusedRect: Rect?): Boolean {
         // This view is already focused.
         if (isFocused) return true
 
@@ -1128,13 +1317,73 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         return requestFocusResult
     }
 
+    fun requestFocusBypassUnfocusableComposeView(
+        direction: Int,
+        previouslyFocusedRect: Rect?,
+    ): Boolean {
+        // This view is already focused.
+        if (isFocused) return true
+
+        // If the root has focus, it means a sub-view is focused, but focus search returned back to
+        // this view, which means we have to grant focus to a composable for 1D focus search.
+        // and is trying to move focus within itself.
+
+        val focusDirection = toFocusDirection(direction) ?: Enter
+
+        // Grant focus to a focus target in the Compose hierarchy.
+        val requestFocusWithPrevRect =
+            focusOwner.focusSearch(
+                focusDirection = focusDirection,
+                focusedRect = previouslyFocusedRect?.toComposeRect(),
+            ) {
+                it.requestFocus(focusDirection)
+            }
+        if (requestFocusWithPrevRect == true) return true
+
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isIgnoreInvalidPrevFocusRectEnabled) {
+            val requestFocusWithoutPrevRect =
+                focusOwner.focusSearch(focusDirection = focusDirection, focusedRect = null) {
+                    it.requestFocus(focusDirection)
+                }
+            if (requestFocusWithoutPrevRect == true) return true
+        }
+
+        // If we landed on this view and a sub-view already has focus, it means that FocusFinder
+        // could not find something else to focus on, and rolled over and returned back to this
+        // view. Just to verify that this is the case, we also check if this is a 1-D focus search,
+        // as only 1-D focus searches should roll over.
+        if (hasFocus() && focusDirection.is1dFocusSearch()) {
+            return focusOwner.resetFocus(focusDirection)
+        }
+        return false
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean =
+        when {
+            ComposeUiFlags.isViewFocusFixEnabled ->
+                requestFocusViewFocusFix(direction, previouslyFocusedRect)
+            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled ->
+                requestFocusBypassUnfocusableComposeView(direction, previouslyFocusedRect)
+            else -> requestFocusCurrent(direction, previouslyFocusedRect)
+        }
+
     override fun requestOwnerFocus(
         focusDirection: FocusDirection?,
         previouslyFocusedRect: androidx.compose.ui.geometry.Rect?,
     ): Boolean {
-        // We don't request focus if the view is already focused, or if an embedded view is focused,
-        // because this would cause the embedded view to lose focus.
-        if (isFocused || hasFocus()) return true
+
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled) {
+            // We don't request focus if the view is already focused.
+            if (isFocused) return true
+        } else {
+            // We don't request focus if the view is already focused, or if an embedded view is
+            // focused,
+            // because this would cause the embedded view to lose focus.
+            if (isFocused || hasFocus()) return true
+        }
 
         return super.requestFocus(
             focusDirection?.toAndroidFocusDirection() ?: FOCUS_DOWN,
@@ -1193,7 +1442,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     /** This function is used by the testing framework to send indirect touch events. */
     @OptIn(ExperimentalIndirectTouchTypeApi::class)
     override fun sendIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
-        return focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent)
+        return handleIndirectTouchEvent(indirectTouchEvent)
     }
 
     override fun dispatchKeyEvent(event: AndroidKeyEvent): Boolean =
@@ -1547,6 +1796,24 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             parent?.hasFixedInnerContentConstraints == false
     }
 
+    internal var isSendPendingContentCaptureEventsScheduled = false
+    private val cachedLambdaForSendPendingContentCaptureEvents = {
+        contentCaptureManager.sendPendingContentCaptureEvents()
+        isSendPendingContentCaptureEventsScheduled = false
+    }
+
+    private fun scheduleSendPendingContentCaptureEvents(): Unit {
+        if (
+            isAttachedToWindow &&
+                contentCaptureManager.isEnabled &&
+                contentCaptureManager.hasPendingEvents &&
+                !isSendPendingContentCaptureEventsScheduled
+        ) {
+            schedule(cachedLambdaForSendPendingContentCaptureEvents)
+            isSendPendingContentCaptureEventsScheduled = true
+        }
+    }
+
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
         // only run the logic when we have something pending
         if (
@@ -1563,6 +1830,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 dispatchPendingInteropLayoutCallbacks()
             }
         }
+        scheduleSendPendingContentCaptureEvents()
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
@@ -1579,6 +1847,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             if (ComposeUiFlags.isRectTrackingEnabled) {
                 rectManager.dispatchCallbacks()
             }
+            scheduleSendPendingContentCaptureEvents()
         }
     }
 
@@ -2095,6 +2364,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             focusOwner.listeners += it
             semanticsOwner.listeners += it
         }
+
+        if (ComposeUiFlags.isContentCaptureOptimizationEnabled) {
+            contentCaptureManager.let { semanticsOwner.listeners += it }
+        }
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -2198,26 +2471,66 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 }
             else -> {
                 @OptIn(ExperimentalIndirectTouchTypeApi::class)
-                if (!motionEvent.isFromSource(SOURCE_CLASS_POINTER)) {
+                if (motionEvent.isFromSource(SOURCE_TOUCH_NAVIGATION)) {
+                    val primaryDirectionalMotionAxis =
+                        primaryDirectionalMotionAxisOverride
+                            ?: indirectPrimaryDirectionalScrollAxis(motionEvent)
                     val indirectTouchEvent =
                         AndroidIndirectTouchEvent(
                             position = Offset(motionEvent.x, motionEvent.y),
                             uptimeMillis = motionEvent.eventTime,
                             type = convertActionToIndirectTouchEventType(motionEvent.actionMasked),
+                            primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
                             nativeEvent = motionEvent,
                         )
-                    val handled =
-                        focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent) {
-                            super.dispatchGenericMotionEvent(motionEvent)
-                        }
 
-                    if (handled) return true
+                    if (handleIndirectTouchEvent(indirectTouchEvent)) {
+                        return true
+                    }
                 }
 
                 // If focus owner did not handle, rely on ViewGroup to handle.
                 super.dispatchGenericMotionEvent(motionEvent)
             }
         }
+    }
+
+    @OptIn(ExperimentalIndirectTouchTypeApi::class)
+    private fun handleIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
+        val motionEvent = indirectTouchEvent.nativeEvent
+
+        val handled =
+            focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent) {
+                super.dispatchGenericMotionEvent(motionEvent)
+            }
+
+        if (handled) {
+            // Turns off all navigation gestures for this event stream since an app is
+            // handling the event stream and also resets the preferred Axis.
+            indirectTouchNavigationGestureDetectorActiveForEventStream = false
+            indirectTouchNavigationGestureDetector.primaryDirectionalMotionAxis =
+                IndirectTouchEventPrimaryDirectionalMotionAxis.None
+            return true
+        } else {
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (isIndirectTouchNavigationGestureDetectorEnabled) { // Flag for feature
+                if (motionEvent.action == ACTION_DOWN) {
+                    // Starts tracking only with ACTION_DOWN (start of event stream).
+                    indirectTouchNavigationGestureDetectorActiveForEventStream = true
+                    indirectTouchNavigationGestureDetector.primaryDirectionalMotionAxis =
+                        indirectTouchEvent.primaryDirectionalMotionAxis
+                }
+
+                if (indirectTouchNavigationGestureDetectorActiveForEventStream) {
+                    indirectTouchNavigationGestureDetector.onTouchEvent(motionEvent)
+                }
+                // If the isIndirectTouchNavigationGestureDetectorEnabled flag is
+                // enabled, it means that we don't want to pass the event up to the
+                // platform's handler for SOURCE_TOUCH_NAVIGATION, so we return true.
+                return true
+            }
+        }
+        return false
     }
 
     // TODO(shepshapard): Test this method.
@@ -2250,6 +2563,36 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
         if (processResult.anyMovementConsumed) {
             parent.requestDisallowInterceptTouchEvent(true)
+        }
+
+        // Implement tap-to-clear focus _after_ handling this motion event
+        // This allows focus to cleanly move from A to B if this motion event causes B to take
+        // focus, instead of clearing focus entirely first, and then requesting focus on B after
+        // this doesn't consume the motion event
+        val isDown =
+            motionEvent.actionMasked == ACTION_DOWN ||
+                motionEvent.actionMasked == ACTION_POINTER_DOWN
+        val isFromMouseOrTouchpad =
+            motionEvent.isFromSource(InputDevice.SOURCE_MOUSE) ||
+                motionEvent.isFromSource(InputDevice.SOURCE_TOUCHPAD)
+        if (isDown && isFromMouseOrTouchpad) {
+            if (parentAbstractComposeView?.isClearFocusOnPointerDownEnabled == true) {
+                val activeFocusTargetNode = focusOwner.activeFocusTargetNode
+                if (activeFocusTargetNode != null) {
+                    val focusedNodeBounds =
+                        activeFocusTargetNode.requireLayoutCoordinates().boundsInRoot()
+                    // Only clear focus if the motion event doesn't fall inside the bounds
+                    // of the node that is currently focused
+                    // Note that we don't use the current focusRect which can be different
+                    // than the bounds of the currently focused node.
+                    // If a focusable node is choosing to have the focusRect be different than
+                    // its own bounds, we shouldn't clear focus from it if the down event
+                    // occurs over that node.
+                    if (!focusedNodeBounds.contains(Offset(motionEvent.x, motionEvent.y))) {
+                        focusOwner.clearFocus()
+                    }
+                }
+            }
         }
 
         return processResult.dispatchedToAPointerInputModifier
@@ -3278,7 +3621,7 @@ private fun View.containsDescendant(other: View): Boolean {
     return false
 }
 
-private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? {
+private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionWrapper? {
     ViewCompatShims.setImportantForContentCapture(
         this,
         ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES,
@@ -3312,5 +3655,70 @@ private object Api35Impl {
     @DoNotInline
     fun setRequestedFrameRate(view: View, frameRate: Float) {
         view.requestedFrameRate = frameRate
+    }
+}
+
+internal class IndirectTouchNavigationGestureDetector(
+    context: Context,
+    private val onMoveFocus: (FocusDirection) -> Unit,
+) {
+    @OptIn(ExperimentalIndirectTouchTypeApi::class)
+    var primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None
+
+    private val gestureDetector: GestureDetector =
+        GestureDetector(
+            context,
+            object : GestureDetector.OnGestureListener {
+                override fun onDown(e: MotionEvent) = true
+
+                override fun onShowPress(e: MotionEvent) {}
+
+                override fun onSingleTapUp(e: MotionEvent): Boolean = true
+
+                override fun onScroll(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    distanceX: Float,
+                    distanceY: Float,
+                ) = true
+
+                override fun onLongPress(e: MotionEvent) {}
+
+                @OptIn(ExperimentalIndirectTouchTypeApi::class)
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float,
+                ): Boolean {
+                    if (
+                        primaryDirectionalMotionAxis ==
+                            IndirectTouchEventPrimaryDirectionalMotionAxis.X
+                    ) {
+                        if (abs(velocityX) > abs(velocityY)) {
+                            val direction =
+                                if (velocityX > 0f) FocusDirection.Next else FocusDirection.Previous
+                            onMoveFocus(direction)
+                        }
+                    } else if (
+                        primaryDirectionalMotionAxis ==
+                            IndirectTouchEventPrimaryDirectionalMotionAxis.Y
+                    ) {
+                        if (abs(velocityY) > abs(velocityX)) {
+                            val direction =
+                                if (velocityY > 0f) FocusDirection.Next else FocusDirection.Previous
+                            onMoveFocus(direction)
+                        }
+                    }
+                    // If it gets here, it means there isn't a primary axis specified, which means
+                    // the event will be translated by system to key up, down, left, and right.
+
+                    return true
+                }
+            },
+        )
+
+    fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event)
     }
 }

@@ -2,7 +2,7 @@
 package androidx.compose.animation.core {
 
   public final class Animatable<T, V extends androidx.compose.animation.core.AnimationVector> {
-    ctor @Deprecated public Animatable(T initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold);
+    ctor @BytecodeOnly @Deprecated public Animatable(Object!, androidx.compose.animation.core.TwoWayConverter!, Object!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public Animatable(T initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional T? visibilityThreshold, optional String label);
     method public suspend Object? animateDecay(T initialVelocity, androidx.compose.animation.core.DecayAnimationSpec<T> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
     method public suspend Object? animateTo(T targetValue, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T initialVelocity, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Animatable<T,V>,kotlin.Unit>? block, kotlin.coroutines.Continuation<? super androidx.compose.animation.core.AnimationResult<T,V>>);
@@ -36,41 +36,32 @@ package androidx.compose.animation.core {
 
   public final class AnimateAsStateKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.Dp> animateDpAsState(float targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.Dp> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Dp,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.Dp> animateDpAsState(float targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.Dp> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Dp,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.Dp!> animateDpAsState-AjpBEmI(float, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.Dp!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Dp!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateDpAsState-Kz89ssw(float, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateFloatAsState(float, androidx.compose.animation.core.AnimationSpec!, float, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float> animateFloatAsState(float targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional float visibilityThreshold, optional String label, optional kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float!> animateFloatAsState(float, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, float, String?, kotlin.jvm.functions.Function1<? super java.lang.Float!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float> animateFloatAsState(float targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional float visibilityThreshold, optional kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateIntAsState(int, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Integer> animateIntAsState(int targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Integer> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Integer!> animateIntAsState(int, androidx.compose.animation.core.AnimationSpec<java.lang.Integer!>?, String?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Integer> animateIntAsState(int targetValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Integer> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? finishedListener);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntOffset> animateIntOffsetAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntOffset> animateIntOffsetAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateIntOffsetAsState-8f6pmRE(long, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntOffset!> animateIntOffsetAsState-HyPO7BM(long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntOffset!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> animateIntSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize> animateIntSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntSize,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.unit.IntSize!> animateIntSizeAsState-4goxYXU(long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.IntSize!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntSize!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateIntSizeAsState-zTRF_AQ(long, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Offset> animateOffsetAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Offset> animateOffsetAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Offset!> animateOffsetAsState-7362WCg(long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateOffsetAsState-N6fFfp4(long, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateRectAsState(androidx.compose.ui.geometry.Rect!, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Rect> animateRectAsState(androidx.compose.ui.geometry.Rect targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Rect> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Rect,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Rect!> animateRectAsState(androidx.compose.ui.geometry.Rect, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Rect!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Rect!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Rect> animateRectAsState(androidx.compose.ui.geometry.Rect targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Rect> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Rect,kotlin.Unit>? finishedListener);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Size> animateSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,kotlin.Unit>? finishedListener);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Size> animateSizeAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateSizeAsState-LjSzlW0(long, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.geometry.Size!> animateSizeAsState-YLp_XPw(long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateValueAsState(Object!, androidx.compose.animation.core.TwoWayConverter!, androidx.compose.animation.core.AnimationSpec!, Object!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValueAsState(T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional String label, optional kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T!> animateValueAsState(T!, androidx.compose.animation.core.TwoWayConverter<T!,V!>, androidx.compose.animation.core.AnimationSpec<T!>?, T?, String?, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValueAsState(T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, optional androidx.compose.animation.core.AnimationSpec<T> animationSpec, optional T? visibilityThreshold, optional kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? finishedListener);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Animation<T, V extends androidx.compose.animation.core.AnimationVector> {
@@ -142,13 +133,13 @@ package androidx.compose.animation.core {
   }
 
   public final class AnimationSpecKt {
-    method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.InfiniteRepeatableSpec! infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T!> infiniteRepeatable-9IiC70o(androidx.compose.animation.core.DurationBasedAnimationSpec<T!>, androidx.compose.animation.core.RepeatMode, long);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
     method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(@FloatRange(from=0.0, to=1.0) float periodicBias, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
-    method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.animation.core.RepeatableSpec! repeatable(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T!> repeatable-91I0pcU(int, androidx.compose.animation.core.DurationBasedAnimationSpec<T!>, androidx.compose.animation.core.RepeatMode, long);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
@@ -232,17 +223,17 @@ package androidx.compose.animation.core {
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public ArcAnimationSpec();
-    ctor public ArcAnimationSpec(optional int mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    ctor @KotlinOnly public <T> ArcAnimationSpec(optional androidx.compose.animation.core.ArcMode mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
+    ctor @BytecodeOnly public ArcAnimationSpec(int, int, int, androidx.compose.animation.core.Easing!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getDelayMillis();
     method public int getDurationMillis();
     method public androidx.compose.animation.core.Easing getEasing();
-    method public int getMode();
     method @BytecodeOnly public int getMode--9T-Mq4();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
     property public int delayMillis;
     property public int durationMillis;
     property public androidx.compose.animation.core.Easing easing;
-    property public int mode;
+    property public androidx.compose.animation.core.ArcMode mode;
   }
 
   @kotlin.jvm.JvmInline public final value class ArcMode {
@@ -252,15 +243,12 @@ package androidx.compose.animation.core {
   }
 
   public static final class ArcMode.Companion {
-    method public int getArcAbove();
     method @BytecodeOnly public int getArcAbove--9T-Mq4();
-    method public int getArcBelow();
     method @BytecodeOnly public int getArcBelow--9T-Mq4();
-    method public int getArcLinear();
     method @BytecodeOnly public int getArcLinear--9T-Mq4();
-    property public int ArcAbove;
-    property public int ArcBelow;
-    property public int ArcLinear;
+    property public androidx.compose.animation.core.ArcMode ArcAbove;
+    property public androidx.compose.animation.core.ArcMode ArcBelow;
+    property public androidx.compose.animation.core.ArcMode ArcLinear;
   }
 
   @androidx.compose.runtime.Immutable public final class CubicBezierEasing implements androidx.compose.animation.core.Easing {
@@ -469,15 +457,15 @@ package androidx.compose.animation.core {
   }
 
   public final class InfiniteRepeatableSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
-    ctor @Deprecated public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
-    ctor public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
+    ctor @BytecodeOnly @Deprecated public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly public InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public <T> InfiniteRepeatableSpec(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public androidx.compose.animation.core.DurationBasedAnimationSpec<T> getAnimation();
-    method public long getInitialStartOffset();
     method @BytecodeOnly public long getInitialStartOffset-Rmkjzm4();
     method public androidx.compose.animation.core.RepeatMode getRepeatMode();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
     property public androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation;
-    property public long initialStartOffset;
+    property public androidx.compose.animation.core.StartOffset initialStartOffset;
     property public androidx.compose.animation.core.RepeatMode repeatMode;
   }
 
@@ -503,14 +491,11 @@ package androidx.compose.animation.core {
 
   public final class InfiniteTransitionKt {
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateFloat(androidx.compose.animation.core.InfiniteTransition!, float, float, androidx.compose.animation.core.InfiniteRepeatableSpec!, androidx.compose.runtime.Composer!, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float> animateFloat(androidx.compose.animation.core.InfiniteTransition, float initialValue, float targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<java.lang.Float> animationSpec);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float> animateFloat(androidx.compose.animation.core.InfiniteTransition, float initialValue, float targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<java.lang.Float> animationSpec, optional String label);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.lang.Float!> animateFloat(androidx.compose.animation.core.InfiniteTransition, float, float, androidx.compose.animation.core.InfiniteRepeatableSpec<java.lang.Float!>, String?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateValue(androidx.compose.animation.core.InfiniteTransition!, Object!, Object!, androidx.compose.animation.core.TwoWayConverter!, androidx.compose.animation.core.InfiniteRepeatableSpec!, androidx.compose.runtime.Composer!, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.InfiniteTransition, T initialValue, T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec);
     method @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T> animateValue(androidx.compose.animation.core.InfiniteTransition, T initialValue, T targetValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.InfiniteRepeatableSpec<T> animationSpec, optional String label);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T, V extends androidx.compose.animation.core.AnimationVector> androidx.compose.runtime.State<T!> animateValue(androidx.compose.animation.core.InfiniteTransition, T!, T!, androidx.compose.animation.core.TwoWayConverter<T!,V!>, androidx.compose.animation.core.InfiniteRepeatableSpec<T!>, String?, androidx.compose.runtime.Composer?, int, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition rememberInfiniteTransition();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition! rememberInfiniteTransition(androidx.compose.runtime.Composer!, int);
     method @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition rememberInfiniteTransition(optional String label);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.animation.core.InfiniteTransition rememberInfiniteTransition(String?, androidx.compose.runtime.Composer?, int, int);
@@ -587,16 +572,16 @@ package androidx.compose.animation.core {
   }
 
   @androidx.compose.runtime.Immutable public final class RepeatableSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
-    ctor @Deprecated public RepeatableSpec(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
-    ctor public RepeatableSpec(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
+    ctor @BytecodeOnly @Deprecated public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly public RepeatableSpec(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public <T> RepeatableSpec(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public androidx.compose.animation.core.DurationBasedAnimationSpec<T> getAnimation();
-    method public long getInitialStartOffset();
     method @BytecodeOnly public long getInitialStartOffset-Rmkjzm4();
     method public int getIterations();
     method public androidx.compose.animation.core.RepeatMode getRepeatMode();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
     property public androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation;
-    property public long initialStartOffset;
+    property public androidx.compose.animation.core.StartOffset initialStartOffset;
     property public int iterations;
     property public androidx.compose.animation.core.RepeatMode repeatMode;
   }
@@ -659,14 +644,14 @@ package androidx.compose.animation.core {
   }
 
   @kotlin.jvm.JvmInline public final value class StartOffset {
-    ctor public StartOffset(int offsetMillis, optional int offsetType);
+    ctor @KotlinOnly public StartOffset(int offsetMillis, optional androidx.compose.animation.core.StartOffsetType offsetType);
     method @BytecodeOnly public static androidx.compose.animation.core.StartOffset! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(int, int);
     method @BytecodeOnly public static int getOffsetMillis-impl(long);
     method @BytecodeOnly public static int getOffsetType-Eo1U57Q(long);
     method @BytecodeOnly public long unbox-impl();
     property public int offsetMillis;
-    property public int offsetType;
+    property public androidx.compose.animation.core.StartOffsetType offsetType;
   }
 
   @kotlin.jvm.JvmInline public final value class StartOffsetType {
@@ -676,12 +661,10 @@ package androidx.compose.animation.core {
   }
 
   public static final class StartOffsetType.Companion {
-    method public int getDelay();
     method @BytecodeOnly public int getDelay-Eo1U57Q();
-    method public int getFastForward();
     method @BytecodeOnly public int getFastForward-Eo1U57Q();
-    property public int Delay;
-    property public int FastForward;
+    property public androidx.compose.animation.core.StartOffsetType Delay;
+    property public androidx.compose.animation.core.StartOffsetType FastForward;
   }
 
   public final class SuspendAnimationKt {
@@ -873,8 +856,9 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedInfiniteRepeatableSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedAnimationSpec<V> {
-    ctor @Deprecated public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
-    ctor public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
+    ctor @BytecodeOnly @Deprecated public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly public VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public <V extends androidx.compose.animation.core.AnimationVector> VectorizedInfiniteRepeatableSpec(androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
     method public V getValueFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
     method public V getVelocityFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
@@ -893,8 +877,9 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedRepeatableSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> {
-    ctor @Deprecated public VectorizedRepeatableSpec(int iterations, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
-    ctor public VectorizedRepeatableSpec(int iterations, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
+    ctor @BytecodeOnly @Deprecated public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!);
+    ctor @BytecodeOnly public VectorizedRepeatableSpec(int, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public <V extends androidx.compose.animation.core.AnimationVector> VectorizedRepeatableSpec(int iterations, androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional androidx.compose.animation.core.StartOffset initialStartOffset);
     method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
     method public V getValueFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
     method public V getVelocityFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
@@ -937,21 +922,21 @@ package androidx.compose.animation.core {
   }
 
   public final class VisibilityThresholdsKt {
-    method public static long getVisibilityThreshold(androidx.compose.ui.geometry.Offset.Companion);
+    method @BytecodeOnly public static long getVisibilityThreshold(androidx.compose.ui.geometry.Offset.Companion);
     method public static androidx.compose.ui.geometry.Rect getVisibilityThreshold(androidx.compose.ui.geometry.Rect.Companion);
-    method public static long getVisibilityThreshold(androidx.compose.ui.geometry.Size.Companion);
-    method public static float getVisibilityThreshold(androidx.compose.ui.unit.Dp.Companion);
-    method public static long getVisibilityThreshold(androidx.compose.ui.unit.DpOffset.Companion);
-    method public static long getVisibilityThreshold(androidx.compose.ui.unit.IntOffset.Companion);
-    method public static long getVisibilityThreshold(androidx.compose.ui.unit.IntSize.Companion);
+    method @BytecodeOnly public static long getVisibilityThreshold(androidx.compose.ui.geometry.Size.Companion);
+    method @BytecodeOnly public static float getVisibilityThreshold(androidx.compose.ui.unit.Dp.Companion);
+    method @BytecodeOnly public static long getVisibilityThreshold(androidx.compose.ui.unit.DpOffset.Companion);
+    method @BytecodeOnly public static long getVisibilityThreshold(androidx.compose.ui.unit.IntOffset.Companion);
+    method @BytecodeOnly public static long getVisibilityThreshold(androidx.compose.ui.unit.IntSize.Companion);
     method public static int getVisibilityThreshold(kotlin.jvm.internal.IntCompanionObject);
-    property public static long androidx.compose.ui.unit.IntOffset.Companion.VisibilityThreshold;
-    property public static long androidx.compose.ui.geometry.Offset.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.unit.IntOffset androidx.compose.ui.unit.IntOffset.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.geometry.Offset androidx.compose.ui.geometry.Offset.Companion.VisibilityThreshold;
     property public static int kotlin.jvm.internal.IntCompanionObject.VisibilityThreshold;
-    property public static float androidx.compose.ui.unit.Dp.Companion.VisibilityThreshold;
-    property public static long androidx.compose.ui.unit.DpOffset.Companion.VisibilityThreshold;
-    property public static long androidx.compose.ui.geometry.Size.Companion.VisibilityThreshold;
-    property public static long androidx.compose.ui.unit.IntSize.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.unit.Dp androidx.compose.ui.unit.Dp.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.unit.DpOffset androidx.compose.ui.unit.DpOffset.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.geometry.Size androidx.compose.ui.geometry.Size.Companion.VisibilityThreshold;
+    property public static androidx.compose.ui.unit.IntSize androidx.compose.ui.unit.IntSize.Companion.VisibilityThreshold;
     property public static androidx.compose.ui.geometry.Rect androidx.compose.ui.geometry.Rect.Companion.VisibilityThreshold;
   }
 

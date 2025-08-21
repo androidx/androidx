@@ -23,16 +23,18 @@ import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.serialize.MapSerializer;
+import androidx.compose.remote.core.serialize.Serializable;
 
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-/** Operation to perform Color related calculation */
-public class ColorAttribute extends PaintOperation {
+/** Operation to perform Color related calculation TODO support color update */
+public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";
     public int mId;
@@ -209,4 +211,23 @@ public class ColorAttribute extends PaintOperation {
                 return "INVALID_TIME_TYPE";
         }
     }
+
+    /**
+     * Call to allow an operator to register interest in variables. Typically they call
+     * context.listensTo(id, this)
+     *
+     * @param context
+     */
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(Utils.idFromNan(mColorId), this);
+    }
+
+    /**
+     * Called to be notified that the variables you are interested have changed.
+     *
+     * @param context
+     */
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {}
 }

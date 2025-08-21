@@ -107,28 +107,29 @@ public class CoreDocument implements Serializable {
 
     private final HashMap<Integer, FloatExpression> mFloatExpressions = new HashMap<>();
 
-    private final Clock mClock;
+    private final @NonNull Clock mClock;
 
     private final HashSet<Component> mAppliedTouchOperations = new HashSet<>();
 
     private int mLastId = 1; // last component id when inflating the file
 
-    private IntMap<Object> mDocProperties;
+    private @Nullable IntMap<Object> mDocProperties;
 
     boolean mFirstPaint = true;
     private boolean mIsUpdateDoc = false;
     private int mHostExceptionID = 0;
+    private int mBitmapMemory = 0;
 
     public CoreDocument() {
         this(new SystemClock());
     }
 
-    public CoreDocument(Clock clock) {
+    public CoreDocument(@NonNull Clock clock) {
         this.mClock = clock;
         mTimeVariables = new TimeVariables(clock);
     }
 
-    public Clock getClock() {
+    public @NonNull Clock getClock() {
         return mClock;
     }
 
@@ -452,7 +453,7 @@ public class CoreDocument implements Serializable {
      *
      * @param properties the properties to set
      */
-    public void setProperties(IntMap<Object> properties) {
+    public void setProperties(@Nullable IntMap<Object> properties) {
         mDocProperties = properties;
     }
 
@@ -460,7 +461,7 @@ public class CoreDocument implements Serializable {
      * @param key the key
      * @return the value associated with the key
      */
-    public Object getProperty(short key) {
+    public @Nullable Object getProperty(short key) {
         if (mDocProperties == null) {
             return null;
         }
@@ -472,7 +473,7 @@ public class CoreDocument implements Serializable {
      *
      * @param delta the delta to apply
      */
-    public void applyUpdate(CoreDocument delta) {
+    public void applyUpdate(@NonNull CoreDocument delta) {
         HashMap<Integer, TextData> txtData = new HashMap<Integer, TextData>();
         HashMap<Integer, BitmapData> imgData = new HashMap<Integer, BitmapData>();
         HashMap<Integer, FloatConstant> fltData = new HashMap<Integer, FloatConstant>();
@@ -570,6 +571,15 @@ public class CoreDocument implements Serializable {
         return mHostExceptionID;
     }
 
+    /**
+     * Get the bitmap memory used by the document
+     *
+     * @return the bitmap memory used by the document
+     */
+    public int bitmapMemory() {
+        return mBitmapMemory;
+    }
+
     private interface Visitor {
         void visit(Operation op);
     }
@@ -593,9 +603,9 @@ public class CoreDocument implements Serializable {
         void haptic(int type);
     }
 
-    HapticEngine mHapticEngine;
+    @Nullable HapticEngine mHapticEngine;
 
-    public void setHapticEngine(HapticEngine engine) {
+    public void setHapticEngine(@NonNull HapticEngine engine) {
         mHapticEngine = engine;
     }
 
@@ -617,7 +627,7 @@ public class CoreDocument implements Serializable {
      *
      * @param component the component applying the touch
      */
-    public void appliedTouchOperation(Component component) {
+    public void appliedTouchOperation(@NonNull Component component) {
         mAppliedTouchOperations.add(component);
     }
 
@@ -629,7 +639,7 @@ public class CoreDocument implements Serializable {
          * @param name the action name
          * @param value the payload of the action
          */
-        void onAction(@NonNull String name, Object value);
+        void onAction(@NonNull String name, @Nullable Object value);
     }
 
     @NonNull HashSet<ActionCallback> mActionListeners = new HashSet<ActionCallback>();
@@ -640,7 +650,7 @@ public class CoreDocument implements Serializable {
      * @param name the action name
      * @param value a parameter to the action
      */
-    public void runNamedAction(@NonNull String name, Object value) {
+    public void runNamedAction(@NonNull String name, @Nullable Object value) {
         // TODO: we might add an interface to group all valid parameter types
         for (ActionCallback callback : mActionListeners) {
             callback.onAction(name, value);
@@ -825,7 +835,9 @@ public class CoreDocument implements Serializable {
                 mFloatExpressions.put(expression.mId, expression);
             }
         }
+        mBitmapMemory = 0;
         mOperations = inflateComponents(mOperations);
+
         mBuffer = buffer;
         for (Operation op : mOperations) {
             if (op instanceof RootLayoutComponent) {
@@ -854,6 +866,10 @@ public class CoreDocument implements Serializable {
 
         mLastId = -1;
         for (Operation o : operations) {
+            if (o instanceof BitmapData) {
+                BitmapData bitmap = (BitmapData) o;
+                mBitmapMemory += bitmap.getHeight() * bitmap.getWidth() * 4;
+            }
             if (o instanceof Container) {
                 Container container = (Container) o;
                 if (container instanceof Component) {
@@ -1116,7 +1132,9 @@ public class CoreDocument implements Serializable {
     /**
      * Programmatically trigger the click response for the given id
      *
+     * @param context the context
      * @param id the click area id
+     * @param metadata the metadata of the click event
      */
     public void performClick(@NonNull RemoteContext context, int id, @NonNull String metadata) {
         for (ClickAreaRepresentation clickArea : mClickAreas) {
@@ -1140,7 +1158,7 @@ public class CoreDocument implements Serializable {
      * @param id id of the exception
      * @param metadata the exception string
      */
-    public void notifyOfException(int id, String metadata) {
+    public void notifyOfException(int id, @Nullable String metadata) {
         for (IdActionCallback listener : mIdActionListeners) {
             listener.onAction(id, metadata);
         }
@@ -1166,10 +1184,11 @@ public class CoreDocument implements Serializable {
     /**
      * Support touch drag events on commands supporting touch
      *
+     * @param context the context
      * @param x position of touch
      * @param y position of touch
      */
-    public boolean touchDrag(RemoteContext context, float x, float y) {
+    public boolean touchDrag(@NonNull RemoteContext context, float x, float y) {
         context.loadFloat(RemoteContext.ID_TOUCH_POS_X, x);
         context.loadFloat(RemoteContext.ID_TOUCH_POS_Y, y);
         for (TouchListener clickArea : mTouchListeners) {
@@ -1189,10 +1208,11 @@ public class CoreDocument implements Serializable {
     /**
      * Support touch down events on commands supporting touch
      *
+     * @param context the context
      * @param x position of touch
      * @param y position of touch
      */
-    public void touchDown(RemoteContext context, float x, float y) {
+    public void touchDown(@NonNull RemoteContext context, float x, float y) {
         context.loadFloat(RemoteContext.ID_TOUCH_POS_X, x);
         context.loadFloat(RemoteContext.ID_TOUCH_POS_Y, y);
         for (TouchListener clickArea : mTouchListeners) {
@@ -1207,10 +1227,13 @@ public class CoreDocument implements Serializable {
     /**
      * Support touch up events on commands supporting touch
      *
+     * @param context the context
      * @param x position of touch
      * @param y position of touch
+     * @param dx the x component of the drag vector
+     * @param dy the y component of the drag vector
      */
-    public void touchUp(RemoteContext context, float x, float y, float dx, float dy) {
+    public void touchUp(@NonNull RemoteContext context, float x, float y, float dx, float dy) {
         context.loadFloat(RemoteContext.ID_TOUCH_POS_X, x);
         context.loadFloat(RemoteContext.ID_TOUCH_POS_Y, y);
         for (TouchListener clickArea : mTouchListeners) {
@@ -1228,10 +1251,13 @@ public class CoreDocument implements Serializable {
     /**
      * Support touch cancel events on commands supporting touch
      *
+     * @param context the context
      * @param x position of touch
      * @param y position of touch
+     * @param dx the x component of the drag vector
+     * @param dy the y component of the drag vector
      */
-    public void touchCancel(RemoteContext context, float x, float y, float dx, float dy) {
+    public void touchCancel(@NonNull RemoteContext context, float x, float y, float dx, float dy) {
         if (mRootLayoutComponent != null) {
             for (Component component : mAppliedTouchOperations) {
                 component.onTouchCancel(context, this, x, y, true);
@@ -1267,7 +1293,7 @@ public class CoreDocument implements Serializable {
      *
      * @return array of named variables or null
      */
-    public String[] getNamedVariables(int type) {
+    public String @NonNull [] getNamedVariables(int type) {
         ArrayList<String> ret = new ArrayList<>();
         getNamedVars(type, mOperations, ret);
         return ret.toArray(new String[0]);
@@ -1583,7 +1609,7 @@ public class CoreDocument implements Serializable {
          * @param shader the source of the shader
          * @return true if the shader is allowed to run
          */
-        boolean isShaderValid(String shader);
+        boolean isShaderValid(@NonNull String shader);
     }
 
     /**
@@ -1592,7 +1618,7 @@ public class CoreDocument implements Serializable {
      * @param context the remote context
      * @param ctl the call back to allow evaluation of shaders
      */
-    public void checkShaders(RemoteContext context, ShaderControl ctl) {
+    public void checkShaders(@NonNull RemoteContext context, @NonNull ShaderControl ctl) {
         checkShaders(context, ctl, mOperations);
     }
 
@@ -1616,7 +1642,9 @@ public class CoreDocument implements Serializable {
                 ShaderData sd = (ShaderData) op;
                 int id = sd.getShaderTextId();
                 String str = context.getText(id);
-                sd.enable(ctl.isShaderValid(str));
+                if (str != null) {
+                    sd.enable(ctl.isShaderValid(str));
+                }
             }
         }
     }

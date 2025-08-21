@@ -19,6 +19,7 @@ package androidx.compose.runtime.snapshots
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
@@ -33,7 +34,7 @@ class SnapshotStateObserverTestsCommon {
         val data = ValueWrapper("Hello World")
         var changes = 0
 
-        val state = mutableStateOf(0)
+        val state = mutableIntStateOf(0)
         val stateObserver = SnapshotStateObserver { it() }
         try {
             stateObserver.start()
@@ -46,11 +47,11 @@ class SnapshotStateObserverTestsCommon {
 
             stateObserver.observeReads(data, onChangeListener) {
                 // read the value
-                state.value
+                state.intValue
             }
 
             Snapshot.notifyObjectsInitialized()
-            state.value++
+            state.intValue++
             Snapshot.sendApplyNotifications()
 
             assertEquals(1, changes)
@@ -67,9 +68,9 @@ class SnapshotStateObserverTestsCommon {
         var stage1Changes = 0
         var stage2Changes = 0
         var stage3Changes = 0
-        val stage1Model = mutableStateOf(0)
-        val stage2Model = mutableStateOf(0)
-        val stage3Model = mutableStateOf(0)
+        val stage1Model = mutableIntStateOf(0)
+        val stage2Model = mutableIntStateOf(0)
+        val stage3Model = mutableIntStateOf(0)
 
         val onChangeStage1: (ValueWrapper) -> Unit = { affectedData ->
             assertEquals(strStage1, affectedData)
@@ -90,17 +91,17 @@ class SnapshotStateObserverTestsCommon {
         try {
             stateObserver.start()
 
-            stateObserver.observeReads(strStage1, onChangeStage1) { stage1Model.value }
+            stateObserver.observeReads(strStage1, onChangeStage1) { stage1Model.intValue }
 
-            stateObserver.observeReads(strStage2, onChangeStage2) { stage2Model.value }
+            stateObserver.observeReads(strStage2, onChangeStage2) { stage2Model.intValue }
 
-            stateObserver.observeReads(strStage3, onChangeStage3) { stage3Model.value }
+            stateObserver.observeReads(strStage3, onChangeStage3) { stage3Model.intValue }
 
             Snapshot.notifyObjectsInitialized()
 
-            stage1Model.value++
-            stage2Model.value++
-            stage3Model.value++
+            stage1Model.intValue++
+            stage2Model.intValue++
+            stage3Model.intValue++
 
             Snapshot.sendApplyNotifications()
 
@@ -120,9 +121,9 @@ class SnapshotStateObserverTestsCommon {
         var stage1Changes = 0
         var stage2Changes1 = 0
         var stage2Changes2 = 0
-        val stage1Data = mutableStateOf(0)
-        val stage2Data1 = mutableStateOf(0)
-        val stage2Data2 = mutableStateOf(0)
+        val stage1Data = mutableIntStateOf(0)
+        val stage2Data1 = mutableIntStateOf(0)
+        val stage2Data2 = mutableIntStateOf(0)
 
         val onChangeStage1Listener: (ValueWrapper) -> Unit = { affected ->
             assertEquals(affected, stage1Info)
@@ -150,20 +151,20 @@ class SnapshotStateObserverTestsCommon {
             stateObserver.start()
 
             stateObserver.observeReads(stage2Info1, onChangeState2Listener) {
-                stage2Data1.value
+                stage2Data1.intValue
                 stateObserver.observeReads(stage2Info2, onChangeState2Listener) {
-                    stage2Data2.value
+                    stage2Data2.intValue
                     stateObserver.observeReads(stage1Info, onChangeStage1Listener) {
-                        stage1Data.value
+                        stage1Data.intValue
                     }
                 }
             }
 
             Snapshot.notifyObjectsInitialized()
 
-            stage2Data1.value++
-            stage2Data2.value++
-            stage1Data.value++
+            stage2Data1.intValue++
+            stage2Data2.intValue++
+            stage1Data.intValue++
 
             Snapshot.sendApplyNotifications()
 
@@ -180,7 +181,7 @@ class SnapshotStateObserverTestsCommon {
         val info = ValueWrapper("Hello")
         var changes = 0
 
-        val state = mutableStateOf(0)
+        val state = mutableIntStateOf(0)
         val onChangeListener: (ValueWrapper) -> Unit = { _ ->
             assertEquals(0, changes)
             changes++
@@ -196,14 +197,14 @@ class SnapshotStateObserverTestsCommon {
                 val snapshot = Snapshot.takeMutableSnapshot()
                 try {
                     // read the value
-                    snapshot.enter { state.value }
+                    snapshot.enter { state.intValue }
                     snapshot.apply().check()
                 } finally {
                     snapshot.dispose()
                 }
             }
 
-            state.value++
+            state.intValue++
 
             Snapshot.sendApplyNotifications()
 
@@ -425,6 +426,7 @@ class SnapshotStateObserverTestsCommon {
         assertEquals(1, changes)
     }
 
+    @Suppress("MutableCollectionMutableState") // The point of this test
     @Test
     fun derivedStateOfReferentialChangeDoesNotInvalidateObserver() {
         var changes = 0
@@ -459,6 +461,7 @@ class SnapshotStateObserverTestsCommon {
         assertEquals(1, changes)
     }
 
+    @Suppress("MutableCollectionMutableState") // The point of this test
     @Test
     fun derivedStateOfWithReferentialMutationPolicy() {
         var changes = 0
@@ -477,6 +480,7 @@ class SnapshotStateObserverTestsCommon {
         assertEquals(1, changes)
     }
 
+    @Suppress("MutableCollectionMutableState") // The point of this test
     @Test
     fun derivedStateOfWithStructuralMutationPolicy() {
         var changes = 0
@@ -577,33 +581,33 @@ class SnapshotStateObserverTestsCommon {
     @Test
     fun testRecursiveApplyChanges_SingleRecursive() {
         val stateObserver = SnapshotStateObserver { it() }
-        val state1 = mutableStateOf(0)
-        val state2 = mutableStateOf(0)
+        val state1 = mutableIntStateOf(0)
+        val state2 = mutableIntStateOf(0)
         try {
             stateObserver.start()
             Snapshot.notifyObjectsInitialized()
 
             val onChange: (ValueWrapper) -> Unit = { scope ->
-                if (scope.s == "scope" && state1.value < 2) {
-                    state1.value++
+                if (scope.s == "scope" && state1.intValue < 2) {
+                    state1.intValue++
                     Snapshot.sendApplyNotifications()
                 }
             }
 
             stateObserver.observeReads(ValueWrapper("scope"), onChange) {
-                state1.value
-                state2.value
+                state1.intValue
+                state2.intValue
             }
 
             repeat(10) {
                 stateObserver.observeReads(ValueWrapper("scope $it"), onChange) {
-                    state1.value
-                    state2.value
+                    state1.intValue
+                    state2.intValue
                 }
             }
 
-            state1.value++
-            state2.value++
+            state1.intValue++
+            state2.intValue++
 
             Snapshot.sendApplyNotifications()
         } finally {
@@ -614,47 +618,47 @@ class SnapshotStateObserverTestsCommon {
     @Test
     fun testRecursiveApplyChanges_MultiRecursive() {
         val stateObserver = SnapshotStateObserver { it() }
-        val state1 = mutableStateOf(0)
-        val state2 = mutableStateOf(0)
-        val state3 = mutableStateOf(0)
-        val state4 = mutableStateOf(0)
+        val state1 = mutableIntStateOf(0)
+        val state2 = mutableIntStateOf(0)
+        val state3 = mutableIntStateOf(0)
+        val state4 = mutableIntStateOf(0)
         try {
             stateObserver.start()
             Snapshot.notifyObjectsInitialized()
 
             val onChange: (ValueWrapper) -> Unit = { scope ->
-                if (scope.s == "scope" && state1.value < 2) {
-                    state1.value++
+                if (scope.s == "scope" && state1.intValue < 2) {
+                    state1.intValue++
                     Snapshot.sendApplyNotifications()
-                    state2.value++
+                    state2.intValue++
                     Snapshot.sendApplyNotifications()
-                    state3.value++
+                    state3.intValue++
                     Snapshot.sendApplyNotifications()
-                    state4.value++
+                    state4.intValue++
                     Snapshot.sendApplyNotifications()
                 }
             }
 
             stateObserver.observeReads(ValueWrapper("scope"), onChange) {
-                state1.value
-                state2.value
-                state3.value
-                state4.value
+                state1.intValue
+                state2.intValue
+                state3.intValue
+                state4.intValue
             }
 
             repeat(10) {
                 stateObserver.observeReads(ValueWrapper("scope $it"), onChange) {
-                    state1.value
-                    state2.value
-                    state3.value
-                    state4.value
+                    state1.intValue
+                    state2.intValue
+                    state3.intValue
+                    state4.intValue
                 }
             }
 
-            state1.value++
-            state2.value++
-            state3.value++
-            state4.value++
+            state1.intValue++
+            state2.intValue++
+            state3.intValue++
+            state4.intValue++
 
             Snapshot.sendApplyNotifications()
         } finally {
@@ -756,12 +760,12 @@ class SnapshotStateObserverTestsCommon {
         block: (modelObserver: SnapshotStateObserver, data: MutableState<Int>) -> Unit
     ) {
         val stateObserver = SnapshotStateObserver { it() }
-        val state = mutableStateOf(0)
+        val state = mutableIntStateOf(0)
         try {
             stateObserver.start()
             Snapshot.notifyObjectsInitialized()
             block(stateObserver, state)
-            state.value++
+            state.intValue++
             Snapshot.sendApplyNotifications()
         } finally {
             stateObserver.stop()

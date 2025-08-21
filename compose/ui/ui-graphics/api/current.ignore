@@ -1,121 +1,375 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#clipPath-mtrdD-E(androidx.compose.ui.graphics.Path, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.clipPath-mtrdD-E(androidx.compose.ui.graphics.Path,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#clipRect-N_I0leg(float, float, float, float, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.clipRect-N_I0leg(float,float,float,float,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#concat-58bKbWc(float[]):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.concat-58bKbWc(float[])
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawCircle-9KIMszo(long, float, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawCircle-9KIMszo(long,float,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawImage-d-4ec7I(androidx.compose.ui.graphics.ImageBitmap, long, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawImage-d-4ec7I(androidx.compose.ui.graphics.ImageBitmap,long,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawImageRect-HPBpro0(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawImageRect-HPBpro0(androidx.compose.ui.graphics.ImageBitmap,long,long,long,long,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawLine-Wko1d7g(long, long, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawLine-Wko1d7g(long,long,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawPoints-O7TthRY(int, java.util.List<androidx.compose.ui.geometry.Offset>, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawPoints-O7TthRY(int,java.util.List<androidx.compose.ui.geometry.Offset>,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawRawPoints-O7TthRY(int, float[], androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawRawPoints-O7TthRY(int,float[],androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.Canvas#drawVertices-TPEHhCM(androidx.compose.ui.graphics.Vertices, int, androidx.compose.ui.graphics.Paint):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Canvas.drawVertices-TPEHhCM(androidx.compose.ui.graphics.Vertices,int,androidx.compose.ui.graphics.Paint)
-AddedAbstractMethod: androidx.compose.ui.graphics.ColorProducer#invoke-0d7_KjU():
-    Binary breaking change: Added method androidx.compose.ui.graphics.ColorProducer.invoke-0d7_KjU()
-AddedAbstractMethod: androidx.compose.ui.graphics.ImageBitmap#getConfig-_sVssgQ():
-    Binary breaking change: Added method androidx.compose.ui.graphics.ImageBitmap.getConfig-_sVssgQ()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getBlendMode-0nO6VwU():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getBlendMode-0nO6VwU()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getColor-0d7_KjU():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getColor-0d7_KjU()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getFilterQuality-f-v9h1I():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getFilterQuality-f-v9h1I()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getStrokeCap-KaPHkGw():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getStrokeCap-KaPHkGw()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getStrokeJoin-LxFBmk8():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getStrokeJoin-LxFBmk8()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#getStyle-TiuSbCo():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.getStyle-TiuSbCo()
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setBlendMode-s9anfk8(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setBlendMode-s9anfk8(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setColor-8_81llA(long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setColor-8_81llA(long)
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setFilterQuality-vDHp3xo(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setFilterQuality-vDHp3xo(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setStrokeCap-BeK7IIE(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setStrokeCap-BeK7IIE(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setStrokeJoin-Ww9F2mQ(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setStrokeJoin-Ww9F2mQ(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Paint#setStyle-k9PVt8s(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Paint.setStyle-k9PVt8s(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Path#addPath-Uv8p0NA(androidx.compose.ui.graphics.Path, long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Path.addPath-Uv8p0NA(androidx.compose.ui.graphics.Path,long)
-AddedAbstractMethod: androidx.compose.ui.graphics.Path#getFillType-Rg-k1Os():
-    Binary breaking change: Added method androidx.compose.ui.graphics.Path.getFillType-Rg-k1Os()
-AddedAbstractMethod: androidx.compose.ui.graphics.Path#op-N5in7k0(androidx.compose.ui.graphics.Path, androidx.compose.ui.graphics.Path, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Path.op-N5in7k0(androidx.compose.ui.graphics.Path,androidx.compose.ui.graphics.Path,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Path#setFillType-oQ8Xj4U(int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Path.setFillType-oQ8Xj4U(int)
-AddedAbstractMethod: androidx.compose.ui.graphics.Path#translate-k-4lQ0M(long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Path.translate-k-4lQ0M(long)
-AddedAbstractMethod: androidx.compose.ui.graphics.PathMeasure#getPosition-tuRUvjQ(float):
-    Binary breaking change: Added method androidx.compose.ui.graphics.PathMeasure.getPosition-tuRUvjQ(float)
-AddedAbstractMethod: androidx.compose.ui.graphics.PathMeasure#getTangent-tuRUvjQ(float):
-    Binary breaking change: Added method androidx.compose.ui.graphics.PathMeasure.getTangent-tuRUvjQ(float)
-AddedAbstractMethod: androidx.compose.ui.graphics.ShaderBrush#createShader-uvyYCjk(long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.ShaderBrush.createShader-uvyYCjk(long)
-AddedAbstractMethod: androidx.compose.ui.graphics.Shape#createOutline-Pq9zytI(long, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.unit.Density):
-    Binary breaking change: Added method androidx.compose.ui.graphics.Shape.createOutline-Pq9zytI(long,androidx.compose.ui.unit.LayoutDirection,androidx.compose.ui.unit.Density)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawContext#getSize-NH-jbRc():
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawContext.getSize-NH-jbRc()
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawContext#setSize-uvyYCjk(long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawContext.setSize-uvyYCjk(long)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawArc-illE91I(androidx.compose.ui.graphics.Brush, float, float, boolean, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawArc-illE91I(androidx.compose.ui.graphics.Brush,float,float,boolean,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawArc-yD3GUKo(long, float, float, boolean, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawArc-yD3GUKo(long,float,float,boolean,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawCircle-V9BoPsw(androidx.compose.ui.graphics.Brush, float, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawCircle-V9BoPsw(androidx.compose.ui.graphics.Brush,float,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawCircle-VaOC9Bg(long, float, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawCircle-VaOC9Bg(long,float,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawImage-9jGpkUE(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawImage-9jGpkUE(androidx.compose.ui.graphics.ImageBitmap,long,long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawImage-gbVJVH8(androidx.compose.ui.graphics.ImageBitmap, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawImage-gbVJVH8(androidx.compose.ui.graphics.ImageBitmap,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawLine-1RTmtNc(androidx.compose.ui.graphics.Brush, long, long, float, int, androidx.compose.ui.graphics.PathEffect, float, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawLine-1RTmtNc(androidx.compose.ui.graphics.Brush,long,long,float,int,androidx.compose.ui.graphics.PathEffect,float,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawLine-NGM6Ib0(long, long, long, float, int, androidx.compose.ui.graphics.PathEffect, float, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawLine-NGM6Ib0(long,long,long,float,int,androidx.compose.ui.graphics.PathEffect,float,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawOval-AsUm42w(androidx.compose.ui.graphics.Brush, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawOval-AsUm42w(androidx.compose.ui.graphics.Brush,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawOval-n-J9OG0(long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawOval-n-J9OG0(long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawPath-GBMwjPU(androidx.compose.ui.graphics.Path, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawPath-GBMwjPU(androidx.compose.ui.graphics.Path,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawPath-LG529CI(androidx.compose.ui.graphics.Path, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawPath-LG529CI(androidx.compose.ui.graphics.Path,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawPoints-F8ZwMP8(java.util.List<androidx.compose.ui.geometry.Offset>, int, long, float, int, androidx.compose.ui.graphics.PathEffect, float, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawPoints-F8ZwMP8(java.util.List<androidx.compose.ui.geometry.Offset>,int,long,float,int,androidx.compose.ui.graphics.PathEffect,float,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawPoints-Gsft0Ws(java.util.List<androidx.compose.ui.geometry.Offset>, int, androidx.compose.ui.graphics.Brush, float, int, androidx.compose.ui.graphics.PathEffect, float, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawPoints-Gsft0Ws(java.util.List<androidx.compose.ui.geometry.Offset>,int,androidx.compose.ui.graphics.Brush,float,int,androidx.compose.ui.graphics.PathEffect,float,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawRect-AsUm42w(androidx.compose.ui.graphics.Brush, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawRect-AsUm42w(androidx.compose.ui.graphics.Brush,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawRect-n-J9OG0(long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawRect-n-J9OG0(long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawRoundRect-ZuiqVtQ(androidx.compose.ui.graphics.Brush, long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawRoundRect-ZuiqVtQ(androidx.compose.ui.graphics.Brush,long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawRoundRect-u-Aw5IA(long, long, long, long, androidx.compose.ui.graphics.drawscope.DrawStyle, float, androidx.compose.ui.graphics.ColorFilter, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawScope.drawRoundRect-u-Aw5IA(long,long,long,long,androidx.compose.ui.graphics.drawscope.DrawStyle,float,androidx.compose.ui.graphics.ColorFilter,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#clipPath-mtrdD-E(androidx.compose.ui.graphics.Path, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.clipPath-mtrdD-E(androidx.compose.ui.graphics.Path,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#clipRect-N_I0leg(float, float, float, float, int):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.clipRect-N_I0leg(float,float,float,float,int)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#getSize-NH-jbRc():
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.getSize-NH-jbRc()
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#rotate-Uv8p0NA(float, long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.rotate-Uv8p0NA(float,long)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#scale-0AR0LA0(float, float, long):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.scale-0AR0LA0(float,float,long)
-AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#transform-58bKbWc(float[]):
-    Binary breaking change: Added method androidx.compose.ui.graphics.drawscope.DrawTransform.transform-58bKbWc(float[])
-AddedAbstractMethod: androidx.compose.ui.graphics.painter.Painter#getIntrinsicSize-NH-jbRc():
-    Binary breaking change: Added method androidx.compose.ui.graphics.painter.Painter.getIntrinsicSize-NH-jbRc()
+RemovedDeprecatedMethod: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#drawImage(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.drawImage(androidx.compose.ui.graphics.ImageBitmap,long,long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
+RemovedDeprecatedMethod: androidx.compose.ui.graphics.drawscope.DrawScope#drawImage(androidx.compose.ui.graphics.ImageBitmap, long, long, long, long, float, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.graphics.ColorFilter, int):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.drawscope.DrawScope.drawImage(androidx.compose.ui.graphics.ImageBitmap,long,long,long,long,float,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.graphics.ColorFilter,int)
+RemovedDeprecatedMethod: androidx.compose.ui.graphics.drawscope.DrawScopeKt#draw(androidx.compose.ui.graphics.drawscope.DrawScope, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.graphics.Canvas, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.drawscope.DrawScopeKt.draw(androidx.compose.ui.graphics.drawscope.DrawScope,androidx.compose.ui.unit.Density,androidx.compose.ui.unit.LayoutDirection,androidx.compose.ui.graphics.Canvas,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>)
+
+
+RemovedFromKotlin: androidx.compose.ui.graphics.Path#addOval(androidx.compose.ui.geometry.Rect):
+    Source breaking change: method androidx.compose.ui.graphics.Path.addOval(androidx.compose.ui.geometry.Rect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Path#addRect(androidx.compose.ui.geometry.Rect):
+    Source breaking change: method androidx.compose.ui.graphics.Path.addRect(androidx.compose.ui.geometry.Rect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Path#addRoundRect(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.graphics.Path.addRoundRect(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getDifference(androidx.compose.ui.graphics.PathOperation.Companion):
+    Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getDifference(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getIntersect(androidx.compose.ui.graphics.PathOperation.Companion):
+    Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getIntersect(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getReverseDifference(androidx.compose.ui.graphics.PathOperation.Companion):
+    Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getReverseDifference(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getUnion(androidx.compose.ui.graphics.PathOperation.Companion):
+    Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getUnion(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getXor(androidx.compose.ui.graphics.PathOperation.Companion):
+    Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getXor(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getColor()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getFilterQuality():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getFilterQuality()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getStrokeCap():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getStrokeCap()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getStrokeJoin():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getStrokeJoin()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#getStyle():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.getStyle()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setBlendMode(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setBlendMode(int)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setColor(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setColor(long)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setFilterQuality(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setFilterQuality(int)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setStrokeCap(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setStrokeCap(int)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setStrokeJoin(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setStrokeJoin(int)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPaint#setStyle(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPaint.setStyle(int)
+RemovedMethod: androidx.compose.ui.graphics.AndroidPath#getFillType():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPath.getFillType()
+RemovedMethod: androidx.compose.ui.graphics.AndroidPath#setFillType(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.AndroidPath.setFillType(int)
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getClear():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getClear()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getColor()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getColorBurn():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getColorBurn()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getColorDodge():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getColorDodge()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDarken():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDarken()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDifference():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDifference()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDst():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDst()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDstAtop():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDstAtop()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDstIn():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDstIn()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDstOut():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDstOut()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getDstOver():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getDstOver()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getExclusion():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getExclusion()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getHardlight():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getHardlight()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getHue():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getHue()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getLighten():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getLighten()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getLuminosity():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getLuminosity()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getModulate():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getModulate()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getMultiply():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getMultiply()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getOverlay():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getOverlay()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getPlus():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getPlus()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSaturation():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSaturation()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getScreen():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getScreen()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSoftlight():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSoftlight()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSrc():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSrc()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSrcAtop():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSrcAtop()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSrcIn():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSrcIn()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSrcOut():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSrcOut()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getSrcOver():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getSrcOver()
+RemovedMethod: androidx.compose.ui.graphics.BlendMode.Companion#getXor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendMode.Companion.getXor()
+RemovedMethod: androidx.compose.ui.graphics.BlendModeColorFilter#getBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendModeColorFilter.getBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.BlendModeColorFilter#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.BlendModeColorFilter.getColor()
+RemovedMethod: androidx.compose.ui.graphics.Brush#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Brush.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.ClipOp.Companion#getDifference():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ClipOp.Companion.getDifference()
+RemovedMethod: androidx.compose.ui.graphics.ClipOp.Companion#getIntersect():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ClipOp.Companion.getIntersect()
+RemovedMethod: androidx.compose.ui.graphics.Color#getValue():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.getValue()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getBlack():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getBlack()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getBlue():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getBlue()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getCyan():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getCyan()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getDarkGray():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getDarkGray()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getGray():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getGray()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getGreen():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getGreen()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getLightGray():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getLightGray()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getMagenta():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getMagenta()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getRed():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getRed()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getTransparent():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getTransparent()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getWhite():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getWhite()
+RemovedMethod: androidx.compose.ui.graphics.Color.Companion#getYellow():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Color.Companion.getYellow()
+RemovedMethod: androidx.compose.ui.graphics.ColorKt#isSpecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ColorKt.isSpecified(long)
+RemovedMethod: androidx.compose.ui.graphics.ColorKt#isUnspecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ColorKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.graphics.FilterQuality.Companion#getHigh():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.FilterQuality.Companion.getHigh()
+RemovedMethod: androidx.compose.ui.graphics.FilterQuality.Companion#getLow():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.FilterQuality.Companion.getLow()
+RemovedMethod: androidx.compose.ui.graphics.FilterQuality.Companion#getMedium():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.FilterQuality.Companion.getMedium()
+RemovedMethod: androidx.compose.ui.graphics.FilterQuality.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.FilterQuality.Companion.getNone()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmap#getConfig():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmap.getConfig()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmapConfig.Companion#getAlpha8():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmapConfig.Companion.getAlpha8()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmapConfig.Companion#getArgb8888():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmapConfig.Companion.getArgb8888()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmapConfig.Companion#getF16():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmapConfig.Companion.getF16()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmapConfig.Companion#getGpu():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmapConfig.Companion.getGpu()
+RemovedMethod: androidx.compose.ui.graphics.ImageBitmapConfig.Companion#getRgb565():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ImageBitmapConfig.Companion.getRgb565()
+RemovedMethod: androidx.compose.ui.graphics.LightingColorFilter#getAdd():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.LightingColorFilter.getAdd()
+RemovedMethod: androidx.compose.ui.graphics.LightingColorFilter#getMultiply():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.LightingColorFilter.getMultiply()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getColor()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getFilterQuality():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getFilterQuality()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getStrokeCap():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getStrokeCap()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getStrokeJoin():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getStrokeJoin()
+RemovedMethod: androidx.compose.ui.graphics.Paint#getStyle():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.getStyle()
+RemovedMethod: androidx.compose.ui.graphics.Paint#setBlendMode(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setBlendMode(int)
+RemovedMethod: androidx.compose.ui.graphics.Paint#setColor(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setColor(long)
+RemovedMethod: androidx.compose.ui.graphics.Paint#setFilterQuality(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setFilterQuality(int)
+RemovedMethod: androidx.compose.ui.graphics.Paint#setStrokeCap(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setStrokeCap(int)
+RemovedMethod: androidx.compose.ui.graphics.Paint#setStrokeJoin(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setStrokeJoin(int)
+RemovedMethod: androidx.compose.ui.graphics.Paint#setStyle(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Paint.setStyle(int)
+RemovedMethod: androidx.compose.ui.graphics.PaintingStyle.Companion#getFill():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PaintingStyle.Companion.getFill()
+RemovedMethod: androidx.compose.ui.graphics.PaintingStyle.Companion#getStroke():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PaintingStyle.Companion.getStroke()
+RemovedMethod: androidx.compose.ui.graphics.Path#getFillType():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Path.getFillType()
+RemovedMethod: androidx.compose.ui.graphics.Path#setFillType(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Path.setFillType(int)
+RemovedMethod: androidx.compose.ui.graphics.PathFillType.Companion#getEvenOdd():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathFillType.Companion.getEvenOdd()
+RemovedMethod: androidx.compose.ui.graphics.PathFillType.Companion#getNonZero():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathFillType.Companion.getNonZero()
+RemovedMethod: androidx.compose.ui.graphics.PathOperation.Companion#getDifference():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathOperation.Companion.getDifference()
+RemovedMethod: androidx.compose.ui.graphics.PathOperation.Companion#getIntersect():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathOperation.Companion.getIntersect()
+RemovedMethod: androidx.compose.ui.graphics.PathOperation.Companion#getReverseDifference():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathOperation.Companion.getReverseDifference()
+RemovedMethod: androidx.compose.ui.graphics.PathOperation.Companion#getUnion():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathOperation.Companion.getUnion()
+RemovedMethod: androidx.compose.ui.graphics.PathOperation.Companion#getXor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PathOperation.Companion.getXor()
+RemovedMethod: androidx.compose.ui.graphics.PointMode.Companion#getLines():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PointMode.Companion.getLines()
+RemovedMethod: androidx.compose.ui.graphics.PointMode.Companion#getPoints():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PointMode.Companion.getPoints()
+RemovedMethod: androidx.compose.ui.graphics.PointMode.Companion#getPolygon():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.PointMode.Companion.getPolygon()
+RemovedMethod: androidx.compose.ui.graphics.ShaderBrush#getTransform():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ShaderBrush.getTransform()
+RemovedMethod: androidx.compose.ui.graphics.ShaderBrush#setTransform(float[]):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.ShaderBrush.setTransform(float[])
+RemovedMethod: androidx.compose.ui.graphics.Shadow#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Shadow.getColor()
+RemovedMethod: androidx.compose.ui.graphics.Shadow#getOffset():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Shadow.getOffset()
+RemovedMethod: androidx.compose.ui.graphics.SolidColor#getValue():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.SolidColor.getValue()
+RemovedMethod: androidx.compose.ui.graphics.StampedPathEffectStyle.Companion#getMorph():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StampedPathEffectStyle.Companion.getMorph()
+RemovedMethod: androidx.compose.ui.graphics.StampedPathEffectStyle.Companion#getRotate():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StampedPathEffectStyle.Companion.getRotate()
+RemovedMethod: androidx.compose.ui.graphics.StampedPathEffectStyle.Companion#getTranslate():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StampedPathEffectStyle.Companion.getTranslate()
+RemovedMethod: androidx.compose.ui.graphics.StrokeCap.Companion#getButt():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeCap.Companion.getButt()
+RemovedMethod: androidx.compose.ui.graphics.StrokeCap.Companion#getRound():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeCap.Companion.getRound()
+RemovedMethod: androidx.compose.ui.graphics.StrokeCap.Companion#getSquare():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeCap.Companion.getSquare()
+RemovedMethod: androidx.compose.ui.graphics.StrokeJoin.Companion#getBevel():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeJoin.Companion.getBevel()
+RemovedMethod: androidx.compose.ui.graphics.StrokeJoin.Companion#getMiter():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeJoin.Companion.getMiter()
+RemovedMethod: androidx.compose.ui.graphics.StrokeJoin.Companion#getRound():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.StrokeJoin.Companion.getRound()
+RemovedMethod: androidx.compose.ui.graphics.TileMode.Companion#getClamp():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.TileMode.Companion.getClamp()
+RemovedMethod: androidx.compose.ui.graphics.TileMode.Companion#getDecal():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.TileMode.Companion.getDecal()
+RemovedMethod: androidx.compose.ui.graphics.TileMode.Companion#getMirror():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.TileMode.Companion.getMirror()
+RemovedMethod: androidx.compose.ui.graphics.TileMode.Companion#getRepeated():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.TileMode.Companion.getRepeated()
+RemovedMethod: androidx.compose.ui.graphics.VertexMode.Companion#getTriangleFan():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.VertexMode.Companion.getTriangleFan()
+RemovedMethod: androidx.compose.ui.graphics.VertexMode.Companion#getTriangleStrip():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.VertexMode.Companion.getTriangleStrip()
+RemovedMethod: androidx.compose.ui.graphics.VertexMode.Companion#getTriangles():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.VertexMode.Companion.getTriangles()
+RemovedMethod: androidx.compose.ui.graphics.Vertices#getVertexMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.Vertices.getVertexMode()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.ColorModel.Companion#getCmyk():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.ColorModel.Companion.getCmyk()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.ColorModel.Companion#getLab():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.ColorModel.Companion.getLab()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.ColorModel.Companion#getRgb():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.ColorModel.Companion.getRgb()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.ColorModel.Companion#getXyz():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.ColorModel.Companion.getXyz()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.ColorSpace#getModel():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.ColorSpace.getModel()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.Connector#getRenderIntent():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.Connector.getRenderIntent()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.RenderIntent.Companion#getAbsolute():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.RenderIntent.Companion.getAbsolute()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.RenderIntent.Companion#getPerceptual():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.RenderIntent.Companion.getPerceptual()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.RenderIntent.Companion#getRelative():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.RenderIntent.Companion.getRelative()
+RemovedMethod: androidx.compose.ui.graphics.colorspace.RenderIntent.Companion#getSaturation():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.colorspace.RenderIntent.Companion.getSaturation()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawContext#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawContext.getSize()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawContext#setSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawContext.setSize(long)
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawScope#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawScope.getCenter()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawScope#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawScope.getSize()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawScope.Companion#getDefaultBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawScope.Companion.getDefaultBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawScope.Companion#getDefaultFilterQuality():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawScope.Companion.getDefaultFilterQuality()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawTransform.getCenter()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.DrawTransform.getSize()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.Stroke#getCap():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.Stroke.getCap()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.Stroke#getJoin():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.Stroke.getJoin()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.Stroke.Companion#getDefaultCap():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.Stroke.Companion.getDefaultCap()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.Stroke.Companion#getDefaultJoin():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.drawscope.Stroke.Companion.getDefaultJoin()
+RemovedMethod: androidx.compose.ui.graphics.layer.CompositingStrategy.Companion#getAuto():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.getAuto()
+RemovedMethod: androidx.compose.ui.graphics.layer.CompositingStrategy.Companion#getModulateAlpha():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.getModulateAlpha()
+RemovedMethod: androidx.compose.ui.graphics.layer.CompositingStrategy.Companion#getOffscreen():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.getOffscreen()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getAmbientShadowColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getAmbientShadowColor()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getCompositingStrategy():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getCompositingStrategy()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getPivotOffset():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getPivotOffset()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getSize()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getSpotShadowColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getSpotShadowColor()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#getTopLeft():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.getTopLeft()
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setAmbientShadowColor(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setAmbientShadowColor(long)
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setBlendMode(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setBlendMode(int)
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setCompositingStrategy(int):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setCompositingStrategy(int)
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setPivotOffset(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setPivotOffset(long)
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setSpotShadowColor(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setSpotShadowColor(long)
+RemovedMethod: androidx.compose.ui.graphics.layer.GraphicsLayer#setTopLeft(long):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.layer.GraphicsLayer.setTopLeft(long)
+RemovedMethod: androidx.compose.ui.graphics.painter.BitmapPainter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.painter.BitmapPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.painter.BrushPainter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.painter.BrushPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.painter.ColorPainter#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.painter.ColorPainter.getColor()
+RemovedMethod: androidx.compose.ui.graphics.painter.ColorPainter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.painter.ColorPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.painter.Painter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.painter.Painter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.shadow.DropShadowPainter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.DropShadowPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.shadow.InnerShadowPainter#getIntrinsicSize():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.InnerShadowPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.shadow.Shadow#getBlendMode():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.Shadow.getBlendMode()
+RemovedMethod: androidx.compose.ui.graphics.shadow.Shadow#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.Shadow.getColor()
+RemovedMethod: androidx.compose.ui.graphics.shadow.Shadow#getOffset():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.Shadow.getOffset()
+RemovedMethod: androidx.compose.ui.graphics.shadow.Shadow#getRadius():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.Shadow.getRadius()
+RemovedMethod: androidx.compose.ui.graphics.shadow.Shadow#getSpread():
+    Binary breaking change: Removed method androidx.compose.ui.graphics.shadow.Shadow.getSpread()

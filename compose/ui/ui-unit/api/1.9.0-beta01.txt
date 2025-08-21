@@ -6,7 +6,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Constraints {
-    ctor public Constraints(@kotlin.PublishedApi long value);
+    ctor @KotlinOnly public Constraints(long value);
     method @BytecodeOnly public static androidx.compose.ui.unit.Constraints! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
     method public long copy(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
@@ -98,7 +98,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Dp implements java.lang.Comparable<androidx.compose.ui.unit.Dp> {
-    ctor public Dp(float value);
+    ctor @KotlinOnly public Dp(float value);
     method @BytecodeOnly public static androidx.compose.ui.unit.Dp! box-impl(float);
     method @androidx.compose.runtime.Stable public operator int compareTo(float other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public int compareTo-0680j_4(float);
@@ -214,7 +214,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DpOffset {
-    ctor public DpOffset(long packedValue);
+    ctor @KotlinOnly public DpOffset(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.unit.DpOffset! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
     method public long copy(optional float x, optional float y);
@@ -243,8 +243,10 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class DpRect {
-    ctor public DpRect(@androidx.compose.runtime.Stable float left, @androidx.compose.runtime.Stable float top, @androidx.compose.runtime.Stable float right, @androidx.compose.runtime.Stable float bottom);
-    ctor public DpRect(long origin, long size);
+    ctor @KotlinOnly public DpRect(androidx.compose.ui.unit.Dp left, androidx.compose.ui.unit.Dp top, androidx.compose.ui.unit.Dp right, androidx.compose.ui.unit.Dp bottom);
+    ctor @KotlinOnly public DpRect(androidx.compose.ui.unit.DpOffset origin, androidx.compose.ui.unit.DpSize size);
+    ctor @BytecodeOnly public DpRect(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public DpRect(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float component1-D9Ej5fM();
     method public float component2-D9Ej5fM();
     method public float component3-D9Ej5fM();
@@ -318,7 +320,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
-    ctor public IntOffset(long packedValue);
+    ctor @KotlinOnly public IntOffset(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.unit.IntOffset! box-impl(long);
     method @androidx.compose.runtime.Stable public inline operator int component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component1-impl(long);
@@ -578,7 +580,7 @@ package androidx.compose.ui.unit {
   }
 
   @kotlin.jvm.JvmInline public final value class TextUnitType {
-    ctor public TextUnitType(long type);
+    ctor @KotlinOnly public TextUnitType(long type);
     method @BytecodeOnly public static androidx.compose.ui.unit.TextUnitType! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
     method @BytecodeOnly public long unbox-impl();

@@ -129,6 +129,7 @@ import kotlinx.coroutines.launch
  *   inside this lambda will be measured and placed evenly across the TabRow, each taking up equal
  *   space.
  */
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 @UiComposable
 fun TabRow(
@@ -218,6 +219,7 @@ fun TabRow(
  *   element inside this lambda will be measured and placed evenly across the TabRow, each taking up
  *   equal space.
  */
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 @UiComposable
 fun ScrollableTabRow(

@@ -32,7 +32,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.test.assertThatIntRect
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -77,8 +77,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.sign
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -380,7 +378,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         lateinit var clipboard: Clipboard
         createSelectionContainer {
             clipboard = LocalClipboard.current
-            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {
+            LaunchedEffect(Unit) {
                 clipboard.setClipEntry(
                     AnnotatedString("Clipboard content at start of test.").toClipEntry()
                 )
@@ -404,7 +402,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         lateinit var clipboard: Clipboard
         createSelectionContainer {
             clipboard = LocalClipboard.current
-            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {
+            LaunchedEffect(Unit) {
                 clipboard.setClipEntry(
                     AnnotatedString("Clipboard content at start of test.").toClipEntry()
                 )

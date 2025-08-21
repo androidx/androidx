@@ -16,7 +16,8 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
-        <activity android:name="androidx.compose.ui.test.CustomComposeHostActivity" />
+        <activity android:name="androidx.compose.ui.test.CustomComposeHostActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
         <activity android:name="androidx.compose.ui.test.ClickCounterActivity" />
         <activity android:name="androidx.compose.ui.test.EmptyActivity" />
 

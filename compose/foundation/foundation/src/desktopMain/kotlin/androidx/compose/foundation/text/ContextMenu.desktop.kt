@@ -30,7 +30,7 @@ import androidx.compose.foundation.internal.nativeClipboardHasText
 import androidx.compose.foundation.text.TextContextMenu.TextManager
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.foundation.text.contextmenu.internal.ProvideDefaultPlatformTextContextMenuProviders
-import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuGestures
+import androidx.compose.foundation.text.contextmenu.modifier.showTextContextMenuOnSecondaryClick
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
@@ -91,7 +91,7 @@ internal actual fun ContextMenuArea(
     if (ComposeFoundationFlags.isNewContextMenuEnabled) {
         val modifier =
             if (enabled) {
-                Modifier.textContextMenuGestures(
+                Modifier.showTextContextMenuOnSecondaryClick(
                     onPreShowContextMenu = { selectionState.updateClipboardEntry() }
                 )
             } else {

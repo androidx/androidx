@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import java.text.NumberFormat
 import java.util.Locale
@@ -61,7 +60,6 @@ class MemoryLeakTest {
     val activityTestRule = androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
     @Test
-    @SdkSuppress(minSdkVersion = 22) // b/266743031
     fun disposeAndRemoveOwnerView_assertViewWasGarbageCollected() = runBlocking {
         class SimpleTestCase : ComposeTestCase {
             @Composable
@@ -104,7 +102,6 @@ class MemoryLeakTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266743031
     @Test
     fun disposeContent_assertNoLeak() =
         runBlocking(AndroidUiDispatcher.Main) {

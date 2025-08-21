@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
@@ -117,6 +118,26 @@ class CutCornerShape(
         result = 31 * result + bottomStart.hashCode()
         return result
     }
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == RectangleShape || other == null) {
+            other = CutCornerShape(0f)
+        }
+        if (other is CutCornerShape) {
+            return lerp(this, other, t)
+        }
+        return null
+    }
+}
+
+internal fun lerp(a: CutCornerShape, b: CutCornerShape, t: Float): CutCornerShape {
+    return CutCornerShape(
+        lerp(a.topStart, b.topStart, t),
+        lerp(a.topEnd, b.topEnd, t),
+        lerp(a.bottomEnd, b.bottomEnd, t),
+        lerp(a.bottomStart, b.bottomStart, t),
+    )
 }
 
 /**

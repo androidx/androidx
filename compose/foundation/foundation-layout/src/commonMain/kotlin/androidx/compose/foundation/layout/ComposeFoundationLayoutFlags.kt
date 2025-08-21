@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.ModifierLocal
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.TraversableNode
 import kotlin.jvm.JvmField
 
 /**
@@ -53,16 +57,12 @@ import kotlin.jvm.JvmField
 @ExperimentalLayoutApi
 object ComposeFoundationLayoutFlags {
     /**
-     * When this flag is true, Compose will no longer consume window insets if window insets are
-     * queried within Compose, using the WindowInsets API. This allows child views to receive
-     * insets, and is the expected behavior in most cases. When this flag is false, insets will be
-     * consumed if they are queried, to fall back to prior behavior.
-     *
-     * If you intentionally do not want child views to receive insets, you can set
-     * [AbstractComposeView.consumeWindowInsets] to `true` to make the Compose view always consume
-     * all insets.
+     * The WindowInsets implementation has changed from using [Modifier.composed] and
+     * [ModifierLocal] to using [ModifierNodeElement] and [TraversableNode] for composition
+     * performance improvement purposes. If there is a problem encountered with the new
+     * implementation, the old implementation can be restored by setting this flag to `false`.
      */
     @Suppress("MutableBareField")
     @JvmField
-    var isWindowInsetsDefaultPassThroughEnabled: Boolean = true
+    var isWindowInsetsModifierLocalNodeImplementationEnabled = true
 }

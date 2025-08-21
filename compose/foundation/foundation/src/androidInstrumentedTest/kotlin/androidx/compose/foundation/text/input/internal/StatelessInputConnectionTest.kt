@@ -212,6 +212,15 @@ class StatelessInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("")
     }
 
+    @Test // b/416075680
+    fun getTextBeforeAndAfterCursorTest_overflow() {
+        // Set "Hello, World", and place the cursor at the beginning of the text.
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
+
+        assertThat(ic.getTextBeforeCursor(Int.MAX_VALUE, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(Int.MAX_VALUE, 0)).isEqualTo("Hello, World")
+    }
+
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.

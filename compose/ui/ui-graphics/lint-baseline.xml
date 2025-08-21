@@ -1,13 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.view.View#setForeground`"
-        errorLine1="                                foreground = GraphicsContextHostDrawable(graphicsContext, block)"
-        errorLine2="                                           ~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.M` is always true here (`SDK_INT` ≥ 23 and &lt; 29)"
+        errorLine1="                    isRenderNodeCompatible &amp;&amp; Build.VERSION.SDK_INT >= Build.VERSION_CODES.M"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/graphics/layer/AndroidGraphicsLayerTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/AndroidGraphicsContext.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1` is always true here (`SDK_INT` ≥ 23 and &lt; 28)"
+        errorLine1="                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 &amp;&amp;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/AndroidGraphicsLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayerV23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsLayerV23.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsViewLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/GraphicsViewLayer.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 22"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(Build.VERSION_CODES.M)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 22"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1` is never true here"
+        errorLine1="        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/graphics/layer/LayerSnapshot.android.kt"/>
     </issue>
 
     <issue
@@ -186,114 +285,6 @@
         message="method sweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
         errorLine1="        fun sweepGradient(colors: List&lt;Color>, center: Offset = Offset.Unspecified): Brush ="
         errorLine2="                                  ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LinearGradient has parameter colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor LinearGradient has parameter stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor RadialGradient has parameter colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor RadialGradient has parameter stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor SweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field colors with type List&lt;Color>: replace with LongList"
-        errorLine1="    private val colors: List&lt;Color>,"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor SweepGradient has parameter stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null,"
-        errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
     </issue>

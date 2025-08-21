@@ -321,4 +321,6 @@ private class Impl(
         return "Impl(topStart = $topStart, topEnd = $topEnd, bottomEnd = $bottomEnd, bottomStart" +
             " = $bottomStart)"
     }
+
+    override fun lerp(other: Any?, t: Float): Any? = null
 }

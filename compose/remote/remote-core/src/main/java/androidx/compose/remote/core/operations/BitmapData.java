@@ -60,6 +60,9 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     /** The data is encoded as a reference to file */
     public static final short ENCODING_FILE = 2;
 
+    /** allocates a new bitmap data with value = 0 */
+    public static final short ENCODING_EMPTY = 3;
+
     /** The data is encoded as PNG_8888 (default) */
     public static final short TYPE_PNG_8888 = 0;
 
@@ -95,7 +98,7 @@ public class BitmapData extends Operation implements SerializableToString, Seria
      *
      * @param from the bitmap to copy
      */
-    public void update(BitmapData from) {
+    public void update(@NonNull BitmapData from) {
         this.mImageWidth = from.mImageWidth;
         this.mImageHeight = from.mImageHeight;
         this.mBitmap = from.mBitmap;

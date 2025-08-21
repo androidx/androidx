@@ -141,12 +141,19 @@ internal fun FocusTargetNode.focusSearch(
 }
 
 /**
- * Returns the bounding box of the focus layout area in the root or [Rect.Zero] if the FocusModifier
- * has not had a layout.
+ * Returns the focus area defined by the [FocusProperties] that are applied on this
+ * [FocusTargetNode] in root coordinates. By default if there nothing applied by the
+ * [FocusProperties], this function returns the bounding box of the node.
+ *
+ * If the node hasn't had a layout, it just returns [Rect.Zero].
  */
-internal fun FocusTargetNode.focusRect(): Rect =
-    coordinator?.let { it.findRootCoordinates().localBoundingBoxOf(it, clipBounds = false) }
-        ?: Rect.Zero
+internal fun FocusTargetNode.focusRect(): Rect {
+    if (!isAttached) return Rect.Zero
+    val rootCoordinates =
+        coordinator?.findRootCoordinates()?.takeIf { it.isAttached } ?: return Rect.Zero
+
+    return fetchFocusRect(rootCoordinates)
+}
 
 /** Whether this node should be considered when searching for the next item during a traversal. */
 internal val FocusTargetNode.isEligibleForFocusSearch: Boolean

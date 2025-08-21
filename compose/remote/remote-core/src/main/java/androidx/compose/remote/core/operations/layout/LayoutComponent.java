@@ -514,7 +514,7 @@ public class LayoutComponent extends Component {
     }
 
     @Override
-    public <T> @Nullable T selfOrModifier(Class<T> operationClass) {
+    public <T> @Nullable T selfOrModifier(@NonNull Class<T> operationClass) {
         if (operationClass.isInstance(this)) {
             return operationClass.cast(this);
         }
@@ -529,7 +529,7 @@ public class LayoutComponent extends Component {
     }
 
     @Override
-    public void registerVariables(RemoteContext context) {
+    public void registerVariables(@NonNull RemoteContext context) {
         if (mDrawContentOperations != null) {
             mDrawContentOperations.registerListening(context);
         }

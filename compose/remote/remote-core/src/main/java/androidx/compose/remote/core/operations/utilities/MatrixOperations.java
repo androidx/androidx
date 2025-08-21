@@ -151,7 +151,7 @@ public class MatrixOperations {
      * @param var variables
      * @return resulting Matrix object
      */
-    public Matrix eval(float @NonNull [] exp, float @NonNull ... var) {
+    public @NonNull Matrix eval(float @NonNull [] exp, float @NonNull ... var) {
         mStack = exp;
         mVar = var;
         mMatrixIndex = 0;

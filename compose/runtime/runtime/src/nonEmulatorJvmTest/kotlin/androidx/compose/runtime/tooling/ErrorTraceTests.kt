@@ -228,6 +228,20 @@ class ErrorTraceTests {
         }
 
     @Test
+    fun setContentNestedSubcomposition() =
+        exceptionTest(
+            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+            "<lambda>(ErrorTraceComposables.kt:66)",
+            "Subcompose(ErrorTraceComposables.kt:62)",
+            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            "<lambda>(ErrorTraceComposables.kt:66)",
+            "Subcompose(ErrorTraceComposables.kt:62)",
+            "<lambda>(ErrorTraceTests.kt:<line number>)",
+        ) {
+            compose { Subcompose { Subcompose { throwTestException() } } }
+        }
+
+    @Test
     fun recomposeSubcomposition() =
         exceptionTest(
             "<lambda>(ErrorTraceTests.kt:<unknown line>)",

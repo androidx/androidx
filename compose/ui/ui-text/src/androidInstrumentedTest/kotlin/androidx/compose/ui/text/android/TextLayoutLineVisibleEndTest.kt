@@ -23,7 +23,6 @@ import android.text.TextUtils
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
@@ -121,7 +120,6 @@ class TextLayoutLineVisibleEndTest {
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // b/364169257 for details
     @Test
     fun excludesLineBreak_whenMaxLinesPresent_withEllipsisStart() {
         val text = "abc\ndef"
@@ -139,7 +137,6 @@ class TextLayoutLineVisibleEndTest {
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // b/364169257 for details
     @Test
     fun excludesLineBreak_whenMaxLinesPresent_withEllipsisMiddle() {
         val text = "abc\ndef"

@@ -16,5 +16,24 @@
 
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
-const val POKEDEX_TARGET_PACKAGE_NAME =
-    "androidx.compose.integration.hero.pokedex.macrobenchmark.target"
+import android.content.Context
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.POKEDEX_DATABASE_NAME
+import androidx.test.platform.app.InstrumentationRegistry
+
+internal object PokedexConstants {
+    const val POKEDEX_TARGET_PACKAGE_NAME =
+        "androidx.compose.integration.hero.pokedex.macrobenchmark.target"
+    const val POKEDEX_DATABASE_NAME = "Pokedex.db"
+
+    object Compose {
+        const val POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE = "enableSharedTransitionScope"
+        const val POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS = "enableSharedElementTransitions"
+        const val POKEDEX_START_DESTINATION = "startDestination"
+    }
+}
+
+internal fun resetPokedexDatabase(
+    context: Context = InstrumentationRegistry.getInstrumentation().targetContext
+) {
+    context.deleteDatabase(POKEDEX_DATABASE_NAME)
+}

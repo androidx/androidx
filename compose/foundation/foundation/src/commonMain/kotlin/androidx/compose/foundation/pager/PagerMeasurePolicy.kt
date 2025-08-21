@@ -24,7 +24,9 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.lazy.layout.CacheWindowLogic
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.trace
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -211,6 +214,7 @@ internal fun rememberPagerMeasurePolicy(
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     coroutineScope = coroutineScope,
                     placeablesCache = placeablesCache,
+                    density = this,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),
@@ -221,6 +225,47 @@ internal fun rememberPagerMeasurePolicy(
                     },
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
+            // apply keep around after updating the strategy with measure result.
+            keepAroundItems(
+                cacheWindowLogic = state.cacheWindowLogic,
+                visiblePagesList = measureResult.visiblePagesInfo,
+            )
             measureResult
         }
     }
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyLayoutMeasureScope.keepAroundItems(
+    cacheWindowLogic: CacheWindowLogic,
+    visiblePagesList: List<PageInfo>,
+) {
+    trace("compose:pager:cache_window:keepAroundItems") {
+        // only run if window and new layout info is available
+        if (cacheWindowLogic.hasValidBounds() && visiblePagesList.isNotEmpty()) {
+            val firstVisiblePageIndex = visiblePagesList.first().index
+            val lastVisiblePageIndex = visiblePagesList.last().index
+
+            debugLog { "Keep Around First Visible Page Index: $firstVisiblePageIndex" }
+            debugLog { "Keep Around Last Visible Page Index: $firstVisiblePageIndex" }
+            debugLog { "Prefetch Window Start Line: ${cacheWindowLogic.prefetchWindowStartLine}" }
+            debugLog { "Prefetch Window End Line: ${cacheWindowLogic.prefetchWindowEndLine}" }
+            // we must send a message in case of changing directions for items
+            // that were keep around and become prefetch forward
+            for (item in cacheWindowLogic.prefetchWindowStartLine..<firstVisiblePageIndex) {
+                compose(item)
+            }
+
+            for (item in (lastVisiblePageIndex + 1)..cacheWindowLogic.prefetchWindowEndLine) {
+                compose(item)
+            }
+        }
+    }
+}
+
+private const val DebugEnabled = false
+
+private inline fun debugLog(generateMsg: () -> String) {
+    if (DebugEnabled) {
+        println("Pager Measure Policy: ${generateMsg()}")
+    }
+}

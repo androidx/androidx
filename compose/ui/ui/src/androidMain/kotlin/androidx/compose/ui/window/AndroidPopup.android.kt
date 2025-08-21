@@ -283,7 +283,7 @@ actual fun Popup(
  *
  * The popup is positioned using a custom [popupPositionProvider].
  *
- * @sample androidx.compose.ui.samples.PopupSample
+ * @sample androidx.compose.ui.samples.PopupWithPositionProviderSample
  * @param popupPositionProvider Provides the screen position of the popup.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
@@ -708,6 +708,9 @@ internal class PopupLayout(
      * callbacks.
      */
     fun pollForLocationOnScreenChange() {
+        // When this view is not attached to a window, we don't need to do anything.
+        if (!isAttachedToWindow) return
+
         val (oldX, oldY) = locationOnScreen
         composeView.getLocationOnScreen(locationOnScreen)
         if (oldX != locationOnScreen[0] || oldY != locationOnScreen[1]) {

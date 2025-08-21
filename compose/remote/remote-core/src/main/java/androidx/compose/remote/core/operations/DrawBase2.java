@@ -120,7 +120,8 @@ public abstract class DrawBase2 extends PaintOperation implements VariableSuppor
         buffer.writeFloat(y1);
     }
 
-    protected MapSerializer serialize(MapSerializer serializer, String v1Name, String v2Name) {
+    protected @NonNull MapSerializer serialize(
+            @NonNull MapSerializer serializer, @NonNull String v1Name, @NonNull String v2Name) {
         return serializer.add(v1Name, mValue1, mV1).add(v2Name, mValue2, mV2);
     }
 }

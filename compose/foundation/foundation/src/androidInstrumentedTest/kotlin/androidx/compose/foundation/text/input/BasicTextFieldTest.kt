@@ -1000,7 +1000,6 @@ internal class BasicTextFieldTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun textField_showsKeyboardAgainWhenTapped_ifFocused() {
         val testKeyboardController = TestSoftwareKeyboardController(rule)
@@ -1645,6 +1644,69 @@ internal class BasicTextFieldTest {
             assertThat(spanStyles.first().end).isEqualTo(5)
             assertThat(spanStyles.first().item.background).isEqualTo(Color.Red)
         }
+    }
+
+    // Regression test for b/431958747
+    @Test
+    fun whenWindowFocusLost_outputTransformationChange_restartsInputSession() {
+        val state = TextFieldState("Hello")
+        val focusRequester = FocusRequester()
+        var windowInfo: WindowInfo by
+            mutableStateOf(
+                object : WindowInfo {
+                    override val isWindowFocused = true
+                }
+            )
+        var outputTransformation by
+            mutableStateOf<OutputTransformation?>(OutputTransformation { append(" World") })
+
+        inputMethodInterceptor.setTextFieldTestContent {
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField(
+                    state = state,
+                    modifier = Modifier.focusRequester(focusRequester).testTag(Tag),
+                    outputTransformation = outputTransformation,
+                )
+            }
+        }
+
+        // Focus the text field and ensure an input session starts.
+        rule.onNodeWithTag(Tag).requestFocus()
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
+
+        // Check that the initial output transformation is applied.
+        rule.onNodeWithTag(Tag).assertTextEquals("Hello World")
+
+        // Lose window focus.
+        windowInfo =
+            object : WindowInfo {
+                override val isWindowFocused = false
+            }
+        rule.waitForIdle()
+
+        // Change the output transformation while window is not focused.
+        outputTransformation = OutputTransformation { append(" Compose") }
+        rule.waitForIdle()
+
+        // A new session should start, even if window is not focused, because the
+        // session was active.
+        inputMethodInterceptor.assertSessionActive()
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
+
+        // Check that the new output transformation is applied visually.
+        rule.onNodeWithTag(Tag).assertTextEquals("Hello Compose")
+
+        // Gain window focus back.
+        windowInfo =
+            object : WindowInfo {
+                override val isWindowFocused = true
+            }
+        rule.waitForIdle()
+
+        // Session count should still be 2.
+        inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
+        rule.onNodeWithTag(Tag).assertTextEquals("Hello Compose")
     }
 
     private fun requestFocus(tag: String) = rule.onNodeWithTag(tag).requestFocus()

@@ -16,37 +16,41 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
 import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
 import androidx.compose.ui.focus.CustomDestinationResult.Redirected
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
+import androidx.compose.ui.focus.FocusProperties.Companion.UnsetFocusRect
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusRequester.Companion.Redirect
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.EmptyMap.set
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.trace
 
 internal class FocusTargetNode(
     focusability: Focusability = Focusability.Always,
+    val isInteropViewHost: Boolean = false,
     private val onFocusChange: ((previous: FocusState, current: FocusState) -> Unit)? = null,
     private val onDispatchEventsCompleted: ((FocusTargetNode) -> Unit)? = null,
 ) :
@@ -130,8 +134,7 @@ internal class FocusTargetNode(
         // The focused item is being removed from a lazy list, so we need to clear focus.
         // This is called after onEndApplyChanges, so we can safely clear focus from the owner,
         // which could trigger an initial focus scenario.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isClearFocusOnResetEnabled && focusState.isFocused) {
+        if (focusState.isFocused) {
             requireOwner()
                 .focusOwner
                 .clearFocus(
@@ -158,6 +161,20 @@ internal class FocusTargetNode(
                     clearOwnerFocus = false,
                     focusDirection = Exit,
                 )
+
+                if (isInteropViewHost) {
+                    // Move focus to the AndroidComposeView, so that we can safely remove the
+                    // embedded view without triggering initial focus. We can safely move focus to
+                    // the host view even when we don't have focusable composables because we know
+                    // that this action will be followed by a call to restoreDefaultFocus after
+                    // onEndApplyChanges (The embedded view has a focus target associated with it,
+                    // and detaching that focus target will schedule a call to restoreDefaultFocus).
+                    focusOwner.requestOwnerFocus(
+                        focusDirection = null,
+                        previouslyFocusedRect = null,
+                    )
+                }
+
                 // We don't clear the owner's focus yet, because this could trigger an initial
                 // focus scenario after the focus is cleared. Instead, we schedule invalidation
                 // after onApplyChanges. The FocusInvalidationManager contains the invalidation
@@ -165,7 +182,16 @@ internal class FocusTargetNode(
                 // are invalidated.
                 focusOwner.scheduleInvalidationForOwner()
             }
-            ActiveParent,
+            ActiveParent -> {
+                val focusOwner = requireOwner().focusOwner
+                if (findActiveFocusNode()?.isInteropViewHost == true) {
+                    focusOwner.requestOwnerFocus(
+                        focusDirection = null,
+                        previouslyFocusedRect = null,
+                    )
+                    focusOwner.scheduleInvalidationForOwner()
+                }
+            }
             Inactive -> {}
         }
         // This node might be reused, so we reset its state.
@@ -184,6 +210,35 @@ internal class FocusTargetNode(
             it.applyFocusProperties(properties)
         }
         return properties
+    }
+
+    /**
+     * The focus rect that is defined on this [FocusTargetNode] by [FocusProperties] in the given
+     * [relativeCoordinates].
+     *
+     * If there is no custom focus rect applied on this node by the ancestor [FocusProperties], this
+     * function returns the bounding box of the node.
+     *
+     * **Note** any caller is responsible for checking if this node and the [relativeCoordinates]
+     * are attached and active.
+     */
+    internal fun fetchFocusRect(relativeCoordinates: LayoutCoordinates? = null): Rect {
+        val customRect = fetchFocusProperties().focusRect
+        // Take the derived value only if it is not the default.
+        if (customRect !== UnsetFocusRect) {
+            if (relativeCoordinates == null) return customRect
+
+            return customRect.translate(
+                relativeCoordinates.localPositionOf(requireLayoutCoordinates())
+            )
+        }
+
+        return relativeCoordinates
+            // compute our bounding box in the relative coordinates.
+            ?.localBoundingBoxOf(requireLayoutCoordinates(), clipBounds = false)
+
+            // Just return the bounding box of the node.
+            ?: Rect(Offset.Zero, requireLayoutCoordinates().size.toSize())
     }
 
     private inline fun fetchCustomEnterOrExit(

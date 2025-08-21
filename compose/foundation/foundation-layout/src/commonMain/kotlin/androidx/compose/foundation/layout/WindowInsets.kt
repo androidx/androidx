@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -692,6 +693,10 @@ expect val WindowInsets.Companion.tappableElement: WindowInsets
 
 /** The insets for the curved areas in a waterfall display. */
 expect val WindowInsets.Companion.waterfall: WindowInsets
+    @Composable get
+
+/** The path for the cutout, if any. */
+expect val WindowInsets.Companion.cutoutPath: Path?
     @Composable get
 
 /**

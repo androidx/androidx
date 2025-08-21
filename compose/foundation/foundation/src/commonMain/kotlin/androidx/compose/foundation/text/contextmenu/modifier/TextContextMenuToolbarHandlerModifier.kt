@@ -109,9 +109,7 @@ private class TextContextMenuToolbarHandlerElement(
         TextContextMenuToolbarHandlerNode(requester, onShow, onHide, computeContentBounds)
 
     override fun update(node: TextContextMenuToolbarHandlerNode) {
-        node.requester.toolbarHandlerNode = null
-        node.requester = requester
-        node.requester.toolbarHandlerNode = node
+        node.update(requester)
 
         node.onShow = onShow
         node.onHide = onHide
@@ -161,6 +159,12 @@ internal class TextContextMenuToolbarHandlerNode(
     }
 
     private var previousContentBounds: Rect = Rect.Zero
+
+    fun update(toolbarRequester: ToolbarRequester) {
+        requester.toolbarHandlerNode = null
+        requester = toolbarRequester
+        requester.toolbarHandlerNode = this
+    }
 
     override fun onAttach() {
         super.onAttach()

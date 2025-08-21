@@ -37,6 +37,9 @@ sealed interface IndirectTouchEvent {
 
     /** The reason the [IndirectTouchEvent] was sent. */
     val type: IndirectTouchEventType
+
+    /** Main coordinate axis to use for movement. */
+    val primaryDirectionalMotionAxis: IndirectTouchEventPrimaryDirectionalMotionAxis
 }
 
 // Work around for Kotlin cross module sealed interfaces.
@@ -70,4 +73,31 @@ value class IndirectTouchEventType private constructor(internal val value: Int) 
             Move -> "Move"
             else -> "Unknown"
         }
+}
+
+/**
+ * The primary axis for motion from an [IndirectTouchEvent]. Input devices such as trackpads that do
+ * not map to the screen can define a primary axis for scrolling or movement. This facilitates the
+ * translation of a 2D input gesture into a 1D scroll on the screen. For example, an input device
+ * might be wide horizontally but narrow vertically. In such a case, it would designate X as its
+ * primary axis of motion. This means horizontal scrolling on the input device would cause the
+ * on-screen content to scroll along its main axis, as vertical (Y) axis scrolling would be
+ * impractical.
+ */
+@kotlin.jvm.JvmInline
+@ExperimentalIndirectTouchTypeApi
+value class IndirectTouchEventPrimaryDirectionalMotionAxis
+private constructor(internal val value: Int) {
+    @ExperimentalIndirectTouchTypeApi
+    companion object {
+
+        /** No coordinate axes specified for movement. */
+        val None = IndirectTouchEventPrimaryDirectionalMotionAxis(0)
+
+        /** X coordinate axis specified as the primary movement axis. */
+        val X = IndirectTouchEventPrimaryDirectionalMotionAxis(1)
+
+        /** Y coordinate axis specified as the primary movement axis. */
+        val Y = IndirectTouchEventPrimaryDirectionalMotionAxis(2)
+    }
 }

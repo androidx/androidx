@@ -262,10 +262,9 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // arrange
         rule.runOnIdle {
             runBlocking {
-                lazyListState.scrollToItem(20) // almost at the start
+                lazyListState.scrollToItem(10) // almost at the start
             }
         }
-
         latestAvailableVelocity = Velocity.Zero
 
         // act

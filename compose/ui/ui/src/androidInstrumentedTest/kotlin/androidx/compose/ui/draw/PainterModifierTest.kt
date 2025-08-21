@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.SolidColor
@@ -99,7 +100,6 @@ import kotlin.math.roundToInt
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -547,7 +547,6 @@ class PainterModifierTest {
                 .assertHeightIsEqualTo(composableHeight)
         }
 
-    @Ignore // b/265030745
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testBitmapPainterScalesContent(): Unit =
@@ -573,7 +572,11 @@ class PainterModifierTest {
                             .background(color = Color.Gray)
                             .requiredWidth(boxWidth.toDp())
                             .requiredHeight(boxHeight.toDp())
-                            .paint(BitmapPainter(srcImage), contentScale = ContentScale.FillHeight)
+                            // Using FilterQuality.None to avoid anti-aliasing
+                            .paint(
+                                BitmapPainter(srcImage, filterQuality = FilterQuality.None),
+                                contentScale = ContentScale.FillHeight,
+                            )
                 )
             }
 

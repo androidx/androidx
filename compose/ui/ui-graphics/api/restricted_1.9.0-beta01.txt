@@ -343,7 +343,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class BlendModeColorFilter extends androidx.compose.ui.graphics.ColorFilter {
-    ctor public BlendModeColorFilter(long color, int blendMode);
+    ctor @KotlinOnly public BlendModeColorFilter(androidx.compose.ui.graphics.Color color, androidx.compose.ui.graphics.BlendMode blendMode);
+    ctor @BytecodeOnly public BlendModeColorFilter(long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getBlendMode();
     method @BytecodeOnly public int getBlendMode-0nO6VwU();
     method public long getColor();
@@ -353,7 +354,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class BlurEffect extends androidx.compose.ui.graphics.RenderEffect {
-    ctor public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, optional float radiusY, optional int edgeTreatment);
+    ctor @KotlinOnly public BlurEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, float radiusX, optional float radiusY, optional androidx.compose.ui.graphics.TileMode edgeTreatment);
+    ctor @BytecodeOnly public BlurEffect(androidx.compose.ui.graphics.RenderEffect!, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
@@ -471,7 +473,7 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Color {
-    ctor public Color(long value);
+    ctor @KotlinOnly public Color(kotlin.ULong value);
     method @BytecodeOnly public static androidx.compose.ui.graphics.Color! box-impl(long);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-impl(long);
@@ -590,7 +592,7 @@ package androidx.compose.ui.graphics {
   }
 
   @kotlin.jvm.JvmInline public final value class ColorMatrix {
-    ctor public ColorMatrix(optional float[] values);
+    ctor @KotlinOnly public ColorMatrix(optional float[] values);
     method @BytecodeOnly public static androidx.compose.ui.graphics.ColorMatrix! box-impl(float[]!);
     method @BytecodeOnly public static float[] constructor-impl(float[]);
     method public void convertRgbToYuv();
@@ -623,7 +625,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class ColorMatrixColorFilter extends androidx.compose.ui.graphics.ColorFilter {
-    ctor public ColorMatrixColorFilter(float[] colorMatrix);
+    ctor @KotlinOnly public ColorMatrixColorFilter(androidx.compose.ui.graphics.ColorMatrix colorMatrix);
+    ctor @BytecodeOnly public ColorMatrixColorFilter(float[]!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float[] copyColorMatrix(optional float[] targetColorMatrix);
     method @BytecodeOnly public float[] copyColorMatrix-gBh15pI(float[]);
   }
@@ -751,7 +754,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class LightingColorFilter extends androidx.compose.ui.graphics.ColorFilter {
-    ctor public LightingColorFilter(long multiply, long add);
+    ctor @KotlinOnly public LightingColorFilter(androidx.compose.ui.graphics.Color multiply, androidx.compose.ui.graphics.Color add);
+    ctor @BytecodeOnly public LightingColorFilter(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public long getAdd();
     method @BytecodeOnly public long getAdd-0d7_KjU();
     method public long getMultiply();
@@ -767,7 +771,7 @@ package androidx.compose.ui.graphics {
   }
 
   @kotlin.jvm.JvmInline public final value class Matrix {
-    ctor public Matrix(optional float[] values);
+    ctor @KotlinOnly public Matrix(optional float[] values);
     method @BytecodeOnly public static androidx.compose.ui.graphics.Matrix! box-impl(float[]!);
     method @BytecodeOnly public static float[] constructor-impl(float[]);
     method public inline operator float get(int row, int column);
@@ -837,7 +841,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class OffsetEffect extends androidx.compose.ui.graphics.RenderEffect {
-    ctor public OffsetEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, long offset);
+    ctor @KotlinOnly public OffsetEffect(androidx.compose.ui.graphics.RenderEffect? renderEffect, androidx.compose.ui.geometry.Offset offset);
+    ctor @BytecodeOnly public OffsetEffect(androidx.compose.ui.graphics.RenderEffect!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
@@ -1254,7 +1259,8 @@ package androidx.compose.ui.graphics {
 
   @androidx.compose.runtime.Immutable public final class Shadow {
     ctor public Shadow();
-    ctor public Shadow(optional @androidx.compose.runtime.Stable long color, optional @androidx.compose.runtime.Stable long offset, optional @androidx.compose.runtime.Stable float blurRadius);
+    ctor @KotlinOnly public Shadow(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.geometry.Offset offset, optional float blurRadius);
+    ctor @BytecodeOnly public Shadow(long, long, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.ui.graphics.Shadow copy(optional long color, optional long offset, optional float blurRadius);
     method @BytecodeOnly public androidx.compose.ui.graphics.Shadow copy-qcb84PM(long, long, float);
     method public float getBlurRadius();
@@ -1283,7 +1289,8 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class SolidColor extends androidx.compose.ui.graphics.Brush {
-    ctor public SolidColor(long value);
+    ctor @KotlinOnly public SolidColor(androidx.compose.ui.graphics.Color value);
+    ctor @BytecodeOnly public SolidColor(long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void applyTo(long size, androidx.compose.ui.graphics.Paint p, float alpha);
     method @BytecodeOnly public void applyTo-Pq9zytI(long, androidx.compose.ui.graphics.Paint, float);
     method public long getValue();
@@ -1390,7 +1397,8 @@ package androidx.compose.ui.graphics {
   }
 
   public final class Vertices {
-    ctor public Vertices(int vertexMode, java.util.List<androidx.compose.ui.geometry.Offset> positions, java.util.List<androidx.compose.ui.geometry.Offset> textureCoordinates, java.util.List<androidx.compose.ui.graphics.Color> colors, java.util.List<java.lang.Integer> indices);
+    ctor @KotlinOnly public Vertices(androidx.compose.ui.graphics.VertexMode vertexMode, java.util.List<androidx.compose.ui.geometry.Offset> positions, java.util.List<androidx.compose.ui.geometry.Offset> textureCoordinates, java.util.List<androidx.compose.ui.graphics.Color> colors, java.util.List<java.lang.Integer> indices);
+    ctor @BytecodeOnly public Vertices(int, java.util.List!, java.util.List!, java.util.List!, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int[] getColors();
     method public short[] getIndices();
     method public float[] getPositions();
@@ -1445,7 +1453,8 @@ package androidx.compose.ui.graphics.colorspace {
   }
 
   public abstract class ColorSpace {
-    ctor public ColorSpace(String name, long model);
+    ctor @KotlinOnly public ColorSpace(String name, androidx.compose.ui.graphics.colorspace.ColorModel model);
+    ctor @BytecodeOnly public ColorSpace(String!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @Size(min=3L) public final float[] fromXyz(float x, float y, float z);
     method @Size(min=3L) public abstract float[] fromXyz(@Size(min=3L) float[] v);
     method @IntRange(from=1L, to=4L) public final int getComponentCount();
@@ -1700,7 +1709,8 @@ package androidx.compose.ui.graphics.drawscope {
 
   @kotlin.PublishedApi internal static final class CanvasDrawScope.DrawParams {
     ctor public CanvasDrawScope.DrawParams();
-    ctor public CanvasDrawScope.DrawParams(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional long size);
+    ctor @KotlinOnly public CanvasDrawScope.DrawParams(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional androidx.compose.ui.geometry.Size size);
+    ctor @BytecodeOnly public CanvasDrawScope.DrawParams(androidx.compose.ui.unit.Density!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.ui.graphics.Canvas!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.compose.ui.unit.Density component1();
     method public androidx.compose.ui.unit.LayoutDirection component2();
     method public androidx.compose.ui.graphics.Canvas component3();
@@ -1880,7 +1890,8 @@ package androidx.compose.ui.graphics.drawscope {
 
   public final class Stroke extends androidx.compose.ui.graphics.drawscope.DrawStyle {
     ctor public Stroke();
-    ctor public Stroke(optional float width, optional float miter, optional int cap, optional int join, optional androidx.compose.ui.graphics.PathEffect? pathEffect);
+    ctor @KotlinOnly public Stroke(optional float width, optional float miter, optional androidx.compose.ui.graphics.StrokeCap cap, optional androidx.compose.ui.graphics.StrokeJoin join, optional androidx.compose.ui.graphics.PathEffect? pathEffect);
+    ctor @BytecodeOnly public Stroke(float, float, int, int, androidx.compose.ui.graphics.PathEffect!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getCap();
     method @BytecodeOnly public int getCap-KaPHkGw();
     method public int getJoin();
@@ -2038,7 +2049,8 @@ package androidx.compose.ui.graphics.layer {
 package androidx.compose.ui.graphics.painter {
 
   public final class BitmapPainter extends androidx.compose.ui.graphics.painter.Painter {
-    ctor public BitmapPainter(androidx.compose.ui.graphics.ImageBitmap image, optional long srcOffset, optional long srcSize);
+    ctor @KotlinOnly public BitmapPainter(androidx.compose.ui.graphics.ImageBitmap image, optional androidx.compose.ui.unit.IntOffset srcOffset, optional androidx.compose.ui.unit.IntSize srcSize);
+    ctor @BytecodeOnly public BitmapPainter(androidx.compose.ui.graphics.ImageBitmap!, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public long getIntrinsicSize();
     method @BytecodeOnly public long getIntrinsicSize-NH-jbRc();
     method protected void onDraw(androidx.compose.ui.graphics.drawscope.DrawScope);
@@ -2061,7 +2073,8 @@ package androidx.compose.ui.graphics.painter {
   }
 
   public final class ColorPainter extends androidx.compose.ui.graphics.painter.Painter {
-    ctor public ColorPainter(long color);
+    ctor @KotlinOnly public ColorPainter(androidx.compose.ui.graphics.Color color);
+    ctor @BytecodeOnly public ColorPainter(long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public long getColor();
     method @BytecodeOnly public long getColor-0d7_KjU();
     method public long getIntrinsicSize();
@@ -2109,8 +2122,10 @@ package androidx.compose.ui.graphics.shadow {
   }
 
   @androidx.compose.runtime.Immutable public final class Shadow {
-    ctor public Shadow(float radius, androidx.compose.ui.graphics.Brush brush, optional float spread, optional long offset, optional @FloatRange(from=0.0, to=1.0) float alpha, optional int blendMode);
-    ctor public Shadow(float radius, optional long color, optional float spread, optional long offset, optional @FloatRange(from=0.0, to=1.0) float alpha, optional int blendMode);
+    ctor @KotlinOnly public Shadow(androidx.compose.ui.unit.Dp radius, androidx.compose.ui.graphics.Brush brush, optional androidx.compose.ui.unit.Dp spread, optional androidx.compose.ui.unit.DpOffset offset, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.BlendMode blendMode);
+    ctor @KotlinOnly public Shadow(androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.Dp spread, optional androidx.compose.ui.unit.DpOffset offset, optional @FloatRange(from=0.0, to=1.0) float alpha, optional androidx.compose.ui.graphics.BlendMode blendMode);
+    ctor @BytecodeOnly public Shadow(float, androidx.compose.ui.graphics.Brush!, float, long, @FloatRange(from=0.0, to=1.0) float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public Shadow(float, long, float, long, @FloatRange(from=0.0, to=1.0) float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float getAlpha();
     method public int getBlendMode();
     method @BytecodeOnly public int getBlendMode-0nO6VwU();

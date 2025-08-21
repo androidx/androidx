@@ -61,7 +61,8 @@ public class Component extends PaintOperation
     public int mVisibility = Visibility.VISIBLE;
     public int mScheduledVisibility = Visibility.VISIBLE;
     @NonNull public ArrayList<Operation> mList = new ArrayList<>();
-    public PaintOperation mPreTranslate; // todo, can we initialize this here and make it NonNull?
+    public @Nullable PaintOperation
+            mPreTranslate; // todo, can we initialize this here and make it NonNull?
     public boolean mNeedsMeasure = true;
     public boolean mNeedsRepaint = false;
     @Nullable public AnimateMeasure mAnimateMeasure;
@@ -358,7 +359,7 @@ public class Component extends PaintOperation
         }
     }
 
-    protected AnimationSpec getAnimationSpec() {
+    protected @NonNull AnimationSpec getAnimationSpec() {
         return mAnimationSpec;
     }
 
@@ -371,7 +372,7 @@ public class Component extends PaintOperation
      *
      * @param context
      */
-    public void registerVariables(RemoteContext context) {
+    public void registerVariables(@NonNull RemoteContext context) {
         // Nothing here
     }
 
@@ -393,7 +394,7 @@ public class Component extends PaintOperation
          * @param value
          * @return
          */
-        public static String toString(int value) {
+        public static @NonNull String toString(int value) {
             switch (value) {
                 case GONE:
                     return "GONE";
@@ -715,7 +716,8 @@ public class Component extends PaintOperation
      * @param x
      * @param y
      */
-    public void onTouchDown(RemoteContext context, CoreDocument document, float x, float y) {
+    public void onTouchDown(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, float x, float y) {
         if (!contains(x, y)) {
             return;
         }
@@ -749,8 +751,8 @@ public class Component extends PaintOperation
      * @param force
      */
     public void onTouchUp(
-            RemoteContext context,
-            CoreDocument document,
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
             float x,
             float y,
             float dx,
@@ -786,7 +788,11 @@ public class Component extends PaintOperation
      * @param force
      */
     public void onTouchCancel(
-            RemoteContext context, CoreDocument document, float x, float y, boolean force) {
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            float x,
+            float y,
+            boolean force) {
         if (!force && !contains(x, y)) {
             return;
         }
@@ -817,7 +823,11 @@ public class Component extends PaintOperation
      * @param force
      */
     public void onTouchDrag(
-            RemoteContext context, CoreDocument document, float x, float y, boolean force) {
+            @NonNull RemoteContext context,
+            @NonNull CoreDocument document,
+            float x,
+            float y,
+            boolean force) {
         if (!force && !contains(x, y)) {
             return;
         }
@@ -1254,7 +1264,7 @@ public class Component extends PaintOperation
      * @return
      * @param <T>
      */
-    public <T> @Nullable T selfOrModifier(Class<T> operationClass) {
+    public <T> @Nullable T selfOrModifier(@NonNull Class<T> operationClass) {
         if (operationClass.isInstance(this)) {
             return operationClass.cast(this);
         }

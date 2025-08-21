@@ -1028,6 +1028,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         val block: (Applier<*>, SlotWriter, RememberManager) -> Unit = { _, _, _ -> },
     ) : Operation(ints, objects) {
         @Suppress("PrimitiveInCollection") val intParams = List(ints) { it }
+        @Suppress("PrimitiveInCollection")
         val objParams = List(objects) { index -> ObjectParameter<Any?>(index) }
 
         override fun OperationArgContainer.execute(
@@ -1109,6 +1110,7 @@ private inline fun withCurrentStackTrace(
 }
 
 @OptIn(ComposeToolingApi::class)
+@Suppress("ListIterator")
 private fun Throwable.attachComposeStackTrace(
     errorContext: OperationErrorContext?,
     writer: SlotWriter,

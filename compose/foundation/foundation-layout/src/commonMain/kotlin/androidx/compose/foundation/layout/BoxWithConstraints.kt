@@ -63,6 +63,7 @@ fun BoxWithConstraints(
     val measurePolicy = maybeCachedBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
     SubcomposeLayout(modifier) { constraints ->
         val scope = BoxWithConstraintsScopeImpl(this, constraints)
+        @Suppress("ComposableLambdaInMeasurePolicy")
         val measurables = subcompose(Unit) { scope.content() }
         with(measurePolicy) { measure(measurables, constraints) }
     }

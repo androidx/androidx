@@ -221,7 +221,7 @@ class LazyListCacheWindowParityTest(orientation: Orientation) :
         rule.onNodeWithTag("${prefetchIndex + 3}").assertDoesNotExist()
     }
 
-    @Ignore
+    @Ignore("b/430081898 - prefetchingForwardAndBackwardWithContentPadding")
     @Test
     fun prefetchingForwardAndBackwardWithContentPadding() {
         val halfItemSize = itemsSizeDp / 2f

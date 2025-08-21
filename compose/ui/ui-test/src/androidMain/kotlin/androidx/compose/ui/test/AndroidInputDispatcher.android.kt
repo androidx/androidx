@@ -199,6 +199,20 @@ internal class AndroidInputDispatcher(
         )
     }
 
+    override fun MouseInputState.enqueueScroll(offset: Offset) {
+        enqueueMouseEvent(
+            downTime = downTime,
+            eventTime = currentTime,
+            action = ACTION_SCROLL,
+            coordinate = lastPosition,
+            metaState = keyInputState.constructMetaState(),
+            buttonState = pressedButtons.fold(0) { state, buttonId -> state or buttonId },
+            // We invert vertical scrolling to align with another platforms.
+            // Vertical scrolling on desktop/web have opposite sign.
+            delta = offset.copy(y = -offset.y),
+        )
+    }
+
     fun KeyInputState.constructMetaState(): Int {
 
         fun genState(key: Key, mask: Int) = if (isKeyDown(key)) mask else 0
@@ -425,6 +439,67 @@ internal class AndroidInputDispatcher(
                                 if (axis != -1) {
                                     setAxisValue(axis, axisDelta)
                                 }
+                            }
+                        ),
+                        /* metaState = */ metaState,
+                        /* buttonState = */ buttonState,
+                        /* xPrecision = */ 1f,
+                        /* yPrecision = */ 1f,
+                        /* deviceId = */ 0,
+                        /* edgeFlags = */ 0,
+                        /* source = */ SOURCE_MOUSE,
+                        /* flags = */ 0,
+                    )
+                    .apply { offsetLocation(-positionInScreen.x, -positionInScreen.y) }
+            )
+        }
+    }
+
+    private fun enqueueMouseEvent(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        coordinate: Offset,
+        metaState: Int,
+        buttonState: Int,
+        axis: Int = -1,
+        delta: Offset,
+    ) {
+        synchronized(batchLock) {
+            ensureNotDisposed {
+                "Can't enqueue mouse event (" +
+                    "downTime=$downTime, " +
+                    "eventTime=$eventTime, " +
+                    "action=$action, " +
+                    "coordinate=$coordinate, " +
+                    "metaState=$metaState, " +
+                    "buttonState=$buttonState, " +
+                    "axis=$axis, " +
+                    "delta=$delta)"
+            }
+            val positionInScreen = run {
+                val array = intArrayOf(0, 0)
+                root.view.getLocationOnScreen(array)
+                Offset(array[0].toFloat(), array[1].toFloat())
+            }
+            batchedEvents.add(
+                MotionEvent.obtain(
+                        /* downTime = */ downTime,
+                        /* eventTime = */ eventTime,
+                        /* action = */ action,
+                        /* pointerCount = */ 1,
+                        /* pointerProperties = */ arrayOf(
+                            PointerProperties().apply {
+                                id = 0
+                                toolType = MotionEvent.TOOL_TYPE_MOUSE
+                            }
+                        ),
+                        /* pointerCoords = */ arrayOf(
+                            PointerCoords().apply {
+                                x = positionInScreen.x + coordinate.x
+                                y = positionInScreen.y + coordinate.y
+                                setAxisValue(MotionEvent.AXIS_HSCROLL, delta.x)
+                                setAxisValue(MotionEvent.AXIS_VSCROLL, delta.y)
                             }
                         ),
                         /* metaState = */ metaState,

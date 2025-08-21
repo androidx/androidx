@@ -179,7 +179,7 @@ internal data class ColumnMeasurePolicy(
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,
-        ) ?: horizontalAlignment.align(0, crossAxisLayoutSize - placeable.width, layoutDirection)
+        ) ?: horizontalAlignment.align(placeable.width, crossAxisLayoutSize, layoutDirection)
     }
 
     override fun createConstraints(

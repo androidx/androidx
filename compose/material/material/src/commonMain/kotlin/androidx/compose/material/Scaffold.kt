@@ -363,6 +363,7 @@ object ScaffoldDefaults {
  * @param bottomBar the content to place at the bottom of the [Scaffold], on top of the [content],
  *   typically a [BottomAppBar].
  */
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 @UiComposable
 private fun ScaffoldLayout(

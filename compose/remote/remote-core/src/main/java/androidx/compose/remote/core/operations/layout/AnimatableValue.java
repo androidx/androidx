@@ -81,7 +81,7 @@ public class AnimatableValue implements Serializable {
      * @param context the paint context
      * @return the current value
      */
-    public float evaluate(PaintContext context) {
+    public float evaluate(@NonNull PaintContext context) {
         if (!mIsVariable) {
             return mValue;
         }

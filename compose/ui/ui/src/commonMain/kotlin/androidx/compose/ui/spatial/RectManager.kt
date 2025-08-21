@@ -22,6 +22,7 @@ import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.currentTimeMillis
+import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
@@ -31,6 +32,9 @@ import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.requireCoordinator
+import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.node.requireSemanticsInfo
 import androidx.compose.ui.postDelayed
 import androidx.compose.ui.removePost
 import androidx.compose.ui.unit.IntOffset
@@ -38,6 +42,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.plus
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import kotlin.math.max
 
@@ -472,6 +477,116 @@ internal class RectManager(
         } else {
             return lastParentA.measurePassDelegate.zIndex < lastParentB.measurePassDelegate.zIndex
         }
+    }
+
+    /**
+     * Traverses the [RectList] to find the most suitable focusable node matching the given rect
+     * ([left], [top], [right], [bottom]).
+     *
+     * Returns the best candidate node that:
+     * - Is focusable
+     * - Is not currently focused
+     * - Is a descendant of the container ([containerId])
+     * - Intersects with the given rect ([left], [top], [right], [bottom])
+     * - Appears as high as possible in the node hierarchy
+     *
+     * Returns `null` if:
+     * - No matching focusable node is found, or
+     * - The given rect intersects a node that is already focused (regardless of its position in the
+     *   hierarchy)
+     *
+     * **Note:** If there are multiple focusable modifier nodes inside the given container node,
+     * only the first one in the chain will have an effect. Subsequent focusable modifiers will be
+     * ignored.
+     *
+     * @param containerId the container layout node semantic id that we want to restrict our search
+     *   to.
+     * @return The most relevant focusable node, or `null` if none is applicable.
+     */
+    internal fun findFocusableNodeFromRect(
+        left: Int,
+        top: Int,
+        right: Int,
+        bottom: Int,
+        containerId: Int,
+    ): FocusTargetModifierNode? {
+        val container = layoutNodes[containerId] ?: return null
+        val currentlyFocusedId =
+            container
+                .requireOwner()
+                .focusOwner
+                .activeFocusTargetNode
+                ?.requireSemanticsInfo()
+                ?.semanticsId ?: -1
+
+        var bestTarget: FocusTargetModifierNode? = null
+        var bestDepth = Int.MAX_VALUE
+
+        rects.forEachFocusableIntersection(left, top, right, bottom) { semanticsId ->
+            val node = layoutNodes[semanticsId]
+            if (node != null) {
+                // If we are still intersecting the currently focused node, do not change focus.
+                if (currentlyFocusedId == semanticsId && currentlyFocusedId != -1) return null
+                // We want to find the "highest" focusable node that intersects, which means the
+                // smallest depth. We also want to constrain the results to only those which are
+                // inside of the container.
+                if (node.depth < bestDepth && node.isDescendantOf(container)) {
+                    val target = node.nodes.head(Nodes.FocusTarget)
+                    if (target != null && target.intersects(left, top, right, bottom)) {
+                        bestTarget = target
+                        bestDepth = node.depth
+                    }
+                }
+            }
+        }
+
+        return bestTarget
+    }
+
+    /**
+     * The boundaries of a Modifier.Node may differ from those of its LayoutNode (e.g., due to
+     * modifiers like `offset()` or `padding()`).
+     *
+     * This method checks whether the actual global coordinates of the Modifier.Node intersect with
+     * the given rectangle.
+     *
+     * @return `true` if the Modifier.Node intersects the given coordinates, or if it shares
+     *   coordinates with its LayoutNode.
+     */
+    internal fun DelegatableNode.intersects(left: Int, top: Int, right: Int, bottom: Int): Boolean {
+        val coordinator = requireCoordinator(Nodes.FocusTarget)
+        val layout = coordinator.layoutNode
+
+        // The LayoutNode's intersection has already been checked earlier.
+        // If this ModifierNode uses the same coordinator, we can skip it.
+        if (coordinator == layout.outerCoordinator) {
+            return true
+        }
+
+        // Get the local position of the modifier node (relative to its LayoutNode).
+        val localTopLeft = layout.outerCoordinator.localPositionOf(coordinator)
+        // Convert the local position to global (relative to the root).
+        val topLeft = layout.outerCoordinator.localToRoot(localTopLeft)
+        val size = coordinator.size
+
+        val containerLeft: Int = topLeft.x.fastRoundToInt()
+        val containerRight: Int = containerLeft + size.width
+        val containerTop: Int = topLeft.y.fastRoundToInt()
+        val containerBottom: Int = containerTop + size.height
+
+        // Intersection.
+        return left < containerRight &&
+            right > containerLeft &&
+            top < containerBottom &&
+            bottom > containerTop
+    }
+
+    internal fun LayoutNode.isDescendantOf(container: LayoutNode): Boolean {
+        val ups = this.depth - container.depth
+        if (ups <= 0) return false // node has higher or equal depth than container
+        var node = this
+        repeat(ups) { node = node.parent ?: return false }
+        return node === container
     }
 }
 

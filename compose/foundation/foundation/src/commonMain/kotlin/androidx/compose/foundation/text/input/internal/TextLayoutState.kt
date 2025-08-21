@@ -255,3 +255,11 @@ internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
         }
     } ?: offset
 }
+
+internal fun TextLayoutState.fromTextLayoutToDecoration(rect: Rect): Rect {
+    val textLayoutNode = textLayoutNodeCoordinates?.takeIf { it.isAttached } ?: return rect
+    val decoratorNode = decoratorNodeCoordinates?.takeIf { it.isAttached } ?: return rect
+
+    val topLeft = decoratorNode.localBoundingBoxOf(textLayoutNode, clipBounds = false).topLeft
+    return rect.translate(topLeft)
+}

@@ -37,7 +37,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlin.test.fail
 import org.junit.Before
@@ -120,7 +119,6 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
     // TODO(b/316940648)
     //  The TextToolbar at the top of the screen messes up the popup position calculations,
     //  so suppress SDKs that don't have the floating popup.
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_thenDragLeftOutOfBounds_keepsFirstCharSelected() {
         var finalX: Float? = null
@@ -165,7 +163,6 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
     // TODO(b/316940648)
     //  The TextToolbar at the top of the screen messes up the popup position calculations,
     //  so suppress SDKs that don't have the floating popup.
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
         val content = "hello".repeat(100)

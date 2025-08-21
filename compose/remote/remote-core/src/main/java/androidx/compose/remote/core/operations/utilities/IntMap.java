@@ -67,7 +67,7 @@ public class IntMap<T> {
      *
      * @param map
      */
-    public void putAll(IntMap<T> map) {
+    public void putAll(@NonNull IntMap<T> map) {
         for (int i = 0; i < map.mValues.size(); i++) {
             int key = map.mKeys[i];
             if (key != NOT_PRESENT) {

@@ -56,7 +56,7 @@ public class FontData extends Operation implements SerializableToString, Seriali
      *
      * @param from the fontData to copy
      */
-    public void update(FontData from) {
+    public void update(@NonNull FontData from) {
         this.mFontData = from.mFontData;
     }
 
@@ -95,6 +95,7 @@ public class FontData extends Operation implements SerializableToString, Seriali
      *
      * @param buffer document to write to
      * @param fontId the id the font will be stored under
+     * @param type the type of the font
      * @param fontData the data used to store/encode the image
      */
     public static void apply(

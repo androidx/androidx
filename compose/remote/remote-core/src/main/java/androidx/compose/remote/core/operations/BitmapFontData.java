@@ -30,17 +30,27 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Operation to deal with bitmap font data. */
 public class BitmapFontData extends Operation implements Serializable {
     private static final int OP_CODE = Operations.DATA_BITMAP_FONT;
     private static final String CLASS_NAME = "BitmapFontData";
 
+    static final short VERSION_1 = 0;
+    static final short VERSION_2 = 1; // Adds kerning table support.
+    private static final int MAX_GLYPHS = 0xffff;
+    private static final int MAX_KERNING_TABLE_SIZE = 0xffff;
+
+    short mVersion; // O doesn't have a kerning table, 1 has a kerning table.
     int mId;
 
     // Sorted in order of decreasing mChars length.
     @NonNull Glyph[] mFontGlyphs;
+
+    Map<String, Short> mKerningTable;
 
     /**
      * A bitmap font is comprised of a collection of Glyphs. Note each Glyph has its own bitmap
@@ -48,7 +58,7 @@ public class BitmapFontData extends Operation implements Serializable {
      */
     public static class Glyph {
         /** The character(s) this glyph represents. */
-        public String mChars;
+        public @Nullable String mChars;
 
         /** The id of the bitmap for this glyph, or -1 for space. */
         public int mBitmapId;
@@ -71,7 +81,7 @@ public class BitmapFontData extends Operation implements Serializable {
         public Glyph() {}
 
         public Glyph(
-                String chars,
+                @NonNull String chars,
                 int bitmapId,
                 short marginLeft,
                 short marginTop,
@@ -94,11 +104,52 @@ public class BitmapFontData extends Operation implements Serializable {
      * create a bitmap font structure.
      *
      * @param id the id of the bitmap font
-     * @param fontGlyphs the glyphs that define the bitmap font
+     * @param fontGlyphs the glyphs that define the bitmap font. The maximum number of glyphs is
+     *     65535.
      */
     public BitmapFontData(int id, @NonNull Glyph[] fontGlyphs) {
         mId = id;
         mFontGlyphs = fontGlyphs;
+        mVersion = VERSION_1;
+        mKerningTable = new HashMap<String, Short>();
+
+        if (fontGlyphs.length >= MAX_GLYPHS) {
+            throw new IllegalArgumentException("Too many glyphs, the maximum is " + MAX_GLYPHS);
+        }
+
+        // Sort in order of decreasing mChars length.
+        Arrays.sort(mFontGlyphs, (o1, o2) -> o2.mChars.length() - o1.mChars.length());
+    }
+
+    /**
+     * create a bitmap font structure.
+     *
+     * @param id the id of the bitmap font
+     * @param fontGlyphs the glyphs that define the bitmap font. The maximum number of glyphs is
+     *     65535.
+     * @param version the Version number. 0 = no kerning table, 1 = has kerning table
+     * @param kerningTable The kerning table, where the key is pairs of glyphs (literally $1$2) and
+     *     the value is the horizontal adjustment in pixels for that glyph pair. Can be empty. The
+     *     maximum size of the kerning table is 65535 entries.
+     */
+    public BitmapFontData(
+            int id,
+            @NonNull Glyph[] fontGlyphs,
+            short version,
+            @NonNull Map<String, Short> kerningTable) {
+        mId = id;
+        mFontGlyphs = fontGlyphs;
+        mVersion = version;
+        mKerningTable = kerningTable;
+
+        if (fontGlyphs.length >= MAX_GLYPHS) {
+            throw new IllegalArgumentException("Too many glyphs, the maximum is " + MAX_GLYPHS);
+        }
+
+        if (kerningTable.size() >= MAX_GLYPHS) {
+            throw new IllegalArgumentException(
+                    "Kerning table too big, the maximum size is " + MAX_KERNING_TABLE_SIZE);
+        }
 
         // Sort in order of decreasing mChars length.
         Arrays.sort(mFontGlyphs, (o1, o2) -> o2.mChars.length() - o1.mChars.length());
@@ -106,7 +157,7 @@ public class BitmapFontData extends Operation implements Serializable {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mId, mFontGlyphs);
+        apply(buffer, mId, mFontGlyphs, mKerningTable);
     }
 
     @NonNull
@@ -140,11 +191,26 @@ public class BitmapFontData extends Operation implements Serializable {
      * @param buffer document to write to
      * @param id the id the bitmap font will be stored under
      * @param glyphs glyph metadata
+     * @param kerningTable The kerning table, where the key is pairs of glyphs (literally $1$2) and
+     *     the value is the horizontal adjustment in pixels for that glyph pair. Can be empty.
      */
-    public static void apply(@NonNull WireBuffer buffer, int id, @NonNull Glyph[] glyphs) {
+    public static void apply(
+            @NonNull WireBuffer buffer,
+            int id,
+            @NonNull Glyph[] glyphs,
+            @Nullable Map<String, Short> kerningTable) {
         buffer.start(OP_CODE);
         buffer.writeInt(id);
-        buffer.writeInt(glyphs.length);
+
+        // Kerning tables are a V2 feature and we encode the version in the top 16 bits of the
+        // glyph array length.  It's highly improbable we'll ever support a bitmap font with more
+        // then 65535 glyphs (that would be very memory inefficient).
+        if (kerningTable != null && !kerningTable.isEmpty()) {
+            buffer.writeInt(glyphs.length + (((int) VERSION_2) << 16));
+        } else {
+            buffer.writeInt(glyphs.length);
+        }
+
         for (Glyph element : glyphs) {
             buffer.writeUTF8(element.mChars);
             buffer.writeInt(element.mBitmapId);
@@ -154,6 +220,14 @@ public class BitmapFontData extends Operation implements Serializable {
             buffer.writeShort(element.mMarginBottom);
             buffer.writeShort(element.mBitmapWidth);
             buffer.writeShort(element.mBitmapHeight);
+        }
+
+        if (kerningTable != null && !kerningTable.isEmpty()) {
+            buffer.writeShort((short) kerningTable.size());
+            for (Map.Entry<String, Short> pair : kerningTable.entrySet()) {
+                buffer.writeUTF8(pair.getKey());
+                buffer.writeShort(pair.getValue());
+            }
         }
     }
 
@@ -165,7 +239,10 @@ public class BitmapFontData extends Operation implements Serializable {
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int id = buffer.readInt();
-        int numGlyphElements = buffer.readInt();
+        int versionAndNumGlyphElements = buffer.readInt();
+        // The version is encoded in the top 16 bits to maintain backwards compatibility.
+        short version = (short) (versionAndNumGlyphElements >>> 16);
+        int numGlyphElements = versionAndNumGlyphElements & 0xffff;
         Glyph[] glyphs = new Glyph[numGlyphElements];
         for (int i = 0; i < numGlyphElements; i++) {
             glyphs[i] = new Glyph();
@@ -179,7 +256,18 @@ public class BitmapFontData extends Operation implements Serializable {
             glyphs[i].mBitmapHeight = (short) buffer.readShort();
         }
 
-        operations.add(new BitmapFontData(id, glyphs));
+        Map<String, Short> kerningTable = new HashMap<>();
+
+        if (version >= VERSION_2) {
+            int numKerningTableEntries = (int) buffer.readShort();
+            for (int i = 0; i < numKerningTableEntries; i++) {
+                String glyphPair = buffer.readUTF8();
+                Short adjustment = (short) buffer.readShort();
+                kerningTable.put(glyphPair, adjustment);
+            }
+        }
+
+        operations.add(new BitmapFontData(id, glyphs, version, kerningTable));
     }
 
     /**
@@ -208,7 +296,7 @@ public class BitmapFontData extends Operation implements Serializable {
 
     /** Finds the largest glyph matching the string at the specified offset, or returns null. */
     @Nullable
-    public Glyph lookupGlyph(String string, int offset) {
+    public Glyph lookupGlyph(@NonNull String string, int offset) {
         // Since mFontGlyphs is sorted on decreasing size, it will match the longest items first.
         // It is expected that the mFontGlyphs array will be fairly small.
         for (Glyph glyph : mFontGlyphs) {

@@ -36,6 +36,7 @@ import androidx.compose.ui.R
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.core.os.HandlerCompat
+import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -84,7 +85,7 @@ fun View.findViewTreeCompositionContext(): CompositionContext? {
     var parent: ViewParent? = parent
     while (found == null && parent is View) {
         found = parent.compositionContext
-        parent = parent.getParent()
+        parent = parent.getParentOrViewTreeDisjointParent()
     }
     return found
 }

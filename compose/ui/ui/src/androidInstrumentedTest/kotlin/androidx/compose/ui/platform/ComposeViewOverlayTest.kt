@@ -16,11 +16,16 @@
 
 package androidx.compose.ui.platform
 
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewParent
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.Text
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -28,11 +33,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.transition.Fade
+import androidx.transition.Scene
+import androidx.transition.TransitionManager
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -130,6 +139,67 @@ class ComposeViewOverlayTest {
             )
         }
         assertEquals("Created recomposer count", 1, factoryCallCount)
+    }
+
+    // Regression test for b/287484338
+    /**
+     * Users can often (unintentionally) try to create a ComposeView inside of a ViewOverlay. We
+     * should support this use case.
+     */
+    @LargeTest
+    @Test
+    fun testCreateCompositionInViewOverlay() {
+        rule.scenario.onActivity { activity ->
+            val contentView = FrameLayout(activity)
+            activity.setContentView(contentView)
+
+            // Should not crash.
+            val composeView = ComposeView(activity)
+            ViewCompat.addOverlayView(contentView, composeView)
+            composeView.setContent { Text("Inside of an overlay!") }
+        }
+    }
+
+    // Regression test for b/287484338
+    /**
+     * Transitions use ViewOverlay under the hood. Repeat [testCreateCompositionInViewOverlay] in
+     * this context to form a deeper integration test.
+     */
+    @LargeTest
+    @Test
+    fun testCreateCompositionDuringTransition() {
+        rule.scenario.onActivity { activity ->
+            val transitionedComposeHost = FrameLayout(activity)
+            activity.setContentView(transitionedComposeHost)
+
+            val root = transitionedComposeHost.parent as ViewGroup
+            val endScene = Scene(root, View(activity))
+            TransitionManager.go(endScene, Fade())
+
+            // We need to run this after the transition manager has started its first frame.
+            Handler(Looper.getMainLooper()).post {
+                transitionedComposeHost.assertInOverlay()
+                val composeView = ComposeView(activity)
+                // Should not crash.
+                ViewCompat.addOverlayView(transitionedComposeHost, composeView)
+                composeView.setContent { Text("Inside of an overlay!") }
+                composeView.assertInOverlay()
+            }
+        }
+    }
+
+    private fun View.assertInOverlay() {
+        var root = this as ViewParent
+        while (root.parent != null) root = root.parent
+
+        assertEquals(
+            "Expected $this to be in a view overlay, but didn't have the expected root view type",
+            // Hardcoded internal class name from the platform. This name is consistent since the
+            // inception of view overlays in SDK level 18, but may require an update if a future
+            // change in the platform occurs.
+            "android.view.ViewOverlay.OverlayViewGroup",
+            root.javaClass.canonicalName,
+        )
     }
 
     private fun Recomposer.waitForIdle() = runBlocking {

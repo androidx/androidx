@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowForPagerEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
@@ -41,7 +42,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.BeforeTest
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -55,6 +58,11 @@ class PagerPrefetcherTest(private val paramConfig: ParamConfig) : BasePagerTest(
     val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
     var touchSlope: Float = 0.0f
     private val scheduler = TestPrefetchScheduler()
+
+    @BeforeTest
+    fun setUp() {
+        Assume.assumeFalse(isCacheWindowForPagerEnabled)
+    }
 
     @Test
     fun notPrefetchingForwardInitially() {
@@ -416,7 +424,7 @@ class PagerPrefetcherTest(private val paramConfig: ParamConfig) : BasePagerTest(
             }
         }
 
-        rule.runOnIdle { assertThat(activeNodes).doesNotContain(3) }
+        rule.runOnIdle { assertThat(activeNodes).doesNotContain("3") }
     }
 
     @Test
@@ -441,8 +449,6 @@ class PagerPrefetcherTest(private val paramConfig: ParamConfig) : BasePagerTest(
     private fun waitForPrefetch() {
         rule.runOnIdle { scheduler.executeActiveRequests() }
     }
-
-    private val activeNodes = mutableSetOf<Int>()
 
     private fun composePager(
         pageCount: Int = 100,
@@ -473,8 +479,8 @@ class PagerPrefetcherTest(private val paramConfig: ParamConfig) : BasePagerTest(
         ) {
             touchSlope = LocalViewConfiguration.current.touchSlop
             DisposableEffect(it) {
-                activeNodes.add(it)
-                onDispose { activeNodes.remove(it) }
+                activeNodes.add(it.toString())
+                onDispose { activeNodes.remove(it.toString()) }
             }
 
             Spacer(

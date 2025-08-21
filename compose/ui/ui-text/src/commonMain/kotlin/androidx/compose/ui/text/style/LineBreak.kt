@@ -70,3 +70,12 @@ expect value class LineBreak private constructor(internal val mask: Int) {
         @Stable val Unspecified: LineBreak
     }
 }
+
+/**
+ * Returns `true` if it is not [LineBreak.Unspecified].
+ *
+ * @see LineBreak.Unspecified
+ */
+@Stable
+inline val LineBreak.isSpecified: Boolean
+    get() = this != LineBreak.Unspecified

@@ -50,5 +50,5 @@ public interface Measurable {
      *
      * @param context
      */
-    void animatingBounds(RemoteContext context);
+    void animatingBounds(@NonNull RemoteContext context);
 }

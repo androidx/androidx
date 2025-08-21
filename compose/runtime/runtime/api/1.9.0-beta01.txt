@@ -55,21 +55,25 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ComposableInferredTarget {
+    ctor @KotlinOnly public ComposableInferredTarget(String scheme);
     method public abstract String scheme();
     property public abstract String scheme;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface ComposableOpenTarget {
+    ctor @KotlinOnly public ComposableOpenTarget(int index);
     method public abstract int index();
     property public abstract int index;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface ComposableTarget {
+    ctor @KotlinOnly public ComposableTarget(String applier);
     method public abstract String applier();
     property public abstract String applier;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface ComposableTargetMarker {
+    ctor @KotlinOnly public ComposableTargetMarker(optional String description);
     method public abstract String description() default "";
     property public abstract String description;
   }
@@ -672,7 +676,7 @@ package androidx.compose.runtime {
   }
 
   @kotlin.jvm.JvmInline public final value class SkippableUpdater<T> {
-    ctor public SkippableUpdater(@kotlin.PublishedApi androidx.compose.runtime.Composer composer);
+    ctor @KotlinOnly public SkippableUpdater(androidx.compose.runtime.Composer composer);
     method @BytecodeOnly public static androidx.compose.runtime.SkippableUpdater! box-impl(androidx.compose.runtime.Composer!);
     method @BytecodeOnly public static <T> androidx.compose.runtime.Composer constructor-impl(androidx.compose.runtime.Composer);
     method @BytecodeOnly public androidx.compose.runtime.Composer! unbox-impl();
@@ -752,7 +756,7 @@ package androidx.compose.runtime {
   }
 
   @kotlin.jvm.JvmInline public final value class Updater<T> {
-    ctor public Updater(@kotlin.PublishedApi androidx.compose.runtime.Composer composer);
+    ctor @KotlinOnly public Updater(androidx.compose.runtime.Composer composer);
     method @BytecodeOnly public static androidx.compose.runtime.Updater! box-impl(androidx.compose.runtime.Composer!);
     method @BytecodeOnly public static <T> androidx.compose.runtime.Composer constructor-impl(androidx.compose.runtime.Composer);
     method public void init(kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
@@ -874,6 +878,7 @@ package androidx.compose.runtime.internal {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
+    ctor @KotlinOnly public Decoy(String targetName, java.lang.String... signature);
     method public abstract String[] signature();
     method public abstract String targetName();
     property public abstract String[] signature;
@@ -881,6 +886,7 @@ package androidx.compose.runtime.internal {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
+    ctor @KotlinOnly public DecoyImplementation(String name, long id);
     method public abstract long id();
     method public abstract String name();
     property public abstract long id;
@@ -892,6 +898,7 @@ package androidx.compose.runtime.internal {
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
+    ctor @KotlinOnly public FunctionKeyMeta(int key, int startOffset, int endOffset);
     method public abstract int endOffset();
     method public abstract int key();
     method public abstract int startOffset();
@@ -905,16 +912,19 @@ package androidx.compose.runtime.internal {
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface FunctionKeyMetaClass {
+    ctor @KotlinOnly public FunctionKeyMetaClass(String file);
     method public abstract String file();
     property public abstract String file;
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface LiveLiteralFileInfo {
+    ctor @KotlinOnly public LiveLiteralFileInfo(String file);
     method public abstract String file();
     property public abstract String file;
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface LiveLiteralInfo {
+    ctor @KotlinOnly public LiveLiteralInfo(String key, int offset);
     method public abstract String key();
     method public abstract int offset();
     property public abstract String key;
@@ -930,6 +940,7 @@ package androidx.compose.runtime.internal {
   }
 
   @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface StabilityInferred {
+    ctor @KotlinOnly public StabilityInferred(int parameters);
     method public abstract int parameters();
     property public abstract int parameters;
   }
@@ -959,6 +970,7 @@ package androidx.compose.runtime.reflect {
 package androidx.compose.runtime.snapshots {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface AutoboxingStateValueProperty {
+    ctor @KotlinOnly public AutoboxingStateValueProperty(String preferredPropertyName);
     method public abstract String preferredPropertyName();
     property public abstract String preferredPropertyName;
   }

@@ -221,6 +221,7 @@ class WindowInsetsRulersTest {
                 CaptionBar,
                 MandatorySystemGestures,
                 SystemGestures,
+                DisplayCutout,
             )
         normalRulersList.forEach { rulers ->
             rulerState.value = rulers
@@ -293,6 +294,7 @@ class WindowInsetsRulersTest {
                 CaptionBar,
                 MandatorySystemGestures,
                 SystemGestures,
+                DisplayCutout,
             )
         normalRulersList.forEach { visibleRulers ->
             rulerState.value = visibleRulers
@@ -301,8 +303,11 @@ class WindowInsetsRulersTest {
                 val insets = createInsets(type to Insets.of(1, 2, 3, 5))
                 sendOnApplyWindowInsets(insets)
                 rule.runOnIdle {
+                    val isRulerVisible =
+                        visibleRulers === rulers ||
+                            (rulers === Waterfall && visibleRulers == DisplayCutout)
                     val expectedRect =
-                        if (visibleRulers === rulers) {
+                        if (isRulerVisible) {
                             IntRect(1, 2, contentWidth - 3, contentHeight - 5)
                         } else {
                             IntRect(0, 0, contentWidth, contentHeight)
@@ -315,7 +320,7 @@ class WindowInsetsRulersTest {
                         assertWithMessage(message).that(maximumRect).isEqualTo(expectedRect)
                     }
                     assertNotAnimating(rulers)
-                    assertWithMessage(message).that(isVisible).isEqualTo(visibleRulers === rulers)
+                    assertWithMessage(message).that(isVisible).isEqualTo(isRulerVisible)
                 }
             }
         }
@@ -334,6 +339,7 @@ class WindowInsetsRulersTest {
                 CaptionBar,
                 MandatorySystemGestures,
                 SystemGestures,
+                DisplayCutout,
             )
         maximumRulersList.forEach { rulers ->
             rulerState.value = rulers
@@ -355,33 +361,26 @@ class WindowInsetsRulersTest {
     }
 
     @Test
-    fun displayRulers() {
+    fun waterfallRulers() {
         Assume.assumeTrue(ComposeUiFlags.areWindowInsetsRulersEnabled)
-        val displayRulersList = listOf(DisplayCutout, Waterfall)
-        val rulerState = mutableStateOf(CaptionBar)
+        val rulerState = mutableStateOf(Waterfall)
         setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
 
-        displayRulersList.forEach { displayRulers ->
-            rulerState.value = displayRulers
-            rule.waitForIdle()
-            InsetsRulerTypes.forEach { (rulers, type) ->
-                val insets = createInsets(type to Insets.of(1, 2, 3, 5))
-                sendOnApplyWindowInsets(insets)
-                rule.runOnIdle {
-                    val expectedRect =
-                        if (
-                            rulers === displayRulers ||
-                                (displayRulers === DisplayCutout && rulers === Waterfall)
-                        ) {
-                            IntRect(1, 2, contentWidth - 3, contentHeight - 5)
-                        } else {
-                            IntRect(0, 0, contentWidth, contentHeight)
-                        }
-                    val message = "$displayRulers / $rulers"
-                    assertWithMessage(message).that(insetsRect).isEqualTo(expectedRect)
-                    assertNotAnimating(rulers)
-                    assertWithMessage(message).that(isVisible).isTrue()
-                }
+        InsetsRulerTypes.forEach { (rulers, type) ->
+            val insets = createInsets(type to Insets.of(1, 2, 3, 5))
+            sendOnApplyWindowInsets(insets)
+            rule.runOnIdle {
+                val expectedRect =
+                    if (rulers === Waterfall) {
+                        IntRect(1, 2, contentWidth - 3, contentHeight - 5)
+                    } else {
+                        IntRect(0, 0, contentWidth, contentHeight)
+                    }
+                val message = "Waterfall / $rulers"
+                assertWithMessage(message).that(insetsRect).isEqualTo(expectedRect)
+                assertNotAnimating(rulers)
+                assertWithMessage(message).that(isVisible).isEqualTo(rulers === Waterfall)
             }
         }
     }
@@ -462,7 +461,7 @@ class WindowInsetsRulersTest {
                     val message = "$gestureRulers / $rulers}"
                     assertWithMessage(message).that(insetsRect).isEqualTo(expectedRect)
                     assertNotAnimating(rulers)
-                    assertWithMessage(message).that(isVisible).isTrue()
+                    assertWithMessage(message).that(isVisible).isEqualTo(type in includedTypes)
                 }
             }
         }
@@ -626,6 +625,7 @@ class WindowInsetsRulersTest {
                         Type.systemGestures(),
                         Type.mandatorySystemGestures(),
                         Type.tappableElement(),
+                        WaterfallType,
                     ),
                 SafeDrawing to
                     listOf(
@@ -634,6 +634,8 @@ class WindowInsetsRulersTest {
                         Type.navigationBars(),
                         Type.statusBars(),
                         Type.tappableElement(),
+                        Type.displayCutout(),
+                        WaterfallType,
                     ),
                 SafeContent to
                     listOf(
@@ -644,6 +646,8 @@ class WindowInsetsRulersTest {
                         Type.ime(),
                         Type.navigationBars(),
                         Type.statusBars(),
+                        Type.displayCutout(),
+                        WaterfallType,
                     ),
             )
 
@@ -670,7 +674,9 @@ class WindowInsetsRulersTest {
                     startAnimation(animation, type, targetInsets, sourceInsets, targetInsets)
                     rule.waitForIdle()
                     rule.runOnIdle {
-                        assertWithMessage("$mergedRulers / $rulers").that(isVisible).isTrue()
+                        assertWithMessage("$mergedRulers / $rulers")
+                            .that(isVisible)
+                            .isEqualTo(type in includedTypes)
                         assertWithMessage("$mergedRulers / $rulers")
                             .that(isAnimating)
                             .isEqualTo(shouldBeAnimating)
@@ -684,7 +690,9 @@ class WindowInsetsRulersTest {
                         createInsets(type to lerp(sourceInsets, targetInsets, 0.25f)),
                     )
                     rule.runOnIdle {
-                        assertWithMessage("$mergedRulers / $rulers").that(isVisible).isTrue()
+                        assertWithMessage("$mergedRulers / $rulers")
+                            .that(isVisible)
+                            .isEqualTo(type in includedTypes)
                         assertWithMessage("$mergedRulers / $rulers")
                             .that(isAnimating)
                             .isEqualTo(shouldBeAnimating)
@@ -698,7 +706,9 @@ class WindowInsetsRulersTest {
                         createInsets(type to lerp(sourceInsets, targetInsets, 0.75f)),
                     )
                     rule.runOnIdle {
-                        assertWithMessage("$mergedRulers / $rulers").that(isVisible).isTrue()
+                        assertWithMessage("$mergedRulers / $rulers")
+                            .that(isVisible)
+                            .isEqualTo(type in includedTypes)
                         assertWithMessage("$mergedRulers / $rulers")
                             .that(isAnimating)
                             .isEqualTo(shouldBeAnimating)
@@ -708,14 +718,14 @@ class WindowInsetsRulersTest {
 
                     animation.fraction = 1f
                     animation.alpha = 0f
-                    endAnimation(animation, createInsets(type to Insets.of(0, 0, 0, 0)))
+                    endAnimation(animation, createInsets())
                     rule.runOnIdle {
                         val expectedRect = IntRect(0, 0, contentWidth, contentHeight)
                         assertWithMessage("$mergedRulers / $rulers")
                             .that(insetsRect)
                             .isEqualTo(expectedRect)
                         assertNotAnimating(mergedRulers, rulers)
-                        assertWithMessage(mergedRulers.toString()).that(isVisible).isTrue()
+                        assertWithMessage("$mergedRulers / $rulers").that(isVisible).isFalse()
                     }
                 }
             }
@@ -880,12 +890,18 @@ class WindowInsetsRulersTest {
                     bottom,
                     Insets.of(0, 0, 0, 0),
                 )
+            builder.setInsets(Type.displayCutout(), displayCutoutInsets)
+            builder.setInsetsIgnoringVisibility(Type.displayCutout(), displayCutoutInsets)
+            builder.setVisible(Type.displayCutout(), true)
             builder.setDisplayCutout(cutout)
         } else {
             val waterfallInsets = map[WaterfallType]
             if (waterfallInsets != null) {
                 val displayCutout =
                     DisplayCutoutCompat(waterfallInsets, null, null, null, null, waterfallInsets)
+                builder.setInsets(Type.displayCutout(), waterfallInsets)
+                builder.setInsetsIgnoringVisibility(Type.displayCutout(), waterfallInsets)
+                builder.setVisible(Type.displayCutout(), true)
                 builder.setDisplayCutout(displayCutout)
             }
         }
@@ -1073,6 +1089,7 @@ class WindowInsetsRulersTest {
                 Type.mandatorySystemGestures(),
                 Type.navigationBars(),
                 Type.captionBar(),
+                Type.displayCutout(),
             )
     }
 }

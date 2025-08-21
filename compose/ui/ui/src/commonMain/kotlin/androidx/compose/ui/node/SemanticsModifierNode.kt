@@ -66,9 +66,9 @@ interface SemanticsModifierNode : DelegatableNode {
         get() = false
 
     /**
-     * Whether this semantics modifier node should be taken into account when computing the bounds
-     * of the corresponding [SemanticsNode]. By default, all nodes are considered important for
-     * computing bounds.
+     * Whether this semantics modifier node should be taken into account when computing the layout
+     * boundaries of the corresponding [SemanticsNode], which are used, for example, for
+     * accessibility. By default, all nodes are considered important for computing bounds.
      */
     @get:Suppress("GetterSetterNames")
     val isImportantForBounds: Boolean

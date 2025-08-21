@@ -262,8 +262,8 @@ internal class Draggable2DNode(
         onDragStarted.invoke(startedPosition)
     }
 
-    override fun onDragStopped(velocity: Velocity) {
-        onDragStopped.invoke(velocity)
+    override fun onDragStopped(event: DragEvent.DragStopped) {
+        onDragStopped.invoke(event.velocity)
     }
 
     override fun startDragImmediately(): Boolean = startDragImmediately

@@ -27,6 +27,8 @@ import kotlin.js.JsName
  * An implementation of [MutableSet] that can be observed and snapshot. This is the result type
  * created by [androidx.compose.runtime.mutableStateSetOf].
  *
+ * The returned set iteration order is in the order the items were inserted into the set.
+ *
  * @see androidx.compose.runtime.mutableStateSetOf
  */
 @Stable

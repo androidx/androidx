@@ -43,9 +43,9 @@ import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.selection.TextFieldSelectionHandle
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.addBasicTextFieldTextContextMenuComponents
+import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
 import androidx.compose.foundation.text.selection.rememberPlatformSelectionBehaviors
-import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.foundation.text.selection.textFieldMagnifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -65,6 +65,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Rect
@@ -509,11 +510,19 @@ internal fun CoreTextField(
             }
         }
 
-    val autofillHighlightColor = LocalAutofillHighlightColor.current
+    val autofillHighlightBrush =
+        resolveAutofillHighlight(
+            brush = LocalAutofillHighlightBrush.current,
+            color = LocalAutofillHighlightColor.current,
+            defaultColor = autofillHighlightColor(),
+        )
     val drawDecorationModifier =
-        Modifier.drawBehind {
+        Modifier.drawWithContent {
+            drawContent()
+            // Autofill highlight is drawn on top of the content — this way the coloring appears
+            // over any Material background applied.
             if (state.autofillHighlightOn || state.justAutofilled) {
-                drawRect(color = autofillHighlightColor)
+                drawRect(brush = autofillHighlightBrush)
             }
         }
 

@@ -547,6 +547,18 @@ internal abstract class InputDispatcher(
         }
     }
 
+    fun enqueueMouseScroll(offset: Offset) {
+        val mouse = mouseInputState
+
+        if (moveOnScroll) {
+            // On Android a scroll is always preceded by a move(/hover) event
+            enqueueMouseMove(currentMousePosition)
+        }
+        if (isWithinRootBounds(currentMousePosition)) {
+            mouse.enqueueScroll(offset)
+        }
+    }
+
     /**
      * Generates a key down event for the given [key].
      *
@@ -718,6 +730,8 @@ internal abstract class InputDispatcher(
         get() = scrollLockState.isLockKeyOnIncludingOffPress
 
     protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
+
+    protected abstract fun MouseInputState.enqueueScroll(offset: Offset)
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
         horizontalScrollPixels: Float

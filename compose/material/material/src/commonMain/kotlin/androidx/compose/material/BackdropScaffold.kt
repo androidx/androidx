@@ -564,6 +564,7 @@ private fun BackLayerTransition(
     }
 }
 
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 private fun BackdropStack(
     modifier: Modifier,

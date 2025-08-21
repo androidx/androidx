@@ -35,7 +35,7 @@ public class CoreSemantics extends Operation implements AccessibilityModifier {
     public int mTextId = 0;
     public int mStateDescriptionId = 0;
     public boolean mEnabled = true;
-    public Mode mMode = Mode.SET;
+    public @NonNull Mode mMode = Mode.SET;
     public boolean mClickable = false;
 
     @Override
@@ -50,7 +50,7 @@ public class CoreSemantics extends Operation implements AccessibilityModifier {
     }
 
     @Override
-    public Mode getMode() {
+    public @NonNull Mode getMode() {
         return mMode;
     }
 
@@ -136,7 +136,7 @@ public class CoreSemantics extends Operation implements AccessibilityModifier {
      * @param operations The list of operations to which the read CoreSemantics object will be
      *     added.
      */
-    public static void read(WireBuffer buffer, List<Operation> operations) {
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         CoreSemantics semantics = new CoreSemantics();
 
         semantics.read(buffer);
@@ -145,7 +145,7 @@ public class CoreSemantics extends Operation implements AccessibilityModifier {
     }
 
     @Override
-    public Integer getContentDescriptionId() {
+    public @NonNull Integer getContentDescriptionId() {
         return mContentDescriptionId != 0 ? mContentDescriptionId : null;
     }
 

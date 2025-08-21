@@ -134,7 +134,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         // Arrange
 
         // Act
-        createPager(initialPage = 5, modifier = Modifier.fillMaxSize())
+        createPager(initialPage = 5, modifier = Modifier.fillMaxSize(), prefetchEnabled = false)
 
         // Assert
         rule.onNodeWithTag("4").assertDoesNotExist()

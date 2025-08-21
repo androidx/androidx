@@ -110,7 +110,7 @@ internal constructor(private val method: Method, private val composableInfo: Com
      * Calls the Composable method on the given [instance]. If the method accepts default values,
      * this function will call it with the correct options set.
      */
-    @Suppress("BanUncheckedReflection", "ListIterator")
+    @Suppress("BanUncheckedReflection", "ListIterator", "PrimitiveInCollection")
     public operator fun invoke(composer: Composer, instance: Any?, vararg args: Any?): Any? {
         val (_, realParamsCount, changedParams, defaultParams) = composableInfo
 

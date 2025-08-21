@@ -35,12 +35,9 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -67,7 +64,6 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
@@ -93,8 +89,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertNotNull
 import kotlin.math.roundToInt
 import org.hamcrest.CoreMatchers.allOf
@@ -105,7 +99,6 @@ import org.hamcrest.CoreMatchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -744,35 +737,6 @@ class AndroidViewCompatTest {
             }
         }
         rule.waitUntil(10000) { view!!.draws == invalidatesDuringScroll + 1 }
-    }
-
-    @Ignore // b/254573760
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    @Test
-    fun testWebViewIsRelaidOut_afterPageLoad() {
-        var boxY = 0
-        val latch = CountDownLatch(1)
-        rule.setContent {
-            Column {
-                AndroidView(
-                    factory = {
-                        val webView = WebView(it)
-                        webView.webViewClient =
-                            object : WebViewClient() {
-                                override fun onPageCommitVisible(view: WebView?, url: String?) {
-                                    super.onPageCommitVisible(view, url)
-                                    latch.countDown()
-                                }
-                            }
-                        webView.loadData("This is a test text", "text/html", "UTF-8")
-                        webView
-                    }
-                )
-                Box(Modifier.onGloballyPositioned { boxY = it.positionInRoot().y.roundToInt() })
-            }
-        }
-        assertTrue(latch.await(3, TimeUnit.SECONDS))
-        rule.waitUntil { boxY > 0 }
     }
 
     @Test

@@ -143,6 +143,12 @@ abstract fun interface androidx.compose.runtime.snapshots/ObserverHandle { // an
     abstract fun dispose() // androidx.compose.runtime.snapshots/ObserverHandle.dispose|dispose(){}[0]
 }
 
+abstract fun interface androidx.compose.runtime/CancellationHandle { // androidx.compose.runtime/CancellationHandle|null[0]
+    abstract fun cancel() // androidx.compose.runtime/CancellationHandle.cancel|cancel(){}[0]
+
+    final object Companion // androidx.compose.runtime/CancellationHandle.Companion|null[0]
+}
+
 abstract fun interface androidx.compose.runtime/ShouldPauseCallback { // androidx.compose.runtime/ShouldPauseCallback|null[0]
     abstract fun shouldPause(): kotlin/Boolean // androidx.compose.runtime/ShouldPauseCallback.shouldPause|shouldPause(){}[0]
 }
@@ -364,6 +370,42 @@ abstract interface androidx.compose.runtime/RememberObserver { // androidx.compo
     abstract fun onRemembered() // androidx.compose.runtime/RememberObserver.onRemembered|onRemembered(){}[0]
 }
 
+abstract interface androidx.compose.runtime/RetainObserver { // androidx.compose.runtime/RetainObserver|null[0]
+    abstract fun onEnteredComposition() // androidx.compose.runtime/RetainObserver.onEnteredComposition|onEnteredComposition(){}[0]
+    abstract fun onExitedComposition() // androidx.compose.runtime/RetainObserver.onExitedComposition|onExitedComposition(){}[0]
+    abstract fun onRetained() // androidx.compose.runtime/RetainObserver.onRetained|onRetained(){}[0]
+    abstract fun onRetired() // androidx.compose.runtime/RetainObserver.onRetired|onRetired(){}[0]
+}
+
+abstract interface androidx.compose.runtime/RetainStateProvider { // androidx.compose.runtime/RetainStateProvider|null[0]
+    abstract val isKeepingExitedValues // androidx.compose.runtime/RetainStateProvider.isKeepingExitedValues|{}isKeepingExitedValues[0]
+        abstract fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime/RetainStateProvider.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+    abstract fun addRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+    abstract fun removeRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+
+    abstract interface RetainStateObserver { // androidx.compose.runtime/RetainStateProvider.RetainStateObserver|null[0]
+        abstract fun onStartKeepingExitedValues() // androidx.compose.runtime/RetainStateProvider.RetainStateObserver.onStartKeepingExitedValues|onStartKeepingExitedValues(){}[0]
+        abstract fun onStopKeepingExitedValues() // androidx.compose.runtime/RetainStateProvider.RetainStateObserver.onStopKeepingExitedValues|onStopKeepingExitedValues(){}[0]
+    }
+
+    final object AlwaysKeepExitedValues : androidx.compose.runtime/RetainStateProvider { // androidx.compose.runtime/RetainStateProvider.AlwaysKeepExitedValues|null[0]
+        final val isKeepingExitedValues // androidx.compose.runtime/RetainStateProvider.AlwaysKeepExitedValues.isKeepingExitedValues|{}isKeepingExitedValues[0]
+            final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime/RetainStateProvider.AlwaysKeepExitedValues.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+        final fun addRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.AlwaysKeepExitedValues.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+        final fun removeRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.AlwaysKeepExitedValues.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+    }
+
+    final object NeverKeepExitedValues : androidx.compose.runtime/RetainStateProvider { // androidx.compose.runtime/RetainStateProvider.NeverKeepExitedValues|null[0]
+        final val isKeepingExitedValues // androidx.compose.runtime/RetainStateProvider.NeverKeepExitedValues.isKeepingExitedValues|{}isKeepingExitedValues[0]
+            final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime/RetainStateProvider.NeverKeepExitedValues.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+        final fun addRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.NeverKeepExitedValues.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+        final fun removeRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainStateProvider.NeverKeepExitedValues.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+    }
+}
+
 abstract interface androidx.compose.runtime/ScopeUpdateScope { // androidx.compose.runtime/ScopeUpdateScope|null[0]
     abstract fun updateScope(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.compose.runtime/ScopeUpdateScope.updateScope|updateScope(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
 }
@@ -410,6 +452,7 @@ sealed interface androidx.compose.runtime/Composer { // androidx.compose.runtime
     abstract fun endToMarker(kotlin/Int) // androidx.compose.runtime/Composer.endToMarker|endToMarker(kotlin.Int){}[0]
     abstract fun joinKey(kotlin/Any?, kotlin/Any?): kotlin/Any // androidx.compose.runtime/Composer.joinKey|joinKey(kotlin.Any?;kotlin.Any?){}[0]
     abstract fun rememberedValue(): kotlin/Any? // androidx.compose.runtime/Composer.rememberedValue|rememberedValue(){}[0]
+    abstract fun scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>): androidx.compose.runtime/CancellationHandle // androidx.compose.runtime/Composer.scheduleFrameEndCallback|scheduleFrameEndCallback(kotlin.Function0<kotlin.Unit>){}[0]
     abstract fun skipCurrentGroup() // androidx.compose.runtime/Composer.skipCurrentGroup|skipCurrentGroup(){}[0]
     abstract fun skipToGroupEnd() // androidx.compose.runtime/Composer.skipToGroupEnd|skipToGroupEnd(){}[0]
     abstract fun sourceInformation(kotlin/String) // androidx.compose.runtime/Composer.sourceInformation|sourceInformation(kotlin.String){}[0]
@@ -533,6 +576,24 @@ abstract class androidx.compose.runtime.snapshots/StateRecord { // androidx.comp
 abstract class androidx.compose.runtime/CompositionContext { // androidx.compose.runtime/CompositionContext|null[0]
     abstract val effectCoroutineContext // androidx.compose.runtime/CompositionContext.effectCoroutineContext|{}effectCoroutineContext[0]
         abstract fun <get-effectCoroutineContext>(): kotlin.coroutines/CoroutineContext // androidx.compose.runtime/CompositionContext.effectCoroutineContext.<get-effectCoroutineContext>|<get-effectCoroutineContext>(){}[0]
+
+    abstract fun scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>): androidx.compose.runtime/CancellationHandle // androidx.compose.runtime/CompositionContext.scheduleFrameEndCallback|scheduleFrameEndCallback(kotlin.Function0<kotlin.Unit>){}[0]
+}
+
+abstract class androidx.compose.runtime/RetainScope : androidx.compose.runtime/RetainStateProvider { // androidx.compose.runtime/RetainScope|null[0]
+    constructor <init>() // androidx.compose.runtime/RetainScope.<init>|<init>(){}[0]
+
+    final val isKeepingExitedValues // androidx.compose.runtime/RetainScope.isKeepingExitedValues|{}isKeepingExitedValues[0]
+        final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime/RetainScope.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+    abstract fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime/RetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+    abstract fun onStartKeepingExitedValues() // androidx.compose.runtime/RetainScope.onStartKeepingExitedValues|onStartKeepingExitedValues(){}[0]
+    abstract fun onStopKeepingExitedValues() // androidx.compose.runtime/RetainScope.onStopKeepingExitedValues|onStopKeepingExitedValues(){}[0]
+    abstract fun saveExitingValue(kotlin/Any, kotlin/Any?) // androidx.compose.runtime/RetainScope.saveExitingValue|saveExitingValue(kotlin.Any;kotlin.Any?){}[0]
+    final fun addRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainScope.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+    final fun removeRetainStateObserver(androidx.compose.runtime/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime/RetainScope.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.RetainStateProvider.RetainStateObserver){}[0]
+    final fun requestKeepExitedValues() // androidx.compose.runtime/RetainScope.requestKeepExitedValues|requestKeepExitedValues(){}[0]
+    final fun unRequestKeepExitedValues() // androidx.compose.runtime/RetainScope.unRequestKeepExitedValues|unRequestKeepExitedValues(){}[0]
 }
 
 final class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.compose.runtime.snapshots/SnapshotStateMap : androidx.compose.runtime.snapshots/StateObject, kotlin.collections/MutableMap<#A, #B> { // androidx.compose.runtime.snapshots/SnapshotStateMap|null[0]
@@ -806,6 +867,15 @@ final class androidx.compose.runtime/CompositionScopedCoroutineScopeCanceller : 
     final fun onRemembered() // androidx.compose.runtime/CompositionScopedCoroutineScopeCanceller.onRemembered|onRemembered(){}[0]
 }
 
+final class androidx.compose.runtime/ControlledRetainScope : androidx.compose.runtime/RetainScope { // androidx.compose.runtime/ControlledRetainScope|null[0]
+    constructor <init>() // androidx.compose.runtime/ControlledRetainScope.<init>|<init>(){}[0]
+
+    final fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime/ControlledRetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+    final fun setParentRetainStateProvider(androidx.compose.runtime/RetainStateProvider) // androidx.compose.runtime/ControlledRetainScope.setParentRetainStateProvider|setParentRetainStateProvider(androidx.compose.runtime.RetainStateProvider){}[0]
+    final fun startKeepingExitedValues() // androidx.compose.runtime/ControlledRetainScope.startKeepingExitedValues|startKeepingExitedValues(){}[0]
+    final fun stopKeepingExitedValues() // androidx.compose.runtime/ControlledRetainScope.stopKeepingExitedValues|stopKeepingExitedValues(){}[0]
+}
+
 final class androidx.compose.runtime/DisposableEffectScope { // androidx.compose.runtime/DisposableEffectScope|null[0]
     constructor <init>() // androidx.compose.runtime/DisposableEffectScope.<init>|<init>(){}[0]
 
@@ -843,6 +913,7 @@ final class androidx.compose.runtime/Recomposer : androidx.compose.runtime/Compo
     final fun close() // androidx.compose.runtime/Recomposer.close|close(){}[0]
     final fun pauseCompositionFrameClock() // androidx.compose.runtime/Recomposer.pauseCompositionFrameClock|pauseCompositionFrameClock(){}[0]
     final fun resumeCompositionFrameClock() // androidx.compose.runtime/Recomposer.resumeCompositionFrameClock|resumeCompositionFrameClock(){}[0]
+    final fun scheduleFrameEndCallback(kotlin/Function0<kotlin/Unit>): androidx.compose.runtime/CancellationHandle // androidx.compose.runtime/Recomposer.scheduleFrameEndCallback|scheduleFrameEndCallback(kotlin.Function0<kotlin.Unit>){}[0]
     final suspend fun awaitIdle() // androidx.compose.runtime/Recomposer.awaitIdle|awaitIdle(){}[0]
     final suspend fun join() // androidx.compose.runtime/Recomposer.join|join(){}[0]
     final suspend fun runRecomposeAndApplyChanges() // androidx.compose.runtime/Recomposer.runRecomposeAndApplyChanges|runRecomposeAndApplyChanges(){}[0]
@@ -993,6 +1064,10 @@ sealed class androidx.compose.runtime.snapshots/SnapshotApplyResult { // android
     }
 }
 
+final object androidx.compose.runtime/ForgetfulRetainScope : androidx.compose.runtime/RetainScope { // androidx.compose.runtime/ForgetfulRetainScope|null[0]
+    final fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime/ForgetfulRetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+}
+
 final const val androidx.compose.runtime/EmptyCompositeKeyHashCode // androidx.compose.runtime/EmptyCompositeKeyHashCode|{}EmptyCompositeKeyHashCode[0]
     final fun <get-EmptyCompositeKeyHashCode>(): kotlin/Long // androidx.compose.runtime/EmptyCompositeKeyHashCode.<get-EmptyCompositeKeyHashCode>|<get-EmptyCompositeKeyHashCode>(){}[0]
 final const val androidx.compose.runtime/compositionLocalMapKey // androidx.compose.runtime/compositionLocalMapKey|{}compositionLocalMapKey[0]
@@ -1054,6 +1129,7 @@ final val androidx.compose.runtime.changelist/androidx_compose_runtime_changelis
 final val androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_Operations$stableprop // androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_Operations$stableprop|#static{}androidx_compose_runtime_changelist_Operations$stableprop[0]
 final val androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop // androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop|#static{}androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop[0]
 final val androidx.compose.runtime.collection/androidx_compose_runtime_collection_MutableVector$stableprop // androidx.compose.runtime.collection/androidx_compose_runtime_collection_MutableVector$stableprop|#static{}androidx_compose_runtime_collection_MutableVector$stableprop[0]
+final val androidx.compose.runtime.collection/androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop // androidx.compose.runtime.collection/androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop|#static{}androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop[0]
 final val androidx.compose.runtime.collection/androidx_compose_runtime_collection_ScatterSetWrapper$stableprop // androidx.compose.runtime.collection/androidx_compose_runtime_collection_ScatterSetWrapper$stableprop|#static{}androidx_compose_runtime_collection_ScatterSetWrapper$stableprop[0]
 final val androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop // androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop|#static{}androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop[0]
 final val androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop // androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop|#static{}androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop[0]
@@ -1129,6 +1205,8 @@ final val androidx.compose.runtime.external.kotlinx.collections.immutable.intern
 final val androidx.compose.runtime.external.kotlinx.collections.immutable.internal/androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop // androidx.compose.runtime.external.kotlinx.collections.immutable.internal/androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop|#static{}androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop[0]
 final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicInt$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicInt$stableprop|#static{}androidx_compose_runtime_internal_AtomicInt$stableprop[0]
 final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicReference$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicReference$stableprop|#static{}androidx_compose_runtime_internal_AtomicReference$stableprop[0]
+final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue$stableprop|#static{}androidx_compose_runtime_internal_AwaiterQueue$stableprop[0]
+final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop|#static{}androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop[0]
 final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop|#static{}androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop[0]
 final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_IntRef$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_IntRef$stableprop|#static{}androidx_compose_runtime_internal_IntRef$stableprop[0]
 final val androidx.compose.runtime.internal/androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop // androidx.compose.runtime.internal/androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop|#static{}androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop[0]
@@ -1191,6 +1269,8 @@ final val androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_Sour
 final val androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_WriterTraceBuilder$stableprop // androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_WriterTraceBuilder$stableprop|#static{}androidx_compose_runtime_tooling_WriterTraceBuilder$stableprop[0]
 final val androidx.compose.runtime/DefaultMonotonicFrameClock // androidx.compose.runtime/DefaultMonotonicFrameClock|{}DefaultMonotonicFrameClock[0]
     final fun <get-DefaultMonotonicFrameClock>(): androidx.compose.runtime/MonotonicFrameClock // androidx.compose.runtime/DefaultMonotonicFrameClock.<get-DefaultMonotonicFrameClock>|<get-DefaultMonotonicFrameClock>(){}[0]
+final val androidx.compose.runtime/LocalRetainScope // androidx.compose.runtime/LocalRetainScope|{}LocalRetainScope[0]
+    final fun <get-LocalRetainScope>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.runtime/RetainScope> // androidx.compose.runtime/LocalRetainScope.<get-LocalRetainScope>|<get-LocalRetainScope>(){}[0]
 final val androidx.compose.runtime/androidx_compose_runtime_AbstractApplier$stableprop // androidx.compose.runtime/androidx_compose_runtime_AbstractApplier$stableprop|#static{}androidx_compose_runtime_AbstractApplier$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_Anchor$stableprop // androidx.compose.runtime/androidx_compose_runtime_Anchor$stableprop|#static{}androidx_compose_runtime_Anchor$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_BitVector$stableprop // androidx.compose.runtime/androidx_compose_runtime_BitVector$stableprop|#static{}androidx_compose_runtime_BitVector$stableprop[0]
@@ -1209,10 +1289,12 @@ final val androidx.compose.runtime/androidx_compose_runtime_CompositionObserverH
 final val androidx.compose.runtime/androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop // androidx.compose.runtime/androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop|#static{}androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop // androidx.compose.runtime/androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop|#static{}androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_ComputedValueHolder$stableprop // androidx.compose.runtime/androidx_compose_runtime_ComputedValueHolder$stableprop|#static{}androidx_compose_runtime_ComputedValueHolder$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_ControlledRetainScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_ControlledRetainScope$stableprop|#static{}androidx_compose_runtime_ControlledRetainScope$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop // androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop|#static{}androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop|#static{}androidx_compose_runtime_DisposableEffectScope$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop // androidx.compose.runtime/androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop|#static{}androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DynamicValueHolder$stableprop // androidx.compose.runtime/androidx_compose_runtime_DynamicValueHolder$stableprop|#static{}androidx_compose_runtime_DynamicValueHolder$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_ForgetfulRetainScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_ForgetfulRetainScope$stableprop|#static{}androidx_compose_runtime_ForgetfulRetainScope$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_GroupSourceInformation$stableprop // androidx.compose.runtime/androidx_compose_runtime_GroupSourceInformation$stableprop|#static{}androidx_compose_runtime_GroupSourceInformation$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_IntStack$stableprop // androidx.compose.runtime/androidx_compose_runtime_IntStack$stableprop|#static{}androidx_compose_runtime_IntStack$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_JoinedKey$stableprop // androidx.compose.runtime/androidx_compose_runtime_JoinedKey$stableprop|#static{}androidx_compose_runtime_JoinedKey$stableprop[0]
@@ -1223,7 +1305,9 @@ final val androidx.compose.runtime/androidx_compose_runtime_LazyValueHolder$stab
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop|#static{}androidx_compose_runtime_MovableContent$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop|#static{}androidx_compose_runtime_MovableContentState$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop|#static{}androidx_compose_runtime_MovableContentStateReference$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop // androidx.compose.runtime/androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop|#static{}androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_OffsetApplier$stableprop // androidx.compose.runtime/androidx_compose_runtime_OffsetApplier$stableprop|#static{}androidx_compose_runtime_OffsetApplier$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_OneShotCancellationHandle$stableprop // androidx.compose.runtime/androidx_compose_runtime_OneShotCancellationHandle$stableprop|#static{}androidx_compose_runtime_OneShotCancellationHandle$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_OpaqueKey$stableprop // androidx.compose.runtime/androidx_compose_runtime_OpaqueKey$stableprop|#static{}androidx_compose_runtime_OpaqueKey$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_PausableMonotonicFrameClock$stableprop // androidx.compose.runtime/androidx_compose_runtime_PausableMonotonicFrameClock$stableprop|#static{}androidx_compose_runtime_PausableMonotonicFrameClock$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_PausedCompositionImpl$stableprop // androidx.compose.runtime/androidx_compose_runtime_PausedCompositionImpl$stableprop|#static{}androidx_compose_runtime_PausedCompositionImpl$stableprop[0]
@@ -1234,6 +1318,11 @@ final val androidx.compose.runtime/androidx_compose_runtime_Recomposer$stablepro
 final val androidx.compose.runtime/androidx_compose_runtime_RecordingApplier$stableprop // androidx.compose.runtime/androidx_compose_runtime_RecordingApplier$stableprop|#static{}androidx_compose_runtime_RecordingApplier$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_RememberObserverHolder$stableprop // androidx.compose.runtime/androidx_compose_runtime_RememberObserverHolder$stableprop|#static{}androidx_compose_runtime_RememberObserverHolder$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_RememberedCoroutineScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_RememberedCoroutineScope$stableprop|#static{}androidx_compose_runtime_RememberedCoroutineScope$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_RetainScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_RetainScope$stableprop|#static{}androidx_compose_runtime_RetainScope$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop // androidx.compose.runtime/androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop|#static{}androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop // androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop|#static{}androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop // androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop|#static{}androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop[0]
+final val androidx.compose.runtime/androidx_compose_runtime_ReusableRememberObserverHolder$stableprop // androidx.compose.runtime/androidx_compose_runtime_ReusableRememberObserverHolder$stableprop|#static{}androidx_compose_runtime_ReusableRememberObserverHolder$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_ScopeInvalidated$stableprop // androidx.compose.runtime/androidx_compose_runtime_ScopeInvalidated$stableprop|#static{}androidx_compose_runtime_ScopeInvalidated$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_SlotReader$stableprop // androidx.compose.runtime/androidx_compose_runtime_SlotReader$stableprop|#static{}androidx_compose_runtime_SlotReader$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_SlotTable$stableprop // androidx.compose.runtime/androidx_compose_runtime_SlotTable$stableprop|#static{}androidx_compose_runtime_SlotTable$stableprop[0]
@@ -1315,6 +1404,8 @@ final fun <#A: kotlin/Any?> androidx.compose.runtime/produceState(#A, kotlin/Any
 final fun <#A: kotlin/Any?> androidx.compose.runtime/produceState(#A, kotlin/Array<out kotlin/Any?>..., kotlin.coroutines/SuspendFunction1<androidx.compose.runtime/ProduceStateScope<#A>, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<#A> // androidx.compose.runtime/produceState|produceState(0:0;kotlin.Array<out|kotlin.Any?>...;kotlin.coroutines.SuspendFunction1<androidx.compose.runtime.ProduceStateScope<0:0>,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.runtime/referentialEqualityPolicy(): androidx.compose.runtime/SnapshotMutationPolicy<#A> // androidx.compose.runtime/referentialEqualityPolicy|referentialEqualityPolicy(){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.runtime/rememberUpdatedState(#A, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime/State<#A> // androidx.compose.runtime/rememberUpdatedState|rememberUpdatedState(0:0;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime/retain(kotlin/Int, kotlin/Array<out kotlin/Any?>..., kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/retain|retain(kotlin.Int;kotlin.Array<out|kotlin.Any?>...;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime/retain(kotlin/Int, kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/retain|retain(kotlin.Int;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.runtime/snapshotFlow(kotlin/Function0<#A>): kotlinx.coroutines.flow/Flow<#A> // androidx.compose.runtime/snapshotFlow|snapshotFlow(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.runtime/staticCompositionLocalOf(kotlin/Function0<#A>): androidx.compose.runtime/ProvidableCompositionLocal<#A> // androidx.compose.runtime/staticCompositionLocalOf|staticCompositionLocalOf(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.runtime/structuralEqualityPolicy(): androidx.compose.runtime/SnapshotMutationPolicy<#A> // androidx.compose.runtime/structuralEqualityPolicy|structuralEqualityPolicy(){0§<kotlin.Any?>}[0]
@@ -1362,6 +1453,7 @@ final fun androidx.compose.runtime.changelist/androidx_compose_runtime_changelis
 final fun androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_Operations$stableprop_getter(): kotlin/Int // androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_Operations$stableprop_getter|androidx_compose_runtime_changelist_Operations$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop_getter(): kotlin/Int // androidx.compose.runtime.changelist/androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop_getter|androidx_compose_runtime_changelist_OperationsDebugStringFormattable$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.collection/androidx_compose_runtime_collection_MutableVector$stableprop_getter(): kotlin/Int // androidx.compose.runtime.collection/androidx_compose_runtime_collection_MutableVector$stableprop_getter|androidx_compose_runtime_collection_MutableVector$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.collection/androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter(): kotlin/Int // androidx.compose.runtime.collection/androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter|androidx_compose_runtime_collection_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.collection/androidx_compose_runtime_collection_ScatterSetWrapper$stableprop_getter(): kotlin/Int // androidx.compose.runtime.collection/androidx_compose_runtime_collection_ScatterSetWrapper$stableprop_getter|androidx_compose_runtime_collection_ScatterSetWrapper$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop_getter(): kotlin/Int // androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop_getter|androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableCollectionAdapter$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop_getter(): kotlin/Int // androidx.compose.runtime.external.kotlinx.collections.immutable.adapters/androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop_getter|androidx_compose_runtime_external_kotlinx_collections_immutable_adapters_ImmutableListAdapter$stableprop_getter(){}[0]
@@ -1437,6 +1529,8 @@ final fun androidx.compose.runtime.external.kotlinx.collections.immutable.intern
 final fun androidx.compose.runtime.external.kotlinx.collections.immutable.internal/androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop_getter(): kotlin/Int // androidx.compose.runtime.external.kotlinx.collections.immutable.internal/androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop_getter|androidx_compose_runtime_external_kotlinx_collections_immutable_internal_MutabilityOwnership$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicInt$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicInt$stableprop_getter|androidx_compose_runtime_internal_AtomicInt$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicReference$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AtomicReference$stableprop_getter|androidx_compose_runtime_internal_AtomicReference$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue$stableprop_getter|androidx_compose_runtime_internal_AwaiterQueue$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop_getter|androidx_compose_runtime_internal_AwaiterQueue_Awaiter$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop_getter|androidx_compose_runtime_internal_ComposableLambdaImpl$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_IntRef$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_IntRef$stableprop_getter|androidx_compose_runtime_internal_IntRef$stableprop_getter(){}[0]
 final fun androidx.compose.runtime.internal/androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop_getter(): kotlin/Int // androidx.compose.runtime.internal/androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop_getter|androidx_compose_runtime_internal_PausedCompositionRemembers$stableprop_getter(){}[0]
@@ -1532,10 +1626,12 @@ final fun androidx.compose.runtime/androidx_compose_runtime_CompositionObserverH
 final fun androidx.compose.runtime/androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop_getter|androidx_compose_runtime_CompositionScopedCoroutineScopeCanceller$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop_getter|androidx_compose_runtime_ComputedProvidableCompositionLocal$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_ComputedValueHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ComputedValueHolder$stableprop_getter|androidx_compose_runtime_ComputedValueHolder$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_ControlledRetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ControlledRetainScope$stableprop_getter|androidx_compose_runtime_ControlledRetainScope$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter|androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop_getter|androidx_compose_runtime_DisposableEffectScope$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop_getter|androidx_compose_runtime_DynamicProvidableCompositionLocal$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DynamicValueHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DynamicValueHolder$stableprop_getter|androidx_compose_runtime_DynamicValueHolder$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_ForgetfulRetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ForgetfulRetainScope$stableprop_getter|androidx_compose_runtime_ForgetfulRetainScope$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_GroupSourceInformation$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_GroupSourceInformation$stableprop_getter|androidx_compose_runtime_GroupSourceInformation$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_IntStack$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_IntStack$stableprop_getter|androidx_compose_runtime_IntStack$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_JoinedKey$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_JoinedKey$stableprop_getter|androidx_compose_runtime_JoinedKey$stableprop_getter(){}[0]
@@ -1546,7 +1642,9 @@ final fun androidx.compose.runtime/androidx_compose_runtime_LazyValueHolder$stab
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop_getter|androidx_compose_runtime_MovableContent$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop_getter|androidx_compose_runtime_MovableContentState$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop_getter|androidx_compose_runtime_MovableContentStateReference$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop_getter|androidx_compose_runtime_NextFrameEndCallbackQueue$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_OffsetApplier$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_OffsetApplier$stableprop_getter|androidx_compose_runtime_OffsetApplier$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_OneShotCancellationHandle$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_OneShotCancellationHandle$stableprop_getter|androidx_compose_runtime_OneShotCancellationHandle$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_OpaqueKey$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_OpaqueKey$stableprop_getter|androidx_compose_runtime_OpaqueKey$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_PausableMonotonicFrameClock$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_PausableMonotonicFrameClock$stableprop_getter|androidx_compose_runtime_PausableMonotonicFrameClock$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_PausedCompositionImpl$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_PausedCompositionImpl$stableprop_getter|androidx_compose_runtime_PausedCompositionImpl$stableprop_getter(){}[0]
@@ -1557,6 +1655,11 @@ final fun androidx.compose.runtime/androidx_compose_runtime_Recomposer$stablepro
 final fun androidx.compose.runtime/androidx_compose_runtime_RecordingApplier$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RecordingApplier$stableprop_getter|androidx_compose_runtime_RecordingApplier$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_RememberObserverHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RememberObserverHolder$stableprop_getter|androidx_compose_runtime_RememberObserverHolder$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_RememberedCoroutineScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RememberedCoroutineScope$stableprop_getter|androidx_compose_runtime_RememberedCoroutineScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_RetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RetainScope$stableprop_getter|androidx_compose_runtime_RetainScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop_getter|androidx_compose_runtime_RetainScope_RetainedValueHolder$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter|androidx_compose_runtime_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop_getter|androidx_compose_runtime_RetainStateProvider_NeverKeepExitedValues$stableprop_getter(){}[0]
+final fun androidx.compose.runtime/androidx_compose_runtime_ReusableRememberObserverHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ReusableRememberObserverHolder$stableprop_getter|androidx_compose_runtime_ReusableRememberObserverHolder$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_ScopeInvalidated$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_ScopeInvalidated$stableprop_getter|androidx_compose_runtime_ScopeInvalidated$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_SlotReader$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_SlotReader$stableprop_getter|androidx_compose_runtime_SlotReader$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_SlotTable$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_SlotTable$stableprop_getter|androidx_compose_runtime_SlotTable$stableprop_getter(){}[0]
@@ -1626,10 +1729,15 @@ final inline fun <#A: kotlin/Any?> androidx.compose.runtime/remember(kotlin/Any?
 final inline fun <#A: kotlin/Any?> androidx.compose.runtime/remember(kotlin/Any?, kotlin/Any?, crossinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/remember|remember(kotlin.Any?;kotlin.Any?;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> androidx.compose.runtime/remember(kotlin/Any?, kotlin/Any?, kotlin/Any?, crossinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/remember|remember(kotlin.Any?;kotlin.Any?;kotlin.Any?;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun <#A: kotlin/Any?> androidx.compose.runtime/remember(kotlin/Array<out kotlin/Any?>..., crossinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/remember|remember(kotlin.Array<out|kotlin.Any?>...;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> androidx.compose.runtime/withCompositionLocal(androidx.compose.runtime/ProvidedValue<*>, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, #A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/withCompositionLocal|withCompositionLocal(androidx.compose.runtime.ProvidedValue<*>;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> androidx.compose.runtime/withCompositionLocals(kotlin/Array<out androidx.compose.runtime/ProvidedValue<*>>..., kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, #A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/withCompositionLocals|withCompositionLocals(kotlin.Array<out|androidx.compose.runtime.ProvidedValue<*>>...;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.collection/MutableVector(kotlin/Int = ...): androidx.compose.runtime.collection/MutableVector<#A> // androidx.compose.runtime.collection/MutableVector|MutableVector(kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.collection/MutableVector(kotlin/Int, noinline kotlin/Function1<kotlin/Int, #A>): androidx.compose.runtime.collection/MutableVector<#A> // androidx.compose.runtime.collection/MutableVector|MutableVector(kotlin.Int;kotlin.Function1<kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.collection/mutableVectorOf(): androidx.compose.runtime.collection/MutableVector<#A> // androidx.compose.runtime.collection/mutableVectorOf|mutableVectorOf(){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.collection/mutableVectorOf(kotlin/Array<out #A>...): androidx.compose.runtime.collection/MutableVector<#A> // androidx.compose.runtime.collection/mutableVectorOf|mutableVectorOf(kotlin.Array<out|0:0>...){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.internal/classHash(): kotlin/Int // androidx.compose.runtime.internal/classHash|classHash(){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime/retain(kotlin/Array<out kotlin/Any?>..., noinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/retain|retain(kotlin.Array<out|kotlin.Any?>...;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime/retain(noinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime/retain|retain(kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
 final inline fun androidx.compose.runtime/ReusableContent(kotlin/Any?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime/ReusableContent|ReusableContent(kotlin.Any?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final inline fun androidx.compose.runtime/ReusableContentHost(kotlin/Boolean, crossinline kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime/ReusableContentHost|ReusableContentHost(kotlin.Boolean;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 final inline fun androidx.compose.runtime/rememberCoroutineScope(crossinline kotlin/Function0<kotlin.coroutines/CoroutineContext>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): kotlinx.coroutines/CoroutineScope // androidx.compose.runtime/rememberCoroutineScope|rememberCoroutineScope(kotlin.Function0<kotlin.coroutines.CoroutineContext>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]

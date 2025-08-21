@@ -147,7 +147,7 @@ class DpTest {
         try {
             10.dp.coerceIn(20.dp, 10.dp)
             fail("Expected an exception here")
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             // success!
         }
     }
@@ -206,5 +206,44 @@ class DpTest {
     @Test
     fun testTakeOrElseFalse() {
         assertTrue(Dp.Unspecified.takeOrElse { Dp(1f) }.isSpecified)
+    }
+
+    @Test
+    fun compareDp() {
+        @OptIn(ExperimentalUnitApi::class) if (!ComposeUiUnitFlags.isDpCompareToChanged) return
+        assertTrue(1.dp == 1.dp)
+        assertFalse(1.dp != 1.dp)
+
+        assertFalse(1.dp == 2.dp)
+        assertTrue(1.dp != 2.dp)
+
+        assertTrue(1.dp < 2.dp)
+        assertFalse(1.dp > 2.dp)
+        assertFalse(2.dp < 1.dp)
+        assertTrue(2.dp > 1.dp)
+
+        assertTrue(Dp.Unspecified == Dp.Unspecified)
+
+        assertTrue(1.dp != Dp.Unspecified)
+        assertFalse(1.dp == Dp.Unspecified)
+
+        assertFalse(Dp.Unspecified == 1.dp)
+        assertTrue(Dp.Unspecified != 1.dp)
+        assertFalse(Dp.Unspecified < 1.dp)
+        assertFalse(Dp.Unspecified > 1.dp)
+        assertFalse(1.dp == Dp.Unspecified)
+        assertTrue(1.dp != Dp.Unspecified)
+        assertFalse(1.dp < Dp.Unspecified)
+        assertFalse(1.dp > Dp.Unspecified)
+
+        assertFalse(1.dp == Dp.Infinity)
+        assertTrue(1.dp != Dp.Infinity)
+        assertTrue(1.dp < Dp.Infinity)
+        assertFalse(1.dp > Dp.Infinity)
+
+        assertFalse(Dp.Infinity == 1.dp)
+        assertTrue(Dp.Infinity != 1.dp)
+        assertTrue(Dp.Infinity > 1.dp)
+        assertFalse(Dp.Infinity < 1.dp)
     }
 }

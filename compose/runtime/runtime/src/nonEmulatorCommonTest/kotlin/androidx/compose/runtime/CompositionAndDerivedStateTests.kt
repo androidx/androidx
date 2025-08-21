@@ -34,8 +34,8 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun derivedStateOfChangesInvalidate() = compositionTest {
-        var a by mutableStateOf(31)
-        var b by mutableStateOf(10)
+        var a by mutableIntStateOf(31)
+        var b by mutableIntStateOf(10)
         val answer by derivedStateOf { a + b }
 
         compose { Text("The answer is $answer") }
@@ -53,8 +53,8 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun onlyInvalidatesIfResultIsDifferent() = compositionTest {
-        var a by mutableStateOf(32)
-        var b by mutableStateOf(10)
+        var a by mutableIntStateOf(32)
+        var b by mutableIntStateOf(10)
         val answer by derivedStateOf { a + b }
 
         compose { Text("The answer is $answer") }
@@ -93,6 +93,7 @@ class CompositionAndDerivedStateTests {
         revalidate()
     }
 
+    @Suppress("MutableCollectionMutableState") // The point of the test
     @Test
     fun onlyInvalidatesIfResultIsStructurallyDifferent() = compositionTest {
         var a by mutableStateOf(mutableListOf(32), referentialEqualityPolicy())
@@ -122,14 +123,14 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun onlyEvaluateDerivedStatesThatAreLive() = compositionTest {
-        var a by mutableStateOf(11)
+        var a by mutableIntStateOf(11)
 
         val useNone = 0x00
         val useD = 0x01
         val useE = 0x02
         val useF = 0x04
 
-        var use by mutableStateOf(useD)
+        var use by mutableIntStateOf(useD)
 
         fun useToString(use: Int): String {
             var result = ""
@@ -285,7 +286,7 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun ensureCalculateIsNotCalledTooSoon() = compositionTest {
-        var a by mutableStateOf(11)
+        var a by mutableIntStateOf(11)
         var dCalculated = 0
         var dChanged = false
         val d =
@@ -316,13 +317,13 @@ class CompositionAndDerivedStateTests {
     }
 
     @Test
-    fun writingToADerviedStateDependencyTriggersAForwardInvalidate() = compositionTest {
-        var a by mutableStateOf(12)
-        var b by mutableStateOf(30)
+    fun writingToADerivedStateDependencyTriggersAForwardInvalidate() = compositionTest {
+        var a by mutableIntStateOf(12)
+        var b by mutableIntStateOf(30)
         val d = derivedStateOf { a + b }
         compose {
             DisplayIndirect("d", d)
-            var c by remember { mutableStateOf(0) }
+            var c by remember { mutableIntStateOf(0) }
             c = a + b
             val e = remember { derivedStateOf { a + b + c } }
             DisplayIndirect("e", e)
@@ -351,8 +352,8 @@ class CompositionAndDerivedStateTests {
 
     @Test // Regression test for 215402574
     fun observingBothNormalAndDerivedInSameScope() = compositionTest {
-        val a = mutableStateOf(0)
-        val b = derivedStateOf { a.value > 0 }
+        val a = mutableIntStateOf(0)
+        val b = derivedStateOf { a.intValue > 0 }
         val c = mutableStateOf(false)
 
         compose {
@@ -369,15 +370,15 @@ class CompositionAndDerivedStateTests {
             }
         }
 
-        a.value++
+        a.intValue++
         expectChanges()
         revalidate()
 
-        a.value++
+        a.intValue++
         advance()
         revalidate()
 
-        a.value++
+        a.intValue++
         Snapshot.sendApplyNotifications()
 
         c.value = true
@@ -387,7 +388,7 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun changingTheDerivedStateInstanceShouldRelease() = compositionTest {
-        var reload by mutableStateOf(0)
+        var reload by mutableIntStateOf(0)
 
         compose {
             val items = remember(reload) { derivedStateOf { List(10) { it } } }
@@ -404,7 +405,7 @@ class CompositionAndDerivedStateTests {
 
         revalidate()
 
-        // Validate there are only 2 observed objectt which should be `reload` and the last
+        // Validate there are only 2 observed object which should be `reload` and the last
         // created derivedStateOf instance
         val observed = (composition as? CompositionImpl)?.observedObjects ?: emptyList()
         assertEquals(2, observed.count())
@@ -413,7 +414,7 @@ class CompositionAndDerivedStateTests {
     @Test
     fun observingDerivedStateInMultipleScopes() = compositionTest {
         var observeInFirstScope by mutableStateOf(true)
-        var count by mutableStateOf(0)
+        var count by mutableIntStateOf(0)
 
         compose {
             val items by remember { derivedStateOf { List(count) { it } } }
@@ -447,7 +448,7 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun changingTheDerivedStateInstanceShouldClearDependencies() = compositionTest {
-        var reload by mutableStateOf(0)
+        var reload by mutableIntStateOf(0)
 
         compose {
             val itemValue = remember(reload) { derivedStateOf { reload } }
@@ -473,7 +474,7 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun changingDerivedStateDependenciesShouldClearThem() = compositionTest {
-        var reload by mutableStateOf(0)
+        var reload by mutableIntStateOf(0)
 
         compose {
             val itemValue = remember(reload) { derivedStateOf { 1 } }
@@ -504,7 +505,7 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun changingDerivedStateShouldNotAccumulateConditionalScopes() = compositionTest {
-        var reload by mutableStateOf(0)
+        var reload by mutableIntStateOf(0)
 
         compose {
             val derivedState = remember { derivedStateOf { List(reload) { it } } }
@@ -525,8 +526,8 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun derivedStateOfNestedChangesInvalidate() = compositionTest {
-        var a by mutableStateOf(31)
-        var b by mutableStateOf(10)
+        var a by mutableIntStateOf(31)
+        var b by mutableIntStateOf(10)
         val transient by derivedStateOf { a + b }
         val answer by derivedStateOf { transient - 1 }
 
@@ -545,8 +546,8 @@ class CompositionAndDerivedStateTests {
 
     @Test
     fun derivedStateOfMutationPolicyDoesNotInvalidateNestedStates() = compositionTest {
-        var a by mutableStateOf(30)
-        var b by mutableStateOf(10)
+        var a by mutableIntStateOf(30)
+        var b by mutableIntStateOf(10)
         val transient by derivedStateOf(structuralEqualityPolicy()) { (a + b) / 10 }
         var invalidateCount = 0
         val answer by derivedStateOf {
@@ -572,9 +573,9 @@ class CompositionAndDerivedStateTests {
     }
 
     @Test
-    fun derivedStateOfStructuralMutationPolicyDoesntRecompose() = compositionTest {
-        var a by mutableStateOf(30)
-        var b by mutableStateOf(10)
+    fun derivedStateOfStructuralMutationPolicyDoesNotRecompose() = compositionTest {
+        var a by mutableIntStateOf(30)
+        var b by mutableIntStateOf(10)
         val answer by derivedStateOf(structuralEqualityPolicy()) { listOf(a >= 30, b >= 10) }
         var compositionCount = 0
 
@@ -602,9 +603,9 @@ class CompositionAndDerivedStateTests {
     }
 
     @Test
-    fun derivedStateOfReferencialMutationPolicyRecomposes() = compositionTest {
-        var a by mutableStateOf(30)
-        var b by mutableStateOf(10)
+    fun derivedStateOfReferentialMutationPolicyRecomposes() = compositionTest {
+        var a by mutableIntStateOf(30)
+        var b by mutableIntStateOf(10)
         val answer by derivedStateOf(referentialEqualityPolicy()) { listOf(a >= 30, b >= 10) }
         var compositionCount = 0
 

@@ -50,7 +50,7 @@ fun TestMonotonicFrameClock(
         coroutineScope = coroutineScope,
         testCoroutineScheduler =
             requireNotNull(coroutineScope.coroutineContext[TestCoroutineScheduler]) {
-                "coroutuineScope should have TestCoroutineScheduler"
+                "coroutineScope should have TestCoroutineScheduler"
             },
         frameDelayNanos = frameDelayNanos,
     )
@@ -94,6 +94,7 @@ class TestMonotonicFrameClock(
             }
         }
 
+    @Suppress("ListIterator")
     private fun maybeLaunchTickRunner() {
         if (!posted) {
             posted = true

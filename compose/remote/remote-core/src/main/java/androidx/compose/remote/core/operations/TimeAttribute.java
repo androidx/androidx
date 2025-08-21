@@ -42,6 +42,7 @@ import java.util.List;
 public class TimeAttribute extends PaintOperation {
     private static final int OP_CODE = Operations.ATTRIBUTE_TIME;
     private static final String CLASS_NAME = "TimeAttribute";
+    private static final short MAX_ARG_LEN = 32;
     private final int[] mArgs;
     public int mId;
     public int mTimeId;
@@ -88,6 +89,9 @@ public class TimeAttribute extends PaintOperation {
 
     /** (value - doc_load_time) * 1E-3 */
     public static final short TIME_FROM_LOAD_SEC = 14;
+
+    /** day-of-year */
+    public static final short TIME_DAY_OF_YEAR = 15;
 
     /**
      * creates a new operation
@@ -192,6 +196,9 @@ public class TimeAttribute extends PaintOperation {
         int textId = buffer.readInt();
         short type = (short) buffer.readShort();
         short len = (short) buffer.readShort();
+        if (len > MAX_ARG_LEN) {
+            throw new RuntimeException("Too many args");
+        }
         int[] args = null;
         if (len != 0) {
             args = new int[len];
@@ -230,7 +237,12 @@ public class TimeAttribute extends PaintOperation {
         RemoteContext ctx = context.getContext();
         long load_time = ctx.getDocLoadTime();
         LongConstant longConstant = (LongConstant) ctx.getObject(mTimeId);
-        long value = longConstant.getValue();
+        long value = 0;
+        if (longConstant == null) {
+            value = context.getClock().millis();
+        } else {
+            value = longConstant.getValue();
+        }
         long delta = 0;
         LocalDateTime time = null;
 
@@ -252,6 +264,7 @@ public class TimeAttribute extends PaintOperation {
             case TIME_DAY_OF_MONTH:
             case TIME_MONTH_VALUE:
             case TIME_DAY_OF_WEEK:
+            case TIME_DAY_OF_YEAR:
             case TIME_YEAR:
                 time =
                         (LocalDateTime)
@@ -287,6 +300,9 @@ public class TimeAttribute extends PaintOperation {
                 break;
             case TIME_DAY_OF_MONTH:
                 ctx.loadFloat(mId, time.getDayOfMonth());
+                break;
+            case TIME_DAY_OF_YEAR:
+                ctx.loadFloat(mId, time.getDayOfYear());
                 break;
             case TIME_MONTH_VALUE:
                 ctx.loadFloat(mId, time.getMonthValue() - 1);

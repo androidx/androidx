@@ -135,16 +135,12 @@ class SnapshotStateMapTests {
         validateWrite { map -> map.entries.clear() }
     }
 
-    // TODO: b/409729875
-    //  test passes if the order is changed to assertEquals(entries.first, entries.second)
     @Test
-    @IgnoreJsTarget
-    @IgnoreWasmTarget
-    @IgnoreNativeTarget
     fun validateEntriesIterator() {
         validateRead { map, normalMap ->
             for (entries in map.entries.zip(normalMap.entries)) {
-                assertEquals(entries.second, entries.first)
+                assertEquals(entries.first.key, entries.second.key)
+                assertEquals(entries.first.value, entries.second.value)
             }
         }
     }

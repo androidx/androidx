@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-ChangedStatic: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_LARGE_ROUND():
-    Method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_LARGE_ROUND has changed 'static' qualifier
-ChangedStatic: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_RECT():
-    Method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_RECT has changed 'static' qualifier
-ChangedStatic: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SMALL_ROUND():
-    Method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SMALL_ROUND has changed 'static' qualifier
-ChangedStatic: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SQUARE():
-    Method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SQUARE has changed 'static' qualifier
+RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_LARGE_ROUND():
+    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_LARGE_ROUND()
+RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_RECT():
+    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_RECT()
+RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SMALL_ROUND():
+    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SMALL_ROUND()
+RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SQUARE():
+    Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SQUARE()

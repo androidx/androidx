@@ -18,7 +18,9 @@ package androidx.compose.ui.window
 
 import android.content.Context
 import android.graphics.Outline
+import android.graphics.Rect
 import android.os.Build
+import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.KeyEvent
@@ -29,6 +31,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewOutlineProvider
 import android.view.Window
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
 import androidx.activity.ComponentDialog
@@ -309,12 +312,20 @@ private class DialogLayout(context: Context, override val window: Window) :
             if (
                 heightMode == MeasureSpec.AT_MOST &&
                     !usePlatformDefaultWidth &&
-                    !decorFitsSystemWindows &&
                     window.attributes.height == WRAP_CONTENT
             ) {
-                // Any size larger than the WRAP_CONTENT to test to see if this is full-screen
-                // content.
-                height + 1
+                if (decorFitsSystemWindows) {
+                    // On API 31 and below, there is a bug in view framework (b/193978485) where
+                    // system bar insets were incorrectly considered to calculate the max height
+                    // a view can occupy resulting in view to be 1px or 2px smaller than its parent.
+                    // To fix this issue we try to calculate the max height a dialog can occupy
+                    // after excluding system bar insets and set that as target height.
+                    getMaxDialogHeightExcludingInsets(window, height)
+                } else {
+                    // Any size larger than the WRAP_CONTENT to test to see if this is full-screen
+                    // content.
+                    height + 1
+                }
             } else {
                 height
             }
@@ -366,6 +377,18 @@ private class DialogLayout(context: Context, override val window: Window) :
                 // to use MATCH_PARENT to give as much room as possible
                 window.setLayout(MATCH_PARENT, MATCH_PARENT)
             }
+        }
+    }
+
+    private fun getMaxDialogHeightExcludingInsets(window: Window, height: Int): Int {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            Api21Impl.getMaxDialogHeightExcludingSystemBarInsets(window)
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S_V2) {
+            Api30Impl.getMaxDialogHeightExcludingSystemBarInsets(window)
+        } else {
+            // On API 32 and above we don't have to exclude insets height,
+            // return the original height
+            height
         }
     }
 
@@ -682,6 +705,36 @@ private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () 
     }
 }
 
+private object Api21Impl {
+
+    @DoNotInline
+    fun getMaxDialogHeightExcludingSystemBarInsets(window: Window): Int {
+        val displayMetrics = DisplayMetrics()
+        @Suppress("DEPRECATION") /* defaultDisplay + getMetrics() */
+        window.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        return displayMetrics.heightPixels -
+            getSystemBarsHeight(window, displayMetrics.heightPixels)
+    }
+
+    private fun getSystemBarsHeight(window: Window, displayHeight: Int): Int {
+        val rect = Rect()
+        window.decorView.getWindowVisibleDisplayFrame(rect)
+
+        // status bar height
+        val topOffset = rect.top
+
+        // displayHeight is the height of current app window.
+        // rect is overall display size including decor view.
+        // Navigation bar height is the difference between rect.bottom and displayHeight.
+        val bottomOffset =
+            if (rect.bottom > displayHeight) {
+                rect.bottom - displayHeight
+            } else 0
+
+        return topOffset + bottomOffset
+    }
+}
+
 @RequiresApi(28)
 private object Api28Impl {
     @DoNotInline
@@ -700,5 +753,14 @@ private object Api30Impl {
     @DoNotInline
     fun setFitInsetsTypes(attrs: WindowManager.LayoutParams, types: Int) {
         attrs.setFitInsetsTypes(types)
+    }
+
+    @DoNotInline
+    fun getMaxDialogHeightExcludingSystemBarInsets(window: Window): Int {
+        val currentWindowMetrics = window.windowManager.currentWindowMetrics
+        val windowInsets = currentWindowMetrics.windowInsets
+        val systemBarInsets = windowInsets.getInsets(WindowInsets.Type.systemBars())
+        val systemBarInsetsHeight = systemBarInsets.top + systemBarInsets.bottom
+        return currentWindowMetrics.bounds.height() - systemBarInsetsHeight
     }
 }

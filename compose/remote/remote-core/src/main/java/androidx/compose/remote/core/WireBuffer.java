@@ -18,6 +18,7 @@ package androidx.compose.remote.core;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
+import java.util.Set;
 
 /** The base communication buffer capable of encoding and decoding various types */
 public class WireBuffer {
@@ -460,6 +461,20 @@ public class WireBuffer {
     public void setVersion(int documentApiLevel, int profiles) {
         for (int i = 0; i < mValidOperations.length; i++) {
             mValidOperations[i] = Operations.valid(i, documentApiLevel, profiles);
+        }
+    }
+
+    /**
+     * Sets the operations that are considered valid for this buffer. This is typically used to
+     * restrict operations based on a specific version or profile. By default, all operations
+     * (0-255) are considered valid.
+     *
+     * @param supportedOperations A set of integers representing the operation codes that are valid.
+     *     Any operation code not in this set will be considered invalid.
+     */
+    public void setValidOperations(@NonNull Set<Integer> supportedOperations) {
+        for (Integer o : supportedOperations) {
+            mValidOperations[o] = true;
         }
     }
 }

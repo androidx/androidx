@@ -21,19 +21,30 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.content.readPlainText
+import androidx.compose.foundation.contextmenu.ContextMenuScope
+import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.internal.isAutofillAvailable
 import androidx.compose.foundation.internal.isReadSupported
 import androidx.compose.foundation.internal.isWriteSupported
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.MenuItemsAvailability
+import androidx.compose.foundation.text.TextContextMenuItems
+import androidx.compose.foundation.text.TextContextMenuItems.Autofill
+import androidx.compose.foundation.text.TextContextMenuItems.Copy
+import androidx.compose.foundation.text.TextContextMenuItems.Cut
+import androidx.compose.foundation.text.TextContextMenuItems.Paste
+import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.foundation.text.TextItem
 import androidx.compose.foundation.text.contextmenu.modifier.ToolbarRequester
 import androidx.compose.foundation.text.getLineHeight
 import androidx.compose.foundation.text.input.TextFieldCharSequence
@@ -50,6 +61,7 @@ import androidx.compose.foundation.text.input.internal.WedgeAffinity
 import androidx.compose.foundation.text.input.internal.coerceIn
 import androidx.compose.foundation.text.input.internal.findClosestRect
 import androidx.compose.foundation.text.input.internal.fromDecorationToTextLayout
+import androidx.compose.foundation.text.input.internal.fromTextLayoutToDecoration
 import androidx.compose.foundation.text.input.internal.getIndexTransformationType
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState.Cursor
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState.None
@@ -59,13 +71,14 @@ import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.PlatformSelectionBehaviors
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionLayout
+import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.containsInclusive
 import androidx.compose.foundation.text.selection.getAdjustedCoordinates
 import androidx.compose.foundation.text.selection.getSelectionHandleCoordinates
 import androidx.compose.foundation.text.selection.getTextFieldSelectionLayout
-import androidx.compose.foundation.text.selection.isPrecisePointer
-import androidx.compose.foundation.text.selection.selectionGesturePointerInputBtf2
+import androidx.compose.foundation.text.selection.isMouseOrTouchPad
 import androidx.compose.foundation.text.selection.visibleBounds
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,6 +86,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusProperties.Companion.UnsetFocusRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isSpecified
@@ -333,8 +347,53 @@ internal class TextFieldSelectionState(
     fun getCursorRect(): Rect {
         val layoutResult = textLayoutState.layoutResult ?: return Rect.Zero
         val value = textFieldState.visualText
-        if (!value.selection.collapsed) return Rect.Zero
-        val cursorRect = layoutResult.getCursorRect(value.selection.start)
+
+        return calculateCursorRect(layoutResult, value)
+    }
+
+    /**
+     * Returns where the focus should be in a TextField. This is useful for panning the content in a
+     * dialog or when AdjustPan is used on Android.
+     *
+     * If TextField is not currently focused, this function returns [UnsetFocusRect] which would use
+     * the bounding box of the TextField.
+     *
+     * This is in Decorator coordinates.
+     */
+    fun getFocusRect(): Rect {
+        val layoutResult = textLayoutState.layoutResult ?: return Rect.Zero
+        // if not focused, use the entire bounding box of the TextField.
+        if (!isFocused) return UnsetFocusRect
+        val value = textFieldState.visualText
+
+        val focusRectInTextLayout =
+            if (value.selection.collapsed) {
+                calculateCursorRect(layoutResult, value)
+            } else {
+                calculateSelectionRect(layoutResult, value)
+            }
+
+        return textLayoutState.fromTextLayoutToDecoration(focusRectInTextLayout)
+    }
+
+    /**
+     * Calculates the rectangle area that the cursor occupies. Normally [TextLayoutResult] functions
+     * return a rectangle with zero(0) width for the cursor. This is slightly padded here to make
+     * room for the stroke width while drawing the caret. Furthermore rectangle location is also
+     * readjusted to keep it in the text layout region, otherwise a caret at the start or the end
+     * might get clipped while drawing.
+     *
+     * Returns [Rect.Zero] if [visualText] selection is not collapsed.
+     *
+     * This is in text layout coordinates.
+     */
+    private fun calculateCursorRect(
+        layoutResult: TextLayoutResult,
+        visualText: TextFieldCharSequence,
+    ): Rect {
+        if (!visualText.selection.collapsed) return Rect.Zero
+
+        val cursorRect = layoutResult.getCursorRect(visualText.selection.start)
 
         val cursorWidth = with(density) { floor(DefaultCursorThickness.toPx()).coerceAtLeast(1f) }
         // left and right values in cursorRect should be the same but in any case use the
@@ -368,6 +427,37 @@ internal class TextFieldSelectionState(
             top = cursorRect.top,
             bottom = cursorRect.bottom,
         )
+    }
+
+    /**
+     * Returns the minimum bounding rectangle for the current selection range. Returns [Rect.Zero]
+     * if [visualText] selection is collapsed into a cursor,
+     */
+    private fun calculateSelectionRect(
+        layoutResult: TextLayoutResult,
+        visualText: TextFieldCharSequence,
+    ): Rect {
+        if (visualText.selection.collapsed) return Rect.Zero
+
+        val lineStart = layoutResult.getLineForOffset(visualText.selection.start)
+        val lineEnd = layoutResult.getLineForOffset(visualText.selection.end)
+        return if (lineStart == lineEnd) {
+            // selection is confined to a single line, we can get away with a cheap calculation
+            val startHorizontal =
+                layoutResult.getHorizontalPosition(visualText.selection.start, true)
+            val endHorizontal = layoutResult.getHorizontalPosition(visualText.selection.end, true)
+            Rect(
+                left = minOf(startHorizontal, endHorizontal),
+                top = layoutResult.getLineTop(lineStart),
+                right = maxOf(startHorizontal, endHorizontal),
+                bottom = layoutResult.getLineBottom(lineEnd),
+            )
+        } else {
+            // selection is multiline, we have to use a slightly expensive method
+            val path =
+                layoutResult.getPathForRange(visualText.selection.min, visualText.selection.max)
+            path.getBounds()
+        }
     }
 
     fun update(
@@ -475,7 +565,7 @@ internal class TextFieldSelectionState(
         awaitPointerEventScope {
             while (true) {
                 val event = awaitPointerEvent(PointerEventPass.Initial)
-                isInTouchMode = !event.isPrecisePointer
+                isInTouchMode = !event.isMouseOrTouchPad()
             }
         }
     }
@@ -1680,7 +1770,7 @@ internal suspend fun PointerInputScope.defaultTextFieldSelectionGestures(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver
 ) {
-    selectionGesturePointerInputBtf2(
+    awaitSelectionGestures(
         mouseSelectionObserver = mouseSelectionObserver,
         textDragObserver = textDragObserver,
     )
@@ -1753,6 +1843,26 @@ internal interface TextToolbarHandler {
     suspend fun showTextToolbar(selectionState: TextFieldSelectionState, rect: Rect)
 
     fun hideTextToolbar()
+}
+
+internal fun TextFieldSelectionState.contextMenuBuilder(
+    state: ContextMenuState,
+    itemsAvailability: State<MenuItemsAvailability>,
+    onMenuItemClicked: TextFieldSelectionState.(TextContextMenuItems) -> Unit,
+): ContextMenuScope.() -> Unit = {
+    fun textFieldItem(label: TextContextMenuItems, enabled: Boolean) {
+        TextItem(state, label, enabled) { onMenuItemClicked(label) }
+    }
+
+    val availability: MenuItemsAvailability = itemsAvailability.value
+
+    textFieldItem(Cut, enabled = availability.canCut)
+    textFieldItem(Copy, enabled = availability.canCopy)
+    textFieldItem(Paste, enabled = availability.canPaste)
+    textFieldItem(SelectAll, enabled = availability.canSelectAll)
+    if (isAutofillAvailable()) {
+        textFieldItem(Autofill, enabled = availability.canAutofill)
+    }
 }
 
 internal expect fun Modifier.addBasicTextFieldTextContextMenuComponents(

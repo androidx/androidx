@@ -133,6 +133,7 @@ class PrintToStringTest {
                     |  |-Node #X at (l=X, t=X, r=X, b=X)px
                     |    Focused = 'false'
                     |    Role = 'Button'
+                    |    Shape = 'RoundedCornerShape(topStart = CornerSize(size = X.dp), topEnd = CornerSize(size = X.dp), bottomEnd = CornerSize(size = X.dp), bottomStart = CornerSize(size = X.dp))'
                     |    Text = '[Button]'
                     |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
                     |    MergeDescendants = 'true'

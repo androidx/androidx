@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text
 
-import android.os.Build
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -98,7 +96,6 @@ class TextMeasurerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // b/364169257 for details
     fun width_shouldMatter_ifSoftwrapIsDisabled_butOverflowIsStartEllipsis() {
         val textLayoutResult =
             layoutText(
@@ -114,7 +111,6 @@ class TextMeasurerTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // b/364169257 for details
     fun width_shouldMatter_ifSoftwrapIsDisabled_butOverflowIsMiddleEllipsis() {
         val textLayoutResult =
             layoutText(

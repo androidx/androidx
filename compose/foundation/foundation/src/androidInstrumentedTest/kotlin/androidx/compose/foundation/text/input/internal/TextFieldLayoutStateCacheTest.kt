@@ -55,7 +55,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -310,14 +309,6 @@ class TextFieldLayoutStateCacheTest {
                 createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
             updateMeasureInputs()
         }
-    }
-
-    @Ignore("b/294443266: figure out how to make fonts stale for test")
-    @Test
-    fun updateMeasureInputs_invalidatesSnapshot_whenFontFamilyResolverFontChanged() {
-        fontFamilyResolver =
-            createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
-        assertInvalidationsOnChange(1) { TODO("b/294443266: make fonts stale") }
     }
 
     @Test
@@ -810,13 +801,32 @@ class TextFieldLayoutStateCacheTest {
         }
     }
 
-    @Ignore("b/294443266: figure out how to make fonts stale for test")
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun value_returnsNewLayout_whenFontFamilyResolverFontChanged() {
-        fontFamilyResolver =
-            createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
-        assertLayoutChange(change = { TODO("b/294443266: make fonts stale") }) { old, new ->
-            assertThat(new).isNotSameInstanceAs(old)
+        val loader = AsyncTestTypefaceLoader()
+        val asyncFauxFont = AsyncFauxFont(loader)
+        val fontFamily = asyncFauxFont.toFontFamily()
+
+        val context = InstrumentationRegistry.getInstrumentation().context
+
+        textStyle = TextStyle(fontSize = 12.sp, fontFamily = fontFamily)
+        runTest(UnconfinedTestDispatcher()) {
+            val resolverJob = Job(coroutineContext[Job])
+            val resolverContext = coroutineContext + resolverJob
+            fontFamilyResolver = createFontFamilyResolver(context, resolverContext)
+
+            assertLayoutChange(
+                change = {
+                    Snapshot.withMutableSnapshot {
+                        loader.completeOne(asyncFauxFont, Typeface.MONOSPACE)
+                    }
+                }
+            ) { old, new ->
+                assertThat(new).isNotSameInstanceAs(old)
+            }
+
+            resolverJob.cancel()
         }
     }
 

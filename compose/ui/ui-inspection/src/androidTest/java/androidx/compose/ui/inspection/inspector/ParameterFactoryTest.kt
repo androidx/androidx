@@ -773,14 +773,16 @@ class ParameterFactoryTest {
                 parameter("name", ParameterType.String, "v1")
                 parameter("other", ParameterType.String, name) {
                     parameter("name", ParameterType.String, "v2")
-                    // v2.other is expected to reference v1 which is already found
-                    parameter("other", ParameterType.String, name, ref())
-
-                    // v2.self is expected to reference v2 which is already found
-                    parameter("self", ParameterType.String, name, ref(1))
+                    // MAX_RECURSIONS is 2, so we end up with references at this point:
+                    parameter("other", ParameterType.String, name, ref(1, 1))
+                    parameter("self", ParameterType.String, name, ref(1, 2))
                 }
-                // v1.self is expected to reference v1 which is already found
-                parameter("self", ParameterType.String, name, ref())
+                parameter("self", ParameterType.String, name) {
+                    parameter("name", ParameterType.String, "v1")
+                    // MAX_RECURSIONS is 2, so we end up with references at this point:
+                    parameter("other", ParameterType.String, name, ref(2, 1))
+                    parameter("self", ParameterType.String, name, ref(2, 2))
+                }
             }
         }
     }
@@ -802,41 +804,37 @@ class ParameterFactoryTest {
 
         // Limit the recursions for this test to validate parameter nodes with missing children.
         val parameter = create("v1", v1, maxRecursions = 2)
-        val v2ref = ref(3, 1)
         validate(parameter) {
             parameter("v1", ParameterType.String, name) {
                 parameter("name", ParameterType.String, "v1")
-                parameter("self", ParameterType.String, name, ref(), index = 2)
+                parameter("self", ParameterType.String, name, index = 2) {
+                    parameter("name", ParameterType.String, "v1")
+                    parameter("self", ParameterType.String, name, ref(2, 2), index = 2)
+                    parameter("third", ParameterType.String, name, ref(2, 3), index = 3)
+                }
                 parameter("third", ParameterType.String, name, index = 3) {
                     parameter("name", ParameterType.String, "v2")
-
-                    // Expect the child elements for v2 to be missing from the parameter tree,
-                    // which is indicated by the reference field being included for "other" here:
-                    parameter("other", ParameterType.String, name, v2ref)
-                    parameter("third", ParameterType.String, name, ref(), index = 3)
+                    parameter("other", ParameterType.String, name, ref(3, 1), index = 1)
+                    parameter("third", ParameterType.String, name, ref(3, 3), index = 3)
                 }
             }
         }
 
-        // If we need to retrieve the missing child nodes for v2 from above, we must
-        // call "expand" with the reference:
-        val v4ref = ref(3, 1, 1, 1)
-        validate(expand("v1", v1, v2ref)!!) {
+        // If we need to retrieve the missing child nodes for v2.other from above, we must
+        // call "expand" with the reference (3,1):
+        validate(expand("v1", v1, ref(3, 1))!!) {
             parameter("other", ParameterType.String, name) {
                 parameter("name", ParameterType.String, "v3")
                 parameter("other", ParameterType.String, name) {
                     parameter("name", ParameterType.String, "v4")
-
-                    // Expect the child elements for v4 to be missing from the parameter tree,
-                    // which is indicated by the reference field being included for "other" here:
-                    parameter("other", ParameterType.String, name, v4ref)
+                    parameter("other", ParameterType.String, name, ref(3, 1, 1, 1))
                 }
             }
         }
 
-        // If we need to retrieve the missing child nodes for v4 from above, we must
-        // call "expand" with the reference:
-        validate(expand("v1", v1, v4ref)!!) {
+        // If we need to retrieve the missing child nodes for v2.other.other.other from above, we
+        // must call "expand" with the reference (3,1,1,1):
+        validate(expand("v1", v1, ref(3, 1, 1, 1))!!) {
             parameter("other", ParameterType.String, name) {
                 parameter("name", ParameterType.String, "v5")
             }
@@ -1047,7 +1045,6 @@ class ParameterFactoryTest {
         maxRecursions: Int,
         maxInitialIterableSize: Int,
     ) {
-        factory.clearReferenceCache()
         val reference =
             NodeParameterReference(NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, indices)
         val expanded =

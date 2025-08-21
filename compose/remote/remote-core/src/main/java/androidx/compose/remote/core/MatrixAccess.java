@@ -15,6 +15,9 @@
  */
 package androidx.compose.remote.core;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.text.DecimalFormat;
 
 /** Support access to floats in matrix */
@@ -25,7 +28,7 @@ public interface MatrixAccess {
      *
      * @return the matrix
      */
-    float[] get();
+    float @NonNull [] get();
 
     /**
      * Convert a 4x4 matrix to a 3x3 matrix
@@ -33,7 +36,7 @@ public interface MatrixAccess {
      * @param matrix 4x4 matrix
      * @return 3x3 matrix
      */
-    static float[] to3x3(float[] matrix) {
+    static float @Nullable [] to3x3(float @NonNull [] matrix) {
 
         if (matrix.length == 16) {
             float[] matrix3x3 = new float[9];
@@ -66,7 +69,7 @@ public interface MatrixAccess {
      *
      * @param m matrix
      */
-    static void dump(float[] m) {
+    static void dump(float @NonNull [] m) {
         String str = "";
         int step = m.length == 16 ? 4 : 3;
         DecimalFormat df = new DecimalFormat("0.00");

@@ -33,7 +33,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -629,6 +631,63 @@ class PausableCompositionTests {
 
         awaiter.await()
     }
+
+    @Test
+    fun markInvalidFromBackgroundThread() = compositionTest {
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+
+            repeat(1000) {
+                val job = launch(Dispatchers.Default) { repeat(10) { launch { invalidate() } } }
+                job.join()
+
+                resumeTillComplete { false }
+            }
+            apply()
+            awaiter.done()
+        }
+
+        compose { PausableContent(workflow) { Text("Some composable") } }
+
+        awaiter.await()
+    }
+
+    @Test
+    fun tryPausingTheSameScopeTwice() = compositionTest {
+        val awaiter = Awaiter()
+        var textComposed = false
+        var text by mutableStateOf("blah")
+        val workflow = workflow {
+            setContent()
+            resumeTillComplete { false }
+            apply()
+            composition.deactivate()
+
+            setContent()
+            resumeOnce { textComposed }
+
+            text = "text"
+            advance()
+
+            resumeOnce { true }
+
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            PausableContent(workflow) {
+                textComposed = true
+                DefaultText(text)
+            }
+        }
+
+        awaiter.await()
+    }
 }
 
 fun String.splitRecording() = split(", ")
@@ -785,9 +844,13 @@ interface PausableContentWorkflowScope {
 
     fun resumeTillComplete(shouldPause: () -> Boolean)
 
+    fun resumeOnce(shouldPause: () -> Boolean)
+
     fun apply()
 
     fun cancel()
+
+    fun invalidate()
 }
 
 fun PausableContentWorkflowScope.run(shouldPause: () -> Boolean = { true }) {
@@ -826,6 +889,12 @@ class PausableContentWorkflowDriver(
         }
     }
 
+    override fun resumeOnce(shouldPause: () -> Boolean) {
+        val pausedComposition = pausedComposition
+        checkPrecondition(pausedComposition != null)
+        pausedComposition.resume(shouldPause)
+    }
+
     override fun apply() {
         val pausedComposition = pausedComposition
         checkPrecondition(pausedComposition != null && pausedComposition.isComplete)
@@ -844,6 +913,10 @@ class PausableContentWorkflowDriver(
         val pausedComposition = pausedComposition
         checkPrecondition(pausedComposition != null)
         pausedComposition.cancel()
+    }
+
+    override fun invalidate() {
+        (pausedComposition as? PausedCompositionImpl)?.markIncomplete()
     }
 }
 
@@ -886,4 +959,19 @@ private class Awaiter {
         done = true
         resume()
     }
+}
+
+val LocalColor = compositionLocalOf { -1 }
+
+@Composable
+fun DefaultText(
+    text: String,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE,
+    color: Int = LocalColor.current,
+) {
+    assertEquals(1, minLines)
+    assertEquals(Int.MAX_VALUE, maxLines)
+    assertEquals(-1, color)
+    Text(text)
 }

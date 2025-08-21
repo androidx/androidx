@@ -68,8 +68,17 @@ value class Dp(val value: Float) : Comparable<Dp> {
     @Stable inline operator fun times(other: Int): Dp = Dp(value * other)
 
     /** Support comparing Dimensions with comparison operators. */
+    @OptIn(ExperimentalUnitApi::class)
     @Stable
-    override /* TODO: inline */  operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    override /* TODO: inline */  operator fun compareTo(other: Dp) =
+        if (ComposeUiUnitFlags.isDpCompareToChanged) {
+            // Unspecified values should compare false against all other values. This always sets
+            // them as comparing == 0, but the equality check fails, so Unspecified < 1.dp == false
+            // and 1.dp < Unspecified == false
+            if (value.isNaN() || other.value.isNaN()) 0 else value.compareTo(other.value)
+        } else {
+            value.compareTo(other.value)
+        }
 
     @Stable override fun toString() = if (isUnspecified) "Dp.Unspecified" else "$value.dp"
 

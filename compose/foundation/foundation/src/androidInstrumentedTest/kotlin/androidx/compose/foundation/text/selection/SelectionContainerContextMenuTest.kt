@@ -54,7 +54,6 @@ import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.lerp
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -237,7 +236,6 @@ open class SelectionContainerContextMenuTest {
         }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun contextMenu_onClickProcessText() {
         val text = "abc def ghi"
@@ -260,7 +258,6 @@ open class SelectionContainerContextMenuTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun contextMenu_processText_itemsMatch() = runCorrectItemsTest { selection ->
         rule.assertContextMenuItem(

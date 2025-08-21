@@ -39,7 +39,6 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlin.test.fail
 import org.junit.Before
@@ -99,7 +98,6 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     // TODO(b/316940648)
     //  The TextToolbar at the top of the screen messes up the popup position calculations,
     //  so suppress SDKs that don't have the floating popup.
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_verifyOneCharStaysSelected_withinLine() {
         performTouchGesture { longClick(characterPosition(14)) }
@@ -176,7 +174,6 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     // TODO(b/316940648)
     //  The TextToolbar at the top of the screen messes up the popup position calculations,
     //  so suppress SDKs that don't have the floating popup.
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_thenDragLeftOutOfBounds_keepsFirstCharSelected() {
         var finalX: Float? = null
@@ -223,7 +220,6 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     // TODO(b/316940648)
     //  The TextToolbar at the top of the screen messes up the popup position calculations,
     //  so suppress SDKs that don't have the floating popup.
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
         val content = "hello".repeat(100)

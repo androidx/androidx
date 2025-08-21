@@ -456,7 +456,7 @@ internal fun BasicTextField(
                         reverseScrolling = false,
                     ),
                 interactionSource = interactionSource,
-                overscrollEffect = overscrollEffect
+                overscrollEffect = overscrollEffect,
             )
             .pointerHoverIcon(PointerIcon.Text)
             .addContextMenuComponents(textFieldSelectionState, coroutineScope)

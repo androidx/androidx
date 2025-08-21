@@ -32,6 +32,8 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
@@ -444,4 +446,7 @@ private class ContinuationCountInterceptor(private val parentInterceptor: Contin
     }
 }
 
-private const val InternallyLaunchedCoroutines = 4
+private val InternallyLaunchedCoroutines =
+    if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isContentCaptureOptimizationEnabled)
+        3
+    else 4

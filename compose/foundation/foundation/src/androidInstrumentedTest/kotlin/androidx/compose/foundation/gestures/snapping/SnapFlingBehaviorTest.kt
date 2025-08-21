@@ -75,8 +75,6 @@ import org.junit.runner.RunWith
 class SnapFlingBehaviorTest {
     @get:Rule val rule = createComposeRule()
 
-    private val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
-
     @Test
     fun remainingScrollOffset_cannotApproach_shouldRepresentJustSnappingOffsets() {
         val approachOffset = 0.0f
@@ -246,6 +244,7 @@ class SnapFlingBehaviorTest {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
         val canNotDecayApproach = decaySpec.calculateTargetValue(0.0f, TestVelocity) + 1
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(maxOffset = 100f, approachOffset = canNotDecayApproach)
@@ -271,6 +270,8 @@ class SnapFlingBehaviorTest {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
+
         val canDecayApproach = decaySpec.calculateTargetValue(0.0f, TestVelocity) - 1
         val testLayoutInfoProvider =
             TestLayoutInfoProvider(maxOffset = 100f, approachOffset = canDecayApproach)
@@ -296,6 +297,7 @@ class SnapFlingBehaviorTest {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
 
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
 
@@ -320,6 +322,8 @@ class SnapFlingBehaviorTest {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
+
         val flingVelocity = 5 * TestVelocity
         val decayTargetOffset = decaySpec.calculateTargetValue(0.0f, flingVelocity)
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = Float.NaN)
@@ -352,6 +356,8 @@ class SnapFlingBehaviorTest {
         val splineAnimationSpec =
             InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
         val decaySpec: DecayAnimationSpec<Float> = splineAnimationSpec.generateDecayAnimationSpec()
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
+
         val testLayoutInfoProvider = TestLayoutInfoProvider(approachOffset = MaxOffset)
 
         var animationOffset = 0f

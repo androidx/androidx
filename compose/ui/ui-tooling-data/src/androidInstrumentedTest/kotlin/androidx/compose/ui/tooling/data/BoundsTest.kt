@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +37,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,7 +87,6 @@ class BoundsTest : ToolingTest() {
         }
     }
 
-    @Ignore // b/422764248
     @Test
     fun testBoundsWithoutParsingParameters() {
         val lefts = mutableMapOf<String, Dp>()
@@ -154,7 +153,6 @@ class BoundsTest : ToolingTest() {
         }
     }
 
-    @Ignore // b/422764248
     @Test
     @LargeTest
     fun testDisposeWithComposeTables() {
@@ -185,6 +183,33 @@ class BoundsTest : ToolingTest() {
         }
         latch.await(1, TimeUnit.SECONDS)
 
-        Assert.assertTrue(slotTableRecord.store.size < 3)
+        assertThat(slotTableRecord.store.size).isLessThan(3)
     }
+
+    @Test
+    fun testEmptyParams() {
+        val anchors = mutableMapOf<String, Any?>()
+        val slotTableRecord = CompositionDataRecord.create()
+        show { Inspectable(slotTableRecord) { Item() } }
+
+        activityTestRule.runOnUiThread {
+            slotTableRecord.store
+                .first()
+                .mapTree<Any>({ group, context, _ ->
+                    if (context.location?.sourceFile == "BoundsTest.kt") {
+                        anchors[context.name!!] = group.identity
+                    }
+                })
+
+            val itemAnchor = anchors["Item"]
+            val itemGroup = slotTableRecord.store.first().find(itemAnchor!!)!!
+            val itemParams = itemGroup.findParameters()
+            assertThat(itemParams).isEmpty()
+        }
+    }
+}
+
+@Composable
+fun Item() {
+    Text("test")
 }

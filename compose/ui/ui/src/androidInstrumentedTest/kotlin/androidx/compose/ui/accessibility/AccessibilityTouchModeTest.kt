@@ -21,8 +21,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.resetInTouchModeCompat
@@ -49,7 +47,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.junit.After
 import org.junit.Assume.assumeTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -62,12 +59,6 @@ class AccessibilityTouchModeTest(private val param: Param) {
 
     private lateinit var inputModeManager: InputModeManager
     private lateinit var view: View
-
-    @Before
-    fun disableWhenFlagIsDisabled() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isFocusActionExitsTouchModeEnabled)
-    }
 
     @After
     fun resetTouchMode() = InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()

@@ -53,8 +53,6 @@ import kotlinx.coroutines.CoroutineScope
 
 private const val DebugLoggingEnabled = false
 
-@Suppress("BanInlineOptIn")
-@OptIn(ExperimentalFoundationApi::class)
 private inline fun <T> withDebugLogging(
     scope: LazyLayoutMeasureScope,
     block: LazyLayoutMeasureScope.() -> T,

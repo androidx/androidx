@@ -27,8 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -63,7 +61,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -202,6 +199,32 @@ class FocusTargetAttachDetachTest {
     }
 
     @Test
+    fun removeActiveFocusTarget_updatesFocusOwner() {
+        // Arrange.
+        lateinit var focusOwner: FocusOwner
+        val focusRequester = FocusRequester()
+        var optionalFocusTarget by mutableStateOf(true)
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            focusOwner = LocalFocusManager.current as FocusOwner
+            Box(
+                Modifier.focusRequester(focusRequester).thenIf(optionalFocusTarget) {
+                    Modifier.focusTarget()
+                }
+            )
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            assertThat(focusOwner.activeFocusTargetNode).isNotNull()
+        }
+
+        // Act.
+        rule.runOnIdle { optionalFocusTarget = false }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusOwner.activeFocusTargetNode).isNull() }
+    }
+
+    @Test
     fun removedActiveFocusTargetAndFocusChanged_triggersOnFocusEvent() {
         // Arrange.
         lateinit var focusState: FocusState
@@ -255,9 +278,6 @@ class FocusTargetAttachDetachTest {
 
     @Test
     fun removingActiveItemThatIsBeyondBounds_clearsFocusFromHierarchy() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isClearFocusOnResetEnabled)
-
         // Arrange.
         val item0 = FocusRequester()
         val item1FocusStates = mutableListOf<FocusState>()
@@ -454,6 +474,32 @@ class FocusTargetAttachDetachTest {
             assertThat(focusState.isFocused).isFalse()
             assertThat(parentFocusState.isFocused).isFalse()
         }
+    }
+
+    @Test
+    fun removedActiveComposable_updatesFocusOwner() {
+        // Arrange.
+        lateinit var focusOwner: FocusOwner
+        val focusRequester = FocusRequester()
+        var optionalBox by mutableStateOf(true)
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            focusOwner = LocalFocusManager.current as FocusOwner
+            Box {
+                if (optionalBox) {
+                    Box(Modifier.focusRequester(focusRequester).focusTarget())
+                }
+            }
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            assertThat(focusOwner.activeFocusTargetNode).isNotNull()
+        }
+
+        // Act.
+        rule.runOnIdle { optionalBox = false }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusOwner.activeFocusTargetNode).isNull() }
     }
 
     @Test

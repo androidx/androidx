@@ -236,6 +236,26 @@ interface MouseInjectionScope : InjectionScope {
      *   default) or [ScrollWheel.Horizontal].
      */
     fun scroll(delta: Float, scrollWheel: ScrollWheel = ScrollWheel.Vertical)
+
+    /**
+     * Sends a scroll event with the given [offset]. The event will be sent at the current event
+     * time.
+     *
+     * Positive [offset] values correspond to scrolling forward (new content appears at the bottom
+     * of a column, or at the end of a row), negative values correspond to scrolling backward (new
+     * content appears at the top of a column, or at the start of a row).
+     *
+     * Note that the correlation between scroll [offset] and pixels scrolled is platform specific.
+     * For example, on Android a scroll delta of `1f` corresponds to a scroll of `64.dp`. However,
+     * on any platform, this conversion factor could change in the future to improve the mouse
+     * scroll experience.
+     *
+     * Example of how scroll could be used:
+     *
+     * @sample androidx.compose.ui.test.samples.mouseInputScrollWhileDown
+     * @param offset The amount of scroll
+     */
+    fun scroll(offset: Offset) = scroll(offset.y, ScrollWheel.Vertical)
 }
 
 internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
@@ -286,6 +306,10 @@ internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectio
 
     override fun scroll(delta: Float, scrollWheel: ScrollWheel) {
         inputDispatcher.enqueueMouseScroll(delta, scrollWheel)
+    }
+
+    override fun scroll(offset: Offset) {
+        inputDispatcher.enqueueMouseScroll(offset)
     }
 }
 

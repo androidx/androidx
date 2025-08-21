@@ -126,7 +126,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         internalPath.arcTo(rectF!!, startAngleDegrees, sweepAngleDegrees, forceMoveTo)
     }
 
-    override fun addRect(rect: Rect) {
+    override fun addRect(@Suppress("InvalidNullabilityOverride") rect: Rect) {
         addRect(rect, Path.Direction.CounterClockwise)
     }
 
@@ -137,7 +137,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         internalPath.addRect(rectF!!, direction.toPlatformPathDirection())
     }
 
-    override fun addOval(oval: Rect) {
+    override fun addOval(@Suppress("InvalidNullabilityOverride") oval: Rect) {
         addOval(oval, Path.Direction.CounterClockwise)
     }
 
@@ -147,7 +147,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         internalPath.addOval(rectF!!, direction.toPlatformPathDirection())
     }
 
-    override fun addRoundRect(roundRect: RoundRect) {
+    override fun addRoundRect(@Suppress("InvalidNullabilityOverride") roundRect: RoundRect) {
         addRoundRect(roundRect, Path.Direction.CounterClockwise)
     }
 

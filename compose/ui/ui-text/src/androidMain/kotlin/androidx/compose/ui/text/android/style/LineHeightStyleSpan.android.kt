@@ -18,6 +18,7 @@ package androidx.compose.ui.text.android.style
 import android.graphics.Paint.FontMetricsInt
 import androidx.annotation.FloatRange
 import androidx.compose.ui.text.internal.checkPrecondition
+import androidx.compose.ui.text.style.LineHeightStyle
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -39,16 +40,19 @@ import kotlin.math.ceil
  * @param topRatio The percentage on how to distribute the line height for a given line. 0 means all
  *   space as a result of line height is applied to the bottom. Similarly, 100 means all space as a
  *   result of line height is applied to the top.
+ * @param mode The mode that describes how to apply the line height.
  * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  */
 internal class LineHeightStyleSpan(
     val lineHeight: Float,
     private val startIndex: Int,
     private val endIndex: Int,
-    private val trimFirstLineTop: Boolean,
+    val trimFirstLineTop: Boolean,
     val trimLastLineBottom: Boolean,
+    // this is not necessarily the correct range. topRatio should be between 0f and 1f, but it can
+    // also be -1f to indicate proportional alignment. It shouldn't take any other negative value.
     @FloatRange(from = -1.0, to = 1.0) private val topRatio: Float,
-    private val preserveMinimumHeight: Boolean,
+    val mode: LineHeightStyle.Mode,
 ) : android.text.style.LineHeightSpan {
 
     private var firstAscent: Int = Int.MIN_VALUE
@@ -86,7 +90,14 @@ internal class LineHeightStyleSpan(
         val isLastLine = (end == endIndex)
 
         // if single line and should not apply, return
-        if (isFirstLine && isLastLine && trimFirstLineTop && trimLastLineBottom) return
+        if (
+            isFirstLine &&
+                isLastLine &&
+                trimFirstLineTop &&
+                trimLastLineBottom &&
+                mode != LineHeightStyle.Mode.Tight
+        )
+            return
 
         if (firstAscent == Int.MIN_VALUE) {
             calculateTargetMetrics(fontMetricsInt)
@@ -102,7 +113,7 @@ internal class LineHeightStyleSpan(
 
         // calculate the difference between the current line lineHeight and the requested lineHeight
         val diff = ceiledLineHeight - currentHeight
-        if (preserveMinimumHeight && diff <= 0) {
+        if (mode == LineHeightStyle.Mode.Minimum && diff <= 0) {
             ascent = fontMetricsInt.ascent
             descent = fontMetricsInt.descent
             firstAscent = ascent
@@ -113,7 +124,7 @@ internal class LineHeightStyleSpan(
         }
 
         val ascentRatio =
-            if (topRatio == -1f) {
+            if (topRatio == -1f) { // -1f is special value for proportional alignment
                 abs(fontMetricsInt.ascent.toFloat()) / fontMetricsInt.lineHeight()
             } else {
                 topRatio
@@ -131,10 +142,35 @@ internal class LineHeightStyleSpan(
         descent = fontMetricsInt.descent + descentDiff
         ascent = descent - ceiledLineHeight
 
-        firstAscent = if (trimFirstLineTop) fontMetricsInt.ascent else ascent
-        lastDescent = if (trimLastLineBottom) fontMetricsInt.descent else descent
-        firstAscentDiff = fontMetricsInt.ascent - firstAscent
-        lastDescentDiff = lastDescent - fontMetricsInt.descent
+        // Either we want to add the top/bottom paddings, or the requested line height is already
+        // taller than the font preferred line height.
+        if (mode == LineHeightStyle.Mode.Fixed || diff >= 0) {
+            firstAscent = if (trimFirstLineTop) fontMetricsInt.ascent else ascent
+            lastDescent = if (trimLastLineBottom) fontMetricsInt.descent else descent
+
+            firstAscentDiff = fontMetricsInt.ascent - firstAscent
+            lastDescentDiff = lastDescent - fontMetricsInt.descent
+        } else if (mode == LineHeightStyle.Mode.Tight) {
+            // when trimming the first line, smaller ascent value means a larger line height.
+            firstAscent =
+                if (trimFirstLineTop) {
+                    maxOf(fontMetricsInt.ascent, ascent)
+                } else {
+                    minOf(fontMetricsInt.ascent, ascent)
+                }
+
+            // when trimming the last line, larger descent value means a larger line height.
+            lastDescent =
+                if (trimLastLineBottom) {
+                    minOf(fontMetricsInt.descent, descent)
+                } else {
+                    maxOf(fontMetricsInt.descent, descent)
+                }
+
+            // Tight mode does not add paddings.
+            firstAscentDiff = 0
+            lastDescentDiff = 0
+        }
     }
 
     internal fun copy(
@@ -149,7 +185,7 @@ internal class LineHeightStyleSpan(
             trimFirstLineTop = trimFirstLineTop,
             trimLastLineBottom = trimLastLineBottom,
             topRatio = topRatio,
-            preserveMinimumHeight = preserveMinimumHeight,
+            mode = mode,
         )
 }
 

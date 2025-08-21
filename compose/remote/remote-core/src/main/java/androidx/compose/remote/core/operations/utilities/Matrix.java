@@ -17,6 +17,9 @@ package androidx.compose.remote.core.operations.utilities;
 
 import androidx.compose.remote.core.operations.Utils;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -24,11 +27,11 @@ import java.util.Arrays;
 public class Matrix {
     int mDim0 = 4;
     int mDim1 = 4;
-    float[] mMatrix = new float[16]; // support up to 4x4 matrices
-    public static final Matrix sTmpMatrix1 = new Matrix();
-    public static final Matrix sTmpMatrix2 = new Matrix();
-    public static float[] sTempOutVec;
-    public static float[] sTempInVec;
+    float @NonNull [] mMatrix = new float[16]; // support up to 4x4 matrices
+    public static final @NonNull Matrix sTmpMatrix1 = new Matrix();
+    public static final @NonNull Matrix sTmpMatrix2 = new Matrix();
+    public static float @Nullable [] sTempOutVec;
+    public static float @Nullable [] sTempInVec;
 
     /** Creates a new identity matrix. */
     public Matrix() {
@@ -63,7 +66,7 @@ public class Matrix {
      * @param src The source matrix.
      * @param dest The destination matrix.
      */
-    public static void copy(Matrix src, Matrix dest) {
+    public static void copy(@NonNull Matrix src, @NonNull Matrix dest) {
         dest.setDimensions(src.mDim0, src.mDim1);
         for (int i = 0; i < src.mMatrix.length; i++) {
             dest.mMatrix[i] = src.mMatrix[i];
@@ -75,7 +78,7 @@ public class Matrix {
      *
      * @param src The source matrix.
      */
-    public void copyFrom(Matrix src) {
+    public void copyFrom(@NonNull Matrix src) {
         setDimensions(src.mDim0, src.mDim1);
         for (int i = 0; i < mMatrix.length; i++) {
             mMatrix[i] = src.mMatrix[i];
@@ -97,7 +100,7 @@ public class Matrix {
      * @param b The second matrix.
      * @param dest The destination matrix.
      */
-    public static void multiply(Matrix a, Matrix b, Matrix dest) {
+    public static void multiply(@NonNull Matrix a, @NonNull Matrix b, @NonNull Matrix dest) {
         dest.setDimensions(a.mDim0, b.mDim1);
         for (int i = 0; i < dest.mDim0; i++) {
             for (int j = 0; j < dest.mDim1; j++) {
@@ -342,7 +345,7 @@ public class Matrix {
      *
      * @param dest The destination array.
      */
-    public void putValues(float[] dest) {
+    public void putValues(float @NonNull [] dest) {
         for (int i = 0; i < dest.length; i++) {
             dest[i] = mMatrix[i];
         }
@@ -396,7 +399,7 @@ public class Matrix {
      *
      * @param values The source array.
      */
-    public void copyFrom(float[] values) {
+    public void copyFrom(float @NonNull [] values) {
         if (values.length == 16) {
             for (int i = 0; i < values.length; i++) {
                 mMatrix[i] = values[i];
@@ -537,7 +540,7 @@ public class Matrix {
      * @param input
      * @param out
      */
-    public void multiply(float[] input, float[] out) {
+    public void multiply(float @NonNull [] input, float @NonNull [] out) {
         for (int j = 0; j < out.length; j++) {
             float tmp = 0;
             for (int i = 0; i < input.length; i++) {
@@ -553,7 +556,7 @@ public class Matrix {
      * @param input input needs to be a 2,3,4 floats
      * @param out input needs to be a 2,3,4 floats
      */
-    public void evalPerspective(float[] input, float[] out) {
+    public void evalPerspective(float @NonNull [] input, float @NonNull [] out) {
 
         if (input.length < 4) {
             if (sTempInVec == null) {

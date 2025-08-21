@@ -359,6 +359,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
                 PaddingValues(beforeContent = topPadding, afterContent = bottomPadding),
             pageSize = { PageSize.Fixed(pageTotalSize) },
             pageCount = { 3 },
+            prefetchEnabled = false,
         ) { page ->
             Box(Modifier.requiredSize(pageTotalSize).testTag("$page"))
         }
@@ -428,7 +429,7 @@ internal class PagerContentPaddingTest(paramConfig: ParamConfig) : BasePagerTest
     fun totalPaddingLargerParentSize_initialState() {
         lateinit var state: PagerState
         rule.setContent {
-            state = rememberPagerState { 4 }
+            state = rememberPagerState { 4 }.also { it.prefetchingEnabled = false }
             Box(modifier = Modifier.testTag(ContainerTag).size(pageTotalSize * 1.5f)) {
                 HorizontalOrVerticalPager(
                     state = state,

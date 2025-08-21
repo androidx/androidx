@@ -25,15 +25,26 @@ internal actual val PlatformParagraphStyle.Companion.Saver: Saver<PlatformParagr
 
 private val PlatformParagraphStyleSaver =
     Saver<PlatformParagraphStyle, Any>(
-        save = { arrayListOf(save(it.includeFontPadding), save(it.emojiSupportMatch)) },
+        save = {
+            arrayListOf(
+                save(it.includeFontPadding),
+                save(it.emojiSupportMatch, EmojiSupportMatch.Saver, this),
+            )
+        },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             PlatformParagraphStyle(
                 includeFontPadding = restore(list[0])!!,
-                emojiSupportMatch = restore(list[1])!!,
+                emojiSupportMatch = restore(list[1], EmojiSupportMatch.Saver)!!,
             )
         },
     )
+
+internal val EmojiSupportMatch.Companion.Saver: Saver<EmojiSupportMatch, Any>
+    get() = emojiSupportMatchSaver
+
+internal val emojiSupportMatchSaver =
+    Saver<EmojiSupportMatch, Any>(save = { it.value }, restore = { EmojiSupportMatch(it as Int) })
 
 internal actual val LineBreak.Companion.Saver: Saver<LineBreak, Any>
     get() = LineBreakSaver
@@ -46,9 +57,26 @@ internal actual val TextMotion.Companion.Saver: Saver<TextMotion, Any>
 
 private val TextMotionSaver =
     Saver<TextMotion, Any>(
-        save = { arrayListOf(save(it.linearity), save(it.subpixelTextPositioning)) },
+        save = {
+            arrayListOf(
+                save(it.linearity, TextMotion.Linearity.Saver, this),
+                save(it.subpixelTextPositioning),
+            )
+        },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
-            TextMotion(linearity = restore(list[0])!!, subpixelTextPositioning = restore(list[1])!!)
+            TextMotion(
+                linearity = restore(list[0], TextMotion.Linearity.Saver)!!,
+                subpixelTextPositioning = restore(list[1])!!,
+            )
         },
+    )
+
+private val TextMotion.Linearity.Companion.Saver: Saver<TextMotion.Linearity, Any>
+    get() = TextMotionLinearitySaver
+
+private val TextMotionLinearitySaver =
+    Saver<TextMotion.Linearity, Any>(
+        save = { it.value },
+        restore = { TextMotion.Linearity(it as Int) },
     )

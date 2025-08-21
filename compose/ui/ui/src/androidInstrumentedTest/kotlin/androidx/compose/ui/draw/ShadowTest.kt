@@ -58,7 +58,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,18 +114,16 @@ class ShadowTest {
         takeScreenShot(12).apply { hasShadow() }
     }
 
-    @Ignore // b/266748959
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switchFromShadowToNoShadow() {
-        val elevation = mutableStateOf(0.dp)
-
+        val elevation = mutableStateOf(10.dp)
         rule.runOnUiThreadIR { activity.setContent { ShadowContainer(elevation = elevation) } }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
+        takeScreenShot(12).apply { hasShadow() }
         rule.runOnUiThreadIR { elevation.value = 0.dp }
 
-        takeScreenShot(12).apply { assertEquals(color(5, 11), Color.White) }
+        takeScreenShot(12).apply { hasNoShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -319,6 +316,10 @@ class ShadowTest {
                 modifier = Modifier.shadow(elevation = elevation.value, shape = rectShape),
             ) {}
         }
+    }
+
+    private fun Bitmap.hasNoShadow() {
+        assertEquals(Color.White, color(width / 2, height - 1))
     }
 
     private fun Bitmap.hasShadow() {

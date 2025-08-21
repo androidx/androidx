@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.MaterialTheme
@@ -44,7 +45,7 @@ fun WindowInsetsDemo() {
     val insets = WindowInsets.safeDrawing
     val density = LocalDensity.current
 
-    Column {
+    Column(Modifier.windowInsetsPadding(insets)) {
         Text(
             "The numbers around the text field below show the respective WindowInsets values for" +
                 " the safeDrawing insets. To use this demo, go the demo app settings (⚙️ icon), " +

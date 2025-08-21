@@ -31,4 +31,35 @@ internal interface SemanticsListener {
         semanticsInfo: SemanticsInfo,
         previousSemanticsConfiguration: SemanticsConfiguration?,
     )
+
+    /**
+     * [onSemanticsAdded] is called when a LayoutNode is attached
+     *
+     * @param semanticsInfo the current [SemanticsInfo] of the layout node that has changed.
+     */
+    fun onSemanticsAdded(semanticsInfo: SemanticsInfo)
+
+    /**
+     * [onSemanticsRemoved] is called when a LayoutNode is detached
+     *
+     * @param semanticsInfo the current [SemanticsInfo] of the layout node that has changed.
+     * @param previousSemanticsConfiguration the previous [SemanticsConfiguration] associated with
+     *   the layout node.
+     */
+    fun onSemanticsRemoved(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    )
+
+    /**
+     * [onSemanticsDeactivated] is called when a LayoutNode is deactivated
+     *
+     * @param semanticsInfo the current [SemanticsInfo] of the layout node that has changed.
+     * @param previousSemanticsConfiguration the previous [SemanticsConfiguration] associated with
+     *   the layout node.
+     */
+    fun onSemanticsDeactivated(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    )
 }

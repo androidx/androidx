@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.LocaleList
 
@@ -49,8 +50,31 @@ internal interface PlatformSelectionBehaviors {
      *
      * @param text The full text content from which the selection is made.
      * @param selection The [TextRange] representing the current selection in the text.
+     * @param secondaryClickLocation The [Offset] representing the location of the mouse right-click
+     *   that triggered the showing of the context menu; `null` if it was not triggered via
+     *   right-click.
      */
-    suspend fun onShowContextMenu(text: CharSequence, selection: TextRange)
+    suspend fun onShowContextMenu(
+        text: CharSequence,
+        selection: TextRange,
+        secondaryClickLocation: Offset?,
+    )
+
+    /**
+     * This method is invoked by the selectable text containers (e.g. BasicTextField,
+     * SelectionContainer) just before the selection toolbar is displayed. It provides an
+     * opportunity for the [PlatformSelectionBehaviors] implementation to perform any necessary
+     * setup or modifications based on the current text and selection, particularly for
+     * platform-specific toolbar items or behaviors.
+     *
+     * For example, an implementation might use this hook to:
+     * - Prepare or pre-fetch data required for platform-specific selection toolbar items.
+     * - Update internal state based on the selection that will be shown in the toolbar.
+     *
+     * @param text The full text content from which the selection is made.
+     * @param selection The [TextRange] representing the current selection in the text.
+     */
+    suspend fun onShowSelectionToolbar(text: CharSequence, selection: TextRange)
 }
 
 /**

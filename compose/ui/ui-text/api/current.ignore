@@ -1,213 +1,337 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#fillBoundingBoxes-8ffj60Q(long, float[], int):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.fillBoundingBoxes-8ffj60Q(long,float[],int)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#getOffsetForPosition-k-4lQ0M(long):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.getOffsetForPosition-k-4lQ0M(long)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#getRangeForRect-8-6BmAI(androidx.compose.ui.geometry.Rect, int, androidx.compose.ui.text.TextInclusionStrategy):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.getRangeForRect-8-6BmAI(androidx.compose.ui.geometry.Rect,int,androidx.compose.ui.text.TextInclusionStrategy)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#getWordBoundary--jx7JFs(int):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.getWordBoundary--jx7JFs(int)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#paint-LG529CI(androidx.compose.ui.graphics.Canvas, long, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle, int):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.paint-LG529CI(androidx.compose.ui.graphics.Canvas,long,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.drawscope.DrawStyle,int)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#paint-RPmYEkk(androidx.compose.ui.graphics.Canvas, long, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.paint-RPmYEkk(androidx.compose.ui.graphics.Canvas,long,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration)
-AddedAbstractMethod: androidx.compose.ui.text.Paragraph#paint-hn5TExg(androidx.compose.ui.graphics.Canvas, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.drawscope.DrawStyle, int):
-    Binary breaking change: Added method androidx.compose.ui.text.Paragraph.paint-hn5TExg(androidx.compose.ui.graphics.Canvas,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.drawscope.DrawStyle,int)
-AddedAbstractMethod: androidx.compose.ui.text.font.Font#getStyle-_-LCdwA():
-    Binary breaking change: Added method androidx.compose.ui.text.font.Font.getStyle-_-LCdwA()
-AddedAbstractMethod: androidx.compose.ui.text.font.FontFamily.Resolver#resolve-DPcqOEQ(androidx.compose.ui.text.font.FontFamily, androidx.compose.ui.text.font.FontWeight, int, int):
-    Binary breaking change: Added method androidx.compose.ui.text.font.FontFamily.Resolver.resolve-DPcqOEQ(androidx.compose.ui.text.font.FontFamily,androidx.compose.ui.text.font.FontWeight,int,int)
-AddedAbstractMethod: androidx.compose.ui.text.input.InputEventCallback#onImeAction-KlQnJC8(int):
-    Binary breaking change: Added method androidx.compose.ui.text.input.InputEventCallback.onImeAction-KlQnJC8(int)
+ChangedType: androidx.compose.ui.text.AnnotatedString.Builder#append(char):
+    Binary breaking change: Method androidx.compose.ui.text.AnnotatedString.Builder.append has changed return type from void to androidx.compose.ui.text.AnnotatedString.Builder
 
 
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#get(int):
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.get has changed return type from E (extends java.lang.Object) to androidx.compose.ui.text.font.Font
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#iterator():
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.iterator has changed return type from java.util.Iterator<E> to java.util.Iterator<androidx.compose.ui.text.font.Font>
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#listIterator():
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.listIterator has changed return type from java.util.ListIterator<E> to java.util.ListIterator<androidx.compose.ui.text.font.Font>
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#listIterator(int):
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.listIterator has changed return type from java.util.ListIterator<E> to java.util.ListIterator<androidx.compose.ui.text.font.Font>
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#remove(int):
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.remove has changed return type from E (extends java.lang.Object) to androidx.compose.ui.text.font.Font
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#removeFirst():
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.removeFirst has changed return type from E (extends java.lang.Object) to androidx.compose.ui.text.font.Font
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#removeLast():
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.removeLast has changed return type from E (extends java.lang.Object) to androidx.compose.ui.text.font.Font
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#set(int, androidx.compose.ui.text.font.Font):
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.set has changed return type from E (extends java.lang.Object) to androidx.compose.ui.text.font.Font
-ChangedType: androidx.compose.ui.text.font.FontListFontFamily#subList(int, int):
-    Binary breaking change: Method androidx.compose.ui.text.font.FontListFontFamily.subList has changed return type from java.util.List<E> to java.util.List<androidx.compose.ui.text.font.Font>
+RemovedDeprecatedMethod: androidx.compose.ui.text.MultiParagraph#paint(androidx.compose.ui.graphics.Canvas, long, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.MultiParagraph.paint(androidx.compose.ui.graphics.Canvas,long,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextDecoration)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphKt#Paragraph(String, androidx.compose.ui.text.TextStyle, long, androidx.compose.ui.unit.Density, androidx.compose.ui.text.font.FontFamily.Resolver, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>, int, boolean):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphKt.Paragraph(String,androidx.compose.ui.text.TextStyle,long,androidx.compose.ui.unit.Density,androidx.compose.ui.text.font.FontFamily.Resolver,java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>>,java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>>,int,boolean)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphKt#Paragraph(androidx.compose.ui.text.ParagraphIntrinsics, long, int, boolean):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphKt.Paragraph(androidx.compose.ui.text.ParagraphIntrinsics,long,int,boolean)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphStyle#copy(androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphStyle.copy(androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphStyle#copy(androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformParagraphStyle, androidx.compose.ui.text.style.LineHeightStyle):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphStyle.copy(androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformParagraphStyle,androidx.compose.ui.text.style.LineHeightStyle)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphStyle#copy(androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformParagraphStyle, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphStyle.copy(androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformParagraphStyle,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens)
+RemovedDeprecatedMethod: androidx.compose.ui.text.ParagraphStyle#copy(androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformParagraphStyle, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens, androidx.compose.ui.text.style.TextMotion):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.ParagraphStyle.copy(androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformParagraphStyle,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens,androidx.compose.ui.text.style.TextMotion)
+RemovedDeprecatedMethod: androidx.compose.ui.text.SpanStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.SpanStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow)
+RemovedDeprecatedMethod: androidx.compose.ui.text.SpanStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.PlatformSpanStyle):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.SpanStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.PlatformSpanStyle)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#copy(androidx.compose.ui.graphics.Brush, float, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformTextStyle, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens, androidx.compose.ui.text.style.TextMotion):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.copy(androidx.compose.ui.graphics.Brush,float,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformTextStyle,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens,androidx.compose.ui.text.style.TextMotion)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformTextStyle, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens, androidx.compose.ui.text.style.TextMotion):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformTextStyle,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens,androidx.compose.ui.text.style.TextMotion)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformTextStyle, androidx.compose.ui.text.style.LineHeightStyle):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformTextStyle,androidx.compose.ui.text.style.LineHeightStyle)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#copy(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.PlatformTextStyle, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.copy(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.PlatformTextStyle,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens)
+RemovedDeprecatedMethod: androidx.compose.ui.text.TextStyle#merge(long, long, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, androidx.compose.ui.text.font.FontFamily, String, long, androidx.compose.ui.text.style.BaselineShift, androidx.compose.ui.text.style.TextGeometricTransform, androidx.compose.ui.text.intl.LocaleList, long, androidx.compose.ui.text.style.TextDecoration, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.graphics.drawscope.DrawStyle, androidx.compose.ui.text.style.TextAlign, androidx.compose.ui.text.style.TextDirection, long, androidx.compose.ui.text.style.TextIndent, androidx.compose.ui.text.style.LineHeightStyle, androidx.compose.ui.text.style.LineBreak, androidx.compose.ui.text.style.Hyphens, androidx.compose.ui.text.PlatformTextStyle, androidx.compose.ui.text.style.TextMotion):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.TextStyle.merge(long,long,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,androidx.compose.ui.text.font.FontFamily,String,long,androidx.compose.ui.text.style.BaselineShift,androidx.compose.ui.text.style.TextGeometricTransform,androidx.compose.ui.text.intl.LocaleList,long,androidx.compose.ui.text.style.TextDecoration,androidx.compose.ui.graphics.Shadow,androidx.compose.ui.graphics.drawscope.DrawStyle,androidx.compose.ui.text.style.TextAlign,androidx.compose.ui.text.style.TextDirection,long,androidx.compose.ui.text.style.TextIndent,androidx.compose.ui.text.style.LineHeightStyle,androidx.compose.ui.text.style.LineBreak,androidx.compose.ui.text.style.Hyphens,androidx.compose.ui.text.PlatformTextStyle,androidx.compose.ui.text.style.TextMotion)
+RemovedDeprecatedMethod: androidx.compose.ui.text.font.FontKt#Font(int, androidx.compose.ui.text.font.FontWeight, int):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.font.FontKt.Font(int,androidx.compose.ui.text.font.FontWeight,int)
+RemovedDeprecatedMethod: androidx.compose.ui.text.input.ImeOptions#copy(boolean, int, boolean, int, int):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.input.ImeOptions.copy(boolean,int,boolean,int,int)
+RemovedDeprecatedMethod: androidx.compose.ui.text.input.ImeOptions#copy(boolean, int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.text.input.ImeOptions.copy(boolean,int,boolean,int,int,androidx.compose.ui.text.input.PlatformImeOptions)
 
 
-RemovedFromJava: androidx.compose.ui.text.AnnotatedString#charAt(int):
-    Source breaking change: method androidx.compose.ui.text.AnnotatedString.charAt(int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.AnnotatedString#length():
-    Source breaking change: method androidx.compose.ui.text.AnnotatedString.length() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#add(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.add(androidx.compose.ui.text.font.Font) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#add(int, E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.add(int,androidx.compose.ui.text.font.Font) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#addAll(int, java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addAll(int,java.util.Collection<? extends androidx.compose.ui.text.font.Font>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#addAll(java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addAll(java.util.Collection<? extends androidx.compose.ui.text.font.Font>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#addFirst(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addFirst(androidx.compose.ui.text.font.Font) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#addLast(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addLast(androidx.compose.ui.text.font.Font) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#clear():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.clear() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#contains(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.contains(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#containsAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.containsAll(java.util.Collection<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#get(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.get(int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#indexOf(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.indexOf(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#isEmpty():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.isEmpty() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#iterator():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.iterator() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#lastIndexOf(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.lastIndexOf(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#listIterator():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.listIterator() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#listIterator(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.listIterator(int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#remove(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.remove(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#remove(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.remove(int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#removeAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeAll(java.util.Collection<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#removeFirst():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeFirst() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#removeLast():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeLast() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#replaceAll(java.util.function.UnaryOperator<E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.replaceAll(java.util.function.UnaryOperator<androidx.compose.ui.text.font.Font>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#retainAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.retainAll(java.util.Collection<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#set(int, E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.set(int,androidx.compose.ui.text.font.Font) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#size():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.size() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#sort(java.util.Comparator<? super E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.sort(java.util.Comparator<? super androidx.compose.ui.text.font.Font>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#subList(int, int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.subList(int,int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#toArray():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.toArray() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.font.FontListFontFamily#toArray(T[]):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.toArray(T[]) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#add(E):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.add(androidx.compose.ui.text.intl.Locale) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#addAll(java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.addAll(java.util.Collection<? extends androidx.compose.ui.text.intl.Locale>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#clear():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.clear() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#contains(Object):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.contains(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#remove(Object):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.remove(Object) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#removeAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.removeAll(java.util.Collection<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#removeIf(java.util.function.Predicate<? super E>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.removeIf(java.util.function.Predicate<? super androidx.compose.ui.text.intl.Locale>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#retainAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.retainAll(java.util.Collection<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#size():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.size() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#toArray():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.toArray() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.ui.text.intl.LocaleList#toArray(T[]):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.toArray(T[]) can no longer be resolved from Java source
-
-
-RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#charAt(int):
-    Source breaking change: method androidx.compose.ui.text.AnnotatedString.charAt(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#length():
-    Source breaking change: method androidx.compose.ui.text.AnnotatedString.length() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#add(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.add(androidx.compose.ui.text.font.Font) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#add(int, E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.add(int,androidx.compose.ui.text.font.Font) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#addAll(int, java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addAll(int,java.util.Collection<? extends androidx.compose.ui.text.font.Font>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#addAll(java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addAll(java.util.Collection<? extends androidx.compose.ui.text.font.Font>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#addFirst(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addFirst(androidx.compose.ui.text.font.Font) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#addLast(E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.addLast(androidx.compose.ui.text.font.Font) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#clear():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.clear() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#contains(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.contains(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#containsAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.containsAll(java.util.Collection<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#get(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.get(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#indexOf(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.indexOf(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#isEmpty():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.isEmpty() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#iterator():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.iterator() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#lastIndexOf(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.lastIndexOf(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#listIterator():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.listIterator() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#listIterator(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.listIterator(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#remove(Object):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.remove(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#remove(int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.remove(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#removeAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeAll(java.util.Collection<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#removeFirst():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeFirst() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#removeLast():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.removeLast() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#replaceAll(java.util.function.UnaryOperator<E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.replaceAll(java.util.function.UnaryOperator<androidx.compose.ui.text.font.Font>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#retainAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.retainAll(java.util.Collection<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#set(int, E):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.set(int,androidx.compose.ui.text.font.Font) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#size():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.size() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#sort(java.util.Comparator<? super E>):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.sort(java.util.Comparator<? super androidx.compose.ui.text.font.Font>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#subList(int, int):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.subList(int,int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#toArray():
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.toArray() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#toArray(T[]):
-    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.toArray(T[]) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#add(E):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.add(androidx.compose.ui.text.intl.Locale) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#addAll(java.util.Collection<? extends E>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.addAll(java.util.Collection<? extends androidx.compose.ui.text.intl.Locale>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#clear():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.clear() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#contains(Object):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.contains(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#remove(Object):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.remove(Object) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#removeAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.removeAll(java.util.Collection<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#removeIf(java.util.function.Predicate<? super E>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.removeIf(java.util.function.Predicate<? super androidx.compose.ui.text.intl.Locale>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#retainAll(java.util.Collection<?>):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.retainAll(java.util.Collection<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#size():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.size() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#toArray():
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.toArray() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#toArray(T[]):
-    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.toArray(T[]) can no longer be resolved from Kotlin source
+RemovedMethod: androidx.compose.ui.text.Bullet#getHeight():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.getHeight()
+RemovedMethod: androidx.compose.ui.text.Bullet#getPadding():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.getPadding()
+RemovedMethod: androidx.compose.ui.text.Bullet#getWidth():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.getWidth()
+RemovedMethod: androidx.compose.ui.text.Bullet.Companion#getDefaultIndentation():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.Companion.getDefaultIndentation()
+RemovedMethod: androidx.compose.ui.text.Bullet.Companion#getDefaultPadding():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.Companion.getDefaultPadding()
+RemovedMethod: androidx.compose.ui.text.Bullet.Companion#getDefaultSize():
+    Binary breaking change: Removed method androidx.compose.ui.text.Bullet.Companion.getDefaultSize()
+RemovedMethod: androidx.compose.ui.text.EmojiSupportMatch.Companion#getAll():
+    Binary breaking change: Removed method androidx.compose.ui.text.EmojiSupportMatch.Companion.getAll()
+RemovedMethod: androidx.compose.ui.text.EmojiSupportMatch.Companion#getDefault():
+    Binary breaking change: Removed method androidx.compose.ui.text.EmojiSupportMatch.Companion.getDefault()
+RemovedMethod: androidx.compose.ui.text.EmojiSupportMatch.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.EmojiSupportMatch.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#getHyphens():
+    Binary breaking change: Removed method androidx.compose.ui.text.ParagraphStyle.getHyphens()
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#getLineBreak():
+    Binary breaking change: Removed method androidx.compose.ui.text.ParagraphStyle.getLineBreak()
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#getLineHeight():
+    Binary breaking change: Removed method androidx.compose.ui.text.ParagraphStyle.getLineHeight()
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#getTextAlign():
+    Binary breaking change: Removed method androidx.compose.ui.text.ParagraphStyle.getTextAlign()
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#getTextDirection():
+    Binary breaking change: Removed method androidx.compose.ui.text.ParagraphStyle.getTextDirection()
+RemovedMethod: androidx.compose.ui.text.Placeholder#getHeight():
+    Binary breaking change: Removed method androidx.compose.ui.text.Placeholder.getHeight()
+RemovedMethod: androidx.compose.ui.text.Placeholder#getPlaceholderVerticalAlign():
+    Binary breaking change: Removed method androidx.compose.ui.text.Placeholder.getPlaceholderVerticalAlign()
+RemovedMethod: androidx.compose.ui.text.Placeholder#getWidth():
+    Binary breaking change: Removed method androidx.compose.ui.text.Placeholder.getWidth()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getAboveBaseline():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getAboveBaseline()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getBottom():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getBottom()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getCenter()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getTextBottom():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getTextBottom()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getTextCenter():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getTextCenter()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getTextTop():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getTextTop()
+RemovedMethod: androidx.compose.ui.text.PlaceholderVerticalAlign.Companion#getTop():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlaceholderVerticalAlign.Companion.getTop()
+RemovedMethod: androidx.compose.ui.text.PlatformParagraphStyle#getEmojiSupportMatch():
+    Binary breaking change: Removed method androidx.compose.ui.text.PlatformParagraphStyle.getEmojiSupportMatch()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getBackground():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getBackground()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getBaselineShift():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getBaselineShift()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getColor()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getFontSize():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getFontSize()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getFontStyle():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getFontStyle()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getFontSynthesis():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getFontSynthesis()
+RemovedMethod: androidx.compose.ui.text.SpanStyle#getLetterSpacing():
+    Binary breaking change: Removed method androidx.compose.ui.text.SpanStyle.getLetterSpacing()
+RemovedMethod: androidx.compose.ui.text.TextGranularity.Companion#getCharacter():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextGranularity.Companion.getCharacter()
+RemovedMethod: androidx.compose.ui.text.TextGranularity.Companion#getWord():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextGranularity.Companion.getWord()
+RemovedMethod: androidx.compose.ui.text.TextLayoutInput#getConstraints():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextLayoutInput.getConstraints()
+RemovedMethod: androidx.compose.ui.text.TextLayoutInput#getOverflow():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextLayoutInput.getOverflow()
+RemovedMethod: androidx.compose.ui.text.TextLayoutResult#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextLayoutResult.getSize()
+RemovedMethod: androidx.compose.ui.text.TextRange.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextRange.Companion.getZero()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getBackground():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getBackground()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getBaselineShift():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getBaselineShift()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getColor():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getColor()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getFontSize():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getFontSize()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getFontStyle():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getFontStyle()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getFontSynthesis():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getFontSynthesis()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getHyphens():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getHyphens()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getLetterSpacing():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getLetterSpacing()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getLineBreak():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getLineBreak()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getLineHeight():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getLineHeight()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getTextAlign():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getTextAlign()
+RemovedMethod: androidx.compose.ui.text.TextStyle#getTextDirection():
+    Binary breaking change: Removed method androidx.compose.ui.text.TextStyle.getTextDirection()
+RemovedMethod: androidx.compose.ui.text.font.AndroidFont#getLoadingStrategy():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.AndroidFont.getLoadingStrategy()
+RemovedMethod: androidx.compose.ui.text.font.Font#getLoadingStrategy():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.Font.getLoadingStrategy()
+RemovedMethod: androidx.compose.ui.text.font.Font#getStyle():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.Font.getStyle()
+RemovedMethod: androidx.compose.ui.text.font.FontLoadingStrategy.Companion#getAsync():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontLoadingStrategy.Companion.getAsync()
+RemovedMethod: androidx.compose.ui.text.font.FontLoadingStrategy.Companion#getBlocking():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontLoadingStrategy.Companion.getBlocking()
+RemovedMethod: androidx.compose.ui.text.font.FontLoadingStrategy.Companion#getOptionalLocal():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontLoadingStrategy.Companion.getOptionalLocal()
+RemovedMethod: androidx.compose.ui.text.font.FontStyle.Companion#getItalic():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontStyle.Companion.getItalic()
+RemovedMethod: androidx.compose.ui.text.font.FontStyle.Companion#getNormal():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontStyle.Companion.getNormal()
+RemovedMethod: androidx.compose.ui.text.font.FontSynthesis.Companion#getAll():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontSynthesis.Companion.getAll()
+RemovedMethod: androidx.compose.ui.text.font.FontSynthesis.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontSynthesis.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.font.FontSynthesis.Companion#getStyle():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontSynthesis.Companion.getStyle()
+RemovedMethod: androidx.compose.ui.text.font.FontSynthesis.Companion#getWeight():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.FontSynthesis.Companion.getWeight()
+RemovedMethod: androidx.compose.ui.text.font.ResourceFont#getStyle():
+    Binary breaking change: Removed method androidx.compose.ui.text.font.ResourceFont.getStyle()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getDefault():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getDefault()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getDone():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getDone()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getGo():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getGo()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getNext():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getNext()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getPrevious():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getPrevious()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getSearch():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getSearch()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getSend():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getSend()
+RemovedMethod: androidx.compose.ui.text.input.ImeAction.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeAction.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#getCapitalization():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeOptions.getCapitalization()
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#getImeAction():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeOptions.getImeAction()
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#getKeyboardType():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.ImeOptions.getKeyboardType()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardCapitalization.Companion#getCharacters():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardCapitalization.Companion.getCharacters()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardCapitalization.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardCapitalization.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardCapitalization.Companion#getSentences():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardCapitalization.Companion.getSentences()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardCapitalization.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardCapitalization.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardCapitalization.Companion#getWords():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardCapitalization.Companion.getWords()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getAscii():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getAscii()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getDecimal():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getDecimal()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getEmail():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getEmail()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getNumber():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getNumber()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getNumberPassword():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getNumberPassword()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getPassword():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getPassword()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getPhone():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getPhone()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getText():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getText()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.input.KeyboardType.Companion#getUri():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.KeyboardType.Companion.getUri()
+RemovedMethod: androidx.compose.ui.text.input.TextFieldValue#getComposition():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.TextFieldValue.getComposition()
+RemovedMethod: androidx.compose.ui.text.input.TextFieldValue#getSelection():
+    Binary breaking change: Removed method androidx.compose.ui.text.input.TextFieldValue.getSelection()
+RemovedMethod: androidx.compose.ui.text.style.BaselineShift.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.BaselineShift.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.style.BaselineShift.Companion#getSubscript():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.BaselineShift.Companion.getSubscript()
+RemovedMethod: androidx.compose.ui.text.style.BaselineShift.Companion#getSuperscript():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.BaselineShift.Companion.getSuperscript()
+RemovedMethod: androidx.compose.ui.text.style.Hyphens.Companion#getAuto():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.Hyphens.Companion.getAuto()
+RemovedMethod: androidx.compose.ui.text.style.Hyphens.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.Hyphens.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.style.Hyphens.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.Hyphens.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Companion#getHeading():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Companion.getHeading()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Companion#getParagraph():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Companion.getParagraph()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Companion#getSimple():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Companion.getSimple()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strategy.Companion#getBalanced():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strategy.Companion.getBalanced()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strategy.Companion#getHighQuality():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strategy.Companion.getHighQuality()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strategy.Companion#getSimple():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strategy.Companion.getSimple()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strategy.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strategy.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strictness.Companion#getDefault():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strictness.Companion.getDefault()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strictness.Companion#getLoose():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strictness.Companion.getLoose()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strictness.Companion#getNormal():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strictness.Companion.getNormal()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strictness.Companion#getStrict():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strictness.Companion.getStrict()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.Strictness.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.Strictness.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.WordBreak.Companion#getDefault():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.WordBreak.Companion.getDefault()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.WordBreak.Companion#getPhrase():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.WordBreak.Companion.getPhrase()
+RemovedMethod: androidx.compose.ui.text.style.LineBreak.WordBreak.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineBreak.WordBreak.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle#getAlignment():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.getAlignment()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle#getMode():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.getMode()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle#getTrim():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.getTrim()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion#getBottom():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion.getBottom()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion.getCenter()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion#getProportional():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion.getProportional()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion#getTop():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Alignment.Companion.getTop()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion#getFixed():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.getFixed()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion#getMinimum():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.getMinimum()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion#getBoth():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion.getBoth()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion#getFirstLineTop():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion.getFirstLineTop()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion#getLastLineBottom():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion.getLastLineBottom()
+RemovedMethod: androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion#getNone():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.LineHeightStyle.Trim.Companion.getNone()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getCenter()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getEnd():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getEnd()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getJustify():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getJustify()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getLeft():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getLeft()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getRight():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getRight()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getStart():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getStart()
+RemovedMethod: androidx.compose.ui.text.style.TextAlign.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextAlign.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getContent():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getContent()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getContentOrLtr():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getContentOrLtr()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getContentOrRtl():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getContentOrRtl()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getLtr():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getLtr()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getRtl():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getRtl()
+RemovedMethod: androidx.compose.ui.text.style.TextDirection.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextDirection.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.text.style.TextIndent#getFirstLine():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextIndent.getFirstLine()
+RemovedMethod: androidx.compose.ui.text.style.TextIndent#getRestLine():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextIndent.getRestLine()
+RemovedMethod: androidx.compose.ui.text.style.TextOverflow.Companion#getClip():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextOverflow.Companion.getClip()
+RemovedMethod: androidx.compose.ui.text.style.TextOverflow.Companion#getEllipsis():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextOverflow.Companion.getEllipsis()
+RemovedMethod: androidx.compose.ui.text.style.TextOverflow.Companion#getMiddleEllipsis():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextOverflow.Companion.getMiddleEllipsis()
+RemovedMethod: androidx.compose.ui.text.style.TextOverflow.Companion#getStartEllipsis():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextOverflow.Companion.getStartEllipsis()
+RemovedMethod: androidx.compose.ui.text.style.TextOverflow.Companion#getVisible():
+    Binary breaking change: Removed method androidx.compose.ui.text.style.TextOverflow.Companion.getVisible()

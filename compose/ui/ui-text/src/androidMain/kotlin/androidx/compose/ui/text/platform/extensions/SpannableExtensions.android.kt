@@ -202,7 +202,7 @@ internal fun Spannable.setLineHeight(
                     trimFirstLineTop = lineHeightStyle.trim.isTrimFirstLineTop(),
                     trimLastLineBottom = lineHeightStyle.trim.isTrimLastLineBottom(),
                     topRatio = lineHeightStyle.alignment.topRatio,
-                    preserveMinimumHeight = lineHeightStyle.mode == LineHeightStyle.Mode.Minimum,
+                    mode = lineHeightStyle.mode,
                 ),
             start = 0,
             end = length,

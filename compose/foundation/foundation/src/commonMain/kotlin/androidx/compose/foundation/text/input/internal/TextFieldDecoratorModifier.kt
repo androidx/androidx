@@ -31,17 +31,22 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.LocalAutofillHighlightBrush
 import androidx.compose.foundation.text.LocalAutofillHighlightColor
+import androidx.compose.foundation.text.autofillHighlightColor
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState
+import androidx.compose.foundation.text.resolveAutofillHighlight
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
@@ -196,7 +201,8 @@ internal class TextFieldDecoratorModifierNode(
     CompositionLocalConsumerModifierNode,
     ModifierLocalModifierNode,
     ObserverModifierNode,
-    LayoutAwareModifierNode {
+    LayoutAwareModifierNode,
+    FocusPropertiesModifierNode {
 
     init {
         textFieldSelectionState.requestAutofillAction = { requestAutofill() }
@@ -406,7 +412,15 @@ internal class TextFieldDecoratorModifierNode(
         // Autofill highlight is drawn on top of the content — this way the coloring appears over
         // any Material background applied.
         if (autofillHighlightOn) {
-            drawRect(color = currentValueOf(LocalAutofillHighlightColor))
+            @Suppress("DEPRECATION")
+            drawRect(
+                brush =
+                    resolveAutofillHighlight(
+                        brush = currentValueOf(LocalAutofillHighlightBrush),
+                        color = currentValueOf(LocalAutofillHighlightColor),
+                        defaultColor = autofillHighlightColor(),
+                    )
+            )
         }
     }
 
@@ -465,7 +479,7 @@ internal class TextFieldDecoratorModifierNode(
                 keyboardOptions != previousKeyboardOptions ||
                 stylusHandwritingTrigger != previousStylusHandwritingTrigger
         ) {
-            if (editable && isFocused) {
+            if (editable && (isFocused || inputSessionJob != null)) {
                 // The old session will be implicitly disposed.
                 startInputSession(fromTap = false)
             } else if (!editable) {
@@ -675,6 +689,10 @@ internal class TextFieldDecoratorModifierNode(
             toolbarAndHandlesVisibilityObserverJob?.cancel()
             toolbarAndHandlesVisibilityObserverJob = null
         }
+    }
+
+    override fun applyFocusProperties(focusProperties: FocusProperties) {
+        focusProperties.focusRect = textFieldSelectionState.getFocusRect()
     }
 
     override fun onAttach() {

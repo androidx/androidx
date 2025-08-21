@@ -56,9 +56,22 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
         return true
     }
 
-    // Request owner focus if it doesn't already have focus
-    if (previousActiveNode == null && !requestOwnerFocus()) {
-        return false // Don't grant focus if requesting owner focus failed
+    // Request owner focus if it doesn't already have focus.
+    @OptIn(ExperimentalComposeUiApi::class)
+    if (ComposeUiFlags.isBypassUnfocusableComposeViewEnabled) {
+        if (
+            // If the previous focus target is a non-interop view, then the owner already has focus.
+            previousActiveNode?.isInteropViewHost != false &&
+                // If the focus target gaining focus is an interop view, don't request owner focus.
+                !isInteropViewHost
+        ) {
+            // Don't grant focus if requesting owner focus failed.
+            if (!requestOwnerFocus()) return false
+        }
+    } else {
+        if (previousActiveNode == null && !requestOwnerFocus()) {
+            return false // Don't grant focus if requesting owner focus failed
+        }
     }
 
     // Find ancestor target and event nodes of the previous active target node

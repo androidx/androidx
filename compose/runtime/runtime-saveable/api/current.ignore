@@ -1,3 +1,13 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.saveable.SaveableStateHolder#SaveableStateProvider(Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
-    Binary breaking change: Added method androidx.compose.runtime.saveable.SaveableStateHolder.SaveableStateProvider(Object,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+ChangedType: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(java.lang.Object..., androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<androidx.compose.runtime.MutableState<T>>):
+    Source breaking change: Method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable has changed return type from T (extends java.lang.Object) to androidx.compose.runtime.MutableState<T>
+
+
+RemovedFromBytecode: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(java.lang.Object...,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<androidx.compose.runtime.MutableState<T>>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>):
+    Binary breaking change: method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(java.lang.Object...,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<androidx.compose.runtime.MutableState<T>>) has been removed from bytecode
+
+
+RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer, int, int):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends T>,androidx.compose.runtime.Composer,int,int)

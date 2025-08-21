@@ -52,8 +52,8 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
     public static final int ANCHOR_MONOSPACE_MEASURE = 2;
     public static final int MEASURE_EVERY_TIME = 4;
 
-    public DrawTextAnchored(int textID, float x, float y, float panX, float panY, int flags) {
-        mTextID = textID;
+    public DrawTextAnchored(int textId, float x, float y, float panX, float panY, int flags) {
+        mTextID = textId;
         mX = x;
         mY = y;
         mOutX = mX;
@@ -123,14 +123,14 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
-        int textID = buffer.readInt();
+        int textId = buffer.readInt();
         float x = buffer.readFloat();
         float y = buffer.readFloat();
         float panX = buffer.readFloat();
         float panY = buffer.readFloat();
         int flags = buffer.readInt();
 
-        DrawTextAnchored op = new DrawTextAnchored(textID, x, y, panX, panY, flags);
+        DrawTextAnchored op = new DrawTextAnchored(textId, x, y, panX, panY, flags);
 
         operations.add(op);
     }
@@ -158,7 +158,7 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      * Writes out the operation to the buffer
      *
      * @param buffer The buffer to write to
-     * @param textID The id of the text data
+     * @param textId The id of the text data
      * @param x The x-position of the anchor point
      * @param y The y-position of the anchor point
      * @param panX The pan from left(-1) to right(1) 0 being centered
@@ -167,14 +167,14 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      */
     public static void apply(
             @NonNull WireBuffer buffer,
-            int textID,
+            int textId,
             float x,
             float y,
             float panX,
             float panY,
             int flags) {
         buffer.start(OP_CODE);
-        buffer.writeInt(textID);
+        buffer.writeInt(textId);
         buffer.writeFloat(x);
         buffer.writeFloat(y);
         buffer.writeFloat(panX);

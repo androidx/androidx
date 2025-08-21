@@ -106,6 +106,9 @@ internal interface FocusOwner : FocusManager {
         focusDirection: FocusDirection,
     ): Boolean
 
+    /** Reset focus to the default focused item based on the focus direction. */
+    fun resetFocus(focusDirection: FocusDirection): Boolean
+
     /**
      * Clear focus from the owner.
      *
@@ -118,6 +121,18 @@ internal interface FocusOwner : FocusManager {
 
     /** Searches for the currently focused item, and returns its coordinates as a rect. */
     fun getFocusRect(): Rect?
+
+    /**
+     * Searches the hierarchy and returns true if we have focusable content. (Includes embedded
+     * views that are focusable).
+     */
+    fun hasFocusableContent(): Boolean
+
+    /**
+     * Searches the hierarchy and returns true if we have focusable compose content (Ignores
+     * embedded views tha are focusable).
+     */
+    fun hasNonInteropFocusableContent(): Boolean
 
     /**
      * Dispatches a key event through the compose hierarchy.

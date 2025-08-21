@@ -106,6 +106,7 @@ package androidx.compose.ui.tooling.preview {
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Preview {
+    ctor @KotlinOnly public Preview(optional String name, optional String group, optional @IntRange(from=1L) int apiLevel, optional int widthDp, optional int heightDp, optional String locale, optional @FloatRange(from=0.01) float fontScale, optional boolean showSystemUi, optional boolean showBackground, optional long backgroundColor, optional int uiMode, optional String device, optional int wallpaper);
     method public abstract int apiLevel() default -1;
     method public abstract long backgroundColor() default 0;
     method public abstract String device() default androidx.compose.ui.tooling.preview.Devices.DEFAULT;
@@ -148,6 +149,7 @@ package androidx.compose.ui.tooling.preview {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface PreviewParameter {
+    ctor @KotlinOnly public PreviewParameter(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider, optional int limit);
     method public abstract int limit() default kotlin.jvm.internal.IntCompanionObject.MAX_VALUE;
     method public abstract Class<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider();
     property public abstract int limit;

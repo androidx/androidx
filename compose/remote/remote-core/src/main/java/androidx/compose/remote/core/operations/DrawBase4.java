@@ -155,8 +155,12 @@ public abstract class DrawBase4 extends PaintOperation implements VariableSuppor
         buffer.writeFloat(y2);
     }
 
-    protected MapSerializer serialize(
-            MapSerializer serializer, String x1Name, String y1Name, String x2Name, String y2Name) {
+    protected @NonNull MapSerializer serialize(
+            @NonNull MapSerializer serializer,
+            @NonNull String x1Name,
+            @NonNull String y1Name,
+            @NonNull String x2Name,
+            @NonNull String y2Name) {
         return serializer
                 .add(x1Name, mX1Value, mX1)
                 .add(y1Name, mY1Value, mY1)

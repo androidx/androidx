@@ -228,7 +228,7 @@ public class ImpulseOperation extends PaintOperation implements VariableSupport,
      *
      * @param impulseProcess process to be executed every time
      */
-    public void setProcess(ImpulseProcess impulseProcess) {
+    public void setProcess(@NonNull ImpulseProcess impulseProcess) {
         mProcess = impulseProcess;
     }
 
