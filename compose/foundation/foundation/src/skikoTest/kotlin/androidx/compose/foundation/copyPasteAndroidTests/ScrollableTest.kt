@@ -158,6 +158,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.test.IgnoreIosTarget
+import kotlinx.test.IgnoreJsTarget
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class ScrollableTest {
@@ -703,6 +705,9 @@ class ScrollableTest {
     }
 
     @Test
+    // FIXME: Chrome was not killed in 2000 ms, sending SIGKILL.
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
     fun scrollable_nestedDiagonalScroll_mouseWheel_triggersOnAngle() = runComposeUiTest {
         var totalVerticalScroll = 0f
         var totalHorizontalScroll = 0f
