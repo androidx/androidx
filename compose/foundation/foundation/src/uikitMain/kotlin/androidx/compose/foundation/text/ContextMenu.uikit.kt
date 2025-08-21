@@ -22,7 +22,7 @@ import androidx.compose.foundation.contextmenu.contextMenuGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
-import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuGestures
+import androidx.compose.foundation.text.contextmenu.modifier.showTextContextMenuOnSecondaryClick
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuDropdownProvider
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
@@ -98,7 +98,7 @@ internal actual fun ContextMenuArea(
 ) {
     if (ComposeFoundationFlags.isNewContextMenuEnabled) {
         val modifier = if (enabled) {
-            Modifier.textContextMenuGestures(
+            Modifier.showTextContextMenuOnSecondaryClick(
                 onPreShowContextMenu = { selectionState.updateClipboardEntry() }
             )
         } else {
