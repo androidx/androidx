@@ -51,7 +51,7 @@ import kotlin.jvm.JvmField
  */
 class CornerRounding(
     @FloatRange(from = 0.0) val radius: Float = 0f,
-    @FloatRange(from = 0.0, to = 1.0) val smoothing: Float = 0f
+    @FloatRange(from = 0.0, to = 1.0) val smoothing: Float = 0f,
 ) {
 
     companion object {

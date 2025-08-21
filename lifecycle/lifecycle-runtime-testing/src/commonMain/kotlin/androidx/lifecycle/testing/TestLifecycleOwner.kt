@@ -40,7 +40,7 @@ public class TestLifecycleOwner
 @JvmOverloads
 constructor(
     initialState: Lifecycle.State = Lifecycle.State.STARTED,
-    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
 ) : LifecycleOwner {
     // it is in test artifact
     private val lifecycleRegistry =
@@ -82,5 +82,12 @@ constructor(
         get() = lifecycleRegistry.observerCount
 }
 
-// TODO: K/JS and K/WASM don't support `runBlocking` yet.
+/**
+ * Executes the given block, blocking the current thread if the target platform supports it (e.g.,
+ * JVM, Native).
+ *
+ * On single-threaded platforms like Kotlin/JS and Wasm, `runBlocking` is not supported as it would
+ * freeze the only available thread. On these targets, this function will simply execute the block
+ * directly without blocking.
+ */
 internal expect fun <T> runBlockingIfPossible(dispatcher: CoroutineDispatcher, block: () -> T): T

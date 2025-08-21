@@ -26,7 +26,7 @@ public val viewModelClasses: Array<Class<out ViewModel>> =
         SimpleViewModel::class.java,
         ApplicationViewModel::class.java,
         SavedStateHandleViewModel::class.java,
-        SavedStateHandleAndApplicationViewModel::class.java
+        SavedStateHandleAndApplicationViewModel::class.java,
     )
 
 public class SimpleViewModel : ViewModel()
@@ -39,5 +39,5 @@ public class ApplicationViewModel(application: Application) : AndroidViewModel(a
 
 public class SavedStateHandleAndApplicationViewModel(
     application: Application,
-    @Suppress("UNUSED_PARAMETER") savedStateHandle: SavedStateHandle
+    @Suppress("UNUSED_PARAMETER") savedStateHandle: SavedStateHandle,
 ) : AndroidViewModel(application)

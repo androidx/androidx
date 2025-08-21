@@ -164,21 +164,21 @@ fun rememberPaneExpansionState(
     anchoringAnimationSpec: FiniteAnimationSpec<Float> = DefaultAnchoringAnimationSpec,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
 ): PaneExpansionState {
+    fun MutableMap<PaneExpansionStateKey, PaneExpansionStateData>.getOrCreate(
+        key: PaneExpansionStateKey,
+        initialAnchor: PaneExpansionAnchor?,
+    ): PaneExpansionStateData =
+        getOrPut(key) { PaneExpansionStateData(currentAnchor = initialAnchor) }
+
     val dataMap = rememberSaveable(saver = PaneExpansionStateSaver()) { mutableStateMapOf() }
     val initialAnchor =
         remember(anchors, initialAnchoredIndex) {
             if (initialAnchoredIndex == -1) null else anchors[initialAnchoredIndex]
         }
-    val expansionState = remember {
-        PaneExpansionState(
-            dataMap[PaneExpansionStateKey.Default]
-                ?: PaneExpansionStateData(currentAnchor = initialAnchor)
-        )
-    }
+    val expansionState = remember { PaneExpansionState(dataMap.getOrCreate(key, initialAnchor)) }
     LaunchedEffect(key, anchors, anchoringAnimationSpec, flingBehavior) {
         expansionState.restore(
-            dataMap[key]
-                ?: PaneExpansionStateData(currentAnchor = initialAnchor).also { dataMap[key] = it },
+            dataMap.getOrCreate(key, initialAnchor),
             anchors,
             anchoringAnimationSpec,
             flingBehavior,
@@ -427,13 +427,12 @@ internal constructor(
         Snapshot.withoutReadObservation {
             measuredAnchorPositions = anchors.toPositions(measuredWidth, density)
             // Changes will always apply to the ongoing measurement, no need to trigger remeasuring
-            currentAnchor?.also { currentDraggingOffset = it.positionIn(measuredWidth, density) }
-                ?: {
-                    if (currentDraggingOffset != Unspecified) {
-                        // To re-coerce the value
-                        currentDraggingOffset = currentDraggingOffset
-                    }
-                }
+            if (currentAnchor != null) {
+                currentDraggingOffset = currentAnchor!!.positionIn(measuredWidth, density)
+            } else if (currentDraggingOffset != Unspecified) {
+                // To re-coerce the value
+                currentDraggingOffset = currentDraggingOffset
+            }
         }
     }
 
@@ -619,6 +618,8 @@ sealed class PaneExpansionAnchor {
         override fun positionIn(totalSizePx: Int, density: Density) =
             (totalSizePx * proportion).roundToInt().coerceIn(0, totalSizePx)
 
+        override fun toString(): String = "PaneExpansionAnchor(Proportion = $proportion)"
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Proportion) return false
@@ -645,6 +646,8 @@ sealed class PaneExpansionAnchor {
          * @see Direction.FromEnd
          */
         val direction: Direction = Direction(type)
+
+        override fun toString(): String = "PaneExpansionAnchor(Offset = $offset)"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

@@ -28,10 +28,7 @@ import kotlinx.serialization.modules.subclass
 @Serializable internal data class PolymorphicClassImpl2(val value: String) : PolymorphicClass()
 
 @Serializable
-internal data class PolymorphicClassData(
-    val base1: PolymorphicClass,
-    val base2: PolymorphicClass,
-)
+internal data class PolymorphicClassData(val base1: PolymorphicClass, val base2: PolymorphicClass)
 
 internal interface PolymorphicInterface
 

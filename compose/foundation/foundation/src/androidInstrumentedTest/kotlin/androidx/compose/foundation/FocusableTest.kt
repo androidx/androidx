@@ -17,10 +17,14 @@
 package androidx.compose.foundation
 
 import android.os.Build.VERSION.SDK_INT
+import android.view.View
+import android.widget.FrameLayout
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
@@ -37,9 +41,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
@@ -52,21 +59,29 @@ import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isNotFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -730,6 +745,191 @@ class FocusableTest {
             assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
             assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
             assertThat(interactions[2]).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+    }
+
+    @Test
+    fun clickingOutside_clearsFocus() =
+        withFlags(isClearFocusOnPointerDownEnabled = true) {
+            rule.setFocusableContent {
+                Column {
+                    Spacer(Modifier.size(32.dp).testTag("emptySpace"))
+                    Spacer(Modifier.size(32.dp).testTag(focusTag).focusable())
+                }
+            }
+
+            rule.onNodeWithTag(focusTag).requestFocus()
+
+            rule.onNodeWithTag(focusTag).assertIsFocused()
+
+            rule.onNodeWithTag("emptySpace").performMouseInput { click() }
+
+            rule.onNodeWithTag(focusTag).assertIsNotFocused()
+        }
+
+    @Test
+    fun clickingOutside_doesNotClearFocusWithViewTagDisabled() =
+        withFlags(isClearFocusOnPointerDownEnabled = true) {
+            lateinit var view: View
+
+            rule.setFocusableContent {
+                view = LocalView.current
+                Column {
+                    Spacer(Modifier.size(32.dp).testTag("emptySpace"))
+                    Spacer(Modifier.size(32.dp).testTag(focusTag).focusable())
+                }
+            }
+
+            (view.parent as AbstractComposeView).isClearFocusOnPointerDownEnabled = false
+
+            rule.onNodeWithTag(focusTag).requestFocus()
+
+            rule.onNodeWithTag(focusTag).assertIsFocused()
+
+            rule.onNodeWithTag("emptySpace").performMouseInput { click() }
+
+            rule.onNodeWithTag(focusTag).assertIsFocused()
+        }
+
+    @Test
+    fun clickingOnClickable_clearsFocus() =
+        withFlags(isClearFocusOnPointerDownEnabled = true) {
+            var wasClickableSpaceClicked = false
+
+            rule.setFocusableContent {
+                Column {
+                    Spacer(
+                        Modifier.size(32.dp).testTag("clickableSpace").clickable {
+                            wasClickableSpaceClicked = true
+                        }
+                    )
+                    Spacer(Modifier.size(32.dp).testTag(focusTag).focusable())
+                }
+            }
+
+            rule.onNodeWithTag(focusTag).requestFocus()
+
+            rule.onNodeWithTag(focusTag).assertIsFocused()
+
+            rule.onNodeWithTag("clickableSpace").performMouseInput { click() }
+
+            rule.onNodeWithTag(focusTag).assertIsNotFocused()
+            assertThat(wasClickableSpaceClicked).isTrue()
+        }
+
+    @Test
+    fun clickingOnClickableFocusable_reassignsFocus() {
+        val focusRequesterClickableSpace = FocusRequester()
+        var wasClickableSpaceClicked = false
+
+        rule.setFocusableContent {
+            Column {
+                Spacer(
+                    Modifier.size(32.dp)
+                        .testTag("clickableSpace")
+                        .focusRequester(focusRequesterClickableSpace)
+                        .focusProperties { canFocus = true }
+                        .clickable {
+                            wasClickableSpaceClicked = true
+                            focusRequesterClickableSpace.requestFocus()
+                        }
+                )
+                Spacer(Modifier.size(32.dp).testTag(focusTag).focusable())
+            }
+        }
+
+        rule.onNodeWithTag(focusTag).requestFocus()
+
+        rule.onNodeWithTag(focusTag).assertIsFocused()
+
+        rule.onNodeWithTag("clickableSpace").performMouseInput { click() }
+
+        rule.onNodeWithTag(focusTag).assertIsNotFocused()
+        assertThat(wasClickableSpaceClicked).isTrue()
+        rule.onNodeWithTag("clickableSpace").assertIsFocused()
+    }
+
+    @Test
+    fun clickingOnAndroidViewThroughCompose_clearsFocus() =
+        withFlags(isClearFocusOnPointerDownEnabled = true) {
+            val focusRequester = FocusRequester()
+            var wasClickableSpaceClicked = false
+            lateinit var density: Density
+
+            rule.setFocusableContent {
+                density = LocalDensity.current
+                Box(Modifier.testTag("box")) {
+                    AndroidView(
+                        factory = { context ->
+                            FrameLayout(context).apply {
+                                addView(
+                                    ComposeView(context).apply {
+                                        setContent {
+                                            Column {
+                                                Spacer(
+                                                    Modifier.size(64.dp)
+                                                        .testTag("clickableSpace")
+                                                        .clickable {
+                                                            wasClickableSpaceClicked = true
+                                                        }
+                                                )
+                                                Spacer(Modifier.size(64.dp))
+                                            }
+                                        }
+                                    },
+                                    FrameLayout.LayoutParams(
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    ),
+                                )
+                                addView(
+                                    ComposeView(context).apply {
+                                        setContent {
+                                            Column {
+                                                Spacer(Modifier.size(64.dp))
+                                                Spacer(
+                                                    Modifier.size(64.dp)
+                                                        .testTag(focusTag)
+                                                        .focusRequester(focusRequester)
+                                                        .focusable()
+                                                )
+                                            }
+                                        }
+                                    },
+                                    FrameLayout.LayoutParams(
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                                    ),
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            rule.onNodeWithTag(focusTag).requestFocus()
+
+            rule.onNodeWithTag(focusTag).assertIsFocused()
+
+            rule.onNodeWithTag("box").performMouseInput {
+                click(with(density) { Offset(32.dp.toPx(), 32.dp.toPx()) })
+            }
+
+            rule.onNodeWithTag(focusTag).assertIsNotFocused()
+            assertThat(wasClickableSpaceClicked).isTrue()
+        }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private inline fun withFlags(
+        isClearFocusOnPointerDownEnabled: Boolean = ComposeUiFlags.isClearFocusOnPointerDownEnabled,
+        block: () -> Unit,
+    ) {
+        val defaultValue = ComposeUiFlags.isClearFocusOnPointerDownEnabled
+        try {
+            ComposeUiFlags.isClearFocusOnPointerDownEnabled = isClearFocusOnPointerDownEnabled
+            block()
+        } finally {
+            ComposeUiFlags.isClearFocusOnPointerDownEnabled = defaultValue
         }
     }
 }

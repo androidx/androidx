@@ -61,7 +61,10 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun <S, T : PaneScaffoldValue<S>> ExtendedPaneScaffoldPaneScope<S, T>.AnimatedPane(
+fun <
+    Role : PaneScaffoldRole,
+    ScaffoldValue : PaneScaffoldValue<Role>,
+> ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>.AnimatedPane(
     modifier: Modifier = Modifier,
     enterTransition: EnterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
     exitTransition: ExitTransition = motionDataProvider.calculateDefaultExitTransition(paneRole),
@@ -90,7 +93,10 @@ fun <S, T : PaneScaffoldValue<S>> ExtendedPaneScaffoldPaneScope<S, T>.AnimatedPa
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
     @Composable
-    override fun <S, T : PaneScaffoldValue<S>> AnimatedPaneOverrideScope<S, T>.AnimatedPane() {
+    override fun <
+        Role : PaneScaffoldRole,
+        ScaffoldValue : PaneScaffoldValue<Role>,
+    > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane() {
         with(scope) {
             val scaleConversion = { offset: IntOffset ->
                 (motionDataProvider as? ThreePaneScaffoldMotionDataProvider)?.run {
@@ -101,7 +107,7 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
             val motionProgress = { motionProgress }
             val paneValue = scaffoldStateTransition.targetState[paneRole]
             scaffoldStateTransition.AnimatedVisibility(
-                visible = { value: T -> value[paneRole] != PaneAdaptedValue.Hidden },
+                visible = { value: ScaffoldValue -> value[paneRole] != PaneAdaptedValue.Hidden },
                 modifier =
                     modifier
                         .animatedPane()
@@ -134,7 +140,9 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
             scrim?.apply {
                 // Display a scrim when the pane gets levitated
                 scaffoldStateTransition.AnimatedVisibility(
-                    visible = { value: T -> value[paneRole] != PaneAdaptedValue.Hidden },
+                    visible = { value: ScaffoldValue ->
+                        value[paneRole] != PaneAdaptedValue.Hidden
+                    },
                     enter = enterTransition,
                     exit = exitTransition,
                 ) {
@@ -174,7 +182,11 @@ sealed interface AnimatedPaneScope : AnimatedVisibilityScope {
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 interface AnimatedPaneOverride {
     /** Behavior function that is called by the [AnimatedPane] composable. */
-    @Composable fun <S, T : PaneScaffoldValue<S>> AnimatedPaneOverrideScope<S, T>.AnimatedPane()
+    @Composable
+    fun <
+        Role : PaneScaffoldRole,
+        ScaffoldValue : PaneScaffoldValue<Role>,
+    > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane()
 }
 
 /**
@@ -190,9 +202,9 @@ interface AnimatedPaneOverride {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @ExperimentalMaterial3AdaptiveComponentOverrideApi
 @Immutable
-class AnimatedPaneOverrideScope<S, T : PaneScaffoldValue<S>>
+class AnimatedPaneOverrideScope<Role : PaneScaffoldRole, ScaffoldValue : PaneScaffoldValue<Role>>
 internal constructor(
-    val scope: ExtendedPaneScaffoldPaneScope<S, T>,
+    val scope: ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>,
     val modifier: Modifier,
     val enterTransition: EnterTransition,
     val exitTransition: ExitTransition,

@@ -51,7 +51,7 @@ class RepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
                 severity = Severity.ERROR,
                 implementation =
                     Implementation(RepeatOnLifecycleDetector::class.java, Scope.JAVA_FILE_SCOPE),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 
@@ -85,7 +85,7 @@ private class RecursiveMethodVisitor(
     private val context: JavaContext,
     private val originClassName: String?,
     private val lifecycleMethod: PsiMethod,
-    private val visitedMethods: MutableSet<PsiMethod>
+    private val visitedMethods: MutableSet<PsiMethod>,
 ) : AbstractUastVisitor() {
 
     override fun visitCallExpression(node: UCallExpression): Boolean {
@@ -122,7 +122,7 @@ private class RecursiveMethodVisitor(
             context.report(
                 RepeatOnLifecycleDetector.ISSUE,
                 context.getLocation(expression),
-                "Wrong usage of ${method.name} from $originClassName.${lifecycleMethod.name}."
+                "Wrong usage of ${method.name} from $originClassName.${lifecycleMethod.name}.",
             )
             true
         } else {

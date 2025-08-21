@@ -1,9 +1,6 @@
 // Baseline format: 1.0
-[mingwX64]: Target was added
-[tvosArm64]: Target was added
-[tvosSimulatorArm64]: Target was added
-[tvosX64]: Target was added
-[watchosArm32]: Target was added
-[watchosArm64]: Target was added
-[watchosDeviceArm64]: Target was added
-[watchosSimulatorArm64]: Target was added
+[linuxX64]: Removed declaration <A : androidx.lifecycle/ViewModel>androidx.lifecycle.viewmodel.compose/viewModel(kotlin.reflect/KClass<#A>, androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, androidx.lifecycle/ViewModelProvider.Factory?, androidx.lifecycle.viewmodel/CreationExtras) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Removed declaration <A : androidx.lifecycle/ViewModel>androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, androidx.lifecycle/ViewModelProvider.Factory?, androidx.lifecycle.viewmodel/CreationExtras) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Removed declaration <A : androidx.lifecycle/ViewModel>androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, kotlin/Function1<androidx.lifecycle.viewmodel/CreationExtras, #A>) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current.<get-current>
+[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current.<get-current>

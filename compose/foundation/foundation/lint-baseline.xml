@@ -1,59 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                    assertThat((it - expected).x).isWithin(0.01f)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                    assertThat((it - expected).y).isWithin(0.01f)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                assertThat((consumed - expectedConsumed).x).isWithin(0.001f)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                assertThat((consumed - expectedConsumed).y).isWithin(0.001f)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                    assertThat(it - expected).isWithin(0.01f)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `isWithin` is not used"
-        errorLine1="                assertThat(consumed.x - expectedConsumed).isWithin(0.001f)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
         id="CheckResult"
@@ -65,66 +11,30 @@
     </issue>
 
     <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="        if (onAttach != other.onAttach) return false"
-        errorLine2="                     ~~">
+        id="NewApi"
+        message="Call requires API level 34 (current min is 23): `setHandwritingGestures`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ClickableTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
     </issue>
 
     <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="        if (onDraw != other.onDraw) return false"
-        errorLine2="                   ~~">
+        id="NewApi"
+        message="Field requires API level 34 (current min is 23): `EditorInfoApi34`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="        ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/IndicationTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
     </issue>
 
     <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="        if (onCreate != other.onCreate) return false"
-        errorLine2="                     ~~">
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun LazyGrid("
+        errorLine2="        ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/IndicationTest.kt"/>
-    </issue>
-
-    <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="        if (hasScrollableBlock != other.hasScrollableBlock) return false"
-        errorLine2="                               ~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerTest.kt"/>
-    </issue>
-
-    <issue
-        id="InvalidLanguageTagDelimiter"
-        message="A hyphen (-), not an underscore (_) delimiter should be used in a language tag"
-        errorLine1="                    TransformedText(text.toUpperCase(LocaleList(&quot;en_US&quot;)), OffsetMapping.Identity)"
-        errorLine2="                                                                ~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/textfield/TextFieldTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/BaseLazyGridTestWithOrientation.kt"/>
     </issue>
 
     <issue
@@ -192,74 +102,11 @@
 
     <issue
         id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier,"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/BasePagerTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be named modifier"
-        errorLine1="    private fun TestMarqueeContent(marqueeModifier: Modifier) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/BasicMarqueeTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier,"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuAreaTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier,"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuAreaTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier.testTag(tag),"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
         message="Optional Modifier parameter should have a default value of `Modifier`"
         errorLine1="        modifier: Modifier = Modifier.testTag(tag),"
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier,"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/SingleParamBasePagerTest.kt"/>
-    </issue>
-
-    <issue
-        id="ModifierParameter"
-        message="Modifier parameter should be the first optional parameter"
-        errorLine1="        modifier: Modifier = Modifier,"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/SingleParamBasePagerTest.kt"/>
     </issue>
 
     <issue
@@ -362,21 +209,75 @@
     </issue>
 
     <issue
-        id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="            val stateValue = state.value"
-        errorLine2="                                   ~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyEventTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
     </issue>
 
     <issue
-        id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="            state.value += 1"
-        errorLine2="                  ~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23) TextToolbarHelperApi23.invalidateContentRect(actionMode)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyEventTest.kt"/>
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    @RequiresApi(23)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/internal/AndroidTextContextMenuToolbarProvider.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is never &lt; 23"
+        errorLine1="            Build.VERSION.SDK_INT &lt; 23"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/ProcessText.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="@RequiresApi(23)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/contextmenu/ProcessText.android.kt"/>
     </issue>
 
     <issue

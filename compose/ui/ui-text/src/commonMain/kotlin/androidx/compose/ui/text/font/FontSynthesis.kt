@@ -38,7 +38,7 @@ private const val StyleFlag = 0x2
  * @sample androidx.compose.ui.text.samples.FontFamilySynthesisSample
  */
 @kotlin.jvm.JvmInline
-value class FontSynthesis internal constructor(internal val value: Int) {
+value class FontSynthesis internal constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -75,6 +75,17 @@ value class FontSynthesis internal constructor(internal val value: Int) {
          * the [FontFamily]
          */
         val All = FontSynthesis(AllFlags)
+
+        /**
+         * Creates a FontSynthesis from the given integer value. This can be useful if you need to
+         * serialize/deserialize FontSynthesis values.
+         *
+         * @param value The integer representation of the FontSynthesis.
+         * @see [FontSynthesis.value]
+         */
+        fun valueOf(value: Int): FontSynthesis {
+            return FontSynthesis(value)
+        }
     }
 
     internal val isWeightOn: Boolean

@@ -81,7 +81,7 @@ public class MonotonicSpline {
      *
      * @return the value points
      */
-    public float[] getArray() {
+    public float @Nullable [] getArray() {
         return mY;
     }
 
@@ -177,7 +177,7 @@ public class MonotonicSpline {
      *
      * @return the time points
      */
-    public float[] getTimePoints() {
+    public float @Nullable [] getTimePoints() {
         return mT;
     }
 

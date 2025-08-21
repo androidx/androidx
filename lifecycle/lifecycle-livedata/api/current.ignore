@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+ChangedType: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData, androidx.arch.core.util.Function):
+    Binary breaking change: Method androidx.lifecycle.Transformations.map has changed return type from androidx.lifecycle.LiveData<Y> to androidx.lifecycle.LiveData
+ChangedType: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData, androidx.arch.core.util.Function):
+    Binary breaking change: Method androidx.lifecycle.Transformations.switchMap has changed return type from androidx.lifecycle.LiveData<Y> to androidx.lifecycle.LiveData
+
+
+RemovedFromJava: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y>):
+    Source breaking change: method androidx.lifecycle.Transformations.map(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>):
+    Source breaking change: method androidx.lifecycle.Transformations.switchMap(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y>):
+    Source breaking change: method androidx.lifecycle.Transformations.map(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>):
+    Source breaking change: method androidx.lifecycle.Transformations.switchMap(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Kotlin source

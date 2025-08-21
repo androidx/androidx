@@ -31,7 +31,7 @@ internal class HardwareFoldingFeature(
      */
     private val featureBounds: Bounds,
     internal val type: Type,
-    override val state: FoldingFeature.State
+    override val state: FoldingFeature.State,
 ) : FoldingFeature {
 
     init {

@@ -21,19 +21,20 @@ import androidx.window.core.ExperimentalWindowApi
 
 /** Represents a capability for a [WindowAreaInfo]. */
 @ExperimentalWindowApi
-class WindowAreaCapability internal constructor(val operation: Operation, val status: Status) {
+public class WindowAreaCapability
+internal constructor(public val operation: Operation, public val status: Status) {
     override fun toString(): String {
         return "Operation: $operation: Status: $status"
     }
 
     /** Represents the status of availability for a specific [WindowAreaCapability] */
     @ExperimentalWindowApi
-    class Status private constructor(private val description: String) {
+    public class Status private constructor(private val description: String) {
         override fun toString(): String {
             return description
         }
 
-        companion object {
+        public companion object {
             /**
              * Status indicating that the WindowArea feature status is unknown, e.g. a status has
              * not been received from the extensions implementation yet. Note that this is an
@@ -46,37 +47,38 @@ class WindowAreaCapability internal constructor(val operation: Operation, val st
              * Status indicating that the WindowArea feature is not a supported feature on the
              * device.
              */
-            @JvmField val WINDOW_AREA_STATUS_UNSUPPORTED = Status("UNSUPPORTED")
+            @JvmField public val WINDOW_AREA_STATUS_UNSUPPORTED: Status = Status("UNSUPPORTED")
 
             /**
              * Status indicating that the WindowArea feature is currently not available to be
              * enabled. This could be because a different feature is active, or the current device
              * configuration doesn't allow it.
              */
-            @JvmField val WINDOW_AREA_STATUS_UNAVAILABLE = Status("UNAVAILABLE")
+            @JvmField public val WINDOW_AREA_STATUS_UNAVAILABLE: Status = Status("UNAVAILABLE")
 
             /** Status indicating that the WindowArea feature is available to be enabled. */
-            @JvmField val WINDOW_AREA_STATUS_AVAILABLE = Status("AVAILABLE")
+            @JvmField public val WINDOW_AREA_STATUS_AVAILABLE: Status = Status("AVAILABLE")
 
             /** Status indicating that the WindowArea feature is currently active. */
-            @JvmField val WINDOW_AREA_STATUS_ACTIVE = Status("ACTIVE")
+            @JvmField public val WINDOW_AREA_STATUS_ACTIVE: Status = Status("ACTIVE")
         }
     }
 
     /** Represents an operation that a [WindowAreaInfo] may support. */
     @ExperimentalWindowApi
-    class Operation private constructor(private val description: String) {
+    public class Operation private constructor(private val description: String) {
         override fun toString(): String {
             return description
         }
 
-        companion object {
+        public companion object {
 
             /** Operation that transfers an [Activity] into a [WindowAreaInfo] */
-            @JvmField val OPERATION_TRANSFER_ACTIVITY_TO_AREA = Operation("TRANSFER")
+            @JvmField
+            public val OPERATION_TRANSFER_ACTIVITY_TO_AREA: Operation = Operation("TRANSFER")
 
             /** Operation that presents additional content into a [WindowAreaInfo] */
-            @JvmField val OPERATION_PRESENT_ON_AREA = Operation("PRESENT")
+            @JvmField public val OPERATION_PRESENT_ON_AREA: Operation = Operation("PRESENT")
         }
     }
 

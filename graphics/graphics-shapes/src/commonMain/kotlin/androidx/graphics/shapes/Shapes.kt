@@ -38,7 +38,7 @@ fun RoundedPolygon.Companion.circle(
     @IntRange(from = 3) numVertices: Int = 8,
     radius: Float = 1f,
     centerX: Float = 0f,
-    centerY: Float = 0f
+    centerY: Float = 0f,
 ): RoundedPolygon {
 
     if (numVertices < 3) throw IllegalArgumentException("Circle must have at least three vertices")
@@ -52,7 +52,7 @@ fun RoundedPolygon.Companion.circle(
         rounding = CornerRounding(radius),
         radius = polygonRadius,
         centerX = centerX,
-        centerY = centerY
+        centerY = centerY,
     )
 }
 
@@ -85,7 +85,7 @@ fun RoundedPolygon.Companion.rectangle(
     rounding: CornerRounding = CornerRounding.Unrounded,
     perVertexRounding: List<CornerRounding>? = null,
     centerX: Float = 0f,
-    centerY: Float = 0f
+    centerY: Float = 0f,
 ): RoundedPolygon {
     val left = centerX - width / 2
     val top = centerY - height / 2
@@ -97,7 +97,7 @@ fun RoundedPolygon.Companion.rectangle(
         rounding,
         perVertexRounding,
         centerX,
-        centerY
+        centerY,
     )
 }
 
@@ -139,7 +139,7 @@ fun RoundedPolygon.Companion.star(
     innerRounding: CornerRounding? = null,
     perVertexRounding: List<CornerRounding>? = null,
     centerX: Float = 0f,
-    centerY: Float = 0f
+    centerY: Float = 0f,
 ): RoundedPolygon {
     if (radius <= 0f || innerRadius <= 0f) {
         throw IllegalArgumentException("Star radii must both be greater than 0")
@@ -162,7 +162,7 @@ fun RoundedPolygon.Companion.star(
         rounding,
         pvRounding,
         centerX,
-        centerY
+        centerY,
     )
 }
 
@@ -209,7 +209,7 @@ fun RoundedPolygon.Companion.pill(
             ),
         rounding = CornerRounding(min(wHalf, hHalf), smoothing),
         centerX = centerX,
-        centerY = centerY
+        centerY = centerY,
     )
 }
 
@@ -278,7 +278,7 @@ fun RoundedPolygon.Companion.pillStar(
     @FloatRange(from = 0.0, to = 1.0) vertexSpacing: Float = 0.5f,
     @FloatRange(from = 0.0, to = 1.0) startLocation: Float = 0f,
     centerX: Float = 0f,
-    centerY: Float = 0f
+    centerY: Float = 0f,
 ): RoundedPolygon {
     require(width > 0f && height > 0f) {
         throw IllegalArgumentException("Pill shapes must have positive width and height")
@@ -302,12 +302,12 @@ fun RoundedPolygon.Companion.pillStar(
             vertexSpacing,
             startLocation,
             centerX,
-            centerY
+            centerY,
         ),
         rounding,
         pvRounding,
         centerX,
-        centerY
+        centerY,
     )
 }
 
@@ -319,7 +319,7 @@ private fun pillStarVerticesFromNumVerts(
     vertexSpacing: Float,
     startLocation: Float,
     centerX: Float,
-    centerY: Float
+    centerY: Float,
 ): FloatArray {
     // The general approach here is to get the perimeter of the underlying pill outline,
     // then the t value for each vertex as we walk that perimeter. This tells us where
@@ -414,7 +414,7 @@ private fun pillStarVerticesFromNumVerts(
                 3 ->
                     radialToCartesian(
                         radius = currRadius,
-                        FloatPi / 2 + (tProportion * FloatPi / 2)
+                        FloatPi / 2 + (tProportion * FloatPi / 2),
                     ) + rectBL
                 4 -> Point(-currRadius, vSegHalf - tProportion * vSegLen)
                 5 ->
@@ -424,7 +424,7 @@ private fun pillStarVerticesFromNumVerts(
                 7 ->
                     radialToCartesian(
                         radius = currRadius,
-                        FloatPi * 1.5f + (tProportion * FloatPi / 2)
+                        FloatPi * 1.5f + (tProportion * FloatPi / 2),
                     ) + rectTR
                 // 8
                 else -> Point(currRadius, -vSegHalf + tProportion * vSegHalf)
@@ -442,7 +442,7 @@ private fun starVerticesFromNumVerts(
     radius: Float,
     innerRadius: Float,
     centerX: Float,
-    centerY: Float
+    centerY: Float,
 ): FloatArray {
     val result = FloatArray(numVerticesPerRadius * 4)
     var arrayIndex = 0

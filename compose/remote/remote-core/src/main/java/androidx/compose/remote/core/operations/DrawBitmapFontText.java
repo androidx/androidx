@@ -45,8 +45,8 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
     float mOutX;
     float mOutY;
 
-    public DrawBitmapFontText(int textID, int bitmapFontID, int start, int end, float x, float y) {
-        mTextID = textID;
+    public DrawBitmapFontText(int textId, int bitmapFontID, int start, int end, float x, float y) {
+        mTextID = textId;
         mBitmapFontID = bitmapFontID;
         mStart = start;
         mEnd = end;
@@ -133,7 +133,7 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
      * Writes out the operation to the buffer
      *
      * @param buffer write the command to the buffer
-     * @param textID id of the text
+     * @param textId id of the text
      * @param bitmapFontID id of the bitmap font
      * @param start Start position
      * @param end end position
@@ -142,14 +142,14 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
      */
     public static void apply(
             @NonNull WireBuffer buffer,
-            int textID,
+            int textId,
             int bitmapFontID,
             int start,
             int end,
             float x,
             float y) {
         buffer.start(Operations.DRAW_BITMAP_FONT_TEXT_RUN);
-        buffer.writeInt(textID);
+        buffer.writeInt(textId);
         buffer.writeInt(bitmapFontID);
         buffer.writeInt(start);
         buffer.writeInt(end);
@@ -209,10 +209,12 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
 
         float xPos = mOutX;
         int pos = 0;
+        String prevGlyph = "";
         while (pos < textToPaint.length()) {
             BitmapFontData.Glyph glyph = bitmapFont.lookupGlyph(textToPaint, pos);
             if (glyph == null) {
                 pos++;
+                prevGlyph = "";
                 continue;
             }
 
@@ -220,10 +222,16 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
             if (glyph.mBitmapId == -1) {
                 // Space is represented by a glyph of -1.
                 xPos += glyph.mMarginLeft + glyph.mMarginRight;
+                prevGlyph = glyph.mChars;
                 continue;
             }
 
             xPos += glyph.mMarginLeft;
+            Short kerningAdjustment = bitmapFont.mKerningTable.get(prevGlyph + glyph.mChars);
+            if (kerningAdjustment != null) {
+                xPos += kerningAdjustment;
+            }
+
             float xPos2 = xPos + glyph.mBitmapWidth;
             context.drawBitmap(
                     glyph.mBitmapId,
@@ -232,6 +240,7 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
                     xPos2,
                     mOutY + glyph.mBitmapHeight + glyph.mMarginTop);
             xPos = xPos2 + glyph.mMarginRight;
+            prevGlyph = glyph.mChars;
         }
     }
 

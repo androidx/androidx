@@ -99,7 +99,7 @@ fun interface MultiContentMeasurePolicy {
      * layout can be painted correctly.
      *
      * It is identical to [MeasurePolicy.minIntrinsicWidth], but provides you with a list of lists
-     * of [Measurable]s which allows to threat children put into different content lambdas
+     * of [Measurable]s which allows to treat children put into different content lambdas
      * differently. Such list has the same size as the list of contents passed into [Layout] and
      * contains the list of [Measurable]s of the corresponding content lambda in the same order.
      */

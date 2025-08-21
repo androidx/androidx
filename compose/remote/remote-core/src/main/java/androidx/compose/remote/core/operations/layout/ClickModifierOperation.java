@@ -75,7 +75,7 @@ public class ClickModifierOperation extends PaintOperation
     }
 
     @Override
-    public CoreSemantics.Mode getMode() {
+    public CoreSemantics.@NonNull Mode getMode() {
         return CoreSemantics.Mode.MERGE;
     }
 

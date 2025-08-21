@@ -28,12 +28,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.R
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.graphics.Insets as AndroidXInsets
+import androidx.core.view.DisplayCutoutCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat
@@ -60,7 +63,6 @@ internal class AndroidWindowInsets(internal val type: Int, private val name: Str
      * the Window.
      */
     var isVisible by mutableStateOf(true)
-        private set
 
     override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int {
         return insets.left
@@ -112,9 +114,7 @@ internal class AndroidWindowInsets(internal val type: Int, private val name: Str
  */
 @OptIn(ExperimentalLayoutApi::class)
 var AbstractComposeView.consumeWindowInsets: Boolean
-    get() =
-        getTag(R.id.consume_window_insets_tag) as? Boolean
-            ?: !ComposeFoundationLayoutFlags.isWindowInsetsDefaultPassThroughEnabled
+    get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
         setTag(R.id.consume_window_insets_tag, value)
     }
@@ -132,9 +132,7 @@ var AbstractComposeView.consumeWindowInsets: Boolean
 )
 @OptIn(ExperimentalLayoutApi::class)
 var ComposeView.consumeWindowInsets: Boolean
-    get() =
-        getTag(R.id.consume_window_insets_tag) as? Boolean
-            ?: !ComposeFoundationLayoutFlags.isWindowInsetsDefaultPassThroughEnabled
+    get() = getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
     set(value) {
         setTag(R.id.consume_window_insets_tag, value)
     }
@@ -197,6 +195,14 @@ actual val WindowInsets.Companion.tappableElement: WindowInsets
 /** The insets for the curved areas in a waterfall display. */
 actual val WindowInsets.Companion.waterfall: WindowInsets
     @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().waterfall
+
+/**
+ * The path for the cutout, if any
+ *
+ * See [DisplayCutoutCompat.getCutoutPath]
+ */
+actual val WindowInsets.Companion.cutoutPath: Path?
+    @Composable @NonRestartableComposable get() = WindowInsetsHolder.current().cutoutPath
 
 /**
  * The insets that include areas where content may be covered by other drawn content. This includes
@@ -366,6 +372,9 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
         systemInsets(insets, WindowInsetsCompat.Type.tappableElement(), "tappableElement")
     val waterfall =
         ValueInsets(insets?.displayCutout?.waterfallInsets ?: AndroidXInsets.NONE, "waterfall")
+    var cutoutPath by mutableStateOf(insets?.displayCutout?.cutoutPath?.asComposePath())
+        private set
+
     val safeDrawing = systemBars.union(ime).union(displayCutout)
     val safeGestures: WindowInsets =
         tappableElement.union(mandatorySystemGestures).union(systemGestures).union(waterfall)
@@ -401,10 +410,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
             WindowInsetsCompat.Type.tappableElement(),
             "tappableElementIgnoringVisibility",
         )
-    val imeAnimationTarget =
-        valueInsetsIgnoringVisibility(insets, WindowInsetsCompat.Type.ime(), "imeAnimationTarget")
-    val imeAnimationSource =
-        valueInsetsIgnoringVisibility(insets, WindowInsetsCompat.Type.ime(), "imeAnimationSource")
+    val imeAnimationTarget = ValueInsets(AndroidXInsets.NONE, "imeAnimationTarget")
+    val imeAnimationSource = ValueInsets(AndroidXInsets.NONE, "imeAnimationSource")
 
     /**
      * `true` unless the `AbstractComposeView` [AbstractComposeView.consumeWindowInsets] is set to
@@ -412,8 +419,7 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
      */
     @OptIn(ExperimentalLayoutApi::class)
     val consumes =
-        (view.parent as? View)?.getTag(R.id.consume_window_insets_tag) as? Boolean
-            ?: !ComposeFoundationLayoutFlags.isWindowInsetsDefaultPassThroughEnabled
+        (view.parent as? View)?.getTag(R.id.consume_window_insets_tag) as? Boolean ?: false
 
     /**
      * The number of accesses to [WindowInsetsHolder]. When this reaches zero, the listeners are
@@ -422,6 +428,27 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
     private var accessCount = 0
 
     private val insetsListener = InsetsListener(this)
+
+    init {
+        val rootWindowInsets = ViewCompat.getRootWindowInsets(view)
+        if (rootWindowInsets != null) {
+            // set the initial state of visibility
+            captionBar.isVisible = rootWindowInsets.isVisible(WindowInsetsCompat.Type.captionBar())
+            displayCutout.isVisible =
+                rootWindowInsets.isVisible(WindowInsetsCompat.Type.displayCutout())
+            ime.isVisible = rootWindowInsets.isVisible(WindowInsetsCompat.Type.ime())
+            mandatorySystemGestures.isVisible =
+                rootWindowInsets.isVisible(WindowInsetsCompat.Type.mandatorySystemGestures())
+            navigationBars.isVisible =
+                rootWindowInsets.isVisible(WindowInsetsCompat.Type.navigationBars())
+            statusBars.isVisible = rootWindowInsets.isVisible(WindowInsetsCompat.Type.statusBars())
+            systemBars.isVisible = rootWindowInsets.isVisible(WindowInsetsCompat.Type.systemBars())
+            systemGestures.isVisible =
+                rootWindowInsets.isVisible(WindowInsetsCompat.Type.systemGestures())
+            tappableElement.isVisible =
+                rootWindowInsets.isVisible(WindowInsetsCompat.Type.tappableElement())
+        }
+    }
 
     /**
      * A usage of [WindowInsetsHolder.current] was added. We must track so that when the first one
@@ -502,10 +529,8 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
                     .toInsetsValues()
 
             val cutout = insets.displayCutout
-            if (cutout != null) {
-                val waterfallInsets = cutout.waterfallInsets
-                waterfall.value = waterfallInsets.toInsetsValues()
-            }
+            waterfall.value = (cutout?.waterfallInsets ?: AndroidXInsets.NONE).toInsetsValues()
+            cutoutPath = cutout?.cutoutPath?.asComposePath()
         }
         Snapshot.sendApplyNotifications()
     }
@@ -561,7 +586,7 @@ internal class WindowInsetsHolder private constructor(insets: WindowInsetsCompat
         /**
          * Returns the [WindowInsetsHolder] associated with [view] or creates one and associates it.
          */
-        private fun getOrCreateFor(view: View): WindowInsetsHolder {
+        fun getOrCreateFor(view: View): WindowInsetsHolder {
             return synchronized(viewMap) {
                 viewMap.getOrPut(view) {
                     val insets = null

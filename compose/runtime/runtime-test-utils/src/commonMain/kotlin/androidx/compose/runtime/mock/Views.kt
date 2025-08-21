@@ -37,9 +37,8 @@ fun Linear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
         update = {},
-    ) {
-        content()
-    }
+        content = content,
+    )
 }
 
 @Composable
@@ -84,16 +83,17 @@ fun Linear(
             }
         },
         update = { set(onSet) { onSet() } },
-    ) {
-        content()
-    }
+        content = content,
+    )
 }
 
 @Composable
 fun NonReusableLinear(content: @Composable () -> Unit) {
-    ComposeNode<View, ViewApplier>(factory = { View().also { it.name = "linear" } }, update = {}) {
-        content()
-    }
+    ComposeNode<View, ViewApplier>(
+        factory = { View().also { it.name = "linear" } },
+        update = {},
+        content = content,
+    )
 }
 
 @Composable
@@ -127,7 +127,7 @@ fun SelectBox(selected: Boolean, content: @Composable () -> Unit) {
         ReusableComposeNode<View, ViewApplier>(
             factory = { View().also { it.name = "box" } },
             update = {},
-            content = { content() },
+            content = content,
         )
     } else {
         content()

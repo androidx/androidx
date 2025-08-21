@@ -49,9 +49,8 @@ public inline fun <reified T> SnapshotStateListSerializer(): SnapshotStateListSe
  * @param T The type of elements stored in the [SnapshotStateList].
  * @param elementSerializer The [KSerializer] used to serialize and deserialize individual elements.
  */
-public class SnapshotStateListSerializer<T>(
-    private val elementSerializer: KSerializer<T>,
-) : KSerializer<SnapshotStateList<T>> {
+public class SnapshotStateListSerializer<T>(private val elementSerializer: KSerializer<T>) :
+    KSerializer<SnapshotStateList<T>> {
 
     private val base = ListSerializer(elementSerializer)
 

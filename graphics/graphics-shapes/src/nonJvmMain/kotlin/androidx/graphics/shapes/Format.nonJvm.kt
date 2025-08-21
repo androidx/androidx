@@ -17,5 +17,8 @@
 package androidx.graphics.shapes
 
 internal actual fun Float.toStringWithLessPrecision(): String {
+    // TODO: Properly implement formatting
+    //  String.format is not available outside of JVM yet
+    //  https://youtrack.jetbrains.com/issue/KT-25506
     return this.toString()
 }

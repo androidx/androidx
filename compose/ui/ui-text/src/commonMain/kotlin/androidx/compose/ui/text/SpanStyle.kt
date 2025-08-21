@@ -799,7 +799,8 @@ internal fun resolveSpanStyleDefaults(style: SpanStyle) =
             } else {
                 style.letterSpacing
             },
-        baselineShift = style.baselineShift ?: BaselineShift.None,
+        baselineShift =
+            (style.baselineShift ?: BaselineShift.None).takeOrElse { BaselineShift.None },
         textGeometricTransform = style.textGeometricTransform ?: TextGeometricTransform.None,
         localeList = style.localeList ?: LocaleList.current,
         background = style.background.takeOrElse { DefaultBackgroundColor },

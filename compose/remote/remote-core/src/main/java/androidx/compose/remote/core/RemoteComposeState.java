@@ -39,6 +39,9 @@ public class RemoteComposeState implements CollectionsAccess {
     //    private static final int MAX_FLOATS = 500;
     private static int sMaxColors = 200;
 
+    /** Offset added to bitmap to cache bitmap textures */
+    public static final int BITMAP_TEXTURE_ID_OFFSET = 2000;
+
     private static final int MAX_DATA = 1000;
     private final IntMap<Object> mIntDataMap = new IntMap<>();
     private final IntMap<Boolean> mIntWrittenMap = new IntMap<>();
@@ -101,7 +104,7 @@ public class RemoteComposeState implements CollectionsAccess {
      * id.
      */
     public int cacheData(@NonNull Object item) {
-        int id = getNextAvailableId();
+        int id = createNextAvailableId();
         mDataIntMap.put(item, id);
         mIntDataMap.put(id, item);
         return id;
@@ -112,7 +115,7 @@ public class RemoteComposeState implements CollectionsAccess {
      * id.
      */
     public int cacheData(@NonNull Object item, int type) {
-        int id = getNextAvailableId(type);
+        int id = createNextAvailableId(type);
         mDataIntMap.put(item, id);
         mIntDataMap.put(id, item);
         return id;
@@ -198,7 +201,7 @@ public class RemoteComposeState implements CollectionsAccess {
 
     /** Insert an item in the cache */
     public int cacheFloat(float item) {
-        int id = getNextAvailableId();
+        int id = createNextAvailableId();
         mFloatMap.put(id, item);
         mIntegerMap.put(id, (int) item);
         return id;
@@ -244,7 +247,7 @@ public class RemoteComposeState implements CollectionsAccess {
      * @return the id of the integer
      */
     public int cacheInteger(int item) {
-        int id = getNextAvailableId();
+        int id = createNextAvailableId();
         mIntegerMap.put(id, item);
         mFloatMap.put(id, item);
         return id;
@@ -415,7 +418,7 @@ public class RemoteComposeState implements CollectionsAccess {
      *
      * @return next available id
      */
-    public int getNextAvailableId() {
+    public int createNextAvailableId() {
         return mNextId++;
     }
 
@@ -425,7 +428,7 @@ public class RemoteComposeState implements CollectionsAccess {
      *
      * @return return a unique id in the set
      */
-    public int getNextAvailableId(int type) {
+    public int createNextAvailableId(int type) {
         if (0 == type) {
             return mNextId++;
         }
@@ -465,6 +468,16 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     /**
+     * get Commands that listen to variables.
+     *
+     * @param id id of variable to listen to
+     * @return Commands that listen to variable
+     */
+    public @Nullable ArrayList<VariableSupport> getListeners(int id) {
+        return mVarListeners.get(id);
+    }
+
+    /**
      * Is any command listening to this variable
      *
      * @param id The Variable id
@@ -474,25 +487,47 @@ public class RemoteComposeState implements CollectionsAccess {
         return mVarListeners.get(id) != null;
     }
 
+    float mLastRepaint = Float.NaN;
+
     /**
      * List of Commands that need to be updated
      *
      * @param context The context
+     * @param currentTime The current time
      * @return The number of ops to update
      */
     public int getOpsToUpdate(@NonNull RemoteContext context, long currentTime) {
         if (mVarListeners.get(RemoteContext.ID_CONTINUOUS_SEC) != null) {
             return 1;
         }
+        int repaintMs = Integer.MAX_VALUE;
+        if (!Float.isNaN(mRepaintSeconds)) {
+            repaintMs = (int) (mRepaintSeconds * 1000);
+            mLastRepaint = mRepaintSeconds;
+        }
         if (mVarListeners.get(RemoteContext.ID_TIME_IN_SEC) != null) {
             int sub = (int) (currentTime % 1000);
-            return 1000 - sub;
+            return Math.min(repaintMs, 2 + 1000 - sub);
         }
         if (mVarListeners.get(RemoteContext.ID_TIME_IN_MIN) != null) {
             int sub = (int) (currentTime % 60000);
-            return 1000 * 60 - sub;
+            return Math.min(repaintMs, 2 + 1000 * 60 - sub);
         }
+
         return -1;
+    }
+
+    float mRepaintSeconds = Float.NaN;
+
+    /**
+     * Set the amount of time to repaint the document
+     *
+     * @param seconds the delay in seconds to the next render loop pass
+     */
+    public void wakeIn(float seconds) {
+        if (Float.isNaN(seconds) || Float.isNaN(mLastRepaint) || mRepaintSeconds > seconds) {
+            mRepaintSeconds = seconds;
+        }
     }
 
     /**
@@ -542,8 +577,8 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     @Override
-    public int getId(int id, int index) {
-        ArrayAccess array = mCollectionMap.get(id & 0xFFFFF);
+    public int getId(int listId, int index) {
+        ArrayAccess array = mCollectionMap.get(listId & 0xFFFFF);
         if (array != null) {
             return array.getId(index);
         }

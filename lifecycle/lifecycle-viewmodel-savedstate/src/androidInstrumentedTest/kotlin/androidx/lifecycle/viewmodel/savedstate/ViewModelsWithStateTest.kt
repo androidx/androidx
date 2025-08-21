@@ -181,7 +181,7 @@ class ViewModelsWithStateTest(private val mode: Mode) {
                         override fun <T : ViewModel> create(
                             key: String,
                             modelClass: Class<T>,
-                            handle: SavedStateHandle
+                            handle: SavedStateHandle,
                         ): T {
                             return modelClass.cast(VM(handle))!!
                         }
@@ -192,7 +192,7 @@ class ViewModelsWithStateTest(private val mode: Mode) {
                         override fun <T : ViewModel> create(
                             key: String,
                             modelClass: Class<T>,
-                            handle: SavedStateHandle
+                            handle: SavedStateHandle,
                         ): T {
                             return modelClass.cast(VM(handle))!!
                         }
@@ -215,7 +215,7 @@ internal fun createIntent(savedState: Bundle): Intent {
     val intent = Intent()
     intent.setClassName(
         "androidx.lifecycle.viewmodel.savedstate.test",
-        FakingSavedStateActivity::class.java.canonicalName!!
+        FakingSavedStateActivity::class.java.canonicalName!!,
     )
     return intent.putExtra(FAKE_SAVED_STATE, savedState)
 }
@@ -257,7 +257,7 @@ class FragmentWithSavedStateHandleSupport : Fragment() {
 
 class DecorateWithCreationExtras(
     val ssrOwner: SavedStateRegistryOwner,
-    val vmOwner: ViewModelStoreOwner
+    val vmOwner: ViewModelStoreOwner,
 ) :
     ViewModelStoreOwner by vmOwner,
     SavedStateRegistryOwner by ssrOwner,

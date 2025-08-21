@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.12.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha02)" variant="all" version="8.12.0-alpha02">
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/runtime/internal/FloatingPointEquality.android.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 23"
+        errorLine1="    if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/runtime/internal/FloatingPointEquality.android.kt"/>
+    </issue>
 
     <issue
         id="NullAnnotationGroup"
@@ -11,39 +29,48 @@
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="                Thread.sleep(0)"
-        errorLine2="                       ~~~~~">
+        id="PrimitiveInCollection"
+        message="return type ImmutableList&lt;Character> of toImmutableList: replace with IntList"
+        errorLine1="internal fun CharSequence.toImmutableList(): ImmutableList&lt;Char> = toPersistentList()"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTestsJvm.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
     </issue>
 
     <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    val content = movableContentOf {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type PersistentList&lt;Character> of toPersistentList: replace with IntList"
+        errorLine1="internal fun CharSequence.toPersistentList(): PersistentList&lt;Char> ="
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/MovableContentTests.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
     </issue>
 
     <issue
-        id="RememberReturnType"
-        message="`remember` calls must not return `Unit`"
-        errorLine1="            remember {"
-        errorLine2="            ~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toImmutableSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toImmutableSet(): PersistentSet&lt;Char> = toPersistentSet()"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
     </issue>
 
     <issue
-        id="RememberReturnType"
-        message="`remember` calls must not return `Unit`"
-        errorLine1="            remember {"
-        errorLine2="            ~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toPersistentSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toPersistentSet(): PersistentSet&lt;Char> ="
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type PersistentSet&lt;Character> of toPersistentHashSet: replace with IntSet"
+        errorLine1="internal fun CharSequence.toPersistentHashSet(): PersistentSet&lt;Char> ="
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
     </issue>
 
 </issues>

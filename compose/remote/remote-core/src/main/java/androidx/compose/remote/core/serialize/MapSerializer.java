@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.serialize;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -29,7 +30,7 @@ public interface MapSerializer {
      *
      * @param type The name of the type
      */
-    MapSerializer addType(String type);
+    @NonNull MapSerializer addType(@NonNull String type);
 
     /**
      * Add a float expression
@@ -37,7 +38,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The float src
      */
-    MapSerializer addFloatExpressionSrc(String key, float[] value);
+    @NonNull MapSerializer addFloatExpressionSrc(@NonNull String key, float @NonNull [] value);
 
     /**
      * Add an int expression
@@ -46,7 +47,8 @@ public interface MapSerializer {
      * @param value The int src
      * @param mask For determining ID from int
      */
-    MapSerializer addIntExpressionSrc(String key, int[] value, int mask);
+    @NonNull MapSerializer addIntExpressionSrc(
+            @NonNull String key, int @NonNull [] value, int mask);
 
     /**
      * Add a path
@@ -54,14 +56,14 @@ public interface MapSerializer {
      * @param key The key
      * @param path The path
      */
-    MapSerializer addPath(String key, float[] path);
+    @NonNull MapSerializer addPath(@NonNull String key, float @NonNull [] path);
 
     /**
      * Add metadata to this map for filtering by the data format generator.
      *
      * @param value A set of tags to add
      */
-    MapSerializer addTags(SerializeTags... value);
+    @NonNull MapSerializer addTags(SerializeTags @NonNull ... value);
 
     /**
      * Add a list entry to this map. The List values can be any primitive, List, Map, or
@@ -70,7 +72,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The list
      */
-    <T> MapSerializer add(String key, @Nullable List<T> value);
+    <T> @NonNull MapSerializer add(@NonNull String key, @Nullable List<T> value);
 
     /**
      * Add a map entry to this map. The map values can be any primitive, List, Map, or Serializable
@@ -78,7 +80,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The list
      */
-    <T> MapSerializer add(String key, @Nullable Map<String, T> value);
+    <T> @NonNull MapSerializer add(@NonNull String key, @Nullable Map<String, T> value);
 
     /**
      * Adds any Serializable type to this map
@@ -86,7 +88,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Serializable
      */
-    MapSerializer add(String key, @Nullable Serializable value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Serializable value);
 
     /**
      * Adds a String entry
@@ -94,7 +96,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The String
      */
-    MapSerializer add(String key, @Nullable String value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable String value);
 
     /**
      * Adds a color entry
@@ -105,7 +107,7 @@ public interface MapSerializer {
      * @param g Green value [0, 1]
      * @param b Blue value [0, 1]
      */
-    MapSerializer add(String key, float a, float r, float g, float b);
+    @NonNull MapSerializer add(@NonNull String key, float a, float r, float g, float b);
 
     /**
      * Adds an ID and Value pair. This can be either a value or variable.
@@ -114,7 +116,7 @@ public interface MapSerializer {
      * @param id Maybe float NaN ID
      * @param value Maybe value
      */
-    MapSerializer add(String key, float id, float value);
+    @NonNull MapSerializer add(@NonNull String key, float id, float value);
 
     /**
      * Adds a Byte entry
@@ -122,7 +124,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Byte
      */
-    MapSerializer add(String key, @Nullable Byte value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Byte value);
 
     /**
      * Adds a Short entry
@@ -130,7 +132,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Short
      */
-    MapSerializer add(String key, @Nullable Short value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Short value);
 
     /**
      * Adds an Integer entry
@@ -138,7 +140,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Integer
      */
-    MapSerializer add(String key, @Nullable Integer value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Integer value);
 
     /**
      * Adds a Long entry
@@ -146,7 +148,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Long
      */
-    MapSerializer add(String key, @Nullable Long value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Long value);
 
     /**
      * Adds a Float entry
@@ -154,7 +156,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Float
      */
-    MapSerializer add(String key, @Nullable Float value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Float value);
 
     /**
      * Adds a Double entry
@@ -162,7 +164,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Double
      */
-    MapSerializer add(String key, @Nullable Double value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Double value);
 
     /**
      * Adds a Boolean entry
@@ -170,7 +172,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Boolean
      */
-    MapSerializer add(String key, @Nullable Boolean value);
+    @NonNull MapSerializer add(@NonNull String key, @Nullable Boolean value);
 
     /**
      * Adds a Enum entry
@@ -178,7 +180,7 @@ public interface MapSerializer {
      * @param key The key
      * @param value The Enum
      */
-    <T extends Enum<T>> MapSerializer add(String key, @Nullable Enum<T> value);
+    <T extends Enum<T>> @NonNull MapSerializer add(@NonNull String key, @Nullable Enum<T> value);
 
     /**
      * Similar to Map.of, but create a LinkedHashMap preserving insertion order for predictable
@@ -187,7 +189,7 @@ public interface MapSerializer {
      * @param keysAndValues a even number of items, repeating String key and Object value.
      * @return A LinkedHashMap.
      */
-    static LinkedHashMap<String, Object> orderedOf(Object... keysAndValues) {
+    static @NonNull LinkedHashMap<String, Object> orderedOf(Object @NonNull ... keysAndValues) {
         final LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (int i = 0; i < keysAndValues.length; i += 2) {
             map.put((String) keysAndValues[i], keysAndValues[i + 1]);

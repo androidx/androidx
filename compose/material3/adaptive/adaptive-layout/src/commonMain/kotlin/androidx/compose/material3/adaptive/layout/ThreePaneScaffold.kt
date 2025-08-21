@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
-import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
@@ -762,7 +761,7 @@ private class ThreePaneContentMeasurePolicy(
         isLookingAhead: Boolean,
     ) {
         val reflowedPane = if (reflowedPanes.isEmpty()) null else reflowedPanes[0]
-        if ((reflowedPane?.value as? PaneAdaptedValue.Reflowed)?.targetPane == expandedPane.role) {
+        if ((reflowedPane?.value as? PaneAdaptedValue.Reflowed)?.reflowUnder == expandedPane.role) {
             // Measure the reflowed pane and adjust the expanded pane's height
             // TODO(conradchen): Avoid hinges
             val availableHeight = partitionBounds.height - horizontalSpacerSize
@@ -967,8 +966,8 @@ private class PaneMeasurable(
     var measuringWidth =
         if (data.preferredWidth.isSpecified) {
             with(density) { data.preferredWidth.roundToPx() }
-        } else if (data.preferredWidthInProportion != Int.MIN_VALUE) {
-            (scaffoldSize.width * data.preferredWidthInProportion / 100)
+        } else if (data.preferredWidthInProportion.isFinite()) {
+            (scaffoldSize.width * data.preferredWidthInProportion).toInt()
         } else {
             defaultPreferredWidth
         }
@@ -976,8 +975,8 @@ private class PaneMeasurable(
     var measuringHeight =
         if (data.preferredHeight.isSpecified) {
             with(density) { data.preferredHeight.roundToPx() }
-        } else if (data.preferredHeightInProportion != Int.MIN_VALUE) {
-            (scaffoldSize.width * data.preferredHeightInProportion / 100)
+        } else if (data.preferredHeightInProportion.isFinite()) {
+            (scaffoldSize.width * data.preferredHeightInProportion).toInt()
         } else {
             defaultPreferredHeight
         }

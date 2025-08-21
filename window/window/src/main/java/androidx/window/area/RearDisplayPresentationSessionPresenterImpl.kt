@@ -28,7 +28,7 @@ import androidx.window.extensions.area.WindowAreaComponent
 internal class RearDisplayPresentationSessionPresenterImpl(
     private val windowAreaComponent: WindowAreaComponent,
     private val presentation: ExtensionWindowAreaPresentation,
-    vendorApiLevel: Int
+    vendorApiLevel: Int,
 ) : WindowAreaSessionPresenter {
 
     override val context: Context = presentation.presentationContext

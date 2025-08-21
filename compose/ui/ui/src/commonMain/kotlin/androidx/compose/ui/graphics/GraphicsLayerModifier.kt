@@ -18,6 +18,9 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -27,10 +30,13 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.requireCoordinator
+import androidx.compose.ui.node.updateLayerBlock
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.toSize
 
 /**
  * A [Modifier.Element] that makes content draw into a draw layer. The draw layer can be invalidated
@@ -605,6 +611,9 @@ private data class GraphicsLayerElement(
  * [androidx.compose.runtime.State] or an animated value as reading a state inside [block] will only
  * cause the layer properties update without triggering recomposition and relayout.
  *
+ * NOTE: [block] can be invoked multiple times, which is why it's important for performance to
+ * minimize work done inside of it.
+ *
  * @sample androidx.compose.ui.samples.AnimateFadeIn
  * @param block block on [GraphicsLayerScope] where you define the layer properties.
  */
@@ -693,6 +702,8 @@ private class BlockGraphicsLayerElement(val block: GraphicsLayerScope.() -> Unit
     }
 }
 
+private var reusableGraphicsLayerScope: ReusableGraphicsLayerScope? = null
+
 internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() -> Unit) :
     LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
 
@@ -705,11 +716,7 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
 
     override val isImportantForBounds = false
 
-    fun invalidateLayerBlock() {
-        requireCoordinator(Nodes.Layout)
-            .wrapped
-            ?.updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
-    }
+    fun invalidateLayerBlock() = updateLayerBlock(layerBlock)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -724,7 +731,53 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
     override fun toString(): String = "BlockGraphicsLayerModifier(" + "block=$layerBlock)"
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        // TODO(b/407772600): add logic for setting the shape property in a follow up
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
+
+        val coordinator = requireCoordinator(Nodes.Layout)
+        val shape: Shape
+        val clip: Boolean
+        if (!coordinator.wasLayerBlockInvoked) {
+            // If this is the first time semantics is invalidated, we read the properties
+            // directly from the layer block, as the layout phase has not happened yet.
+            if (reusableGraphicsLayerScope == null) {
+                reusableGraphicsLayerScope = ReusableGraphicsLayerScope()
+            } else {
+                reusableGraphicsLayerScope!!.reset()
+            }
+            val scope = reusableGraphicsLayerScope!!
+
+            scope.graphicsDensity = coordinator.layoutNode.density
+            scope.size = coordinator.size.toSize()
+
+            // The layer block is invoked without read observation as a performance optimization,
+            // since reads are already observed inside of NodeCoordinator and semantics invalidation
+            // is triggered if required.
+            Snapshot.withoutReadObservation {
+                // Currently, the layerBlock is invoked an extra time here to access the shape and
+                // clip properties, as the first semantics invalidation happens before layout. If in
+                // the future semantics invalidation is changed to happen after layout, this
+                // invocation can be removed and we can always read the properties from the
+                // coordinator.
+                layerBlock.invoke(scope)
+            }
+
+            shape = scope.shape
+            clip = scope.clip
+        } else {
+            // If the properties are already available in the coordinator, so we don't need to
+            // invoke the layer block and instead read them from the coordinator.
+            shape = coordinator.lastShape
+            clip = coordinator.lastClip
+        }
+
+        if (!clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may be completely
+            // unrelated to the shape of the UI element.
+            return
+        }
+
+        this.shape = shape
     }
 }
 
@@ -781,11 +834,7 @@ private class SimpleGraphicsLayerModifier(
         colorFilter = this@SimpleGraphicsLayerModifier.colorFilter
     }
 
-    fun invalidateLayerBlock() {
-        requireCoordinator(Nodes.Layout)
-            .wrapped
-            ?.updateLayerBlock(this.layerBlock, forceUpdateLayerParameters = true)
-    }
+    fun invalidateLayerBlock() = updateLayerBlock(layerBlock)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -824,6 +873,15 @@ private class SimpleGraphicsLayerModifier(
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        // TODO(b/407772600): add logic for setting the shape property in a follow up
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (!ComposeUiFlags.isGraphicsLayerShapeSemanticsEnabled) return
+
+        if (!this@SimpleGraphicsLayerModifier.clip) {
+            // We only set the shape if clip == true, as otherwise the modifier may just be drawing
+            // a shape without it actually representing the boundary of the UI element.
+            return
+        }
+
+        this.shape = this@SimpleGraphicsLayerModifier.shape
     }
 }

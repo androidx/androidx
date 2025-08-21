@@ -19,6 +19,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -70,6 +71,10 @@ class WindowInsetsDeviceTest {
 
     @After
     fun teardown() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            show(WindowInsetsCompat.Type.navigationBars())
+            show(WindowInsetsCompat.Type.statusBars())
+        }
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activity = rule.activity
         while (!activity.isDestroyed) {
@@ -256,8 +261,7 @@ class WindowInsetsDeviceTest {
 
         rule.waitForIdle()
 
-        assertThat(defaultConsume)
-            .isEqualTo(!ComposeFoundationLayoutFlags.isWindowInsetsDefaultPassThroughEnabled)
+        assertThat(defaultConsume).isFalse()
 
         // Loop until the value changes.
         rule.waitUntil(timeoutMillis = 3000) {
@@ -269,13 +273,7 @@ class WindowInsetsDeviceTest {
             }
             rule.runOnIdle { imeInset1 > 0 }
         }
-        rule.runOnIdle {
-            if (ComposeFoundationLayoutFlags.isWindowInsetsDefaultPassThroughEnabled) {
-                assertThat(imeInset2).isEqualTo(imeInset1)
-            } else {
-                assertThat(imeInset2).isEqualTo(0)
-            }
-        }
+        rule.runOnIdle { assertThat(imeInset2).isEqualTo(imeInset1) }
     }
 
     @Test
@@ -460,6 +458,89 @@ class WindowInsetsDeviceTest {
 
         rule.waitForIdle()
         assertTrue(leftInset != 0 || topInset != 0 || rightInset != 0 || bottomInset != 0)
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun startVisibilityNavigationBarsNotVisible() {
+        val insetsType = WindowInsetsCompat.Type.navigationBars()
+        hide(insetsType)
+        val isVisible = mutableListOf<Boolean>()
+        rule.setContent { isVisible += WindowInsets.areNavigationBarsVisible }
+        rule.runOnIdle { assertThat(isVisible.first()).isFalse() }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun startVisibilityNavigationBarsVisible() {
+        val insetsType = WindowInsetsCompat.Type.navigationBars()
+        show(insetsType)
+        val isVisible = mutableListOf<Boolean>()
+        rule.setContent { isVisible += WindowInsets.areNavigationBarsVisible }
+        rule.runOnIdle { assertThat(isVisible.first()).isTrue() }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun startVisibilityStatusBarsNotVisible() {
+        val insetsType = WindowInsetsCompat.Type.statusBars()
+        hide(insetsType)
+        val isVisible = mutableListOf<Boolean>()
+        rule.setContent { isVisible += WindowInsets.areStatusBarsVisible }
+        rule.runOnIdle { assertThat(isVisible.first()).isFalse() }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun startVisibilityStatusBarsVisible() {
+        val insetsType = WindowInsetsCompat.Type.statusBars()
+        show(insetsType)
+        val isVisible = mutableListOf<Boolean>()
+        rule.setContent { isVisible += WindowInsets.areStatusBarsVisible }
+        rule.runOnIdle { assertThat(isVisible.first()).isTrue() }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun startVisibilityImeNotVisible() {
+        val insetsType = WindowInsetsCompat.Type.ime()
+        hide(insetsType)
+        val isVisible = mutableListOf<Boolean>()
+        rule.setContent { isVisible += WindowInsets.isImeVisible }
+        rule.runOnIdle { assertThat(isVisible.first()).isFalse() }
+    }
+
+    private fun hide(insetsType: Int) {
+        rule.runOnUiThread {
+            val window = rule.activity.window
+            WindowCompat.getInsetsController(window, window.decorView).hide(insetsType)
+        }
+        // There could be an animation, so wait for the insets to disappear
+        rule.waitUntil {
+            rule.runOnIdle {
+                val insets = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+                insets?.isVisible(insetsType) == false
+            }
+        }
+    }
+
+    private fun show(insetsType: Int) {
+        rule.runOnUiThread {
+            val window = rule.activity.window
+            WindowCompat.getInsetsController(window, window.decorView).show(insetsType)
+        }
+        // There could be an animation, so wait for the insets to appear
+        rule.waitUntil {
+            rule.runOnIdle {
+                val insets = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+                insets?.isVisible(insetsType) == true
+            }
+        }
     }
 
     class StatusBarsShowListener : OnApplyWindowInsetsListener {

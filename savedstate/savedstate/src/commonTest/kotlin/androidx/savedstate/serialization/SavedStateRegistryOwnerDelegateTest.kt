@@ -66,6 +66,64 @@ internal class SavedStateRegistryOwnerDelegateTest : RobolectricTest() {
     }
 
     @Test
+    fun saved_nullable_restoreNull() {
+        val owner =
+            FakeSavedStateRegistryOwner().apply {
+                savedStateRegistryController.performAttach()
+                savedStateRegistryController.performRestore(savedState = null)
+                lifecycleRegistry.currentState = State.CREATED
+            }
+
+        var property: String? by owner.saved { "initialValue" }
+        assertThat(property).isEqualTo("initialValue")
+        property = null
+        assertThat(property).isNull()
+
+        val actualState = savedState()
+        owner.savedStateRegistryController.performSave(actualState)
+
+        // Simulate configuration change
+        val newOwner =
+            FakeSavedStateRegistryOwner().apply {
+                savedStateRegistryController.performAttach()
+                savedStateRegistryController.performRestore(savedState = actualState)
+                lifecycleRegistry.currentState = State.CREATED
+            }
+        val newProperty: String? by
+            newOwner.saved(DEFAULT_KEY_PROPERTY) { error("Unexpected initializer call") }
+        assertThat(newProperty).isNull()
+    }
+
+    @Test
+    fun saved_nullable_restoreNullable() {
+        val owner =
+            FakeSavedStateRegistryOwner().apply {
+                savedStateRegistryController.performAttach()
+                savedStateRegistryController.performRestore(savedState = null)
+                lifecycleRegistry.currentState = State.CREATED
+            }
+
+        var property: String? by owner.saved { null }
+        assertThat(property).isNull()
+        property = "initialValue"
+        assertThat(property).isEqualTo("initialValue")
+
+        val actualState = savedState()
+        owner.savedStateRegistryController.performSave(actualState)
+
+        // Simulate configuration change
+        val newOwner =
+            FakeSavedStateRegistryOwner().apply {
+                savedStateRegistryController.performAttach()
+                savedStateRegistryController.performRestore(savedState = actualState)
+                lifecycleRegistry.currentState = State.CREATED
+            }
+        var newProperty: String? by
+            newOwner.saved(DEFAULT_KEY_PROPERTY) { error("Unexpected initializer call") }
+        assertThat(newProperty).isEqualTo("initialValue")
+    }
+
+    @Test
     fun saved_empty_value_stays_empty() {
         val owner =
             FakeSavedStateRegistryOwner().apply {
@@ -376,13 +434,15 @@ internal class SavedStateRegistryOwnerDelegateTest : RobolectricTest() {
         private const val DEFAULT_KEY_PROPERTY = "property"
         private const val DEFAULT_KEY_PROPERTY_1 = "property1"
 
-        private fun <T : Any> createRestoredState(
+        private fun <T> createRestoredState(
             key: String,
             serializer: KSerializer<T>,
-            value: T
+            value: T,
         ): SavedState {
             val components = savedState {
-                putSavedState(key, encodeToSavedState(serializer, value))
+                if (value != null) {
+                    putSavedState(key, encodeToSavedState(serializer, value))
+                }
             }
             return savedState { putSavedState(SAVED_COMPONENTS_KEY, components) }
         }

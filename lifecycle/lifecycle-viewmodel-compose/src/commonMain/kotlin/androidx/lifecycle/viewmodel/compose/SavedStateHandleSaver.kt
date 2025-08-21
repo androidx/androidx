@@ -90,7 +90,7 @@ public fun <T : Any> SavedStateHandle.saveable(
 public fun <T> SavedStateHandle.saveable(
     key: String,
     stateSaver: Saver<T, out Any>,
-    init: () -> MutableState<T>
+    init: () -> MutableState<T>,
 ): MutableState<T> = saveable(saver = mutableStateSaver(stateSaver), key = key, init = init)
 
 /**
@@ -184,10 +184,10 @@ private fun <T> mutableStateSaver(inner: Saver<T, out Any>) =
                     require(it is SnapshotMutableState<Any?>)
                     mutableStateOf(
                         if (it.value != null) restore(it.value!!) else null,
-                        it.policy as SnapshotMutationPolicy<T?>
+                        it.policy as SnapshotMutationPolicy<T?>,
                     )
                         as MutableState<T>
-                }
+                },
         )
     }
 

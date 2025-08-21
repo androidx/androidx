@@ -33,10 +33,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 
-class TestComponent(
-    val vmStore: ViewModelStore = ViewModelStore(),
-    bundle: Bundle? = null,
-) : SavedStateRegistryOwner, LifecycleOwner, ViewModelStoreOwner {
+class TestComponent(val vmStore: ViewModelStore = ViewModelStore(), bundle: Bundle? = null) :
+    SavedStateRegistryOwner, LifecycleOwner, ViewModelStoreOwner {
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateController = SavedStateRegistryController.create(this)

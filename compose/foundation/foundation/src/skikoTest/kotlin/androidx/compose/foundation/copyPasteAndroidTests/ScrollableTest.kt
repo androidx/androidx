@@ -20,12 +20,43 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.*
-import androidx.compose.foundation.ComposeFoundationFlags.isFlingContinuationAtBoundsEnabled
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.assertModifierIsPure
+import androidx.compose.foundation.assertThat
+import androidx.compose.foundation.assertWithMessage
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.containsExactly
+import androidx.compose.foundation.first
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.DefaultFlingBehavior
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.hasScrollableContainer
+import androidx.compose.foundation.hasSize
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isEmpty
+import androidx.compose.foundation.isEqualTo
+import androidx.compose.foundation.isFalse
+import androidx.compose.foundation.isGreaterThan
+import androidx.compose.foundation.isLessThan
+import androidx.compose.foundation.isNonZero
+import androidx.compose.foundation.isNotEqualTo
+import androidx.compose.foundation.isNotNaN
+import androidx.compose.foundation.isNull
+import androidx.compose.foundation.isTrue
+import androidx.compose.foundation.isZero
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,12 +72,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.focus.*
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -63,10 +108,35 @@ import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
-import androidx.compose.ui.platform.*
+import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ComposeUiTest
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.ScrollWheel
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.swipe
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -75,13 +145,21 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Ignore
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.fail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.test.IgnoreIosTarget
+import kotlinx.test.IgnoreJsTarget
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class ScrollableTest {
@@ -89,6 +167,8 @@ class ScrollableTest {
     private val scrollableBoxTag = "scrollableBox"
 
     private lateinit var scope: CoroutineScope
+
+    private val focusRequester = FocusRequester()
 
     private fun ComposeUiTest.setContentAndGetScope(content: @Composable () -> Unit) {
         setContent {
@@ -185,6 +265,97 @@ class ScrollableTest {
             this.scroll(100f, ScrollWheel.Horizontal)
         }
         runOnIdle { assertThat(total).isLessThan(0.01f) }
+    }
+
+    @Test
+    fun scrollable_horizontalScroll_2d_mouseWheel() = runComposeUiTest {
+        var total = 0f
+        val controller =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = controller, orientation = Orientation.Horizontal)
+        }
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-100f, 0f)) // only moved horizontally
+        }
+
+        var lastTotal =
+            runOnIdle {
+                assertThat(total).isGreaterThan(0)
+                total
+            }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(0f, -100f)) // only moved vertically
+        }
+
+        runOnIdle { assertThat(total).isEqualTo(lastTotal) }
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(100f, 0f)) // only moved horizontally
+        }
+        runOnIdle { assertThat(total).isLessThan(0.01f) }
+    }
+
+    @Test
+    fun scrollableHorizontal_diagonalScroll_2d_mouseWheel() = runComposeUiTest {
+        var total = 0f
+        val controller =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = controller, orientation = Orientation.Horizontal)
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(100f, 50f)) // moved more horizontally at 1 quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isLessThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(100f, -50f)) // moved more horizontally at 4 quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isLessThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-100f, 50f)) // moved more horizontally at 2 quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-100f, -50f)) // moved more horizontally at 3 quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-50f, -100f)) // // moved more vertically
+        }
+
+        runOnIdle { assertThat(total).isEqualTo(0f) }
     }
 
     @Test
@@ -453,11 +624,174 @@ class ScrollableTest {
         setScrollableContent {
             Modifier.scrollable(state = controller, orientation = Orientation.Vertical)
         }
-        onNodeWithTag(scrollableBoxTag).performMouseInput {
-            this.scroll(Float.NaN, ScrollWheel.Vertical)
+        onNodeWithTag(scrollableBoxTag).performMouseInput { this.scroll(Offset(0f, -100f)) }
+
+        val lastTotal =
+            runOnIdle {
+                assertThat(total).isGreaterThan(0)
+                total
+            }
+        onNodeWithTag(scrollableBoxTag).performMouseInput { this.scroll(Offset(-100f, 0f)) }
+
+        runOnIdle { assertThat(total).isEqualTo(lastTotal) }
+        onNodeWithTag(scrollableBoxTag).performMouseInput { this.scroll(Offset(0f, 100f)) }
+        runOnIdle { assertThat(total).isLessThan(0.01f) }
+    }
+
+    @Test
+    fun scrollableVertical_diagonalScroll_2d_mouseWheel() = runComposeUiTest {
+        var total = 0f
+        val controller =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = controller, orientation = Orientation.Vertical)
         }
 
-        assertThat(total).isEqualTo(0)
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(50f, 100f)) // moved more vertically, 1st quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isLessThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-50f, 100f)) // moved more vertically, 2nd quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isLessThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-50f, -100f)) // moved more vertically, 3rd quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(50f, -100f)) // moved more vertically, 4th quadrant
+        }
+
+        runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(100f, 100f)) // at exact 45 angle
+        }
+
+        runOnIdle {
+            assertThat(total).isLessThan(0)
+            total = 0f
+        }
+
+        onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Offset(-100f, -50f)) // // moved more horizontally
+        }
+
+        runOnIdle { assertThat(total).isZero() }
+    }
+
+    @Test
+    // FIXME: Chrome was not killed in 2000 ms, sending SIGKILL.
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
+    fun scrollable_nestedDiagonalScroll_mouseWheel_triggersOnAngle() = runComposeUiTest {
+        var totalVerticalScroll = 0f
+        var totalHorizontalScroll = 0f
+        val outerController =
+            ScrollableState(
+                consumeScrollDelta = {
+                    totalVerticalScroll += it
+                    it
+                }
+            )
+
+        val innerController =
+            ScrollableState(
+                consumeScrollDelta = {
+                    totalHorizontalScroll += it
+                    it
+                }
+            )
+        setContentAndGetScope {
+            Box {
+                Box(
+                    modifier =
+                        Modifier.testTag("outerScrollableBoxTag")
+                            .size(100.dp)
+                            .scrollable(outerController, Orientation.Vertical)
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.testTag("innerScrollableBoxTag")
+                                .size(100.dp)
+                                .scrollable(innerController, Orientation.Horizontal)
+                    )
+                }
+            }
+        }
+
+        // mostly horizontal event triggered horizontal scrollable
+        onRoot().performMouseInput { this.scroll(Offset(-100f, -50f)) }
+
+        runOnIdle {
+            assertThat(totalHorizontalScroll).isGreaterThan(0)
+            assertThat(totalVerticalScroll).isZero()
+        }
+
+        totalHorizontalScroll = 0f
+        totalVerticalScroll = 0f
+
+        // mostly vertical event triggered vertical scrollable
+        onRoot().performMouseInput { this.scroll(Offset(-10f, -50f)) }
+
+        runOnIdle {
+            assertThat(totalVerticalScroll).isGreaterThan(0)
+            assertThat(totalHorizontalScroll).isZero()
+        }
+
+        totalHorizontalScroll = 0f
+        totalVerticalScroll = 0f
+
+        // started vertical and changed to horizontal triggers only vertical
+        // We use the initial event to determine user intention due to mouse wheel events batching.
+        onRoot().performMouseInput {
+            this.scroll(Offset(-10f, -50f))
+            this.scroll(Offset(-50f, -10f))
+        }
+
+        runOnIdle {
+            assertThat(totalVerticalScroll).isGreaterThan(0)
+            assertThat(totalHorizontalScroll).isZero()
+        }
+
+        totalHorizontalScroll = 0f
+        totalVerticalScroll = 0f
+
+        // started vertical, waited, changed to horizontal means we have a new scrolling direction.
+        onRoot().performMouseInput { this.scroll(Offset(-10f, -50f)) }
+
+        waitForIdle()
+
+        onRoot().performMouseInput { this.scroll(Offset(-50f, -10f)) }
+
+        runOnIdle {
+            assertThat(totalVerticalScroll).isGreaterThan(0)
+            assertThat(totalHorizontalScroll).isGreaterThan(0)
+        }
     }
 
     /*
@@ -1674,7 +2008,6 @@ class ScrollableTest {
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_nestedFling_shouldCancelWhenHitTheBounds_ifRemoved() = runComposeUiTest {
-        if (!isFlingContinuationAtBoundsEnabled) return@runComposeUiTest
 
         var shouldEmit by mutableStateOf(true)
         var latestScroll = Offset.Zero
@@ -1718,59 +2051,7 @@ class ScrollableTest {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
-    fun scrollable_nestedFling_shouldCancelWhenHitTheBounds() = runComposeUiTest {
-        if (isFlingContinuationAtBoundsEnabled) return@runComposeUiTest
-
-        var latestAvailableVelocity = Velocity.Zero
-        var onPostFlingCalled = false
-        val connection =
-            object : NestedScrollConnection {
-                override suspend fun onPostFling(
-                    consumed: Velocity,
-                    available: Velocity,
-                ): Velocity {
-                    latestAvailableVelocity = available
-                    onPostFlingCalled = true
-                    return super.onPostFling(consumed, available)
-                }
-            }
-        setContent {
-            Box(
-                Modifier.scrollable(
-                    state = rememberScrollableState { it },
-                    orientation = Orientation.Vertical,
-                )
-            ) {
-                Box(Modifier.nestedScroll(connection)) {
-                    Column(
-                        Modifier.testTag("column")
-                            .verticalScroll(
-                                rememberScrollState(with(density) { (5 * 200.dp).roundToPx() })
-                            )
-                    ) {
-                        repeat(10) { Box(Modifier.size(200.dp)) }
-                    }
-                }
-            }
-        }
-
-        onNodeWithTag("column").performTouchInput { swipeDown() }
-
-        /**
-         * Because previously the animation was being completely consumed by the child fling, the
-         * nested scroll connection in the middle would see a zero post fling velocity, even if the
-         * child hit the bounds.
-         */
-        runOnIdle {
-            assertThat(onPostFlingCalled).isTrue()
-            assertThat(latestAvailableVelocity.y).isNonZero()
-        }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Test
     fun scrollable_nestedFling_shouldContinueSendingDeltasWhenHitBounds() = runComposeUiTest {
-        if (!isFlingContinuationAtBoundsEnabled) return@runComposeUiTest
 
         var flingDeltas = Offset.Zero
         val connection =
@@ -1863,7 +2144,7 @@ class ScrollableTest {
         onNodeWithTag("column").performTouchInput { swipeDown() }
 
         runOnIdle {
-            assertThat(columnState.value).isZero() // column is at the bounds
+            assertThat(columnState.value).isEqualTo(0) // column is at the bounds
             assertThat(postFlingCalled)
                 .isTrue() // we fired a post fling call after the cancellation
             assertThat(lastPostFlingVelocity.y)
@@ -2163,7 +2444,7 @@ class ScrollableTest {
             swipeWithVelocity(this.center, this.center + Offset(115f, 0f), endVelocity = 1000f)
         }
         assertThat(flingCalled).isEqualTo(1)
-        assertEquals(flingVelocity, 1000f, 5f)
+        assertEquals(1000f, flingVelocity, 5f)
     }
 
     @Test
@@ -3241,12 +3522,25 @@ class ScrollableTest {
         }
     }
 
-    private fun ComposeUiTest.setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {
+    private fun ComposeUiTest.setScrollableContent(
+        enableInitialFocus: Boolean = false,
+        scrollableModifierFactory: @Composable () -> Modifier,
+    ) {
         setContentAndGetScope {
             Box {
                 val scrollable = scrollableModifierFactory()
-                Box(modifier = Modifier.testTag(scrollableBoxTag).size(100.dp).then(scrollable))
+                val initialFocus =
+                    if (enableInitialFocus) Modifier.focusRequester(focusRequester) else Modifier
+                Box(modifier = Modifier.testTag(scrollableBoxTag).size(100.dp).then(scrollable)) {
+                    if (enableInitialFocus) {
+                        Box(modifier = Modifier.size(100.dp).then(initialFocus).focusable())
+                    }
+                }
             }
+        }
+
+        if (enableInitialFocus) {
+            runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
         }
     }
 }
@@ -3342,7 +3636,7 @@ internal class ScrollableContainerReaderNodeElement(val hasScrollableBlock: (Boo
 
         other as ScrollableContainerReaderNodeElement
 
-        if (hasScrollableBlock != other.hasScrollableBlock) return false
+        if (hasScrollableBlock !== other.hasScrollableBlock) return false
 
         return true
     }

@@ -21,6 +21,7 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.safeContent
@@ -65,6 +66,11 @@ actual val WindowInsets.Companion.systemGestures: WindowInsets
 actual val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable
     get() = LocalPlatformWindowInsets.current.tappableElement.toWindowInsets()
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-8684
+actual val WindowInsets.Companion.cutoutPath: Path?
+    @Composable
+    get() = null
 
 actual val WindowInsets.Companion.waterfall: WindowInsets
     @Composable

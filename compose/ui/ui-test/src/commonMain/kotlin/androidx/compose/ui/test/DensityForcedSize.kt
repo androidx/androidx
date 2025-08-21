@@ -39,6 +39,7 @@ import kotlin.math.min
  * This is only suitable for tests, since this will override [LocalDensity] to ensure that the
  * [size] is met (as opposed to `Modifier.requiredSize` which will result in clipping).
  */
+@Suppress("ComposableLambdaInMeasurePolicy")
 @Composable
 internal fun DensityForcedSize(
     size: DpSize,

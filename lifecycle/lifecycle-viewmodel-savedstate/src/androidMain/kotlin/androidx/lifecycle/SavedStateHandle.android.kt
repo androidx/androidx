@@ -18,6 +18,7 @@ package androidx.lifecycle
 import android.os.Parcelable
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.internal.SavedStateHandleImpl
 import androidx.lifecycle.internal.isAcceptableType
 import androidx.savedstate.SavedState
@@ -32,10 +33,12 @@ public actual class SavedStateHandle {
     private val liveDatas = mutableMapOf<String, SavingStateLiveData<*>>()
     private var impl: SavedStateHandleImpl
 
+    @VisibleForTesting
     public actual constructor(initialState: Map<String, Any?>) {
         impl = SavedStateHandleImpl(initialState)
     }
 
+    @VisibleForTesting
     public actual constructor() {
         impl = SavedStateHandleImpl()
     }
@@ -107,7 +110,7 @@ public actual class SavedStateHandle {
     private fun <T> getLiveDataInternal(
         key: String,
         hasInitialValue: Boolean,
-        initialValue: T
+        initialValue: T,
     ): MutableLiveData<T> {
         require(key !in impl.mutableFlows) { createMutuallyExclusiveErrorMessage(key) }
 
@@ -123,7 +126,8 @@ public actual class SavedStateHandle {
                     else -> SavingStateLiveData(handle = this, key)
                 }
             }
-        @Suppress("UNCHECKED_CAST") return liveData as MutableLiveData<T>
+        @Suppress("UNCHECKED_CAST")
+        return liveData as MutableLiveData<T>
     }
 
     @MainThread
@@ -198,7 +202,6 @@ public actual class SavedStateHandle {
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        @Suppress("DEPRECATION")
         public actual fun createHandle(
             restoredState: SavedState?,
             defaultState: SavedState?,

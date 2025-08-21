@@ -211,7 +211,7 @@ class CompositionTests {
         val random = Random(1337)
         val list = mutableStateListOf(*List(10) { it }.toTypedArray())
 
-        var position by mutableStateOf(-1)
+        var position by mutableIntStateOf(-1)
 
         compose {
             for (item in list) {
@@ -583,19 +583,19 @@ class CompositionTests {
 
     @Test
     fun testSkippingNestedLambda() = compositionTest {
-        val data = mutableStateOf(0)
+        val data = mutableIntStateOf(0)
 
         itemRendererCalls = 0
         scrollingListCalls = 0
         compose { TestSkippingContent(data = data) }
 
-        data.value++
+        data.intValue++
         advance()
 
-        data.value++
+        data.intValue++
         advance()
 
-        data.value++
+        data.intValue++
         advance()
 
         assertTrue(itemRendererCalls < scrollingListCalls)
@@ -1399,7 +1399,7 @@ class CompositionTests {
                 }
             }
 
-        var value by mutableStateOf(0)
+        var value by mutableIntStateOf(0)
         @Composable
         fun Composition() {
             Linear {
@@ -2325,7 +2325,7 @@ class CompositionTests {
                 .also { objects.add(it) }
         }
 
-        var changing by mutableStateOf(0)
+        var changing by mutableIntStateOf(0)
         val fixed = 10
 
         @Composable
@@ -2361,12 +2361,11 @@ class CompositionTests {
             objects
                 .mapNotNull { it as? Ordered }
                 .sortedBy { it.forgetOrder }
-                .map {
+                .joinToString {
                     val named = it as Named
                     val withData = it as WithData
                     "${named.name}:${withData.data}"
                 }
-                .joinToString()
 
         assertEquals("A:0, B:10, A:1", nameAndDataInForgetOrder)
     }
@@ -2405,7 +2404,7 @@ class CompositionTests {
                 .also { objects.add(it) }
         }
 
-        var changing by mutableStateOf(0)
+        var changing by mutableIntStateOf(0)
         var includeChildren by mutableStateOf(true)
         val fixed = 10
 
@@ -3026,7 +3025,7 @@ class CompositionTests {
 
         order.swap(3, 5)
         includeText.remove(4)
-        includeText.set(3, 3)
+        includeText[3] = 3
         expectChanges()
         revalidate()
     }
@@ -3165,11 +3164,11 @@ class CompositionTests {
 
         @Composable
         fun Test() {
-            val s1 = mutableStateOf(iterations++)
-            Text("s1 ${s1.value}")
+            val s1 = mutableIntStateOf(iterations++)
+            Text("s1 ${s1.intValue}")
             states.add(s1)
-            val s2 = mutableStateOf(iterations++)
-            Text("s2 ${s2.value}")
+            val s2 = mutableIntStateOf(iterations++)
+            Text("s2 ${s2.intValue}")
             states.add(s2)
         }
 
@@ -3195,9 +3194,9 @@ class CompositionTests {
     @Suppress("UnrememberedMutableState")
     @Composable
     fun Indirect(iteration: Int, states: MutableList<MutableState<Int>>) {
-        val state = mutableStateOf(Random.nextInt())
+        val state = mutableIntStateOf(Random.nextInt())
         states.add(state)
-        Text("$iteration state = ${state.value}")
+        Text("$iteration state = ${state.intValue}")
     }
 
     @Composable
@@ -3209,11 +3208,11 @@ class CompositionTests {
     @Test // Regression b/182822837
     fun testObservationScopes_IndirectInvalidate() = compositionTest {
         val states = mutableListOf<MutableState<Int>>()
-        val iteration = mutableStateOf(0)
+        val iteration = mutableIntStateOf(0)
 
         compose { ComposeIndirect(iteration, states) }
 
-        fun nextIteration() = iteration.value++
+        fun nextIteration() = iteration.intValue++
         fun invalidateLast() = states.last().value++
         fun invalidateFirst() = states.first().value++
 
@@ -3329,12 +3328,12 @@ class CompositionTests {
 
     @Test // regression test for b/172660922
     fun testInvalidationOfRemovedContent() = compositionTest {
-        var S1Scope: RecomposeScope? = null
+        var s1Scope: RecomposeScope? = null
         var viewS1 by mutableStateOf(true)
         var performBackwardsWrite = true
         @Composable
         fun S1() {
-            S1Scope = currentRecomposeScope
+            s1Scope = currentRecomposeScope
             Text("In s1")
         }
 
@@ -3355,7 +3354,7 @@ class CompositionTests {
 
             if (performBackwardsWrite) {
                 // This forces the equivalent of a backwards write.
-                S1Scope?.invalidate()
+                s1Scope?.invalidate()
                 performBackwardsWrite = false
             }
         }
@@ -3382,7 +3381,7 @@ class CompositionTests {
 
         validate()
 
-        S1Scope?.invalidate()
+        s1Scope?.invalidate()
         performBackwardsWrite = true
         expectNoChanges()
 
@@ -3396,7 +3395,7 @@ class CompositionTests {
 
     @Test
     fun testModificationsPropagateToSubcomposition() = compositionTest {
-        var value by mutableStateOf(0)
+        var value by mutableIntStateOf(0)
         val content: MutableState<@Composable () -> Unit> = mutableStateOf({})
         @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var subCompositionOccurred = false
 
@@ -3548,7 +3547,7 @@ class CompositionTests {
         }
 
         localRecomposerTest { recomposer ->
-            val stateMutatedOnRemove = mutableStateOf(0)
+            val stateMutatedOnRemove = mutableIntStateOf(0)
             var shouldEmitNode by mutableStateOf(true)
             var compositionCount = 0
             Snapshot.notifyObjectsInitialized()
@@ -3558,7 +3557,7 @@ class CompositionTests {
                 composition.setContent {
                     compositionCount++
                     // Read the state here so that the emit removal will invalidate it
-                    stateMutatedOnRemove.value
+                    stateMutatedOnRemove.intValue
                     if (shouldEmitNode) {
                         ComposeNode<Unit, MutateOnRemoveApplier>({}) {}
                     }
@@ -3570,7 +3569,7 @@ class CompositionTests {
                 Snapshot.sendApplyNotifications()
                 // Only advance one frame since the next frame will be automatically scheduled.
                 testScheduler.advanceTimeByFrame(coroutineContext)
-                assertEquals(1, stateMutatedOnRemove.value, "observable removals performed")
+                assertEquals(1, stateMutatedOnRemove.intValue, "observable removals performed")
                 // Only two composition passes should have been performed by this point; a state
                 // invalidation in the applier should not be picked up or acted upon until after
                 // this frame is complete.
@@ -3666,6 +3665,7 @@ class CompositionTests {
     }
 
     // Regression test for b/383769314
+    @Suppress("OpaqueUnitKey")
     @Test
     fun testRememberNotRecomputedInElidedGroupAfterMovableGroup() = compositionTest {
         var baseKey by mutableIntStateOf(0)
@@ -3676,12 +3676,13 @@ class CompositionTests {
 
             key(Unit) {}
 
-            remember {
+            val unused = remember {
                 assertEquals(
                     1,
                     ++rememberInvocations,
                     "Remember block should be invoked exactly once",
                 )
+                1
             }
         }
 
@@ -3692,6 +3693,7 @@ class CompositionTests {
     }
 
     // Regression test for b/383769314
+    @Suppress("OpaqueUnitKey")
     @Test
     fun testRememberNotRecomputedInElidedGroupAfterNestedMovableGroup() = compositionTest {
         var baseKey by mutableIntStateOf(0)
@@ -3702,12 +3704,13 @@ class CompositionTests {
 
             key(Unit) { key(Unit) {} }
 
-            remember {
+            val unused = remember {
                 assertEquals(
                     1,
                     ++rememberInvocations,
                     "Remember block should be invoked exactly once",
                 )
+                1
             }
         }
 
@@ -3718,6 +3721,7 @@ class CompositionTests {
     }
 
     // Regression test for b/383769314
+    @Suppress("OpaqueUnitKey")
     @Test
     fun testInvalidateCapturingLambdaInElidedGroupAfterMovableGroup() = compositionTest {
         var baseKey by mutableIntStateOf(0)
@@ -3744,6 +3748,7 @@ class CompositionTests {
     }
 
     // Regression test for b/383769314
+    @Suppress("OpaqueUnitKey")
     @Test
     fun testInvalidateCapturingLambdaInElidedGroupAfterNestedMovableGroup() = compositionTest {
         var baseKey by mutableIntStateOf(0)
@@ -3865,13 +3870,13 @@ class CompositionTests {
 
     @Test // Regression test for b/249050560
     fun testFunctionInstances() = compositionTest {
-        var state by mutableStateOf(0)
+        var state by mutableIntStateOf(0)
         functionInstance = { -1 }
 
         compose {
             val localStateCopy = state
             fun localStateReader() = localStateCopy
-            updateInstance(::localStateReader)
+            UpdateInstance(::localStateReader)
         }
 
         assertEquals(state, functionInstance())
@@ -3885,9 +3890,9 @@ class CompositionTests {
     fun testNonLocalReturn_CM1_RetFunc_FalseTrue() = compositionTest {
         var condition by mutableStateOf(false)
 
-        compose { test_CM1_RetFun(condition) }
+        compose { Test_CM1_RetFun(condition) }
 
-        validate { this.test_CM1_RetFun(condition) }
+        validate { this.Test_CM1_RetFun(condition) }
 
         condition = true
 
@@ -3900,9 +3905,9 @@ class CompositionTests {
     fun testNonLocalReturn_CM1_RetFunc_TrueFalse() = compositionTest {
         var condition by mutableStateOf(true)
 
-        compose { test_CM1_RetFun(condition) }
+        compose { Test_CM1_RetFun(condition) }
 
-        validate { this.test_CM1_RetFun(condition) }
+        validate { this.Test_CM1_RetFun(condition) }
 
         condition = false
 
@@ -3915,9 +3920,9 @@ class CompositionTests {
     fun test_CM1_CCM1_RetFun_FalseTrue() = compositionTest {
         var condition by mutableStateOf(false)
 
-        compose { test_CM1_CCM1_RetFun(condition) }
+        compose { Test_CM1_CCM1_RetFun(condition) }
 
-        validate { this.test_CM1_CCM1_RetFun(condition) }
+        validate { this.Test_CM1_CCM1_RetFun(condition) }
 
         condition = true
 
@@ -3930,9 +3935,9 @@ class CompositionTests {
     fun test_CM1_CCM1_RetFun_TrueFalse() = compositionTest {
         var condition by mutableStateOf(true)
 
-        compose { test_CM1_CCM1_RetFun(condition) }
+        compose { Test_CM1_CCM1_RetFun(condition) }
 
-        validate { this.test_CM1_CCM1_RetFun(condition) }
+        validate { this.Test_CM1_CCM1_RetFun(condition) }
 
         condition = false
 
@@ -4246,15 +4251,15 @@ class CompositionTests {
 
         compose block@{
             Text("A")
-            simulatedIf(condition1.value) {
+            SimulatedIf(condition1.value) {
                 return@block
             }
             Text("B")
-            simulatedIf(condition2.value) {
+            SimulatedIf(condition2.value) {
                 return@block
             }
             Text("C")
-            simulatedIf(condition3.value) {
+            SimulatedIf(condition3.value) {
                 return@block
             }
             Text("D")
@@ -4262,15 +4267,15 @@ class CompositionTests {
 
         validate block@{
             Text("A")
-            this.simulatedIf(condition1.value) {
+            this.SimulatedIf(condition1.value) {
                 return@block
             }
             Text("B")
-            this.simulatedIf(condition2.value) {
+            this.SimulatedIf(condition2.value) {
                 return@block
             }
             Text("C")
-            this.simulatedIf(condition3.value) {
+            this.SimulatedIf(condition3.value) {
                 return@block
             }
             Text("D")
@@ -4327,7 +4332,7 @@ class CompositionTests {
         assertEquals(2, i2)
         assertEquals(3, i3)
 
-        scope!!.invalidate()
+        scope.invalidate()
         advance()
         verifyConsistent()
 
@@ -4340,7 +4345,7 @@ class CompositionTests {
     @Test
     fun testRememberAddedAndRemovedInALoop() = compositionTest {
         val iterations = 100
-        val counter = mutableStateOf(0)
+        val counter = mutableIntStateOf(0)
         var seen = emptyList<Any?>()
 
         fun seen(list: List<Any>) {
@@ -4352,18 +4357,18 @@ class CompositionTests {
 
         compose {
             val list = mutableListOf<Any>()
-            for (i in 0 until counter.value) {
+            for (i in 0 until counter.intValue) {
                 list.add(remember { Any() })
             }
         }
 
-        while (counter.value < iterations) {
-            counter.value++
+        while (counter.intValue < iterations) {
+            counter.intValue++
             advance()
         }
 
-        while (counter.value > 0) {
-            counter.value--
+        while (counter.intValue > 0) {
+            counter.intValue--
             advance()
         }
         assertEquals(emptyList(), seen)
@@ -4377,6 +4382,7 @@ class CompositionTests {
                 Text("Content")
             }
             InlineSubcomposition {
+                @Suppress("ConstantConditionIf") // Testing this case
                 if (false) {
                     remember { "Something" }
                 }
@@ -4439,7 +4445,7 @@ class CompositionTests {
                         DisposableEffect(composition) { onDispose { innerComposition.dispose() } }
                     }
 
-                    var value by mutableStateOf(1)
+                    var value by mutableIntStateOf(1)
                     launch(Dispatchers.Default + job) {
                         while (true) {
                             value += 1
@@ -4520,7 +4526,7 @@ class CompositionTests {
     @Test
     fun composableVarargs_skipped() = compositionTest {
         val consumer = VarargConsumer()
-        var recomposeTrigger by mutableStateOf(0)
+        var recomposeTrigger by mutableIntStateOf(0)
         compose {
             Linear {
                 use(recomposeTrigger)
@@ -4548,7 +4554,7 @@ class CompositionTests {
 
     @Test
     fun funInterface_isMemoized() = compositionTest {
-        var recomposeTrigger by mutableStateOf(0)
+        var recomposeTrigger by mutableIntStateOf(0)
         val capture = 0
         compose {
             use(recomposeTrigger)
@@ -4594,7 +4600,7 @@ class CompositionTests {
     @Test
     fun composableWithUnstableParameters_skipped() = compositionTest {
         val consumer = UnstableCompConsumer()
-        var recomposeTrigger by mutableStateOf(0)
+        var recomposeTrigger by mutableIntStateOf(0)
         val data = Foo()
         compose {
             Linear {
@@ -4655,7 +4661,7 @@ class CompositionTests {
 
     @Test
     fun readingDerivedState_invalidatesWhenValueNotChanged() = compositionTest {
-        var state by mutableStateOf(0)
+        var state by mutableIntStateOf(0)
         var condition by mutableStateOf(false)
         val derived by derivedStateOf { if (!condition) 0 else state }
         compose { Text(derived.toString()) }
@@ -4680,6 +4686,7 @@ class CompositionTests {
     fun earlyReturnFromInlined() = compositionTest {
         compose {
             run {
+                @Suppress("ConstantConditionIf") // Testing this case
                 if (true) {
                     return@run
                 } else {
@@ -4730,7 +4737,7 @@ class CompositionTests {
         // the parent even after we have moved off the parent to one of the children. Here this
         // inserts content as the child of the main composition. This moves the write to just after
         // the insert and then the `remember` call needs to update the `compose` group's slots.
-        var count by mutableStateOf(1)
+        var count by mutableIntStateOf(1)
         compose {
             repeat(count) { Text("Some text") }
             val someRemember = remember(count) { count + 1 }
@@ -4743,7 +4750,7 @@ class CompositionTests {
 
     @Test
     fun appendingRememberAfterLoop() = compositionTest {
-        var count by mutableStateOf(1)
+        var count by mutableIntStateOf(1)
         compose {
             repeat(count) { Text("Some text") }
             repeat(count) { unused(remember { it }) }
@@ -4766,7 +4773,7 @@ class CompositionTests {
 
     @Test
     fun composerCleanup() = compositionTest {
-        var state by mutableStateOf(0)
+        var state by mutableIntStateOf(0)
 
         compose { Text("State = $state") }
 
@@ -4813,9 +4820,9 @@ class CompositionTests {
         compose {
             InlineLinear {
                 InlineLinear {
-                    explicitStartReplaceGroup(-0x7e52e5de) { Text("Before") }
-                    explicitStartReplaceGroup(0x9222f9c, insertGroup = state.value) {}
-                    explicitStartReplaceGroup(0x22d2581c) { Text("After") }
+                    ExplicitStartReplaceGroup(-0x7e52e5de) { Text("Before") }
+                    ExplicitStartReplaceGroup(0x9222f9c, insertGroup = state.value) {}
+                    ExplicitStartReplaceGroup(0x22d2581c) { Text("After") }
                 }
                 InlineLinear { Text("State is ${state.value}") }
                 if (state.value) {
@@ -4895,7 +4902,7 @@ class CompositionTests {
 class SomeUnstableClass(val a: Any = "abc")
 
 @Composable
-fun test_CM1_RetFun(condition: Boolean) {
+fun Test_CM1_RetFun(condition: Boolean) {
     Text("Root - before")
     M1 {
         Text("M1 - before")
@@ -4905,7 +4912,7 @@ fun test_CM1_RetFun(condition: Boolean) {
     Text("Root - after")
 }
 
-fun MockViewValidator.test_CM1_RetFun(condition: Boolean) {
+fun MockViewValidator.Test_CM1_RetFun(condition: Boolean) {
     Text("Root - before")
     Text("M1 - before")
     if (condition) return
@@ -4914,7 +4921,7 @@ fun MockViewValidator.test_CM1_RetFun(condition: Boolean) {
 }
 
 @Composable
-fun test_CM1_CCM1_RetFun(condition: Boolean) {
+fun Test_CM1_CCM1_RetFun(condition: Boolean) {
     Text("Root - before")
     M1 {
         Text("M1 - begin")
@@ -4922,7 +4929,7 @@ fun test_CM1_CCM1_RetFun(condition: Boolean) {
             Text("if - begin")
             M1 {
                 Text("In CCM1")
-                return@test_CM1_CCM1_RetFun
+                return@Test_CM1_CCM1_RetFun
             }
         }
         Text("M1 - end")
@@ -4930,7 +4937,7 @@ fun test_CM1_CCM1_RetFun(condition: Boolean) {
     Text("Root - end")
 }
 
-fun MockViewValidator.test_CM1_CCM1_RetFun(condition: Boolean) {
+fun MockViewValidator.Test_CM1_CCM1_RetFun(condition: Boolean) {
     Text("Root - before")
     Text("M1 - begin")
     if (condition) {
@@ -4945,12 +4952,12 @@ fun MockViewValidator.test_CM1_CCM1_RetFun(condition: Boolean) {
 var functionInstance: () -> Int = { 0 }
 
 @Composable
-fun updateInstance(newInstance: () -> Int) {
+fun UpdateInstance(newInstance: () -> Int) {
     functionInstance = newInstance
 }
 
-var stateA by mutableStateOf(1000)
-var stateB by mutableStateOf(2000)
+var stateA by mutableIntStateOf(1000)
+var stateB by mutableIntStateOf(2000)
 
 fun use(@Suppress("UNUSED_PARAMETER") v: Int) {}
 
@@ -5113,11 +5120,12 @@ private fun TextWithNonLocalReturn(text: String?) {
 }
 
 @Composable
-private inline fun simulatedIf(condition: Boolean, block: () -> Unit) {
+private inline fun SimulatedIf(condition: Boolean, block: () -> Unit) {
     if (condition) block()
 }
 
-private inline fun MockViewValidator.simulatedIf(condition: Boolean, block: () -> Unit) {
+@Suppress("UnusedReceiverParameter")
+private inline fun MockViewValidator.SimulatedIf(condition: Boolean, block: () -> Unit) {
     if (condition) block()
 }
 
@@ -5178,7 +5186,7 @@ private fun <T> unused(@Suppress("UNUSED_PARAMETER") value: T) {}
 // Part of regression test for 339618126
 @Composable
 @ExplicitGroupsComposable
-inline fun explicitStartReplaceGroup(
+inline fun ExplicitStartReplaceGroup(
     key: Int,
     insertGroup: Boolean = true,
     content: @Composable () -> Unit,

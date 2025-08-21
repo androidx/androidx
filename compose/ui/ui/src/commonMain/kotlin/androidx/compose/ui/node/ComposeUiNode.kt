@@ -51,5 +51,10 @@ internal interface ComposeUiNode {
             this.viewConfiguration = it
         }
         val SetCompositeKeyHash: ComposeUiNode.(Int) -> Unit = { this.compositeKeyHash = it }
+        val ApplyOnDeactivatedNodeAssertion: ComposeUiNode.() -> Unit = {
+            if ((this as? LayoutNode)?.isDeactivated == true) {
+                throw IllegalStateException("Apply is called on deactivated node $this")
+            }
+        }
     }
 }

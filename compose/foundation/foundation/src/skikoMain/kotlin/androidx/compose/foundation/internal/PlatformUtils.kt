@@ -16,8 +16,4 @@
 
 package androidx.compose.foundation.internal
 
-//TODO: remove this file
-// when this will be in JB fork
-// https://android.googlesource.com/platform/frameworks/support/+/d8bc9d81dffa35162626e45ee68d4a7e271c6ada
-
-internal fun isAutofillAvailable(): Boolean = false
+internal actual fun isAutofillAvailable(): Boolean = false

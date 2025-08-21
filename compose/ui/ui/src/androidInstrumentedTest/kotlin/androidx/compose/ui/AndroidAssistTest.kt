@@ -44,7 +44,7 @@ class AndroidAssistTest {
     // b/251152083 and b/320768586 for more information.
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 27)
+    @SdkSuppress(maxSdkVersion = 27)
     fun verifyAssistStructureSet() {
         val viewStructure: ViewStructure = FakeViewStructure()
 

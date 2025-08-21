@@ -17,8 +17,13 @@
 package androidx.compose.integration.hero.pokedex.macrobenchmark.target
 
 import android.os.Bundle
+import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.skydoves.pokedex.compose.core.database.entitiy.mapper.getPokemonImageUrlByName
+import com.skydoves.pokedex.compose.core.model.Pokemon
+import com.skydoves.pokedex.compose.core.navigation.PokedexScreen
+import com.skydoves.pokedex.compose.core.network.di.ModuleLocator
 import com.skydoves.pokedex.compose.ui.PokedexMain
 
 /**
@@ -30,6 +35,32 @@ class PokedexActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { PokedexMain() }
+        Trace.beginSection("PokedexActivity Setup")
+        if (BuildConfig.DEBUG) {
+            throw IllegalStateException(
+                "pokedex-macrobenchmark-target was built in debug" +
+                    " configuration. Please build it in release mode."
+            )
+        }
+        val startDestination =
+            when (intent.getStringExtra("startDestination")) {
+                "home" -> PokedexScreen.Home
+                "details" ->
+                    PokedexScreen.Details(
+                        pokemon =
+                            Pokemon(
+                                name = "Bulbasaur",
+                                imageUrl =
+                                    getPokemonImageUrlByName(
+                                            "Bulbasaur",
+                                            ModuleLocator.networkModule.baseUrl,
+                                        )
+                                        .toString(),
+                            )
+                    )
+                else -> PokedexScreen.Home
+            }
+        Trace.endSection()
+        setContent { PokedexMain(startDestination = startDestination) }
     }
 }

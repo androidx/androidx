@@ -16,11 +16,11 @@
 
 package androidx.compose.ui.focus
 
-import android.graphics.Rect
+import android.graphics.Rect as AndroidRect
 import android.view.FocusFinder
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.focus.FocusInteropUtils.Companion.tempCoordinates
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.isShiftPressed
@@ -28,11 +28,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.unit.LayoutDirection
 
-private class FocusInteropUtils {
-    companion object {
-        val tempCoordinates = IntArray(2)
-    }
-}
+private val tempCoordinates = IntArray(2)
+private val tempRect = AndroidRect()
 
 /** Converts an android focus direction to a compose [focus direction][FocusDirection]. */
 internal fun toFocusDirection(androidDirection: Int): FocusDirection? =
@@ -92,8 +89,8 @@ internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {
     }
 }
 
-/** Returns the bounding rect of the view in the current window. */
-internal fun View.calculateBoundingRectRelativeTo(view: View): androidx.compose.ui.geometry.Rect {
+/** Returns the focus rect of the view in the current window. */
+internal fun View.calculateFocusRectRelativeTo(view: View): Rect {
     getLocationInWindow(tempCoordinates)
     val xInWindow = tempCoordinates[0]
     val yInWindow = tempCoordinates[1]
@@ -102,10 +99,16 @@ internal fun View.calculateBoundingRectRelativeTo(view: View): androidx.compose.
     val targetY = tempCoordinates[1]
     val x = (xInWindow - targetX).toFloat()
     val y = (yInWindow - targetY).toFloat()
-    return androidx.compose.ui.geometry.Rect(x, y, x + width, y + height)
+    getFocusedRect(tempRect)
+    return Rect(
+        x + tempRect.left,
+        y + tempRect.top,
+        x + tempRect.left + tempRect.width(),
+        y + tempRect.top + tempRect.height(),
+    )
 }
 
-internal fun View.requestInteropFocus(direction: Int?, rect: Rect?): Boolean {
+internal fun View.requestInteropFocus(direction: Int?, rect: AndroidRect?): Boolean {
     return when {
         direction == null -> requestFocus()
         this !is ViewGroup -> requestFocus(direction, rect)

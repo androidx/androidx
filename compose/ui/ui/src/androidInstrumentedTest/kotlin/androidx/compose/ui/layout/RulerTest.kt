@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.layout
 
-import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.collection.mutableFloatListOf
 import androidx.compose.foundation.layout.Box
@@ -43,14 +42,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 // There is a bug on x86 L emulators where 35f == NaN is true
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RulerTest {

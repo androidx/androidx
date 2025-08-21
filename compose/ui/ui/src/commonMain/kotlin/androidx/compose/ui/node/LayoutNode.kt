@@ -26,6 +26,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputFilter
@@ -446,7 +447,14 @@ internal class LayoutNode(
             isSemanticsInvalidated = false
 
             val owner = requireOwner()
-            owner.semanticsOwner.notifySemanticsChange(this, prev)
+            if (
+                @OptIn(ExperimentalComposeUiApi::class)
+                ComposeUiFlags.isContentCaptureOptimizationEnabled && prev == null
+            ) {
+                owner.semanticsOwner.notifySemanticsAdded(this)
+            } else {
+                owner.semanticsOwner.notifySemanticsChange(this, prev)
+            }
 
             // This is needed for Accessibility and ContentCapture. Remove after these systems
             // are migrated to use SemanticsInfo and SemanticListeners.
@@ -617,7 +625,11 @@ internal class LayoutNode(
             val prev = _semanticsConfiguration
             _semanticsConfiguration = null
             isSemanticsInvalidated = false
-            owner.semanticsOwner.notifySemanticsChange(this, prev)
+            if (ComposeUiFlags.isContentCaptureOptimizationEnabled) {
+                owner.semanticsOwner.notifySemanticsRemoved(this, prev)
+            } else {
+                owner.semanticsOwner.notifySemanticsChange(this, prev)
+            }
 
             // This is needed for Accessibility and ContentCapture. Remove after these systems
             // are migrated to use SemanticsInfo and SemanticListeners.
@@ -897,6 +909,14 @@ internal class LayoutNode(
 
     /** The inner state associated with [androidx.compose.ui.layout.SubcomposeLayout]. */
     internal var subcompositionsState: LayoutNodeSubcompositionsState? = null
+
+    override val boundsInParent: Rect
+        get() {
+            val currentCoordinates =
+                findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.coordinates
+                    ?: return Rect.Zero
+            return boundsInImportantForBoundsAncestor(currentCoordinates)
+        }
 
     /** The inner-most layer coordinator. Used for performance for NodeCoordinator.findLayer(). */
     private var _innerLayerCoordinator: NodeCoordinator? = null
@@ -1329,6 +1349,19 @@ internal class LayoutNode(
         _children.forEach { it.invalidateSubtree(false) }
     }
 
+    fun invalidateLayoutForSubtree() {
+        requestRemeasure()
+        _children.forEach { it.invalidateLayoutForSubtree() }
+    }
+
+    fun invalidateDrawForSubtree(isRootOfInvalidation: Boolean = true) {
+        if (isRootOfInvalidation) {
+            parent?.invalidateLayer()
+        }
+        nodes.headToTail(Nodes.Layout) { it.requireCoordinator(Nodes.Layout).layer?.invalidate() }
+        _children.forEach { it.invalidateDrawForSubtree(false) }
+    }
+
     /** Marks the layoutNode dirty for another lookahead measure pass. */
     internal fun markLookaheadMeasurePending() = layoutDelegate.markLookaheadMeasurePending()
 
@@ -1473,8 +1506,13 @@ internal class LayoutNode(
             if (@OptIn(ExperimentalComposeUiApi::class) !ComposeUiFlags.isSemanticAutofillEnabled) {
                 invalidateSemantics()
             } else {
+                val prev = _semanticsConfiguration
                 _semanticsConfiguration = null
                 isSemanticsInvalidated = false
+
+                if (nodes.has(Nodes.Semantics)) {
+                    requireOwner().semanticsOwner.notifySemanticsDeactivated(this, prev)
+                }
             }
         }
         owner?.onLayoutNodeDeactivated(this)
@@ -1484,6 +1522,49 @@ internal class LayoutNode(
         interopViewFactoryHolder?.onRelease()
         subcompositionsState?.onRelease()
         forEachCoordinatorIncludingInner { it.onRelease() }
+    }
+
+    /**
+     * Calculates the bounds relative to the nearest ancestor that has any semantics modifier nodes
+     * with isImportantForBounds == true. If no such ancestor is found, returns [Rect.Zero].
+     */
+    internal fun boundsInImportantForBoundsAncestor(nodeCoordinates: LayoutCoordinates): Rect {
+        val parent = parent ?: return Rect.Zero
+        val parentCoordinatorForBounds =
+            parent.nodes
+                .firstFromHead(Nodes.Semantics) { it.isImportantForBounds }
+                ?.requireCoordinator(Nodes.Semantics)
+        if (parentCoordinatorForBounds == null) {
+            // If the parent has no semantics modifier nodes that are important for bounds, continue
+            // searching upwards in the tree until we find the nearest ancestor that does.
+            return parent.boundsInImportantForBoundsAncestor(nodeCoordinates)
+        }
+        return parentCoordinatorForBounds.localBoundingBoxOf(nodeCoordinates)
+    }
+
+    /**
+     * Look for an outermost [SemanticsModifierNode] that has isImportantForBounds == true, while
+     * prioritizing nodes with shouldMergeDescendantSemantics == true. If no such node found (i.e.,
+     * there are no nodes with isImportantForBounds == true), this method returns null.
+     */
+    internal fun findSemanticsModifierNodeToGetBounds(): SemanticsModifierNode? {
+        var nodeForBounds: SemanticsModifierNode? = null
+        if (semanticsConfiguration?.isMergingSemanticsOfDescendants == true) {
+            nodes.headToTail(Nodes.Semantics) {
+                if (it.isImportantForBounds) {
+                    if (it.shouldMergeDescendantSemantics) return it
+                    if (nodeForBounds == null) nodeForBounds = it
+                }
+            }
+        } else {
+            nodeForBounds = nodes.firstFromHead(Nodes.Semantics) { it.isImportantForBounds }
+        }
+        return nodeForBounds
+    }
+
+    private fun findCoordinatorToGetBounds(): NodeCoordinator? {
+        return findSemanticsModifierNodeToGetBounds()?.requireCoordinator(Nodes.Semantics)
+            ?: innerCoordinator
     }
 
     internal companion object {

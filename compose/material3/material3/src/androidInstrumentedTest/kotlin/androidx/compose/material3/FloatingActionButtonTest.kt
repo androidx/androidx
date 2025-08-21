@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
@@ -997,6 +998,92 @@ class FloatingActionButtonTest {
                 backgroundCenter = with(rule.density) { Offset(50.dp.toPx(), 50.dp.toPx()) },
                 antiAliasingGap = with(rule.density) { 2.dp.toPx() },
             )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun animateFloatingActionButton_show_consumesClick() {
+        var contentBoxClicked = false
+        var fabBoxClicked = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(
+                modifier =
+                    Modifier.background(Color.Red)
+                        .size(100.dp)
+                        .testTag(AnimateFloatingActionButtonTestTag)
+            ) {
+                Box(
+                    modifier =
+                        Modifier.background(Color.Green)
+                            .fillMaxSize()
+                            .clickable(onClick = { contentBoxClicked = true })
+                )
+
+                Box(
+                    modifier =
+                        Modifier.animateFloatingActionButton(
+                                visible = true,
+                                alignment = Alignment.BottomEnd,
+                                targetScale = 0.2f,
+                                scaleAnimationSpec = tween(100, easing = LinearEasing),
+                                alphaAnimationSpec = tween(100, easing = LinearEasing),
+                            )
+                            .background(Color.Blue)
+                            .fillMaxSize()
+                            .clickable(onClick = { fabBoxClicked = true })
+                )
+            }
+        }
+
+        rule.onNodeWithTag(AnimateFloatingActionButtonTestTag).performClick()
+
+        assertThat(contentBoxClicked).isFalse()
+        assertThat(fabBoxClicked).isTrue()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun animateFloatingActionButton_hide_doesNotConsumesClick() {
+        var contentBoxClicked = false
+        var fabBoxClicked = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(
+                modifier =
+                    Modifier.background(Color.Red)
+                        .size(100.dp)
+                        .testTag(AnimateFloatingActionButtonTestTag)
+            ) {
+                Box(
+                    modifier =
+                        Modifier.background(Color.Green)
+                            .fillMaxSize()
+                            .clickable(onClick = { contentBoxClicked = true })
+                )
+
+                Box(
+                    modifier =
+                        Modifier.animateFloatingActionButton(
+                                visible = false,
+                                alignment = Alignment.BottomEnd,
+                                targetScale = 0.2f,
+                                scaleAnimationSpec = tween(100, easing = LinearEasing),
+                                alphaAnimationSpec = tween(100, easing = LinearEasing),
+                            )
+                            .background(Color.Blue)
+                            .fillMaxSize()
+                            .clickable(onClick = { fabBoxClicked = true })
+                )
+            }
+        }
+
+        rule.onNodeWithTag(AnimateFloatingActionButtonTestTag).performClick()
+
+        assertThat(contentBoxClicked).isTrue()
+        assertThat(fabBoxClicked).isFalse()
     }
 }
 

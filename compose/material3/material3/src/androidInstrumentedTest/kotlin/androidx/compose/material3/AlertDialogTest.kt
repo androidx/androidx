@@ -429,9 +429,7 @@ class AlertDialogTest {
         val confirmBtBounds = rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot()
         val dismissBtBounds = rule.onNodeWithTag(DismissButtonTestTag).getUnclippedBoundsInRoot()
 
-        assert(dismissBtBounds.top > confirmBtBounds.bottom) {
-            "dismiss action should appear below the confirm action"
-        }
+        assertThat(dismissBtBounds.top).isAtLeast(confirmBtBounds.bottom)
     }
 
     @Test

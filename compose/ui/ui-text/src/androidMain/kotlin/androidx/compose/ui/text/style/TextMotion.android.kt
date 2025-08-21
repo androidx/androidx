@@ -74,7 +74,7 @@ internal constructor(
      * may render the same output as [Linearity.Linear] on many OEM and API levels.
      */
     @JvmInline
-    internal value class Linearity private constructor(private val value: Int) {
+    internal value class Linearity internal constructor(internal val value: Int) {
         companion object {
             /**
              * Equal to applying [android.graphics.Paint.LINEAR_TEXT_FLAG] and turning hinting off.

@@ -63,7 +63,7 @@ private fun createSavedStateHandle(
     savedStateRegistryOwner: SavedStateRegistryOwner,
     viewModelStoreOwner: ViewModelStoreOwner,
     key: String,
-    defaultArgs: SavedState?
+    defaultArgs: SavedState?,
 ): SavedStateHandle {
     val provider = savedStateRegistryOwner.savedStateHandlesProvider
     val viewModel = viewModelStoreOwner.savedStateHandlesVM
@@ -111,7 +111,7 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
         savedStateRegistryOwner,
         viewModelStateRegistryOwner,
         key,
-        defaultArgs
+        defaultArgs,
     )
 }
 
@@ -123,11 +123,12 @@ internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
                     object : ViewModelProvider.Factory {
                         override fun <T : ViewModel> create(
                             modelClass: KClass<T>,
-                            extras: CreationExtras
+                            extras: CreationExtras,
                         ): T {
-                            @Suppress("UNCHECKED_CAST") return SavedStateHandlesVM() as T
+                            @Suppress("UNCHECKED_CAST")
+                            return SavedStateHandlesVM() as T
                         }
-                    }
+                    },
             )[VIEWMODEL_KEY, SavedStateHandlesVM::class]
 
 internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider
@@ -148,7 +149,7 @@ internal class SavedStateHandlesVM : ViewModel() {
  */
 internal class SavedStateHandlesProvider(
     private val savedStateRegistry: SavedStateRegistry,
-    viewModelStoreOwner: ViewModelStoreOwner
+    viewModelStoreOwner: ViewModelStoreOwner,
 ) : SavedStateRegistry.SavedStateProvider {
     private var restored = false
     private var restoredState: SavedState? = null

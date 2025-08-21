@@ -26,7 +26,7 @@ import androidx.window.core.ExperimentalWindowApi
  * @see WindowAreaController.presentContentOnWindowArea
  */
 @ExperimentalWindowApi
-interface WindowAreaPresentationSessionCallback {
+public interface WindowAreaPresentationSessionCallback {
 
     /**
      * Notifies about a start of a presentation session. Provides a reference to
@@ -35,7 +35,7 @@ interface WindowAreaPresentationSessionCallback {
      * to inflate or make any UI decisions around the presentation [View] that should be shown in
      * that area.
      */
-    fun onSessionStarted(session: WindowAreaSessionPresenter)
+    public fun onSessionStarted(session: WindowAreaSessionPresenter)
 
     /**
      * Notifies about an end of a presentation session. The presentation and any app-provided
@@ -45,7 +45,7 @@ interface WindowAreaPresentationSessionCallback {
      *   will only occur if a session is attempted to be enabled when it is not available, but can
      *   be expanded to alert for more errors in the future.
      */
-    fun onSessionEnded(t: Throwable?)
+    public fun onSessionEnded(t: Throwable?)
 
     /**
      * Notifies about changes in visibility of a container that can hold the app content to show in
@@ -55,5 +55,5 @@ interface WindowAreaPresentationSessionCallback {
      *
      * If content was never presented, then this method will never be called.
      */
-    fun onContainerVisibilityChanged(isVisible: Boolean)
+    public fun onContainerVisibilityChanged(isVisible: Boolean)
 }

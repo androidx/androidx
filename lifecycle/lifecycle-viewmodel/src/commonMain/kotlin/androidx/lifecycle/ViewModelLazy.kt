@@ -38,7 +38,7 @@ constructor(
     private val viewModelClass: KClass<VM>,
     private val storeProducer: () -> ViewModelStore,
     private val factoryProducer: () -> ViewModelProvider.Factory,
-    private val extrasProducer: () -> CreationExtras = { CreationExtras.Empty }
+    private val extrasProducer: () -> CreationExtras = { CreationExtras.Empty },
 ) : Lazy<VM> {
     private var cached: VM? = null
 

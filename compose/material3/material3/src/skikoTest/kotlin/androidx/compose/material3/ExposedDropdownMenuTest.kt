@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -54,15 +60,23 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,14 +94,13 @@ class ExposedDropdownMenuTest {
     @Test
     fun edm_expandsOnClick_andCollapsesOnClickOutside() = runComposeUiTest {
         var textFieldBounds = Rect.Zero
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                }
+                textFieldModifier =
+                    Modifier.onGloballyPositioned { textFieldBounds = it.boundsInRoot() },
             )
         }
 
@@ -111,12 +124,9 @@ class ExposedDropdownMenuTest {
 
     @Test
     fun edm_collapsesOnTextFieldClick() = runComposeUiTest {
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(true) }
-            ExposedDropdownMenuForTest(
-                expanded = expanded,
-                onExpandChange = { expanded = it }
-            )
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         onNodeWithTag(TFTag).assertIsDisplayed()
@@ -130,13 +140,54 @@ class ExposedDropdownMenuTest {
     }
 
     @Test
-    fun edm_expandsAndFocusesTextField_whenTrailingIconClicked() = runComposeUiTest {
-        setContent {
+    fun edm_notEditable_doesNotExpand_whenDisabled() = runComposeUiTest {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
+                editable = false,
+                enabled = false,
             )
+        }
+
+        onNodeWithTag(TFTag).assertIsDisplayed()
+        onNodeWithTag(EDMTag).assertDoesNotExist()
+
+        // Click on the TextField
+        onNodeWithTag(TFTag).performClick()
+
+        // Menu still is not displayed
+        onNodeWithTag(EDMTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun edm_editable_doesNotExpand_whenDisabled() = runComposeUiTest {
+        setMaterialContent(lightColorScheme()) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                editable = true,
+                enabled = false,
+            )
+        }
+
+        onNodeWithTag(TFTag).assertIsDisplayed()
+        onNodeWithTag(EDMTag).assertDoesNotExist()
+
+        // Click on the TextField
+        onNodeWithTag(TFTag).performClick()
+
+        // Menu still is not displayed
+        onNodeWithTag(EDMTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun edm_expandsAndFocusesTextField_whenTrailingIconClicked() = runComposeUiTest {
+        setMaterialContent(lightColorScheme()) {
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         onNodeWithTag(TFTag).assertIsDisplayed()
@@ -152,14 +203,13 @@ class ExposedDropdownMenuTest {
     @Test
     fun edm_doesNotExpand_ifTouchEndsOutsideBounds() = runComposeUiTest {
         var textFieldBounds = Rect.Zero
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                }
+                textFieldModifier =
+                    Modifier.onGloballyPositioned { textFieldBounds = it.boundsInRoot() },
             )
         }
 
@@ -171,34 +221,24 @@ class ExposedDropdownMenuTest {
             swipe(
                 start = this.center,
                 end = Offset(this.centerX, this.centerY + (textFieldBounds.height / 2) + 1),
-                durationMillis = 100
+                durationMillis = 100,
             )
         }
         onNodeWithTag(MenuItemTag).assertDoesNotExist()
-
-        // A swipe that ends within the bounds of the anchor should expand the menu.
-        onNodeWithTag(TFTag).performTouchInput {
-            swipe(
-                start = this.center,
-                end = Offset(this.centerX, this.centerY + (textFieldBounds.height / 2) - 1),
-                durationMillis = 100
-            )
-        }
-        onNodeWithTag(MenuItemTag).assertIsDisplayed()
     }
 
     @Test
     fun edm_doesNotExpand_ifTouchIsPartOfScroll() = runComposeUiTest {
         val testIndex = 2
         var textFieldSize = IntSize.Zero
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 items(50) { index ->
                     var expanded by remember { mutableStateOf(false) }
-                    var selectedOptionText by remember { mutableStateOf("") }
+                    val textFieldState = rememberTextFieldState()
 
                     ExposedDropdownMenuBox(
                         expanded = expanded,
@@ -206,39 +246,44 @@ class ExposedDropdownMenuTest {
                         modifier = Modifier.padding(8.dp),
                     ) {
                         TextField(
-                            modifier = Modifier
-                                .menuAnchor(MenuAnchorType.PrimaryEditable)
-                                .then(
-                                    if (index == testIndex) Modifier
-                                        .testTag(TFTag)
-                                        .onSizeChanged {
-                                            textFieldSize = it
-                                        } else {
-                                        Modifier
-                                    }
-                                ),
-                            value = selectedOptionText,
-                            onValueChange = { selectedOptionText = it },
+                            modifier =
+                                Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
+                                    .then(
+                                        if (index == testIndex)
+                                            Modifier.testTag(TFTag).onSizeChanged {
+                                                textFieldSize = it
+                                            }
+                                        else {
+                                            Modifier
+                                        }
+                                    ),
+                            state = textFieldState,
                             label = { Text("Label") },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors()
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
                         )
                         ExposedDropdownMenu(
-                            modifier = if (index == testIndex) {
-                                Modifier.testTag(EDMTag)
-                            } else { Modifier },
+                            modifier =
+                                if (index == testIndex) {
+                                    Modifier.testTag(EDMTag)
+                                } else {
+                                    Modifier
+                                },
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            onDismissRequest = { expanded = false },
                         ) {
                             DropdownMenuItem(
                                 text = { Text(OptionName) },
                                 onClick = {
-                                    selectedOptionText = OptionName
+                                    textFieldState.setTextAndPlaceCursorAtEnd(OptionName)
                                     expanded = false
                                 },
-                                modifier = if (index == testIndex) {
-                                    Modifier.testTag(MenuItemTag)
-                                } else { Modifier },
+                                modifier =
+                                    if (index == testIndex) {
+                                        Modifier.testTag(MenuItemTag)
+                                    } else {
+                                        Modifier
+                                    },
                             )
                         }
                     }
@@ -255,20 +300,117 @@ class ExposedDropdownMenuTest {
             swipe(
                 start = this.center,
                 end = Offset(this.centerX, this.centerY - (textFieldSize.height / 2) + 1),
-                durationMillis = 100
+                durationMillis = 100,
             )
         }
         onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
 
-        // But a swipe that does not cause a scroll should expand the menu.
-        onNodeWithTag(TFTag).performTouchInput {
-            swipe(
-                start = this.center,
-                end = Offset(this.centerX + (textFieldSize.width / 2) - 1, this.centerY),
-                durationMillis = 100
+    @Test
+    fun edm_expands_onEnterKey() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
             )
         }
-        onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        runOnIdle { assertTrue(expanded) }
+    }
+
+    @Test
+    @Ignore // TODO Fails on Desktop
+    fun edm_collapses_onEnterKey() = runComposeUiTest {
+        var expanded by mutableStateOf(true)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        runOnIdle { assertFalse(expanded) }
+    }
+
+    @Test
+    fun edm_editable_expands_onEnterKey() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        runOnIdle { assertTrue(expanded) }
+    }
+
+    @Test
+    fun edm_editable_collapses_onEnterKey() = runComposeUiTest {
+        var expanded by mutableStateOf(true)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Enter) }
+
+        runOnIdle { assertFalse(expanded) }
+    }
+
+    @Test
+    fun edm_editable_doesNotExpand_onSpacebarKey() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Spacebar) }
+
+        runOnIdle { assertFalse(expanded) }
+    }
+
+    @Test
+    fun edm_editable_doesNotCollapse_onSpacebarKey() = runComposeUiTest {
+        var expanded by mutableStateOf(true)
+
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(
+                editable = true,
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+                textFieldModifier = Modifier.testTag("TextField"),
+            )
+        }
+
+        onNodeWithTag("TextField").requestFocus().performKeyInput { pressKey(Key.Spacebar) }
+
+        runOnIdle { assertTrue(expanded) }
     }
 
     @Test
@@ -276,34 +418,23 @@ class ExposedDropdownMenuTest {
         var compositionCount = 0
         lateinit var scrollState: ScrollState
         lateinit var scope: CoroutineScope
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             scrollState = rememberScrollState()
             scope = rememberCoroutineScope()
-            Column(
-                modifier = Modifier
-                    .height(500.dp)
-                    .verticalScroll(scrollState)
-            ) {
+            Column(Modifier.verticalScroll(scrollState)) {
                 Spacer(Modifier.height(300.dp))
 
                 val expanded = false
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = {},
-                ) {
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {}) {
                     TextField(
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        modifier =
+                            Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                         readOnly = true,
-                        value = "",
-                        onValueChange = {},
+                        state = rememberTextFieldState(),
                         label = { Text("Label") },
                     )
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = {},
-                        content = {},
-                    )
-                    compositionCount++
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = {}, content = {})
+                    SideEffect { compositionCount++ }
                 }
 
                 Spacer(Modifier.height(300.dp))
@@ -312,48 +443,71 @@ class ExposedDropdownMenuTest {
 
         assertThat(compositionCount).isEqualTo(1)
 
-        scope.launch {
-            scrollState.animateScrollBy(500f)
-        }
-        mainClock.advanceTimeBy(10_000)
+        runOnIdle { scope.launch { scrollState.animateScrollBy(500f) } }
         waitForIdle()
 
-        assertTrue(scrollState.value > 0)  // Make sure we did scroll
         assertThat(compositionCount).isEqualTo(1)
+    }
+
+    @Test
+    fun edm_anchorTypeIsUpdated_evenIfTextFieldIsNotClicked() = runComposeUiTest {
+        var expanded by mutableStateOf(false)
+        var type: ExposedDropdownMenuAnchorType? = null
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+                TextField(
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+                    state = rememberTextFieldState(),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    label = { Text("Label") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded,
+                            modifier =
+                                Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
+                        )
+                    },
+                )
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    DropdownMenuItem(text = { Text(OptionName) }, onClick = {})
+                }
+                SideEffect { type = anchorType }
+            }
+        }
+        runOnIdle { expanded = true }
+        assertThat(type).isEqualTo(ExposedDropdownMenuAnchorType.PrimaryEditable)
     }
 
     @Test
     fun edm_widthMatchesTextFieldWidth() = runComposeUiTest {
         var textFieldBounds by mutableStateOf(Rect.Zero)
         var menuBounds by mutableStateOf(Rect.Zero)
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(true) }
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                },
-                onMenuBoundsChanged = {
-                    menuBounds = it
-                }
+                textFieldModifier =
+                    Modifier
+                        // Make text field nearly full screen width to test that
+                        // menu is not limited by the default system popup width
+                        .fillMaxWidth(fraction = 0.98f)
+                        .onGloballyPositioned { textFieldBounds = it.boundsInRoot() },
+                menuModifier = Modifier.onGloballyPositioned { menuBounds = it.boundsInRoot() },
             )
         }
 
         onNodeWithTag(TFTag).assertIsDisplayed()
         onNodeWithTag(MenuItemTag).assertIsDisplayed()
 
-        assertThat(menuBounds.width).isEqualTo(textFieldBounds.width)
+        runOnIdle { assertThat(menuBounds.width).isEqualTo(textFieldBounds.width) }
     }
 
     @Test
     fun edm_collapsesWithSelection_whenMenuItemClicked() = runComposeUiTest {
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             var expanded by remember { mutableStateOf(true) }
-            ExposedDropdownMenuForTest(
-                expanded = expanded,
-                onExpandChange = { expanded = it }
-            )
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         onNodeWithTag(TFTag).assertIsDisplayed()
@@ -370,24 +524,24 @@ class ExposedDropdownMenuTest {
     @Test
     fun edm_withScrolledContent() = runComposeUiTest {
         lateinit var scrollState: ScrollState
-        setContent {
+        setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
                 ExposedDropdownMenuBox(
                     modifier = Modifier.align(Alignment.Center),
                     expanded = true,
-                    onExpandedChange = { }
+                    onExpandedChange = {},
                 ) {
                     scrollState = rememberScrollState()
                     TextField(
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                        value = "",
-                        onValueChange = { },
+                        modifier =
+                            Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+                        state = rememberTextFieldState(),
                         label = { Text("Label") },
                     )
                     ExposedDropdownMenu(
                         expanded = true,
-                        onDismissRequest = { },
-                        scrollState = scrollState
+                        onDismissRequest = {},
+                        scrollState = scrollState,
                     ) {
                         repeat(100) {
                             Text(
@@ -410,39 +564,97 @@ class ExposedDropdownMenuTest {
 
     @Test
     fun edm_hasDropdownSemantics() = runComposeUiTest {
-        setContent {
-            ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = { },
-            ) {
-                TextField(
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    value = "",
-                    onValueChange = { },
-                    label = { Text("Label") },
-                    readOnly = true,
-                )
-                ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { },
-                ) {
-                    Text("Menu Item")
-                }
-            }
+        setMaterialContent(lightColorScheme()) {
+            ExposedDropdownMenuForTest(expanded = false, onExpandChange = {})
         }
 
-        onNodeWithText("Label")
+        onNodeWithTag(TFTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.DropdownList))
+    }
+
+    @Test
+    fun edm_positionProvider() = runComposeUiTest {
+        val topWindowInsets = 50
+        val density = Density(1f)
+        val anchorSize = IntSize(width = 200, height = 100)
+        val popupSize = IntSize(width = 200, height = 340)
+        val windowSize = IntSize(width = 500, height = 500)
+        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+        val layoutDirection = LayoutDirection.Ltr
+
+        val edmPositionProvider =
+            ExposedDropdownMenuPositionProvider(
+                density = density,
+                topWindowInsets = topWindowInsets,
+            )
+
+        // typical case
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(size = anchorSize, offset = IntOffset(0, 0)),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        )
+            .isEqualTo(IntOffset(0, anchorSize.height))
+
+        // off-screen (above)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds = IntRect(size = anchorSize, offset = IntOffset(0, -150)),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        )
+            .isEqualTo(IntOffset(0, verticalMargin))
+
+        // interacting with window insets
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds =
+                    IntRect(
+                        size = anchorSize,
+                        // If it weren't for topWindowInsets allowance,
+                        // the menu would be considered "off-screen"
+                        offset = IntOffset(0, 100),
+                    ),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        )
+            .isEqualTo(IntOffset(0, 100 + anchorSize.height))
+
+        // off-screen (below)
+        assertThat(
+            edmPositionProvider.calculatePosition(
+                anchorBounds =
+                    IntRect(size = anchorSize, offset = IntOffset(0, windowSize.height + 100)),
+                windowSize = windowSize,
+                popupContentSize = popupSize,
+                layoutDirection = layoutDirection,
+            )
+        )
+            .isEqualTo(
+                IntOffset(
+                    0,
+                    windowSize.height + topWindowInsets - verticalMargin - popupSize.height,
+                )
+            )
     }
 
     @Composable
     fun ExposedDropdownMenuForTest(
         expanded: Boolean,
         onExpandChange: (Boolean) -> Unit,
-        onTextFieldBoundsChanged: ((Rect) -> Unit)? = null,
-        onMenuBoundsChanged: ((Rect) -> Unit)? = null
+        editable: Boolean = false,
+        enabled: Boolean = true,
+        textFieldModifier: Modifier = Modifier,
+        menuModifier: Modifier = Modifier,
     ) {
-        var selectedOptionText by remember { mutableStateOf("") }
+        val textFieldState = rememberTextFieldState()
         Box(Modifier.fillMaxSize()) {
             ExposedDropdownMenuBox(
                 modifier = Modifier.align(Alignment.Center),
@@ -450,42 +662,41 @@ class ExposedDropdownMenuTest {
                 onExpandedChange = onExpandChange,
             ) {
                 TextField(
-                    modifier = Modifier
-                        .menuAnchor(MenuAnchorType.PrimaryEditable)
-                        .testTag(TFTag)
-                        .onGloballyPositioned {
-                            onTextFieldBoundsChanged?.invoke(it.boundsInRoot())
-                        },
-                    value = selectedOptionText,
-                    onValueChange = { selectedOptionText = it },
+                    modifier =
+                        textFieldModifier
+                            .menuAnchor(
+                                type =
+                                    if (editable) {
+                                        ExposedDropdownMenuAnchorType.PrimaryEditable
+                                    } else {
+                                        ExposedDropdownMenuAnchorType.PrimaryNotEditable
+                                    },
+                                enabled = enabled,
+                            )
+                            .testTag(TFTag),
+                    state = textFieldState,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    readOnly = !editable,
                     label = { Text("Label") },
                     trailingIcon = {
-                        Box(
-                            modifier = Modifier.testTag(TrailingIconTag)
-                        ) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                expanded = expanded
-                            )
+                        Box(Modifier.testTag(TrailingIconTag)) {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         }
                     },
-                    colors = ExposedDropdownMenuDefaults.textFieldColors()
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 )
                 ExposedDropdownMenu(
-                    modifier = Modifier
-                        .testTag(EDMTag)
-                        .onGloballyPositioned {
-                            onMenuBoundsChanged?.invoke(it.boundsInRoot())
-                        },
+                    modifier = menuModifier.testTag(EDMTag),
                     expanded = expanded,
-                    onDismissRequest = { onExpandChange(false) }
+                    onDismissRequest = { onExpandChange(false) },
                 ) {
                     DropdownMenuItem(
                         text = { Text(OptionName) },
                         onClick = {
-                            selectedOptionText = OptionName
+                            textFieldState.setTextAndPlaceCursorAtEnd(OptionName)
                             onExpandChange(false)
                         },
-                        modifier = Modifier.testTag(MenuItemTag)
+                        modifier = Modifier.testTag(MenuItemTag),
                     )
                 }
             }

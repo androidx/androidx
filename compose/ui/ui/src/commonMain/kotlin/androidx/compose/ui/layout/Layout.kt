@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.materialize
 import androidx.compose.ui.materializeWithCompositionLocalInjectionInternal
 import androidx.compose.ui.node.ComposeUiNode
+import androidx.compose.ui.node.ComposeUiNode.Companion.ApplyOnDeactivatedNodeAssertion
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetCompositeKeyHash
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetMeasurePolicy
 import androidx.compose.ui.node.ComposeUiNode.Companion.SetModifier
@@ -87,6 +88,7 @@ inline fun Layout(
             set(measurePolicy, SetMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
             set(compositeKeyHash, SetCompositeKeyHash)
+            reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
         },
         content = content,
@@ -128,6 +130,7 @@ inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
         update = {
             set(measurePolicy, SetMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
+            reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
             set(compositeKeyHash, SetCompositeKeyHash)
         },
@@ -247,6 +250,7 @@ fun MultiMeasureLayout(
             set(measurePolicy, SetMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
             @Suppress("DEPRECATION") init { this.canMultiMeasure = true }
+            reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
             set(compositeKeyHash, SetCompositeKeyHash)
         },

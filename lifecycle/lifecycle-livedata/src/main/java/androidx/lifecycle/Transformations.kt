@@ -61,7 +61,7 @@ public fun <X, Y> LiveData<X>.map(
 
 @Deprecated(
     "Use kotlin functions, instead of outdated arch core Functions",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @JvmName("map")
 @MainThread
@@ -151,7 +151,7 @@ public fun <X, Y> LiveData<X>.switchMap(
 
 @Deprecated(
     "Use kotlin functions, instead of outdated arch core Functions",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @JvmName("switchMap")
 @MainThread
@@ -176,7 +176,7 @@ public fun <X, Y> LiveData<X>.switchMap(switchMapFunction: Function<X, LiveData<
                     result.addSource(liveData!!) { y -> result.setValue(y) }
                 }
             }
-        }
+        },
     )
     return result
 }

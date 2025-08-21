@@ -196,7 +196,9 @@ class TextContextMenuGesturesModifierTest {
                 ) {
                     Box(
                         preGestureModifier
-                            .textContextMenuGestures { onPreShowContextMenuInvocationCount++ }
+                            .showTextContextMenuOnSecondaryClick {
+                                onPreShowContextMenuInvocationCount++
+                            }
                             .then(postGestureModifier)
                             .onGloballyPositioned { destinationCoordinates = it }
                             .testTag(tag)

@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.window
 
+import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Build
 import android.util.DisplayMetrics
@@ -35,9 +36,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -64,10 +68,11 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.TestActivity2
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyChild
@@ -99,7 +104,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DialogTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity2>()
 
     lateinit var activity: ComponentActivity
 
@@ -801,7 +806,7 @@ class DialogTest {
         rule.setContent {
             Dialog(onDismissRequest = {}) {
                 val density = LocalDensity.current
-                val insets = WindowInsets.safeContent
+                val insets = WindowInsets.safeDrawing
                 Box(
                     Modifier.fillMaxSize().onPlaced {
                         top = insets.getTop(density)
@@ -823,9 +828,13 @@ class DialogTest {
             focusRequester.requestFocus()
         }
 
-        rule.runOnIdle {
-            assertThat(top).isEqualTo(0)
-            assertThat(bottom).isEqualTo(0)
+        // On 35+, the IME WindowInsets are still passed, even though the content automatically
+        // avoids the IME. b/430601578
+        if (Build.VERSION.SDK_INT < 35) {
+            rule.runOnIdle {
+                assertThat(top).isEqualTo(0)
+                assertThat(bottom).isEqualTo(0)
+            }
         }
     }
 
@@ -918,20 +927,29 @@ class DialogTest {
     }
 
     @Test
-    // TODO(b/211022812): Remove SdkSuppress annotation once linked bug is fixed
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S_V2)
-    fun fullScreenDialogNotDefaultWidthDecorFitsMatchesContainerSize() {
+    fun fullScreenDialogPortraitNotDefaultWidthDecorFitsMatchesContainerSize() {
+        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        verifyFullScreenDialogMatchesContainer()
+    }
+
+    @Test
+    fun fullScreenDialogLandscapeNotDefaultWidthDecorFitsMatchesContainerSize() {
+        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        verifyFullScreenDialogMatchesContainer()
+    }
+
+    private fun verifyFullScreenDialogMatchesContainer() {
         var mainContentWidth = 0
         var mainContentHeight = 0
         var dialogWidth = 0
         var dialogHeight = 0
         rule.activityRule.scenario.onActivity {
-            WindowCompat.setDecorFitsSystemWindows(it.window, true)
+            WindowCompat.setDecorFitsSystemWindows(it.window, false)
         }
         rule.setContent {
             Box(
                 modifier =
-                    Modifier.fillMaxSize().onGloballyPositioned {
+                    Modifier.safeDrawingPadding().fillMaxSize().onGloballyPositioned {
                         mainContentWidth = it.size.width
                         mainContentHeight = it.size.height
                     }
@@ -951,6 +969,55 @@ class DialogTest {
                                 dialogHeight = it.size.height
                             }
                     ) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(mainContentWidth).isEqualTo(dialogWidth)
+            assertThat(mainContentHeight).isEqualTo(dialogHeight)
+        }
+    }
+
+    @Test
+    fun fullScreenDialogWithImeNotDefaultWidthDecorFitsMatchesContainerSize() {
+        var mainContentWidth = 0
+        var mainContentHeight = 0
+        var dialogWidth = 0
+        var dialogHeight = 0
+        rule.activityRule.scenario.onActivity {
+            WindowCompat.setDecorFitsSystemWindows(it.window, false)
+        }
+        rule.setContent {
+            val keyboardController = LocalSoftwareKeyboardController.current
+            keyboardController?.show()
+            Box(
+                modifier =
+                    Modifier.safeDrawingPadding().fillMaxSize().onGloballyPositioned {
+                        mainContentWidth = it.size.width
+                        mainContentHeight = it.size.height
+                    }
+            ) {
+                Dialog(
+                    onDismissRequest = {},
+                    properties =
+                        DialogProperties(
+                            usePlatformDefaultWidth = false,
+                            decorFitsSystemWindows = true,
+                        ),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxSize().onGloballyPositioned {
+                                dialogWidth = it.size.width
+                                dialogHeight = it.size.height
+                            }
+                    ) {
+                        TextField(
+                            state = rememberTextFieldState(initialText = "Hello"),
+                            label = { Text("Label") },
+                        )
+                    }
                 }
             }
         }

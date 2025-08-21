@@ -1,25 +1,143 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getConstraints-msEJaDk():
-    Binary breaking change: Added method androidx.compose.foundation.layout.BoxWithConstraintsScope.getConstraints-msEJaDk()
-AddedAbstractMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMaxHeight-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMaxHeight-D9Ej5fM()
-AddedAbstractMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMaxWidth-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMaxWidth-D9Ej5fM()
-AddedAbstractMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMinHeight-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMinHeight-D9Ej5fM()
-AddedAbstractMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMinWidth-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMinWidth-D9Ej5fM()
-AddedAbstractMethod: androidx.compose.foundation.layout.PaddingValues#calculateBottomPadding-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.PaddingValues.calculateBottomPadding-D9Ej5fM()
-AddedAbstractMethod: androidx.compose.foundation.layout.PaddingValues#calculateLeftPadding-u2uoSUM(androidx.compose.ui.unit.LayoutDirection):
-    Binary breaking change: Added method androidx.compose.foundation.layout.PaddingValues.calculateLeftPadding-u2uoSUM(androidx.compose.ui.unit.LayoutDirection)
-AddedAbstractMethod: androidx.compose.foundation.layout.PaddingValues#calculateRightPadding-u2uoSUM(androidx.compose.ui.unit.LayoutDirection):
-    Binary breaking change: Added method androidx.compose.foundation.layout.PaddingValues.calculateRightPadding-u2uoSUM(androidx.compose.ui.unit.LayoutDirection)
-AddedAbstractMethod: androidx.compose.foundation.layout.PaddingValues#calculateTopPadding-D9Ej5fM():
-    Binary breaking change: Added method androidx.compose.foundation.layout.PaddingValues.calculateTopPadding-D9Ej5fM()
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreNavigationBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreStatusBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getAreSystemBarsVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getCaptionBarIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationSource(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getImeAnimationTarget(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getNavigationBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getStatusBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemBarsIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.getTappableElementIgnoringVisibility(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.isCaptionBarVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.isImeVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion,androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.foundation.layout.WindowInsets_androidKt.isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.foundation.layout.WindowInsets_androidKt.isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
+BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion, androidx.compose.runtime.Composer, int) parameter #2:
+    Removed parameter arg3 in androidx.compose.foundation.layout.WindowInsets_androidKt.isTappableElementVisible(androidx.compose.foundation.layout.WindowInsets.Companion arg1, androidx.compose.runtime.Composer arg2, int arg3) from compatibility checked API surface
 
 
-ChangedStatic: androidx.compose.foundation.layout.WindowInsets_androidKt#getConsumeWindowInsets():
-    Binary breaking change: Method androidx.compose.foundation.layout.WindowInsets_androidKt.getConsumeWindowInsets has changed 'static' qualifier
-ChangedStatic: androidx.compose.foundation.layout.WindowInsets_androidKt#setConsumeWindowInsets(boolean):
-    Binary breaking change: Method androidx.compose.foundation.layout.WindowInsets_androidKt.setConsumeWindowInsets has changed 'static' qualifier
+RemovedDeprecatedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getConsumeWindowInsets():
+    Binary breaking change: Removed deprecated method androidx.compose.foundation.layout.WindowInsets_androidKt.getConsumeWindowInsets()
+RemovedDeprecatedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#setConsumeWindowInsets(boolean):
+    Binary breaking change: Removed deprecated method androidx.compose.foundation.layout.WindowInsets_androidKt.setConsumeWindowInsets(boolean)
+
+
+RemovedMethod: androidx.compose.foundation.layout.Arrangement.Horizontal#getSpacing():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.Arrangement.Horizontal.getSpacing()
+RemovedMethod: androidx.compose.foundation.layout.Arrangement.Vertical#getSpacing():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.Arrangement.Vertical.getSpacing()
+RemovedMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getConstraints():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.BoxWithConstraintsScope.getConstraints()
+RemovedMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMaxHeight():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMaxHeight()
+RemovedMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMaxWidth():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMaxWidth()
+RemovedMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMinHeight():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMinHeight()
+RemovedMethod: androidx.compose.foundation.layout.BoxWithConstraintsScope#getMinWidth():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.BoxWithConstraintsScope.getMinWidth()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getBottom():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getBottom()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getEnd():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getEnd()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getHorizontal():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getHorizontal()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getLeft():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getLeft()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getRight():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getRight()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getStart():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getStart()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getTop():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getTop()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getVertical():
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getVertical()

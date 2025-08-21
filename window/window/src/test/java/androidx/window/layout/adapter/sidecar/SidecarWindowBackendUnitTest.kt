@@ -141,12 +141,12 @@ public class SidecarWindowBackendUnitTest {
         backend.registerLayoutChangeCallback(
             activity,
             { obj: Runnable -> obj.run() },
-            firstConsumer
+            firstConsumer,
         )
         backend.registerLayoutChangeCallback(
             activity,
             { obj: Runnable -> obj.run() },
-            secondConsumer
+            secondConsumer,
         )
 
         // Check unregistering the layout change callback
@@ -180,7 +180,7 @@ public class SidecarWindowBackendUnitTest {
                 object : ExtensionCallbackInterface {
                     override fun onWindowLayoutChanged(
                         activity: Activity,
-                        newLayout: WindowLayoutInfo
+                        newLayout: WindowLayoutInfo,
                     ) {}
                 }
             mWindowLayoutInfo = windowLayoutInfo

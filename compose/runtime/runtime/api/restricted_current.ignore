@@ -1,123 +1,63 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.Composition#setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.runtime.Composition.setContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#composeContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.runtime.ControlledComposition.composeContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.runtime.PausableComposition#setPausableContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.runtime.PausableComposition.setPausableContent(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.runtime.PausableComposition#setPausableContentWithReuse(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.runtime.PausableComposition.setPausableContentWithReuse(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>)
-AddedAbstractMethod: androidx.compose.runtime.PausedComposition#isApplied():
-    Binary breaking change: Added method androidx.compose.runtime.PausedComposition.isApplied()
-AddedAbstractMethod: androidx.compose.runtime.PausedComposition#isCancelled():
-    Binary breaking change: Added method androidx.compose.runtime.PausedComposition.isCancelled()
-AddedAbstractMethod: androidx.compose.runtime.ReusableComposition#setContentWithReuse(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>):
-    Binary breaking change: Added method androidx.compose.runtime.ReusableComposition.setContentWithReuse(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.runtime.Composer#scheduleFrameEndCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: Added method androidx.compose.runtime.Composer.scheduleFrameEndCallback(kotlin.jvm.functions.Function0<kotlin.Unit>)
 
 
-BecameUnchecked: androidx.compose.runtime.Composer#getApplyCoroutineContext():
-    Removed method androidx.compose.runtime.Composer.getApplyCoroutineContext() from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.Composer#getCompoundKeyHash():
-    Removed method androidx.compose.runtime.Composer.getCompoundKeyHash() from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.Composer#getRecomposeScope():
-    Removed method androidx.compose.runtime.Composer.getRecomposeScope() from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.MonotonicFrameClockKt#getMonotonicFrameClock(kotlin.coroutines.CoroutineContext):
-    Removed method androidx.compose.runtime.MonotonicFrameClockKt.getMonotonicFrameClock(kotlin.coroutines.CoroutineContext) from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.MonotonicFrameClockKt#getMonotonicFrameClock(kotlin.coroutines.CoroutineContext) parameter #0:
-    Removed parameter arg1 in androidx.compose.runtime.MonotonicFrameClockKt.getMonotonicFrameClock(kotlin.coroutines.CoroutineContext arg1) from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.internal.LiveLiteralKt#isLiveLiteralsEnabled():
-    Removed method androidx.compose.runtime.internal.LiveLiteralKt.isLiveLiteralsEnabled() from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer arg1, int arg2) from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer arg1, int arg2) from compatibility checked API surface
 
 
-RemovedClass: androidx.compose.runtime.Immutable:
-    Binary breaking change: Removed class androidx.compose.runtime.Immutable
-RemovedClass: androidx.compose.runtime.Stable:
-    Binary breaking change: Removed class androidx.compose.runtime.Stable
-RemovedClass: androidx.compose.runtime.StableMarker:
-    Binary breaking change: Removed class androidx.compose.runtime.StableMarker
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#map(kotlin.jvm.functions.Function1<? super T,? extends R>):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVector.map(kotlin.jvm.functions.Function1<T,R>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#mapIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends R>):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVector.mapIndexed(kotlin.jvm.functions.Function2<java.lang.Integer,T,R>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#mapIndexedNotNull(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends R>):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVector.mapIndexedNotNull(kotlin.jvm.functions.Function2<java.lang.Integer,T,R>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#mapNotNull(kotlin.jvm.functions.Function1<? super T,? extends R>):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVector.mapNotNull(kotlin.jvm.functions.Function1<T,R>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVectorKt#MutableVector(int):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVectorKt.MutableVector(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVectorKt#MutableVector(int, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends T>):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVectorKt.MutableVector(int,kotlin.jvm.functions.Function1<java.lang.Integer,T>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf():
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVectorKt.mutableVectorOf() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.collection.MutableVectorKt#mutableVectorOf(T...):
+    Binary breaking change: method androidx.compose.runtime.collection.MutableVectorKt.mutableVectorOf(T...) has been removed from bytecode
 
 
-RemovedFromJava: androidx.compose.runtime.BroadcastFrameClock#fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.fold(R,kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.BroadcastFrameClock#get(kotlin.coroutines.CoroutineContext.Key<E>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.get(kotlin.coroutines.CoroutineContext.Key<E>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.BroadcastFrameClock#minusKey(kotlin.coroutines.CoroutineContext.Key<?>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.minusKey(kotlin.coroutines.CoroutineContext.Key<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.BroadcastFrameClock#plus(kotlin.coroutines.CoroutineContext):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.plus(kotlin.coroutines.CoroutineContext) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.PausableMonotonicFrameClock#fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.fold(R,kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.PausableMonotonicFrameClock#get(kotlin.coroutines.CoroutineContext.Key<E>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.get(kotlin.coroutines.CoroutineContext.Key<E>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.PausableMonotonicFrameClock#minusKey(kotlin.coroutines.CoroutineContext.Key<?>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.minusKey(kotlin.coroutines.CoroutineContext.Key<?>) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.PausableMonotonicFrameClock#plus(kotlin.coroutines.CoroutineContext):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.plus(kotlin.coroutines.CoroutineContext) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateList#remove(int):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.remove(int) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateList#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.size() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateList#toArray():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.toArray() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateList#toArray(T[]):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.toArray(T[]) can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateMap#entrySet():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.entrySet() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateMap#keySet():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.keySet() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateMap#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.size() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateMap#values():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.values() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateSet#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.size() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateSet#toArray():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.toArray() can no longer be resolved from Java source
-RemovedFromJava: androidx.compose.runtime.snapshots.SnapshotStateSet#toArray(T[]):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.toArray(T[]) can no longer be resolved from Java source
+RemovedFromKotlin: androidx.compose.runtime.ActualJvm_jvmKt#synchronized(Object, kotlin.jvm.functions.Function0<? extends R>):
+    Source breaking change: method androidx.compose.runtime.ActualJvm_jvmKt.synchronized(Object,kotlin.jvm.functions.Function0<? extends R>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.runtime.ComposerKt#traceEventStart(int, String):
+    Source breaking change: method androidx.compose.runtime.ComposerKt.traceEventStart(int,String) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.runtime.snapshots.StateRecord#create(int):
+    Source breaking change: method androidx.compose.runtime.snapshots.StateRecord.create(int) can no longer be resolved from Kotlin source
 
 
-RemovedFromKotlin: androidx.compose.runtime.BroadcastFrameClock#fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.fold(R,kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.BroadcastFrameClock#get(kotlin.coroutines.CoroutineContext.Key<E>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.get(kotlin.coroutines.CoroutineContext.Key<E>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.BroadcastFrameClock#minusKey(kotlin.coroutines.CoroutineContext.Key<?>):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.minusKey(kotlin.coroutines.CoroutineContext.Key<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.BroadcastFrameClock#plus(kotlin.coroutines.CoroutineContext):
-    Source breaking change: method androidx.compose.runtime.BroadcastFrameClock.plus(kotlin.coroutines.CoroutineContext) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.PausableMonotonicFrameClock#fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.fold(R,kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element,? extends R>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.PausableMonotonicFrameClock#get(kotlin.coroutines.CoroutineContext.Key<E>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.get(kotlin.coroutines.CoroutineContext.Key<E>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.PausableMonotonicFrameClock#minusKey(kotlin.coroutines.CoroutineContext.Key<?>):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.minusKey(kotlin.coroutines.CoroutineContext.Key<?>) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.PausableMonotonicFrameClock#plus(kotlin.coroutines.CoroutineContext):
-    Source breaking change: method androidx.compose.runtime.PausableMonotonicFrameClock.plus(kotlin.coroutines.CoroutineContext) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateList#remove(int):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.remove(int) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateList#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.size() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateList#toArray():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.toArray() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateList#toArray(T[]):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateList.toArray(T[]) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateMap#entrySet():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.entrySet() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateMap#keySet():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.keySet() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateMap#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.size() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateMap#values():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateMap.values() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateSet#size():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.size() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateSet#toArray():
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.toArray() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.runtime.snapshots.SnapshotStateSet#toArray(T[]):
-    Source breaking change: method androidx.compose.runtime.snapshots.SnapshotStateSet.toArray(T[]) can no longer be resolved from Kotlin source
-
-
-RemovedMethod: androidx.compose.runtime.snapshots.MutableSnapshot#getReadObserver():
-    Binary breaking change: Removed method androidx.compose.runtime.snapshots.MutableSnapshot.getReadObserver()
-RemovedMethod: androidx.compose.runtime.snapshots.MutableSnapshot#getWriteObserver():
-    Binary breaking change: Removed method androidx.compose.runtime.snapshots.MutableSnapshot.getWriteObserver()
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.SkippableUpdater<T>,? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function3<? super androidx.compose.runtime.SkippableUpdater<T>,? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
+RemovedMethod: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.SkippableUpdater<T>,? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
+    Binary breaking change: Removed method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>,kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function3<? super androidx.compose.runtime.SkippableUpdater<T>,? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)

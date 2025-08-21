@@ -37,7 +37,7 @@ internal class StubEmbeddingBackendTest {
         backend.addSplitListenerForActivity(
             mockActivity,
             MoreExecutors.directExecutor(),
-            mockCallback
+            mockCallback,
         )
         backend.removeSplitListenerForActivity(mockCallback)
 

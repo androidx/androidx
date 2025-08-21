@@ -26,7 +26,7 @@ public actual object Lifecycling {
         if (isLifecycleEventObserver && isDefaultLifecycleObserver) {
             return DefaultLifecycleObserverAdapter(
                 `object` as DefaultLifecycleObserver,
-                `object` as LifecycleEventObserver
+                `object` as LifecycleEventObserver,
             )
         }
         if (isDefaultLifecycleObserver) {

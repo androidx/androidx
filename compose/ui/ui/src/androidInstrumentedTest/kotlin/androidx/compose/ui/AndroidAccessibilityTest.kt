@@ -5969,7 +5969,7 @@ private fun AccessibilityEvent(): android.view.accessibility.AccessibilityEvent 
             @Suppress("DEPRECATION") android.view.accessibility.AccessibilityEvent.obtain()
         }
         .apply {
-            packageName = "androidx.compose.ui.test"
+            packageName = "androidx.compose.ui.tests"
             className = "android.view.View"
             isEnabled = true
         }

@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  * Operation convert floats to text This command is structured
- * [command][textID][before,after][flags] before and after define number of digits before and after
+ * [command][textId][before,after][flags] before and after define number of digits before and after
  * the decimal point
  */
 public class TextFromFloat extends Operation implements VariableSupport, Serializable {

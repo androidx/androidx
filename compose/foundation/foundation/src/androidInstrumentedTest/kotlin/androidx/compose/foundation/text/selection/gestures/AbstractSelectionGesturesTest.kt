@@ -118,7 +118,7 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         }
     }
 
-    private val bounds
+    protected val bounds
         get() = rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().size.toSize().toRect()
 
     private val left

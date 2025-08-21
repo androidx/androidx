@@ -28,7 +28,7 @@ open class WindowTestUtils {
                 )
                 .createWindowContext(
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    /* options= */ null
+                    /* options= */ null,
                 )
         }
 
@@ -80,7 +80,7 @@ open class WindowTestUtils {
         fun runActionsAcrossActivityLifecycle(
             scenarioRule: ActivityScenarioRule<TestActivity>,
             initialAction: ActivityScenario.ActivityAction<TestActivity>,
-            verifyAction: ActivityScenario.ActivityAction<TestActivity>
+            verifyAction: ActivityScenario.ActivityAction<TestActivity>,
         ) {
             val scenario = scenarioRule.scenario
             scenario.onActivity(initialAction)

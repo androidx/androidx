@@ -175,7 +175,10 @@ constructor(
  * @see TextRange.min
  */
 fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
-    annotatedString.subSequence(max(0, selection.min - maxChars), selection.min)
+    annotatedString.subSequence(
+        max(0, selection.min.subtractExactOrElse(maxChars) { 0 }),
+        selection.min,
+    )
 
 /**
  * Returns the text after the selection.
@@ -185,7 +188,10 @@ fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
  * @see TextRange.max
  */
 fun TextFieldValue.getTextAfterSelection(maxChars: Int): AnnotatedString =
-    annotatedString.subSequence(selection.max, min(selection.max + maxChars, text.length))
+    annotatedString.subSequence(
+        selection.max,
+        min(selection.max.addExactOrElse(maxChars) { text.length }, text.length),
+    )
 
 /** Returns the currently selected text. */
 fun TextFieldValue.getSelectedText(): AnnotatedString = annotatedString.subSequence(selection)

@@ -23,20 +23,28 @@ import android.view.InputDevice.SOURCE_KEYBOARD
 import android.view.KeyEvent
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.input.internal.selection.assertThatRect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -51,15 +59,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.getFocusedRect
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.NativeKeyEvent
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -69,8 +86,12 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -328,7 +349,288 @@ internal class TextFieldFocusTest {
         rule.runOnIdle { assertThat(focused).isFalse() }
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun focusBounds_cursor() {
+        val state = TextFieldState()
+        val node = FocusRectNode()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.elementFor(node),
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle {
+            assertThatRect(node.getFocusedRect())
+                .isEqualToWithTolerance(
+                    Rect(left = 0f, top = 0f, right = DefaultCursorThickness.value, bottom = 20f)
+                )
+        }
+    }
+
+    @Test
+    fun focusBounds_selection() {
+        val state = TextFieldState("abc", initialSelection = TextRange(1, 3))
+        val node = FocusRectNode()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.elementFor(node),
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle {
+            assertThatRect(node.getFocusedRect())
+                .isEqualToWithTolerance(Rect(left = 20f, top = 0f, right = 60f, bottom = 20f))
+        }
+    }
+
+    @Test
+    fun focusBounds_nonFocused() {
+        //              |x| -> Box
+        // | a            | -> TextField
+        //              |x| -> Box
+        // If we request a focus move from top box to down, TextField should gain focus since in its
+        // unfocused state it should use its entire bounding box
+
+        val focusRequester = FocusRequester()
+        lateinit var focusManager: FocusManager
+        rule.setContent {
+            focusManager = LocalFocusManager.current
+            Column(horizontalAlignment = Alignment.End) {
+                Box(
+                    Modifier.width(10.toDp())
+                        .height(10.toDp())
+                        .focusable()
+                        .focusRequester(focusRequester)
+                )
+                BasicTextField(
+                    rememberTextFieldState("a"),
+                    modifier = Modifier.width(100.toDp()).height(10.toDp()),
+                )
+                Box(Modifier.width(10.toDp()).height(10.toDp()).focusable())
+            }
+        }
+
+        focusRequester.requestFocus()
+
+        rule.runOnIdle { focusManager.moveFocus(FocusDirection.Down) }
+
+        rule.onNode(hasSetTextAction()).assertIsFocused()
+    }
+
+    @Test
+    fun focusBounds_afterEdit() {
+        val state = TextFieldState()
+        val focusedRects = mutableListOf<Rect?>()
+        val node = FocusRectNode()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.elementFor(node),
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle { focusedRects += node.getFocusedRect() }
+
+        state.edit { append("a") }
+
+        rule.runOnIdle {
+            focusedRects += node.getFocusedRect()
+            assertThat(focusedRects).hasSize(2)
+            assertThatRect(focusedRects[0])
+                .isEqualToWithTolerance(
+                    Rect(left = 0f, top = 0f, right = DefaultCursorThickness.value, bottom = 20f)
+                )
+            assertThatRect(focusedRects[1])
+                .isEqualToWithTolerance(
+                    Rect(
+                        left = 20f,
+                        top = 0f,
+                        right = 20f + DefaultCursorThickness.value,
+                        bottom = 20f,
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun focusBounds_whenFontSizeChanges_rectUpdates() {
+        val state = TextFieldState("a", initialSelection = TextRange(1))
+        val focusedRects = mutableListOf<Rect?>()
+        val node = FocusRectNode()
+        var fontSize by mutableStateOf(20.sp)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize),
+                    modifier = Modifier.elementFor(node),
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle { focusedRects += node.getFocusedRect() }
+
+        fontSize = 40.sp
+
+        rule.runOnIdle {
+            focusedRects += node.getFocusedRect()
+            assertThat(focusedRects).hasSize(2)
+            assertThatRect(focusedRects[0])
+                .isEqualToWithTolerance(
+                    Rect(
+                        left = 20f,
+                        top = 0f,
+                        right = 20f + DefaultCursorThickness.value,
+                        bottom = 20f,
+                    )
+                )
+            assertThatRect(focusedRects[1])
+                .isEqualToWithTolerance(
+                    Rect(
+                        left = 40f,
+                        top = 0f,
+                        right = 40f + DefaultCursorThickness.value,
+                        bottom = 40f,
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun focusBounds_multiLine() {
+        val state = TextFieldState("a\nb", initialSelection = TextRange(3))
+        val node = FocusRectNode()
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.elementFor(node),
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle {
+            assertThatRect(node.getFocusedRect())
+                .isEqualToWithTolerance(
+                    Rect(
+                        left = 20f,
+                        top = 20f,
+                        right = 20f + DefaultCursorThickness.value,
+                        bottom = 40f,
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun focusBounds_scrollable() {
+        val state = TextFieldState("abc ".repeat(10), initialSelection = TextRange.Zero)
+        val focusedRects = mutableListOf<Rect?>()
+        val scrollState = ScrollState(0)
+        val node = FocusRectNode()
+        lateinit var coroutineScope: CoroutineScope
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    modifier = Modifier.elementFor(node).width(100.dp),
+                    scrollState = scrollState,
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle { focusedRects += node.getFocusedRect() }
+
+        coroutineScope.launch { scrollState.scrollBy(100f) }
+
+        rule.runOnIdle {
+            focusedRects += node.getFocusedRect()
+            assertThat(focusedRects).hasSize(2)
+            assertThatRect(focusedRects[0]!!)
+                .isEqualToWithTolerance(
+                    Rect(left = 0f, top = 0f, right = DefaultCursorThickness.value, bottom = 20f)
+                )
+            assertThatRect(focusedRects[1]!!)
+                .isEqualToWithTolerance(
+                    Rect(
+                        left = -100f,
+                        top = 0f,
+                        right = -100f + DefaultCursorThickness.value,
+                        bottom = 20f,
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun focusBounds_decorated() {
+        val state = TextFieldState("abc ".repeat(10), initialSelection = TextRange.Zero)
+        val focusedRects = mutableListOf<Rect?>()
+        val node = FocusRectNode()
+        var decorationPadding by mutableStateOf(PaddingValues(20.dp))
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                BasicTextField(
+                    state = state,
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.elementFor(node),
+                    decorator = { Box(Modifier.padding(decorationPadding)) { it() } },
+                )
+            }
+        }
+
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        rule.runOnIdle { focusedRects += node.getFocusedRect() }
+
+        decorationPadding = PaddingValues(40.dp)
+
+        rule.runOnIdle {
+            focusedRects += node.getFocusedRect()
+            val normalRect =
+                Rect(left = 0f, top = 0f, right = DefaultCursorThickness.value, bottom = 20f)
+            assertThat(focusedRects).hasSize(2)
+            assertThatRect(focusedRects[0])
+                .isEqualToWithTolerance(normalRect.translate(Offset(20f, 20f)))
+            assertThatRect(focusedRects[1])
+                .isEqualToWithTolerance(normalRect.translate(Offset(40f, 40f)))
+        }
+    }
+
     @Test
     fun textInputStarted_forFieldInActivity_whenFocusRequestedImmediately_fromLaunchedEffect() {
         textInputStarted_whenFocusRequestedImmediately_fromEffect(
@@ -336,7 +638,6 @@ internal class TextFieldFocusTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun textInputStarted_forFieldInActivity_whenFocusRequestedImmediately_fromDisposableEffect() {
         textInputStarted_whenFocusRequestedImmediately_fromEffect(
@@ -404,7 +705,6 @@ internal class TextFieldFocusTest {
         inputMethodInterceptor.assertSessionActive()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -421,7 +721,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-left").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -438,7 +737,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-right").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -451,11 +749,11 @@ internal class TextFieldFocusTest {
         // Move focus to the focusable element on top
         if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
 
-        // Check if the element on the top of text field gains focus
-        rule.onNodeWithTag("test-button-top").assertIsFocused()
+        // Check if the element on the left of text field gains focus
+        // due to the new way the focus is represented in BTF, the up would switch focus to the left
+        rule.onNodeWithTag("test-button-left").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -487,7 +785,6 @@ internal class TextFieldFocusTest {
         testKeyboardController.assertShown()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -509,7 +806,6 @@ internal class TextFieldFocusTest {
     }
 
     @FlakyTest(bugId = 348380475)
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -532,7 +828,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(1))
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -554,7 +849,6 @@ internal class TextFieldFocusTest {
     }
 
     @FlakyTest(bugId = 348380475)
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_beforeFix() {
         Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
@@ -616,32 +910,28 @@ internal class TextFieldFocusTest {
         checkFocusNavigationDown(SOURCE_DPAD)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_afterFix() {
         Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         checkFocusNavigationLeft(SOURCE_KEYBOARD)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_afterFix() {
         Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         checkFocusNavigationRight(SOURCE_KEYBOARD)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_afterFix() {
         Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         checkFocusNavigationUp(SOURCE_KEYBOARD)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_afterFix() {
         Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        checkFocusNavigationDown(SOURCE_KEYBOARD)
+        checkFocusNavigationDown(SOURCE_DPAD)
     }
 
     @Test
@@ -773,7 +1063,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-bottom").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onTab() {
         setupAndEnableBasicTextField(singleLine = true)
@@ -786,7 +1075,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-right").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_withImeActionNext_checkFocusNavigation_onEnter() {
         setupAndEnableBasicTextField(singleLine = true)
@@ -799,7 +1087,6 @@ internal class TextFieldFocusTest {
         rule.onNodeWithTag("test-button-right").assertIsFocused()
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onShiftTab() {
         setupAndEnableBasicTextField(singleLine = true)
@@ -1009,4 +1296,23 @@ internal class TextFieldFocusTest {
         repeat(count) { InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode) }
         rule.waitForIdle()
     }
+
+    private fun FocusRectNode() =
+        object : DelegatingNode() {
+            val focusNode = delegate(FocusTargetModifierNode(Focusability.Never))
+
+            fun getFocusedRect() = focusNode.getFocusedRect()
+        }
+
+    private fun Int.toDp(): Dp = with(rule.density) { this@toDp.toDp() }
+}
+
+internal fun Modifier.elementFor(node: Modifier.Node): Modifier {
+    return this then NodeElement(node)
+}
+
+internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
+    override fun create(): Modifier.Node = node
+
+    override fun update(node: Modifier.Node) {}
 }

@@ -225,6 +225,7 @@ class TextFieldScrollTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_singleLine_scrolledAndClipped() {
+        val state = TextFieldState(longText)
         val parentSize = 200
         val textFieldSize = 50
         val tag = "OuterBox"
@@ -233,7 +234,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             rule.setContent {
                 Box(Modifier.size(parentSize.toDp()).background(color = Color.White).testTag(tag)) {
                     ScrollableContent(
-                        state = TextFieldState(longText),
+                        state = state,
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollState = rememberScrollState(),
                         lineLimits = SingleLine,
@@ -254,6 +255,7 @@ class TextFieldScrollTest : FocusedWindowTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_multiline_scrolledAndClipped() {
+        val state = TextFieldState(longText)
         val parentSize = 200
         val textFieldSize = 50
         val tag = "OuterBox"
@@ -262,7 +264,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             rule.setContent {
                 Box(Modifier.size(parentSize.toDp()).background(color = Color.White).testTag(tag)) {
                     ScrollableContent(
-                        state = TextFieldState(longText),
+                        state = state,
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollState = rememberScrollState(),
                         lineLimits = MultiLine(),
@@ -324,13 +326,14 @@ class TextFieldScrollTest : FocusedWindowTest {
 
     @Test
     fun textFieldScroll_restoresScrollerPosition() {
+        val state = TextFieldState(longText)
         val restorationTester = StateRestorationTester(rule)
         var scrollState: ScrollState? = null
 
         restorationTester.setContent {
             scrollState = rememberScrollState()
             ScrollableContent(
-                state = TextFieldState(longText),
+                state = state,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 scrollState = scrollState!!,
                 lineLimits = SingleLine,
@@ -354,6 +357,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
     @Test
     fun textFieldScrollStateChange_shouldResetTheScroll() {
+        val state = TextFieldState(longText)
         val scrollState1 = ScrollState(0)
         val scrollState2 = ScrollState(0)
 
@@ -361,7 +365,7 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.setContent {
             ScrollableContent(
-                state = TextFieldState(longText),
+                state = state,
                 scrollState = if (stateToggle) scrollState1 else scrollState2,
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 lineLimits = SingleLine,
@@ -493,6 +497,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         """
                 .trimIndent()
 
+        val state = TextFieldState(text)
         val textFieldScrollState = ScrollState(0)
         val columnScrollState = ScrollState(0)
         var touchSlop = 0f
@@ -502,7 +507,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             touchSlop = LocalViewConfiguration.current.touchSlop
             Column(Modifier.size(size).verticalScroll(columnScrollState)) {
                 ScrollableContent(
-                    state = TextFieldState(text),
+                    state = state,
                     modifier = Modifier.size(size, height),
                     scrollState = textFieldScrollState,
                     lineLimits = MultiLine(),
@@ -538,6 +543,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val topItemSize = 50.dp
         val text = "hello\n".repeat(100)
 
+        val state = TextFieldState(text, initialSelection = TextRange.Zero)
         val textFieldScrollState = ScrollState(0)
         val columnScrollState = ScrollState(0)
 
@@ -546,7 +552,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 Box(Modifier.size(topItemSize))
                 ScrollableContent(
                     modifier = Modifier.fillMaxWidth(),
-                    state = TextFieldState(text, initialSelection = TextRange.Zero),
+                    state = state,
                     scrollState = textFieldScrollState,
                     lineLimits = MultiLine(),
                 )
@@ -603,6 +609,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         val startItemSize = 50.dp
         val text = "hello ".repeat(100)
 
+        val state = TextFieldState(text, initialSelection = TextRange.Zero)
         val textFieldScrollState = ScrollState(0)
         val rowScrollState = ScrollState(0)
 
@@ -611,7 +618,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 Box(Modifier.size(startItemSize))
                 ScrollableContent(
                     modifier = Modifier.fillMaxHeight(),
-                    state = TextFieldState(text, initialSelection = TextRange.Zero),
+                    state = state,
                     scrollState = textFieldScrollState,
                     lineLimits = SingleLine,
                 )

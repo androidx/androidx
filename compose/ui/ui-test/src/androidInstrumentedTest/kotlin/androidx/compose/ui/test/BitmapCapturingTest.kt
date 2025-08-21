@@ -22,8 +22,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -203,7 +206,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     private fun composeCheckerboard() {
         with(rule.density) {
             setContent {
-                Box(Modifier.background(colorBg)) {
+                Box(Modifier.background(colorBg).windowInsetsPadding(WindowInsets.navigationBars)) {
                     Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {

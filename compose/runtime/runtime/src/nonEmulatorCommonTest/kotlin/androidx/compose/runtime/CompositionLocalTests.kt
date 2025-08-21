@@ -766,6 +766,85 @@ class CompositionLocalTests {
         assertTrue(valueSeen)
     }
 
+    @Test
+    fun testProvidesCompositionLocalsAndReturnResult() = compositionTest {
+        val expected = "expected"
+
+        compose {
+            assertEquals("Default", LocalSomeTextComposition.current)
+            assertEquals(1, LocalSomeIntComposition.current)
+            val result =
+                withCompositionLocals(
+                    LocalSomeTextComposition provides "Test1",
+                    LocalSomeIntComposition provides 12,
+                    LocalSomeOtherIntProvider provides 42,
+                    LocalSomeStaticInt provides 50,
+                ) {
+                    assertEquals("Test1", LocalSomeTextComposition.current)
+                    assertEquals(12, LocalSomeIntComposition.current)
+                    assertEquals(42, LocalSomeOtherIntComposition.current)
+                    assertEquals(50, LocalSomeStaticInt.current)
+                    CompositionLocalProvider(
+                        LocalSomeTextComposition provides "Test2",
+                        LocalSomeStaticInt provides 60,
+                    ) {
+                        assertEquals("Test2", LocalSomeTextComposition.current)
+                        assertEquals(12, LocalSomeIntComposition.current)
+                        assertEquals(42, LocalSomeOtherIntComposition.current)
+                        assertEquals(60, LocalSomeStaticInt.current)
+                    }
+                    assertEquals("Test1", LocalSomeTextComposition.current)
+                    assertEquals(12, LocalSomeIntComposition.current)
+                    assertEquals(42, LocalSomeOtherIntComposition.current)
+                    assertEquals(50, LocalSomeStaticInt.current)
+
+                    return@withCompositionLocals expected
+                }
+            assertEquals("Default", LocalSomeTextComposition.current)
+            assertEquals(1, LocalSomeIntComposition.current)
+            assertEquals(expected, result)
+        }
+    }
+
+    @Test
+    fun testProvidesSingleCompositionLocalAndReturnsResult() = compositionTest {
+        val expected = "expected"
+
+        compose {
+            assertEquals("Default", LocalSomeTextComposition.current)
+            val result =
+                withCompositionLocal(LocalSomeTextComposition provides "Test1") {
+                    assertEquals("Test1", LocalSomeTextComposition.current)
+                    CompositionLocalProvider(LocalSomeTextComposition provides "Test2") {
+                        assertEquals("Test2", LocalSomeTextComposition.current)
+                    }
+                    assertEquals("Test1", LocalSomeTextComposition.current)
+
+                    return@withCompositionLocal expected
+                }
+            assertEquals("Default", LocalSomeTextComposition.current)
+            assertEquals(expected, result)
+        }
+    }
+
+    @Test
+    fun testProvidesSingleCompositionLocalAndReturnsNestedResults() = compositionTest {
+        val expected = "expected"
+
+        compose {
+            assertEquals("Default", LocalSomeTextComposition.current)
+            val result =
+                withCompositionLocal(LocalSomeTextComposition provides "Test1") {
+                    withCompositionLocal(LocalSomeTextComposition provides "Test2") {
+                        assertEquals("Test2", LocalSomeTextComposition.current)
+                        expected
+                    }
+                }
+            assertEquals("Default", LocalSomeTextComposition.current)
+            assertEquals(expected, result)
+        }
+    }
+
     fun staticLocalUpdateInvalidatesCorrectly_startProvides() = compositionTest {
         val SomeValue = staticCompositionLocalOf { 0 }
         val LocalValue = staticCompositionLocalOf<Boolean> { error("Not provided") }
@@ -791,22 +870,22 @@ class CompositionLocalTests {
     }
 }
 
-val cacheLocal = staticCompositionLocalOf { "Unset" }
+val LocalCache = staticCompositionLocalOf { "Unset" }
 
 @Composable
 fun CacheInvalidate(state: State<Int>) {
     Text("${state.value}")
-    Text(cacheLocal.current)
+    Text(LocalCache.current)
     CacheInvalidateSet {
         Text("${state.value}")
-        Text(cacheLocal.current)
+        Text(LocalCache.current)
     }
-    Text(cacheLocal.current)
+    Text(LocalCache.current)
 }
 
 @Composable
 fun CacheInvalidateSet(content: @Composable () -> Unit) {
-    CompositionLocalProvider(cacheLocal provides "Set") { content() }
+    CompositionLocalProvider(LocalCache provides "Set") { content() }
 }
 
 fun MockViewValidator.CacheInvalidate(state: State<Int>) {

@@ -145,7 +145,7 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
                     display,
                     android.opengl.EGLExt.EGL_SYNC_NATIVE_FENCE_ANDROID,
                     mEmptyAttributes,
-                    0
+                    0,
                 )
             GLES20.glFlush()
             val syncFenceCompat =

@@ -65,7 +65,7 @@ class FrameBufferView(context: Context) : SurfaceView(context) {
                 width: Int,
                 height: Int,
                 bufferInfo: BufferInfo,
-                transform: FloatArray
+                transform: FloatArray,
             ) {
                 GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
                 GLES20.glClearColor(0f, 0f, 0f, 0f)
@@ -79,7 +79,7 @@ class FrameBufferView(context: Context) : SurfaceView(context) {
                     0f,
                     bufferInfo.height.toFloat(),
                     -1f,
-                    1f
+                    1f,
                 )
                 Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
                 for (line in mSceneParams) {

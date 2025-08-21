@@ -17,8 +17,18 @@ package androidx.compose.remote.core.operations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
+import androidx.compose.remote.core.Operation;
+import androidx.compose.remote.core.WireBuffer;
 
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BitmapFontDataTest {
 
@@ -117,6 +127,70 @@ public class BitmapFontDataTest {
         assertEquals(6, result3.mChars.length());
     }
 
+    @Test
+    public void constructor_storesKerningTable() {
+        Map<String, Short> kerningTable = new HashMap<>();
+        kerningTable.put("AV", (short) -2);
+        kerningTable.put("WA", (short) -3);
+
+        BitmapFontData font =
+                new BitmapFontData(1, new BitmapFontData.Glyph[] {}, (short) 1, kerningTable);
+
+        assertEquals(kerningTable, font.mKerningTable);
+        assertEquals(1, font.mVersion); // VERSION_2
+    }
+
+    @Test
+    public void constructor_throwsExceptionForTooLargeKerningTable() {
+        // The maximum kerning table size is 65535 (0xffff)
+        Map<String, Short> largeKerningTable = new HashMap<>();
+        for (int i = 0; i < 65535; i++) {
+            largeKerningTable.put(String.valueOf(i), (short) i);
+        }
+
+        Exception exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> {
+                            new BitmapFontData(
+                                    1, new BitmapFontData.Glyph[] {}, (short) 1, largeKerningTable);
+                        });
+        assertTrue(exception.getMessage().contains("Kerning table too big"));
+    }
+
+    @Test
+    public void serialization_withKerningTable() {
+        Map<String, Short> kerningTable = new HashMap<>();
+        kerningTable.put("AV", (short) -2);
+
+        BitmapFontData.Glyph[] glyphs = new BitmapFontData.Glyph[] {glyph("A", 1), glyph("V", 2)};
+        BitmapFontData originalFont = new BitmapFontData(1, glyphs, (short) 1, kerningTable);
+
+        // Serialize -> Deserialize
+        BitmapFontData newFont = serializeAndDeserialize(originalFont);
+
+        // Assert that version and kerning table are correctly deserialized
+        assertEquals(BitmapFontData.VERSION_2, newFont.mVersion);
+        assertEquals(1, newFont.mId);
+        assertEquals(kerningTable, newFont.mKerningTable);
+        assertEquals(2, newFont.mFontGlyphs.length);
+    }
+
+    @Test
+    public void serialization_withoutKerningTable() {
+        BitmapFontData.Glyph[] glyphs = new BitmapFontData.Glyph[] {glyph("A", 1), glyph("V", 2)};
+        BitmapFontData originalFont = new BitmapFontData(1, glyphs);
+
+        // Serialize -> Deserialize
+        BitmapFontData newFont = serializeAndDeserialize(originalFont);
+
+        // Assert that version is correct and kerning table is empty
+        assertEquals(BitmapFontData.VERSION_1, newFont.mVersion);
+        assertEquals(1, newFont.mId);
+        assertTrue(newFont.mKerningTable.isEmpty());
+        assertEquals(2, newFont.mFontGlyphs.length);
+    }
+
     private BitmapFontData.Glyph glyph(String c, int id) {
         return new BitmapFontData.Glyph(
                 c, id, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0);
@@ -152,5 +226,18 @@ public class BitmapFontDataTest {
             glyph("M", 0), glyph("MON", 1), glyph("MONDAY", 2),
         };
         return new BitmapFontData(1, glyphs);
+    }
+
+    private BitmapFontData serializeAndDeserialize(BitmapFontData fontData) {
+        WireBuffer buffer = new WireBuffer(1024);
+        fontData.write(buffer);
+        buffer.setIndex(0);
+
+        List<Operation> operations = new ArrayList<>();
+        buffer.readByte(); // Read and discard the OP_CODE.
+        BitmapFontData.read(buffer, operations);
+
+        assertEquals(1, operations.size());
+        return (BitmapFontData) operations.get(0);
     }
 }

@@ -37,7 +37,7 @@ class WindowSizeClassTest {
             listOf(
                 WindowWidthSizeClass.COMPACT,
                 WindowWidthSizeClass.MEDIUM,
-                WindowWidthSizeClass.EXPANDED
+                WindowWidthSizeClass.EXPANDED,
             )
 
         val actual =
@@ -57,14 +57,14 @@ class WindowSizeClassTest {
             setOf(
                 WindowWidthSizeClass.COMPACT,
                 WindowWidthSizeClass.MEDIUM,
-                WindowWidthSizeClass.EXPANDED
+                WindowWidthSizeClass.EXPANDED,
             )
 
         val expectedHeightBreakpoints =
             setOf(
                 WindowHeightSizeClass.COMPACT,
                 WindowHeightSizeClass.MEDIUM,
-                WindowHeightSizeClass.EXPANDED
+                WindowHeightSizeClass.EXPANDED,
             )
 
         val actualWidthBreakpoints =
@@ -93,7 +93,7 @@ class WindowSizeClassTest {
             listOf(
                 WindowHeightSizeClass.COMPACT,
                 WindowHeightSizeClass.MEDIUM,
-                WindowHeightSizeClass.EXPANDED
+                WindowHeightSizeClass.EXPANDED,
             )
 
         val actual =

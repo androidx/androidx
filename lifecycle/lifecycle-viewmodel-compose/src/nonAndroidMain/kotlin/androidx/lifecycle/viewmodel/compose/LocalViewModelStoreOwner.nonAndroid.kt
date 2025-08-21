@@ -23,5 +23,5 @@ import androidx.lifecycle.ViewModelStoreOwner
 
 @OptIn(InternalComposeApi::class)
 @Composable
-internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? =
+internal actual fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
     findComposeDefaultViewModelStoreOwner()

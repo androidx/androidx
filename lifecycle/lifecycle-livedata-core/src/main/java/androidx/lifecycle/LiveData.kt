@@ -45,7 +45,7 @@ import androidx.annotation.MainThread
 @MainThread
 public inline fun <T> LiveData<T>.observe(
     owner: LifecycleOwner,
-    crossinline onChanged: (T) -> Unit
+    crossinline onChanged: (T) -> Unit,
 ): Observer<T> {
     val wrappedObserver = Observer<T> { t -> onChanged.invoke(t) }
     observe(owner, wrappedObserver)

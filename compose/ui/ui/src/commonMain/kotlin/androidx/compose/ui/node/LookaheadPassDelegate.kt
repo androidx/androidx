@@ -210,6 +210,29 @@ internal class LookaheadPassDelegate(
     private inline fun forEachChildDelegate(block: (LookaheadPassDelegate) -> Unit) =
         layoutNode.forEachChild { block(it.layoutDelegate.lookaheadPassDelegate!!) }
 
+    private val layoutChildrenBlock = {
+        clearPlaceOrder()
+        forEachChildAlignmentLinesOwner { child ->
+            child.alignmentLines.usedDuringParentLayout = false
+        }
+        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { forAlignment ->
+            layoutNode.children.fastForEach {
+                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = forAlignment
+            }
+        }
+        innerCoordinator.lookaheadDelegate!!.measureResult.placeChildren()
+        innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { _ ->
+            layoutNode.children.fastForEach {
+                it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
+            }
+        }
+        checkChildrenPlaceOrderForUpdates()
+        forEachChildAlignmentLinesOwner { child ->
+            child.alignmentLines.previousUsedDuringParentLayout =
+                child.alignmentLines.usedDuringParentLayout
+        }
+    }
+
     override fun layoutChildren() {
         layingOutChildren = true
         alignmentLines.recalculateQueryOwner()
@@ -229,30 +252,10 @@ internal class LookaheadPassDelegate(
             layoutPending = false
             val oldLayoutState = layoutState
             layoutState = LayoutState.LookaheadLayingOut
-            val owner = layoutNode.requireOwner()
             layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement = false
-            owner.snapshotObserver.observeLayoutSnapshotReads(layoutNode) {
-                clearPlaceOrder()
-                forEachChildAlignmentLinesOwner { child ->
-                    child.alignmentLines.usedDuringParentLayout = false
-                }
-                innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { forAlignment ->
-                    layoutNode.children.fastForEach {
-                        it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = forAlignment
-                    }
-                }
-                lookaheadDelegate.measureResult.placeChildren()
-                innerCoordinator.lookaheadDelegate?.isPlacingForAlignment?.let { _ ->
-                    layoutNode.children.fastForEach {
-                        it.outerCoordinator.lookaheadDelegate?.isPlacingForAlignment = false
-                    }
-                }
-                checkChildrenPlaceOrderForUpdates()
-                forEachChildAlignmentLinesOwner { child ->
-                    child.alignmentLines.previousUsedDuringParentLayout =
-                        child.alignmentLines.usedDuringParentLayout
-                }
-            }
+
+            val observer = layoutNode.requireOwner().snapshotObserver
+            observer.observeLayoutSnapshotReadsAffectingLookahead(layoutNode, layoutChildrenBlock)
             layoutState = oldLayoutState
             if (
                 layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement &&
@@ -431,12 +434,19 @@ internal class LookaheadPassDelegate(
     override var parentData: Any? = measurePassDelegate.parentData
         private set
 
+    // Used by performMeasureBlock so that we don't have to allocate a lambda on every call
+    private var performMeasureConstraints = Constraints()
+
+    internal val performMeasureBlock: () -> Unit = {
+        outerCoordinator.lookaheadDelegate!!.measure(performMeasureConstraints)
+    }
+
     internal fun performMeasure(constraints: Constraints) {
         layoutState = LayoutState.LookaheadMeasuring
         measurePending = false
-        layoutNode.requireOwner().snapshotObserver.observeMeasureSnapshotReads(layoutNode) {
-            outerCoordinator.lookaheadDelegate!!.measure(constraints)
-        }
+        performMeasureConstraints = constraints
+        val observer = layoutNode.requireOwner().snapshotObserver
+        observer.observeMeasureSnapshotReadsAffectingLookahead(layoutNode, performMeasureBlock)
         markLayoutPending()
         if (layoutNode.isOutMostLookaheadRoot) {
             // If layoutNode is the root of the lookahead, measure is redirected to lookahead
@@ -521,6 +531,25 @@ internal class LookaheadPassDelegate(
         isPlacedUnderMotionFrameOfReference = newMFR
     }
 
+    private val layoutModifierBlock = {
+        val expectsLookaheadPlacementFromParent =
+            !layoutNode.isOutMostLookaheadRoot &&
+                !layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement
+
+        val scope =
+            if (expectsLookaheadPlacementFromParent) {
+                outerCoordinator.wrappedBy?.lookaheadDelegate?.placementScope
+            } else {
+                // Uses the approach pass placement scope intentionally here when
+                // the
+                // lookahead placement is detached from parent. This way we will
+                // be able to pick up the correct `withMotionFrameOfReference` flag
+                // from the placement scope.
+                outerCoordinator.wrappedBy?.placementScope
+            } ?: layoutNode.requireOwner().placementScope
+        with(scope) { outerCoordinator.lookaheadDelegate!!.place(lastPosition) }
+    }
+
     private fun placeSelf(
         position: IntOffset,
         zIndex: Float,
@@ -549,32 +578,18 @@ internal class LookaheadPassDelegate(
             }
             val owner = layoutNode.requireOwner()
 
+            lastPosition = position
             if (!layoutPending && isPlaced) {
                 outerCoordinator.lookaheadDelegate!!.placeSelfApparentToRealOffset(position)
                 onNodePlaced()
             } else {
                 layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement = false
                 alignmentLines.usedByModifierLayout = false
-                owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
-                    val expectsLookaheadPlacementFromParent =
-                        !layoutNode.isOutMostLookaheadRoot &&
-                            !layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement
-
-                    val scope =
-                        if (expectsLookaheadPlacementFromParent) {
-                            outerCoordinator.wrappedBy?.lookaheadDelegate?.placementScope
-                        } else {
-                            // Uses the approach pass placement scope intentionally here when
-                            // the
-                            // lookahead placement is detached from parent. This way we will
-                            // be able to pick up the correct `withMotionFrameOfReference` flag
-                            // from the placement scope.
-                            outerCoordinator.wrappedBy?.placementScope
-                        } ?: owner.placementScope
-                    with(scope) { outerCoordinator.lookaheadDelegate!!.place(position) }
-                }
+                owner.snapshotObserver.observeLayoutModifierSnapshotReadsAffectingLookahead(
+                    layoutNode,
+                    layoutModifierBlock,
+                )
             }
-            lastPosition = position
             lastZIndex = zIndex
             lastLayerBlock = layerBlock
             lastExplicitLayer = layer

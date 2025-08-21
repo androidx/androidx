@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package androidx.lifecycle
 
-// TODO: https://youtrack.jetbrains.com/issue/COMPOSE-1286/Properly-implement-WeakReference-on-Web
+// TODO: https://youtrack.jetbrains.com/issue/CMP-1286
 internal actual class WeakReference<T : Any> actual constructor(private val reference: T) {
     actual fun get(): T? = reference
 }

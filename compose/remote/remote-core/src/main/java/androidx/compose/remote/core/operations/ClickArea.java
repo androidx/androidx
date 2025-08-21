@@ -53,12 +53,12 @@ public class ClickArea extends Operation
      *
      * @param id the id of the click area, which will be reported in the listener callback on the
      *     player
-     * @param contentDescription the content description (used for accessibility, as a textID)
+     * @param contentDescription the content description (used for accessibility, as a textId)
      * @param left left coordinate of the area bounds
      * @param top top coordinate of the area bounds
      * @param right right coordinate of the area bounds
      * @param bottom bottom coordinate of the area bounds
-     * @param metadata associated metadata, user-provided (as a textID, pointing to a string)
+     * @param metadata associated metadata, user-provided (as a textId, pointing to a string)
      */
     public ClickArea(
             int id,
@@ -164,7 +164,7 @@ public class ClickArea extends Operation
     }
 
     @Override
-    public Integer getContentDescriptionId() {
+    public @NonNull Integer getContentDescriptionId() {
         return mContentDescription;
     }
 

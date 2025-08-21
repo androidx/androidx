@@ -20,6 +20,7 @@ import androidx.compose.foundation.gestures.TestValue.A
 import androidx.compose.foundation.gestures.TestValue.B
 import androidx.compose.foundation.gestures.TestValue.C
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -65,6 +66,26 @@ class DraggableAnchorsTest {
         }
         assertThat(anchors.closestAnchor(1f, searchUpwards = true)).isEqualTo(B)
         assertThat(anchors.closestAnchor(99f, searchUpwards = false)).isEqualTo(A)
+    }
+
+    @Test
+    fun draggableAnchors_closestAnchor_returnsNullWhenEmpty() {
+        val anchors = DraggableAnchors<Float> {}
+        assertWithMessage(
+                "closestAnchor(<any>, searchUpwards=true) should be null when anchors" +
+                    " are empty"
+            )
+            .that(anchors.closestAnchor(1f, searchUpwards = true))
+            .isNull()
+        assertWithMessage(
+                "closestAnchor(<any>, searchUpwards=false) should be null when anchors" +
+                    " are empty"
+            )
+            .that(anchors.closestAnchor(1f, searchUpwards = false))
+            .isNull()
+        assertWithMessage("closestAnchor(<any>) should be null when anchors are empty")
+            .that(anchors.closestAnchor(1f))
+            .isNull()
     }
 
     @Test

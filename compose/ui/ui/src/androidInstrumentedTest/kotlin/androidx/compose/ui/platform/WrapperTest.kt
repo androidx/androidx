@@ -31,7 +31,6 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
@@ -58,7 +57,6 @@ class WrapperTest {
         activityScenario.moveToState(Lifecycle.State.STARTED)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/269521688
     @Test
     fun ensureComposeWrapperDoesntPropagateInvalidations() {
         val commitLatch = CountDownLatch(2)

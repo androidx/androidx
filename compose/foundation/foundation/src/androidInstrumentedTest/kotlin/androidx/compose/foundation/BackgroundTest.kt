@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -45,11 +46,15 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -68,6 +73,7 @@ class BackgroundTest {
     @get:Rule val rule = createComposeRule()
 
     private val contentTag = "Content"
+    private val semanticsTag = "semantics-test-tag"
 
     private val rtlAwareShape =
         object : Shape {
@@ -535,6 +541,128 @@ class BackgroundTest {
                 Modifier.background(brush2)
             }
         }
+    }
+
+    @Test
+    fun rectangleShape_setsShapeSemanticsProperty() {
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = RectangleShape)
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
+    }
+
+    @Test
+    fun roundedCornerShape_setsShapeSemanticsProperty() {
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = RoundedCornerShape(1.dp))
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.Shape, RoundedCornerShape(1.dp))
+            )
+    }
+
+    @Test
+    fun genericShape_setsShapeSemanticsProperty() {
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = CutCornerShape(2.dp))
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CutCornerShape(2.dp)))
+    }
+
+    @Test
+    fun shapeChange_fromRectangle_invalidatesSemanticsProperty() {
+        var shape by mutableStateOf(RectangleShape)
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = shape)
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
+
+        rule.runOnIdle { shape = CircleShape }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CircleShape))
+    }
+
+    @Test
+    fun shapeChange_toRectangle_invalidatesSemanticsProperty() {
+        var shape: Shape by mutableStateOf(CircleShape)
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = shape)
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CircleShape))
+
+        rule.runOnIdle { shape = RectangleShape }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, RectangleShape))
+    }
+
+    @Test
+    fun shapeChange_betweenNonRectangles_invalidatesSemanticsProperty() {
+        var shape: Shape by mutableStateOf(CircleShape)
+        rule.setContent {
+            SemanticParent {
+                Box(
+                    Modifier.size(10.dp)
+                        .background(color = Color.White, shape = shape)
+                        .testTag(semanticsTag)
+                )
+            }
+        }
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CircleShape))
+
+        rule.runOnIdle { shape = CutCornerShape(2.dp) }
+
+        rule
+            .onNodeWithTag(semanticsTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CutCornerShape(2.dp)))
     }
 
     @Composable

@@ -372,7 +372,6 @@ private fun rememberLazyListMeasurePolicy(
                     pinnedItems = pinnedItems,
                     hasLookaheadOccurred = hasLookaheadOccurred,
                     isLookingAhead = isLookingAhead,
-                    approachLayoutInfo = state.approachLayoutInfo,
                     coroutineScope = coroutineScope,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     graphicsContext = graphicsContext,

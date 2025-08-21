@@ -20,7 +20,7 @@ package androidx.graphics.shapes
 
 import kotlin.jvm.JvmName
 import kotlin.math.PI
-import kotlin.math.atan2
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -39,8 +39,6 @@ internal fun directionVector(x: Float, y: Float): Point {
 
 internal fun directionVector(angleRadians: Float) = Point(cos(angleRadians), sin(angleRadians))
 
-internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
-
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: Point = Zero) =
     directionVector(angleRadians) * radius + center
 
@@ -51,6 +49,13 @@ internal fun radialToCartesian(radius: Float, angleRadians: Float, center: Point
  */
 internal const val DistanceEpsilon = 1e-4f
 internal const val AngleEpsilon = 1e-6f
+
+/**
+ * This epsilon is based on the observation that people tend to see e.g. collinearity much more
+ * relaxed than what is mathematically correct. This effect is heightened on smaller displays. Use
+ * this epsilon for operations that allow higher tolerances.
+ */
+internal const val RelaxedDistanceEpsilon = 5e-3f
 
 internal fun Point.rotate90() = Point(-y, x)
 
@@ -67,7 +72,40 @@ internal fun interpolate(start: Float, stop: Float, fraction: Float): Float {
     return (1 - fraction) * start + fraction * stop
 }
 
+/**
+ * Similar to num % mod, but ensures the result is always positive. For example: 4 % 3 =
+ * positiveModulo(4, 3) = 1, but: -4 % 3 = -1 positiveModulo(-4, 3) = 2
+ */
 internal fun positiveModulo(num: Float, mod: Float) = (num % mod + mod) % mod
+
+/** Returns whether C is on the line defined by the two points AB */
+internal fun collinearIsh(
+    aX: Float,
+    aY: Float,
+    bX: Float,
+    bY: Float,
+    cX: Float,
+    cY: Float,
+    tolerance: Float = DistanceEpsilon,
+): Boolean {
+    // The dot product of a perpendicular angle is 0. By rotating one of the vectors,
+    // we save the calculations to convert the dot product to degrees afterwards.
+    val ab = Point(bX - aX, bY - aY).rotate90()
+    val ac = Point(cX - aX, cY - aY)
+    val dotProduct = abs(ab.dotProduct(ac))
+    val relativeTolerance = tolerance * ab.getDistance() * ac.getDistance()
+
+    return dotProduct < tolerance || dotProduct < relativeTolerance
+}
+
+/**
+ * Approximates whether corner at this vertex is concave or convex, based on the relationship of the
+ * prev->curr/curr->next vectors.
+ */
+internal fun convex(previous: Point, current: Point, next: Point): Boolean {
+    // TODO: b/369320447 - This is a fast, but not reliable calculation.
+    return (current - previous).clockwise(next - current)
+}
 
 /*
  * Does a ternary search in [v0..v1] to find the parameter that minimizes the given function.
@@ -80,7 +118,7 @@ internal fun findMinimum(
     v0: Float,
     v1: Float,
     tolerance: Float = 1e-3f,
-    f: FindMinimumFunction
+    f: FindMinimumFunction,
 ): Float {
     var a = v0
     var b = v1

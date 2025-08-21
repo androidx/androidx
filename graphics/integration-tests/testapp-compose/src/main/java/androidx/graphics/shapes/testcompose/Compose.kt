@@ -26,11 +26,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.graphics.shapes.Cubic
+import androidx.graphics.shapes.Feature
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.TransformResult
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Utility functions providing more idiomatic ways of transforming RoundedPolygons and transforming
@@ -77,11 +76,23 @@ fun Morph.toPath(progress: Float, path: Path = Path()): Path {
 }
 
 /**
+ * Gets a [Path] representation for a [Feature] shape. This [Path] can be used to draw the feature.
+ *
+ * @param path an optional [Path] object which, if supplied, will avoid the function having to
+ *   create a new [Path] object
+ */
+@JvmOverloads
+fun Feature.toPath(path: Path = Path()): Path {
+    pathFromCubics(path, cubics, false)
+    return path
+}
+
+/**
  * Returns the geometry of the given [cubics] in the given [path] object. This is used internally by
  * the toPath functions, but we could consider exposing it as public API in case anyone was dealing
  * directly with the cubics we create for our shapes.
  */
-private fun pathFromCubics(path: Path, cubics: List<Cubic>) {
+private fun pathFromCubics(path: Path, cubics: List<Cubic>, closePath: Boolean = true) {
     var first = true
     path.rewind()
     for (i in 0 until cubics.size) {
@@ -96,10 +107,12 @@ private fun pathFromCubics(path: Path, cubics: List<Cubic>) {
             cubic.control1X,
             cubic.control1Y,
             cubic.anchor1X,
-            cubic.anchor1Y
+            cubic.anchor1Y,
         )
     }
-    path.close()
+    if (closePath) {
+        path.close()
+    }
 }
 
 /** Transforms a [RoundedPolygon] with the given [Matrix] */
@@ -125,14 +138,14 @@ fun Morph.getBounds() = calculateBounds().let { Rect(it[0], it[1], it[2], it[3])
  */
 class RoundedPolygonShape(
     private val polygon: RoundedPolygon,
-    private var matrix: Matrix = Matrix()
+    private var matrix: Matrix = Matrix(),
 ) : Shape {
     private val path = Path()
 
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         path.rewind()
         polygon.toPath(path)
@@ -159,14 +172,14 @@ class RoundedPolygonShape(
 class MorphShape(
     private val morph: Morph,
     private val progress: Float,
-    private var matrix: Matrix = Matrix()
+    private var matrix: Matrix = Matrix(),
 ) : Shape {
     private val path = Path()
 
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         path.rewind()
         morph.toPath(progress, path)
@@ -188,13 +201,12 @@ class MorphShape(
  */
 fun fitToViewport(path: Path, bounds: Rect, viewport: Size, matrix: Matrix = Matrix()) {
     matrix.reset()
-    val maxDimension = max(bounds.width, bounds.height)
+    val maxDimension = bounds.maxDimension
     if (maxDimension > 0f) {
-        val viewportMin = min(viewport.width, viewport.height)
-        val scaleFactor = viewportMin / maxDimension
+        val scaleFactor = viewport.minDimension / maxDimension
         val pathCenterX = bounds.left + bounds.width / 2
         val pathCenterY = bounds.top + bounds.height / 2
-        matrix.translate(viewportMin / 2, viewportMin / 2)
+        matrix.translate(viewport.minDimension / 2, viewport.minDimension / 2)
         matrix.scale(scaleFactor, scaleFactor)
         matrix.translate(-pathCenterX, -pathCenterY)
         path.transform(matrix)

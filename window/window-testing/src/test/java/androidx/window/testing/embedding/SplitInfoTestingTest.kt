@@ -36,7 +36,7 @@ class SplitInfoTestingTest {
                 .setSplitType(SplitAttributes.SplitType.SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
                 .build(),
-            splitInfo.splitAttributes
+            splitInfo.splitAttributes,
         )
     }
 

@@ -20,6 +20,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 
@@ -231,16 +234,74 @@ actual fun Modifier.mandatorySystemGesturesPadding() =
         mandatorySystemGestures
     }
 
-@Suppress("NOTHING_TO_INLINE")
+@OptIn(ExperimentalLayoutApi::class)
 @Stable
-private inline fun Modifier.windowInsetsPadding(
-    noinline inspectorInfo: InspectorInfo.() -> Unit,
-    crossinline insetsCalculation: WindowInsetsHolder.() -> WindowInsets,
+private fun Modifier.windowInsetsPadding(
+    inspectorInfo: InspectorInfo.() -> Unit,
+    insetsCalculation: WindowInsetsHolder.() -> WindowInsets,
 ): Modifier =
-    composed(inspectorInfo) {
-        val composeInsets = WindowInsetsHolder.current()
-        remember(composeInsets) {
-            val insets = composeInsets.insetsCalculation()
-            InsetsPaddingModifier(insets)
+    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+        this then SystemInsetsPaddingModifierElement(inspectorInfo, insetsCalculation)
+    else
+        composed(inspectorInfo) {
+            val composeInsets = WindowInsetsHolder.current()
+            remember(composeInsets) {
+                val insets = composeInsets.insetsCalculation()
+                InsetsPaddingModifier(insets)
+            }
+        }
+
+private class SystemInsetsPaddingModifierElement(
+    private val inspectorInfo: InspectorInfo.() -> Unit,
+    private val insetsGetter: WindowInsetsHolder.() -> WindowInsets,
+) : ModifierNodeElement<SystemInsetsPaddingModifierNode>() {
+    override fun create(): SystemInsetsPaddingModifierNode =
+        SystemInsetsPaddingModifierNode(insetsGetter)
+
+    override fun update(node: SystemInsetsPaddingModifierNode) {
+        node.update(insetsGetter)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int = insetsGetter.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SystemInsetsPaddingModifierElement) return false
+        return insetsGetter === other.insetsGetter
+    }
+}
+
+private class SystemInsetsPaddingModifierNode(
+    private var insetsGetter: WindowInsetsHolder.() -> WindowInsets
+) : InsetsPaddingModifierNode(WindowInsets()), LayoutModifierNode {
+    var windowInsetsHolder: WindowInsetsHolder? = null
+
+    override fun onAttach() {
+        val view = requireView()
+        val holder = WindowInsetsHolder.getOrCreateFor(view)
+        holder.incrementAccessors(view)
+        update(holder.insetsGetter())
+        windowInsetsHolder = holder
+        super.onAttach()
+    }
+
+    override fun onDetach() {
+        val view = requireView()
+        windowInsetsHolder?.decrementAccessors(view)
+        super.onDetach()
+    }
+
+    fun update(insetsGetter: (WindowInsetsHolder) -> WindowInsets) {
+        if (this.insetsGetter !== insetsGetter) {
+            this.insetsGetter = insetsGetter
+            val holder = windowInsetsHolder
+            if (holder != null) {
+                update(holder.insetsGetter())
+            }
         }
     }
+}

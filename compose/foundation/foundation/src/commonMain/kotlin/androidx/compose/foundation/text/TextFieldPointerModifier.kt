@@ -18,13 +18,14 @@ package androidx.compose.foundation.text
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
-import androidx.compose.foundation.text.selection.selectionGestureInput
+import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.OffsetMapping
 
 @Composable
@@ -71,8 +72,10 @@ internal fun Modifier.defaultTextFieldPointer(
             }
         }
     }
-    .selectionGestureInput(
-        mouseSelectionObserver = manager.mouseSelectionObserver,
-        textDragObserver = manager.touchSelectionObserver,
-    )
+    .pointerInput(manager.mouseSelectionObserver, manager.touchSelectionObserver) {
+        awaitSelectionGestures(
+            manager.mouseSelectionObserver,
+            manager.touchSelectionObserver,
+        )
+    }
     .pointerHoverIcon(PointerIcon.Text)

@@ -17,7 +17,7 @@ package androidx.lifecycle
 
 internal class DefaultLifecycleObserverAdapter(
     private val defaultLifecycleObserver: DefaultLifecycleObserver,
-    private val lifecycleEventObserver: LifecycleEventObserver?
+    private val lifecycleEventObserver: LifecycleEventObserver?,
 ) : LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {

@@ -479,7 +479,7 @@ class SubcomposeLayoutReuseTestCase(
             constraints ->
             val measurables =
                 if (active) {
-                    subcompose(Unit) { content() }
+                    subcompose(Unit, content)
                 } else {
                     null
                 }

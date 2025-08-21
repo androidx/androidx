@@ -45,7 +45,7 @@ import org.reactivestreams.Subscription
         ReplaceWith(
             expression = "liveData.toPublisher(lifecycleOwner)",
             imports = arrayOf("androidx.lifecycle.toPublisher"),
-        )
+        ),
 )
 public fun <T> toPublisher(lifecycle: LifecycleOwner, liveData: LiveData<T>): Publisher<T> {
     return LiveDataPublisher(lifecycle, liveData)
@@ -80,7 +80,7 @@ private class LiveDataPublisher<T>(val lifecycle: LifecycleOwner, val liveData: 
     class LiveDataSubscription<T>(
         val subscriber: Subscriber<in T>,
         val lifecycle: LifecycleOwner,
-        val liveData: LiveData<T>
+        val liveData: LiveData<T>,
     ) : Subscription, Observer<T?> {
         @Volatile var canceled = false
 
@@ -230,7 +230,7 @@ private class PublisherLiveData<T>(private val publisher: Publisher<T>) : LiveDa
                         "LiveData does not handle errors. Errors from " +
                             "publishers should be handled upstream and propagated as " +
                             "state",
-                        ex
+                        ex,
                     )
                 }
         }

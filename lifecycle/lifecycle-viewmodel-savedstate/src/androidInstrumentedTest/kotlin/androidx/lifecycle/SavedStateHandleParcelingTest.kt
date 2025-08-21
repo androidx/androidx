@@ -70,7 +70,7 @@ class SavedStateHandleParcelingTest {
                 .contentEquals(
                     arrayOf(CustomTestParcelable("test"), CustomTestParcelable("test2"))
                 ),
-            `is`(true)
+            `is`(true),
         )
     }
 

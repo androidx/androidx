@@ -17,13 +17,13 @@
 package androidx.graphics.opengl
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.FrontBufferSyncStrategy
 import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.graphics.withEgl
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -31,11 +31,11 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(Build.VERSION_CODES.Q)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
 class SyncStrategyTest {
     private val mUsageFlags = FrontBufferUtils.obtainHardwareBufferUsageFlags()
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testSyncStrategy_Always() {
         withEgl { egl ->

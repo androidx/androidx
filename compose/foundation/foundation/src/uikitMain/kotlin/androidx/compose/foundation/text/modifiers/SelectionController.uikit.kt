@@ -24,7 +24,7 @@ import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
-import androidx.compose.foundation.text.selection.isPrecisePointer
+import androidx.compose.foundation.text.selection.isMouseOrTouchPad
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -239,12 +239,12 @@ private fun Modifier.selectionGestureInput(
         awaitEachGesture {
             val down = awaitDown()
             if (
-                down.isPrecisePointer &&
+                down.isMouseOrTouchPad() &&
                 down.buttons.isPrimaryPressed &&
                 down.changes.fastAll { !it.isConsumed }
             ) {
                 mouseSelection(currentMouseSelectionObserver, clicksCounter, down)
-            } else if (!down.isPrecisePointer) {
+            } else if (!down.isMouseOrTouchPad()) {
                 touchSelection(currentTextDragObserver, clicksCounter, down)
             }
         }

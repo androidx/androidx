@@ -225,7 +225,7 @@ internal data class RowMeasurePolicy(
             layoutDirection = LayoutDirection.Ltr,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,
-        ) ?: verticalAlignment.align(0, crossAxisLayoutSize - placeable.height)
+        ) ?: verticalAlignment.align(placeable.height, crossAxisLayoutSize)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(

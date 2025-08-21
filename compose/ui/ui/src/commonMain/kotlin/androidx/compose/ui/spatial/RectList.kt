@@ -537,6 +537,32 @@ internal class RectList {
         }
     }
 
+    /**
+     * For each value in the collection, checks first if it is focusable. If it is and it intersects
+     * with the provided rectangle, the function executes [block]. The argument passed into [block]
+     * will be the value (item id).
+     */
+    inline fun forEachFocusableIntersection(l: Int, t: Int, r: Int, b: Int, block: (Int) -> Unit) {
+        val destTopLeft = packXY(l, t)
+        val destBottomRight = packXY(r, b)
+        val items = items
+        val size = itemsSize
+
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            if (unpackMetaFocusable(items[i + 2]) != 0) { // Checks focusable is true
+                val topLeft = items[i + 0]
+                val bottomRight = items[i + 1]
+
+                if (rectIntersectsRect(topLeft, bottomRight, destTopLeft, destBottomRight)) {
+                    block(unpackMetaValue(meta = items[i + 2]))
+                }
+            }
+            i += LongsPerItem
+        }
+    }
+
     inline fun forEachRect(block: (Int, Int, Int, Int, Int) -> Unit) {
         val items = items
         val size = itemsSize

@@ -395,3 +395,23 @@ internal object NodeMeasuringIntrinsics {
         Height,
     }
 }
+
+/**
+ * Updates the layer block of the [LayoutModifierNode]. This will mark the layer as invalidated and
+ * schedule a refresh of the layer.
+ *
+ * Updating the layer lambda using this method is cheaper than invalidating placement and placing
+ * the layout with a new layer block. This API is expected to be used alongside [Placeable.placeAt]
+ * with a `layerBlock` parameter passed. This will override/update the layerBlock passed in that
+ * API. Whichever one was called last should "win".
+ *
+ * @param layerBlock the snapshot-observed lambda used to set properties on the layer. if `null`, is
+ *   provided it will remove the layer.
+ * @see [Placeable.placeAt]
+ */
+fun LayoutModifierNode.updateLayerBlock(layerBlock: (GraphicsLayerScope.() -> Unit)?) {
+    if (!node.isAttached) return
+    requireCoordinator(Nodes.Layout)
+        .wrapped
+        ?.updateLayerBlock(layerBlock, forceUpdateLayerParameters = true)
+}

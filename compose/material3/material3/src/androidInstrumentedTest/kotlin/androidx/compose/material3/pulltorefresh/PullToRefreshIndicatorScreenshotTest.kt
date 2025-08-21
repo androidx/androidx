@@ -59,7 +59,7 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
                 PullToRefreshDefaults.Indicator(
                     state = mockState,
                     isRefreshing = true,
-                    threshold = CircularIndicatorDiameter,
+                    maxDistance = CircularIndicatorDiameter,
                 )
             }
         }
@@ -74,7 +74,7 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
             Box(wrap.testTag(testTag)) {
                 PullToRefreshDefaults.Indicator(
                     state = mockState,
-                    threshold = CircularIndicatorDiameter,
+                    maxDistance = CircularIndicatorDiameter,
                     isRefreshing = false,
                 )
             }

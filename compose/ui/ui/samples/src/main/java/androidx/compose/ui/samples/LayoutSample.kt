@@ -142,7 +142,7 @@ fun LayoutWithProvidedIntrinsicsUsage(content: @Composable () -> Unit) {
             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                 measurables: List<IntrinsicMeasurable>,
                 height: Int,
-            ) = (measurables.map { it.maxIntrinsicHeight(height / 2) }.maxByOrNull { it } ?: 0) * 2
+            ) = (measurables.map { it.maxIntrinsicWidth(height / 2) }.maxByOrNull { it } ?: 0) * 2
 
             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                 measurables: List<IntrinsicMeasurable>,

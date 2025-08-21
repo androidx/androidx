@@ -264,7 +264,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         // arrange
         rule.runOnIdle {
             runBlocking {
-                lazyGridState.scrollToItem(20) // almost at the start
+                lazyGridState.scrollToItem(10) // almost at the start
             }
         }
 

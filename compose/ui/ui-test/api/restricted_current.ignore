@@ -1,33 +1,65 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.test.DeviceConfigurationOverride#Override(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
-    Binary breaking change: Added method androidx.compose.ui.test.DeviceConfigurationOverride.Override(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
-AddedAbstractMethod: androidx.compose.ui.test.InjectionScope#getVisibleSize-YbymL2g():
-    Binary breaking change: Added method androidx.compose.ui.test.InjectionScope.getVisibleSize-YbymL2g()
-AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#isKeyDown-YVgTNJs(long):
-    Binary breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.isKeyDown-YVgTNJs(long)
-AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#keyDown-YVgTNJs(long):
-    Binary breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.keyDown-YVgTNJs(long)
-AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#keyUp-YVgTNJs(long):
-    Binary breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.keyUp-YVgTNJs(long)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#enter-3MmeM6k(long, long):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.enter-3MmeM6k(long,long)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#exit-3MmeM6k(long, long):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.exit-3MmeM6k(long,long)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#getCurrentPosition-F1C5BW0():
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.getCurrentPosition-F1C5BW0()
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#moveTo-3MmeM6k(long, long):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.moveTo-3MmeM6k(long,long)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#press-SMKQcqU(int):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.press-SMKQcqU(int)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#release-SMKQcqU(int):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.release-SMKQcqU(int)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#scroll-I7Dg0i0(float, int):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.scroll-I7Dg0i0(float,int)
-AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#updatePointerTo-k-4lQ0M(long):
-    Binary breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.updatePointerTo-k-4lQ0M(long)
-AddedAbstractMethod: androidx.compose.ui.test.TouchInjectionScope#currentPosition-x-9fifI(int):
-    Binary breaking change: Added method androidx.compose.ui.test.TouchInjectionScope.currentPosition-x-9fifI(int)
-AddedAbstractMethod: androidx.compose.ui.test.TouchInjectionScope#down-Uv8p0NA(int, long):
-    Binary breaking change: Added method androidx.compose.ui.test.TouchInjectionScope.down-Uv8p0NA(int,long)
-AddedAbstractMethod: androidx.compose.ui.test.TouchInjectionScope#updatePointerTo-Uv8p0NA(int, long):
-    Binary breaking change: Added method androidx.compose.ui.test.TouchInjectionScope.updatePointerTo-Uv8p0NA(int,long)
+ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>>, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Binary breaking change: Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from void to androidx.compose.ui.test.SemanticsNodeInteraction
+ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>>):
+    Binary breaking change: Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from void to androidx.compose.ui.test.SemanticsNodeInteraction
+
+
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScope#getVisibleSize():
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScope.getVisibleSize()
+RemovedDeprecatedMethod: androidx.compose.ui.test.TextActionsKt#performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.TextActionsKt.performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction,long)
+
+
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomCenter(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottomCenter(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomLeft(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottomLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomRight(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottomRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenter(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenter(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterLeft(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterRight(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopCenter(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopCenter(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopLeft(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopRight(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getBottomCenter():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getBottomCenter()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getBottomLeft():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getBottomLeft()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getBottomRight():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getBottomRight()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getCenter()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getCenterLeft():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getCenterLeft()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getCenterRight():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getCenterRight()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getTopCenter():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getTopCenter()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getTopLeft():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getTopLeft()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getTopRight():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getTopRight()
+RemovedMethod: androidx.compose.ui.test.InjectionScope#getVisibleSize():
+    Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getVisibleSize()
+RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getPrimary():
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getPrimary()
+RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getSecondary():
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getSecondary()
+RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getTertiary():
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getTertiary()
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#getCurrentPosition():
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.getCurrentPosition()
+RemovedMethod: androidx.compose.ui.test.ScrollWheel.Companion#getHorizontal():
+    Binary breaking change: Removed method androidx.compose.ui.test.ScrollWheel.Companion.getHorizontal()
+RemovedMethod: androidx.compose.ui.test.ScrollWheel.Companion#getVertical():
+    Binary breaking change: Removed method androidx.compose.ui.test.ScrollWheel.Companion.getVertical()

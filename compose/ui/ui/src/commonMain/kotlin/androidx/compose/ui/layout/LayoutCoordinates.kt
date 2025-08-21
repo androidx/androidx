@@ -189,17 +189,33 @@ fun LayoutCoordinates.positionOnScreen(): Offset = localToScreen(Offset.Zero)
 /** The boundaries of this layout inside the root composable. */
 fun LayoutCoordinates.boundsInRoot(): Rect = findRootCoordinates().localBoundingBoxOf(this)
 
-/** The boundaries of this layout relative to the window's origin. */
-fun LayoutCoordinates.boundsInWindow(): Rect {
+@Deprecated(
+    message = "Deprecated in favor of boundsInWindow with clipBounds parameter",
+    level = DeprecationLevel.HIDDEN,
+)
+fun LayoutCoordinates.boundsInWindow(): Rect = boundsInWindow(clipBounds = true)
+
+/**
+ * The boundaries of this layout relative to the window's origin.
+ *
+ * @param clipBounds Whether to clip the bounds of the layout to the window's boundaries. If `true`,
+ *   any clipping that occurs between this layout and the window will affect the returned bounds,
+ *   and can even result in an empty rectangle if clipped regions do not overlap. If `false`, the
+ *   bounding box of this layout will be converted to window coordinates irrespective of any
+ *   clipping applied. Defaults to `true`.
+ * @return A [Rect] representing the bounding box of this [LayoutCoordinates] in the window's
+ *   coordinate space. If the bounds are completely clipped, returns [Rect.Zero].
+ */
+fun LayoutCoordinates.boundsInWindow(clipBounds: Boolean = true): Rect {
     val root = findRootCoordinates()
     val rootWidth = root.size.width.toFloat()
     val rootHeight = root.size.height.toFloat()
 
-    val bounds = root.localBoundingBoxOf(this)
-    val boundsLeft = bounds.left.fastCoerceIn(0f, rootWidth)
-    val boundsTop = bounds.top.fastCoerceIn(0f, rootHeight)
-    val boundsRight = bounds.right.fastCoerceIn(0f, rootWidth)
-    val boundsBottom = bounds.bottom.fastCoerceIn(0f, rootHeight)
+    val bounds = root.localBoundingBoxOf(this, clipBounds)
+    val boundsLeft = if (clipBounds) bounds.left.fastCoerceIn(0f, rootWidth) else bounds.left
+    val boundsTop = if (clipBounds) bounds.top.fastCoerceIn(0f, rootHeight) else bounds.top
+    val boundsRight = if (clipBounds) bounds.right.fastCoerceIn(0f, rootWidth) else bounds.right
+    val boundsBottom = if (clipBounds) bounds.bottom.fastCoerceIn(0f, rootHeight) else bounds.bottom
 
     if (boundsLeft == boundsRight || boundsTop == boundsBottom) {
         return Rect.Zero

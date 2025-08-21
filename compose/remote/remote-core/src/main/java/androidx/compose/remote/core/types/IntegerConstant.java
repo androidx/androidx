@@ -47,7 +47,7 @@ public class IntegerConstant extends Operation implements Serializable {
      *
      * @param ic the integer constant to copy
      */
-    public void update(IntegerConstant ic) {
+    public void update(@NonNull IntegerConstant ic) {
         mValue = ic.mValue;
     }
 

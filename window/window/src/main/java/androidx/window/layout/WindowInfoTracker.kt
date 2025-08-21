@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * @see WindowInfoTracker.getOrCreate to get an instance.
  */
-interface WindowInfoTracker {
+public interface WindowInfoTracker {
 
     /**
      * A [Flow] of [WindowLayoutInfo] that contains all the available features. A [WindowLayoutInfo]
@@ -65,7 +65,7 @@ interface WindowInfoTracker {
      * @see WindowLayoutInfo
      * @see DisplayFeature
      */
-    fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
+    public fun windowLayoutInfo(@UiContext context: Context): Flow<WindowLayoutInfo> {
         val windowLayoutInfoFlow: Flow<WindowLayoutInfo>? =
             (context as? Activity)?.let { activity -> windowLayoutInfo(activity) }
         return windowLayoutInfoFlow
@@ -95,7 +95,7 @@ interface WindowInfoTracker {
      * @see WindowLayoutInfo
      * @see DisplayFeature
      */
-    fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
+    public fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
 
     /**
      * Returns the [List] of [SupportedPosture] values. This value will not change during runtime.
@@ -110,12 +110,35 @@ interface WindowInfoTracker {
      */
     @RequiresWindowSdkExtension(version = 6)
     @get:RequiresWindowSdkExtension(version = 6)
-    val supportedPostures: List<SupportedPosture>
+    public val supportedPostures: List<SupportedPosture>
         get() {
             throw NotImplementedError("Method was not implemented.")
         }
 
-    companion object {
+    /**
+     * Returns the current [WindowLayoutInfo] for the given [context].
+     *
+     * This API provides a convenient way to access the current [WindowLayoutInfo]. It can be used
+     * after the [context] associated window has been created, such as [Activity.onCreate]. Calling
+     * it before that will return an empty info.
+     *
+     * For apps that need to update layout UI based on the [WindowLayoutInfo], it should also listen
+     * to [windowLayoutInfo] for any changes later.
+     *
+     * @param context a [UiContext] such as an [Activity], an [InputMethodService], or an instance
+     *   created via [Context.createWindowContext] that listens to configuration changes.
+     * @return the current [WindowLayoutInfo] for the given [context]. If the [context] is not
+     *   associated with a window, returns an empty [WindowLayoutInfo].
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 9.
+     * @throws IllegalArgumentException when [context] is not an [UiContext].
+     * @throws NotImplementedError when this method has no supporting implementation.
+     */
+    @RequiresWindowSdkExtension(version = 9)
+    public fun getCurrentWindowLayoutInfo(@UiContext context: Context): WindowLayoutInfo =
+        throw NotImplementedError("Method was not implemented.")
+
+    public companion object {
 
         private val DEBUG = false
         private val TAG = WindowInfoTracker::class.simpleName
@@ -151,35 +174,35 @@ interface WindowInfoTracker {
          */
         @JvmName("getOrCreate")
         @JvmStatic
-        fun getOrCreate(context: Context): WindowInfoTracker {
+        public fun getOrCreate(context: Context): WindowInfoTracker {
             val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
             val repo =
                 WindowInfoTrackerImpl(
                     WindowMetricsCalculatorCompat(),
                     backend,
-                    WindowSdkExtensions.getInstance()
+                    WindowSdkExtensions.getInstance(),
                 )
             return decorator.decorate(repo)
         }
 
         @JvmStatic
         @RestrictTo(LIBRARY_GROUP)
-        fun overrideDecorator(overridingDecorator: WindowInfoTrackerDecorator) {
+        public fun overrideDecorator(overridingDecorator: WindowInfoTrackerDecorator) {
             decorator = overridingDecorator
         }
 
         @JvmStatic
         @RestrictTo(LIBRARY_GROUP)
-        fun reset() {
+        public fun reset() {
             decorator = EmptyDecorator
         }
     }
 }
 
 @RestrictTo(LIBRARY_GROUP)
-interface WindowInfoTrackerDecorator {
+public interface WindowInfoTrackerDecorator {
     /** Returns an instance of [WindowInfoTracker] associated to the [Activity] */
-    @RestrictTo(LIBRARY_GROUP) fun decorate(tracker: WindowInfoTracker): WindowInfoTracker
+    @RestrictTo(LIBRARY_GROUP) public fun decorate(tracker: WindowInfoTracker): WindowInfoTracker
 }
 
 private object EmptyDecorator : WindowInfoTrackerDecorator {

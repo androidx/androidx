@@ -31,6 +31,7 @@ import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsEffect
 import androidx.compose.integration.demos.settings.DecorFitsSystemWindowsSetting
 import androidx.compose.integration.demos.settings.DynamicThemeSetting
 import androidx.compose.integration.demos.settings.LayoutDirectionSetting
+import androidx.compose.integration.demos.settings.MovableContentOfEverythingSetting
 import androidx.compose.integration.demos.settings.SoftInputModeEffect
 import androidx.compose.integration.demos.settings.SoftInputModeSetting
 import androidx.compose.material3.MaterialTheme
@@ -81,55 +82,62 @@ class DemoActivity : FragmentActivity() {
         ComposeView(this)
             .also { setContentView(it) }
             .setContent {
-                hostView = LocalView.current
-                focusManager = LocalFocusManager.current
-                val activityStarter =
-                    fun(demo: ActivityDemo<*>) {
-                        startActivity(Intent(this, demo.activityClass.java))
-                    }
-                val navigator =
-                    rememberSaveable(
-                        saver = Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
-                    ) {
-                        Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
-                    }
-
-                SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
-                DecorFitsSystemWindowsEffect(
-                    DecorFitsSystemWindowsSetting.asState().value,
-                    hostView,
-                    window,
-                )
-
-                CompositionLocalProvider(
-                    LocalLayoutDirection provides LayoutDirectionSetting.asState().value
+                MovableContentOfEverythingSetting(
+                    MovableContentOfEverythingSetting.asState().value
                 ) {
-                    DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
-                        val filteringMode =
-                            rememberSaveable(saver = FilterMode.Saver(onBackPressedDispatcher)) {
-                                FilterMode(onBackPressedDispatcher)
-                            }
-                        val onStartFiltering = { filteringMode.isFiltering = true }
-                        val onEndFiltering = { filteringMode.isFiltering = false }
-                        DemoApp(
-                            currentDemo = navigator.currentDemo,
-                            backStackTitle = navigator.backStackTitle,
-                            isFiltering = filteringMode.isFiltering,
-                            onStartFiltering = onStartFiltering,
-                            onEndFiltering = onEndFiltering,
-                            onNavigateToDemo = { demo ->
-                                if (filteringMode.isFiltering) {
-                                    onEndFiltering()
-                                    navigator.popAll()
+                    hostView = LocalView.current
+                    focusManager = LocalFocusManager.current
+                    val activityStarter =
+                        fun(demo: ActivityDemo<*>) {
+                            startActivity(Intent(this, demo.activityClass.java))
+                        }
+                    val navigator =
+                        rememberSaveable(
+                            saver =
+                                Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
+                        ) {
+                            Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
+                        }
+
+                    SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
+                    DecorFitsSystemWindowsEffect(
+                        DecorFitsSystemWindowsSetting.asState().value,
+                        hostView,
+                        window,
+                    )
+
+                    CompositionLocalProvider(
+                        LocalLayoutDirection provides LayoutDirectionSetting.asState().value
+                    ) {
+                        DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
+                            val filteringMode =
+                                rememberSaveable(
+                                    saver = FilterMode.Saver(onBackPressedDispatcher)
+                                ) {
+                                    FilterMode(onBackPressedDispatcher)
                                 }
-                                navigator.navigateTo(demo)
-                            },
-                            canNavigateUp = !navigator.isRoot,
-                            onNavigateUp = { onBackPressed() },
-                            launchSettings = {
-                                startActivity(Intent(this, DemoSettingsActivity::class.java))
-                            },
-                        )
+                            val onStartFiltering = { filteringMode.isFiltering = true }
+                            val onEndFiltering = { filteringMode.isFiltering = false }
+                            DemoApp(
+                                currentDemo = navigator.currentDemo,
+                                backStackTitle = navigator.backStackTitle,
+                                isFiltering = filteringMode.isFiltering,
+                                onStartFiltering = onStartFiltering,
+                                onEndFiltering = onEndFiltering,
+                                onNavigateToDemo = { demo ->
+                                    if (filteringMode.isFiltering) {
+                                        onEndFiltering()
+                                        navigator.popAll()
+                                    }
+                                    navigator.navigateTo(demo)
+                                },
+                                canNavigateUp = !navigator.isRoot,
+                                onNavigateUp = { onBackPressed() },
+                                launchSettings = {
+                                    startActivity(Intent(this, DemoSettingsActivity::class.java))
+                                },
+                            )
+                        }
                     }
                 }
             }

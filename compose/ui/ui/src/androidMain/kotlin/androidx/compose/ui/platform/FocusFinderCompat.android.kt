@@ -49,6 +49,8 @@ import java.util.Collections
  *
  * This is copied and simplified from FocusFinder's source. There may be some code that doesn't look
  * quite right in Kotlin as it was copy/pasted with auto-translation.
+ *
+ * Note: This is only used for API < 26 when ComposeUiFlags.isPre26FocusFinderFixEnabled is true.
  */
 internal class FocusFinderCompat {
     companion object {

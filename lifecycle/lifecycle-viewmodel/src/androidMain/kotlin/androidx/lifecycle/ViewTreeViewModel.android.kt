@@ -28,9 +28,9 @@ import android.view.View
     replaceWith =
         ReplaceWith(
             "View.findViewTreeViewModelStoreOwner",
-            "androidx.lifecycle.ViewTreeViewModelStoreOwner"
+            "androidx.lifecycle.ViewTreeViewModelStoreOwner",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 public fun findViewTreeViewModelStoreOwner(view: View): ViewModelStoreOwner? =
     view.findViewTreeViewModelStoreOwner()

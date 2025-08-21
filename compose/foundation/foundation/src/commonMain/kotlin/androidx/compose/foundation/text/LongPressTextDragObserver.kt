@@ -19,7 +19,6 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.util.fastAny
@@ -55,16 +54,6 @@ internal interface TextDragObserver {
 
     fun onCancel()
 }
-
-internal suspend fun PointerInputScope.detectDragGesturesAfterLongPressWithObserver(
-    observer: TextDragObserver
-) =
-    detectDragGesturesAfterLongPress(
-        onDragEnd = { observer.onStop() },
-        onDrag = { _, offset -> observer.onDrag(offset) },
-        onDragStart = { observer.onStart(it) },
-        onDragCancel = { observer.onCancel() },
-    )
 
 /**
  * Detects gesture events for a [TextDragObserver], including both initial down events and drag

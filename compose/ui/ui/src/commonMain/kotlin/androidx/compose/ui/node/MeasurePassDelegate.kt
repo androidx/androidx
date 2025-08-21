@@ -206,11 +206,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
             layoutNodeLayoutDelegate.coordinatesAccessedDuringPlacement = false
             with(layoutNode) {
                 val owner = requireOwner()
-                owner.snapshotObserver.observeLayoutSnapshotReads(
-                    this,
-                    affectsLookahead = false,
-                    block = layoutChildrenBlock,
-                )
+                owner.snapshotObserver.observeLayoutSnapshotReads(this, block = layoutChildrenBlock)
             }
             layoutState = oldLayoutState
 
@@ -413,7 +409,9 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
      * Performs measure with the given constraints and perform necessary state mutations before and
      * after the measurement.
      */
-    internal fun performMeasure(constraints: Constraints) {
+    // inlined as used only in one place to not add extra function call overhead
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun performMeasure(constraints: Constraints) {
         checkPrecondition(layoutState == LayoutState.Idle) {
             "layout state is not idle before measure starts"
         }
@@ -423,7 +421,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         layoutNode
             .requireOwner()
             .snapshotObserver
-            .observeMeasureSnapshotReads(layoutNode, affectsLookahead = false, performMeasureBlock)
+            .observeMeasureSnapshotReads(layoutNode, performMeasureBlock)
         // The resulting layout state might be Ready. This can happen when the layout node's
         // own modifier is querying an alignment line during measurement, therefore we
         // need to also layout the layout node.
@@ -656,7 +654,6 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
             placeOuterCoordinatorLayer = layer
             owner.snapshotObserver.observeLayoutModifierSnapshotReads(
                 layoutNode,
-                affectsLookahead = false,
                 block = placeOuterCoordinatorBlock,
             )
         }

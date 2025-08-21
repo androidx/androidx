@@ -924,7 +924,7 @@ class TextFieldKeyEventTest {
         var handled = -1
         val focusRequester = FocusRequester()
         rule.setContent {
-            val stateValue = state.value
+            val stateValue = state.intValue
 
             @Suppress("UNUSED_PARAMETER")
             fun handle(key: KeyEvent): Boolean {
@@ -943,7 +943,7 @@ class TextFieldKeyEventTest {
         rule.onNodeWithTag(tag).performKeyInput { pressKey(Key.A) }
         rule.runOnIdle {
             assertThat(handled).isEqualTo(0)
-            state.value += 1
+            state.intValue += 1
         }
 
         rule.onNodeWithTag(tag).performKeyInput { pressKey(Key.A) }

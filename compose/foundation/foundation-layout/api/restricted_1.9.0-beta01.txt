@@ -359,7 +359,8 @@ package androidx.compose.foundation.layout {
 
   @androidx.compose.runtime.Immutable public static final class PaddingValues.Absolute implements androidx.compose.foundation.layout.PaddingValues {
     ctor public PaddingValues.Absolute();
-    ctor public PaddingValues.Absolute(optional @androidx.compose.runtime.Stable float left, optional @androidx.compose.runtime.Stable float top, optional @androidx.compose.runtime.Stable float right, optional @androidx.compose.runtime.Stable float bottom);
+    ctor @KotlinOnly public PaddingValues.Absolute(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
+    ctor @BytecodeOnly public PaddingValues.Absolute(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float calculateBottomPadding();
     method @BytecodeOnly public float calculateBottomPadding-D9Ej5fM();
     method public float calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);

@@ -21,7 +21,7 @@ import androidx.window.reflection.Consumer2
 
 internal class ActivityStackConsumer(
     private val callback: EmbeddingInterfaceCompat.EmbeddingCallbackInterface,
-    private val adapter: EmbeddingAdapter
+    private val adapter: EmbeddingAdapter,
 ) : Consumer2<List<OEMActivityStack>> {
 
     override fun accept(value: List<OEMActivityStack>) {

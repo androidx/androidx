@@ -56,4 +56,25 @@ public abstract class PaintOperation extends Operation implements Serializable {
         // by default expects the op to not be suitable
         return false;
     }
+
+    /** Path or Bitmap need to be dereferenced */
+    public static final int PTR_DEREFERENCE = 0x1 << 30;
+
+    /** Valid bits in Path or Bitmap */
+    public static final int VALUE_MASK = 0xFFFF;
+
+    /**
+     * Get the id from the context if needed
+     *
+     * @param id the id to get
+     * @param context the context
+     * @return the id dereferenced if needed
+     */
+    protected int getId(int id, @NonNull PaintContext context) {
+        int returnId = id & VALUE_MASK;
+        if ((id & PTR_DEREFERENCE) != 0) {
+            returnId = context.getContext().getInteger(returnId);
+        }
+        return returnId;
+    }
 }

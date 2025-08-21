@@ -25,6 +25,7 @@ import androidx.compose.remote.core.documentation.DocumentedOperation;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,8 +39,10 @@ public class DebugMessage extends Operation implements VariableSupport {
     float mOutFloatValue;
     int mFlags = 0;
 
-    public DebugMessage(int textID, float value, int flags) {
-        mTextID = textID;
+    public static final int SHOW_USAGE = 1;
+
+    public DebugMessage(int textId, float value, int flags) {
+        mTextID = textId;
         mFloatValue = value;
         mFlags = flags;
     }
@@ -112,13 +115,13 @@ public class DebugMessage extends Operation implements VariableSupport {
      * Writes out the operation to the buffer
      *
      * @param buffer write the command to the buffer
-     * @param textID id of the text
+     * @param textId id of the text
      * @param value value to print
      * @param flags flags to print
      */
-    public static void apply(@NonNull WireBuffer buffer, int textID, float value, int flags) {
+    public static void apply(@NonNull WireBuffer buffer, int textId, float value, int flags) {
         buffer.start(OP_CODE);
-        buffer.writeInt(textID);
+        buffer.writeInt(textId);
         buffer.writeFloat(value);
         buffer.writeInt(flags);
     }
@@ -139,7 +142,14 @@ public class DebugMessage extends Operation implements VariableSupport {
     @Override
     public void apply(@NonNull RemoteContext context) {
         String str = context.getText(mTextID);
-        System.out.println("Debug message : " + str + " " + mOutFloatValue + " " + mFlags);
+
+        System.out.println("Debug message : " + str + " " + mOutFloatValue);
+        if ((mFlags & SHOW_USAGE) > 0 || Float.isNaN(mFloatValue)) {
+            ArrayList<VariableSupport> list = context.getListeners(Utils.idFromNan(mFloatValue));
+            for (VariableSupport varSupport : list) {
+                System.out.println("Debug message : " + str + " " + varSupport.toString());
+            }
+        }
     }
 
     @NonNull

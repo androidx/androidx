@@ -133,12 +133,12 @@ class ViewTreeSavedStateRegistryOwnerTest {
         assertEquals(
             "disjoint parent sees owner",
             rootFakeOwner,
-            parent.findViewTreeSavedStateRegistryOwner()
+            parent.findViewTreeSavedStateRegistryOwner(),
         )
         assertEquals(
             "disjoint child sees owner",
             rootFakeOwner,
-            child.findViewTreeSavedStateRegistryOwner()
+            child.findViewTreeSavedStateRegistryOwner(),
         )
     }
 
@@ -162,7 +162,7 @@ class ViewTreeSavedStateRegistryOwnerTest {
         assertEquals(
             "child sees owner",
             parentFakeOwner,
-            child.findViewTreeSavedStateRegistryOwner()
+            child.findViewTreeSavedStateRegistryOwner(),
         )
     }
 

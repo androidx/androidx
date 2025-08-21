@@ -34,7 +34,6 @@ dependencies {
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     compileOnly("androidx.window.extensions.core:core:1.0.0")
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
@@ -56,6 +55,7 @@ androidx {
             "This module declares the interface the the core component of this library " +
             "(androidx.window:window) will use when communicating with the " +
             "device-specific OEM extension."
+    enableRobolectric()
 }
 
 android {

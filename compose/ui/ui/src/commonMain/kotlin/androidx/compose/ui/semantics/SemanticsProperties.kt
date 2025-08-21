@@ -19,6 +19,7 @@ package androidx.compose.ui.semantics
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.state.ToggleableState
@@ -130,6 +131,16 @@ object SemanticsProperties {
             name = "ContentDataType",
             mergePolicy = { parentValue, _ ->
                 // Never merge autofill data types
+                parentValue
+            },
+        )
+
+    /** @see SemanticsPropertyReceiver.fillableData */
+    internal val FillableData =
+        SemanticsPropertyKey<FillableData>(
+            name = "FillableData",
+            mergePolicy = { parentValue, _ ->
+                // Never merge autofill types
                 parentValue
             },
         )
@@ -298,6 +309,9 @@ object SemanticsActions {
 
     /** @see SemanticsPropertyReceiver.onAutofillText */
     val OnAutofillText = ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
+
+    /** @see SemanticsPropertyReceiver.onFillData */
+    internal val OnFillData = ActionPropertyKey<(FillableData) -> Boolean>("OnFillData")
 
     /** @see SemanticsPropertyReceiver.setProgress */
     val SetProgress = ActionPropertyKey<(progress: Float) -> Boolean>("SetProgress")
@@ -971,6 +985,16 @@ var SemanticsPropertyReceiver.contentType by SemanticsProperties.ContentType
 var SemanticsPropertyReceiver.contentDataType by SemanticsProperties.ContentDataType
 
 /**
+ * Fillable data information.
+ *
+ * This API can be used to set the actual data used to fill supported components. This may be
+ * invoked via [SemanticsActions.OnFillData].
+ *
+ * @see SemanticsProperties.ContentType
+ */
+internal var SemanticsPropertyReceiver.fillableData by SemanticsProperties.FillableData
+
+/**
  * A value to manually control screenreader traversal order.
  *
  * This API can be used to customize TalkBack traversal order. When the `traversalIndex` property is
@@ -1149,7 +1173,7 @@ fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
  */
 var SemanticsPropertyReceiver.maxTextLength by SemanticsProperties.MaxTextLength
 
-/** The shape of the UI element if it's different from the bounding rectangle. */
+/** The shape of the UI element. */
 var SemanticsPropertyReceiver.shape by SemanticsProperties.Shape
 
 /**
@@ -1258,6 +1282,19 @@ fun SemanticsPropertyReceiver.onAutofillText(
     action: ((AnnotatedString) -> Boolean)?,
 ) {
     this[SemanticsActions.OnAutofillText] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to autofill a component.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when [SemanticsActions.OnFillData] is called.
+ */
+internal fun SemanticsPropertyReceiver.onFillData(
+    label: String? = null,
+    action: ((FillableData) -> Boolean)?,
+) {
+    this[SemanticsActions.OnFillData] = AccessibilityAction(label, action)
 }
 
 /**

@@ -169,6 +169,15 @@ public abstract interface annotation class androidx/compose/animation/Experiment
 public abstract interface annotation class androidx/compose/animation/ExperimentalSharedTransitionApi : java/lang/annotation/Annotation {
 }
 
+public final class androidx/compose/animation/SharedTransitionDefaults$SharedContentConfig : androidx/compose/animation/SharedTransitionScope$SharedContentConfig {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/animation/SharedTransitionDefaults$SharedContentConfig;
+}
+
+public final class androidx/compose/animation/SharedTransitionScope$ComposeDefaultImpls {
+	public static final fun rememberSharedContentState$default (Ljava/lang/Object;Landroidx/compose/animation/SharedTransitionScope$SharedContentConfig;Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/runtime/Composer;II)Landroidx/compose/animation/SharedTransitionScope$SharedContentState;
+}
+
 public abstract interface class androidx/compose/animation/SharedTransitionScope$OverlayClip {
 	public abstract fun getClipPath (Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/ui/geometry/Rect;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;)Landroidx/compose/ui/graphics/Path;
 }
@@ -191,6 +200,14 @@ public final class androidx/compose/animation/SharedTransitionScope$ResizeMode$C
 	public final fun ScaleToBounds (Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
 	public static synthetic fun ScaleToBounds$default (Landroidx/compose/animation/SharedTransitionScope$ResizeMode$Companion;Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
 	public final fun getRemeasureToBounds ()Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+	public final fun scaleToBounds (Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+	public static synthetic fun scaleToBounds$default (Landroidx/compose/animation/SharedTransitionScope$ResizeMode$Companion;Landroidx/compose/ui/layout/ContentScale;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/animation/SharedTransitionScope$ResizeMode;
+}
+
+public abstract interface class androidx/compose/animation/SharedTransitionScope$SharedContentConfig {
+	public fun alternativeTargetBoundsInTransitionScopeAfterRemoval-cSwnlzA (Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/ui/geometry/Rect;J)Landroidx/compose/ui/geometry/Rect;
+	public fun getShouldKeepEnabledForOngoingAnimation ()Z
+	public fun isEnabled (Landroidx/compose/animation/SharedTransitionScope$SharedContentState;)Z
 }
 
 public final class androidx/compose/animation/SharedTransitionScope$SharedContentState {

@@ -30,6 +30,7 @@ import kotlin.test.assertNull
 class SnapshotTestsJvm {
 
     @Test
+    @Suppress("BanThreadSleep", "AutoboxingStateCreation") // Required to reproduce the issue
     fun testMultiThreadedReadingAndWritingOfGlobalScope() {
         val running = AtomicBoolean(true)
         val reads = AtomicInt(0)

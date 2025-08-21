@@ -22,6 +22,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.HardwareRenderer
 import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.RenderNode
 import android.hardware.HardwareBuffer
 import android.media.Image
@@ -70,13 +71,14 @@ internal class CanvasBufferedRendererV29(
             } else {
                 mMaxBuffers
             },
-            mUsage
+            mUsage,
         )
 
     private fun createHardwareRenderer(imageReader: ImageReader): HardwareRenderer =
         HardwareRenderer().apply {
-            // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
-            // otherwise it will clear contents across subsequent renders
+            // HardwareRenderer may preserve contents of the buffers if the isOpaque flag is true
+            // (see PreservedBufferContentsVerifier), otherwise it will clear contents across
+            // subsequent renders.
             isOpaque = true
             setContentRoot(mRootRenderNode)
             setSurface(imageReader.surface)
@@ -151,7 +153,7 @@ internal class CanvasBufferedRendererV29(
     override fun draw(
         request: CanvasBufferedRenderer.RenderRequest,
         executor: Executor,
-        callback: Consumer<CanvasBufferedRenderer.RenderResult>
+        callback: Consumer<CanvasBufferedRenderer.RenderResult>,
     ) {
         val transform = request.transform
         val content = mContentRoot
@@ -202,7 +204,7 @@ internal class CanvasBufferedRendererV29(
         executor: Executor,
         renderer: HardwareRenderer,
         preservedRenderStrategy: PreservedRenderStrategy?,
-        callback: Consumer<CanvasBufferedRenderer.RenderResult>
+        callback: Consumer<CanvasBufferedRenderer.RenderResult>,
     ) {
         with(renderer) {
             var result = 0
@@ -214,7 +216,7 @@ internal class CanvasBufferedRendererV29(
                             CanvasBufferedRenderer.RenderResult(
                                 buffer,
                                 fence,
-                                if (isSuccess(result)) SUCCESS else ERROR_UNKNOWN
+                                if (isSuccess(result)) SUCCESS else ERROR_UNKNOWN,
                             )
                         )
                         if (mMaxBuffers == 1) {
@@ -239,14 +241,14 @@ internal class CanvasBufferedRendererV29(
             mTransform,
             mWidth.toFloat(),
             mHeight.toFloat(),
-            transform
+            transform,
         )
     }
 
     private fun recordContent(
         contentNode: RenderNode,
         transform: Matrix,
-        preserveContents: Boolean
+        preserveContents: Boolean,
     ) {
         val canvas = mRootRenderNode.beginRecording()
         if (preserveContents) {
@@ -333,7 +335,7 @@ internal class CanvasBufferedRendererV29(
         lightX: Float,
         lightY: Float,
         lightZ: Float,
-        lightRadius: Float
+        lightRadius: Float,
     ) {
         mLightX = lightX
         mLightY = lightY
@@ -387,6 +389,24 @@ internal class CanvasBufferedRendererV29(
         private var mHardwareBuffer: HardwareBuffer? = null
         private var mFence: SyncFenceCompat? = null
 
+        /**
+         * Used for a call to [Canvas.drawBitmap] to overwrite the contents of one [HardwareBuffer]
+         * with another. This operation should stay as simple as possible to avoid complications.
+         */
+        private val drawBitmapPaint =
+            Paint().apply {
+                blendMode = BlendMode.SRC
+
+                // No need for AA. The zero-arg Paint constructor enables this by default on API 31
+                // and above.
+                isAntiAlias = false
+
+                // Since we know this is always an unscaled blit, avoid any risk of subpixel
+                // alignment causing filtering to slightly blur the re-rendered content.
+                // The zero-arg Paint constructor enables this by default on API 29 and above.
+                isFilterBitmap = false
+            }
+
         override fun restoreContents(canvas: Canvas) {
             if (forceClear) {
                 canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
@@ -397,7 +417,12 @@ internal class CanvasBufferedRendererV29(
                     Bitmap.wrapHardwareBuffer(buffer, CanvasBufferedRenderer.DefaultColorSpace)
                 if (bitmap != null) {
                     canvas.save()
-                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    // Use blendMode=SRC to copy over every pixel from the old buffer, in case the
+                    // newly obtained buffer was instantiated with garbage. If the
+                    // RedrawBufferStrategy is needed, meaning the buffer contents are not preserved
+                    // across renders, don't just assume that a fresh buffer will be cleared to all
+                    // transparent pixels.
+                    canvas.drawBitmap(bitmap, 0f, 0f, drawBitmapPaint)
                     canvas.restore()
                 }
             }
@@ -426,7 +451,7 @@ internal class CanvasBufferedRendererV29(
                 CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW -> {
                     Log.v(
                         TAG,
-                        "Explicit usage of double buffered redraw strategy " + "with force clear"
+                        "Explicit usage of double buffered redraw strategy " + "with force clear",
                     )
                     RedrawBufferStrategy(true)
                 }
@@ -443,7 +468,7 @@ internal class CanvasBufferedRendererV29(
                     } else {
                         Log.w(
                             TAG,
-                            "Warning, device DOES NOT support persisted canvas optimizations."
+                            "Warning, device DOES NOT support persisted canvas optimizations.",
                         )
                         RedrawBufferStrategy(false)
                     }

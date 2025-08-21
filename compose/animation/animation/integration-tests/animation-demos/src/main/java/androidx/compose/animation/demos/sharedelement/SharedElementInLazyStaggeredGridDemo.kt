@@ -114,12 +114,17 @@ fun SharedTransitionScope.CatItem(
     onClick: () -> Unit,
     scope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
+    isEnabled: SharedTransitionScope.SharedContentState.() -> Boolean = { true },
 ) {
     Box(
         modifier =
             modifier
                 .sharedBounds(
-                    sharedContentState = rememberSharedContentState(key = "${cat.name}-bounds"),
+                    sharedContentState =
+                        rememberSharedContentState(
+                            key = "${cat.name}-bounds",
+                            config = SharedContentConfig(isEnabled),
+                        ),
                     boundsTransform = boundsTransition,
                     animatedVisibilityScope = scope,
                     clipInOverlayDuringTransition = OverlayClip(shapeForSharedElement),
@@ -131,7 +136,7 @@ fun SharedTransitionScope.CatItem(
             cat = cat,
             modifier =
                 Modifier.sharedElement(
-                    rememberSharedContentState(key = cat.name),
+                    rememberSharedContentState(key = cat.name, SharedContentConfig(isEnabled)),
                     animatedVisibilityScope = scope,
                     boundsTransform = boundsTransition,
                 ),

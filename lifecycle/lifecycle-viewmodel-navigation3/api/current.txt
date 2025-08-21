@@ -1,10 +1,10 @@
 // Signature format: 4.0
 package androidx.lifecycle.viewmodel.navigation3 {
 
-  public final class ViewModelStoreNavEntryDecorator implements androidx.navigation3.NavEntryDecorator {
-    method @androidx.compose.runtime.Composable public void DecorateBackStack(java.util.List<?> backStack, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public <T> void DecorateEntry(androidx.navigation3.NavEntry<T> entry);
-    field public static final androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecorator INSTANCE;
+  public final class ViewModelStoreNavEntryDecoratorKt {
+    method public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object> ViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStore viewModelStore, kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
+    method @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object> rememberViewModelStoreNavEntryDecorator(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object!> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStoreOwner?, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

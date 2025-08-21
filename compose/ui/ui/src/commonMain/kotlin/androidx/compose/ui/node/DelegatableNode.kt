@@ -381,11 +381,54 @@ fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
  *
  * Calling this method can be a relatively expensive operation as it will cause the entire subtree
  * to relayout and redraw instead of just parts that are otherwise invalidated. Its use should be
- * limited to structural changes.
+ * limited to structural changes. This might be necessary in certain situations where you are
+ * updating some data which you know descendant nodes use, but you are not relaying on automatic
+ * snapshot observation through [androidx.compose.runtime.MutableState].
  */
 fun DelegatableNode.invalidateSubtree() {
     if (node.isAttached) {
         requireLayoutNode().invalidateSubtree()
+    }
+}
+
+/**
+ * Invalidates layout for the entire subtree of this node.
+ *
+ * Note that [invalidateMeasurement] is preferable in most cases, however it is only guaranteed to
+ * invalidate measurement for that specific node, and it is possible that layout nodes that are
+ * underneath it could be cached and thus their measure policies will not get re-executed. Use this
+ * API if you need to ensure that measure is called for all layout nodes below this one. This might
+ * be necessary in certain situations where you are updating some data which you know descendant
+ * nodes use, but you are not relaying on automatic snapshot observation through
+ * [androidx.compose.runtime.MutableState].
+ *
+ * Calling this method can be a relatively expensive operation as it will cause the entire subtree
+ * to relayout instead of just parts that are otherwise invalidated. [invalidateMeasurement] is
+ * preferable in most cases, and this should only be used when absolutely necessary.
+ */
+fun DelegatableNode.invalidateLayoutForSubtree() {
+    if (node.isAttached) {
+        requireLayoutNode().invalidateLayoutForSubtree()
+    }
+}
+
+/**
+ * Invalidates draw for the entire subtree of this node.
+ *
+ * Note that [invalidateDraw] is preferable in most cases, however it is only guaranteed to
+ * invalidate draw for that specific node, and it is possible that draw nodes that are underneath it
+ * could be cached and thus their draw methods will not get re-executed. Use this API if you need to
+ * ensure that draw is called for all draw nodes below this one. This might be necessary in certain
+ * situations where you are updating some data which you know descendant nodes use, but you are not
+ * relaying on automatic snapshot observation through [androidx.compose.runtime.MutableState].
+ *
+ * Calling this method can be a relatively expensive operation as it will cause the entire subtree
+ * to redraw instead of just parts that are otherwise invalidated. [invalidateDraw] is preferable in
+ * most cases, and this should only be used when absolutely necessary.
+ */
+fun DelegatableNode.invalidateDrawForSubtree() {
+    if (node.isAttached) {
+        requireLayoutNode().invalidateDrawForSubtree()
     }
 }
 

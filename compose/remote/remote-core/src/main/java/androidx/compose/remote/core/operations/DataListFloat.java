@@ -159,7 +159,7 @@ public class DataListFloat extends Operation implements VariableSupport, ArrayAc
      *
      * @param lc
      */
-    public void update(DataListFloat lc) {
+    public void update(@NonNull DataListFloat lc) {
         mValues = lc.mValues;
     }
 }

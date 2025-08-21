@@ -47,7 +47,8 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
     Matrix mMatrix = new Matrix();
     public int mMatrixId;
 
-    public MatrixVectorMath(short type, int[] outputs, int matrixId, float[] inputs) {
+    public MatrixVectorMath(
+            short type, int @NonNull [] outputs, int matrixId, float @NonNull [] inputs) {
         mType = type;
         this.mMatrixId = matrixId;
         this.mOutputs = outputs;
@@ -120,12 +121,17 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      * Writes out the operation to the buffer
      *
      * @param buffer write command to this buffer
+     * @param type the type of the operation
      * @param outputs the ids to write the output vector
      * @param matrixId the id
      * @param inputs input vector
      */
     public static void apply(
-            @NonNull WireBuffer buffer, short type, int[] outputs, int matrixId, float[] inputs) {
+            @NonNull WireBuffer buffer,
+            short type,
+            int @NonNull [] outputs,
+            int matrixId,
+            float @NonNull [] inputs) {
         buffer.start(OP_CODE);
         buffer.writeShort(type);
         buffer.writeInt(matrixId);

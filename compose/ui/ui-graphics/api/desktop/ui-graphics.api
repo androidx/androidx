@@ -423,6 +423,15 @@ public final class androidx/compose/ui/graphics/ImageBitmapKt {
 	public static synthetic fun toPixelMap$default (Landroidx/compose/ui/graphics/ImageBitmap;IIII[IIIILjava/lang/Object;)Landroidx/compose/ui/graphics/PixelMap;
 }
 
+public abstract interface class androidx/compose/ui/graphics/Interpolatable {
+	public static final field Companion Landroidx/compose/ui/graphics/Interpolatable$Companion;
+	public abstract fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
+}
+
+public final class androidx/compose/ui/graphics/Interpolatable$Companion {
+	public final fun lerp (Ljava/lang/Object;Ljava/lang/Object;F)Ljava/lang/Object;
+}
+
 public class androidx/compose/ui/graphics/Interval {
 	public fun <init> (FFLjava/lang/Object;)V
 	public synthetic fun <init> (FFLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -463,12 +472,13 @@ public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/c
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class androidx/compose/ui/graphics/LinearGradient : androidx/compose/ui/graphics/ShaderBrush {
+public final class androidx/compose/ui/graphics/LinearGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JJIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getIntrinsicSize-NH-jbRc ()J
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -876,12 +886,13 @@ public final class androidx/compose/ui/graphics/PointMode$Companion {
 	public final fun getPolygon-r_lszbg ()I
 }
 
-public final class androidx/compose/ui/graphics/RadialGradient : androidx/compose/ui/graphics/ShaderBrush {
+public final class androidx/compose/ui/graphics/RadialGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getIntrinsicSize-NH-jbRc ()J
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1009,12 +1020,13 @@ public final class androidx/compose/ui/graphics/SkiaTileMode_skikoKt {
 	public static final fun isSupported-0vamqd0 (I)Z
 }
 
-public final class androidx/compose/ui/graphics/SolidColor : androidx/compose/ui/graphics/Brush {
+public final class androidx/compose/ui/graphics/SolidColor : androidx/compose/ui/graphics/Brush, androidx/compose/ui/graphics/Interpolatable {
 	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun applyTo-Pq9zytI (JLandroidx/compose/ui/graphics/Paint;F)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getValue-0d7_KjU ()J
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1075,11 +1087,12 @@ public final class androidx/compose/ui/graphics/StrokeJoin$Companion {
 	public final fun getRound-LxFBmk8 ()I
 }
 
-public final class androidx/compose/ui/graphics/SweepGradient : androidx/compose/ui/graphics/ShaderBrush {
+public final class androidx/compose/ui/graphics/SweepGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public synthetic fun <init> (JLjava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1748,6 +1761,10 @@ public abstract interface class androidx/compose/ui/graphics/shadow/ShadowContex
 	public fun clearCache ()V
 	public fun createDropShadowPainter (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/shadow/Shadow;)Landroidx/compose/ui/graphics/shadow/DropShadowPainter;
 	public fun createInnerShadowPainter (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/shadow/Shadow;)Landroidx/compose/ui/graphics/shadow/InnerShadowPainter;
+}
+
+public final class androidx/compose/ui/graphics/shadow/ShadowKt {
+	public static final fun lerp (Landroidx/compose/ui/graphics/shadow/Shadow;Landroidx/compose/ui/graphics/shadow/Shadow;F)Landroidx/compose/ui/graphics/shadow/Shadow;
 }
 
 public final class androidx/compose/ui/graphics/vector/PathBuilder {

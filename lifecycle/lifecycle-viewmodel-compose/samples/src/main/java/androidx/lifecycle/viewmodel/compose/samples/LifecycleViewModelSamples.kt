@@ -115,8 +115,8 @@ fun SnapshotStateViewModel() {
                                     Item(id = UUID.fromString(saved[0]), value = saved[1])
                                 }
                                 .toMutableStateList()
-                        }
-                    )
+                        },
+                    ),
             ) {
                 mutableStateListOf()
             }
@@ -135,8 +135,8 @@ fun SnapshotStateViewModel() {
                         save = { it.keys.map(UUID::toString) },
                         restore = {
                             it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
-                        }
-                    )
+                        },
+                    ),
             ) {
                 mutableStateMapOf()
             }
@@ -191,7 +191,7 @@ fun SnapshotStateViewModelWithDelegates() {
                                     Item(id = UUID.fromString(saved[0]), value = saved[1])
                                 }
                                 .toMutableStateList()
-                        }
+                        },
                     )
             ) {
                 mutableStateListOf()
@@ -210,7 +210,7 @@ fun SnapshotStateViewModelWithDelegates() {
                         save = { it.keys.map(UUID::toString) },
                         restore = {
                             it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
-                        }
+                        },
                     )
             ) {
                 mutableStateMapOf()

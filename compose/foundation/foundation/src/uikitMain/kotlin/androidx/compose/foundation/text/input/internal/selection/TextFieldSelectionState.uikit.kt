@@ -45,8 +45,8 @@ import androidx.compose.foundation.text.input.internal.selection.TextToolbarStat
 import androidx.compose.foundation.text.selection.ClicksCounter
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.SelectionAdjustment
-import androidx.compose.foundation.text.selection.isPrecisePointer
-import androidx.compose.foundation.text.selection.mouseSelectionBtf2
+import androidx.compose.foundation.text.selection.isMouseOrTouchPad
+import androidx.compose.foundation.text.selection.mouseSelection
 import androidx.compose.foundation.text.selection.touchSelectionFirstPress
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -216,14 +216,14 @@ internal actual suspend fun PointerInputScope.getTextFieldSelectionGestures(
         while (true) {
             val downEvent = awaitPress({true})
             clicksCounter.update(downEvent.changes[0])
-            val isPrecise = downEvent.isPrecisePointer
+            val isPrecise = downEvent.isMouseOrTouchPad()
             if (
                 isPrecise &&
                 downEvent.buttons.isPrimaryPressed &&
                 downEvent.changes.fastAll { !it.isConsumed }
             ) {
                 // Use default BTF2 logic for mouse
-                mouseSelectionBtf2(mouseSelectionObserver, clicksCounter, downEvent)
+                mouseSelection(mouseSelectionObserver, clicksCounter, downEvent)
             } else if (!isPrecise) {
                 when (clicksCounter.clicks) {
                     1 -> {

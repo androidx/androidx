@@ -27,12 +27,7 @@ import android.graphics.Rect
  * instantiate [Rect] you are using the class from the mockable jar file. The mockable jar does not
  * contain any behavior or calculations.
  */
-internal class Bounds(
-    val left: Int,
-    val top: Int,
-    val right: Int,
-    val bottom: Int,
-) {
+internal class Bounds(val left: Int, val top: Int, val right: Int, val bottom: Int) {
     constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
 
     init {

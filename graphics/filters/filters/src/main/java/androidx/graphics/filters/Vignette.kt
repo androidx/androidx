@@ -46,7 +46,7 @@ internal class Vignette(
     enum class VignetteStyle {
         COLOR, // Vignetting is applied to color channels only.
         ALPHA, // Vignetting is applied to alpha channel only.
-        COLOR_AND_ALPHA // Vignetting is applied to color and alpha channels.
+        COLOR_AND_ALPHA, // Vignetting is applied to color and alpha channels.
     }
 
     private val mInnerRadius: Float
@@ -64,11 +64,11 @@ internal class Vignette(
     init {
         Assertions.checkArgument(
             innerRadius in 0.0..1.0,
-            "InnerRadius needs to be in the interval [0, 1]."
+            "InnerRadius needs to be in the interval [0, 1].",
         )
         Assertions.checkArgument(
             outerRadius in innerRadius..1.0F,
-            "InnerRadius needs to be in the interval [innerRadius, 1]."
+            "InnerRadius needs to be in the interval [innerRadius, 1].",
         )
 
         this.mInnerRadius = innerRadius
@@ -82,7 +82,7 @@ internal class Vignette(
     override fun toGlTextureProcessor(
         @Suppress("InvalidNullabilityOverride") // Remove when b/264908709 is resolved.
         context: Context,
-        useHdr: Boolean
+        useHdr: Boolean,
     ): SingleFrameGlTextureProcessor {
         return VignetteProcessor(context, this, useHdr)
     }

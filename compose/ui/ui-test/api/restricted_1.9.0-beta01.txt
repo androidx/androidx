@@ -36,7 +36,8 @@ package androidx.compose.ui.test {
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public abstract class AndroidComposeUiTestEnvironment<A extends androidx.activity.ComponentActivity> {
     ctor public AndroidComposeUiTestEnvironment();
     ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext);
-    ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional long testTimeout);
+    ctor @KotlinOnly public <A extends androidx.activity.ComponentActivity> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout);
+    ctor @BytecodeOnly public AndroidComposeUiTestEnvironment(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public final void cancelAndRecreateRecomposer();
     method protected abstract A? getActivity();
     method public final androidx.compose.ui.test.AndroidComposeUiTest<A> getTest();
@@ -451,7 +452,7 @@ package androidx.compose.ui.test {
   }
 
   @kotlin.jvm.JvmInline public final value class MouseButton {
-    ctor public MouseButton(int buttonId);
+    ctor @KotlinOnly public MouseButton(int buttonId);
     method @BytecodeOnly public static androidx.compose.ui.test.MouseButton! box-impl(int);
     method @BytecodeOnly public static int constructor-impl(int);
     method public int getButtonId();

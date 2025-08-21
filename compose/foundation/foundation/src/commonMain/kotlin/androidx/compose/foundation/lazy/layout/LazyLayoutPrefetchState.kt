@@ -20,7 +20,6 @@ import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.collection.mutableScatterMapOf
 import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ComposeFoundationFlags.isAutomaticNestedPrefetchEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
@@ -727,12 +726,7 @@ internal class PrefetchHandleProvider(
             // once we've measured this item we now have the up to date "ideal" number of
             // nested prefetches we'd like to perform, save that to the average.
             val controller = nestedPrefetchController
-            if (
-                isAutomaticNestedPrefetchEnabled &&
-                    isMeasured &&
-                    hasResolvedNestedPrefetches &&
-                    controller != null
-            ) {
+            if (isMeasured && hasResolvedNestedPrefetches && controller != null) {
                 val idealNestedPrefetchCount = controller.collectIdealNestedPrefetchCount()
                 average.saveNestedPrefetchCount(idealNestedPrefetchCount)
                 val lastNumberOfNestedPrefetchItems = controller.collectNestedPrefetchedItemsCount()
@@ -872,10 +866,8 @@ internal class PrefetchHandleProvider(
 
                 // If we have automatic nested prefetch enabled, it means we can update the
                 // nested prefetch count for some of the layouts in this item.
-                if (isAutomaticNestedPrefetchEnabled) {
-                    trace("compose:lazy:prefetch:update_nested_prefetch_count") {
-                        states.fastForEach { it.realizedNestedPrefetchCount = nestedPrefetchCount }
-                    }
+                trace("compose:lazy:prefetch:update_nested_prefetch_count") {
+                    states.fastForEach { it.realizedNestedPrefetchCount = nestedPrefetchCount }
                 }
 
                 trace("compose:lazy:prefetch:nested") {

@@ -290,7 +290,9 @@ public fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
 /**
  * Create a instance of [MutableSet]<T> that is observable and can be snapshot.
  *
- * @sample androidx.compose.runtime.samples.stateListSample
+ * The returned set iteration order is in the order the items were inserted into the set.
+ *
+ * @sample androidx.compose.runtime.samples.stateSetSample
  * @see mutableStateOf
  * @see mutableSetOf
  * @see MutableSet
@@ -300,6 +302,8 @@ public fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
 
 /**
  * Create an instance of [MutableSet]<T> that is observable and can be snapshot.
+ *
+ * The returned set iteration order is in the order the items were inserted into the set.
  *
  * @see mutableStateOf
  * @see mutableSetOf

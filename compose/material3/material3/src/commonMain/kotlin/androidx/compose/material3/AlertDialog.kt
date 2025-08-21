@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -266,9 +267,16 @@ internal fun AlertDialogImpl(
     ) {
         AlertDialogContent(
             buttons = {
+                val buttonPaddingFromMICS =
+                    LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        ButtonDefaults.MinHeight
                 AlertDialogFlowRow(
                     mainAxisSpacing = ButtonsMainAxisSpacing,
-                    crossAxisSpacing = ButtonsCrossAxisSpacing,
+                    crossAxisSpacing =
+                        (ButtonsCrossAxisSpacing - buttonPaddingFromMICS).coerceIn(
+                            0.dp,
+                            ButtonsCrossAxisSpacing,
+                        ),
                 ) {
                     confirmButton()
                     dismissButton?.invoke()
@@ -403,7 +411,7 @@ internal val DialogMinWidth = 280.dp
 internal val DialogMaxWidth = 560.dp
 
 private val ButtonsMainAxisSpacing = 8.dp
-private val ButtonsCrossAxisSpacing = 12.dp
+private val ButtonsCrossAxisSpacing = 8.dp
 
 // Paddings for each of the dialog's parts.
 private val DialogPadding = PaddingValues(all = 24.dp)

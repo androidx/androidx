@@ -21,8 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
-import androidx.build.Publish
+
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -39,13 +40,13 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.5.0-alpha01")
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.3")
     androidTestImplementation("androidx.test:core:1.4.0@aar")
-    androidTestImplementation(project(":core:core"))
 }
 
 android {
-    namespace 'androidx.graphics.core'
+    compileSdk = 35
+    namespace = "androidx.graphics.core"
 
     defaultConfig {
         externalNativeBuild {
@@ -56,26 +57,35 @@ android {
                         "-fomit-frame-pointer", "-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON",
                         "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections " +
-                                "-Wl,--version-script=${versionScript}"
+                                "-Wl,--version-script=${versionScript} " +
+                                "-Wl,--undefined-version"
             }
         }
-        consumerProguardFiles 'proguard-rules.pro'
+        consumerProguardFiles("proguard-rules.pro")
     }
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
-            version '3.22.1'
+            version = libs.versions.cmake.get()
         }
     }
 }
 
 androidx {
     name = "Graphics Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":graphics:graphics-core:graphics-core-samples"))
+}
+
+//TODO(b/407725443): Remove this block when CanvasBufferedRendererTests and CanvasFrontBufferedRendererTest pass on API Level 21
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xlambdas=class"
+        ]
+    }
 }

@@ -45,7 +45,7 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -73,7 +73,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -290,7 +289,6 @@ class ClipDrawTest {
         takeScreenShot(30).apply { assertTriangle(Color.Cyan, Color.Green) }
     }
 
-    @Ignore("Test disabled due to flakiness, see b/256950653")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun concaveClip() {
@@ -304,11 +302,9 @@ class ClipDrawTest {
                 ) =
                     Outline.Generic(
                         Path().apply {
-                            op(
-                                Path().apply { addRect(Rect(0f, 0f, 30f, 30f)) },
-                                Path().apply { addRect(Rect(10f, 10f, 20f, 20f)) },
-                                PathOperation.Difference,
-                            )
+                            fillType = PathFillType.EvenOdd
+                            addRect(Rect(0f, 0f, 30f, 30f))
+                            addRect(Rect(10f, 10f, 20f, 20f))
                         }
                     )
             }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.draw
 
-import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -40,7 +39,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(AndroidJUnit4::class)
 class NotHardwareAcceleratedActivityTest {
 

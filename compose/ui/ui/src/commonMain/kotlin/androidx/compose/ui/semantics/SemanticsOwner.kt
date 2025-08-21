@@ -59,7 +59,7 @@ internal constructor(
             )
         }
 
-    internal val listeners = MutableObjectList<SemanticsListener>(2)
+    internal val listeners = MutableObjectList<SemanticsListener>(3)
 
     internal val rootInfo: SemanticsInfo
         get() = rootNode
@@ -73,6 +73,26 @@ internal constructor(
         previousSemanticsConfiguration: SemanticsConfiguration?,
     ) {
         listeners.forEach { it.onSemanticsChanged(semanticsInfo, previousSemanticsConfiguration) }
+    }
+
+    internal fun notifySemanticsAdded(semanticsInfo: SemanticsInfo) {
+        listeners.forEach { it.onSemanticsAdded(semanticsInfo) }
+    }
+
+    internal fun notifySemanticsRemoved(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    ) {
+        listeners.forEach { it.onSemanticsRemoved(semanticsInfo, previousSemanticsConfiguration) }
+    }
+
+    internal fun notifySemanticsDeactivated(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    ) {
+        listeners.forEach {
+            it.onSemanticsDeactivated(semanticsInfo, previousSemanticsConfiguration)
+        }
     }
 }
 

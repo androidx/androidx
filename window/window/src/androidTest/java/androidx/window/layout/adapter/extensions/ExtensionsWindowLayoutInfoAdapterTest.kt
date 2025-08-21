@@ -18,8 +18,8 @@ package androidx.window.layout.adapter.extensions
 
 import android.graphics.Rect
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils
 import androidx.window.core.Bounds
@@ -81,7 +81,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     fun testTranslate_windowLayoutInfoFromContext() {
         assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
@@ -151,7 +151,7 @@ class ExtensionsWindowLayoutInfoAdapterTest {
             assertTrue(source.isNotEmpty())
             assertTrue(
                 "Expected invalid FoldingFeatures to be filtered but had $invalidFeatures",
-                invalidFeatures.isEmpty()
+                invalidFeatures.isEmpty(),
             )
         }
     }

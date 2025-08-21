@@ -224,4 +224,16 @@ public interface PaintChanges {
      * @param values values
      */
     void setFontVariationAxes(@NonNull String[] tags, float @NonNull [] values);
+
+    /**
+     * Set the texture shader
+     *
+     * @param bitmapId the id of the bitmap to use
+     * @param tileX The tiling mode for x to draw the bitmap in.
+     * @param tileY The tiling mode for y to draw the bitmap in.
+     * @param filterMode the filter mode to be used when sampling from this shader.
+     * @param maxAnisotropy The Anisotropy value to use for filtering. Must be greater than 0.
+     */
+    void setTextureShader(
+            int bitmapId, short tileX, short tileY, short filterMode, short maxAnisotropy);
 }

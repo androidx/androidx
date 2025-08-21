@@ -114,7 +114,7 @@ class PredicateAdapterTest {
             assertEquals(
                 "Checking predicate on $data",
                 pairPredicate(data.first, data.second),
-                actual.test(data)
+                actual.test(data),
             )
         }
     }
@@ -139,22 +139,22 @@ class PredicateAdapterTest {
             assertEquals(
                 "Checking innerAnd predicate on $data",
                 innerAnd.test(data),
-                actual.test(data)
+                actual.test(data),
             )
             assertEquals(
                 "Checking outerAnd predicate on $data",
                 outerAnd.test(data),
-                actual.test(data)
+                actual.test(data),
             )
             assertEquals(
                 "Checking innerOr predicate on $data",
                 innerOr.test(data),
-                actual.test(data)
+                actual.test(data),
             )
             assertEquals(
                 "Checking outerOr predicate on $data",
                 outerOr.test(data),
-                actual.test(data)
+                actual.test(data),
             )
             assertEquals("Checking notNot predicate on $data", notNot.test(data), actual.test(data))
         }

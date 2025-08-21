@@ -54,11 +54,11 @@ internal object ViewModelProviders {
         )
 
     internal fun createInitializerFactory(
-        initializers: Collection<ViewModelInitializer<*>>,
+        initializers: Collection<ViewModelInitializer<*>>
     ): ViewModelProvider.Factory = InitializerViewModelFactory(*initializers.toTypedArray())
 
     internal fun createInitializerFactory(
-        vararg initializers: ViewModelInitializer<*>,
+        vararg initializers: ViewModelInitializer<*>
     ): ViewModelProvider.Factory = InitializerViewModelFactory(*initializers)
 
     internal fun getDefaultFactory(owner: ViewModelStoreOwner): ViewModelProvider.Factory =

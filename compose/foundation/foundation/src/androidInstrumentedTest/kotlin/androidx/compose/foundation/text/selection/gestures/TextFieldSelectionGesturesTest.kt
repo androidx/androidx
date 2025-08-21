@@ -600,6 +600,86 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         }
     }
 
+    @Test
+    fun whenTouch_withDoubleClick_selectsWord() {
+        performTouchGesture { repeat(2) { click(characterPosition(13)) } }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+            selectionHandlesShown = true
+            selection = 12 to 17
+        }
+    }
+
+    @Test
+    fun whenTouch_withDoubleClickThenDragLeft_selectsWords() {
+        touchDoubleTapThenDragTest(endOffset = characterPosition(8), endSelection = 17 to 6)
+    }
+
+    @Test
+    fun whenTouch_withDoubleClickThenDragUp_selectsWords() {
+        touchDoubleTapThenDragTest(endOffset = characterPosition(2), endSelection = 17 to 0)
+    }
+
+    @Test
+    fun whenTouch_withDoubleClickThenDragRight_selectsWords() {
+        touchDoubleTapThenDragTest(endOffset = characterPosition(19), endSelection = 12 to 23)
+    }
+
+    @Test
+    fun whenTouch_withDoubleClickThenDragDown_selectsWords() {
+        touchDoubleTapThenDragTest(endOffset = characterPosition(26), endSelection = 12 to 29)
+    }
+
+    private fun touchDoubleTapThenDragTest(endOffset: Offset, endSelection: TextRange) {
+        touchTapsThenDragTest(
+            numTaps = 2,
+            startOffset = characterPosition(13),
+            endOffset = endOffset,
+            startSelection = TextRange(12, 17),
+            endSelection = endSelection,
+        )
+    }
+
+    private fun touchTapsThenDragTest(
+        numTaps: Int,
+        startOffset: Offset,
+        endOffset: Offset,
+        startSelection: TextRange,
+        endSelection: TextRange,
+    ) {
+        check(numTaps > 0) { "Must be at least one tap" }
+        performTouchGesture {
+            down(startOffset)
+            repeat(numTaps - 1) {
+                advanceEventTime()
+                up()
+                advanceEventTime()
+                down(startOffset)
+            }
+        }
+
+        // touch doesn't react immediately, it waits for long press to start or click to end
+        rule.mainClock.advanceTimeBy(1000)
+
+        asserter.applyAndAssert {
+            magnifierShown = true
+            selection = startSelection
+        }
+
+        touchDragTo(endOffset)
+
+        asserter.applyAndAssert { selection = endSelection }
+
+        performTouchGesture { up() }
+
+        asserter.applyAndAssert {
+            selectionHandlesShown = true
+            textToolbarShown = true
+            magnifierShown = false
+        }
+    }
+
     // Regression test for a mouse long click resulting in touch behaviors for selection.
     @Test
     fun whenMouse_withLongClick_collapsedSelectionAtClick() {

@@ -46,11 +46,14 @@ internal class SplitPlaceHolderRuleTest {
     @Test
     fun equalsImpliesHashCode() {
         val filter = ActivityFilter(ActivityComponentInfo("a", "b"), "ACTION")
-        val placeholderIntent = Intent()
-        val firstRule = SplitPlaceholderRule.Builder(setOf(filter), placeholderIntent).build()
-        val secondRule = SplitPlaceholderRule.Builder(setOf(filter), placeholderIntent).build()
+        val firstRule = SplitPlaceholderRule.Builder(setOf(filter), Intent()).build()
+        val secondRule = SplitPlaceholderRule.Builder(setOf(filter), Intent()).build()
         assertEquals(firstRule, secondRule)
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
+
+        // The hashCode should be consistent to the predetermined value.
+        // Note that the value should be updated whenever hashCode calculation is changed.
+        assertEquals(1986646852, firstRule.hashCode())
     }
 
     /*------------------------------Builder Test------------------------------*/
@@ -98,6 +101,7 @@ internal class SplitPlaceHolderRuleTest {
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GREEN)
                         )
+                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()

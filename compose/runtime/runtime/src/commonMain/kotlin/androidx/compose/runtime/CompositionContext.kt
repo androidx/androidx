@@ -106,4 +106,6 @@ public abstract class CompositionContext internal constructor() {
     ): MovableContentState? = null
 
     internal abstract fun reportRemovedComposition(composition: ControlledComposition)
+
+    public abstract fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle
 }

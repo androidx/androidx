@@ -65,15 +65,36 @@ internal class ConicConverter {
 
     /** Converts the conic in [points] to a series of quadratics, which will all be stored */
     fun convert(points: FloatArray, weight: Float, tolerance: Float, offset: Int = 0) {
-        quadraticCount = internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
+        quadraticCount = conicToQuadraticsCompat(points, offset, quadraticData, weight, tolerance)
         // 3 points per quadratic, 2 floats per point, with one point of overlap
         val newDataSize = quadraticCount * 2 * 2 + 2
         if (newDataSize > quadraticData.size) {
             quadraticData = FloatArray(newDataSize)
             quadraticCount =
-                internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
+                conicToQuadraticsCompat(points, offset, quadraticData, weight, tolerance)
         }
         currentQuadratic = 0
+    }
+
+    /**
+     * Calls the appropriate function for the conversion from conic to quadratic.
+     *
+     * As the native library is only available for Android, it uses our own implementation for host
+     * platforms, e.g. LayoutLib and Robolectric.
+     */
+    private fun conicToQuadraticsCompat(
+        conicPoints: FloatArray,
+        offset: Int,
+        quadraticPoints: FloatArray,
+        weight: Float,
+        tolerance: Float,
+    ): Int {
+        val isDalvik = "dalvik".equals(System.getProperty("java.vm.name"), ignoreCase = true)
+        return if (isDalvik) {
+            internalConicToQuadratics(conicPoints, offset, quadraticPoints, weight, tolerance)
+        } else {
+            conicToQuadratics(conicPoints, offset, quadraticPoints, weight, tolerance)
+        }
     }
 
     /**
@@ -86,6 +107,6 @@ internal class ConicConverter {
         offset: Int,
         quadraticPoints: FloatArray,
         weight: Float,
-        tolerance: Float
+        tolerance: Float,
     ): Int
 }

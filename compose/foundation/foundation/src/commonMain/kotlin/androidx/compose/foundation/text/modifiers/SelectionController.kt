@@ -22,8 +22,8 @@ import androidx.compose.foundation.text.selection.MultiWidgetSelectionDelegate
 import androidx.compose.foundation.text.selection.Selectable
 import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
+import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.hasSelection
-import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
@@ -357,5 +358,7 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
             }
         }
 
-    return Modifier.selectionGestureInput(mouseSelectionObserver, longPressDragObserver)
+    return Modifier.pointerInput(mouseSelectionObserver, longPressDragObserver) {
+        awaitSelectionGestures(mouseSelectionObserver, longPressDragObserver)
+    }
 }

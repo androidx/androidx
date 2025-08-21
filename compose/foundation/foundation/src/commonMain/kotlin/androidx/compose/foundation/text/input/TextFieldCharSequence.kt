@@ -16,11 +16,15 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.text.input.internal.addExactOrElse
+import androidx.compose.foundation.text.input.internal.subtractExactOrElse
 import androidx.compose.foundation.text.input.internal.toCharArray
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import kotlin.jvm.JvmInline
+import kotlin.math.max
+import kotlin.math.min
 
 internal typealias PlacedAnnotation = AnnotatedString.Range<AnnotatedString.Annotation>
 
@@ -162,7 +166,7 @@ internal value class TextHighlightType private constructor(private val value: In
  * @see TextRange.min
  */
 internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSequence =
-    subSequence(kotlin.math.max(0, selection.min - maxChars), selection.min)
+    subSequence(max(0, selection.min.subtractExactOrElse(maxChars) { 0 }), selection.min)
 
 /**
  * Returns the text after the selection.
@@ -172,7 +176,7 @@ internal fun TextFieldCharSequence.getTextBeforeSelection(maxChars: Int): CharSe
  * @see TextRange.max
  */
 internal fun TextFieldCharSequence.getTextAfterSelection(maxChars: Int): CharSequence =
-    subSequence(selection.max, kotlin.math.min(selection.max + maxChars, length))
+    subSequence(selection.max, min(selection.max.addExactOrElse(maxChars) { length }, length))
 
 /** Returns the currently selected text. */
 internal fun TextFieldCharSequence.getSelectedText(): CharSequence =

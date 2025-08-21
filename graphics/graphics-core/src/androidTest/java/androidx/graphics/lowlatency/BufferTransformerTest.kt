@@ -68,7 +68,7 @@ internal class BufferTransformerTest {
                 createMatrix {
                     Matrix.setRotateM(this, 0, -90f, 0f, 0f, 1f)
                     Matrix.translateM(this, 0, -WIDTH.toFloat(), 0f, 0f)
-                }
+                },
             )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_90, transform.computedTransform)
@@ -88,7 +88,7 @@ internal class BufferTransformerTest {
                 createMatrix {
                     Matrix.setRotateM(this, 0, 180f, 0f, 0f, 1f)
                     Matrix.translateM(this, 0, -WIDTH.toFloat(), -HEIGHT.toFloat(), 0f)
-                }
+                },
             )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_180, transform.computedTransform)
@@ -108,7 +108,7 @@ internal class BufferTransformerTest {
                 createMatrix {
                     Matrix.setRotateM(this, 0, 90f, 0f, 0f, 1f)
                     Matrix.translateM(this, 0, 0f, -HEIGHT.toFloat(), 0f)
-                }
+                },
             )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_270, transform.computedTransform)

@@ -951,8 +951,7 @@ private inline fun maxIntrinsicMainAxisSize(
  * Slower algorithm but needed to determine the minimum main axis size Uses a binary search to
  * search different scenarios to see the minimum main axis size
  */
-@Suppress("BanInlineOptIn")
-@OptIn(ExperimentalLayoutApi::class)
+@ExperimentalLayoutApi
 private inline fun minIntrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,

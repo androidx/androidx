@@ -1013,14 +1013,29 @@ internal interface ButtonGroupItem {
 internal class ClickableButtonGroupItem(
     private val onClick: () -> Unit,
     private val icon: (@Composable () -> Unit)?,
-    private val modifier: Modifier,
-    private val interactionSource: MutableInteractionSource,
+    private val weight: Float,
+    private val animationSpec: AnimationSpec<Float>,
     private val enabled: Boolean,
     private val label: String,
 ) : ButtonGroupItem {
 
     @Composable
     override fun ButtonGroupContent() {
+        val interactionSource = remember { MutableInteractionSource() }
+        val modifier =
+            Modifier.then(
+                    EnlargeOnPressElement(
+                        interactionSource = interactionSource,
+                        animationSpec = animationSpec,
+                    )
+                )
+                .then(
+                    if (!weight.isNaN()) {
+                        ButtonGroupElement(weight.coerceAtMost(Float.MAX_VALUE))
+                    } else {
+                        Modifier
+                    }
+                )
         Button(
             onClick = onClick,
             modifier = modifier,
@@ -1053,8 +1068,8 @@ internal class ClickableButtonGroupItem(
 internal class ToggleableButtonGroupItem(
     private val checked: Boolean,
     private val onCheckedChange: (Boolean) -> Unit,
-    private val modifier: Modifier,
-    private val interactionSource: MutableInteractionSource,
+    private val weight: Float,
+    private val animationSpec: AnimationSpec<Float>,
     private val icon: (@Composable () -> Unit)?,
     private val enabled: Boolean,
     private val label: String,
@@ -1063,6 +1078,22 @@ internal class ToggleableButtonGroupItem(
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun ButtonGroupContent() {
+        val interactionSource = remember { MutableInteractionSource() }
+        val modifier =
+            Modifier.then(
+                    EnlargeOnPressElement(
+                        interactionSource = interactionSource,
+                        animationSpec = animationSpec,
+                    )
+                )
+                .then(
+                    if (!weight.isNaN()) {
+                        ButtonGroupElement(weight.coerceAtMost(Float.MAX_VALUE))
+                    } else {
+                        Modifier
+                    }
+                )
+
         ToggleButton(
             checked = checked,
             onCheckedChange = onCheckedChange,
@@ -1197,22 +1228,16 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
         weight: Float,
         enabled: Boolean,
     ) {
-        val interactionSource = MutableInteractionSource()
+        require(weight > 0.0 || weight.isNaN()) {
+            "invalid weight $weight; must be greater than zero or Float.NaN"
+        }
         items.add(
             ClickableButtonGroupItem(
                 onClick = onClick,
                 icon = icon,
                 enabled = enabled,
-                modifier =
-                    Modifier.animateWidth(interactionSource)
-                        .then(
-                            if (!weight.isNaN()) {
-                                Modifier.weight(weight)
-                            } else {
-                                Modifier
-                            }
-                        ),
-                interactionSource = interactionSource,
+                weight = weight,
+                animationSpec = animationSpec,
                 label = label,
             )
         )
@@ -1226,23 +1251,17 @@ private class ButtonGroupScopeImpl(val animationSpec: AnimationSpec<Float>) :
         weight: Float,
         enabled: Boolean,
     ) {
-        val interactionSource = MutableInteractionSource()
+        require(weight > 0.0 || weight.isNaN()) {
+            "invalid weight $weight; must be greater than zero or Float.NaN"
+        }
         items.add(
             ToggleableButtonGroupItem(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 icon = icon,
                 enabled = enabled,
-                modifier =
-                    Modifier.animateWidth(interactionSource)
-                        .then(
-                            if (!weight.isNaN()) {
-                                Modifier.weight(weight)
-                            } else {
-                                Modifier
-                            }
-                        ),
-                interactionSource = interactionSource,
+                weight = weight,
+                animationSpec = animationSpec,
                 label = label,
             )
         )

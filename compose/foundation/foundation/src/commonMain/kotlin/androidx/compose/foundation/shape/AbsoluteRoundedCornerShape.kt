@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -111,6 +112,30 @@ class AbsoluteRoundedCornerShape(
     }
 
     private fun Float.toRadius() = CornerRadius(this)
+
+    override fun lerp(other: Any?, t: Float): Any? {
+        var other: Any? = other
+        if (other == RectangleShape || other == null) {
+            other = AbsoluteRoundedCornerShape(0f)
+        }
+        if (other is AbsoluteRoundedCornerShape) {
+            return lerp(this, other, t)
+        }
+        return null
+    }
+}
+
+internal fun lerp(
+    a: AbsoluteRoundedCornerShape,
+    b: AbsoluteRoundedCornerShape,
+    t: Float,
+): AbsoluteRoundedCornerShape {
+    return AbsoluteRoundedCornerShape(
+        lerp(a.topStart, b.topStart, t),
+        lerp(a.topEnd, b.topEnd, t),
+        lerp(a.bottomEnd, b.bottomEnd, t),
+        lerp(a.bottomStart, b.bottomStart, t),
+    )
 }
 
 /**

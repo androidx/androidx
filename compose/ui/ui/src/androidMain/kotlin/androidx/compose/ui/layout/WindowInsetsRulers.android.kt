@@ -302,7 +302,7 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
             val type = animation.typeMask
             runningAnimationMask = runningAnimationMask or type
             // This is the animation's target value
-            val rulers = AnimatableRulers[type]
+            val rulers = WindowInsetsTypeMap[type]
             if (rulers != null) {
                 val insetsValue = insetsValues[rulers]!!
                 val target = ValueInsets(insets.getInsets(type))
@@ -337,7 +337,7 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
     ): WindowInsetsCompat {
         runningAnimations.fastForEach { animation ->
             val typeMask = animation.typeMask
-            val rulers = AnimatableRulers[typeMask]
+            val rulers = WindowInsetsTypeMap[typeMask]
             if (rulers != null) {
                 val insetsValue = insetsValues[rulers]!!
                 if (insetsValue.isAnimating) {
@@ -356,7 +356,7 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
         val type = animation.typeMask
         runningAnimationMask = runningAnimationMask and type.inv()
         savedInsets = null
-        val rulers = AnimatableRulers[type]
+        val rulers = WindowInsetsTypeMap[type]
         if (rulers != null) {
             val insetsValue = insetsValues[rulers]!!
             insetsValue.fraction = 0f
@@ -411,9 +411,6 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
                     hasInsets = true
                 }
             }
-        }
-        AnimatableRulers.forEach { type, rulers ->
-            val values = insetsValues[rulers]!!
             if (type != WindowInsetsCompat.Type.ime()) {
                 val insetsValue = ValueInsets(insets.getInsetsIgnoringVisibility(type))
                 if (values.maximum != insetsValue) {
@@ -434,28 +431,12 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
                 ValueInsets(cutout.waterfallInsets)
             }
         val waterfallInsets = insetsValues[Waterfall]!!
+        waterfallInsets.isVisible = waterfall != ZeroValueInsets
         if (waterfallInsets.current != waterfall) {
             waterfallInsets.current = waterfall
             waterfallInsets.maximum = waterfall
             changed = true
             if (waterfall != ZeroValueInsets) {
-                hasInsets = true
-            }
-        }
-        val cutoutInsets =
-            if (cutout == null) {
-                ZeroValueInsets
-            } else {
-                with(cutout) {
-                    ValueInsets(safeInsetLeft, safeInsetTop, safeInsetRight, safeInsetBottom)
-                }
-            }
-        val displayCutoutInsets = insetsValues[DisplayCutout]!!
-        if (cutoutInsets != displayCutoutInsets.current) {
-            displayCutoutInsets.current = cutoutInsets
-            displayCutoutInsets.maximum = cutoutInsets
-            changed = true
-            if (cutoutInsets != ZeroValueInsets) {
                 hasInsets = true
             }
         }
@@ -544,6 +525,7 @@ private val WindowInsetsTypeMap: IntObjectMap<WindowInsetsRulers> =
         it[WindowInsetsCompat.Type.systemGestures()] = SystemGestures
         it[WindowInsetsCompat.Type.mandatorySystemGestures()] = MandatorySystemGestures
         it[WindowInsetsCompat.Type.tappableElement()] = TappableElement
+        it[WindowInsetsCompat.Type.displayCutout()] = DisplayCutout
     }
 
 /** Rulers that can animate, but don't always animate with the IME */
@@ -559,17 +541,3 @@ private val AnimatableInsetsRulers =
         Waterfall,
         DisplayCutout,
     )
-
-/**
- * Mapping the [WindowInsetsCompat.Type] to the [RectRulers] for only the insets that can animate.
- */
-private val AnimatableRulers =
-    MutableIntObjectMap<WindowInsetsRulers>(7).also {
-        it[WindowInsetsCompat.Type.statusBars()] = StatusBars
-        it[WindowInsetsCompat.Type.navigationBars()] = NavigationBars
-        it[WindowInsetsCompat.Type.captionBar()] = CaptionBar
-        it[WindowInsetsCompat.Type.systemGestures()] = SystemGestures
-        it[WindowInsetsCompat.Type.tappableElement()] = TappableElement
-        it[WindowInsetsCompat.Type.mandatorySystemGestures()] = MandatorySystemGestures
-        it[WindowInsetsCompat.Type.ime()] = Ime
-    }

@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -493,6 +494,40 @@ class ModalNavigationDrawerTest {
 
         rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeLeft() }
 
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 24)
+    // Suppressing due to Float comparison issues in API's below 23, causing Nexus4 emulator errors.
+    fun navigationDrawer_currentValueUpdatesOnRelease() {
+        lateinit var drawerState: DrawerState
+        rule.setMaterialContent(lightColorScheme()) {
+            drawerState = rememberDrawerState(DrawerValue.Closed)
+            Box(Modifier.testTag(DrawerTestTag)) {
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            Box(Modifier.fillMaxSize().background(color = Color.Magenta))
+                        }
+                    },
+                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) },
+                )
+            }
+        }
+
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeRight() }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
+
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput {
+            down(center)
+            moveTo(position = centerLeft)
+        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
+
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { up() }
+        rule.mainClock.advanceTimeBy(500)
         rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed) }
     }
 

@@ -8,11 +8,8 @@ package androidx.compose.material3.adaptive {
   public final class AndroidWindowAdaptiveInfo_androidKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature>> collectFoldingFeaturesAsState();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<java.util.List<androidx.window.layout.FoldingFeature!>!> collectFoldingFeaturesAsState(androidx.compose.runtime.Composer?, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo! currentWindowAdaptiveInfo(androidx.compose.runtime.Composer!, int);
-    method @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize();
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer!, int);
-    method @Deprecated @androidx.compose.runtime.Composable public static long currentWindowSize();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static long currentWindowSize(androidx.compose.runtime.Composer!, int);
   }
 

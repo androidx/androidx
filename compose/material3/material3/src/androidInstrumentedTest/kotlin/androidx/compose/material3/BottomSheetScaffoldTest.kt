@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
@@ -1091,5 +1092,43 @@ class BottomSheetScaffoldTest {
         rule.onNodeWithTag(dragHandleTag, useUnmergedTree = true).performClick()
         rule.waitForIdle()
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
+    }
+
+    @Test
+    fun bottomSheetScaffold_peekHeightMatchesContentHeight_containsExpandedAnchor() {
+        val bottomSheetState =
+            SheetState(
+                skipPartiallyExpanded = true,
+                skipHiddenState = true,
+                initialValue = SheetValue.Expanded,
+                positionalThreshold = {
+                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                },
+            )
+        rule.setContent {
+            LookaheadScope {
+                BottomSheetScaffold(
+                    sheetContent = { Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight)) },
+                    sheetDragHandle = null,
+                    sheetPeekHeight = sheetHeight,
+                    scaffoldState =
+                        rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState),
+                ) {
+                    Text("Content")
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(bottomSheetState.anchoredDraggableState.anchors.size).isEqualTo(1)
+            assertThat(
+                    bottomSheetState.anchoredDraggableState.anchors.hasAnchorFor(
+                        SheetValue.Expanded
+                    )
+                )
+                .isTrue()
+        }
     }
 }

@@ -22,7 +22,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateObserver
  * Performs snapshot observation for blocks like draw and layout which should be re-invoked
  * automatically when the snapshot value has been changed.
  */
-@Suppress("CallbackName") // TODO rename this and SnapshotStateObserver. b/173401548
+@Suppress(
+    "CallbackName", // TODO rename this and SnapshotStateObserver. b/173401548
+    "NOTHING_TO_INLINE",
+)
 internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -> Unit) {
 
     private val observer = SnapshotStateObserver(onChangedExecutor)
@@ -70,45 +73,55 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     }
 
     /** Observe snapshot reads during layout of [node], executed in [block]. */
-    internal fun observeLayoutSnapshotReads(
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeLayoutSnapshotReads(node: LayoutNode, noinline block: () -> Unit) {
+        observeReads(node, onCommitAffectingLayout, block)
+    }
+
+    /** Observe snapshot reads during layout of [node], executed in [block]. */
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeLayoutSnapshotReadsAffectingLookahead(
         node: LayoutNode,
-        affectsLookahead: Boolean = true,
-        block: () -> Unit,
+        noinline block: () -> Unit,
     ) {
-        if (affectsLookahead && node.lookaheadRoot != null) {
-            observeReads(node, onCommitAffectingLookahead, block)
-        } else {
-            observeReads(node, onCommitAffectingLayout, block)
-        }
+        observeReads(node, onCommitAffectingLookahead, block)
     }
 
     /** Observe snapshot reads during layout of [node]'s LayoutModifiers, executed in [block]. */
-    internal fun observeLayoutModifierSnapshotReads(
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeLayoutModifierSnapshotReads(
         node: LayoutNode,
-        affectsLookahead: Boolean = true,
-        block: () -> Unit,
+        noinline block: () -> Unit,
     ) {
-        if (affectsLookahead && node.lookaheadRoot != null) {
-            observeReads(node, onCommitAffectingLayoutModifierInLookahead, block)
-        } else {
-            observeReads(node, onCommitAffectingLayoutModifier, block)
-        }
+        observeReads(node, onCommitAffectingLayoutModifier, block)
+    }
+
+    /** Observe snapshot reads during layout of [node]'s LayoutModifiers, executed in [block]. */
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeLayoutModifierSnapshotReadsAffectingLookahead(
+        node: LayoutNode,
+        noinline block: () -> Unit,
+    ) {
+        observeReads(node, onCommitAffectingLayoutModifierInLookahead, block)
     }
 
     /** Observe snapshot reads during measure of [node], executed in [block]. */
-    internal fun observeMeasureSnapshotReads(
-        node: LayoutNode,
-        affectsLookahead: Boolean = true,
-        block: () -> Unit,
-    ) {
-        if (affectsLookahead && node.lookaheadRoot != null) {
-            observeReads(node, onCommitAffectingLookaheadMeasure, block)
-        } else {
-            observeReads(node, onCommitAffectingMeasure, block)
-        }
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeMeasureSnapshotReads(node: LayoutNode, noinline block: () -> Unit) {
+        observeReads(node, onCommitAffectingMeasure, block)
     }
 
-    internal fun observeSemanticsReads(node: LayoutNode, block: () -> Unit) {
+    /** Observe snapshot reads during measure of [node], executed in [block]. */
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeMeasureSnapshotReadsAffectingLookahead(
+        node: LayoutNode,
+        noinline block: () -> Unit,
+    ) {
+        observeReads(node, onCommitAffectingLookaheadMeasure, block)
+    }
+
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun observeSemanticsReads(node: LayoutNode, noinline block: () -> Unit) {
         observeReads(node, onCommitAffectingSemantics, block)
     }
 
@@ -116,10 +129,11 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
      * Observe snapshot reads for any target, allowing consumers to determine how to respond to
      * state changes.
      */
-    internal fun <T : OwnerScope> observeReads(
+    // inlined as used only in one place to not add extra function call overhead
+    internal inline fun <T : OwnerScope> observeReads(
         target: T,
-        onChanged: (T) -> Unit,
-        block: () -> Unit,
+        noinline onChanged: (T) -> Unit,
+        noinline block: () -> Unit,
     ) {
         observer.observeReads(target, onChanged, block)
     }

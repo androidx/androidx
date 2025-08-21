@@ -59,7 +59,7 @@ constructor(
     override fun registerLayoutChangeCallback(
         @UiContext context: Context,
         executor: Executor,
-        callback: Consumer<WindowLayoutInfo>
+        callback: Consumer<WindowLayoutInfo>,
     ) {
         val activity = context as? Activity
         activity?.let {
@@ -131,6 +131,9 @@ constructor(
     override val supportedPostures: List<SupportedPosture>
         get() = throw UnsupportedOperationException("Must be called from extensions.")
 
+    override fun getCurrentWindowLayoutInfo(context: Context): WindowLayoutInfo =
+        throw UnsupportedOperationException("Must be called from extensions.")
+
     /**
      * Checks if there are no more registered callbacks left for the activity and inform extension
      * if needed.
@@ -165,7 +168,7 @@ constructor(
     internal class WindowLayoutChangeCallbackWrapper(
         val activity: Activity,
         private val executor: Executor,
-        val callback: Consumer<WindowLayoutInfo>
+        val callback: Consumer<WindowLayoutInfo>,
     ) {
         var lastInfo: WindowLayoutInfo? = null
 

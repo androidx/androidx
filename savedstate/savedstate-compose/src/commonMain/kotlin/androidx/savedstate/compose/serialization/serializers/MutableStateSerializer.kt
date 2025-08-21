@@ -55,9 +55,8 @@ public inline fun <reified T> MutableStateSerializer(): MutableStateSerializer<T
  * @param T The type of the value stored in the [MutableState].
  * @param valueSerializer The [KSerializer] used to serialize and deserialize the inner value.
  */
-public class MutableStateSerializer<T>(
-    private val valueSerializer: KSerializer<T>,
-) : KSerializer<MutableState<T>> {
+public class MutableStateSerializer<T>(private val valueSerializer: KSerializer<T>) :
+    KSerializer<MutableState<T>> {
 
     @OptIn(ExperimentalSerializationApi::class)
     override val descriptor: SerialDescriptor = run {

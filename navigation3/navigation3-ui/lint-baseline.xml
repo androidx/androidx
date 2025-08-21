@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                scenes.values.map { scene -> scene.entries.map(NavEntry&lt;T>::contentKey) },"
+        errorLine2="                                                           ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    (mostRecentSceneKeys.filter { it != transition.targetState } +"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                    .map { it.contentKey }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                    .filterNot(coveredEntryKeys::contains)"
+        errorLine2="                                     ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                    .toSet(),"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                            scene.entries.forEach { coveredEntryKeys.add(it.contentKey) }"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val transitionCurrentStateEntries = remember(transition.currentState) { entries.toList() }"
+        errorLine2="                                                                                        ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                transitionCurrentStateEntries.map { it.contentKey },"
+        errorLine2="                                              ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                entries.map { it.contentKey },"
+        errorLine2="                        ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    scenes.keys.toList().forEach { key ->"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    mostRecentSceneKeys.toList().forEach { key ->"
+        errorLine2="                                                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val allEntries = overlayScene.entries.map { it.contentKey }.toSet()"
+        errorLine2="                                                  ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            val allEntries = overlayScene.entries.map { it.contentKey }.toSet()"
+        errorLine2="                                                                        ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+</issues>

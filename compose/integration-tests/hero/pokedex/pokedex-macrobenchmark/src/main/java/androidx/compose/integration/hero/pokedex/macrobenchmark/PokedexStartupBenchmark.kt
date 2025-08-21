@@ -19,6 +19,10 @@ package androidx.compose.integration.hero.pokedex.macrobenchmark
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
 import androidx.test.filters.LargeTest
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.measureStartup
@@ -31,17 +35,25 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class PokedexStartupBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode,
+    private val compilation: CompilationMode,
+    private val enableSharedTransitionScope: Boolean,
+    private val enableSharedElementTransitions: Boolean,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     private fun measureStartup(action: String) =
         benchmarkRule.measureStartup(
-            compilationMode = compilationMode,
+            compilationMode = compilation,
             startupMode = startupMode,
             packageName = POKEDEX_TARGET_PACKAGE_NAME,
+            iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
         ) {
+            // Start out by deleting any existing data
+            resetPokedexDatabase()
+
             this.action = action
+            this.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
+            this.putExtra(POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS, enableSharedElementTransitions)
         }
 
     @Test
@@ -51,8 +63,18 @@ class PokedexStartupBenchmark(
     fun startupViews() = measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY")
 
     companion object {
-        @Parameterized.Parameters(name = "startup={0},compilationMode={1}")
+        /**
+         * Parameters for the benchmark. Uses abbreviations because of file length limit for
+         * results. startup = Startup Mode compilation = Compilation Mode eSTS =
+         * enableSharedTransitionScope eSET = enableSharedElementTransition
+         */
+        @Parameterized.Parameters(name = "startup={0},compilation={1},eSTS={2},eSET={3}")
         @JvmStatic
-        fun parameters() = createStartupCompilationParams()
+        fun parameters() =
+            createStartupCompilationParams().flatMap { compilationMode ->
+                PokedexSharedElementBenchmarkConfiguration.AllConfigurations.map { configuration ->
+                    arrayOf(*compilationMode, *configuration.asBenchmarkArguments())
+                }
+            }
     }
 }

@@ -43,7 +43,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     fun translate(
         sidecarDisplayFeatures: List<SidecarDisplayFeature>,
-        deviceState: SidecarDeviceState
+        deviceState: SidecarDeviceState,
     ): List<DisplayFeature> {
         return sidecarDisplayFeatures.mapNotNull { sidecarFeature ->
             translate(sidecarFeature, deviceState)
@@ -52,7 +52,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     fun translate(
         extensionInfo: SidecarWindowLayoutInfo?,
-        state: SidecarDeviceState
+        state: SidecarDeviceState,
     ): WindowLayoutInfo {
         if (extensionInfo == null) {
             return WindowLayoutInfo(emptyList())
@@ -67,7 +67,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     fun isEqualSidecarDeviceState(
         first: SidecarDeviceState?,
-        second: SidecarDeviceState?
+        second: SidecarDeviceState?,
     ): Boolean {
         if (first == second) {
             return true
@@ -85,7 +85,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     fun isEqualSidecarWindowLayoutInfo(
         first: SidecarWindowLayoutInfo?,
-        second: SidecarWindowLayoutInfo?
+        second: SidecarWindowLayoutInfo?,
     ): Boolean {
         if (first == second) {
             return true
@@ -103,7 +103,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     private fun isEqualSidecarDisplayFeatures(
         first: List<SidecarDisplayFeature>?,
-        second: List<SidecarDisplayFeature>?
+        second: List<SidecarDisplayFeature>?,
     ): Boolean {
         if (first === second) {
             return true
@@ -129,7 +129,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
 
     private fun isEqualSidecarDisplayFeature(
         first: SidecarDisplayFeature?,
-        second: SidecarDisplayFeature?
+        second: SidecarDisplayFeature?,
     ): Boolean {
         if (first == second) {
             return true
@@ -156,7 +156,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
      */
     internal fun translate(
         feature: SidecarDisplayFeature,
-        deviceState: SidecarDeviceState
+        deviceState: SidecarDeviceState,
     ): DisplayFeature? {
         val checkedFeature =
             feature
@@ -233,7 +233,7 @@ internal class SidecarAdapter(private val verificationMode: VerificationMode = Q
         @VisibleForTesting
         fun setSidecarDisplayFeatures(
             info: SidecarWindowLayoutInfo,
-            displayFeatures: List<SidecarDisplayFeature?>
+            displayFeatures: List<SidecarDisplayFeature?>,
         ) {
             try {
                 info.displayFeatures = displayFeatures

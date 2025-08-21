@@ -109,7 +109,7 @@ class MutableStateSerializerTest {
                     serializersModule = SerializersModule {
                         contextual(User::class, serializer<User>())
                     }
-                }
+                },
         )
     }
 
@@ -136,13 +136,13 @@ class MutableStateSerializerTest {
     private inline fun <reified T : Any> testEncodeDecode(
         mutableState: MutableState<T>,
         serializer: KSerializer<MutableState<T>> = MutableStateSerializer<T>(),
-        configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT
+        configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
     ) {
         val encoded =
             encodeToSavedState(
                 serializer = serializer,
                 configuration = configuration,
-                value = mutableState
+                value = mutableState,
             )
         val decoded =
             decodeFromSavedState<MutableState<T>>(deserializer = serializer, savedState = encoded)
@@ -161,7 +161,7 @@ class MutableStateSerializerTest {
     @Serializable
     private enum class MyEnum {
         A,
-        B
+        B,
     }
 
     @Serializable

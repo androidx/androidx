@@ -516,7 +516,10 @@ object TextFieldDefaults {
      *   container.
      * @param shape the shape of the text field's container.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field in different states. See [TextFieldDefaults.textFieldColors].
+     *   field decoration box in different states. See [TextFieldDefaults.textFieldColors]. Note:
+     *   This parameter only affects the colors of elements in the decoration box. Elements of the
+     *   [BasicTextField] (such as text color or cursor color) are unaffected and must be changed
+     *   using the relevant parameters of [BasicTextField].
      * @param contentPadding the spacing values to apply internally between the internals of text
      *   field and the decoration box container. You can use it to implement dense text fields or
      *   simply to control horizontal padding. Note that the padding values may not be respected if
@@ -609,7 +612,10 @@ object TextFieldDefaults {
      *   container.
      * @param shape the shape of the text field's container and border.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
-     *   field in different states. See [TextFieldDefaults.outlinedTextFieldColors].
+     *   field decoration box in different states. See [TextFieldDefaults.outlinedTextFieldColors].
+     *   Note: This parameter only affects the colors of elements in the decoration box. Elements of
+     *   the [BasicTextField] (such as text color or cursor color) are unaffected and must be
+     *   changed using the relevant parameters of [BasicTextField].
      * @param border the border to be drawn around the text field. The cutout to fit the [label]
      *   will be automatically added by the framework. Note that by default the color of the border
      *   comes from the [colors].

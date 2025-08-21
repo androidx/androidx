@@ -95,12 +95,12 @@ internal open class OverlayControllerImpl(
                     DensityCompatHelper.getInstance()
                         .density(
                             parentContainerInfo.configuration,
-                            parentContainerInfo.windowMetrics
+                            parentContainerInfo.windowMetrics,
                         )
                 val windowMetrics =
                     WindowMetricsCalculator.translateWindowMetrics(
                         parentContainerInfo.windowMetrics,
-                        density
+                        density,
                     )
                 val overlayAttributes =
                     calculateOverlayAttributes(
@@ -108,12 +108,12 @@ internal open class OverlayControllerImpl(
                         params.launchOptions.getOverlayAttributes(),
                         WindowMetricsCalculator.translateWindowMetrics(
                             params.parentContainerInfo.windowMetrics,
-                            density
+                            density,
                         ),
                         params.parentContainerInfo.configuration,
                         ExtensionsWindowLayoutInfoAdapter.translate(
                             windowMetrics,
-                            parentContainerInfo.windowLayoutInfo
+                            parentContainerInfo.windowLayoutInfo,
                         ),
                     )
 
@@ -232,7 +232,7 @@ internal open class OverlayControllerImpl(
 
     internal open fun updateOverlayAttributes(
         overlayTag: String,
-        overlayAttributes: OverlayAttributes
+        overlayAttributes: OverlayAttributes,
     ) {
         globalLock.withLock {
             val activityStackToken =
@@ -247,7 +247,7 @@ internal open class OverlayControllerImpl(
                 activityStackToken,
                 overlayAttributes.toActivityStackAttributes(
                     embeddingExtension.getParentContainerInfo(activityStackToken)!!
-                )
+                ),
             )
 
             // Update the tag-overlayAttributes map, which will be treated as the default
@@ -264,7 +264,7 @@ internal open class OverlayControllerImpl(
             .setRelativeBounds(
                 EmbeddingBounds.translateEmbeddingBounds(
                         bounds,
-                        adapter.translate(parentContainerInfo)
+                        adapter.translate(parentContainerInfo),
                     )
                     .toRect()
             )
@@ -308,11 +308,7 @@ internal open class OverlayControllerImpl(
     }
 
     private fun ActivityStack.toOverlayInfo(): OverlayInfo =
-        OverlayInfo(
-            tag!!,
-            overlayTagToCurrentAttributesMap[tag!!],
-            adapter.translate(this),
-        )
+        OverlayInfo(tag!!, overlayTagToCurrentAttributesMap[tag!!], adapter.translate(this))
 
     open fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         globalLock.withLock {

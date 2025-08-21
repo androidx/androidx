@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.Constraints
  * [LazyLayoutMeasureScope.compose].
  *
  * This is a low level API for building efficient complex layouts, for a ready-to-use linearly
- * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyRow] and
+ * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyColumn] and
  * [androidx.compose.foundation.lazy.LazyRow]. For a grid-like scrollable lazy layout, see
  * [androidx.compose.foundation.lazy.grid.LazyVerticalGrid] and
  * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid]. For a pager-like lazy layout, see
@@ -77,7 +77,7 @@ fun LazyLayout(
  * [LazyLayoutMeasureScope.compose].
  *
  * This is a low level API for building efficient complex layouts, for a ready-to-use linearly
- * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyRow] and
+ * scrollable lazy layout implementation see [androidx.compose.foundation.lazy.LazyColumn] and
  * [androidx.compose.foundation.lazy.LazyRow]. For a grid-like scrollable lazy layout, see
  * [androidx.compose.foundation.lazy.grid.LazyVerticalGrid] and
  * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid]. For a pager-like lazy layout, see

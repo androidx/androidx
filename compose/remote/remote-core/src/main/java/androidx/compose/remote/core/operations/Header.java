@@ -31,6 +31,7 @@ import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.utilities.IntMap;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class Header extends Operation implements RemoteComposeOperation {
     float mDensity = 3;
     long mCapabilities = 0;
     int mProfiles = 0;
-    private IntMap<Object> mProperties;
+    private @Nullable IntMap<Object> mProperties;
 
     /**
      * Get a property on the header
@@ -67,7 +68,10 @@ public class Header extends Operation implements RemoteComposeOperation {
      * @param property the property to get
      * @return the value of the property
      */
-    public Object get(short property) {
+    public @Nullable Object get(short property) {
+        if (mProperties == null) {
+            return null;
+        }
         return mProperties.get(property);
     }
 
@@ -168,7 +172,11 @@ public class Header extends Operation implements RemoteComposeOperation {
      * @param patchVersion the patch version of the RemoteCompose document API
      * @param properties the properties of the document
      */
-    public Header(int majorVersion, int minorVersion, int patchVersion, IntMap<Object> properties) {
+    public Header(
+            int majorVersion,
+            int minorVersion,
+            int patchVersion,
+            @Nullable IntMap<Object> properties) {
         this.mMajorVersion = majorVersion;
         this.mMinorVersion = minorVersion;
         this.mPatchVersion = patchVersion;
@@ -329,6 +337,9 @@ public class Header extends Operation implements RemoteComposeOperation {
      * Apply the header to the wire buffer
      *
      * @param buffer
+     * @param apiLevel
+     * @param type
+     * @param value
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -373,7 +384,7 @@ public class Header extends Operation implements RemoteComposeOperation {
      * @return the header
      * @throws IOException if there is an error reading the header
      */
-    public static Header readDirect(InputStream is) throws IOException {
+    public static @NonNull Header readDirect(@NonNull InputStream is) throws IOException {
         DataInputStream stream = new DataInputStream(is);
         try {
 
@@ -486,7 +497,7 @@ public class Header extends Operation implements RemoteComposeOperation {
         if (majorVersion == 1 && minorVersion == 0) {
             return 6;
         }
-        if (majorVersion == 0 && minorVersion == 1) {
+        if (majorVersion == 0 && (minorVersion <= 3)) {
             // Cts tests
             return 6;
         }
@@ -546,7 +557,7 @@ public class Header extends Operation implements RemoteComposeOperation {
      * @return the header
      * @throws IOException if there is an error reading the header
      */
-    public static Header readDirect(@NonNull WireBuffer buffer) throws IOException {
+    public static @NonNull Header readDirect(@NonNull WireBuffer buffer) throws IOException {
         int index = buffer.getIndex();
         try {
 
@@ -689,7 +700,7 @@ public class Header extends Operation implements RemoteComposeOperation {
      *
      * @param document
      */
-    public void setVersion(CoreDocument document) {
+    public void setVersion(@NonNull CoreDocument document) {
         document.setHostExceptionID(getInt(HOST_EXCEPTION_HANDLER, 0));
         document.setUpdateDoc(getInt(DOC_DATA_UPDATE, 0) != 0);
         document.setVersion(mMajorVersion, mMinorVersion, mPatchVersion);

@@ -55,7 +55,7 @@ internal actual class SynchronizedObject actual constructor() {
 @OptIn(ExperimentalContracts::class)
 internal actual inline fun <T> synchronizedImpl(
     lock: SynchronizedObject,
-    crossinline action: () -> T
+    crossinline action: () -> T,
 ): T {
     contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     lock.lock()

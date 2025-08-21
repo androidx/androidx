@@ -194,7 +194,6 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         )
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_onClickProcessText() {
         var textToProcess: String? = null
@@ -489,7 +488,6 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_processText_itemsMatch() = runTest {
         runBtf1CorrectItemsTest(
@@ -662,7 +660,6 @@ class TextFieldContextMenuTest : FocusedWindowTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_onClickProcessText() {
         var textToProcess: String? = null
@@ -938,7 +935,6 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_processText_itemsMatch() = runBtf2CorrectItemsTest {
         rule.assertContextMenuItem(

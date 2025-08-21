@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import android.os.Build
 import androidx.compose.foundation.GOLDEN_FOUNDATION
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,7 +54,7 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TextSelectionColorsScreenshotTest {
 
     @get:Rule val rule = createComposeRule()

@@ -28,13 +28,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsFocused
-import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
@@ -44,7 +41,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -158,8 +154,6 @@ class FocusRestorerTest {
 
     @Test
     fun restoringItemsInNestedLazyList() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(ComposeUiFlags.isNoPinningInFocusRestorationEnabled)
 
         // Arrange.
         lateinit var columnState: LazyListState
@@ -234,24 +228,12 @@ class FocusRestorerTest {
         // Act.
         rule.runOnIdle { focusManager.clearFocus() }
 
-        // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isNoPinningInFocusRestorationEnabled) {
-            // The item is disposed since it is no longer focused.
-            rule.onNodeWithTag("item 0").assertDoesNotExist()
-        } else {
-            rule.onNodeWithTag("item 0").assertExists().assertIsNotFocused()
-        }
+        // Assert - The item is disposed since it is no longer focused.
+        rule.onNodeWithTag("item 0").assertDoesNotExist()
 
-        // Act.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isNoPinningInFocusRestorationEnabled) {
-            // We need to scroll the item into view for focus restoration to work.
-            rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(0) } }
-            rule.runOnIdle { parent.requestFocus() }
-        } else {
-            rule.runOnIdle { parent.requestFocus() }
-        }
+        // Act - We need to scroll the item into view for focus restoration to work.
+        rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(0) } }
+        rule.runOnIdle { parent.requestFocus() }
 
         // Assert.
         rule.onNodeWithTag("item 0").assertIsFocused()
@@ -337,16 +319,11 @@ class FocusRestorerTest {
         rule.runOnIdle { parent.requestFocus() }
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isNoPinningInFocusRestorationEnabled) {
-            // We can't restore focus to an item that is beyond visible bounds, so the first visible
-            // item takes focus. This also asserts that we don't crash when restoration fails.
-            rule.onNodeWithTag("item 0").assertDoesNotExist()
-            assertThat(focusStates[0].isFocused).isFalse()
-            assertThat(focusStates[50].isFocused).isTrue()
-        } else {
-            assertThat(focusStates[0].isFocused).isTrue()
-        }
+        // We can't restore focus to an item that is beyond visible bounds, so the first visible
+        // item takes focus. This also asserts that we don't crash when restoration fails.
+        rule.onNodeWithTag("item 0").assertDoesNotExist()
+        assertThat(focusStates[0].isFocused).isFalse()
+        assertThat(focusStates[50].isFocused).isTrue()
     }
 
     @Test

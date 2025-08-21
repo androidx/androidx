@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.flowOn
 internal class WindowInfoTrackerImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
     private val windowBackend: WindowBackend,
-    private val windowSdkExtensions: WindowSdkExtensions
+    private val windowSdkExtensions: WindowSdkExtensions,
 ) : WindowInfoTracker {
 
     /**
@@ -69,4 +69,9 @@ internal class WindowInfoTrackerImpl(
             windowSdkExtensions.requireExtensionVersion(6)
             return windowBackend.supportedPostures
         }
+
+    override fun getCurrentWindowLayoutInfo(@UiContext context: Context): WindowLayoutInfo {
+        windowSdkExtensions.requireExtensionVersion(9)
+        return windowBackend.getCurrentWindowLayoutInfo(context)
+    }
 }

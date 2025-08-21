@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -69,6 +70,7 @@ class SemanticsInfoTest {
         // Assert extension Functions.
         assertThat(rootSemantics.nearestParentThatHasSemantics()).isNull()
         assertThat(rootSemantics.findMergingSemanticsParent()).isNull()
+        assertThat(rootSemantics.boundsInParent).isEqualTo(Rect.Zero)
     }
 
     @Test

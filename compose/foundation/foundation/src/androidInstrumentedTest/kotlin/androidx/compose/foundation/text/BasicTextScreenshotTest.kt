@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import android.os.Build
 import androidx.compose.foundation.GOLDEN_FOUNDATION
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +53,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class BasicTextScreenshotTest {
     @get:Rule val rule = createComposeRule()
 

@@ -30,8 +30,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -408,6 +410,26 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
                 it[2].name == "<lambda>" &&
                 it[2].file == CurrentTestFile
         }
+    }
+
+    @Test
+    fun layerCrash() {
+        var shouldCrash by mutableStateOf(false)
+        val traceContext =
+            rule.testContent {
+                Box(
+                    Modifier.graphicsLayer {
+                        alpha = if (shouldCrash) 0f else 1f
+                        if (shouldCrash) throwTestException()
+                    }
+                )
+            }
+
+        shouldCrash = true
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+
+        assertFirstContentFrame(traceContext) { it.name == "Box" }
     }
 
     private fun AndroidComposeTestRule<*, *>.testContent(

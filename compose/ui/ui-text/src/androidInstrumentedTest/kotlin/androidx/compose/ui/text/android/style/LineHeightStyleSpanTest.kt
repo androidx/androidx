@@ -18,13 +18,17 @@ package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
 import androidx.compose.ui.text.android.InternalPlatformTextApi
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Fixed
+import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Minimum
+import androidx.compose.ui.text.style.LineHeightStyle.Mode.Companion.Tight
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.ceil
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 private const val SingleLineStartIndex = 0
 private const val SingleLineEndIndex = 1
@@ -32,11 +36,25 @@ private const val MultiLineStartIndex = 0
 private const val MultiLineEndIndex = 3
 
 @OptIn(InternalPlatformTextApi::class)
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SmallTest
-class LineHeightStyleSpanTest {
+class LineHeightStyleSpanTest(val modeInt: Int) {
 
-    private fun negative_line_height_does_not_chage_the_values(preserve: Boolean) {
+    // Parameterized doesn't work with value classes directly.
+    val mode: LineHeightStyle.Mode
+        get() =
+            when (modeInt) {
+                0 -> Fixed
+                1 -> Minimum
+                else -> Tight
+            }
+
+    companion object {
+        @Parameterized.Parameters @JvmStatic fun parameters() = listOf(0, 1, 2)
+    }
+
+    @Test
+    fun negative_line_height_does_not_change_the_values() {
         val fontMetrics = FontMetricsInt(ascent = 1, descent = 1)
 
         val newFontMetrics =
@@ -45,28 +63,18 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
-    }
-
-    @Test
-    fun negative_line_height_does_not_change_the_values_preserve_no() {
-        negative_line_height_does_not_chage_the_values(false)
-    }
-
-    @Test
-    fun negative_line_height_does_not_change_the_values_preserve_yes() {
-        negative_line_height_does_not_chage_the_values(true)
     }
 
     /* single line, top percentage 0 */
 
-    private fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -75,7 +83,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -83,18 +92,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        negative_line_height_does_not_chage_the_values(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        negative_line_height_does_not_chage_the_values(true)
-    }
-
-    private fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -103,7 +101,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -111,18 +110,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -131,7 +119,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -139,18 +128,25 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(false)
+    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 0f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = true,
+            )
+
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent + fontMetrics.lineHeight())
     }
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_0f_trimFirstLineTop_true_trimLastLineBottom_true_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -159,7 +155,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -167,20 +164,31 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(false)
+    fun singleLine_topRatio_0f_trimFirstLineTop_true_trimLastLineBottom_true_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 0f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = true,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(
+                if (mode == Tight) fontMetrics.ascent + fontMetrics.halfLineHeight()
+                else fontMetrics.ascent
+            )
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
     }
+
+    /* single line, bottom aligned */
 
     @Test
-    fun singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(true)
-    }
-
-    /* single line, top percentage 100 */
-
-    private fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_false_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -189,7 +197,27 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
+            )
+
+        // The VerticalPaddings for not trimming will be added by TextLayout
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - fontMetrics.lineHeight())
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
+    }
+
+    @Test
+    fun singleLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_false_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 1f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - fontMetrics.lineHeight())
@@ -197,18 +225,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_true_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -217,7 +234,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - fontMetrics.lineHeight())
@@ -225,18 +243,29 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(false)
+    fun singleLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_true_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 1f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = true,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Tight) fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_false_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -245,7 +274,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -253,18 +283,29 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(false)
+    fun singleLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_false_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 1f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Minimum || mode == Tight) fontMetrics.descent
+                else fontMetrics.descent - fontMetrics.halfLineHeight()
+            )
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_true_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -273,7 +314,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
@@ -281,20 +323,31 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
+    fun singleLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_true_shorter() {
+        val fontMetrics = createFontMetrics()
 
-    @Test
-    fun singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(true)
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 1f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = true,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Tight) fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
     }
 
     /* single line, top percentage 50 */
 
-    private fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun singleLine_topRatio_05f_trimFirstLineTop_false_trimLastLineBottom_false_taller() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -303,27 +356,44 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
-        val halfLeading = fontMetrics.lineHeight() / 2
-        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - halfLeading)
-        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent + halfLeading)
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(fontMetrics.ascent - fontMetrics.halfLineHeight())
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(fontMetrics.descent + fontMetrics.halfLineHeight())
     }
 
     @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(false)
+    fun singleLine_topRatio_05f_trimFirstLineTop_false_trimLastLineBottom_false_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val newFontMetrics =
+            runSingleLine(
+                topRatio = 0.5f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(
+                if (mode == Fixed) fontMetrics.ascent + fontMetrics.halfLineHeight() / 2
+                else fontMetrics.ascent
+            )
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed) fontMetrics.descent - fontMetrics.halfLineHeight() / 2
+                else fontMetrics.descent
+            )
     }
 
     @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -332,7 +402,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -341,18 +412,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -361,7 +421,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -370,18 +431,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -390,28 +440,18 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
-    }
-
-    @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(true)
     }
 
     /* single line, proportional (topRatio -1) */
 
-    private fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -420,7 +460,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -430,18 +471,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -450,7 +480,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -460,18 +491,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -480,7 +500,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -489,18 +510,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val newFontMetrics =
@@ -509,28 +519,18 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
-    }
-
-    @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        singleLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(true)
     }
 
     /* multi line, top percentage = 0 */
 
-    private fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -539,7 +539,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -556,18 +557,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_0f_trimFirstLineTop_false_trimLastLineBottom_true_taller() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -576,7 +566,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -593,18 +584,48 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(false)
+    fun multiLine_topRatio_0f_trimFirstLineTop_false_trimLastLineBottom_true_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val span =
+            createMultiLineSpan(
+                topRatio = 0f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = true,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        var newFontMetrics = span.runFirstLine(fontMetrics)
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(
+                if (mode == Fixed) fontMetrics.ascent + fontMetrics.halfLineHeight()
+                else fontMetrics.ascent
+            )
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
+
+        newFontMetrics = span.runSecondLine(fontMetrics)
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.ascent + fontMetrics.halfLineHeight()
+                else fontMetrics.ascent
+            )
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
+
+        newFontMetrics = span.runLastLine(fontMetrics)
+        assertThat(newFontMetrics.ascent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.ascent + fontMetrics.halfLineHeight()
+                else fontMetrics.ascent
+            )
+        assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
     }
 
     @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_0_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -613,7 +634,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -630,18 +652,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -650,7 +661,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -666,21 +678,10 @@ class LineHeightStyleSpanTest {
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
     }
 
-    @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
+    /* multi line, bottom aligned */
 
     @Test
-    fun multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_0_trimFirstLineTop_true_trimLastLineBottom_true(true)
-    }
-
-    /* multi line, top percentage = 100 */
-
-    private fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_false_taller() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -689,7 +690,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -706,18 +708,48 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(false)
+    fun multiLine_topRatio_1f_trimFirstLineTop_false_trimLastLineBottom_false_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val span =
+            createMultiLineSpan(
+                topRatio = 1f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        var newFontMetrics = span.runFirstLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
+
+        newFontMetrics = span.runSecondLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
+
+        newFontMetrics = span.runLastLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed) fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
     }
 
     @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -726,7 +758,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -743,18 +776,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_100_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -763,7 +785,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -780,18 +803,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_true_taller() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -800,7 +812,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         var newFontMetrics = span.runFirstLine(fontMetrics)
@@ -817,20 +830,50 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
+    fun multiLine_topRatio_1f_trimFirstLineTop_true_trimLastLineBottom_true_shorter() {
+        val fontMetrics = createFontMetrics()
 
-    @Test
-    fun multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_100_trimFirstLineTop_true_trimLastLineBottom_true(true)
+        val span =
+            createMultiLineSpan(
+                topRatio = 1f,
+                trimFirstLineTop = true,
+                trimLastLineBottom = true,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
+            )
+
+        var newFontMetrics = span.runFirstLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
+
+        newFontMetrics = span.runSecondLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Fixed || mode == Tight)
+                    fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
+
+        newFontMetrics = span.runLastLine(fontMetrics)
+        assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent)
+        assertThat(newFontMetrics.descent)
+            .isEqualTo(
+                if (mode == Tight) fontMetrics.descent - fontMetrics.halfLineHeight()
+                else fontMetrics.descent
+            )
     }
 
     /* multi line, top percentage = 50 */
 
-    private fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -839,7 +882,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -857,18 +901,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -877,7 +910,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -895,18 +929,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_50_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -915,7 +938,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -933,18 +957,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -953,7 +966,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -968,23 +982,12 @@ class LineHeightStyleSpanTest {
         newFontMetrics = span.runLastLine(fontMetrics)
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - halfLeading)
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
-    }
-
-    @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_50_trimFirstLineTop_true_trimLastLineBottom_true(true)
     }
 
     /* multi line, proportional (topRatio -1) */
 
-    private fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    @Test
+    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -993,7 +996,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -1013,18 +1017,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1033,7 +1026,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -1053,18 +1047,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_proportional_trimFirstLineTop_false_trimLastLineBottom_true(true)
-    }
-
-    private fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1073,7 +1056,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -1093,18 +1077,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false_preserve_no() {
-        multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false_preserve_yes() {
-        multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_false(true)
-    }
-
-    private fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(
-        preserve: Boolean
-    ) {
+    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1113,7 +1086,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = true,
                 trimLastLineBottom = true,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         val descentDiff = proportionalDescentDiff(fontMetrics)
@@ -1130,23 +1104,12 @@ class LineHeightStyleSpanTest {
         newFontMetrics = span.runLastLine(fontMetrics)
         assertThat(newFontMetrics.ascent).isEqualTo(fontMetrics.ascent - ascentDiff)
         assertThat(newFontMetrics.descent).isEqualTo(fontMetrics.descent)
-    }
-
-    @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true_preserve_no() {
-        multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(false)
-    }
-
-    @Test
-    fun multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true_preserve_yes() {
-        multiLine_topRatio_proportional_trimFirstLineTop_true_trimLastLineBottom_true(true)
     }
 
     /* first ascent & last descent diff */
 
-    private fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(
-        preserve: Boolean
-    ) {
+    @Test
+    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_05f_taller() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1155,7 +1118,7 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 newLineHeight = fontMetrics.doubleLineHeight(),
-                preserveMinimumHeight = preserve,
+                mode = mode,
             )
 
         span.runFirstLine(fontMetrics)
@@ -1166,18 +1129,32 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height_preserve_no() {
-        singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(false)
+    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_05f_shorter() {
+        val fontMetrics = createFontMetrics()
+
+        val span =
+            createSingleLineSpan(
+                topRatio = 0.5f,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                newLineHeight = fontMetrics.halfLineHeight(),
+                mode = mode,
+            )
+
+        span.runFirstLine(fontMetrics)
+
+        if (mode == Fixed) {
+            val halfLeading = fontMetrics.lineHeight() / -4
+            assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+            assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+        } else if (mode == Minimum) {
+            assertThat(span.firstAscentDiff).isEqualTo(0)
+            assertThat(span.lastDescentDiff).isEqualTo(0)
+        }
     }
 
     @Test
-    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height_preserve_yes() {
-        singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(true)
-    }
-
-    private fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(
-        preserve: Boolean
-    ) {
+    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_05f_taller() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1186,7 +1163,8 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve,
+                mode = mode,
+                tallerLineHeight = true,
             )
 
         span.runFirstLine(fontMetrics)
@@ -1199,56 +1177,7 @@ class LineHeightStyleSpanTest {
     }
 
     @Test
-    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height_preserve_no() {
-        multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(false)
-    }
-
-    @Test
-    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height_preserve_yes() {
-        multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_larger_line_height(true)
-    }
-
-    @Test
-    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_smaller_line_height_preserve_no() {
-        val fontMetrics = createFontMetrics()
-
-        val span =
-            createSingleLineSpan(
-                topRatio = 0.5f,
-                trimFirstLineTop = false,
-                trimLastLineBottom = false,
-                newLineHeight = fontMetrics.lineHeight() / 2,
-                preserveMinimumHeight = false,
-            )
-
-        span.runFirstLine(fontMetrics)
-
-        val halfLeading = fontMetrics.lineHeight() / -4
-        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
-        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
-    }
-
-    @Test
-    fun singleLine_with_firstLineTop_and_lastLineBottom_topRatio_50_smaller_line_height_preserve_yes() {
-        val fontMetrics = createFontMetrics()
-
-        val span =
-            createSingleLineSpan(
-                topRatio = 0.5f,
-                trimFirstLineTop = false,
-                trimLastLineBottom = false,
-                newLineHeight = fontMetrics.lineHeight() / 2,
-                preserveMinimumHeight = true,
-            )
-
-        span.runFirstLine(fontMetrics)
-
-        assertThat(span.firstAscentDiff).isEqualTo(0)
-        assertThat(span.lastDescentDiff).isEqualTo(0)
-    }
-
-    @Test
-    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_smaller_line_height_preserve_no() {
+    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_05f_shorter() {
         val fontMetrics = createFontMetrics()
 
         val span =
@@ -1256,38 +1185,23 @@ class LineHeightStyleSpanTest {
                 topRatio = 0.5f,
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
-                newLineHeight = fontMetrics.lineHeight() / 2,
-                preserveMinimumHeight = false,
+                fontMetrics = fontMetrics,
+                mode = mode,
+                tallerLineHeight = false,
             )
 
         span.runFirstLine(fontMetrics)
         span.runSecondLine(fontMetrics)
         span.runLastLine(fontMetrics)
 
-        val halfLeading = fontMetrics.lineHeight() / -4
-        assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
-        assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
-    }
-
-    @Test
-    fun multiLine_with_firstLineTop_and_lastLineBottom_topRatio_50_smaller_line_height_preserve_yes() {
-        val fontMetrics = createFontMetrics()
-
-        val span =
-            createMultiLineSpan(
-                topRatio = 0.5f,
-                trimFirstLineTop = false,
-                trimLastLineBottom = false,
-                newLineHeight = fontMetrics.lineHeight() / 2,
-                preserveMinimumHeight = true,
-            )
-
-        span.runFirstLine(fontMetrics)
-        span.runSecondLine(fontMetrics)
-        span.runLastLine(fontMetrics)
-
-        assertThat(span.firstAscentDiff).isEqualTo(0)
-        assertThat(span.lastDescentDiff).isEqualTo(0)
+        if (mode == Fixed) {
+            val halfLeading = fontMetrics.lineHeight() / -4
+            assertThat(span.firstAscentDiff).isEqualTo(halfLeading)
+            assertThat(span.lastDescentDiff).isEqualTo(halfLeading)
+        } else if (mode == Minimum) {
+            assertThat(span.firstAscentDiff).isEqualTo(0)
+            assertThat(span.lastDescentDiff).isEqualTo(0)
+        }
     }
 
     private fun proportionalDescentDiff(fontMetrics: FontMetricsInt): Int {
@@ -1297,23 +1211,26 @@ class LineHeightStyleSpanTest {
     }
 
     /**
-     * Creates a single line span, and runs for the first line. Returns the a new font metrics for
-     * the updated font metrics.
+     * Creates a single line span, and runs for the first line. Returns a new font metrics for the
+     * updated font metrics.
      */
     private fun runSingleLine(
         topRatio: Float,
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         fontMetrics: FontMetricsInt,
-        preserveMinimumHeight: Boolean,
+        mode: LineHeightStyle.Mode,
+        tallerLineHeight: Boolean,
     ): FontMetricsInt {
         val span =
             createSingleLineSpan(
                 topRatio = topRatio,
                 trimFirstLineTop = trimFirstLineTop,
                 trimLastLineBottom = trimLastLineBottom,
-                newLineHeight = fontMetrics.doubleLineHeight(),
-                preserveMinimumHeight = preserveMinimumHeight,
+                newLineHeight =
+                    if (tallerLineHeight) fontMetrics.doubleLineHeight()
+                    else fontMetrics.halfLineHeight(),
+                mode = mode,
             )
 
         return span.runFirstLine(fontMetrics.copy())
@@ -1325,7 +1242,7 @@ class LineHeightStyleSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         newLineHeight: Int,
-        preserveMinimumHeight: Boolean,
+        mode: LineHeightStyle.Mode,
     ): LineHeightStyleSpan =
         LineHeightStyleSpan(
             lineHeight = newLineHeight.toFloat(),
@@ -1334,7 +1251,7 @@ class LineHeightStyleSpanTest {
             trimFirstLineTop = trimFirstLineTop,
             trimLastLineBottom = trimLastLineBottom,
             topRatio = topRatio,
-            preserveMinimumHeight = preserveMinimumHeight,
+            mode = mode,
         )
 
     /** Creates a LineHeightSpan that covers [MultiLineStartIndex, MultiLineEndIndex]. */
@@ -1343,14 +1260,17 @@ class LineHeightStyleSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         fontMetrics: FontMetricsInt,
-        preserveMinimumHeight: Boolean,
+        mode: LineHeightStyle.Mode,
+        tallerLineHeight: Boolean,
     ): LineHeightStyleSpan =
         createMultiLineSpan(
             topRatio = topRatio,
             trimFirstLineTop = trimFirstLineTop,
             trimLastLineBottom = trimLastLineBottom,
-            newLineHeight = fontMetrics.doubleLineHeight(),
-            preserveMinimumHeight = preserveMinimumHeight,
+            newLineHeight =
+                if (tallerLineHeight) fontMetrics.doubleLineHeight()
+                else fontMetrics.halfLineHeight(),
+            mode = mode,
         )
 
     /** Creates a LineHeightSpan that covers [MultiLineStartIndex, MultiLineEndIndex]. */
@@ -1359,7 +1279,7 @@ class LineHeightStyleSpanTest {
         trimFirstLineTop: Boolean,
         trimLastLineBottom: Boolean,
         newLineHeight: Int,
-        preserveMinimumHeight: Boolean,
+        mode: LineHeightStyle.Mode,
     ): LineHeightStyleSpan =
         LineHeightStyleSpan(
             lineHeight = newLineHeight.toFloat(),
@@ -1368,7 +1288,7 @@ class LineHeightStyleSpanTest {
             trimFirstLineTop = trimFirstLineTop,
             trimLastLineBottom = trimLastLineBottom,
             topRatio = topRatio,
-            preserveMinimumHeight = preserveMinimumHeight,
+            mode = mode,
         )
 
     /** Creates a FontMetricsInt with line height of 20, where ascent is -10, descent is 10 */
@@ -1387,6 +1307,9 @@ private fun FontMetricsInt.copy(): FontMetricsInt =
 
 /** Returns 2 * fontMetrics.lineHeight. */
 private fun FontMetricsInt.doubleLineHeight(): Int = this.lineHeight() * 2
+
+/** Returns fontMetrics.lineHeight / 2. */
+private fun FontMetricsInt.halfLineHeight(): Int = this.lineHeight() / 2
 
 /** Creates a FontMetricsInt. */
 private fun FontMetricsInt(

@@ -1,0 +1,36 @@
+// Signature format: 4.0
+package androidx.navigationevent.testing {
+
+  public final class TestNavigationEventCallback<T extends androidx.navigationevent.NavigationEventInfo> extends androidx.navigationevent.NavigationEventCallback<T> {
+    ctor public TestNavigationEventCallback(T currentInfo, optional T? previousInfo, optional boolean isEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventCallback<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onEventStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventCallback<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onEventProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventCallback<T>,kotlin.Unit> onEventCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventCallback<T>,kotlin.Unit> onEventCompleted);
+    method public int getCancelledInvocations();
+    method public int getCompletedInvocations();
+    method public java.util.List<androidx.navigationevent.NavigationEvent> getProgressedEvents();
+    method public int getProgressedInvocations();
+    method public java.util.List<androidx.navigationevent.NavigationEvent> getStartedEvents();
+    method public int getStartedInvocations();
+    property public int cancelledInvocations;
+    property public int completedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> progressedEvents;
+    property public int progressedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> startedEvents;
+    property public int startedInvocations;
+  }
+
+  public final class TestNavigationEventCallbackKt {
+    method public static androidx.navigationevent.testing.TestNavigationEventCallback<? extends java.lang.Object?> TestNavigationEventCallback(optional boolean isEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventCallback<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onEventStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventCallback<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onEventProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventCallback<? extends java.lang.Object?>,kotlin.Unit> onEventCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventCallback<? extends java.lang.Object?>,kotlin.Unit> onEventCompleted);
+  }
+
+  public final class TestNavigationEventDispatcherOwner implements androidx.navigationevent.NavigationEventDispatcherOwner {
+    ctor public TestNavigationEventDispatcherOwner();
+    ctor public TestNavigationEventDispatcherOwner(optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> fallbackOnBackPressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onHasEnabledCallbacksChanged);
+    method public int getFallbackOnBackPressedInvocations();
+    method public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
+    method public int getOnHasEnabledCallbacksChangedInvocations();
+    property public int fallbackOnBackPressedInvocations;
+    property public androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
+    property public int onHasEnabledCallbacksChangedInvocations;
+  }
+
+}
+

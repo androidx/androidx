@@ -19,10 +19,12 @@ package androidx.compose.material3.adaptive.navigation3
 import androidx.collection.mutableIntListOf
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
@@ -45,7 +47,7 @@ import androidx.navigation3.ui.SceneStrategy
 @Composable
 public fun <T : Any> rememberListDetailSceneStrategy(
     backNavigationBehavior: BackNavigationBehavior =
-        BackNavigationBehavior.PopUntilCurrentDestinationChange,
+        BackNavigationBehavior.PopUntilScaffoldValueChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
 ): ListDetailSceneStrategy<T> {
     return remember(backNavigationBehavior, directive) {
@@ -78,38 +80,55 @@ public class ListDetailSceneStrategy<T : Any>(
         entries: List<NavEntry<T>>,
         onBack: (count: Int) -> Unit,
     ): Scene<T>? {
-        if (!entries.last().isListDetailEntry()) return null
-
-        val sceneKey = (entries.last().metadata[ListDetailRoleKey] as PaneMetadata).sceneKey
+        val lastPaneMetadata = getPaneMetadata(entries.last()) ?: return null
+        val sceneKey = lastPaneMetadata.sceneKey
 
         val scaffoldEntries = mutableListOf<NavEntry<T>>()
         val scaffoldEntryIndices = mutableIntListOf()
+        val entriesAsNavItems = mutableListOf<ThreePaneScaffoldDestinationItem<Any>>()
 
         var detailPlaceholder: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null
 
-        for ((index, entry) in entries.withIndex()) {
-            val paneMetadata = entry.metadata[ListDetailRoleKey] as? PaneMetadata
-            if (paneMetadata != null && paneMetadata.sceneKey == sceneKey) {
-                scaffoldEntryIndices.add(index)
-                scaffoldEntries.add(entry)
+        var idx = entries.lastIndex
+        while (idx >= 0) {
+            val entry = entries[idx]
+            val paneMetadata = getPaneMetadata(entry)
+            if (paneMetadata == null) {
+                break
+            }
+
+            if (paneMetadata.sceneKey == sceneKey) {
+                scaffoldEntryIndices.add(idx)
+                scaffoldEntries.add(0, entry)
+                entriesAsNavItems.add(
+                    0,
+                    ThreePaneScaffoldDestinationItem(
+                        pane = paneMetadata.role,
+                        contentKey = entry.contentKey,
+                    ),
+                )
                 if (paneMetadata is ListMetadata) {
                     detailPlaceholder = paneMetadata.detailPlaceholder
                 }
             }
+            idx--
         }
 
         if (scaffoldEntries.isEmpty()) return null
 
         val scene =
-            ListDetailScene(
+            ThreePaneScaffoldScene(
                 key = sceneKey,
                 onBack = onBack,
                 backNavBehavior = backNavigationBehavior,
                 directive = directive,
+                adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
                 allEntries = entries,
                 scaffoldEntries = scaffoldEntries,
                 scaffoldEntryIndices = scaffoldEntryIndices,
-                detailPlaceholder = detailPlaceholder ?: {},
+                entriesAsNavItems = entriesAsNavItems,
+                getPaneRole = { getPaneMetadata(it)?.role },
+                scaffoldType = ThreePaneScaffoldType.ListDetail(detailPlaceholder ?: {}),
             )
 
         // TODO(b/417475283): decide if/how we should handle scenes with only a single pane
@@ -122,16 +141,26 @@ public class ListDetailSceneStrategy<T : Any>(
 
     internal sealed interface PaneMetadata {
         val sceneKey: Any
+        val role: ThreePaneScaffoldRole
     }
 
     internal class ListMetadata(
         override val sceneKey: Any,
         val detailPlaceholder: @Composable ThreePaneScaffoldScope.() -> Unit,
-    ) : PaneMetadata
+    ) : PaneMetadata {
+        override val role: ThreePaneScaffoldRole
+            get() = ListDetailPaneScaffoldRole.List
+    }
 
-    internal class DetailMetadata(override val sceneKey: Any) : PaneMetadata
+    internal class DetailMetadata(override val sceneKey: Any) : PaneMetadata {
+        override val role: ThreePaneScaffoldRole
+            get() = ListDetailPaneScaffoldRole.Detail
+    }
 
-    internal class ExtraMetadata(override val sceneKey: Any) : PaneMetadata
+    internal class ExtraMetadata(override val sceneKey: Any) : PaneMetadata {
+        override val role: ThreePaneScaffoldRole
+            get() = ListDetailPaneScaffoldRole.Extra
+    }
 
     public companion object {
         internal val ListDetailRoleKey: String = ListDetailPaneScaffoldRole::class.qualifiedName!!
@@ -170,15 +199,14 @@ public class ListDetailSceneStrategy<T : Any>(
          */
         public fun extraPane(sceneKey: Any = Unit): Map<String, Any> =
             mapOf(ListDetailRoleKey to ExtraMetadata(sceneKey))
+
+        private fun <T : Any> getPaneMetadata(entry: NavEntry<T>): PaneMetadata? =
+            entry.metadata[ListDetailRoleKey] as? PaneMetadata
     }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private fun <T : Any> NavEntry<T>.isListDetailEntry(): Boolean =
-    metadata[ListDetailSceneStrategy.ListDetailRoleKey] != null
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val ThreePaneScaffoldValue.paneCount: Int
+internal val ThreePaneScaffoldValue.paneCount: Int
     get() {
         var count = 0
         if (this.primary != PaneAdaptedValue.Hidden) count++

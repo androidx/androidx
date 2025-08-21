@@ -159,7 +159,7 @@ public class ProcessLifecycleOwner private constructor() : LifecycleOwner {
                             override fun onActivityPostResumed(activity: Activity) {
                                 activityResumed()
                             }
-                        }
+                        },
                     )
                 }
 
@@ -191,7 +191,7 @@ public class ProcessLifecycleOwner private constructor() : LifecycleOwner {
         @JvmStatic
         fun registerActivityLifecycleCallbacks(
             activity: Activity,
-            callback: Application.ActivityLifecycleCallbacks
+            callback: Application.ActivityLifecycleCallbacks,
         ) {
             activity.registerActivityLifecycleCallbacks(callback)
         }

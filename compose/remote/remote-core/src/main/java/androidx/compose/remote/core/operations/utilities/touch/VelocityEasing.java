@@ -336,7 +336,7 @@ public class VelocityEasing {
         mTotalEasingDuration = (float) (easingDuration + mStage[last].mStartTime);
     }
 
-    interface Easing {
+    public interface Easing {
         double get(double t);
 
         double getDiff(double t);

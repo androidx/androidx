@@ -22,7 +22,7 @@ package androidx.compose.ui.text.style
  * @see ResolvedTextDirection
  */
 @kotlin.jvm.JvmInline
-value class TextDirection internal constructor(internal val value: Int) {
+value class TextDirection internal constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -35,6 +35,14 @@ value class TextDirection internal constructor(internal val value: Int) {
             else -> "Invalid"
         }
     }
+
+    /**
+     * Returns `true` if this baseline shift is not [TextDirection.Unspecified].
+     *
+     * @see TextDirection.Unspecified
+     */
+    val isSpecified: Boolean
+        get() = value != 0
 
     companion object {
         /** Always sets the text direction to be Left to Right. */
@@ -74,6 +82,17 @@ value class TextDirection internal constructor(internal val value: Int) {
          * This represents an unset value, a usual replacement for "null" when a primitive value is
          * desired.
          */
-        val Unspecified = TextDirection(Int.MIN_VALUE)
+        val Unspecified = TextDirection(0)
+
+        /**
+         * Creates a TextDirection from the given integer value. This can be useful if you need to
+         * serialize/deserialize TextDirection values.
+         *
+         * @param value The integer representation of the TextDirection.
+         * @see [TextDirection.value]
+         */
+        fun valueOf(value: Int): TextDirection {
+            return TextDirection(value)
+        }
     }
 }

@@ -22,7 +22,7 @@ class ContactModel(
     var selected: Contact? = null,
 ) {
     val filtered
-        get() = contacts.filter { it.name.contains(filter) }
+        @Suppress("ListIterator") get() = contacts.filter { it.name.contains(filter) }
 
     fun add(contact: Contact, after: Contact? = null) {
         val retList = mutableListOf<Contact>().apply { addAll(contacts) }

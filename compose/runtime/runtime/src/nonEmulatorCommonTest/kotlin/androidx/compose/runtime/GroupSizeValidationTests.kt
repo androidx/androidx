@@ -89,9 +89,9 @@ private object ViewHelper {
 
 @Composable
 private inline fun LayoutLike(
-    content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     measurePolicy: MeasurePolicy,
+    content: @Composable () -> Unit,
 ) {
     val compositeKeyHash = currentCompositeKeyHashCode
     val density = LocalDensity.current
@@ -172,11 +172,7 @@ private inline fun ColumnLike(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val measurePolicy = columnMeasurePolicy(verticalArrangement, horizontalAlignment)
-    LayoutLike(
-        content = { ColumnScopeInstance.content() },
-        measurePolicy = measurePolicy,
-        modifier = modifier,
-    )
+    LayoutLike(modifier = modifier, measurePolicy = measurePolicy) { ColumnScopeInstance.content() }
 }
 
 private object DefaultColumnRowMeasurePolicy : MeasurePolicy {

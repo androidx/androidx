@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,15 +55,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.min
 
-@Composable
-internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
+@Composable internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
 
 // Scrollable
 internal fun Modifier.textFieldScrollable(
     scrollerPosition: TextFieldScrollerPosition,
     interactionSource: MutableInteractionSource? = null,
     enabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = null,
+    overscrollEffect: OverscrollEffect?,
 ) =
     composed(
         inspectorInfo =
@@ -105,8 +104,8 @@ internal fun Modifier.textFieldScrollable(
         val scroll =
             Modifier.scrollable(
                 orientation = scrollerPosition.orientation,
-                reverseDirection = reverseDirection,
                 overscrollEffect = overscrollEffect,
+                reverseDirection = reverseDirection,
                 state = wrappedScrollableState,
                 interactionSource = interactionSource,
                 enabled = enabled && scrollerPosition.maximum != 0f,

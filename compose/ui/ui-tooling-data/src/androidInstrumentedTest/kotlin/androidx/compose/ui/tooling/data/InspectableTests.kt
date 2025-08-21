@@ -37,7 +37,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -72,7 +71,6 @@ class InspectableTests : ToolingTest() {
         assertNotEquals(0, group.box.height)
     }
 
-    @Ignore // b/422764248
     @Test
     fun parametersTest() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -321,7 +319,6 @@ class InspectableTests : ToolingTest() {
         assertFalse(displayed)
     }
 
-    @Ignore // b/422764248
     @InternalComposeApi
     @Test // regression test for b/161839910
     fun textParametersAreCorrect() {

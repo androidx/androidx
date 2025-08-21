@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation.Horizontal
@@ -32,6 +33,7 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireLayoutCoordinates
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
@@ -68,6 +70,7 @@ internal class ContentInViewNode(
     private val scrollingLogic: ScrollingLogic,
     private var reverseDirection: Boolean,
     private var bringIntoViewSpec: BringIntoViewSpec?,
+    private var getFocusedRect: () -> Rect?,
 ) :
     Modifier.Node(),
     androidx.compose.foundation.relocation.BringIntoViewResponder,
@@ -120,7 +123,7 @@ internal class ContentInViewNode(
             "Expected BringIntoViewRequester to not be used before parents are placed."
         }
         // size will only be zero before the initial measurement.
-        return computeDestination(localRect, viewportSize)
+        return computeDestination(localRect)
     }
 
     private fun requireBringIntoViewSpec(): BringIntoViewSpec {
@@ -163,6 +166,66 @@ internal class ContentInViewNode(
     }
 
     override fun onRemeasured(size: IntSize) {
+        if (!ComposeFoundationFlags.isKeepInViewFocusObservationChangeEnabled) {
+            onRemeasuredLegacy(size)
+            return
+        }
+
+        val previousViewportSize = viewportSize
+        viewportSize = size
+
+        // Don't care if the viewport grew.
+        if (size >= previousViewportSize) return
+
+        if (DEBUG) println("[$TAG] viewport shrunk: $previousViewportSize -> $size")
+
+        // reverseDirection and reverseScroll are not the same concepts. They are often opposite of
+        // each other (except rtl horizontal reverse scrolling). Therefore while adjusting the
+        // viewport size, we need to use the opposite of reverseDirection.
+        // TODO(427897566): The above heuristic may not always be true.
+        val viewportAdjustmentForReverseScroll =
+            if (!reverseDirection) {
+                if (orientation == Vertical) {
+                    IntOffset(x = 0, y = previousViewportSize.height - size.height)
+                } else {
+                    IntOffset(x = previousViewportSize.width - size.width, y = 0)
+                }
+            } else {
+                IntOffset.Zero
+            }
+
+        getFocusedRect()?.let { focusedChildBounds ->
+            if (DEBUG) println("[$TAG] focused child bounds: $focusedChildBounds")
+            if (
+                !isAnimationRunning &&
+                    !trackingFocusedChild &&
+                    // Remeasure happens before the frame fully develops, so the focused child
+                    // bounds that we calculate here are not up-to-date since the measurement
+                    // wouldn't have reached the child nodes by now.
+                    // There isn't an issue for regular scrollable containers because they will
+                    // continue to place their children from start to end.
+                    // However reverse scrolling containers need extra care because the focused
+                    // child bounds would end up being different after the frame fully develops.
+                    // Therefore we adjust the container by a certain amount (calculated above).
+                    // What this adjustment does is basically taking into account the re-placement
+                    // that the child will go through at the end of the frame. We factor that in
+                    // when we compare the focused child bounds to the new viewport size.
+                    focusedChildBounds.isMaxVisible(previousViewportSize) &&
+                    !focusedChildBounds.isMaxVisible(
+                        containerOffset = viewportAdjustmentForReverseScroll
+                    )
+            ) {
+                if (DEBUG)
+                    println(
+                        "[$TAG] focused child was clipped by viewport shrink: $focusedChildBounds"
+                    )
+                trackingFocusedChild = true
+                launchAnimation(viewportAdjustmentForReverseScroll)
+            }
+        }
+    }
+
+    private fun onRemeasuredLegacy(size: IntSize) {
         val previousViewportSize = viewportSize
         viewportSize = size
 
@@ -192,13 +255,17 @@ internal class ContentInViewNode(
     }
 
     private fun getFocusedChildBounds(): Rect? {
+        if (ComposeFoundationFlags.isKeepInViewFocusObservationChangeEnabled) {
+            return getFocusedRect()
+        }
+
         if (!isAttached) return null
         val coordinates = requireLayoutCoordinates()
         val focusedChild = this.focusedChild?.takeIf { it.isAttached } ?: return null
         return coordinates.localBoundingBoxOf(focusedChild, clipBounds = false)
     }
 
-    private fun launchAnimation() {
+    private fun launchAnimation(viewportAdjustmentForReverseScroll: IntOffset = IntOffset.Zero) {
         val bringIntoViewSpec = requireBringIntoViewSpec()
         checkPrecondition(!isAnimationRunning) {
             "launchAnimation called when previous animation was running"
@@ -213,7 +280,8 @@ internal class ContentInViewNode(
             try {
                 isAnimationRunning = true
                 scrollingLogic.scroll(scrollPriority = MutatePriority.Default) {
-                    animationState.value = calculateScrollDelta(bringIntoViewSpec)
+                    animationState.value =
+                        calculateScrollDelta(bringIntoViewSpec, viewportAdjustmentForReverseScroll)
                     if (DEBUG)
                         println(
                             "[$TAG] Starting scroll animation down from ${animationState.value}…"
@@ -224,6 +292,7 @@ internal class ContentInViewNode(
                         beforeFrame = { delta ->
                             // reverseDirection is actually opposite of what's passed in through the
                             // (vertical|horizontal)Scroll modifiers.
+                            // TODO(427897566): The above heuristic may not always be true.
                             val scrollMultiplier = if (reverseDirection) 1f else -1f
                             val adjustedDelta = scrollMultiplier * delta
                             if (DEBUG)
@@ -289,7 +358,8 @@ internal class ContentInViewNode(
 
                             // Compute a new scroll target taking into account any resizes,
                             // replacements, or added/removed requests since the last frame.
-                            animationState.value = calculateScrollDelta(bringIntoViewSpec)
+                            animationState.value =
+                                calculateScrollDelta(bringIntoViewSpec, IntOffset.Zero)
                             if (DEBUG)
                                 println("[$TAG] scroll target after frame: ${animationState.value}")
                         },
@@ -328,7 +398,10 @@ internal class ContentInViewNode(
      * Calculates how far we need to scroll to satisfy all existing BringIntoView requests and the
      * focused child tracking.
      */
-    private fun calculateScrollDelta(bringIntoViewSpec: BringIntoViewSpec): Float {
+    private fun calculateScrollDelta(
+        bringIntoViewSpec: BringIntoViewSpec,
+        viewportAdjustmentForReverseScroll: IntOffset,
+    ): Float {
         if (viewportSize == IntSize.Zero) return 0f
 
         val rectangleToMakeVisible: Rect =
@@ -340,13 +413,13 @@ internal class ContentInViewNode(
         return when (orientation) {
             Vertical ->
                 bringIntoViewSpec.calculateScrollDistance(
-                    rectangleToMakeVisible.top,
+                    rectangleToMakeVisible.top - viewportAdjustmentForReverseScroll.y,
                     rectangleToMakeVisible.bottom - rectangleToMakeVisible.top,
                     size.height,
                 )
             Horizontal ->
                 bringIntoViewSpec.calculateScrollDistance(
-                    rectangleToMakeVisible.left,
+                    rectangleToMakeVisible.left - viewportAdjustmentForReverseScroll.x,
                     rectangleToMakeVisible.right - rectangleToMakeVisible.left,
                     size.width,
                 )
@@ -381,22 +454,45 @@ internal class ContentInViewNode(
      *   view.
      * @return the destination rectangle.
      */
-    private fun computeDestination(childBounds: Rect, containerSize: IntSize): Rect {
-        return childBounds.translate(-relocationOffset(childBounds, containerSize))
+    private fun computeDestination(childBounds: Rect): Rect {
+        return childBounds.translate(
+            offset =
+                -relocationOffset(
+                    childBounds = childBounds,
+                    containerSize = viewportSize,
+                    containerOffset = IntOffset.Zero,
+                )
+        )
     }
 
     /**
-     * Returns true if this [Rect] is as visible as it can be given the [size] of the viewport. This
-     * means either it's fully visible or too big to fit in the viewport all at once and already
-     * filling the whole viewport.
+     * Returns true if this [Rect] is as visible as it can be given the current [size] of the
+     * viewport. This means either it's fully visible or too big to fit in the viewport all at once
+     * and already filling the whole viewport.
      */
-    private fun Rect.isMaxVisible(size: IntSize = viewportSize): Boolean {
-        val relocationOffset = relocationOffset(this, size)
+    private fun Rect.isMaxVisible(
+        size: IntSize = viewportSize,
+        containerOffset: IntOffset = IntOffset.Zero,
+    ): Boolean {
+        val relocationOffset = relocationOffset(this, size, containerOffset)
         return abs(relocationOffset.x) <= MinScrollThreshold &&
             abs(relocationOffset.y) <= MinScrollThreshold
     }
 
-    private fun relocationOffset(childBounds: Rect, containerSize: IntSize): Offset {
+    /**
+     * Calculates the offset needed to bring the [childBounds] into view within the [containerSize].
+     *
+     * @param childBounds The bounding box of the child that needs to be brought into view.
+     * @param containerSize The size of the scrollable container.
+     * @param containerOffset The current offset of the container (used for reverse scrolling
+     *   adjustments).
+     * @return The offset needed to move the child into view.
+     */
+    private fun relocationOffset(
+        childBounds: Rect,
+        containerSize: IntSize,
+        containerOffset: IntOffset,
+    ): Offset {
         val size = containerSize.toSize()
         return when (orientation) {
             Vertical ->
@@ -405,7 +501,7 @@ internal class ContentInViewNode(
                     y =
                         requireBringIntoViewSpec()
                             .calculateScrollDistance(
-                                childBounds.top,
+                                childBounds.top - containerOffset.y,
                                 childBounds.bottom - childBounds.top,
                                 size.height,
                             ),
@@ -415,7 +511,7 @@ internal class ContentInViewNode(
                     x =
                         requireBringIntoViewSpec()
                             .calculateScrollDistance(
-                                childBounds.left,
+                                childBounds.left - containerOffset.x,
                                 childBounds.right - childBounds.left,
                                 size.width,
                             ),

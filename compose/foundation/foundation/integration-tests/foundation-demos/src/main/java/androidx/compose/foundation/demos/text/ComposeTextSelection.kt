@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -130,6 +132,10 @@ fun TextSelectionDemo() {
                         Modifier.fillMaxWidth().border(BorderStroke(1.dp, color = Color.Black)),
                 )
             }
+        }
+        item {
+            TagLine(tag = "Clickable children")
+            TextDemoClickableChildrenSelection()
         }
     }
 }
@@ -338,6 +344,17 @@ fun OutlinedSelectionContainer(modifier: Modifier = Modifier, content: @Composab
 @Composable
 fun OutlinedDisableSelection(content: @Composable () -> Unit) {
     Box(Modifier.border(1.dp, Color.Red).padding(1.dp)) { DisableSelection(content) }
+}
+
+@Preview
+@Composable
+fun TextDemoClickableChildrenSelection() {
+    SelectionContainer {
+        BasicText(
+            "This text has a click handler. ".repeat(5),
+            modifier = Modifier.pointerInput(Unit) { detectTapGestures(onTap = {}) },
+        )
+    }
 }
 
 internal fun AnnotatedString.Builder.appendWithColor(color: Color, text: String) {

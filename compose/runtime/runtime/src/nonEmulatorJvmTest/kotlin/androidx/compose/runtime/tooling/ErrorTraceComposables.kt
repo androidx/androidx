@@ -53,8 +53,8 @@ import androidx.compose.runtime.rememberUpdatedState
 */
 
 @Composable
-inline fun InlineWrapper(block: @Composable () -> Unit) {
-    block()
+inline fun InlineWrapper(content: @Composable () -> Unit) {
+    content()
 }
 
 @Composable

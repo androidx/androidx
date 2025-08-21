@@ -178,7 +178,7 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
      *
      * @return name
      */
-    public static String name() {
+    public static @NonNull String name() {
         return CLASS_NAME;
     }
 
@@ -203,7 +203,7 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
      * @param velocity the velocity of the marquee animation
      */
     public static void apply(
-            WireBuffer buffer,
+            @NonNull WireBuffer buffer,
             int iterations,
             int animationMode,
             float repeatDelayMillis,
@@ -225,7 +225,7 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
      * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
-    public static void read(WireBuffer buffer, List<Operation> operations) {
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int iterations = buffer.readInt();
         int animationMode = buffer.readInt();
         float repeatDelayMillis = buffer.readFloat();
@@ -247,7 +247,7 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
      *
      * @param doc to append the description to.
      */
-    public static void documentation(DocumentationBuilder doc) {
+    public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("specify a Marquee Modifier")
                 .field(FLOAT, "value", "");

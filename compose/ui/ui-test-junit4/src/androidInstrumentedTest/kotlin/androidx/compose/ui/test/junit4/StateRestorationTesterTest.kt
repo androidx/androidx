@@ -22,9 +22,7 @@ import androidx.core.os.bundleOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
 import org.junit.Assert.assertThrows
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,16 +32,6 @@ import org.junit.runner.RunWith
 class StateRestorationTesterTest {
 
     @get:Rule val rule = createComposeRule()
-
-    @Before
-    fun setUp() {
-        IS_PLATFORM_ENCODING_AND_DECODING_ENABLED = true
-    }
-
-    @After
-    fun tearDown() {
-        IS_PLATFORM_ENCODING_AND_DECODING_ENABLED = false
-    }
 
     @Test
     fun emulateSavedInstanceStateRestore_maxBytes() {

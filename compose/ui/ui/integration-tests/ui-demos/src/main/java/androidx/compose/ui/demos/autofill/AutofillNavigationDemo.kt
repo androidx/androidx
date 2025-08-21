@@ -59,6 +59,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
+/** Autofill sample displaying navigation capabilities. */
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable

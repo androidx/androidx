@@ -17,6 +17,7 @@
 package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.snapshots.fastNone
 
 /**
  * A diagnostic exception with a composition stack trace. This exception is usually appended to the
@@ -36,7 +37,7 @@ internal fun Throwable.tryAttachComposeStackTrace(
     trace: () -> List<ComposeStackTraceFrame>
 ): Boolean {
     var result = false
-    if (suppressedExceptions.none { it is DiagnosticComposeException }) {
+    if (suppressedExceptions.fastNone { it is DiagnosticComposeException }) {
         val traceException =
             try {
                 val frames = trace()

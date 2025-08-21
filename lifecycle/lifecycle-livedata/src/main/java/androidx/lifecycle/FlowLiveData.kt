@@ -73,7 +73,7 @@ import kotlinx.coroutines.withContext
 @JvmOverloads
 public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
-    timeoutInMs: Long = DEFAULT_TIMEOUT
+    timeoutInMs: Long = DEFAULT_TIMEOUT,
 ): LiveData<T> =
     liveData(context, timeoutInMs) { collect { emit(it) } }
         .also { liveData ->
@@ -148,5 +148,5 @@ public fun <T> LiveData<T>.asFlow(): Flow<T> =
 @RequiresApi(Build.VERSION_CODES.O)
 public fun <T> Flow<T>.asLiveData(
     timeout: Duration,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = EmptyCoroutineContext,
 ): LiveData<T> = asLiveData(context, Api26Impl.toMillis(timeout))

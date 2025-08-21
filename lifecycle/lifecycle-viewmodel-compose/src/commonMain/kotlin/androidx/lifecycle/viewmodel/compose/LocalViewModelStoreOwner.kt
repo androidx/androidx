@@ -27,12 +27,13 @@ public object LocalViewModelStoreOwner {
     private val LocalViewModelStoreOwner = compositionLocalOf<ViewModelStoreOwner?> { null }
 
     /**
-     * Returns current composition local value for the owner or `null` if one has not been provided
-     * nor is one available via [findViewTreeViewModelStoreOwner] on the current
+     * Returns current composition local value for the owner or `null` if one has not been provided.
+     * On Android it will also try to get it via
+     * [androidx.lifecycle.findViewTreeViewModelStoreOwner] on the current
      * [androidx.compose.ui.platform.LocalView].
      */
     public val current: ViewModelStoreOwner?
-        @Composable get() = LocalViewModelStoreOwner.current ?: findViewTreeViewModelStoreOwner()
+        @Composable get() = LocalViewModelStoreOwner.current ?: findDefaultViewModelStoreOwner()
 
     /**
      * Associates a [LocalViewModelStoreOwner] key to a value in a call to
@@ -45,4 +46,4 @@ public object LocalViewModelStoreOwner {
     }
 }
 
-@Composable internal expect fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner?
+@Composable internal expect fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner?

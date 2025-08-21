@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel
+package androidx.lifecycle.viewmodel.internal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
 import kotlin.reflect.KClass
 
 internal actual fun <VM : ViewModel> createViewModel(
     factory: ViewModelProvider.Factory,
     modelClass: KClass<VM>,
-    extras: CreationExtras
+    extras: CreationExtras,
 ): VM {
     // Android targets using `compileOnly` dependencies may encounter AGP desugaring
     // issues where `Factory.create` throws an `AbstractMethodError`. This is resolved by an

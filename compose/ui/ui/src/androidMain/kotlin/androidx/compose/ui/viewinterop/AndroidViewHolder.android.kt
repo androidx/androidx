@@ -17,10 +17,9 @@
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
-import android.graphics.Rect
+import android.graphics.Rect as AndroidRect
 import android.graphics.Region
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
@@ -32,8 +31,10 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -50,12 +51,15 @@ import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.composeToViewOffset
 import androidx.compose.ui.platform.compositionContext
+import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -188,6 +192,7 @@ internal open class AndroidViewHolder(
     private val position = IntArray(2)
     private var size = IntSize.Zero
     private var insets: WindowInsetsCompat? = null
+    private var bringIntoViewRequester: BringIntoViewRequester? = null
 
     /**
      * The [OwnerSnapshotObserver] of this holder's [Owner]. Will be null when this view is not
@@ -309,7 +314,7 @@ internal open class AndroidViewHolder(
     // otherwise using onDescendantInvalidated. Return null to avoid invalidating the
     // AndroidComposeView or the handler.
     @Suppress("OVERRIDE_DEPRECATION", "Deprecation")
-    override fun invalidateChildInParent(location: IntArray?, dirty: Rect?): ViewParent? {
+    override fun invalidateChildInParent(location: IntArray?, dirty: AndroidRect?): ViewParent? {
         super.invalidateChildInParent(location, dirty)
         invalidateOrDefer()
         return null
@@ -319,6 +324,16 @@ internal open class AndroidViewHolder(
         // We need to call super here in order to correctly update the dirty flags of the holder.
         super.onDescendantInvalidated(child, target)
         invalidateOrDefer()
+    }
+
+    override fun requestChildRectangleOnScreen(
+        child: View,
+        rectangle: AndroidRect?,
+        immediate: Boolean,
+    ): Boolean {
+        bringIntoViewRequester?.invoke(rectangle?.toComposeRect())
+        // Compose doesn't tell us whether this request caused a scroll. Return true in any case.
+        return true
     }
 
     fun invalidateOrDefer() {
@@ -418,6 +433,7 @@ internal open class AndroidViewHolder(
                         }
                     }
                 }
+                .then(BringIntoViewElement { bringIntoViewRequester = it })
         layoutNode.compositeKeyHash = compositeKeyHash
         layoutNode.modifier = modifier.then(coreModifier)
         onModifierChanged = { layoutNode.modifier = it.then(coreModifier) }
@@ -712,3 +728,54 @@ private fun toNestedScrollSource(type: Int): NestedScrollSource =
         ViewCompat.TYPE_TOUCH -> NestedScrollSource.UserInput
         else -> NestedScrollSource.SideEffect
     }
+
+private typealias BringIntoViewRequester = (Rect?) -> Unit
+
+private typealias OnRequesterReady = (BringIntoViewRequester?) -> Unit
+
+private class BringIntoViewElement(val onRequesterReady: OnRequesterReady) :
+    ModifierNodeElement<BringIntoViewNode>() {
+    override fun create(): BringIntoViewNode {
+        return BringIntoViewNode(onRequesterReady)
+    }
+
+    override fun update(node: BringIntoViewNode) {
+        node.update(onRequesterReady)
+    }
+
+    override fun hashCode(): Int {
+        return onRequesterReady.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (this === other) ||
+            (other is BringIntoViewElement) && (onRequesterReady === other.onRequesterReady)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "requestRectangleBringIntoViewBridge"
+    }
+}
+
+private class BringIntoViewNode(var onRequesterReady: OnRequesterReady) : Modifier.Node() {
+    val requester: BringIntoViewRequester = { rect ->
+        if (isAttached) {
+            coroutineScope.launch { bringIntoView { rect } }
+        }
+    }
+
+    override fun onAttach() {
+        onRequesterReady(requester)
+    }
+
+    override fun onDetach() {
+        onRequesterReady.invoke(null)
+    }
+
+    fun update(onRequesterReady: OnRequesterReady) {
+        this.onRequesterReady = onRequesterReady
+        if (isAttached) {
+            onRequesterReady(requester)
+        }
+    }
+}

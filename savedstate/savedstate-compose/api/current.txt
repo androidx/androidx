@@ -19,7 +19,7 @@ package androidx.savedstate.compose.serialization.serializers {
   }
 
   public final class MutableStateSerializerKt {
-    method public static inline <reified T> androidx.savedstate.compose.serialization.serializers.MutableStateSerializer<T> MutableStateSerializer();
+    method @KotlinOnly public static inline <reified T> androidx.savedstate.compose.serialization.serializers.MutableStateSerializer<T> MutableStateSerializer();
   }
 
   public final class SnapshotStateListSerializer<T> implements kotlinx.serialization.KSerializer<androidx.compose.runtime.snapshots.SnapshotStateList<T>> {
@@ -31,7 +31,7 @@ package androidx.savedstate.compose.serialization.serializers {
   }
 
   public final class SnapshotStateListSerializerKt {
-    method public static inline <reified T> androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer<T> SnapshotStateListSerializer();
+    method @KotlinOnly public static inline <reified T> androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer<T> SnapshotStateListSerializer();
   }
 
   public final class SnapshotStateMapSerializer<K, V> implements kotlinx.serialization.KSerializer<androidx.compose.runtime.snapshots.SnapshotStateMap<K,V>> {
@@ -43,7 +43,7 @@ package androidx.savedstate.compose.serialization.serializers {
   }
 
   public final class SnapshotStateMapSerializerKt {
-    method public static inline <reified K, reified V> androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer<K,V> SnapshotStateMapSerializer();
+    method @KotlinOnly public static inline <reified K, reified V> androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer<K,V> SnapshotStateMapSerializer();
   }
 
 }

@@ -32,8 +32,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 
 @Composable
-internal fun ProvideDefaultPlatformTextContextMenuProviders(
-    modifier: Modifier = Modifier,
+internal actual fun ProvideDefaultPlatformTextContextMenuProviders(
+    modifier: Modifier,
     content: @Composable () -> Unit,
 ) {
     val dropdownDefined = LocalTextContextMenuDropdownProvider.current != null

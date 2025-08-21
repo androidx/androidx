@@ -278,11 +278,13 @@ private fun StandardBottomSheet(
                         if (!state.skipPartiallyExpanded) {
                             PartiallyExpanded at (layoutHeight - peekHeightPx)
                         }
-                        if (sheetHeight != peekHeightPx) {
-                            Expanded at maxOf(layoutHeight - sheetHeight, 0f)
-                        }
-                        if (!state.skipHiddenState) {
+                        // Ensure when there is no content, there is just one anchor set to
+                        // layoutHeight. Hidden overrides skipHiddenState in this use case.
+                        if (sheetHeight == 0f || !state.skipHiddenState) {
                             Hidden at layoutHeight
+                        }
+                        if (sheetHeight > 0f) {
+                            Expanded at layoutHeight - sheetHeight
                         }
                     }
                     val newTarget =
@@ -295,13 +297,8 @@ private fun StandardBottomSheet(
                                     newAnchors.hasAnchorFor(Hidden) -> Hidden
                                     else -> oldTarget
                                 }
-                            Expanded ->
-                                when {
-                                    newAnchors.hasAnchorFor(Expanded) -> Expanded
-                                    newAnchors.hasAnchorFor(PartiallyExpanded) -> PartiallyExpanded
-                                    newAnchors.hasAnchorFor(Hidden) -> Hidden
-                                    else -> oldTarget
-                                }
+
+                            Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
                         }
                     return@draggableAnchors newAnchors to newTarget
                 }

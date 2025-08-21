@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.CheckResult
+
 /**
  * Finds a semantics node identified by the given tag.
  *
@@ -26,6 +28,7 @@ package androidx.compose.ui.test
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false,
@@ -41,6 +44,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTag(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false,
@@ -59,6 +63,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
     label: String,
     substring: Boolean = false,
@@ -80,6 +85,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
     label: String,
     substring: Boolean = false,
@@ -101,6 +107,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onNode for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onNodeWithText(
     text: String,
     substring: Boolean = false,
@@ -121,6 +128,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithText(
  *   semantics tree.
  * @see SemanticsNodeInteractionsProvider.onAllNodes for more information.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
     text: String,
     substring: Boolean = false,
@@ -139,6 +147,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
  * @param useUnmergedTree If true, searches the unmerged semantics tree instead of the merged
  *   semantics tree.
  */
+@CheckResult
 fun SemanticsNodeInteractionsProvider.onRoot(
     useUnmergedTree: Boolean = false
 ): SemanticsNodeInteraction = onNode(isRoot(), useUnmergedTree)

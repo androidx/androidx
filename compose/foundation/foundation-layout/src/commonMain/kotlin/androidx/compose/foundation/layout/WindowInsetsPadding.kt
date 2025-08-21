@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
@@ -44,7 +46,12 @@ import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.invalidatePlacement
+import androidx.compose.ui.node.traverseAncestors
+import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -71,14 +78,24 @@ import androidx.compose.ui.util.fastRoundToInt
  */
 @Stable
 fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
-    composed(
-        debugInspectorInfo {
-            name = "windowInsetsPadding"
-            properties["insets"] = insets
+    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+        this then
+            InsetsPaddingModifierElement(
+                insets,
+                debugInspectorInfo {
+                    name = "windowInsetsPadding"
+                    properties["insets"] = insets
+                },
+            )
+    else
+        composed(
+            debugInspectorInfo {
+                name = "windowInsetsPadding"
+                properties["insets"] = insets
+            }
+        ) {
+            remember(insets) { InsetsPaddingModifier(insets) }
         }
-    ) {
-        remember(insets) { InsetsPaddingModifier(insets) }
-    }
 
 /**
  * Consume insets that haven't been consumed yet by other insets Modifiers similar to
@@ -92,14 +109,24 @@ fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
  */
 @Stable
 fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
-    composed(
-        debugInspectorInfo {
-            name = "consumeWindowInsets"
-            properties["insets"] = insets
+    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+        this then
+            UnionInsetsConsumingModifierElement(
+                insets,
+                debugInspectorInfo {
+                    name = "consumeWindowInsets"
+                    properties["insets"] = insets
+                },
+            )
+    else
+        composed(
+            debugInspectorInfo {
+                name = "consumeWindowInsets"
+                properties["insets"] = insets
+            }
+        ) {
+            remember(insets) { UnionInsetsConsumingModifier(insets) }
         }
-    ) {
-        remember(insets) { UnionInsetsConsumingModifier(insets) }
-    }
 
 /**
  * Consume [paddingValues] as insets as if the padding was added irrespective of insets. Layouts
@@ -116,14 +143,24 @@ fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
  */
 @Stable
 fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
-    composed(
-        debugInspectorInfo {
-            name = "consumeWindowInsets"
-            properties["paddingValues"] = paddingValues
+    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+        this then
+            PaddingValuesConsumingModifierElement(
+                paddingValues,
+                debugInspectorInfo {
+                    name = "consumeWindowInsets"
+                    properties["paddingValues"] = paddingValues
+                },
+            )
+    else
+        composed(
+            debugInspectorInfo {
+                name = "consumeWindowInsets"
+                properties["paddingValues"] = paddingValues
+            }
+        ) {
+            remember(paddingValues) { PaddingValuesConsumingModifier(paddingValues) }
         }
-    ) {
-        remember(paddingValues) { PaddingValuesConsumingModifier(paddingValues) }
-    }
 
 /**
  * Calls [block] with the [WindowInsets] that have been consumed, either by [consumeWindowInsets] or
@@ -133,14 +170,24 @@ fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
  */
 @Stable
 fun Modifier.onConsumedWindowInsetsChanged(block: (consumedWindowInsets: WindowInsets) -> Unit) =
-    composed(
-        debugInspectorInfo {
-            name = "onConsumedWindowInsetsChanged"
-            properties["block"] = block
+    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+        this then
+            ConsumedInsetsModifierElement(
+                block,
+                debugInspectorInfo {
+                    name = "onConsumedWindowInsetsChanged"
+                    properties["block"] = block
+                },
+            )
+    else
+        composed(
+            debugInspectorInfo {
+                name = "onConsumedWindowInsetsChanged"
+                properties["block"] = block
+            }
+        ) {
+            remember(block) { ConsumedInsetsModifier(block) }
         }
-    ) {
-        remember(block) { ConsumedInsetsModifier(block) }
-    }
 
 /**
  * Adds padding to accommodate the [safe drawing][WindowInsets.Companion.safeDrawing] insets.
@@ -362,7 +409,11 @@ expect fun Modifier.mandatorySystemGesturesPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.consumeWindowInsetsWithPaddingSample
  */
-fun Modifier.recalculateWindowInsets(): Modifier = this.then(RecalculateWindowInsetsModifierElement)
+fun Modifier.recalculateWindowInsets(): Modifier =
+    this then
+        if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
+            RecalculateWindowInsetsModifierElement
+        else ModifierLocalRecalculateWindowInsetsModifierElement
 
 internal val ModifierLocalConsumedWindowInsets = modifierLocalOf { WindowInsets(0, 0, 0, 0) }
 
@@ -510,23 +561,23 @@ private class UnionInsetsConsumingModifier(private val insets: WindowInsets) :
     override fun hashCode(): Int = insets.hashCode()
 }
 
-private object RecalculateWindowInsetsModifierElement :
-    ModifierNodeElement<RecalculateWindowInsetsModifierNode>() {
-    override fun create(): RecalculateWindowInsetsModifierNode =
-        RecalculateWindowInsetsModifierNode()
+private object ModifierLocalRecalculateWindowInsetsModifierElement :
+    ModifierNodeElement<ModifierLocalRecalculateWindowInsetsModifierNode>() {
+    override fun create(): ModifierLocalRecalculateWindowInsetsModifierNode =
+        ModifierLocalRecalculateWindowInsetsModifierNode()
 
     override fun hashCode(): Int = 0
 
     override fun equals(other: Any?): Boolean = other === this
 
-    override fun update(node: RecalculateWindowInsetsModifierNode) {}
+    override fun update(node: ModifierLocalRecalculateWindowInsetsModifierNode) {}
 
     override fun InspectorInfo.inspectableProperties() {
         name = "recalculateWindowInsets"
     }
 }
 
-private class RecalculateWindowInsetsModifierNode :
+private class ModifierLocalRecalculateWindowInsetsModifierNode :
     Modifier.Node(),
     ModifierLocalModifierNode,
     LayoutModifierNode,
@@ -619,4 +670,371 @@ private class RecalculateWindowInsetsModifierNode :
             invalidatePlacement()
         }
     }
+}
+
+private class InsetsPaddingModifierElement(
+    private val insets: WindowInsets,
+    private val inspectorInfo: InspectorInfo.() -> Unit,
+) : ModifierNodeElement<InsetsPaddingModifierNode>() {
+    override fun create(): InsetsPaddingModifierNode = InsetsPaddingModifierNode(insets)
+
+    override fun update(node: InsetsPaddingModifierNode) {
+        node.update(insets)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int = insets.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is InsetsPaddingModifierElement) {
+            return false
+        }
+        return other.insets == insets
+    }
+}
+
+/** Base class for WindowInsets modifiers. */
+internal abstract class InsetsConsumingModifierNode : Modifier.Node(), TraversableNode {
+
+    /** The [WindowInsets] consumed by the ancestors of this modifier. */
+    var ancestorConsumedInsets: WindowInsets = WindowInsets()
+        private set
+
+    override val traverseKey: Any
+        get() = "androidx.compose.foundation.layout.ConsumedInsetsProvider"
+
+    /**
+     * The [WindowInsets] consumed by this modifier, including any [WindowInsets] consumed by
+     * ancestors.
+     */
+    var consumedInsets: WindowInsets = WindowInsets()
+        private set
+
+    /**
+     * Implementing classes should override this method to calculate the [WindowInsets] consumed,
+     * based on the [WindowInsets] that ancestors consumed.
+     *
+     * @param ancestorConsumedInsets The [WindowInsets] consumed by ancestors
+     */
+    abstract fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets
+
+    override fun onAttach() {
+        traverseAncestors(traverseKey) { parent ->
+            this.ancestorConsumedInsets = (parent as InsetsConsumingModifierNode).consumedInsets
+            false
+        }
+        insetsInvalidated()
+        super.onAttach()
+    }
+
+    override fun onDetach() {
+        // This modifier is being removed, so we must tell all children
+        invalidateChildConsumedInsets()
+        super.onDetach()
+    }
+
+    override fun onReset() {
+        super.onReset()
+        ancestorConsumedInsets = WindowInsets()
+    }
+
+    /** Sets the [ancestorConsumedInsets] and invalidates the [consumedInsets]. */
+    private fun setAncestorConsumedInsets(ancestorConsumedInsets: WindowInsets) {
+        if (this.ancestorConsumedInsets != ancestorConsumedInsets) {
+            this.ancestorConsumedInsets = ancestorConsumedInsets
+            insetsInvalidated()
+        }
+    }
+
+    /**
+     * Called when the [consumedInsets] have been invalidated and should be recalculated. This will
+     * invalidate descendant [InsetsConsumingModifierNode]s so their [consumedInsets] are
+     * recalculated.
+     */
+    open fun insetsInvalidated() {
+        consumedInsets = calculateInsets(ancestorConsumedInsets)
+        invalidateChildConsumedInsets()
+    }
+
+    /** Walks child [InsetsConsumingModifierNode]s and calls [setAncestorConsumedInsets] on each. */
+    private fun invalidateChildConsumedInsets() {
+        traverseDescendants(traverseKey) { child ->
+            (child as InsetsConsumingModifierNode).setAncestorConsumedInsets(consumedInsets)
+            SkipSubtreeAndContinueTraversal
+        }
+    }
+}
+
+/**
+ * Creates a padding based on [insets] and the [WindowInsets] consumed by ancestors. This is open to
+ * share padding logic with SystemInsetsPaddingModifierNode.
+ */
+internal open class InsetsPaddingModifierNode(private var insets: WindowInsets) :
+    InsetsConsumingModifierNode(), LayoutModifierNode {
+
+    override fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets =
+        ancestorConsumedInsets.union(insets)
+
+    override fun insetsInvalidated() {
+        super.insetsInvalidated()
+        invalidateMeasurement()
+    }
+
+    fun update(insets: WindowInsets) {
+        if (insets != this.insets) {
+            this.insets = insets
+            insetsInvalidated()
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val left =
+            consumedInsets.getLeft(this, layoutDirection) -
+                ancestorConsumedInsets.getLeft(this, layoutDirection)
+        val top = consumedInsets.getTop(this) - ancestorConsumedInsets.getTop(this)
+        val right =
+            consumedInsets.getRight(this, layoutDirection) -
+                ancestorConsumedInsets.getRight(this, layoutDirection)
+        val bottom = consumedInsets.getBottom(this) - ancestorConsumedInsets.getBottom(this)
+
+        val horizontal = left + right
+        val vertical = top + bottom
+
+        val childConstraints = constraints.offset(-horizontal, -vertical)
+        val placeable = measurable.measure(childConstraints)
+
+        val width = constraints.constrainWidth(placeable.width + horizontal)
+        val height = constraints.constrainHeight(placeable.height + vertical)
+        return layout(width, height) { placeable.place(left, top) }
+    }
+}
+
+private class PaddingValuesConsumingModifierElement(
+    private val paddingValues: PaddingValues,
+    private val inspectorInfo: InspectorInfo.() -> Unit,
+) : ModifierNodeElement<PaddingValuesConsumingModifierNode>() {
+    override fun create(): PaddingValuesConsumingModifierNode =
+        PaddingValuesConsumingModifierNode(paddingValues)
+
+    override fun update(node: PaddingValuesConsumingModifierNode) {
+        node.update(paddingValues)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int = paddingValues.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) {
+            return true
+        }
+        if (other !is PaddingValuesConsumingModifierElement) {
+            return false
+        }
+        return other.paddingValues == paddingValues
+    }
+}
+
+private class PaddingValuesConsumingModifierNode(private var paddingValues: PaddingValues) :
+    InsetsConsumingModifierNode() {
+    fun update(paddingValues: PaddingValues) {
+        if (paddingValues != this.paddingValues) {
+            this.paddingValues = paddingValues
+            insetsInvalidated()
+        }
+    }
+
+    override fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets =
+        ancestorConsumedInsets.add(paddingValues.asInsets())
+}
+
+private class ConsumedInsetsModifierElement(
+    private val block: (WindowInsets) -> Unit,
+    private val inspectorInfo: InspectorInfo.() -> Unit,
+) : ModifierNodeElement<ConsumedInsetsModifierNode>() {
+    override fun create(): ConsumedInsetsModifierNode = ConsumedInsetsModifierNode(block)
+
+    override fun update(node: ConsumedInsetsModifierNode) {
+        node.update(block)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int = block.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is ConsumedInsetsModifierElement) {
+            return false
+        }
+        return other.block === block
+    }
+}
+
+private class ConsumedInsetsModifierNode(private var block: (WindowInsets) -> Unit) :
+    InsetsConsumingModifierNode() {
+    override fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets {
+        block(ancestorConsumedInsets)
+        return ancestorConsumedInsets
+    }
+
+    fun update(block: (WindowInsets) -> Unit) {
+        if (block !== this.block) {
+            this.block = block
+        }
+    }
+}
+
+private class UnionInsetsConsumingModifierElement(
+    private val insets: WindowInsets,
+    private val inspectorInfo: InspectorInfo.() -> Unit,
+) : ModifierNodeElement<UnionInsetsConsumingModifierNode>() {
+    override fun create(): UnionInsetsConsumingModifierNode =
+        UnionInsetsConsumingModifierNode(insets)
+
+    override fun update(node: UnionInsetsConsumingModifierNode) {
+        node.update(insets)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int = insets.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is UnionInsetsConsumingModifierElement) {
+            return false
+        }
+        return other.insets == insets
+    }
+}
+
+/** Sets the consumed insets to the union of [insets] and the ancestor's consumed [WindowInsets]. */
+private class UnionInsetsConsumingModifierNode(private var insets: WindowInsets) :
+    InsetsConsumingModifierNode() {
+    override fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets =
+        ancestorConsumedInsets.union(insets)
+
+    fun update(insets: WindowInsets) {
+        if (insets != this.insets) {
+            this.insets = insets
+            insetsInvalidated()
+        }
+    }
+}
+
+private object RecalculateWindowInsetsModifierElement :
+    ModifierNodeElement<RecalculateWindowInsetsModifierNode>() {
+    override fun create(): RecalculateWindowInsetsModifierNode =
+        RecalculateWindowInsetsModifierNode()
+
+    override fun hashCode(): Int = 0
+
+    override fun equals(other: Any?): Boolean = other === this
+
+    override fun update(node: RecalculateWindowInsetsModifierNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "recalculateWindowInsets"
+    }
+}
+
+private class RecalculateWindowInsetsModifierNode :
+    InsetsConsumingModifierNode(), LayoutModifierNode {
+    val insets = ValueInsets(InsetsValues(0, 0, 0, 0), "reset")
+
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
+    override fun calculateInsets(ancestorConsumedInsets: WindowInsets): WindowInsets =
+        if (insets.value.left == -1) {
+            ancestorConsumedInsets
+        } else {
+            insets
+        }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        return if (!constraints.hasFixedWidth || !constraints.hasFixedHeight) {
+            // We can't provide the modifier local value.
+            // We'll fall back to measuring the contents without providing the value
+            if (insets.value.left != -1) {
+                insets.value = InsetsValues(-1, -1, -1, -1)
+                insetsInvalidated()
+            }
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        } else {
+            val width = constraints.maxWidth
+            val height = constraints.maxHeight
+            layout(width, height) {
+                val coordinates = coordinates
+                if (coordinates != null) {
+                    val topLeft = coordinates.positionInRoot()
+                    val size = coordinates.size
+                    val bottomRight =
+                        coordinates.localToRoot(Offset(size.width.toFloat(), size.height.toFloat()))
+                    val root = coordinates.findRootCoordinates()
+                    val rootSize = root.size
+                    val left = topLeft.x.fastRoundToInt()
+                    val top = topLeft.y.fastRoundToInt()
+                    val right = rootSize.width - bottomRight.x.fastRoundToInt()
+                    val bottom = rootSize.height - bottomRight.y.fastRoundToInt()
+                    val oldValues = insets.value
+                    if (
+                        oldValues.left != left ||
+                            oldValues.top != top ||
+                            oldValues.right != right ||
+                            oldValues.bottom != bottom
+                    ) {
+                        insets.value = InsetsValues(left, top, right, bottom)
+                        insetsInvalidated()
+                    }
+                }
+                val placeable = measurable.measure(Constraints.fixed(width, height))
+                placeable.place(0, 0)
+            }
+        }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(height)
 }

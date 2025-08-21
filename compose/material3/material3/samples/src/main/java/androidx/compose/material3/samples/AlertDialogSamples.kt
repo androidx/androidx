@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AlertDialogSample() {
     val openDialog = remember { mutableStateOf(true) }
+
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
 
     if (openDialog.value) {
         AlertDialog(
@@ -73,6 +76,8 @@ fun AlertDialogSample() {
 @Composable
 fun AlertDialogWithIconSample() {
     val openDialog = remember { mutableStateOf(true) }
+
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
 
     if (openDialog.value) {
         AlertDialog(
@@ -106,6 +111,8 @@ fun AlertDialogWithIconSample() {
 @Composable
 fun BasicAlertDialogSample() {
     val openDialog = remember { mutableStateOf(true) }
+
+    Button(onClick = { openDialog.value = true }) { Text("Open dialog") }
 
     if (openDialog.value) {
         BasicAlertDialog(

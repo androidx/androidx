@@ -19,28 +19,11 @@ package androidx.compose.ui.test
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.VisibleForTesting
-
-/**
- * Controls whether platform-specific encoding and decoding is applied during state saving.
- *
- * When `true`, the `platformEncodeDecode` function processes the state returned by
- * `currentRegistry.performSave()`, triggering Parcelization on Android. When `false`, Parcelization
- * is bypassed entirely.
- *
- * The default is `false` to prevent Compose tests from failing due to non-Parcelable instances.
- * Once those issues are resolved, this flag will be removed, and platform encoding will be enabled
- * by default.
- */
-@VisibleForTesting internal var IS_PLATFORM_ENCODING_AND_DECODING_ENABLED = false
 
 @OptIn(ExperimentalTestApi::class)
 internal actual fun platformEncodeDecode(
     savedState: Map<String, List<Any?>>
 ): Map<String, List<Any?>> {
-    // If platform encoding/decoding is disabled, return the state as-is.
-    if (!IS_PLATFORM_ENCODING_AND_DECODING_ENABLED) return savedState
-
     // Instrumentation tests can involve multiple class loaders, potentially leading to
     // `ClassNotFoundException` during state unmarshalling. This function addresses
     // this by constructing a `CompositeClassLoader` that combines the class loader

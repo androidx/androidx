@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.nestedscroll
 
-import androidx.compose.ui.ComposeUiFlags.isNestedScrollDispatcherNodeFixEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -65,30 +64,22 @@ internal class NestedScrollNode(
 
     @OptIn(ExperimentalComposeUiApi::class)
     private val nestedCoroutineScope: CoroutineScope
-        get() =
-            if (isNestedScrollDispatcherNodeFixEnabled) {
-                val parentCoroutineScope = parentNestedScrollNode?.nestedCoroutineScope
-                if (
-                    // only use the parent scope if it is active, otherwise fallback to dispatcher
-                    // scope
-                    parentCoroutineScope?.isActive == true
-                ) {
-                    parentCoroutineScope
-                } else {
-                    resolvedDispatcher.scope
-                        ?: throw IllegalStateException(
-                            "in order to access nested coroutine scope you need to attach dispatcher to the " +
-                                "`Modifier.nestedScroll` first."
-                        )
-                }
+        get() {
+            val parentCoroutineScope = parentNestedScrollNode?.nestedCoroutineScope
+            return if (
+                // only use the parent scope if it is active, otherwise fallback to dispatcher
+                // scope
+                parentCoroutineScope?.isActive == true
+            ) {
+                parentCoroutineScope
             } else {
-                parentNestedScrollNode?.nestedCoroutineScope
-                    ?: resolvedDispatcher.scope
+                resolvedDispatcher.scope
                     ?: throw IllegalStateException(
                         "in order to access nested coroutine scope you need to attach dispatcher to the " +
                             "`Modifier.nestedScroll` first."
                     )
             }
+        }
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val parentPreConsumed = parentConnection?.onPreScroll(available, source) ?: Offset.Zero

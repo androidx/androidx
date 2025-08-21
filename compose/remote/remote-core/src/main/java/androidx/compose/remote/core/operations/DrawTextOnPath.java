@@ -153,7 +153,7 @@ public class DrawTextOnPath extends PaintOperation implements VariableSupport, S
 
     @Override
     public void paint(@NonNull PaintContext context) {
-        context.drawTextOnPath(mTextId, mPathId, mOutHOffset, mOutVOffset);
+        context.drawTextOnPath(mTextId, getId(mPathId, context), mOutHOffset, mOutVOffset);
     }
 
     @Override

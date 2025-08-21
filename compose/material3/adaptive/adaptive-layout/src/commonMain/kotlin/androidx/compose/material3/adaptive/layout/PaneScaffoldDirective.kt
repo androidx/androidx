@@ -373,3 +373,5 @@ value class HingePolicy private constructor(private val value: Int) {
         val NeverAvoid = HingePolicy(3)
     }
 }
+
+internal fun PaneScaffoldDirective.isSinglePaneLayout(): Boolean = maxHorizontalPartitions == 1

@@ -16,17 +16,22 @@
 
 package androidx.savedstate.serialization
 
+import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.internal.canonicalName
+import androidx.savedstate.read
+import androidx.savedstate.savedState
+import kotlin.jvm.JvmName
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
 /**
- * Returns a property delegate provider that manages the saving and restoring of a value of type [T]
- * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
+ * Returns a property delegate that manages the saving and restoring of a value of type [T] within
+ * the [SavedStateRegistry] of this [SavedStateRegistryOwner].
  *
  * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey
  * @param key An optional [String] key to use for storing the value in the [SavedStateRegistry]. A
@@ -35,20 +40,43 @@ import kotlinx.serialization.serializer
  *   [SavedStateConfiguration.DEFAULT].
  * @param init The function to provide the initial value of the property.
  * @return A property delegate provider that manages the saving and restoring of the value.
- * @see encodeToSavedState
- * @see decodeFromSavedState
- * @see serializer
  */
+@Deprecated(
+    message = "Use the new 'saved' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 public inline fun <reified T : Any> SavedStateRegistryOwner.saved(
     key: String? = null,
     configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
     noinline init: () -> T,
-): ReadWriteProperty<Any?, T> =
-    saved(configuration.serializersModule.serializer(), key, configuration, init)
+): ReadWriteProperty<Any?, T> {
+    return saved(configuration.serializersModule.serializer(), key, configuration, init)
+}
 
 /**
- * Returns a property delegate provider that manages the saving and restoring of a value of type [T]
- * within the [SavedStateRegistry] of this [SavedStateRegistryOwner].
+ * Returns a property delegate that manages the saving and restoring of a value of type [T] within
+ * the [SavedStateRegistry] of this [SavedStateRegistryOwner].
+ *
+ * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey
+ * @param key An optional [String] key to use for storing the value in the [SavedStateRegistry]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @param init The function to provide the initial value of the property.
+ * @return A property delegate provider that manages the saving and restoring of the value.
+ */
+@JvmName("savedNullable")
+public inline fun <reified T> SavedStateRegistryOwner.saved(
+    key: String? = null,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+    noinline init: () -> T,
+): ReadWriteProperty<Any?, T> {
+    return saved(configuration.serializersModule.serializer(), key, configuration, init)
+}
+
+/**
+ * Returns a property delegate that manages the saving and restoring of a value of type [T] within
+ * the [SavedStateRegistry] of this [SavedStateRegistryOwner].
  *
  * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey_withSerializer
  * @param serializer The [KSerializer] to use for serializing and deserializing the value.
@@ -58,62 +86,138 @@ public inline fun <reified T : Any> SavedStateRegistryOwner.saved(
  *   [SavedStateConfiguration.DEFAULT].
  * @param init The function to provide the initial value of the property.
  * @return A property delegate provider that manages the saving and restoring of the value.
- * @see encodeToSavedState
- * @see decodeFromSavedState
  */
+@Deprecated(
+    message = "Use the new 'saved' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 public fun <T : Any> SavedStateRegistryOwner.saved(
     serializer: KSerializer<T>,
     key: String? = null,
     configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
     init: () -> T,
-): ReadWriteProperty<Any?, T> =
-    SavedStateRegistryOwnerDelegate(savedStateRegistry, serializer, key, configuration, init)
+): ReadWriteProperty<Any?, T> {
+    return SavedStateRegistryOwnerDelegate(savedStateRegistry, serializer, key, configuration, init)
+}
 
-private class SavedStateRegistryOwnerDelegate<T : Any>(
+/**
+ * Returns a property delegate that manages the saving and restoring of a value of type [T] within
+ * the [SavedStateRegistry] of this [SavedStateRegistryOwner].
+ *
+ * @sample androidx.savedstate.serialization.savedStateRegistryOwner_saved_withKey_withSerializer
+ * @param serializer The [KSerializer] to use for serializing and deserializing the value.
+ * @param key An optional [String] key to use for storing the value in the [SavedStateRegistry]. A
+ *   default key will be generated if it's omitted or when 'null' is passed.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @param init The function to provide the initial value of the property.
+ * @return A property delegate provider that manages the saving and restoring of the value.
+ */
+@JvmName("savedNullable")
+public fun <T> SavedStateRegistryOwner.saved(
+    serializer: KSerializer<T>,
+    key: String? = null,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+    init: () -> T,
+): ReadWriteProperty<Any?, T> {
+    return SavedStateRegistryOwnerDelegate(savedStateRegistry, serializer, key, configuration, init)
+}
+
+/**
+ * A property delegate that saves and restores a value in a [SavedStateRegistry].
+ *
+ * @param T The type of the property.
+ * @param registry The [SavedStateRegistry] to save and restore state.
+ * @param serializer The [KSerializer] used for serialization and deserialization.
+ * @param key Optional key to store the value. If null, a key is generated from the property's name.
+ * @param configuration Configuration for serialization.
+ * @param init A function that provides the initial value if no saved state exists.
+ */
+private class SavedStateRegistryOwnerDelegate<T>(
     private val registry: SavedStateRegistry,
     private val serializer: KSerializer<T>,
     private val key: String?,
     private val configuration: SavedStateConfiguration,
     private val init: () -> T,
-) : ReadWriteProperty<Any?, T> {
+) : ReadWriteProperty<Any?, T>, SavedStateProvider {
 
-    private lateinit var value: T
+    /**
+     * A sentinel object to represent that the cached value is not yet initialized. This
+     * distinguishes uninitialized from cached `null` values.
+     */
+    private object UNINITIALIZED
 
-    private fun loadValue(key: String): T? {
-        return registry.consumeRestoredStateForKey(key)?.let {
-            decodeFromSavedState(
-                deserializer = serializer,
-                savedState = it,
-                configuration = configuration
-            )
-        }
-    }
-
-    private fun registerSave(key: String) {
-        registry.registerSavedStateProvider(key) {
-            encodeToSavedState(serializer, this.value, configuration)
-        }
-    }
-
-    private fun createDefaultKey(thisRef: Any?, property: KProperty<*>): String {
-        val classNamePrefix = if (thisRef != null) thisRef::class.canonicalName + "." else ""
-        return classNamePrefix + property.name
-    }
+    // TODO(mgalhardo): encode/decode operations with SavedState requires a non-nullable type.
+    //  To support nullable values, we rely on unchecked casts and brittle generic workarounds.
+    //  Once the codec supports nullables directly, this logic can be simplified.
+    private var cachedValue: Any? = UNINITIALIZED
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        if (!::value.isInitialized) {
-            val qualifiedKey = key ?: createDefaultKey(thisRef, property)
-            registerSave(qualifiedKey)
-            this.value = loadValue(qualifiedKey) ?: init()
+        // On first read, register this as a SavedStateProvider and load the initial value.
+        if (cachedValue == UNINITIALIZED) {
+            val qualifiedKey = getQualifiedKey(thisRef, property)
+            registry.registerSavedStateProvider(qualifiedKey, provider = this)
+            cachedValue = loadInitialValue(qualifiedKey)
         }
-        return this.value
+        @Suppress("UNCHECKED_CAST")
+        return cachedValue as T
     }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        if (!::value.isInitialized) {
-            val qualifiedKey = key ?: createDefaultKey(thisRef, property)
-            registerSave(qualifiedKey)
+        // On first write, register this as a SavedStateProvider if not already done.
+        // We skip loading the initial value here to avoid overwriting the new value immediately.
+        if (cachedValue == UNINITIALIZED) {
+            val qualifiedKey = getQualifiedKey(thisRef, property)
+            registry.registerSavedStateProvider(qualifiedKey, provider = this)
         }
-        this.value = value
+        cachedValue = value
+    }
+
+    /**
+     * Saves the current value.
+     *
+     * Returns an empty state if the value was never accessed. If the value is `null`, it saves a
+     * special marker to distinguish a saved `null` from a state that was never saved. Otherwise, it
+     * serializes the current value.
+     */
+    override fun saveState(): SavedState {
+        // Don't save anything if the value was never even accessed.
+        if (cachedValue == UNINITIALIZED) return savedState()
+
+        // Using `putNull` distinguishes a saved `null` from a state that was never saved.
+        @Suppress("UNCHECKED_CAST")
+        val typedValue = cachedValue as? T ?: return savedState { putNull(key = "") }
+
+        return encodeToSavedState(serializer, typedValue, configuration)
+    }
+
+    /**
+     * Loads the value from saved state or provides an initial value.
+     *
+     * If no state is found for the [qualifiedKey], this falls back to the [init] lambda. It also
+     * correctly restores a `null` value by checking for the special marker written by [saveState].
+     */
+    private fun loadInitialValue(qualifiedKey: String): T? {
+        val restored = registry.consumeRestoredStateForKey(qualifiedKey) ?: return init()
+
+        // Check for the special marker used in `saveState()` for a `null` value.
+        if (restored.read { isNull(key = "") && size() == 1 }) return null
+
+        @Suppress("UNCHECKED_CAST")
+        return decodeFromSavedState(
+            deserializer = serializer as KSerializer<T & Any>,
+            savedState = restored,
+            configuration = configuration,
+        )
+    }
+
+    /**
+     * Generates a unique key for the property to avoid collisions in the [SavedStateRegistryOwner].
+     */
+    private fun getQualifiedKey(thisRef: Any?, property: KProperty<*>): String {
+        if (key != null) return key
+
+        val classNamePrefix = if (thisRef != null) thisRef::class.canonicalName + "." else ""
+        return classNamePrefix + property.name
     }
 }

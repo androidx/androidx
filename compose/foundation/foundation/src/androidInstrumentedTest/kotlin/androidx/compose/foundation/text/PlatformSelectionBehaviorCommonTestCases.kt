@@ -321,7 +321,7 @@ internal class TestPlatformSelectionBehaviors : PlatformSelectionBehaviors {
     val suggestSelectionForLongPressOrDoubleClickCalls =
         mutableListOf<Pair<CharSequence, TextRange>>()
 
-    val onShowContextMenuCalls = mutableListOf<Pair<CharSequence, TextRange>>()
+    val onShowContextMenuAndToolbarCalls = mutableListOf<Pair<CharSequence, TextRange>>()
 
     fun expectSuggestSelectionForLongPressOrDoubleClick(text: CharSequence, selection: TextRange) {
         val firstCall = suggestSelectionForLongPressOrDoubleClickCalls.first()
@@ -331,15 +331,15 @@ internal class TestPlatformSelectionBehaviors : PlatformSelectionBehaviors {
     }
 
     fun expectOnShowContextMenu(text: CharSequence, selection: TextRange) {
-        val firstCall = onShowContextMenuCalls.first()
+        val firstCall = onShowContextMenuAndToolbarCalls.first()
         assertThat(firstCall.first.toString()).isEqualTo(text.toString())
         assertThat(firstCall.second).isEqualTo(selection)
-        onShowContextMenuCalls.removeAt(0)
+        onShowContextMenuAndToolbarCalls.removeAt(0)
     }
 
     fun assertNoMoreCalls() {
         assertThat(suggestSelectionForLongPressOrDoubleClickCalls).isEmpty()
-        assertThat(onShowContextMenuCalls).isEmpty()
+        assertThat(onShowContextMenuAndToolbarCalls).isEmpty()
     }
 
     override suspend fun suggestSelectionForLongPressOrDoubleClick(
@@ -350,7 +350,15 @@ internal class TestPlatformSelectionBehaviors : PlatformSelectionBehaviors {
         return suggestedSelection
     }
 
-    override suspend fun onShowContextMenu(text: CharSequence, selection: TextRange) {
-        onShowContextMenuCalls.add(text to selection)
+    override suspend fun onShowContextMenu(
+        text: CharSequence,
+        selection: TextRange,
+        secondaryClickLocation: Offset?,
+    ) {
+        onShowContextMenuAndToolbarCalls.add(text to selection)
+    }
+
+    override suspend fun onShowSelectionToolbar(text: CharSequence, selection: TextRange) {
+        onShowContextMenuAndToolbarCalls.add(text to selection)
     }
 }

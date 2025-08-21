@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
@@ -161,11 +162,26 @@ internal class PlatformSelectionBehaviorsImpl(
         }
     }
 
-    override suspend fun onShowContextMenu(text: CharSequence, selection: TextRange) {
+    private suspend fun onShowContextMenuOrSelectionToolbar(
+        text: CharSequence,
+        selection: TextRange,
+    ) {
         if (text.isEmpty() || selection.collapsed) {
             return
         }
         requireTextClassificationSession { classifyText(text, selection, this) }
+    }
+
+    override suspend fun onShowContextMenu(
+        text: CharSequence,
+        selection: TextRange,
+        secondaryClickLocation: Offset?,
+    ) {
+        onShowContextMenuOrSelectionToolbar(text, selection)
+    }
+
+    override suspend fun onShowSelectionToolbar(text: CharSequence, selection: TextRange) {
+        onShowContextMenuOrSelectionToolbar(text, selection)
     }
 
     private suspend fun classifyText(
@@ -219,8 +235,9 @@ internal class PlatformSelectionBehaviorsImpl(
     }
 
     /**
-     * Get the text classification result we created in [onShowContextMenu] callback. We moved the
-     * text classification computation to [onShowContextMenu] so that
+     * Get the text classification result we created in [onShowContextMenuOrSelectionToolbar]
+     * callback. We moved the text classification computation to
+     * [onShowContextMenuOrSelectionToolbar] so that
      * 1) building context menu data won't block the UI thread.
      * 2) avoid unnecessary text classification computation. The context menu data is updated
      *    whenever the states that creates it update. This means context menu data might update even

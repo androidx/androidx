@@ -31,6 +31,7 @@ import androidx.graphics.surface.SurfaceControlCompat
  */
 internal class BufferTransformHintResolver {
 
+    /** Equivalent to [android.view.AttachedSurfaceControl.getBufferTransformHint]. */
     fun getBufferTransformHint(view: View): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S_V2) {
             return TransformHintHelper.resolveBufferTransformHint(view)
@@ -57,7 +58,7 @@ internal class BufferTransformHintResolver {
 
     internal fun getBufferTransformHintFromInstallOrientation(
         orientation: String,
-        rotation: Int
+        rotation: Int,
     ): Int =
         when (orientation) {
             ORIENTATION_90 -> {
@@ -118,7 +119,7 @@ internal class BufferTransformHintResolver {
             matrix: Matrix,
             width: Float,
             height: Float,
-            @SurfaceControlCompat.Companion.BufferTransform transform: Int
+            @SurfaceControlCompat.Companion.BufferTransform transform: Int,
         ): Matrix =
             matrix.apply {
                 when (transform) {

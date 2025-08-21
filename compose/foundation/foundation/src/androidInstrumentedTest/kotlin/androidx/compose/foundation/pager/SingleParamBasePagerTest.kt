@@ -81,10 +81,10 @@ open class SingleParamBasePagerTest {
 
     @Composable
     internal fun ParameterizedPager(
+        modifier: Modifier = Modifier,
         initialPage: Int = 0,
         initialPageOffsetFraction: Float = 0f,
         pageCount: () -> Int = { DefaultPageCount },
-        modifier: Modifier = Modifier,
         orientation: Orientation = Orientation.Horizontal,
         beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
         pageSize: PageSize = PageSize.Fill,
@@ -128,14 +128,14 @@ open class SingleParamBasePagerTest {
                 scope = rememberCoroutineScope()
                 Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
                     HorizontalOrVerticalPager(
-                        state = state,
-                        beyondViewportPageCount = beyondViewportPageCount,
-                        orientation = orientation,
                         modifier =
                             modifier.testTag(PagerTestTag).onSizeChanged {
                                 pagerSize =
                                     if (orientation == Orientation.Vertical) it.height else it.width
                             },
+                        state = state,
+                        beyondViewportPageCount = beyondViewportPageCount,
+                        orientation = orientation,
                         pageSize = pageSize,
                         userScrollEnabled = userScrollEnabled,
                         reverseLayout = reverseLayout,
@@ -192,8 +192,8 @@ open class SingleParamBasePagerTest {
 
     @Composable
     internal fun HorizontalOrVerticalPager(
-        state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         modifier: Modifier = Modifier,
+        state: PagerState = rememberPagerState(pageCount = { DefaultPageCount }),
         userScrollEnabled: Boolean = true,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),

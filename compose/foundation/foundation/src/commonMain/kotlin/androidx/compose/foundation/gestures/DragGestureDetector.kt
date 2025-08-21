@@ -24,7 +24,6 @@ package androidx.compose.foundation.gestures
 // TODO(b/193549931): when the new pointer API will be ready we should make *PointerSlop*
 //  functions public
 
-import androidx.compose.foundation.ComposeFoundationFlags.DragGesturePickUpEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -272,9 +271,7 @@ suspend fun PointerInputScope.detectDragGestures(
         }
 
         // if the pointer is still down, keep reading events in case we need to pick up the gesture.
-        while (
-            DragGesturePickUpEnabled && drag == null && currentEvent.changes.fastAny { it.pressed }
-        ) {
+        while (drag == null && currentEvent.changes.fastAny { it.pressed }) {
             var event: PointerEvent
             do {
                 // use final pass so we only pick up a gesture if it was really ignored by
@@ -319,7 +316,7 @@ suspend fun PointerInputScope.detectDragGestures(
                     // they will be propagated on the correct direction above we want to
                     // consume any new drag to avoid the cases where we start dragging
                     // on a given direction and then change directions.
-                    orientation = if (DragGesturePickUpEnabled) null else orientationLock,
+                    orientation = null,
                     motionConsumed = { it.isConsumed },
                 )
             if (upEvent == null) {
@@ -918,7 +915,7 @@ internal suspend fun AwaitPointerEventScope.awaitAllPointersUpWithSlopDetection(
  * position change causes the touch slop to be crossed, [addPointerInputChange] will return true.
  */
 internal class TouchSlopDetector(
-    val orientation: Orientation? = null,
+    var orientation: Orientation? = null,
     initialPositionChange: Offset = Offset.Zero,
 ) {
 
@@ -956,9 +953,15 @@ internal class TouchSlopDetector(
         }
     }
 
-    /** Resets the accumulator associated with this detector. */
-    fun reset() {
-        totalPositionChange = Offset.Zero
+    /**
+     * Resets the accumulator associated with this detector.
+     *
+     * @param initialPositionAccumulator Use to initialize the position change accumulator, for
+     *   instance in cases where slop detection may happen "mid-gesture", that is, the slop
+     *   detection didn't start from the first down event but somewhere after.
+     */
+    fun reset(initialPositionAccumulator: Offset = Offset.Zero) {
+        totalPositionChange = initialPositionAccumulator
     }
 
     private fun calculatePostSlopOffset(touchSlop: Float): Offset {

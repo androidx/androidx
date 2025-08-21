@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -193,7 +194,7 @@ class VectorTest {
             Image(vectorPainter, null, modifier = Modifier.size(20.dp))
         }
 
-        state.value = 1
+        state.intValue = 1
         rule.waitForIdle()
         assertEquals(2, composeCount) // Arbitrary state read should compose twice
         assertEquals(1, vectorComposeCount) // Vector is identical so should compose once
@@ -316,9 +317,11 @@ class VectorTest {
         rule.setContent { VectorTrim() }
 
         takeScreenShot(200).apply {
-            assertEquals(Color.Yellow.toArgb(), getPixel(25, 100))
-            assertEquals(Color.Blue.toArgb(), getPixel(100, 100))
-            assertEquals(Color.Yellow.toArgb(), getPixel(175, 100))
+            fun colorToHexString(color: Int): String = String.format("#%08X", color)
+
+            assertEquals("#FFFFFF00", colorToHexString(getPixel(25, 100)))
+            assertEquals("#FF0000FF", colorToHexString(getPixel(100, 100)))
+            assertEquals("#FFFFFF00", colorToHexString(getPixel(175, 100)))
         }
     }
 
@@ -496,6 +499,45 @@ class VectorTest {
         rule.waitForIdle()
         rule.onNodeWithTag(testTag).captureToImage().assertPixels { Color.Green }
         assertEquals(ImageBitmapConfig.Alpha8, vectorPainter!!.bitmapConfig)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testDrawWhenVectorHasOneColorWithAlpha() {
+        val backgroundColor = Color.Red
+        val brushColor = Color.Blue.copy(alpha = 0.5F)
+        val compositeColor = brushColor.compositeOver(backgroundColor)
+        val testTag = "testTag"
+        var vectorPainter: VectorPainter? = null
+        rule.setContent {
+            vectorPainter =
+                rememberVectorPainter(
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    autoMirror = false,
+                ) { viewportWidth, viewportHeight ->
+                    Path(
+                        fill = SolidColor(brushColor),
+                        pathData =
+                            PathData {
+                                lineTo(viewportWidth, 0f)
+                                lineTo(viewportWidth, viewportHeight)
+                                lineTo(0f, viewportHeight)
+                                close()
+                            },
+                    )
+                }
+            Image(
+                painter = vectorPainter,
+                contentDescription = null,
+                modifier = Modifier.testTag(testTag).background(backgroundColor),
+            )
+        }
+
+        val isBitmapConfigAlpha8 = vectorPainter?.bitmapConfig == ImageBitmapConfig.Alpha8
+        assertTrue("Bitmap config was not Alpha8", isBitmapConfigAlpha8)
+
+        rule.onNodeWithTag(testTag).captureToImage().assertPixels { compositeColor }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

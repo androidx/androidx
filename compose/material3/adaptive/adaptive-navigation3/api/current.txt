@@ -26,5 +26,29 @@ package androidx.compose.material3.adaptive.navigation3 {
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy! rememberListDetailSceneStrategy-nyUxiLs(String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.runtime.Composer!, int, int);
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneSceneStrategy<T> implements androidx.navigation3.ui.SceneStrategy<T> {
+    ctor @KotlinOnly public <T> SupportingPaneSceneStrategy(androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive);
+    ctor @BytecodeOnly public SupportingPaneSceneStrategy(String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @androidx.compose.runtime.Composable public androidx.navigation3.ui.Scene<T>? calculateScene(java.util.List<? extends androidx.navigation3.runtime.NavEntry<T>> entries, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onBack);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.navigation3.ui.Scene<T!>? calculateScene(java.util.List<? extends androidx.navigation3.runtime.NavEntry<T!>!>, kotlin.jvm.functions.Function1<? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public String getBackNavigationBehavior-pSECbL4();
+    method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getDirective();
+    property public androidx.compose.material3.adaptive.navigation.BackNavigationBehavior backNavigationBehavior;
+    property public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive;
+    field public static final androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion Companion;
+  }
+
+  public static final class SupportingPaneSceneStrategy.Companion {
+    method public java.util.Map<java.lang.String,java.lang.Object> extraPane(optional Object sceneKey);
+    method public java.util.Map<java.lang.String,java.lang.Object> mainPane(optional Object sceneKey);
+    method public java.util.Map<java.lang.String,java.lang.Object> supportingPane(optional Object sceneKey);
+  }
+
+  public final class SupportingPaneSceneStrategy_androidKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy<T> rememberSupportingPaneSceneStrategy(optional String backNavigationBehavior, optional androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy<T!> rememberSupportingPaneSceneStrategy-lLpqY0Q(String?, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy! rememberSupportingPaneSceneStrategy-nyUxiLs(String!, androidx.compose.material3.adaptive.layout.PaneScaffoldDirective!, androidx.compose.runtime.Composer!, int, int);
+  }
+
 }
 

@@ -23,8 +23,10 @@ import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
+import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiObject2
@@ -38,11 +40,15 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class PokedexScrollBenchmark(val compilationMode: CompilationMode) {
+class PokedexScrollBenchmark(
+    val compilationMode: CompilationMode,
+    val enableSharedTransitionScope: Boolean,
+    val enableSharedElementTransitions: Boolean,
+) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun scrollHome() =
+    fun scrollHomeCompose() =
         benchmarkScroll(
             action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY",
             setupBlock = {
@@ -68,11 +74,15 @@ class PokedexScrollBenchmark(val compilationMode: CompilationMode) {
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
                 // Start out by deleting any existing data
-                val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-                targetContext.deleteDatabase("Pokedex.db")
+                resetPokedexDatabase()
 
                 val intent = Intent()
                 intent.action = action
+                intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
+                intent.putExtra(
+                    POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS,
+                    enableSharedElementTransitions,
+                )
                 startActivityAndWait(intent)
                 setupBlock()
             },
@@ -91,8 +101,18 @@ class PokedexScrollBenchmark(val compilationMode: CompilationMode) {
     }
 
     companion object {
-        @Parameterized.Parameters(name = "compilation={0}")
+        /**
+         * Parameters for the benchmark. Uses abbreviations because of file length limit for
+         * results. compilation = Compilation Mode eSTS = enableSharedTransitionScope eSET =
+         * enableSharedElementTransition
+         */
+        @Parameterized.Parameters(name = "compilation={0},eSTS={1},eSET={2}")
         @JvmStatic
-        fun parameters() = createCompilationParams()
+        fun parameters(): List<Array<Any>> =
+            createCompilationParams().flatMap { compilationMode ->
+                PokedexSharedElementBenchmarkConfiguration.AllConfigurations.map { configuration ->
+                    arrayOf(*compilationMode, *configuration.asBenchmarkArguments())
+                }
+            }
     }
 }

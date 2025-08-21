@@ -47,7 +47,7 @@ public class FloatConstant extends Operation implements Serializable {
      *
      * @param from value to copy from
      */
-    public void update(FloatConstant from) {
+    public void update(@NonNull FloatConstant from) {
         mValue = from.mValue;
     }
 

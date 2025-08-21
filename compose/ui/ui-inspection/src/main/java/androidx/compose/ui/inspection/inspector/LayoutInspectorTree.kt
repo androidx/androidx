@@ -264,7 +264,6 @@ class LayoutInspectorTree {
             semanticsMap.clear()
             unmergedSemanticsMap.clear()
             inlineClassConverter.clear()
-            parameterFactory.clearReferenceCache()
             generatedId = -1L
         }
     }

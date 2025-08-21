@@ -18,7 +18,6 @@ package androidx.window.layout
 import android.app.Activity
 import android.content.Context
 import android.inputmethodservice.InputMethodService
-import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.layout.util.DensityCompatHelper
 import androidx.window.layout.util.WindowMetricsCompatHelper
@@ -34,7 +33,7 @@ internal class WindowMetricsCalculatorCompat(
      *
      * @see WindowMetricsCalculator.computeCurrentWindowMetrics
      */
-    override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
+    override fun computeCurrentWindowMetrics(context: Context): WindowMetrics {
         return WindowMetricsCompatHelper.getInstance()
             .currentWindowMetrics(context, densityCompatHelper)
     }
@@ -60,11 +59,11 @@ internal class WindowMetricsCalculatorCompat(
     }
 
     /**
-     * Computes the maximum [WindowMetrics] for a given [UiContext]
+     * Computes the maximum [WindowMetrics] for a given [Context]
      *
      * @See WindowMetricsCalculator.computeMaximumWindowMetrics
      */
-    override fun computeMaximumWindowMetrics(@UiContext context: Context): WindowMetrics {
+    override fun computeMaximumWindowMetrics(context: Context): WindowMetrics {
         return WindowMetricsCompatHelper.getInstance()
             .maximumWindowMetrics(context, densityCompatHelper)
     }
@@ -79,6 +78,6 @@ internal class WindowMetricsCalculatorCompat(
             WindowInsetsCompat.Type.systemGestures(),
             WindowInsetsCompat.Type.mandatorySystemGestures(),
             WindowInsetsCompat.Type.tappableElement(),
-            WindowInsetsCompat.Type.displayCutout()
+            WindowInsetsCompat.Type.displayCutout(),
         )
 }

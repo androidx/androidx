@@ -377,8 +377,8 @@ private class TestPressIndicationNodeFactory(
         if (this === other) return true
         if (other !is TestPressIndicationNodeFactory) return false
 
-        if (onDraw != other.onDraw) return false
-        if (onCreate != other.onCreate) return false
+        if (onDraw !== other.onDraw) return false
+        if (onCreate !== other.onCreate) return false
 
         return true
     }

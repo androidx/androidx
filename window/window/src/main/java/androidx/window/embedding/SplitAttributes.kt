@@ -54,31 +54,30 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *   the primary and secondary containers.
  * @property layoutDirection The layout direction of the parent window split. The default is based
  *   on locale value.
- * @property animationParams The animation params to specify the animation background of the split
+ * @property animationParams The animation params to specify the animation transitions of the split
  *   involving this `SplitAttributes` object. The default is to use the current theme window
- *   background color.
+ *   background color and system transitions.
  * @property dividerAttributes The [DividerAttributes] for this split. Defaults to
  *   [DividerAttributes.NO_DIVIDER], which means no divider is requested.
  * @see Builder
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @see EmbeddingAnimationBackground
- * @see EmbeddingAnimationBackground.createColorBackground
- * @see EmbeddingAnimationBackground.DEFAULT
+ * @see EmbeddingAnimationParams
  */
-class SplitAttributes
+public class SplitAttributes
 private constructor(
-    val splitType: SplitType = SPLIT_TYPE_EQUAL,
-    val layoutDirection: LayoutDirection = LOCALE,
-    val animationParams: EmbeddingAnimationParams = EmbeddingAnimationParams.Builder().build(),
-    val dividerAttributes: DividerAttributes = DividerAttributes.NO_DIVIDER,
+    public val splitType: SplitType = SPLIT_TYPE_EQUAL,
+    public val layoutDirection: LayoutDirection = LOCALE,
+    public val animationParams: EmbeddingAnimationParams =
+        EmbeddingAnimationParams.Builder().build(),
+    public val dividerAttributes: DividerAttributes = DividerAttributes.NO_DIVIDER,
 ) {
 
     /**
      * The type of parent window split, which defines the proportion of the parent window occupied
      * by the primary and secondary activity containers.
      */
-    class SplitType
+    public class SplitType
     internal constructor(
 
         /** The description of this `SplitType`. */
@@ -119,7 +118,7 @@ private constructor(
         override fun hashCode(): Int = description.hashCode() + 31 * value.hashCode()
 
         /** Methods that create various split types. */
-        companion object {
+        public companion object {
             /**
              * Creates a split type based on the proportion of the parent window occupied by the
              * primary container of the split.
@@ -138,7 +137,7 @@ private constructor(
              * @return An instance of `SplitType` with the specified ratio.
              */
             @JvmStatic
-            fun ratio(
+            public fun ratio(
                 @FloatRange(from = 0.0, to = 1.0, fromInclusive = false, toInclusive = false)
                 ratio: Float
             ): SplitType {
@@ -166,7 +165,7 @@ private constructor(
              *
              * @sample androidx.window.samples.embedding.expandContainersInPortrait
              */
-            @JvmField val SPLIT_TYPE_EXPAND = SplitType("expandContainers", 0.0f)
+            @JvmField public val SPLIT_TYPE_EXPAND: SplitType = SplitType("expandContainers", 0.0f)
 
             /**
              * A split type in which the primary and secondary containers occupy equal portions of
@@ -174,7 +173,7 @@ private constructor(
              *
              * Serves as the default [SplitType].
              */
-            @JvmField val SPLIT_TYPE_EQUAL = ratio(0.5f)
+            @JvmField public val SPLIT_TYPE_EQUAL: SplitType = ratio(0.5f)
 
             /**
              * A split type in which the split ratio conforms to the position of a hinge or
@@ -207,7 +206,7 @@ private constructor(
              *
              * @sample androidx.window.samples.embedding.fallbackToExpandContainersForSplitTypeHinge
              */
-            @JvmField val SPLIT_TYPE_HINGE = SplitType("hinge", -1.0f)
+            @JvmField public val SPLIT_TYPE_HINGE: SplitType = SplitType("hinge", -1.0f)
 
             // TODO(b/241044092): add XML support to SPLIT_TYPE_HINGE
             /** Returns a `SplitType` with the given `value`. */
@@ -224,7 +223,7 @@ private constructor(
     }
 
     /** The layout direction of the primary and secondary activity containers. */
-    class LayoutDirection
+    public class LayoutDirection
     private constructor(
 
         /** The description of this `LayoutDirection`. */
@@ -241,8 +240,19 @@ private constructor(
          */
         override fun toString(): String = description
 
+        override fun equals(other: Any?): Boolean {
+            if (other === this) return true
+            if (other !is LayoutDirection) return false
+            return description == other.description && value == other.value
+        }
+
+        override fun hashCode(): Int {
+            var result = description.hashCode()
+            return 31 * result + value
+        }
+
         /** Non-public properties and methods. */
-        companion object {
+        public companion object {
             /**
              * Specifies that the parent bounds are split vertically (side to side).
              *
@@ -251,7 +261,7 @@ private constructor(
              *
              * See also [layoutDirection].
              */
-            @JvmField val LOCALE = LayoutDirection("LOCALE", 0)
+            @JvmField public val LOCALE: LayoutDirection = LayoutDirection("LOCALE", 0)
             /**
              * Specifies that the parent bounds are split vertically (side to side).
              *
@@ -264,7 +274,8 @@ private constructor(
              *
              * See also [layoutDirection].
              */
-            @JvmField val LEFT_TO_RIGHT = LayoutDirection("LEFT_TO_RIGHT", 1)
+            @JvmField
+            public val LEFT_TO_RIGHT: LayoutDirection = LayoutDirection("LEFT_TO_RIGHT", 1)
             /**
              * Specifies that the parent bounds are split vertically (side to side).
              *
@@ -277,7 +288,8 @@ private constructor(
              *
              * See also [layoutDirection].
              */
-            @JvmField val RIGHT_TO_LEFT = LayoutDirection("RIGHT_TO_LEFT", 2)
+            @JvmField
+            public val RIGHT_TO_LEFT: LayoutDirection = LayoutDirection("RIGHT_TO_LEFT", 2)
             /**
              * Specifies that the parent bounds are split horizontally (top and bottom).
              *
@@ -294,7 +306,8 @@ private constructor(
              *
              * See also [layoutDirection].
              */
-            @JvmField val TOP_TO_BOTTOM = LayoutDirection("TOP_TO_BOTTOM", 3)
+            @JvmField
+            public val TOP_TO_BOTTOM: LayoutDirection = LayoutDirection("TOP_TO_BOTTOM", 3)
             /**
              * Specifies that the parent bounds are split horizontally (top and bottom).
              *
@@ -311,7 +324,8 @@ private constructor(
              *
              * See also [layoutDirection].
              */
-            @JvmField val BOTTOM_TO_TOP = LayoutDirection("BOTTOM_TO_TOP", 4)
+            @JvmField
+            public val BOTTOM_TO_TOP: LayoutDirection = LayoutDirection("BOTTOM_TO_TOP", 4)
 
             /** Returns `LayoutDirection` with the given `value`. */
             @JvmStatic
@@ -328,7 +342,7 @@ private constructor(
     }
 
     /** Non-public properties and methods. */
-    companion object {
+    public companion object {
         private val TAG = SplitAttributes::class.java.simpleName
     }
 
@@ -375,10 +389,11 @@ private constructor(
      * Builder for creating an instance of [SplitAttributes].
      * - The default split type is an equal split between primary and secondary containers.
      * - The default layout direction is based on locale.
-     * - The default animation background color is to use the current theme window background color.
+     * - The default animation params is to use the current theme window background color and system
+     *   transitions.
      * - The default divider attributes is not to use divider.
      */
-    class Builder() {
+    public class Builder() {
         private var splitType = SPLIT_TYPE_EQUAL
         private var layoutDirection = LOCALE
         private var animationParams = EmbeddingAnimationParams.Builder().build()
@@ -388,7 +403,7 @@ private constructor(
         internal constructor(original: SplitAttributes) : this() {
             this.setSplitType(original.splitType)
                 .setLayoutDirection(original.layoutDirection)
-                .setAnimationParams(animationParams)
+                .setAnimationParams(original.animationParams)
                 .setDividerAttributes(original.dividerAttributes)
         }
 
@@ -401,7 +416,7 @@ private constructor(
          * @return This `Builder`.
          * @see SplitAttributes.SplitType
          */
-        fun setSplitType(type: SplitType): Builder = apply { splitType = type }
+        public fun setSplitType(type: SplitType): Builder = apply { splitType = type }
 
         /**
          * Sets the split layout direction attribute.
@@ -412,26 +427,25 @@ private constructor(
          * @return This `Builder`.
          * @see SplitAttributes.LayoutDirection
          */
-        fun setLayoutDirection(layoutDirection: LayoutDirection): Builder = apply {
+        public fun setLayoutDirection(layoutDirection: LayoutDirection): Builder = apply {
             this.layoutDirection = layoutDirection
         }
 
         /**
          * Sets the animation params to use during animation of the split involving this
-         * `SplitAttributes` object if the animation requires a background.
-         *
-         * The default is to use the current theme window background color.
+         * `SplitAttributes` object if the animation requires a background color or non-default
+         * transitions.
          *
          * [EmbeddingAnimationParams] can be supported only if the Window Extensions version of the
          * target device is equals or higher than required API level. Otherwise, it would be no-op
          * when setting the [EmbeddingAnimationParams] on a target device that has lower API level.
          *
-         * @param params The animation params.
-         * @return This `Builder`.
+         * @param params the animation params.
+         * @return this `Builder`.
          */
         @RequiresWindowSdkExtension(5)
-        fun setAnimationParams(params: EmbeddingAnimationParams): Builder = apply {
-            animationParams = params
+        public fun setAnimationParams(params: EmbeddingAnimationParams): Builder = apply {
+            this.animationParams = params
         }
 
         /**
@@ -447,7 +461,7 @@ private constructor(
          * @return This `Builder`.
          */
         @RequiresWindowSdkExtension(6)
-        fun setDividerAttributes(dividerAttributes: DividerAttributes): Builder = apply {
+        public fun setDividerAttributes(dividerAttributes: DividerAttributes): Builder = apply {
             this.dividerAttributes = dividerAttributes
         }
 
@@ -457,7 +471,7 @@ private constructor(
          *
          * @return The new `SplitAttributes` instance.
          */
-        fun build(): SplitAttributes =
+        public fun build(): SplitAttributes =
             SplitAttributes(splitType, layoutDirection, animationParams, dividerAttributes)
     }
 }

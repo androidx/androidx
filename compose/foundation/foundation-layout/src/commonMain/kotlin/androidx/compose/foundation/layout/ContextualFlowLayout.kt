@@ -484,6 +484,7 @@ private data class FlowMeasureLazyPolicy(
         }
         val measurablesIterator =
             ContextualFlowItemIterator(itemCount) { index, info ->
+                @Suppress("ComposableLambdaInMeasurePolicy")
                 this.subcompose(index) { getComposable(index, info) }
             }
         overflow.itemCount = itemCount

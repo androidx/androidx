@@ -125,7 +125,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation {
      * @param x x offset
      * @param y y offset
      */
-    public static void apply(WireBuffer buffer, float x, float y) {
+    public static void apply(@NonNull WireBuffer buffer, float x, float y) {
         buffer.start(OP_CODE);
         buffer.writeFloat(x);
         buffer.writeFloat(y);
@@ -137,7 +137,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation {
      * @param buffer the buffer to read
      * @param operations the list of operations that will be added to
      */
-    public static void read(WireBuffer buffer, List<Operation> operations) {
+    public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         float x = buffer.readFloat();
         float y = buffer.readFloat();
         operations.add(new OffsetModifierOperation(x, y));
@@ -148,7 +148,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation {
      *
      * @param doc to append the description to.
      */
-    public static void documentation(DocumentationBuilder doc) {
+    public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("define the Offset Modifier")
                 .field(FLOAT, "x", "")

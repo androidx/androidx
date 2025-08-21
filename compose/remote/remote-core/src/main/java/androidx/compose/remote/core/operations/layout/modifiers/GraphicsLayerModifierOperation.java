@@ -108,7 +108,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      *
      * @param attributes
      */
-    public void fillInAttributes(HashMap<Integer, Object> attributes) {
+    public void fillInAttributes(@NonNull HashMap<Integer, Object> attributes) {
         for (int i = 0; i < mValues.length; i++) {
             if (mValues[i].needsToWrite()) {
                 attributes.put(i, mValues[i].getObjectValue());
@@ -339,7 +339,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      *
      * @param buffer
      */
-    private void readAttributeValue(WireBuffer buffer) {
+    private void readAttributeValue(@NonNull WireBuffer buffer) {
         int tag = buffer.readInt();
         int dataType = tag >> 10;
         int index = (short) (tag & 0x3F);
@@ -361,7 +361,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      *
      * @param doc to append the description to.
      */
-    public static void documentation(DocumentationBuilder doc) {
+    public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("define the GraphicsLayer Modifier");
     }

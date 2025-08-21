@@ -140,7 +140,7 @@ public class ViewModelTest {
                             TestViewModel(
                                 MutableCreationExtras(this).apply { set(extrasKey, "value") }
                             )
-                        }
+                        },
                     )
             }
         }
@@ -246,7 +246,8 @@ private class FakeViewModelProviderFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == TestViewModel::class.java)
         createCalled = true
-        @Suppress("UNCHECKED_CAST") return TestViewModel() as T
+        @Suppress("UNCHECKED_CAST")
+        return TestViewModel() as T
     }
 
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {

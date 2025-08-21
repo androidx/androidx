@@ -28,18 +28,18 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  *
  * @see WindowInfoTracker.windowLayoutInfo
  */
-class WindowLayoutInfo
+public class WindowLayoutInfo
 @RestrictTo(LIBRARY_GROUP)
 constructor(
     /** [displayFeatures] all the [DisplayFeature] within the window. */
-    val displayFeatures: List<DisplayFeature>
+    public val displayFeatures: List<DisplayFeature>
 ) {
 
     override fun toString(): String {
         return displayFeatures.joinToString(
             separator = ", ",
             prefix = "WindowLayoutInfo{ DisplayFeatures[",
-            postfix = "] }"
+            postfix = "] }",
         )
     }
 

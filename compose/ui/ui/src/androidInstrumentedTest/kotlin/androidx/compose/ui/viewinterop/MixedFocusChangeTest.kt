@@ -18,6 +18,8 @@ package androidx.compose.ui.viewinterop
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
 import android.view.KeyEvent
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.KeyEvent.META_SHIFT_ON
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -53,14 +55,27 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MixedFocusChangeTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity2>()
 
+    @Before
+    fun isPre26FocusFinderFixEnabled() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        assumeTrue(
+            SDK_INT >= 26 ||
+                ComposeUiFlags.isPre26FocusFinderFixEnabled ||
+                ComposeUiFlags.isViewFocusFixEnabled
+        )
+    }
+
     @Test
     fun siblingWithWorseBeam() {
+        // Arrange.
         val view = rule.runOnUiThread { MyComposeView(rule.activity, false) }
         rule.runOnIdle { rule.activity.setContentView(view) }
         rule.waitUntil {
@@ -70,27 +85,24 @@ class MixedFocusChangeTest {
         }
         val first = view.findViewWithTag<View>("item 0")
         val second = view.findViewWithTag<View>("item 1")
-        val third = view.findViewWithTag<View>("item 2")
 
         rule.runOnIdle {
             view.inputModeManager.requestInputMode(InputMode.Keyboard)
             first.requestFocus()
         }
         rule.runOnIdle { assertThat(first.isFocused).isTrue() }
+
+        // Act.
         InstrumentationRegistry.getInstrumentation()
             .sendKeySync(KeyEvent(KeyEvent.ACTION_DOWN, Key.DirectionDown.nativeKeyCode))
 
-        // TODO(b/389994198, b/391378895): Support this use case without isViewFocusFixEnabled.
-        // This landed in aosp/3451182 but depends on aosp/3417182 which is behind a flag.
-        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isViewFocusFixEnabled) {
-            rule.runOnIdle { assertThat(second.isFocused).isTrue() }
-        } else {
-            rule.runOnIdle { assertThat(third.isFocused).isTrue() }
-        }
+        // Assert.
+        rule.runOnIdle { assertThat(second.isFocused).isTrue() }
     }
 
     @Test
     fun previousEscapesRecyclerView() {
+        // Arrange.
         val view = rule.runOnUiThread { MyComposeView(rule.activity, false) }
         rule.runOnIdle { rule.activity.setContentView(view) }
         rule.waitUntil { view.findViewWithTag<View>("item 0") != null }
@@ -100,18 +112,18 @@ class MixedFocusChangeTest {
             first.requestFocus()
         }
         rule.runOnIdle { assertThat(first.isFocused).isTrue() }
+
+        // Act.
         InstrumentationRegistry.getInstrumentation()
-            .sendKeySync(KeyEvent(KeyEvent.ACTION_DOWN, Key.NavigatePrevious.nativeKeyCode))
-        // TODO(b/389994198, b/391378895): Support this use case without isViewFocusFixEnabled.
-        // This landed in aosp/3451182 but depends on aosp/3417182 which is behind a flag.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (SDK_INT >= 26 || ComposeUiFlags.isViewFocusFixEnabled) {
-            rule.onNodeWithTag(clickableBoxTag).assertIsFocused()
-        }
+            .sendKeySync(KeyEvent(0L, 0L, ACTION_DOWN, Key.Tab.nativeKeyCode, 0, META_SHIFT_ON))
+
+        // Assert.
+        rule.onNodeWithTag(clickableBoxTag).assertIsFocused()
     }
 
     @Test
     fun nextEscapesReverseRecyclerView() {
+        // Arrange.
         val view = rule.runOnUiThread { MyComposeView(rule.activity, true) }
         rule.runOnIdle { rule.activity.setContentView(view) }
         rule.waitUntil { view.findViewWithTag<View>("item 0") != null }
@@ -121,14 +133,13 @@ class MixedFocusChangeTest {
             first.requestFocus()
         }
         rule.runOnIdle { assertThat(first.isFocused).isTrue() }
+
+        // Act.
         InstrumentationRegistry.getInstrumentation()
-            .sendKeySync(KeyEvent(KeyEvent.ACTION_DOWN, Key.NavigateNext.nativeKeyCode))
-        // TODO(b/389994198, b/391378895): Support this use case without isViewFocusFixEnabled.
-        // This landed in aosp/3451182 but depends on aosp/3417182 which is behind a flag.
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (SDK_INT >= 26 || ComposeUiFlags.isViewFocusFixEnabled) {
-            rule.onNodeWithTag(clickableBoxTag).assertIsFocused()
-        }
+            .sendKeySync(KeyEvent(ACTION_DOWN, Key.Tab.nativeKeyCode))
+
+        // Assert.
+        rule.onNodeWithTag(clickableBoxTag).assertIsFocused()
     }
 
     class MyComposeView(context: Context, val reverse: Boolean) : AbstractComposeView(context) {

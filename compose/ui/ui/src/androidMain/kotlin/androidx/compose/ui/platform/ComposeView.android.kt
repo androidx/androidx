@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
@@ -167,6 +169,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             field = value
             getChildAt(0)?.let { (it as Owner).showLayoutBounds = value }
         }
+
+    /**
+     * Indicates whether a pointer down within this view should automatically clear focus, even for
+     * components that remain focusable in touch mode.
+     *
+     * This property should be set prior to first composition.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    var isClearFocusOnPointerDownEnabled = ComposeUiFlags.isClearFocusOnPointerDownEnabled
 
     /**
      * The Jetpack Compose UI content for this view. Subclasses must implement this method to

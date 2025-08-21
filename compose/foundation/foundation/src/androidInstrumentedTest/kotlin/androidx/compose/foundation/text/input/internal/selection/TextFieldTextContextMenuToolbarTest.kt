@@ -298,7 +298,6 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
             assertTextToolbarShown()
         }
 
-    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun toolbarFollowsTheCursor_whenTextFieldIsScrolled() =
         runTest(textFieldState = TextFieldState("Hello ".repeat(20)), singleLine = true) {

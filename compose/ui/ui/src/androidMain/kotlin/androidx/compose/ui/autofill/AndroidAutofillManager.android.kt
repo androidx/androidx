@@ -75,6 +75,24 @@ internal class AndroidAutofillManager(
         platformAutofillManager.cancel()
     }
 
+    override fun onSemanticsAdded(semanticsInfo: SemanticsInfo) {
+        onSemanticsChanged(semanticsInfo, null)
+    }
+
+    override fun onSemanticsRemoved(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    ) {
+        onSemanticsChanged(semanticsInfo, previousSemanticsConfiguration)
+    }
+
+    override fun onSemanticsDeactivated(
+        semanticsInfo: SemanticsInfo,
+        previousSemanticsConfiguration: SemanticsConfiguration?,
+    ) {
+        // TODO: figure out a way to merge onSemanticsRemoved and onSemanticsDeactivated
+    }
+
     override fun onFocusChanged(
         previous: FocusTargetModifierNode?,
         current: FocusTargetModifierNode?,

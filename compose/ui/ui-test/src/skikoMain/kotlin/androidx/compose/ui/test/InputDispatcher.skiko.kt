@@ -210,6 +210,20 @@ internal class SkikoInputDispatcher(
         }
     }
 
+    override fun MouseInputState.enqueueScroll(offset: Offset) {
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.Scroll,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+                scrollDelta = offset
+            )
+        }
+    }
+
     override fun KeyInputState.enqueueDown(key: Key) {
         enqueue(currentTime) {
             root.sendKeyEvent(KeyEvent(

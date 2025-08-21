@@ -108,6 +108,15 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("")
     }
 
+    @Test // b/416075680
+    fun getTextBeforeAndAfterCursorTest_overflow() {
+        // Set "Hello, World", and place the cursor at the beginning of the text.
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+
+        assertThat(ic.getTextBeforeCursor(Int.MAX_VALUE, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(Int.MAX_VALUE, 0)).isEqualTo("Hello, World")
+    }
+
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.

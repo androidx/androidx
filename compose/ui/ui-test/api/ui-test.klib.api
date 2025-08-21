@@ -105,6 +105,7 @@ abstract interface androidx.compose.ui.test/MouseInjectionScope : androidx.compo
     abstract fun scroll(kotlin/Float, androidx.compose.ui.test/ScrollWheel = ...) // androidx.compose.ui.test/MouseInjectionScope.scroll|scroll(kotlin.Float;androidx.compose.ui.test.ScrollWheel){}[0]
     abstract fun updatePointerTo(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/MouseInjectionScope.updatePointerTo|updatePointerTo(androidx.compose.ui.geometry.Offset){}[0]
     open fun moveBy(androidx.compose.ui.geometry/Offset, kotlin/Long = ...) // androidx.compose.ui.test/MouseInjectionScope.moveBy|moveBy(androidx.compose.ui.geometry.Offset;kotlin.Long){}[0]
+    open fun scroll(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/MouseInjectionScope.scroll|scroll(androidx.compose.ui.geometry.Offset){}[0]
     open fun updatePointerBy(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.test/MouseInjectionScope.updatePointerBy|updatePointerBy(androidx.compose.ui.geometry.Offset){}[0]
 }
 

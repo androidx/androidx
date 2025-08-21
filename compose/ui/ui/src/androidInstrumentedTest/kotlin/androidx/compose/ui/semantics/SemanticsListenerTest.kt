@@ -21,6 +21,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -96,7 +97,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Text(text = "text")
         }
@@ -114,7 +118,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -140,7 +147,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -166,7 +176,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -202,7 +215,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -238,7 +254,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(modifier = Modifier.semantics { this.text = text }.testTag("item"))
         }
@@ -266,7 +285,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -303,7 +325,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Box(
                 modifier =
@@ -337,7 +362,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Text(text = text, modifier = Modifier.testTag("item"))
         }
@@ -365,7 +393,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         rule.setTestContent(
             onSemanticsChange = { info, prev ->
                 events.add(Event(info.semanticsId, prev?.Text, info.semanticsConfiguration?.Text))
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Text(text = text, modifier = Modifier.testTag("item"))
         }
@@ -403,7 +434,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
                         info.semanticsConfiguration?.EditableText,
                     )
                 )
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             TextField(
                 value = text,
@@ -440,7 +474,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
                         info.semanticsConfiguration?.getOrNull(SemanticsProperties.Focused),
                     )
                 )
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Column {
                 Box(Modifier.testTag("item1").size(100.dp).focusable())
@@ -482,7 +519,10 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
                         info.semanticsConfiguration?.getOrNull(SemanticsProperties.Focused),
                     )
                 )
-            }
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
         ) {
             Column {
                 FocusableBox(Modifier.testTag("item1"))
@@ -511,6 +551,86 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         }
     }
 
+    @Test
+    fun checkStatus_attachNode() {
+        // Arrange.
+        var appeared by mutableStateOf(false)
+        val events = mutableListOf<Event<String>>()
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                // No op
+            },
+            onSemanticsAdded = { info -> events.add(Event(info.semanticsId, null, null)) },
+            onSemanticsRemoved = null,
+            onSemanticsDeactivated = null,
+        ) {
+            Row(Modifier.size(100.dp).semantics { testTag = "row" }) {
+                if (appeared) {
+                    Box(Modifier.size(10.dp).semantics { testTag = "box1" })
+                }
+            }
+        }
+
+        // Act.
+        rule.runOnIdle { appeared = true }
+
+        val boxId = rule.onNodeWithTag("box1").semanticsId()
+
+        // Assert.
+        rule.runOnIdle {
+            if (
+                @OptIn(ExperimentalComposeUiApi::class)
+                ComposeUiFlags.isContentCaptureOptimizationEnabled && isSemanticAutofillEnabled
+            ) {
+                assertThat(events)
+                    .isExactly(Event(boxId, prevSemantics = null, newSemantics = null))
+            } else {
+                assertThat(events).isEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun checkStatus_detachNode() {
+        // Arrange.
+        var appeared by mutableStateOf(true)
+        val events = mutableListOf<Event<String>>()
+        rule.setTestContent(
+            onSemanticsChange = { info, prev ->
+                // No op
+            },
+            onSemanticsAdded = null,
+            onSemanticsRemoved = { info, prevConfig ->
+                events.add(Event(info.semanticsId, null, null))
+            },
+            onSemanticsDeactivated = null,
+        ) {
+            Row(Modifier.size(100.dp).semantics { testTag = "row" }) {
+                if (appeared) {
+                    Box(Modifier.size(10.dp).semantics { testTag = "box1" })
+                }
+            }
+        }
+
+        val boxId = rule.onNodeWithTag("box1").semanticsId()
+
+        // Act.
+        rule.runOnIdle { appeared = false }
+
+        // Assert.
+        rule.runOnIdle {
+            if (
+                @OptIn(ExperimentalComposeUiApi::class)
+                ComposeUiFlags.isContentCaptureOptimizationEnabled && isSemanticAutofillEnabled
+            ) {
+                assertThat(events)
+                    .isExactly(Event(boxId, prevSemantics = null, newSemantics = null))
+            } else {
+                assertThat(events).isEmpty()
+            }
+        }
+    }
+
     private val SemanticsConfiguration.Text
         get() = getOrNull(SemanticsProperties.Text)?.fastJoinToString()
 
@@ -519,6 +639,9 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
 
     private fun ComposeContentTestRule.setTestContent(
         onSemanticsChange: (SemanticsInfo, SemanticsConfiguration?) -> Unit,
+        onSemanticsAdded: ((SemanticsInfo) -> Unit)?,
+        onSemanticsRemoved: ((SemanticsInfo, SemanticsConfiguration?) -> Unit)?,
+        onSemanticsDeactivated: ((SemanticsInfo, SemanticsConfiguration?) -> Unit)?,
         composable: @Composable () -> Unit,
     ) {
         val semanticsListener =
@@ -528,6 +651,30 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
                     previousSemanticsConfiguration: SemanticsConfiguration?,
                 ) {
                     onSemanticsChange(semanticsInfo, previousSemanticsConfiguration)
+                }
+
+                override fun onSemanticsAdded(semanticsInfo: SemanticsInfo) {
+                    if (onSemanticsAdded != null) {
+                        onSemanticsAdded(semanticsInfo)
+                    }
+                }
+
+                override fun onSemanticsRemoved(
+                    semanticsInfo: SemanticsInfo,
+                    previousSemanticsConfiguration: SemanticsConfiguration?,
+                ) {
+                    if (onSemanticsRemoved != null) {
+                        onSemanticsRemoved(semanticsInfo, previousSemanticsConfiguration)
+                    }
+                }
+
+                override fun onSemanticsDeactivated(
+                    semanticsInfo: SemanticsInfo,
+                    previousSemanticsConfiguration: SemanticsConfiguration?,
+                ) {
+                    if (onSemanticsDeactivated != null) {
+                        onSemanticsDeactivated(semanticsInfo, previousSemanticsConfiguration)
+                    }
                 }
             }
         setContent {

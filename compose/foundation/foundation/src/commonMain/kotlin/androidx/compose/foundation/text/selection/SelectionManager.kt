@@ -23,6 +23,8 @@ import androidx.collection.mutableLongIntMapOf
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.contextmenu.ContextMenuScope
+import androidx.compose.foundation.contextmenu.ContextMenuState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitAllPointersUpWithSlopDetection
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -31,10 +33,13 @@ import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.TextContextMenuItems
+import androidx.compose.foundation.text.TextContextMenuItems.*
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.foundation.text.TextItem
 import androidx.compose.foundation.text.contextmenu.modifier.ToolbarRequester
 import androidx.compose.foundation.text.contextmenu.modifier.ToolbarRequesterImpl
-import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuGestures
+import androidx.compose.foundation.text.contextmenu.modifier.showTextContextMenuOnSecondaryClick
 import androidx.compose.foundation.text.contextmenu.modifier.textContextMenuToolbarHandler
 import androidx.compose.foundation.text.contextmenu.modifier.translateRootToDestination
 import androidx.compose.foundation.text.input.internal.coerceIn
@@ -177,7 +182,15 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
     val contextMenuAreaModifier
         get() =
-            Modifier.textContextMenuGestures { notifyPlatformSelectionBehaviorsOnShowContextMenu() }
+            Modifier.showTextContextMenuOnSecondaryClick { clickLocation ->
+                    getContextTextAndSelection()?.let { (text, selection) ->
+                        platformSelectionBehaviors?.onShowContextMenu(
+                            text = text,
+                            selection = selection,
+                            secondaryClickLocation = clickLocation,
+                        )
+                    }
+                }
                 .textContextMenuToolbarHandler(
                     requester = toolbarRequester,
                     computeContentBounds = { destinationCoordinates ->
@@ -190,7 +203,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                             destinationCoordinates = destinationCoordinates,
                         )
                     },
-                    onShow = { notifyPlatformSelectionBehaviorsOnShowContextMenu() },
+                    onShow = {
+                        getContextTextAndSelection()?.let { (text, selection) ->
+                            platformSelectionBehaviors?.onShowSelectionToolbar(text, selection)
+                        }
+                    },
                 )
 
     private var previousPosition: Offset? = null
@@ -400,11 +417,6 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 updateSelectionToolbar()
             }
         }
-    }
-
-    private suspend fun notifyPlatformSelectionBehaviorsOnShowContextMenu() {
-        val (text, selection) = getContextTextAndSelection() ?: return
-        platformSelectionBehaviors?.onShowContextMenu(text = text, selection = selection)
     }
 
     private fun suggestSelectionForLongPressOrDoubleClick() {
@@ -1184,6 +1196,19 @@ internal expect fun Modifier.selectionMagnifier(manager: SelectionManager): Modi
 internal expect fun Modifier.addSelectionContainerTextContextMenuComponents(
     selectionManager: SelectionManager
 ): Modifier
+
+internal fun SelectionManager.contextMenuBuilder(
+    state: ContextMenuState
+): ContextMenuScope.() -> Unit = {
+    fun selectionItem(label: TextContextMenuItems, enabled: Boolean, operation: () -> Unit) {
+        TextItem(state, label, enabled, operation)
+    }
+
+    listOf(
+        selectionItem(Copy, enabled = isNonEmptySelection()) { copy() },
+        selectionItem(SelectAll, enabled = !isEntireContainerSelected()) { selectAll() },
+    )
+}
 
 private val invertedInfiniteRect =
     Rect(

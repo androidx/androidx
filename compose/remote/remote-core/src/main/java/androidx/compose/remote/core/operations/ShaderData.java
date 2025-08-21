@@ -46,6 +46,7 @@ import java.util.List;
 public class ShaderData extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.DATA_SHADER;
     private static final String CLASS_NAME = "ShaderData";
+    private static final int MAX_FLOAT_LEN = 200;
     int mShaderTextId; // the actual text of a shader
     int mShaderID; // allows shaders to be referenced by number
     @Nullable HashMap<String, float[]> mUniformRawFloatMap = null;
@@ -306,6 +307,9 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             for (int i = 0; i < floatMapSize; i++) {
                 String name = buffer.readUTF8();
                 int len = buffer.readInt();
+                if (len > MAX_FLOAT_LEN) {
+                    throw new RuntimeException("Float array too long");
+                }
                 float[] val = new float[len];
 
                 for (int j = 0; j < len; j++) {
@@ -323,6 +327,9 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             for (int i = 0; i < intMapSize; i++) {
                 String name = buffer.readUTF8();
                 int len = buffer.readInt();
+                if (len > MAX_FLOAT_LEN) {
+                    throw new RuntimeException("int array too long");
+                }
                 int[] val = new int[len];
                 for (int j = 0; j < len; j++) {
                     val[j] = buffer.readInt();

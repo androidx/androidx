@@ -33,24 +33,24 @@ sealed interface PaneAdaptedValue {
     }
 
     /**
-     * Indicates that the associated pane should be reflowed to its [targetPane], i.e., it will be
+     * Indicates that the associated pane should be reflowed to its [reflowUnder], i.e., it will be
      * displayed under the target pane.
      *
-     * @param targetPane the target pane of the reflowing, i.e., the pane that the reflowed pane
+     * @param reflowUnder the target pane of the reflowing, i.e., the pane that the reflowed pane
      *   will be put under.
      */
     @Immutable
-    class Reflowed(val targetPane: Any) : PaneAdaptedValue {
-        override fun toString() = "PaneAdaptedValue[Reflowed to $targetPane]"
+    class Reflowed(val reflowUnder: PaneScaffoldRole) : PaneAdaptedValue {
+        override fun toString() = "PaneAdaptedValue[Reflowed to $reflowUnder]"
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Reflowed) return false
-            return targetPane == other.targetPane
+            return reflowUnder == other.reflowUnder
         }
 
         override fun hashCode(): Int {
-            return targetPane.hashCode()
+            return reflowUnder.hashCode()
         }
     }
 

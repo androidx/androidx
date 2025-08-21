@@ -18,7 +18,6 @@ package androidx.compose.ui.text
 
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.os.Build
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
@@ -1314,7 +1313,6 @@ class AndroidParagraphTest {
     }
 
     // Experimentally verified that start ellipsis doesn't work same way on API 22
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testEllipsis_withMaxLinesOne_doesStartEllipsis() {
         with(defaultDensity) {
@@ -1336,8 +1334,6 @@ class AndroidParagraphTest {
         }
     }
 
-    // Experimentally verified that middle ellipsis doesn't work same way on API 21
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testEllipsis_withMaxLinesOne_doesMiddleEllipsis() {
         with(defaultDensity) {

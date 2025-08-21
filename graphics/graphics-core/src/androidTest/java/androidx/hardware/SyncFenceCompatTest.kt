@@ -19,7 +19,6 @@ package androidx.hardware
 import android.opengl.EGL14
 import android.opengl.GLES20
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EGLConfigAttributes
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
@@ -36,7 +35,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SyncFenceCompatTest {
     @Test
     fun testSyncFenceCompat_Create() {

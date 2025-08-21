@@ -48,7 +48,7 @@ internal class FrontBufferUtils private constructor() {
         fun configureFrontBufferLayerFrameRate(
             frontBufferSurfaceControl: SurfaceControlCompat,
             frameRate: Float = 1000f,
-            transaction: SurfaceControlCompat.Transaction? = null
+            transaction: SurfaceControlCompat.Transaction? = null,
         ): SurfaceControlCompat.Transaction? {
             var targetTransaction: SurfaceControlCompat.Transaction? = transaction
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -59,7 +59,7 @@ internal class FrontBufferUtils private constructor() {
                     frontBufferSurfaceControl,
                     frameRate,
                     SurfaceControlCompat.FRAME_RATE_COMPATIBILITY_DEFAULT,
-                    SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                    SurfaceControlCompat.CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS,
                 )
             }
             return targetTransaction
@@ -91,7 +91,7 @@ internal class UsageFlagsVerificationHelper private constructor() {
                 1, // height
                 HardwareBuffer.RGBA_8888, // format
                 1, // layers
-                FrontBufferUtils.BaseFlags or flag
+                FrontBufferUtils.BaseFlags or flag,
             )
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)

@@ -56,7 +56,7 @@ public class FloatFunctionCall extends PaintOperation implements VariableSupport
      * @param id The function to call
      * @param args the arguments to call it with
      */
-    public FloatFunctionCall(int id, float[] args) {
+    public FloatFunctionCall(int id, float @Nullable [] args) {
         mId = id;
         mArgs = args;
         if (args != null) {

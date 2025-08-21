@@ -1267,7 +1267,6 @@ class AndroidGraphicsLayerTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testCompositingStrategyModulateAlpha() {
         var layer: GraphicsLayer?

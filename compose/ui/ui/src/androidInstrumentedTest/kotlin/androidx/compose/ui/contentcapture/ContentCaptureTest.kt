@@ -38,10 +38,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearTextSubstitution
@@ -88,14 +89,16 @@ import org.mockito.kotlin.whenever
 @MediumTest
 @SdkSuppress(minSdkVersion = 31)
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalComposeUiApi::class)
 class ContentCaptureTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val tag = "tag"
     private lateinit var androidComposeView: AndroidComposeView
-    private lateinit var contentCaptureSessionCompat: ContentCaptureSessionCompat
+    private lateinit var contentCaptureSessionWrapper: ContentCaptureSessionWrapper
     private lateinit var viewStructureCompat: ViewStructureCompat
     private val contentCaptureEventLoopIntervalMs = 100L
+    private val optimizationEnabled = ComposeUiFlags.isContentCaptureOptimizationEnabled
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
@@ -107,13 +110,18 @@ class ContentCaptureTest {
 
         // Assert = verify the root node appeared.
         rule.runOnIdle {
-            verify(contentCaptureSessionCompat).newVirtualViewStructure(any(), any())
-            verify(contentCaptureSessionCompat).notifyViewAppeared(any())
-            verify(contentCaptureSessionCompat).flush()
-            verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
-            verify(viewStructureCompat, times(1)).extras
-            verify(viewStructureCompat).toViewStructure()
-            verifyNoMoreInteractions(contentCaptureSessionCompat)
+            if (!optimizationEnabled) {
+                // since there is no content, we don't expect to see notifyContentCaptureChanges()
+                // is called
+                verify(contentCaptureSessionWrapper).newVirtualViewStructure(any(), any())
+                verify(contentCaptureSessionWrapper).notifyViewAppeared(any())
+                verify(contentCaptureSessionWrapper).flush()
+                verify(viewStructureCompat).setDimens(any(), any(), any(), any(), any(), any())
+                verify(viewStructureCompat, times(1)).extras
+                verify(viewStructureCompat).toViewStructure()
+            }
+
+            verifyNoMoreInteractions(contentCaptureSessionWrapper)
             verifyNoMoreInteractions(viewStructureCompat)
         }
     }
@@ -129,10 +137,10 @@ class ContentCaptureTest {
             androidComposeView.doOnDetach {
 
                 // Assert.
-                verify(contentCaptureSessionCompat).newAutofillId(any())
-                verify(contentCaptureSessionCompat).notifyViewDisappeared(any())
-                verify(contentCaptureSessionCompat).flush()
-                verifyNoMoreInteractions(contentCaptureSessionCompat)
+                verify(contentCaptureSessionWrapper).newAutofillId(any())
+                verify(contentCaptureSessionWrapper).notifyViewDisappeared(any())
+                verify(contentCaptureSessionWrapper).flush()
+                verifyNoMoreInteractions(contentCaptureSessionWrapper)
                 verifyNoMoreInteractions(viewStructureCompat)
             }
         }
@@ -143,7 +151,10 @@ class ContentCaptureTest {
     fun testSendContentCaptureSemanticsStructureChangeEvents_appeared() {
         // Arrange.
         var appeared by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
+
         rule.setContentWithContentCaptureEnabled {
             Row(Modifier.size(100.dp).semantics {}) {
                 if (appeared) {
@@ -166,9 +177,11 @@ class ContentCaptureTest {
         rule.runOnIdle { appeared = true }
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
         //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         // Assert.
@@ -185,8 +198,8 @@ class ContentCaptureTest {
                 verify(viewStructureCompat, times(1)).setId(anyInt(), isNull(), isNull(), capture())
                 assertThat(firstValue).isEqualTo("testTagFoo")
             }
-            verify(contentCaptureSessionCompat, times(0)).notifyViewsDisappeared(any())
-            verify(contentCaptureSessionCompat, times(2)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, times(0)).notifyViewsDisappeared(any())
+            verify(contentCaptureSessionWrapper, times(2)).notifyViewAppeared(any())
         }
     }
 
@@ -196,7 +209,9 @@ class ContentCaptureTest {
         // Arrange.
         var disappeared by mutableStateOf(false)
 
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             if (!disappeared) {
                 Row(Modifier.size(100.dp).semantics {}) {
@@ -211,15 +226,18 @@ class ContentCaptureTest {
 
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
         //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         // Assert.
         rule.runOnIdle {
-            verify(contentCaptureSessionCompat, times(3)).notifyViewDisappeared(any())
-            verify(contentCaptureSessionCompat, times(0)).notifyViewsAppeared(any())
+            verify(contentCaptureSessionWrapper, times(3)).notifyViewDisappeared(any())
+            verify(contentCaptureSessionWrapper, times(0)).notifyViewsAppeared(any())
+            verify(contentCaptureSessionWrapper, times(0)).notifyViewTextChanged(any(), any())
         }
     }
 
@@ -229,7 +247,9 @@ class ContentCaptureTest {
         // Arrange.
         var appeared by mutableStateOf(false)
 
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             if (appeared) {
                 Row(Modifier.size(100.dp).semantics {}) {
@@ -248,20 +268,25 @@ class ContentCaptureTest {
         //  The mocks also limit us to write this test since we can't mock AutofillIDs since
         //  AutofillId is a final class, and these tests just use the autofill id of the parent
         //  view.
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        if (!optimizationEnabled) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        }
         rule.runOnIdle { appeared = false }
 
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for
         //  two invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         // Assert.
         rule.runOnIdle {
-            verify(contentCaptureSessionCompat, times(3)).notifyViewDisappeared(any())
-            verify(contentCaptureSessionCompat, times(3)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, times(3)).notifyViewDisappeared(any())
+            verify(contentCaptureSessionWrapper, times(3)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, times(0)).notifyViewTextChanged(any(), any())
         }
     }
 
@@ -271,7 +296,9 @@ class ContentCaptureTest {
         // Arrange.
         var appeared by mutableStateOf(false)
 
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
@@ -284,18 +311,21 @@ class ContentCaptureTest {
 
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
         //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         rule.runOnIdle {
-            verify(contentCaptureSessionCompat, times(1)).newAutofillId(any())
-            verify(contentCaptureSessionCompat, times(1)).newVirtualViewStructure(any(), any())
-            verify(contentCaptureSessionCompat, times(1)).notifyViewAppeared(any())
-            verify(contentCaptureSessionCompat, times(1)).flush()
-            verifyNoMoreInteractions(contentCaptureSessionCompat)
-            clearInvocations(contentCaptureSessionCompat)
+            verify(contentCaptureSessionWrapper, times(1)).newAutofillId(any())
+            verify(contentCaptureSessionWrapper, times(1)).newVirtualViewStructure(any(), any())
+            verify(contentCaptureSessionWrapper, times(1)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, times(0)).notifyViewTextChanged(any(), any())
+            verify(contentCaptureSessionWrapper, times(1)).flush()
+            verifyNoMoreInteractions(contentCaptureSessionWrapper)
+            clearInvocations(contentCaptureSessionWrapper)
         }
 
         // Act.
@@ -303,17 +333,19 @@ class ContentCaptureTest {
 
         // TODO(b/272068594): After refactoring this code, ensure that we don't need to wait for two
         //  invocations of boundsUpdatesEventLoop.
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         // Assert.
         rule.runOnIdle {
-            verify(contentCaptureSessionCompat, times(1)).newAutofillId(any())
-            verify(contentCaptureSessionCompat, times(1)).notifyViewDisappeared(any())
-            verify(contentCaptureSessionCompat, times(1)).flush()
-            verifyNoMoreInteractions(contentCaptureSessionCompat)
+            verify(contentCaptureSessionWrapper, times(1)).newAutofillId(any())
+            verify(contentCaptureSessionWrapper, times(1)).notifyViewDisappeared(any())
+            verify(contentCaptureSessionWrapper, times(1)).flush()
+            verifyNoMoreInteractions(contentCaptureSessionWrapper)
         }
     }
 
@@ -326,15 +358,17 @@ class ContentCaptureTest {
 
         // Act.
         rule.waitForIdle()
-        repeat(2) {
-            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-            rule.waitForIdle()
+        if (!optimizationEnabled) {
+            repeat(2) {
+                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                rule.waitForIdle()
+            }
         }
 
         // Assert
         rule.runOnIdle {
             // At least 5 times(List itself + 4 children)
-            verify(contentCaptureSessionCompat, atLeast(5)).notifyViewAppeared(any())
+            verify(contentCaptureSessionWrapper, atLeast(5)).notifyViewAppeared(any())
             with(argumentCaptor<String>()) {
                 verify(viewStructureCompat, times(5)).setClassName(capture())
                 assertThat(firstValue).isEqualTo("android.widget.ViewGroup")
@@ -365,21 +399,23 @@ class ContentCaptureTest {
                 // Perform scroll down action: text_4 appeared, text_0 disappeared
                 scope?.launch { listState?.scrollToItem(index = 1) }
             }
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
+            if (!optimizationEnabled) {
+                repeat(2) {
+                    rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                    rule.waitForIdle()
+                }
             }
 
             // Assert.
             rule.runOnIdle {
                 val viewStructures = mutableListOf<ViewStructure>()
                 with(argumentCaptor<ViewStructure>()) {
-                    verify(contentCaptureSessionCompat, times(1)).notifyViewAppeared(capture())
+                    verify(contentCaptureSessionWrapper, times(1)).notifyViewAppeared(capture())
                     viewStructures.addAll(allValues)
                 }
                 assertThat(viewStructures.size).isEqualTo(1)
                 assertAdditionalIndices(bundle1, 3)
-                verify(contentCaptureSessionCompat, times(1)).notifyViewDisappeared(any())
+                verify(contentCaptureSessionWrapper, times(1)).notifyViewDisappeared(any())
             }
         }
 
@@ -404,22 +440,24 @@ class ContentCaptureTest {
                 scope?.launch { listState?.scrollToItem(index = 2) }
             }
 
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
+            if (!optimizationEnabled) {
+                repeat(2) {
+                    rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                    rule.waitForIdle()
+                }
             }
 
             // Assert
             rule.runOnIdle {
                 val viewStructures = mutableListOf<ViewStructure>()
                 with(argumentCaptor<ViewStructure>()) {
-                    verify(contentCaptureSessionCompat, times(2)).notifyViewAppeared(capture())
+                    verify(contentCaptureSessionWrapper, times(2)).notifyViewAppeared(capture())
                     viewStructures.addAll(allValues)
                 }
                 assertThat(viewStructures.size).isEqualTo(2)
                 assertAdditionalIndices(bundle1, 2)
                 assertAdditionalIndices(bundle2, 3)
-                verify(contentCaptureSessionCompat, times(2)).notifyViewDisappeared(any())
+                verify(contentCaptureSessionWrapper, times(2)).notifyViewDisappeared(any())
             }
         }
 
@@ -444,21 +482,23 @@ class ContentCaptureTest {
                 // Perform scroll down action: text_2 appeared, text_6 disappeared
                 scope?.launch { listState?.scrollToItem(index = 2) }
             }
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
+            if (!optimizationEnabled) {
+                repeat(2) {
+                    rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                    rule.waitForIdle()
+                }
             }
 
             // Assert.
             rule.runOnIdle {
                 val viewStructures = mutableListOf<ViewStructure>()
                 with(argumentCaptor<ViewStructure>()) {
-                    verify(contentCaptureSessionCompat, times(1)).notifyViewAppeared(capture())
+                    verify(contentCaptureSessionWrapper, times(1)).notifyViewAppeared(capture())
                     viewStructures.addAll(allValues)
                 }
                 assertThat(viewStructures.size).isEqualTo(1)
                 assertAdditionalIndices(bundle1, 0)
-                verify(contentCaptureSessionCompat, times(1)).notifyViewDisappeared(any())
+                verify(contentCaptureSessionWrapper, times(1)).notifyViewDisappeared(any())
             }
         }
 
@@ -483,22 +523,24 @@ class ContentCaptureTest {
                 scope?.launch { listState?.scrollToItem(index = 1) }
             }
 
-            repeat(2) {
-                rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
-                rule.waitForIdle()
+            if (!optimizationEnabled) {
+                repeat(2) {
+                    rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+                    rule.waitForIdle()
+                }
             }
 
             // Assert
             rule.runOnIdle {
                 val viewStructures = mutableListOf<ViewStructure>()
                 with(argumentCaptor<ViewStructure>()) {
-                    verify(contentCaptureSessionCompat, times(2)).notifyViewAppeared(capture())
+                    verify(contentCaptureSessionWrapper, times(2)).notifyViewAppeared(capture())
                     viewStructures.addAll(allValues)
                 }
                 assertThat(viewStructures.size).isEqualTo(2)
                 assertAdditionalIndices(bundle1, 0)
                 assertAdditionalIndices(bundle2, 1)
-                verify(contentCaptureSessionCompat, times(2)).notifyViewDisappeared(any())
+                verify(contentCaptureSessionWrapper, times(2)).notifyViewDisappeared(any())
             }
         }
 
@@ -509,7 +551,9 @@ class ContentCaptureTest {
         var appeared by mutableStateOf(false)
         var result = true
 
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
@@ -530,7 +574,10 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = true }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+
+        if (!optimizationEnabled) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        }
 
         // Assert.
         rule.runOnIdle { assertThat(result).isFalse() }
@@ -543,7 +590,9 @@ class ContentCaptureTest {
         var appeared by mutableStateOf(false)
         var result = false
 
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
@@ -564,7 +613,9 @@ class ContentCaptureTest {
 
         // Act.
         rule.runOnIdle { appeared = true }
-        rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        if (!optimizationEnabled) {
+            rule.mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs)
+        }
 
         // Assert.
         rule.runOnIdle { assertThat(result).isTrue() }
@@ -574,7 +625,9 @@ class ContentCaptureTest {
     @SdkSuppress(minSdkVersion = 31)
     fun testOnCreateVirtualViewTranslationRequests() {
         // Arrange.
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
@@ -624,7 +677,9 @@ class ContentCaptureTest {
     fun testOnVirtualViewTranslationResponses() {
         // Arrange.
         var result: AnnotatedString? = null
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
@@ -667,7 +722,9 @@ class ContentCaptureTest {
     fun testOnShowTranslation() {
         // Arrange.
         var result = false
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
@@ -695,7 +752,9 @@ class ContentCaptureTest {
     fun testOnHideTranslation() {
         // Arrange.
         var result = true
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
@@ -723,7 +782,9 @@ class ContentCaptureTest {
     fun testOnClearTranslation() {
         // Arrange.
         var result = false
-        rule.mainClock.autoAdvance = false
+        if (!optimizationEnabled) {
+            rule.mainClock.autoAdvance = false
+        }
         rule.setContentWithContentCaptureEnabled {
             Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
@@ -750,11 +811,11 @@ class ContentCaptureTest {
         retainInteractionsDuringInitialization: Boolean = false,
         content: @Composable () -> Unit,
     ) {
-        contentCaptureSessionCompat = mock()
+        contentCaptureSessionWrapper = mock()
         viewStructureCompat = mock()
         val viewStructure: ViewStructure = mock()
 
-        whenever(contentCaptureSessionCompat.newVirtualViewStructure(any(), any()))
+        whenever(contentCaptureSessionWrapper.newVirtualViewStructure(any(), any()))
             .thenReturn(viewStructureCompat)
         whenever(viewStructureCompat.toViewStructure()).thenReturn(viewStructure)
 
@@ -764,10 +825,10 @@ class ContentCaptureTest {
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
             androidComposeView.contentCaptureManager.onContentCaptureSession = {
-                contentCaptureSessionCompat
+                contentCaptureSessionWrapper
             }
 
-            whenever(contentCaptureSessionCompat.newAutofillId(any())).thenAnswer {
+            whenever(contentCaptureSessionWrapper.newAutofillId(any())).thenAnswer {
                 androidComposeView.autofillId
             }
 
@@ -776,11 +837,13 @@ class ContentCaptureTest {
 
         // Advance the clock past the first accessibility event loop, and clear the initial
         // as we are want the assertions to check the events that were generated later.
-        runOnIdle { mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs) }
+        if (!optimizationEnabled) {
+            runOnIdle { mainClock.advanceTimeBy(contentCaptureEventLoopIntervalMs) }
+        }
 
         runOnIdle {
             if (!retainInteractionsDuringInitialization) {
-                clearInvocations(contentCaptureSessionCompat, viewStructureCompat)
+                clearInvocations(contentCaptureSessionWrapper, viewStructureCompat)
             }
         }
     }

@@ -21,14 +21,14 @@ import androidx.annotation.RestrictTo
 /**
  * The attributes to describe how an overlay container should look like.
  *
- * @constructor creates an overlay attributes.
  * @property bounds The overlay container's [EmbeddingBounds], which defaults to
  *   [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
+ * @constructor creates an overlay attributes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class OverlayAttributes
+public class OverlayAttributes
 @JvmOverloads
-constructor(val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {
+constructor(public val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {
 
     override fun toString(): String =
         "${OverlayAttributes::class.java.simpleName}: {" + "bounds=$bounds" + "}"
@@ -42,7 +42,7 @@ constructor(val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {
     override fun hashCode(): Int = bounds.hashCode()
 
     /** The [OverlayAttributes] builder. */
-    class Builder {
+    public class Builder {
 
         private var bounds = EmbeddingBounds.BOUNDS_EXPANDED
 
@@ -53,9 +53,9 @@ constructor(val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {
          * @param bounds The [EmbeddingBounds] of the overlay [ActivityStack].
          * @return The [OverlayAttributes] builder.
          */
-        fun setBounds(bounds: EmbeddingBounds): Builder = apply { this.bounds = bounds }
+        public fun setBounds(bounds: EmbeddingBounds): Builder = apply { this.bounds = bounds }
 
         /** Builds [OverlayAttributes]. */
-        fun build(): OverlayAttributes = OverlayAttributes(bounds)
+        public fun build(): OverlayAttributes = OverlayAttributes(bounds)
     }
 }
