@@ -252,8 +252,7 @@ interface ComposeContentTestRule : ComposeTestRule {
      *
      * @throws IllegalStateException if called more than once per test.
      */
-    @UiComposable
-    fun setContent(composable: @Composable () -> Unit)
+    fun setContent(composable: @Composable @UiComposable () -> Unit)
 }
 
 /**
