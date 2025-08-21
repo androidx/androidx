@@ -86,6 +86,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastForEach
+import kotlin.js.JsName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -954,6 +955,7 @@ public interface SharedTransitionScope : LookaheadScope {
      *
      * @see SharedContentConfig
      */
+    @JsName("makeSharedContentConfig")
     public fun SharedContentConfig(): SharedContentConfig {
         return CachedSharedContentConfig
     }
