@@ -353,6 +353,7 @@ public final class androidx/compose/foundation/layout/WindowInsetsSizeKt {
 
 public final class androidx/compose/foundation/layout/WindowInsets_notMobileKt {
 	public static final fun getCaptionBar (Landroidx/compose/foundation/layout/WindowInsets$Companion;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/WindowInsets;
+	public static final fun getCutoutPath (Landroidx/compose/foundation/layout/WindowInsets$Companion;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Path;
 	public static final fun getDisplayCutout (Landroidx/compose/foundation/layout/WindowInsets$Companion;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/WindowInsets;
 	public static final fun getIme (Landroidx/compose/foundation/layout/WindowInsets$Companion;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/WindowInsets;
 	public static final fun getMandatorySystemGestures (Landroidx/compose/foundation/layout/WindowInsets$Companion;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/layout/WindowInsets;

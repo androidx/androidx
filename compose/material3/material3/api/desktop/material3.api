@@ -2131,12 +2131,13 @@ public final class androidx/compose/material3/pulltorefresh/PullToRefreshDefault
 	public static final field INSTANCE Landroidx/compose/material3/pulltorefresh/PullToRefreshDefaults;
 	public final fun Indicator-2poqoh4 (Landroidx/compose/material3/pulltorefresh/PullToRefreshState;ZLandroidx/compose/ui/Modifier;JJFLandroidx/compose/runtime/Composer;II)V
 	public final fun IndicatorBox-1CPYgEU (Landroidx/compose/material3/pulltorefresh/PullToRefreshState;ZLandroidx/compose/ui/Modifier;FLandroidx/compose/ui/graphics/Shape;JFLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public final fun getContainerColor (Landroidx/compose/runtime/Composer;I)J
 	public final fun getElevation-D9Ej5fM ()F
 	public final fun getIndicatorColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getIndicatorContainerColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getIndicatorMaxDistance-D9Ej5fM ()F
+	public final fun getIndicatorShape ()Landroidx/compose/ui/graphics/Shape;
 	public final fun getLoadingIndicatorElevation-D9Ej5fM ()F
 	public final fun getPositionalThreshold-D9Ej5fM ()F
-	public final fun getShape ()Landroidx/compose/ui/graphics/Shape;
 }
 
 public final class androidx/compose/material3/pulltorefresh/PullToRefreshKt {

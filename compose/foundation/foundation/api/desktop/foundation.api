@@ -378,11 +378,11 @@ public final class androidx/compose/foundation/content/TransferableContent$Sourc
 	public final fun getKeyboard-kB6V9T0 ()I
 }
 
-public final class androidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUi_skikoKt {
-	public static final field INSTANCE Landroidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUi_skikoKt;
+public final class androidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUiKt {
+	public static final field INSTANCE Landroidx/compose/foundation/contextmenu/ComposableSingletons$ContextMenuUiKt;
 	public fun <init> ()V
-	public final fun getLambda$-1846138604$foundation ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$-417510039$foundation ()Lkotlin/jvm/functions/Function8;
+	public final fun getLambda$-1455401925$foundation ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1571120048$foundation ()Lkotlin/jvm/functions/Function8;
 }
 
 public final class androidx/compose/foundation/draganddrop/DragAndDropSourceKt {
@@ -1622,6 +1622,7 @@ public final class androidx/compose/foundation/shape/AbsoluteCutCornerShape : an
 	public fun createOutline-LjSzlW0 (JFFFFLandroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/graphics/Outline;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1646,6 +1647,7 @@ public final class androidx/compose/foundation/shape/AbsoluteRoundedCornerShape 
 	public fun createOutline-LjSzlW0 (JFFFFLandroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/graphics/Outline;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1662,7 +1664,7 @@ public final class androidx/compose/foundation/shape/AbsoluteRoundedCornerShapeK
 	public static synthetic fun AbsoluteRoundedCornerShape-a9UjIt4$default (FFFFILjava/lang/Object;)Landroidx/compose/foundation/shape/AbsoluteRoundedCornerShape;
 }
 
-public abstract class androidx/compose/foundation/shape/CornerBasedShape : androidx/compose/ui/graphics/Shape {
+public abstract class androidx/compose/foundation/shape/CornerBasedShape : androidx/compose/ui/graphics/Interpolatable, androidx/compose/ui/graphics/Shape {
 	public static final field $stable I
 	public fun <init> (Landroidx/compose/foundation/shape/CornerSize;Landroidx/compose/foundation/shape/CornerSize;Landroidx/compose/foundation/shape/CornerSize;Landroidx/compose/foundation/shape/CornerSize;)V
 	public final fun copy (Landroidx/compose/foundation/shape/CornerSize;)Landroidx/compose/foundation/shape/CornerBasedShape;
@@ -1674,6 +1676,7 @@ public abstract class androidx/compose/foundation/shape/CornerBasedShape : andro
 	public final fun getBottomStart ()Landroidx/compose/foundation/shape/CornerSize;
 	public final fun getTopEnd ()Landroidx/compose/foundation/shape/CornerSize;
 	public final fun getTopStart ()Landroidx/compose/foundation/shape/CornerSize;
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 }
 
 public abstract interface class androidx/compose/foundation/shape/CornerSize {
@@ -1695,6 +1698,7 @@ public final class androidx/compose/foundation/shape/CutCornerShape : androidx/c
 	public fun createOutline-LjSzlW0 (JFFFFLandroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/graphics/Outline;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1727,6 +1731,7 @@ public final class androidx/compose/foundation/shape/RoundedCornerShape : androi
 	public fun createOutline-LjSzlW0 (JFFFFLandroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/graphics/Outline;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
+	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1745,6 +1750,7 @@ public final class androidx/compose/foundation/shape/RoundedCornerShapeKt {
 }
 
 public final class androidx/compose/foundation/text/AutofillHighlightKt {
+	public static final fun getLocalAutofillHighlightBrush ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalAutofillHighlightColor ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
