@@ -722,4 +722,57 @@ class ComponentsAccessibilitySemanticTest {
             }
         }
     }
+
+    @Test
+    fun testTextFieldLabelSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            TextField(
+                value = "",
+                onValueChange = {},
+                label = { Text("Label") },
+                placeholder = { Text("Placeholder") }
+            )
+        }
+
+        assertAccessibilityTree {
+            value = "Label"
+            isAccessibilityElement = true
+            traits(CMPAccessibilityTraitTextView)
+        }
+    }
+
+    @Test
+    fun testTextPlaceholderSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            TextField(
+                value = "",
+                onValueChange = {},
+                placeholder = { Text("Placeholder") }
+            )
+        }
+
+        assertAccessibilityTree {
+            value = "Placeholder"
+            isAccessibilityElement = true
+            traits(CMPAccessibilityTraitTextView)
+        }
+    }
+
+    @Test
+    fun testTextFieldWithValueSemantics() = runUIKitInstrumentedTest {
+        setContent {
+            TextField(
+                value = "Text",
+                onValueChange = {},
+                label = { Text("Label") },
+                placeholder = { Text("Placeholder") }
+            )
+        }
+
+        assertAccessibilityTree {
+            value = "Text"
+            isAccessibilityElement = true
+            traits(CMPAccessibilityTraitTextView)
+        }
+    }
 }

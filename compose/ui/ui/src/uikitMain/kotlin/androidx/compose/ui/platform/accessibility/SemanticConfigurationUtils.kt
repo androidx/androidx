@@ -129,20 +129,31 @@ internal fun SemanticsConfiguration.accessibilityTraits(): UIAccessibilityTraits
 }
 
 internal fun SemanticsConfiguration.accessibilityLabel(): String? {
-    val contentDescription = getOrNull(SemanticsProperties.ContentDescription)?.joinToString("\n")
+    val contentDescription = getOrNull(SemanticsProperties.ContentDescription)
+        ?.joinToString("\n")
+        ?.takeIf { it.isNotBlank() }
 
-    return if (contentDescription != null) {
-        contentDescription
+    return contentDescription ?: if (contains(SemanticsProperties.EditableText)) {
+        null
     } else {
-        val editableText = getOrNull(SemanticsProperties.EditableText)?.text
-
-        editableText ?: getOrNull(SemanticsProperties.Text)?.joinToString("\n") { it.text }
+        getOrNull(SemanticsProperties.Text)?.joinToString("\n") { it.text }
     }
 }
 
 internal fun SemanticsConfiguration.accessibilityValue(): String? {
-    getOrNull(SemanticsProperties.StateDescription)?.let {
+    getOrNull(SemanticsProperties.StateDescription)?.takeIf { it.isNotBlank() }?.let {
         return it
+    }
+
+    if (contains(SemanticsProperties.EditableText)) {
+        getOrNull(SemanticsProperties.EditableText)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { return it.text }
+
+        getOrNull(SemanticsProperties.Text)
+            ?.joinToString("\n")
+            ?.takeIf { it.isNotBlank() }
+            ?.let { return it }
     }
 
     return getOrNull(SemanticsProperties.ProgressBarRangeInfo)?.let {
