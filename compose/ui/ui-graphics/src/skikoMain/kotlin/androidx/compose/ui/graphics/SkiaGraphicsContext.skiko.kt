@@ -65,7 +65,7 @@ class SkiaGraphicsContext(
     override fun releaseGraphicsLayer(layer: GraphicsLayer) {
         if (!layer.isReleased) {
             activeGraphicsLayersCount--
-            layer.release()
         }
+        layer.release()
     }
 }
