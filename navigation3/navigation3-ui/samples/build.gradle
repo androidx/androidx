@@ -1,0 +1,70 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+dependencies {
+    compileOnly(project(":annotation:annotation-sampled"))
+
+    implementation(libs.kotlinStdlib)
+    implementation("androidx.activity:activity-compose:1.10.0")
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":compose:material3:material3"))
+    implementation(project(":compose:material3:material3-window-size-class"))
+    implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation(libs.kotlinSerializationCore)
+    implementation(project(":lifecycle:lifecycle-viewmodel-navigation3"))
+    implementation(project(":navigation3:navigation3-ui"))
+    implementation(project(":navigation3:navigation3-runtime:navigation3-runtime-samples"))
+
+}
+
+androidx {
+    name = "Navigation3 UI Samples"
+    type = SoftwareType.SAMPLES
+    inceptionYear = "2025"
+    description = "Contains the sample code for Navigation3 UI"
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
+}
+
+android {
+    compileSdk = 36
+    namespace = "androidx.navigation3.ui.samples"
+}
