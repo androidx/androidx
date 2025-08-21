@@ -16,5 +16,28 @@
 
 package androidx.compose.ui.viewinterop
 
-// TODO: Rename to InteropViewHolder: No need for typealiases and it's not a factory
-internal actual typealias InteropViewFactoryHolder = InteropViewHolder
+import androidx.compose.runtime.ComposeNodeLifecycleCallback
+
+// TODO: Rename the expect to "InteropViewHolder" (it's not a factory) and then
+//       `androidx.compose.ui.viewinterop.InteropViewHolder` can be the actual.
+internal actual open class InteropViewFactoryHolder : ComposeNodeLifecycleCallback {
+    actual open fun getInteropView(): InteropView? {
+        abstractInvocationError("fun getInteropView(): InteropView?")
+    }
+
+    actual override fun onDeactivate() {
+        abstractInvocationError("fun onDeactivate(): Unit")
+    }
+
+    actual override fun onRelease() {
+        abstractInvocationError("fun onRelease(): Unit")
+    }
+
+    actual override fun onReuse() {
+        abstractInvocationError("fun onReuse(): Unit")
+    }
+}
+
+private fun abstractInvocationError(name: String): Nothing {
+    throw NotImplementedError("Abstract `$name` must be implemented by platform-specific subclass of `InteropViewHolder`")
+}

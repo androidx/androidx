@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.viewinterop
 
-import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Modifier
@@ -26,23 +25,20 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.unit.Density
-
-private fun abstractInvocationError(name: String): Nothing {
-    throw NotImplementedError("Abstract `$name` must be implemented by platform-specific subclass of `InteropViewHolder`")
-}
+import kotlin.jvm.JvmName
 
 /**
  * A holder that keeps references to user interop view and its group (container).
- * It's an actual implementation of `expect class [InteropViewFactoryHolder]`
+ * It's the actual implementation of `expect class [InteropViewFactoryHolder]`
  *
  * @see InteropViewFactoryHolder
  */
-internal open class InteropViewHolder(
+internal abstract class InteropViewHolder(
     val container: InteropContainer,
     open val group: InteropViewGroup,
     private val compositeKeyHashCode: CompositeKeyHashCode,
     measurePolicy: MeasurePolicy
-) : ComposeNodeLifecycleCallback {
+) : InteropViewFactoryHolder() {
     private var onModifierChanged: (() -> Unit)? = null
 
     /**
@@ -158,20 +154,6 @@ internal open class InteropViewHolder(
         layoutNode
     }
 
-    override fun onReuse() = container.scheduleUpdate {
-        reset()
-    }
-
-    override fun onDeactivate() {
-        // TODO: Android calls [reset] here, but it's not clear why it's needed, because
-        //  [onReuse] will be called after [onDeactivate] if the holder is indeed reused.
-        //  discuss it with Google when this code is commonized
-    }
-
-    override fun onRelease() = container.scheduleUpdate {
-        release()
-    }
-
     fun place() {
         container.place(this)
     }
@@ -201,31 +183,43 @@ internal open class InteropViewHolder(
 
     // ===== Abstract methods to be implemented by platform-specific subclasses =====
 
-    open fun changeInteropViewIndex(root: InteropViewGroup, index: Int) {
-        abstractInvocationError("fun moveInteropViewTo(index: Int)")
-    }
+    abstract fun changeInteropViewIndex(root: InteropViewGroup, index: Int)
 
     /**
      * Dispatches the pointer event to the interop view.
      */
-    open fun dispatchToView(pointerEvent: PointerEvent) {
-        abstractInvocationError("fun dispatchToView(pointerEvent: PointerEvent)")
-    }
+    abstract fun dispatchToView(pointerEvent: PointerEvent)
 
     /**
      * Layout the interop view according to the given layout coordinates.
      */
-    open fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates) {
-        abstractInvocationError("fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates)")
-    }
+    abstract fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates)
 
     /**
-     * `expect fun` of expect class [InteropViewFactoryHolder] (aka this)
      * Returns the actual interop view instance.
      */
-    open fun getInteropView(): InteropView? {
-        abstractInvocationError("fun getInteropView(): InteropView?")
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("interopView")
+    abstract val interopView: InteropView
+
+    // ===== InteropViewFactoryHolder implementation =====
+
+    override fun onReuse() = container.scheduleUpdate {
+        reset()
     }
+
+    override fun onDeactivate() {
+        // TODO: Android calls [reset] here, but it's not clear why it's needed, because
+        //  [onReuse] will be called after [onDeactivate] if the holder is indeed reused.
+        //  discuss it with Google when this code is commonized
+    }
+
+    override fun onRelease() = container.scheduleUpdate {
+        release()
+    }
+
+    // Keep nullable to match the `expect` declaration of InteropViewFactoryHolder
+    override fun getInteropView(): InteropView? = interopView
 
     companion object {
         private val DispatchUpdateUsingContainerStrategy: (InteropViewHolder) -> Unit = {

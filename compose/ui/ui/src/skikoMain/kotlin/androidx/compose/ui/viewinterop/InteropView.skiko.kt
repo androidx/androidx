@@ -34,6 +34,7 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.DefaultUiApplier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import kotlin.jvm.JvmName
 
 internal val NoOp: Any.() -> Unit = {}
 
@@ -53,11 +54,9 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
     compositeKeyHashCode,
     measurePolicy
 ) {
-    val typedInteropView = factory()
-
-    override fun getInteropView(): InteropView? {
-        return typedInteropView
-    }
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @get:JvmName("interopView")
+    override val interopView: T = factory()
 
     /**
      * A block containing the update logic for [T], to be forwarded to user.
@@ -67,7 +66,7 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
     var updateBlock: (T) -> Unit = NoOp
         set(value) {
             field = value
-            update = { typedInteropView.apply(updateBlock) }
+            update = { interopView.apply(updateBlock) }
         }
 
     /**
@@ -78,7 +77,7 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
     var resetBlock: (T) -> Unit = NoOp
         set(value) {
             field = value
-            reset = { typedInteropView.apply(resetBlock) }
+            reset = { interopView.apply(resetBlock) }
         }
 
     /**
@@ -89,7 +88,7 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
         set(value) {
             field = value
             release = {
-                typedInteropView.apply(releaseBlock)
+                interopView.apply(releaseBlock)
             }
         }
 }

@@ -56,6 +56,7 @@ internal class SwingInteropViewHolder<T : Component>(
     compositeKeyHashCode = compositeKeyHashCode,
     measurePolicy = measurePolicy
 ), ClipRectangle {
+
     private var clipBounds: IntRect? = null
 
     val focusListener = object : FocusListener {
@@ -73,7 +74,7 @@ internal class SwingInteropViewHolder<T : Component>(
     }
 
     init {
-        group.add(typedInteropView)
+        group.add(interopView)
 
         platformModifier = Modifier
             .pointerInteropFilter(this)
@@ -111,7 +112,7 @@ internal class SwingInteropViewHolder<T : Component>(
             )
 
             // The real size and position should be based on not-clipped bounds
-            typedInteropView.setBounds(
+            interopView.setBounds(
                 /* x = */ bounds.left - clippedBounds.left, // Local position relative to container
                 /* y = */ bounds.top - clippedBounds.top,
                 /* width = */ bounds.width,
@@ -173,9 +174,9 @@ internal class SwingInteropViewHolder<T : Component>(
         val point = SwingUtilities.convertPoint(
             /* source = */event.component,
             /* aPoint = */event.point,
-            /* destination = */typedInteropView
+            /* destination = */interopView
         )
-        return SwingUtilities.getDeepestComponentAt(typedInteropView, point.x, point.y)
+        return SwingUtilities.getDeepestComponentAt(interopView, point.x, point.y)
     }
 }
 

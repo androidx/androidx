@@ -56,8 +56,8 @@ internal class InteropPointerInputModifier(
 ) : PointerInputFilter(), PointerInputModifier {
     override val pointerInputFilter: PointerInputFilter = this
 
-    val interopView: InteropView?
-        get() = interopViewHolder.getInteropView()
+    val interopView: InteropView
+        get() = interopViewHolder.interopView
 
     override fun onPointerEvent(
         pointerEvent: PointerEvent,

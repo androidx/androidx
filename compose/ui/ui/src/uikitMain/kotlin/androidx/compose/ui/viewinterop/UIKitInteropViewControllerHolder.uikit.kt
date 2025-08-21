@@ -39,27 +39,27 @@ internal class UIKitInteropViewControllerHolder<T : UIViewController>(
 ) {
     init {
         // Group will be placed to hierarchy in [InteropContainer.placeInteropView]
-        group.addSubview(typedInteropView.view)
+        group.addSubview(interopView.view)
     }
 
     override var userComponentCGRect: CValue<CGRect>
-        get() = typedInteropView.view.frame
+        get() = interopView.view.frame
         set(value) {
-            typedInteropView.view.setFrame(value)
+            interopView.view.setFrame(value)
         }
 
     override fun insertInteropView(root: InteropViewGroup, index: Int) {
-        parentViewController.addChildViewController(typedInteropView)
+        parentViewController.addChildViewController(interopView)
         root.insertSubview(group, index.toLong())
-        typedInteropView.didMoveToParentViewController(parentViewController)
+        interopView.didMoveToParentViewController(parentViewController)
 
         super.insertInteropView(root, index)
     }
 
     override fun removeInteropView(root: InteropViewGroup) {
-        typedInteropView.willMoveToParentViewController(null)
+        interopView.willMoveToParentViewController(null)
         group.removeFromSuperview()
-        typedInteropView.removeFromParentViewController()
+        interopView.removeFromParentViewController()
 
         super.removeInteropView(root)
     }

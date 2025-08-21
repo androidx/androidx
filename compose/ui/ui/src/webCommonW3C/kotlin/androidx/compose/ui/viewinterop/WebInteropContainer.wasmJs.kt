@@ -31,13 +31,13 @@ internal class WebInteropContainer(
     }
 
     override fun contains(holder: InteropViewHolder): Boolean =
-        interopViews.contains(holder.getInteropView())
+        interopViews.contains(holder.interopView)
 
     override fun holderOfView(view: InteropView): InteropViewHolder? =
         interopViews[view]
 
     override fun place(holder: InteropViewHolder) {
-        val interopView = checkNotNull(holder.getInteropView())
+        val interopView = checkNotNull(holder.interopView)
 
         if (interopViews.isEmpty()) {
             snapshotObserver.start()
@@ -55,7 +55,7 @@ internal class WebInteropContainer(
     }
 
     override fun unplace(holder: InteropViewHolder) {
-        val interopView = requireNotNull(holder.getInteropView())
+        val interopView = requireNotNull(holder.interopView)
 
         interopViews.remove(interopView)
 

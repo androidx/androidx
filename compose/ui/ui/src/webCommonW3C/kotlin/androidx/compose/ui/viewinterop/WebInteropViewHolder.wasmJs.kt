@@ -18,11 +18,7 @@ package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEvent
-import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLElement
 
 internal class WebInteropViewHolder<T : HTMLElement>(
@@ -35,7 +31,7 @@ internal class WebInteropViewHolder<T : HTMLElement>(
     compositeKeyHashCode
 ) {
     init {
-        group.htmlElement.appendChild((typedInteropView as HTMLElement).apply { style.apply {
+        group.htmlElement.appendChild((interopView as HTMLElement).apply { style.apply {
             width = "100%"
             height = "100%"
         }})
@@ -44,9 +40,9 @@ internal class WebInteropViewHolder<T : HTMLElement>(
     }
 
     override var userComponentRect: String
-        get() = typedInteropView.style.cssText
+        get() = interopView.style.cssText
         set(value) {
-            typedInteropView.style.cssText = value
+            interopView.style.cssText = value
         }
 
     override fun insertInteropView(root: InteropViewGroup, index: Int) {
