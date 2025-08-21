@@ -29,6 +29,10 @@ class SkiaGraphicsContext(
         measureDrawBounds = measureDrawBounds,
     )
 
+    // Temporary workaround to disable state tracking workaround inside old internal layers
+    var activeGraphicsLayersCount = 0
+        private set
+
     fun dispose() {
         renderNodeContext.close()
     }
@@ -51,11 +55,17 @@ class SkiaGraphicsContext(
         )
     }
 
-    override fun createGraphicsLayer() = GraphicsLayer(
-        renderNode = RenderNode(renderNodeContext)
-    )
+    override fun createGraphicsLayer(): GraphicsLayer {
+        activeGraphicsLayersCount++
+        return GraphicsLayer(
+            renderNode = RenderNode(renderNodeContext)
+        )
+    }
 
     override fun releaseGraphicsLayer(layer: GraphicsLayer) {
-        layer.release()
+        if (!layer.isReleased) {
+            activeGraphicsLayersCount--
+            layer.release()
+        }
     }
 }
