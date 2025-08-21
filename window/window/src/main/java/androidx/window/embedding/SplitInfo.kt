@@ -25,21 +25,21 @@ import androidx.window.extensions.embedding.SplitInfo.Token
 
 /** Describes a split pair of two containers with activities. */
 @Suppress("Deprecation") // To compat with device with version 3 and 4.
-class SplitInfo
+public class SplitInfo
 private constructor(
     /** The [ActivityStack] representing the primary split container. */
-    val primaryActivityStack: ActivityStack,
+    public val primaryActivityStack: ActivityStack,
     /** The [ActivityStack] representing the secondary split container. */
-    val secondaryActivityStack: ActivityStack,
+    public val secondaryActivityStack: ActivityStack,
     /** The [SplitAttributes] of this split pair. */
-    val splitAttributes: SplitAttributes,
+    public val splitAttributes: SplitAttributes,
     @Deprecated(
         message = "Use [token] instead",
         replaceWith =
             ReplaceWith(
                 expression = "SplitInfo.token",
                 imports = arrayOf("androidx.window.embedding.SplitInfo"),
-            )
+            ),
     )
     private val binder: IBinder?,
     /** A token uniquely identifying this `SplitInfo`. */
@@ -60,13 +60,7 @@ private constructor(
         secondaryActivityStack: ActivityStack,
         splitAttributes: SplitAttributes,
         binder: IBinder,
-    ) : this(
-        primaryActivityStack,
-        secondaryActivityStack,
-        splitAttributes,
-        binder,
-        token = null,
-    ) {
+    ) : this(primaryActivityStack, secondaryActivityStack, splitAttributes, binder, token = null) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3..4)
     }
 
@@ -78,7 +72,7 @@ private constructor(
      * @param splitAttributes the [SplitAttributes] of this split pair.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
+    public constructor(
         primaryActivityStack: ActivityStack,
         secondaryActivityStack: ActivityStack,
         splitAttributes: SplitAttributes,
@@ -106,7 +100,7 @@ private constructor(
      * Whether the [primaryActivityStack] or the [secondaryActivityStack] in this [SplitInfo]
      * contains the [activity].
      */
-    operator fun contains(activity: Activity): Boolean {
+    public operator fun contains(activity: Activity): Boolean {
         return primaryActivityStack.contains(activity) || secondaryActivityStack.contains(activity)
     }
 

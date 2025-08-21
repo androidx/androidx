@@ -27,14 +27,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 /** The controller that allows checking the current [Activity] embedding status. */
-class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
+public class ActivityEmbeddingController
+internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
      * process of the task this [activity] is associated with.
      *
      * @param activity the [Activity] to check.
      */
-    fun isActivityEmbedded(activity: Activity): Boolean = backend.isActivityEmbedded(activity)
+    public fun isActivityEmbedded(activity: Activity): Boolean =
+        backend.isActivityEmbedded(activity)
 
     /**
      * Returns the [ActivityStack] that this [activity] is part of when it is being organized in the
@@ -50,7 +52,8 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
      *   [ActivityStack].
      */
-    fun getActivityStack(activity: Activity): ActivityStack? = backend.getActivityStack(activity)
+    public fun getActivityStack(activity: Activity): ActivityStack? =
+        backend.getActivityStack(activity)
 
     /**
      * Sets the launching [ActivityStack] to the given [Bundle].
@@ -88,7 +91,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @sample androidx.window.samples.embedding.expandPrimaryContainer
      */
     @RequiresWindowSdkExtension(5)
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+    public fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
         backend.finishActivityStacks(activityStacks)
     }
 
@@ -113,7 +116,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param embeddingConfiguration The [EmbeddingConfiguration]
      */
     @RequiresWindowSdkExtension(5)
-    fun setEmbeddingConfiguration(embeddingConfiguration: EmbeddingConfiguration) {
+    public fun setEmbeddingConfiguration(embeddingConfiguration: EmbeddingConfiguration) {
         backend.setEmbeddingConfiguration(embeddingConfiguration)
     }
 
@@ -141,7 +144,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @see androidx.window.embedding.SplitController.setSplitAttributesCalculator
      */
     @RequiresWindowSdkExtension(3)
-    fun invalidateVisibleActivityStacks() {
+    public fun invalidateVisibleActivityStacks() {
         backend.invalidateVisibleActivityStacks()
     }
 
@@ -164,21 +167,21 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @return a [Flow] of [EmbeddedActivityWindowInfo] of the [activity].
      */
     @RequiresWindowSdkExtension(6)
-    fun embeddedActivityWindowInfo(activity: Activity): Flow<EmbeddedActivityWindowInfo> =
+    public fun embeddedActivityWindowInfo(activity: Activity): Flow<EmbeddedActivityWindowInfo> =
         callbackFlow {
             val callback = Consumer { info: EmbeddedActivityWindowInfo -> trySend(info) }
             backend.addEmbeddedActivityWindowInfoCallbackForActivity(activity, callback)
             awaitClose { backend.removeEmbeddedActivityWindowInfoCallbackForActivity(callback) }
         }
 
-    companion object {
+    public companion object {
         /**
          * Obtains an instance of [ActivityEmbeddingController].
          *
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
-        fun getInstance(context: Context): ActivityEmbeddingController {
+        public fun getInstance(context: Context): ActivityEmbeddingController {
             val backend = EmbeddingBackend.getInstance(context)
             return ActivityEmbeddingController(backend)
         }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.coresdk
+package androidx.window.demo.layout
 
 import android.graphics.Rect
 import android.view.Surface.ROTATION_0
@@ -144,7 +144,7 @@ fun WindowStateScreenPreview() {
                 activityDisplayBounds = Rect(0, 0, 2208, 1840),
             ),
             WindowState(
-                name = stringResource(R.string.display_feature_title),
+                name = stringResource(R.string.window_layout_info_flow_title),
                 applicationDisplayBounds = Rect(0, 0, 960, 2142),
                 activityDisplayBounds = Rect(0, 0, 960, 2142),
             ),
@@ -172,10 +172,7 @@ fun WindowStateList(
     listState: LazyListState = rememberLazyListState(),
     onWindowStateItemClick: (Int) -> Unit,
 ) {
-    LazyColumn(
-        contentPadding = contentPadding,
-        state = listState,
-    ) {
+    LazyColumn(contentPadding = contentPadding, state = listState) {
         itemsIndexed(windowStates) { index, state ->
             WindowStateCard(
                 number = windowStates.size - index,
@@ -214,7 +211,7 @@ private fun WindowStateCard(
                         animationSpec =
                             spring(
                                 dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
+                                stiffness = Spring.StiffnessLow,
                             )
                     ),
             verticalAlignment = Alignment.CenterVertically,
@@ -249,11 +246,7 @@ private fun WindowStateCard(
 @Composable
 private fun WindowStateSummary(state: WindowState, lastState: WindowState) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            state.name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-        )
+        Text(state.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             state.timeStamp.toSimpleTimeStr(),
@@ -266,8 +259,7 @@ private fun WindowStateSummary(state: WindowState, lastState: WindowState) {
         buildAnnotatedString {
             rotationString(
                 state.applicationDisplayRotation,
-                highlight =
-                    state.applicationDisplayRotation != lastState.applicationDisplayRotation,
+                highlight = state.applicationDisplayRotation != lastState.applicationDisplayRotation,
             )
             append(" / ")
             rotationString(
@@ -305,16 +297,9 @@ private fun WindowStateDetail(state: WindowState, lastState: WindowState) {
     val applicationBoundsTittle = stringResource(R.string.application_display_bounds_title)
     val activityBoundsTittle = stringResource(R.string.activity_display_bounds_title)
 
-    Text(
-        state.name,
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.Bold,
-    )
+    Text(state.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
     Column {
-        Text(
-            "$timestampTitle ${state.timeStamp}",
-            style = MaterialTheme.typography.bodySmall,
-        )
+        Text("$timestampTitle ${state.timeStamp}", style = MaterialTheme.typography.bodySmall)
         DisplayRotationView(
             applicationRotationTitle,
             currentRotation = state.applicationDisplayRotation,
@@ -363,7 +348,7 @@ private fun DisplayRotationView(title: String, currentRotation: Int, lastRotatio
                 text = lastRotation.toRotationStr(),
                 style =
                     MaterialTheme.typography.bodySmall.copy(
-                        textDecoration = TextDecoration.LineThrough,
+                        textDecoration = TextDecoration.LineThrough
                     ),
                 modifier = Modifier.padding(start = 2.dp),
             )
@@ -399,7 +384,7 @@ private fun DisplayBoundsView(title: String, currentBounds: Rect, lastBound: Rec
                     text = "$lastBound",
                     style =
                         MaterialTheme.typography.bodySmall.copy(
-                            textDecoration = TextDecoration.LineThrough,
+                            textDecoration = TextDecoration.LineThrough
                         ),
                 )
             }

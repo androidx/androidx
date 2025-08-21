@@ -26,7 +26,7 @@ import kotlin.jvm.JvmField
  */
 @Suppress("DEPRECATION")
 @Deprecated("WindowHeightSizeClass will not be developed further, use WindowSizeClass instead.")
-class WindowHeightSizeClass private constructor(private val rawValue: Int) {
+public class WindowHeightSizeClass private constructor(private val rawValue: Int) {
 
     override fun toString(): String {
         val name =
@@ -53,16 +53,16 @@ class WindowHeightSizeClass private constructor(private val rawValue: Int) {
         return rawValue
     }
 
-    companion object {
+    public companion object {
         /** A bucket to represent a compact height, typical for a phone that is in landscape. */
         @Deprecated("WindowHeightSizeClass not be developed further.")
         @JvmField
-        val COMPACT: WindowHeightSizeClass = WindowHeightSizeClass(0)
+        public val COMPACT: WindowHeightSizeClass = WindowHeightSizeClass(0)
 
         /** A bucket to represent a medium height, typical for a phone in portrait or a tablet. */
         @Deprecated("WindowHeightSizeClass not be developed further.")
         @JvmField
-        val MEDIUM: WindowHeightSizeClass = WindowHeightSizeClass(1)
+        public val MEDIUM: WindowHeightSizeClass = WindowHeightSizeClass(1)
 
         /**
          * A bucket to represent an expanded height window, typical for a large tablet or a desktop
@@ -70,7 +70,7 @@ class WindowHeightSizeClass private constructor(private val rawValue: Int) {
          */
         @Deprecated("WindowHeightSizeClass not be developed further.")
         @JvmField
-        val EXPANDED: WindowHeightSizeClass = WindowHeightSizeClass(2)
+        public val EXPANDED: WindowHeightSizeClass = WindowHeightSizeClass(2)
 
         /**
          * Returns a recommended [WindowHeightSizeClass] for the height of a window given the height

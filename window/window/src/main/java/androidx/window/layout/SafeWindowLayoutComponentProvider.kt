@@ -45,7 +45,7 @@ import java.lang.reflect.ParameterizedType
  */
 internal class SafeWindowLayoutComponentProvider(
     private val loader: ClassLoader,
-    private val consumerAdapter: ConsumerAdapter
+    private val consumerAdapter: ConsumerAdapter,
 ) {
     private val safeWindowExtensionsProvider = SafeWindowExtensionsProvider(loader)
 
@@ -148,7 +148,7 @@ internal class SafeWindowLayoutComponentProvider(
                 windowLayoutComponent.getMethod(
                     "addWindowLayoutInfoListener",
                     Activity::class.java,
-                    consumerClass
+                    consumerClass,
                 )
             val removeListenerMethod =
                 windowLayoutComponent.getMethod("removeWindowLayoutInfoListener", consumerClass)
@@ -166,12 +166,12 @@ internal class SafeWindowLayoutComponentProvider(
                 windowLayoutComponent.getMethod(
                     "addWindowLayoutInfoListener",
                     Context::class.java,
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             val removeListenerMethod =
                 windowLayoutComponent.getMethod(
                     "removeWindowLayoutInfoListener",
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             addListenerMethod.isPublic && removeListenerMethod.isPublic
         }

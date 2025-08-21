@@ -94,7 +94,7 @@ internal abstract class SpecificationComputer<T : Any> {
         fun <T : Any> T.startSpecification(
             tag: String,
             verificationMode: VerificationMode = BuildConfig.verificationMode,
-            logger: Logger = AndroidLogger
+            logger: Logger = AndroidLogger,
         ): SpecificationComputer<T> {
             return ValidSpecification(this, tag, verificationMode, logger)
         }
@@ -106,7 +106,7 @@ private class ValidSpecification<T : Any>(
     val value: T,
     val tag: String,
     val verificationMode: VerificationMode,
-    val logger: Logger
+    val logger: Logger,
 ) : SpecificationComputer<T>() {
 
     override fun require(message: String, condition: T.() -> Boolean): SpecificationComputer<T> {
@@ -118,7 +118,7 @@ private class ValidSpecification<T : Any>(
                 tag = tag,
                 message = message,
                 logger = logger,
-                verificationMode = verificationMode
+                verificationMode = verificationMode,
             )
         }
     }
@@ -134,7 +134,7 @@ private class FailedSpecification<T : Any>(
     val tag: String,
     val message: String,
     val logger: Logger,
-    val verificationMode: VerificationMode
+    val verificationMode: VerificationMode,
 ) : SpecificationComputer<T>() {
 
     val exception: WindowStrictModeException =

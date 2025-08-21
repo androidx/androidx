@@ -37,7 +37,7 @@ class WindowAreaComponentValidatorTest {
         assertTrue(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentFullImplementation::class.java,
-                apiLevel = 3
+                apiLevel = 3,
             )
         )
     }
@@ -47,7 +47,7 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentApiV3Implementation::class.java,
-                apiLevel = 1
+                apiLevel = 1,
             )
         )
     }
@@ -58,7 +58,7 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentApiV3Implementation::class.java,
-                2
+                2,
             )
         )
     }
@@ -72,13 +72,13 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentApiV3Implementation::class.java,
-                2
+                2,
             )
         )
         assertTrue(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 WindowAreaComponentApiV3Implementation::class.java,
-                3
+                3,
             )
         )
     }
@@ -89,7 +89,7 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
                 IncompleteWindowAreaComponentApiV2Implementation::class.java,
-                2
+                2,
             )
         )
     }
@@ -104,13 +104,13 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 ValidExtensionWindowAreaStatus::class.java,
-                2
+                2,
             )
         )
         assertTrue(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 ValidExtensionWindowAreaStatus::class.java,
-                3
+                3,
             )
         )
     }
@@ -124,7 +124,7 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 IncompleteExtensionWindowAreaStatus::class.java,
-                3
+                3,
             )
         )
     }
@@ -135,7 +135,7 @@ class WindowAreaComponentValidatorTest {
         assertTrue(
             WindowAreaComponentValidator.isExtensionWindowAreaPresentationValid(
                 ValidExtensionWindowAreaPresentation::class.java,
-                3
+                3,
             )
         )
     }
@@ -146,7 +146,7 @@ class WindowAreaComponentValidatorTest {
         assertFalse(
             WindowAreaComponentValidator.isExtensionWindowAreaPresentationValid(
                 IncompleteExtensionWindowAreaPresentation::class.java,
-                3
+                3,
             )
         )
     }
@@ -204,7 +204,7 @@ class WindowAreaComponentValidatorTest {
 
         override fun startRearDisplayPresentationSession(
             activity: Activity,
-            consumer: Consumer<Int>
+            consumer: Consumer<Int>,
         ) {
             throw NotImplementedError("Not implemented")
         }

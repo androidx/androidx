@@ -78,9 +78,48 @@ class SplitAttributesTogglePrimaryActivity :
                 ArrayAdapter(
                     this,
                     android.R.layout.simple_spinner_dropdown_item,
-                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS,
                 )
             animationBackgroundDropdown.onItemSelectedListener = this
+        }
+
+        // Animation transitions
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 7) {
+            val openAnimationDropdown = viewBinding.openAnimationDropdown
+            openAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.openAnimationDivider.visibility = View.VISIBLE
+            viewBinding.openAnimationTextView.visibility = View.VISIBLE
+            openAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS,
+                )
+            openAnimationDropdown.onItemSelectedListener = this
+
+            val closeAnimationDropdown = viewBinding.closeAnimationDropdown
+            closeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.closeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.closeAnimationTextView.visibility = View.VISIBLE
+            closeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS,
+                )
+            closeAnimationDropdown.onItemSelectedListener = this
+
+            val changeAnimationDropdown = viewBinding.changeAnimationDropdown
+            changeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.changeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.changeAnimationTextView.visibility = View.VISIBLE
+            changeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS,
+                )
+            changeAnimationDropdown.onItemSelectedListener = this
         }
 
         lifecycleScope.launch {

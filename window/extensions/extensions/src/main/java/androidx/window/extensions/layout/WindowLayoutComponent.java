@@ -109,4 +109,25 @@ public interface WindowLayoutComponent {
         throw new UnsupportedOperationException("This method will not be called unless there is a"
                 + " corresponding override implementation on the device");
     }
+
+    /**
+     * Returns the current {@link WindowLayoutInfo} for the given {@link Context}.
+     * <p>
+     * This API provides a convenient way to access the current {@link WindowLayoutInfo} without
+     * registering a listener via {@link #addWindowLayoutInfoListener(Context, Consumer)}. It
+     * simplifies the retrieval of {@link WindowLayoutInfo} in scenarios like
+     * {@link Activity#onCreate(Bundle)}.
+     *
+     * @param context a {@link Context} that corresponds to a window or an area on the screen.
+     *                This can be an {@link Activity}, a {@link Context} created with
+     *                {@link Context#createWindowContext(Display, int, Bundle)}, or an
+     *                {@link android.inputmethodservice.InputMethodService}.
+     * @return the current {@link WindowLayoutInfo} for the given {@link Context}.
+     */
+    @RequiresVendorApiLevel(level = 9)
+    default @NonNull WindowLayoutInfo getCurrentWindowLayoutInfo(
+            @UiContext @NonNull Context context) {
+        throw new UnsupportedOperationException("This method will not be called unless there is a"
+                + " corresponding override implementation on the device");
+    }
 }

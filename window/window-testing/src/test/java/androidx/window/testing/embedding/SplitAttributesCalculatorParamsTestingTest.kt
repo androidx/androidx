@@ -63,7 +63,7 @@ class SplitAttributesCalculatorParamsTestingTest {
         val params =
             TestSplitAttributesCalculatorParams(
                 parentWindowMetrics = TEST_METRICS,
-                parentWindowLayoutInfo = parentWindowLayoutInfo
+                parentWindowLayoutInfo = parentWindowLayoutInfo,
             )
 
         assertEquals(TEST_METRICS, params.parentWindowMetrics)

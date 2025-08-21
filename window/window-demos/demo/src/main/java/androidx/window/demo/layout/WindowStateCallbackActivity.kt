@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.coresdk
+package androidx.window.demo.layout
 
 import android.content.ComponentCallbacks
 import android.content.Context
@@ -32,6 +32,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
 import androidx.window.demo.R
 import androidx.window.demo.common.DemoTheme
 import androidx.window.layout.WindowInfoTracker
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 /** Activity to show display configuration from different system callbacks. */
 class WindowStateCallbackActivity : ComponentActivity() {
     private val viewModel: WindowStateViewModel by viewModels()
+    private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
 
     /**
      * [DisplayManager]s from `Activity` and `Application` are updated from different resource
@@ -100,7 +102,7 @@ class WindowStateCallbackActivity : ComponentActivity() {
             override fun onConfigurationChanged(configuration: Configuration) {
                 onWindowStateCallbackInvoked(
                     R.string.application_configuration_title,
-                    configuration
+                    configuration,
                 )
             }
 
@@ -124,14 +126,24 @@ class WindowStateCallbackActivity : ComponentActivity() {
         applicationDisplayManager.registerDisplayListener(applicationDisplayListener, handler)
         activityDisplayManager.registerDisplayListener(activityDisplayListener, handler)
         application.registerComponentCallbacks(applicationComponentCallback)
+
+        val tracker = WindowInfoTracker.getOrCreate(this)
+        val getterValue: Any =
+            if (extensionVersion >= 9) {
+                tracker.getCurrentWindowLayoutInfo(this)
+            } else {
+                "WindowLayoutInfo getter is not available on this device. " +
+                    "The WM extension version must be at least 9, " +
+                    "but this device has version $extensionVersion."
+            }
+        onWindowStateCallbackInvoked(R.string.window_layout_info_getter_title, getterValue)
+
         // Collect windowInfo when STARTED and stop when STOPPED.
         lifecycleScope.launch(Dispatchers.Main) {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                WindowInfoTracker.getOrCreate(this@WindowStateCallbackActivity)
-                    .windowLayoutInfo(this@WindowStateCallbackActivity)
-                    .collect { info ->
-                        onWindowStateCallbackInvoked(R.string.display_feature_title, info)
-                    }
+                tracker.windowLayoutInfo(this@WindowStateCallbackActivity).collect { info ->
+                    onWindowStateCallbackInvoked(R.string.window_layout_info_flow_title, info)
+                }
             }
         }
     }
@@ -167,10 +179,7 @@ class WindowStateCallbackActivity : ComponentActivity() {
 
     private fun provideLatestWindowState() {
         viewModel.updateLatestWindowState(
-            queryWindowState(
-                R.string.latest_configuration_title,
-                "poll configuration every 500ms",
-            )
+            queryWindowState(R.string.latest_configuration_title, "poll configuration every 500ms")
         )
     }
 

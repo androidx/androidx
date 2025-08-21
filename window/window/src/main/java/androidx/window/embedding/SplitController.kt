@@ -36,9 +36,9 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * A pair of activities can be put into a split by providing a static or runtime split rule and then
  * launching the activities in the same task using
- * [Activity.startActivity()][android.app.Activity.startActivity].
+ * [Activity.startActivity()][Activity.startActivity].
  */
-class SplitController internal constructor(private val embeddingBackend: EmbeddingBackend) {
+public class SplitController internal constructor(private val embeddingBackend: EmbeddingBackend) {
 
     /**
      * A [Flow] of [SplitInfo] list that contains the current split states that this [activity] is
@@ -55,7 +55,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * @param activity The [Activity] that is interested in getting the split states
      * @return a [Flow] of [SplitInfo] list that includes this [activity]
      */
-    fun splitInfoList(activity: Activity): Flow<List<SplitInfo>> = callbackFlow {
+    public fun splitInfoList(activity: Activity): Flow<List<SplitInfo>> = callbackFlow {
         val listener = Consumer { info: List<SplitInfo> -> trySend(info) }
         embeddingBackend.addSplitListenerForActivity(activity, Runnable::run, listener)
         awaitClose { embeddingBackend.removeSplitListenerForActivity(listener) }
@@ -69,13 +69,13 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * always returns [SplitSupportStatus.SPLIT_AVAILABLE], and if the split is collapsed,
      * activities are launched on top, following the non-activity embedding model.
      *
-     * Also the [androidx.window.WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] must
-     * be enabled in AndroidManifest within <application> in order to get the correct state or
+     * Also the [WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] must be enabled in
+     * AndroidManifest within <application> in order to get the correct state or
      * [SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED] will be returned in some cases.
      *
      * @see SplitSupportStatus
      */
-    val splitSupportStatus: SplitSupportStatus
+    public val splitSupportStatus: SplitSupportStatus
         get() = embeddingBackend.splitSupportStatus
 
     /**
@@ -105,7 +105,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *   than 5.
      */
     @RequiresWindowSdkExtension(5)
-    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+    public fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
         return embeddingBackend.pinTopActivityStack(taskId, splitPinRule)
     }
 
@@ -124,7 +124,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *   than 5.
      */
     @RequiresWindowSdkExtension(5)
-    fun unpinTopActivityStack(taskId: Int) {
+    public fun unpinTopActivityStack(taskId: Int) {
         embeddingBackend.unpinTopActivityStack(taskId)
     }
 
@@ -171,7 +171,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *   than 2.
      */
     @RequiresWindowSdkExtension(2)
-    fun setSplitAttributesCalculator(
+    public fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
         embeddingBackend.setSplitAttributesCalculator(calculator)
@@ -185,7 +185,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *   than 2.
      */
     @RequiresWindowSdkExtension(2)
-    fun clearSplitAttributesCalculator() {
+    public fun clearSplitAttributesCalculator() {
         embeddingBackend.clearSplitAttributesCalculator()
     }
 
@@ -214,7 +214,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *   than 3.
      */
     @RequiresWindowSdkExtension(3)
-    fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
+    public fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
@@ -223,7 +223,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * Depending on the split property declaration, device software version or user preferences the
      * feature might not be available.
      */
-    class SplitSupportStatus private constructor(private val rawValue: Int) {
+    public class SplitSupportStatus private constructor(private val rawValue: Int) {
         override fun toString(): String {
             return when (rawValue) {
                 0 -> "SplitSupportStatus: AVAILABLE"
@@ -233,26 +233,27 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
             }
         }
 
-        companion object {
+        public companion object {
             /**
              * The activity splits API is available and split rules can take effect depending on the
              * window state.
              */
-            @JvmField val SPLIT_AVAILABLE = SplitSupportStatus(0)
+            @JvmField public val SPLIT_AVAILABLE: SplitSupportStatus = SplitSupportStatus(0)
 
             /** The activity splits API is currently unavailable. */
-            @JvmField val SPLIT_UNAVAILABLE = SplitSupportStatus(1)
+            @JvmField public val SPLIT_UNAVAILABLE: SplitSupportStatus = SplitSupportStatus(1)
 
             /**
              * Denotes that [WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED] has not
              * been set. This property must be set and enabled in AndroidManifest.xml to use splits
              * APIs.
              */
-            @JvmField val SPLIT_ERROR_PROPERTY_NOT_DECLARED = SplitSupportStatus(2)
+            @JvmField
+            public val SPLIT_ERROR_PROPERTY_NOT_DECLARED: SplitSupportStatus = SplitSupportStatus(2)
         }
     }
 
-    companion object {
+    public companion object {
 
         internal const val sDebug = false
 
@@ -262,7 +263,7 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
          * @param context the [Context] to initialize the controller with
          */
         @JvmStatic
-        fun getInstance(context: Context): SplitController {
+        public fun getInstance(context: Context): SplitController {
             val backend = EmbeddingBackend.getInstance(context)
             return SplitController(backend)
         }

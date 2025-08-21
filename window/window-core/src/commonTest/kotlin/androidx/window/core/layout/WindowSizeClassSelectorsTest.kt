@@ -34,12 +34,12 @@ class WindowSizeClassSelectorsTest {
         val intResult =
             coreSet.computeWindowSizeClass(
                 WIDTH_DP_MEDIUM_LOWER_BOUND,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND
+                HEIGHT_DP_MEDIUM_LOWER_BOUND,
             )
         val floatResult =
             coreSet.computeWindowSizeClass(
                 WIDTH_DP_MEDIUM_LOWER_BOUND + .9f,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND + .9f
+                HEIGHT_DP_MEDIUM_LOWER_BOUND + .9f,
             )
 
         assertEquals(intResult, floatResult)
@@ -61,7 +61,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             coreSet.computeWindowSizeClass(
                 WIDTH_DP_MEDIUM_LOWER_BOUND,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND
+                HEIGHT_DP_MEDIUM_LOWER_BOUND,
             )
 
         assertEquals(expected, actual)
@@ -75,7 +75,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             coreSet.computeWindowSizeClass(
                 WIDTH_DP_MEDIUM_LOWER_BOUND + 1,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND + 1
+                HEIGHT_DP_MEDIUM_LOWER_BOUND + 1,
             )
 
         assertEquals(expected, actual)
@@ -88,7 +88,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             setOf(
                     WindowSizeClass(minWidthDp = 100, minHeightDp = 50),
-                    WindowSizeClass(minWidthDp = 50, minHeightDp = 100)
+                    WindowSizeClass(minWidthDp = 50, minHeightDp = 100),
                 )
                 .computeWindowSizeClass(100, 100)
 
@@ -102,7 +102,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             setOf(
                     WindowSizeClass(minWidthDp = 100, minHeightDp = 50),
-                    WindowSizeClass(minWidthDp = 100, minHeightDp = 100)
+                    WindowSizeClass(minWidthDp = 100, minHeightDp = 100),
                 )
                 .computeWindowSizeClass(200, 200)
 
@@ -125,7 +125,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             coreSet.computeWindowSizeClassPreferHeight(
                 WIDTH_DP_MEDIUM_LOWER_BOUND,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND
+                HEIGHT_DP_MEDIUM_LOWER_BOUND,
             )
 
         assertEquals(expected, actual)
@@ -139,7 +139,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             coreSet.computeWindowSizeClassPreferHeight(
                 WIDTH_DP_MEDIUM_LOWER_BOUND + 1,
-                HEIGHT_DP_MEDIUM_LOWER_BOUND + 1
+                HEIGHT_DP_MEDIUM_LOWER_BOUND + 1,
             )
 
         assertEquals(expected, actual)
@@ -152,7 +152,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             setOf(
                     WindowSizeClass(minWidthDp = 100, minHeightDp = 50),
-                    WindowSizeClass(minWidthDp = 50, minHeightDp = 100)
+                    WindowSizeClass(minWidthDp = 50, minHeightDp = 100),
                 )
                 .computeWindowSizeClassPreferHeight(100, 100)
 
@@ -166,7 +166,7 @@ class WindowSizeClassSelectorsTest {
         val actual =
             setOf(
                     WindowSizeClass(minWidthDp = 50, minHeightDp = 100),
-                    WindowSizeClass(minWidthDp = 100, minHeightDp = 100)
+                    WindowSizeClass(minWidthDp = 100, minHeightDp = 100),
                 )
                 .computeWindowSizeClass(200, 200)
 

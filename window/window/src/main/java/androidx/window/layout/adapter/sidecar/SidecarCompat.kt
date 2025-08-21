@@ -51,7 +51,7 @@ internal class SidecarCompat
 @VisibleForTesting
 constructor(
     @get:VisibleForTesting val sidecar: SidecarInterface?,
-    private val sidecarAdapter: SidecarAdapter
+    private val sidecarAdapter: SidecarAdapter,
 ) : ExtensionInterfaceCompat {
     // Map of active listeners registered with #onWindowLayoutChangeListenerAdded() and not yet
     // removed by #onWindowLayoutChangeListenerRemoved().
@@ -76,7 +76,7 @@ constructor(
         val windowLayoutInfo = sidecar?.getWindowLayoutInfo(windowToken)
         return sidecarAdapter.translate(
             windowLayoutInfo,
-            sidecar?.deviceState ?: SidecarDeviceState()
+            sidecar?.deviceState ?: SidecarDeviceState(),
         )
     }
 
@@ -119,7 +119,7 @@ constructor(
                 Consumer<Configuration> {
                     extensionCallback?.onWindowLayoutChanged(
                         activity,
-                        getWindowLayoutInfo(activity)
+                        getWindowLayoutInfo(activity),
                     )
                 }
             componentCallbackMap[activity] = configChangeObserver
@@ -219,7 +219,7 @@ constructor(
                         TAG,
                         "Sidecar implementation doesn't conform to primary interface version, " +
                             "continue to check for the secondary one ${Version.VERSION_0_1}, " +
-                            "error: $error"
+                            "error: $error",
                     )
                 }
                 val methodSetPosture =
@@ -259,7 +259,7 @@ constructor(
                         TAG,
                         "Sidecar implementation doesn't conform to primary interface version, " +
                             "continue to check for the secondary one ${Version.VERSION_0_1}, " +
-                            "error: $error"
+                            "error: $error",
                     )
                 }
                 val featureList: MutableList<SidecarDisplayFeature> = ArrayList()
@@ -284,7 +284,7 @@ constructor(
                 Log.e(
                     TAG,
                     "Sidecar implementation doesn't conform to interface version " +
-                        "${Version.VERSION_0_1}, error: $t"
+                        "${Version.VERSION_0_1}, error: $t",
                 )
             }
             false
@@ -335,21 +335,21 @@ constructor(
                     }
                 extensionCallback?.onWindowLayoutChanged(
                     activity,
-                    sidecarAdapter.translate(layoutInfo, newDeviceState)
+                    sidecarAdapter.translate(layoutInfo, newDeviceState),
                 )
             }
         }
 
         override fun onWindowLayoutChanged(
             windowToken: IBinder,
-            newLayout: SidecarWindowLayoutInfo
+            newLayout: SidecarWindowLayoutInfo,
         ) {
             val activity = windowListenerRegisteredContexts[windowToken]
             if (activity == null) {
                 Log.w(
                     TAG,
                     "Unable to resolve activity from window token. Missing a call to " +
-                        "#onWindowLayoutChangeListenerAdded()?"
+                        "#onWindowLayoutChangeListenerAdded()?",
                 )
                 return
             }

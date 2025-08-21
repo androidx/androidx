@@ -56,7 +56,7 @@ import java.util.Collections
 @Suppress("FunctionName")
 @JvmName("createTestSplitAttributesCalculatorParams")
 @JvmOverloads
-fun TestSplitAttributesCalculatorParams(
+public fun TestSplitAttributesCalculatorParams(
     parentWindowMetrics: WindowMetrics,
     parentConfiguration: Configuration = Configuration(),
     parentWindowLayoutInfo: WindowLayoutInfo = WindowLayoutInfo(Collections.emptyList()),
@@ -70,5 +70,5 @@ fun TestSplitAttributesCalculatorParams(
         parentWindowLayoutInfo,
         defaultSplitAttributes,
         areDefaultConstraintsSatisfied,
-        splitRuleTag
+        splitRuleTag,
     )

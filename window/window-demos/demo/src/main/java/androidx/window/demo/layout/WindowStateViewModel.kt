@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.window.demo.coresdk
+package androidx.window.demo.layout
 
 import android.graphics.Rect
 import android.view.Surface.ROTATION_0

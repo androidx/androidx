@@ -21,9 +21,9 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.filters.SdkSuppress
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.TestActivity
 import org.junit.Assert.assertEquals
@@ -85,7 +85,7 @@ class WindowMetricsCalculatorRuleTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun testCurrentWindowMetrics_context_matchesWindowMetricsMetrics_30AndAbove() {
         Utils.assumePlatformAtOrAbove(Build.VERSION_CODES.R)
@@ -179,7 +179,7 @@ class WindowMetricsCalculatorRuleTest {
                 overrideLeft,
                 overrideTop,
                 overrideWidth,
-                overrideHeight
+                overrideHeight,
             )
 
             val overrideActual = calculator.computeCurrentWindowMetrics(activity)
@@ -230,7 +230,7 @@ class WindowMetricsCalculatorRuleTest {
                 overrideLeft,
                 overrideTop,
                 overrideWidth,
-                overrideHeight
+                overrideHeight,
             )
 
             val overrideActual = calculator.computeCurrentWindowMetrics(activity)
@@ -259,7 +259,7 @@ class WindowMetricsCalculatorRuleTest {
                                 throw TestException
                             }
                         },
-                        Description.EMPTY
+                        Description.EMPTY,
                     )
                     .evaluate()
             } catch (e: TestException) {

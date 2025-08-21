@@ -44,7 +44,7 @@ internal interface BoundsHelper {
     /** Compute the current bounds for the given [Activity]. */
     fun currentWindowBounds(activity: Activity): Rect
 
-    fun maximumWindowBounds(@UiContext context: Context): Rect
+    fun maximumWindowBounds(context: Context): Rect
 
     companion object {
 
@@ -285,7 +285,7 @@ private object BoundsHelperApi16Impl : BoundsHelper {
         return bounds
     }
 
-    override fun maximumWindowBounds(@UiContext context: Context): Rect {
+    override fun maximumWindowBounds(context: Context): Rect {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions, as we can't reliably get the display associated

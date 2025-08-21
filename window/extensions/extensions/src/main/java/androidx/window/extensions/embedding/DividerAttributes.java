@@ -70,6 +70,15 @@ public final class DividerAttributes {
      */
     public static final int WIDTH_SYSTEM_DEFAULT = -1;
 
+    /**
+     * The default value for the veil color. When used, the activity window background color will be
+     * used.
+     *
+     * @see #getPrimaryVeilColor()
+     * @see #getSecondaryVeilColor()
+     */
+    public static final int DIVIDER_VEIL_COLOR_DEFAULT = Color.TRANSPARENT;
+
     /** The {@link DividerType}. */
     private final @DividerType int mDividerType;
 
@@ -84,6 +93,13 @@ public final class DividerAttributes {
      * the system will choose a default value based on the display size and form factor. Will only
      * be used when the divider type is {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+     * beyond this ratio, and when dragging is finished, the system will choose to either fully
+     * expand the secondary container or move the divider back to this ratio.
+     *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+     * drag beyond this ratio.
+     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     private final float mPrimaryMinRatio;
@@ -93,12 +109,28 @@ public final class DividerAttributes {
      * the system will choose a default value based on the display size and form factor. Will only
      * be used when the divider type is {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+     * beyond this ratio, and when dragging is finished, the system will choose to either fully
+     * expand the primary container or move the divider back to this ratio.
+     *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+     * drag beyond this ratio.
+     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     private final float mPrimaryMaxRatio;
 
     /** The color of the divider. */
     private final @ColorInt int mDividerColor;
+
+    /** Whether it is allowed to expand a container to full screen by dragging the divider. */
+    private final boolean mIsDraggingToFullscreenAllowed;
+
+    /** The veil color of the primary container while dragging. */
+    private final @ColorInt int mPrimaryVeilColor;
+
+    /** The veil color of the secondary container while dragging. */
+    private final @ColorInt int mSecondaryVeilColor;
 
     /**
      * Constructor of {@link DividerAttributes}.
@@ -108,6 +140,14 @@ public final class DividerAttributes {
      * @param primaryMinRatio               the min split ratio for the primary container.
      * @param primaryMaxRatio               the max split ratio for the primary container.
      * @param dividerColor                  the color of the divider.
+     * @param isDraggingToFullscreenAllowed whether it is allowed to expand a container to full
+     *                                      screen by dragging the divider.
+     * @param primaryVeilColor              the veil color of the primary container while dragging.
+     *                                      If {@link #DIVIDER_VEIL_COLOR_DEFAULT}, activity window
+     *                                      background color is used.
+     * @param secondaryVeilColor            the veil color of the secondary container while
+     *                                      dragging. If {@link #DIVIDER_VEIL_COLOR_DEFAULT},
+     *                                      activity window background color is used.
      * @throws IllegalStateException if the provided values are invalid.
      */
     private DividerAttributes(
@@ -115,12 +155,22 @@ public final class DividerAttributes {
             @Dimension int widthDp,
             float primaryMinRatio,
             float primaryMaxRatio,
-            @ColorInt int dividerColor) {
+            @ColorInt int dividerColor,
+            boolean isDraggingToFullscreenAllowed,
+            @ColorInt int primaryVeilColor,
+            @ColorInt int secondaryVeilColor) {
         if (dividerType == DIVIDER_TYPE_FIXED
                 && (primaryMinRatio != RATIO_SYSTEM_DEFAULT
                 || primaryMaxRatio != RATIO_SYSTEM_DEFAULT)) {
             throw new IllegalStateException(
                     "primaryMinRatio and primaryMaxRatio must be RATIO_SYSTEM_DEFAULT for "
+                            + "DIVIDER_TYPE_FIXED.");
+        }
+        if (dividerType == DIVIDER_TYPE_FIXED
+                && (primaryVeilColor != DIVIDER_VEIL_COLOR_DEFAULT
+                || secondaryVeilColor != DIVIDER_VEIL_COLOR_DEFAULT)) {
+            throw new IllegalStateException(
+                    "primaryVeilColor and secondaryVeilColor must be unset for"
                             + "DIVIDER_TYPE_FIXED.");
         }
         if (primaryMinRatio != RATIO_SYSTEM_DEFAULT && primaryMaxRatio != RATIO_SYSTEM_DEFAULT
@@ -133,6 +183,9 @@ public final class DividerAttributes {
         mPrimaryMinRatio = primaryMinRatio;
         mPrimaryMaxRatio = primaryMaxRatio;
         mDividerColor = dividerColor;
+        mIsDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed;
+        mPrimaryVeilColor = primaryVeilColor;
+        mSecondaryVeilColor = secondaryVeilColor;
     }
 
     /**
@@ -161,6 +214,13 @@ public final class DividerAttributes {
      * based on the display size and form factor. Will only be used when the divider type is
      * {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+     * beyond this ratio, and when dragging is finished, the system will choose to either fully
+     * expand the secondary container or move the divider back to this ratio.
+     *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+     * drag beyond this ratio.
+     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     @RequiresVendorApiLevel(level = 6)
@@ -173,6 +233,13 @@ public final class DividerAttributes {
      * defaults to {@link #RATIO_SYSTEM_DEFAULT}, which means the system will choose a default value
      * based on the display size and form factor. Will only be used when the divider type is
      * {@link #DIVIDER_TYPE_DRAGGABLE}.
+     *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+     * beyond this ratio, and when dragging is finished, the system will choose to either fully
+     * expand the primary container or move the divider back to this ratio.
+     *
+     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+     * drag beyond this ratio.
      *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
@@ -187,6 +254,33 @@ public final class DividerAttributes {
         return mDividerColor;
     }
 
+    /**
+     * Returns whether it is allowed to expand a container to full screen by dragging the
+     * divider. Default is {@code true}.
+     */
+    @RequiresVendorApiLevel(level = 7)
+    public boolean isDraggingToFullscreenAllowed() {
+        return mIsDraggingToFullscreenAllowed;
+    }
+
+    /**
+     * Returns the veil color of the primary container. {@link #DIVIDER_VEIL_COLOR_DEFAULT}
+     * indicates that activity window background color should be used.
+     */
+    @RequiresVendorApiLevel(level = 8)
+    public @ColorInt int getPrimaryVeilColor() {
+        return mPrimaryVeilColor;
+    }
+
+    /**
+     * Returns the veil color of the secondary container. {@link #DIVIDER_VEIL_COLOR_DEFAULT}
+     * indicates that activity window background color should be used.
+     */
+    @RequiresVendorApiLevel(level = 8)
+    public @ColorInt int getSecondaryVeilColor() {
+        return mSecondaryVeilColor;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
@@ -196,12 +290,16 @@ public final class DividerAttributes {
                 && mWidthDp == other.mWidthDp
                 && mPrimaryMinRatio == other.mPrimaryMinRatio
                 && mPrimaryMaxRatio == other.mPrimaryMaxRatio
-                && mDividerColor == other.mDividerColor;
+                && mDividerColor == other.mDividerColor
+                && mIsDraggingToFullscreenAllowed == other.mIsDraggingToFullscreenAllowed
+                && mPrimaryVeilColor == other.mPrimaryVeilColor
+                && mSecondaryVeilColor == other.mSecondaryVeilColor;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDividerType, mWidthDp, mPrimaryMinRatio, mPrimaryMaxRatio);
+        return Objects.hash(mDividerType, mWidthDp, mPrimaryMinRatio, mPrimaryMaxRatio,
+                mIsDraggingToFullscreenAllowed, mPrimaryVeilColor, mSecondaryVeilColor);
     }
 
     @Override
@@ -212,6 +310,9 @@ public final class DividerAttributes {
                 + ", minPrimaryRatio=" + mPrimaryMinRatio
                 + ", maxPrimaryRatio=" + mPrimaryMaxRatio
                 + ", dividerColor=" + mDividerColor
+                + ", isDraggingToFullscreenAllowed=" + mIsDraggingToFullscreenAllowed
+                + ", mPrimaryVeilColor=" + mPrimaryVeilColor
+                + ", mSecondaryVeilColor=" + mSecondaryVeilColor
                 + "}";
     }
 
@@ -227,6 +328,12 @@ public final class DividerAttributes {
         private float mPrimaryMaxRatio = RATIO_SYSTEM_DEFAULT;
 
         private @ColorInt int mDividerColor = Color.BLACK;
+
+        private boolean mIsDraggingToFullscreenAllowed = false;
+
+        private @ColorInt int mPrimaryVeilColor = DIVIDER_VEIL_COLOR_DEFAULT;
+
+        private @ColorInt int  mSecondaryVeilColor = DIVIDER_VEIL_COLOR_DEFAULT;
 
         /**
          * The {@link DividerAttributes} builder constructor.
@@ -253,6 +360,9 @@ public final class DividerAttributes {
             mPrimaryMinRatio = original.mPrimaryMinRatio;
             mPrimaryMaxRatio = original.mPrimaryMaxRatio;
             mDividerColor = original.mDividerColor;
+            mIsDraggingToFullscreenAllowed = original.mIsDraggingToFullscreenAllowed;
+            mPrimaryVeilColor = original.mPrimaryVeilColor;
+            mSecondaryVeilColor = original.mSecondaryVeilColor;
         }
 
         /**
@@ -277,6 +387,13 @@ public final class DividerAttributes {
          * on the display size and form factor. Will only be used when the divider type is
          * {@link #DIVIDER_TYPE_DRAGGABLE}.
          *
+         * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+         * beyond this ratio, and when dragging is finished, the system will choose to either fully
+         * expand the secondary container or move the divider back to this ratio.
+         *
+         * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+         * drag beyond this ratio.
+         *
          * @param primaryMinRatio the min ratio for the primary container. Must be in range
          *                        [0.0, 1.0) or {@link #RATIO_SYSTEM_DEFAULT}.
          * @throws IllegalArgumentException if the provided value is invalid.
@@ -299,6 +416,13 @@ public final class DividerAttributes {
          * based on the display size and form factor. Will only be used when the divider type is
          * {@link #DIVIDER_TYPE_DRAGGABLE}.
          *
+         * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
+         * beyond this ratio, and when dragging is finished, the system will choose to either fully
+         * expand the primary container or move the divider back to this ratio.
+         *
+         * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
+         * drag beyond this ratio.
+         *
          * @param primaryMaxRatio the max ratio for the primary container. Must be in range
          *                        (0.0, 1.0] or {@link #RATIO_SYSTEM_DEFAULT}.
          * @throws IllegalArgumentException if the provided value is invalid.
@@ -317,11 +441,59 @@ public final class DividerAttributes {
 
         /**
          * Sets the color of the divider. If not set, the default color {@link Color#BLACK} is
-         * used.
+         * used. Only the RGB components are used and the alpha value is ignored and always
+         * considered as fully opaque.
          */
         @RequiresVendorApiLevel(level = 6)
         public @NonNull Builder setDividerColor(@ColorInt int dividerColor) {
             mDividerColor = dividerColor;
+            return this;
+        }
+
+        /**
+         * Sets whether it is allowed to expand a container to full screen by dragging the divider.
+         * Default is {@code true}.
+         */
+        @RequiresVendorApiLevel(level = 7)
+        public @NonNull Builder setDraggingToFullscreenAllowed(
+                boolean isDraggingToFullscreenAllowed) {
+            mIsDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed;
+            return this;
+        }
+
+        /**
+         * Sets the veil color of the primary container. Solid color veils are used to cover
+         * activity content while dragging.
+         *
+         * The default value is {@link #DIVIDER_VEIL_COLOR_DEFAULT}.
+         *
+         * @param color the veil color for the primary container. If the value equals to
+         *              {@link #DIVIDER_VEIL_COLOR_DEFAULT}, activity window
+         *              background color is used. If {@link Color#TRANSPARENT} is used, it is
+         *              treated as {@link #DIVIDER_VEIL_COLOR_DEFAULT}. Only the RGB components are
+         *              used and the alpha value is ignored and always considered as fully opaque.
+         */
+        @RequiresVendorApiLevel(level = 8)
+        public @NonNull Builder setPrimaryVeilColor(@ColorInt int color) {
+            mPrimaryVeilColor = color;
+            return this;
+        }
+
+        /**
+         * Sets the veil color of the secondary container. Solid color veils are used to cover
+         * activity content while dragging.
+         *
+         * The default value is {@link #DIVIDER_VEIL_COLOR_DEFAULT}.
+         *
+         * @param color the veil color for the secondary container. If the value equals to
+         *              {@link #DIVIDER_VEIL_COLOR_DEFAULT}, activity window
+         *              background color is used. If {@link Color#TRANSPARENT} is used, it is
+         *              treated as {@link #DIVIDER_VEIL_COLOR_DEFAULT}. Only the RGB components are
+         *              used and the alpha value is ignored and always considered as fully opaque.
+         */
+        @RequiresVendorApiLevel(level = 8)
+        public @NonNull Builder setSecondaryVeilColor(@ColorInt int color) {
+            mSecondaryVeilColor = color;
             return this;
         }
 
@@ -334,7 +506,8 @@ public final class DividerAttributes {
         @RequiresVendorApiLevel(level = 6)
         public @NonNull DividerAttributes build() {
             return new DividerAttributes(mDividerType, mWidthDp, mPrimaryMinRatio,
-                    mPrimaryMaxRatio, mDividerColor);
+                    mPrimaryMaxRatio, mDividerColor, mIsDraggingToFullscreenAllowed,
+                    mPrimaryVeilColor, mSecondaryVeilColor);
         }
     }
 }

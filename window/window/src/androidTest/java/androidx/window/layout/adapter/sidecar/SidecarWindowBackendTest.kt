@@ -129,12 +129,12 @@ class SidecarWindowBackendTest : WindowTestBase() {
             backend.registerLayoutChangeCallback(
                 activity,
                 { obj: Runnable -> obj.run() },
-                firstConsumer
+                firstConsumer,
             )
             backend.registerLayoutChangeCallback(
                 activity,
                 { obj: Runnable -> obj.run() },
-                secondConsumer
+                secondConsumer,
             )
 
             // Check unregistering the layout change callback
@@ -203,6 +203,13 @@ class SidecarWindowBackendTest : WindowTestBase() {
         val interfaceCompat = SwitchOnUnregisterExtensionInterfaceCompat()
         val backend = SidecarWindowBackend(interfaceCompat)
         backend.supportedPostures
+    }
+
+    @Test(expected = UnsupportedOperationException::class)
+    fun testGetCurrentWindowLayoutInfo_throws() {
+        val interfaceCompat = SwitchOnUnregisterExtensionInterfaceCompat()
+        val backend = SidecarWindowBackend(interfaceCompat)
+        backend.getCurrentWindowLayoutInfo(context)
     }
 
     internal companion object {

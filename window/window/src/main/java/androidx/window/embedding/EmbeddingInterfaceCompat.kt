@@ -93,7 +93,7 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(6)
     fun addEmbeddedActivityWindowInfoCallbackForActivity(
         activity: Activity,
-        callback: Consumer<EmbeddedActivityWindowInfo>
+        callback: Consumer<EmbeddedActivityWindowInfo>,
     )
 
     @RequiresWindowSdkExtension(6)

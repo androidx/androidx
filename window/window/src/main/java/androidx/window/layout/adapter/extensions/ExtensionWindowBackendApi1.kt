@@ -22,20 +22,20 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
-import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.adapter.WindowBackend
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+@RequiresWindowSdkExtension(version = 1)
 internal open class ExtensionWindowBackendApi1(
     val component: WindowLayoutComponent,
-    private val consumerAdapter: ConsumerAdapter
-) : WindowBackend {
+    private val consumerAdapter: ConsumerAdapter,
+) : ExtensionWindowBackendApi0() {
 
     private val globalLock = ReentrantLock()
 
@@ -62,7 +62,7 @@ internal open class ExtensionWindowBackendApi1(
     override fun registerLayoutChangeCallback(
         @UiContext context: Context,
         executor: Executor,
-        callback: Consumer<WindowLayoutInfo>
+        callback: Consumer<WindowLayoutInfo>,
     ) {
         globalLock.withLock {
             contextToListeners[context]?.let { listener ->
@@ -85,7 +85,7 @@ internal open class ExtensionWindowBackendApi1(
                                 "addWindowLayoutInfoListener",
                                 "removeWindowLayoutInfoListener",
                                 context,
-                                consumer::accept
+                                consumer::accept,
                             )
                         } else {
                             // WM Extensions v1 addWindowLayoutInfoListener only
@@ -126,7 +126,4 @@ internal open class ExtensionWindowBackendApi1(
             listenerToContext.isEmpty() &&
             consumerToToken.isEmpty())
     }
-
-    override val supportedPostures: List<SupportedPosture>
-        get() = throw UnsupportedOperationException("Extensions version must be at least 6")
 }

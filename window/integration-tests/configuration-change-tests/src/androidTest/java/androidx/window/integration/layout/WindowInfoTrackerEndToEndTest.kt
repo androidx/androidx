@@ -84,7 +84,7 @@ class WindowInfoTrackerEndToEndTest {
             // Assertion: the number of FoldingFeatures in both layouts are the same
             assertEquals(
                 displayFeaturesPortrait.filterIsInstance<FoldingFeature>().size,
-                displayFeaturesLandscape.filterIsInstance<FoldingFeature>().size
+                displayFeaturesLandscape.filterIsInstance<FoldingFeature>().size,
             )
             // Check that the properties of each DisplayFeature is valid.
             val featureStateCounterPortrait = validateDisplayFeatures(displayFeaturesPortrait)
@@ -106,7 +106,7 @@ class WindowInfoTrackerEndToEndTest {
             assertEquals(
                 "Expected the Screen to Rotate to state $screenOrientation;",
                 activity.requestedOrientation,
-                screenOrientation
+                screenOrientation,
             )
         }
     }
@@ -137,12 +137,12 @@ class WindowInfoTrackerEndToEndTest {
         // Assert that the DisplayFeature has positive dimensions.
         assertFalse(
             "Error: a display feature was found with negative dimensions.",
-            displayFeatureBounds.width() < 0 || displayFeatureBounds.height() < 0
+            displayFeatureBounds.width() < 0 || displayFeatureBounds.height() < 0,
         )
         // Assert that the DisplayFeature has at least one dimension.
         assertFalse(
             "Error: a display feature was found with zero area.",
-            displayFeatureBounds.width() == 0 && displayFeatureBounds.height() == 0
+            displayFeatureBounds.width() == 0 && displayFeatureBounds.height() == 0,
         )
     }
 

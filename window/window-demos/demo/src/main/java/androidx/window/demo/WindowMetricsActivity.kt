@@ -47,7 +47,7 @@ class WindowMetricsActivity : EdgeToEdgeActivity() {
         val height = windowMetrics.bounds.height()
         adapter.append(
             "WindowMetrics update",
-            "width: $width, height: $height, " + "density: ${windowMetrics.density}"
+            "width: $width, height: $height, " + "density: ${windowMetrics.density}",
         )
         adapter.notifyDataSetChanged()
     }

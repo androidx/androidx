@@ -30,13 +30,13 @@ import java.util.concurrent.Executor
  * An adapted interface for [WindowInfoTracker] that allows listening for events via a callback
  * shaped API.
  */
-class WindowInfoTrackerCallbackAdapter
+public class WindowInfoTrackerCallbackAdapter
 private constructor(
     private val tracker: WindowInfoTracker,
-    private val callbackToFlowAdapter: CallbackToFlowAdapter
+    private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) : WindowInfoTracker by tracker {
 
-    constructor(tracker: WindowInfoTracker) : this(tracker, CallbackToFlowAdapter())
+    public constructor(tracker: WindowInfoTracker) : this(tracker, CallbackToFlowAdapter())
 
     /**
      * Registers a listener to consume [WindowLayoutInfo] values of the [Activity] window. If the
@@ -47,10 +47,10 @@ private constructor(
      * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
      */
-    fun addWindowLayoutInfoListener(
+    public fun addWindowLayoutInfoListener(
         activity: Activity,
         executor: Executor,
-        consumer: Consumer<WindowLayoutInfo>
+        consumer: Consumer<WindowLayoutInfo>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(activity))
     }
@@ -65,10 +65,10 @@ private constructor(
      * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
      */
-    fun addWindowLayoutInfoListener(
+    public fun addWindowLayoutInfoListener(
         @UiContext context: Context,
         executor: Executor,
-        consumer: Consumer<WindowLayoutInfo>
+        consumer: Consumer<WindowLayoutInfo>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(context))
     }
@@ -79,7 +79,7 @@ private constructor(
      *
      * @see WindowInfoTracker.windowLayoutInfo
      */
-    fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
+    public fun removeWindowLayoutInfoListener(consumer: Consumer<WindowLayoutInfo>) {
         callbackToFlowAdapter.disconnect(consumer)
     }
 }

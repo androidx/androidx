@@ -109,7 +109,7 @@ class WindowLayoutInfoPublisherRuleTest {
                                 throw TestException
                             }
                         },
-                        Description.EMPTY
+                        Description.EMPTY,
                     )
                     .evaluate()
             } catch (e: TestException) {
@@ -151,7 +151,7 @@ class WindowLayoutInfoPublisherRuleTest {
                 runTest(UnconfinedTestDispatcher(testScheduler)) {
                     assertEquals(
                         listOf(expected1, expected2, expected1, expected2),
-                        value.await().toList()
+                        value.await().toList(),
                     )
                 }
             }
@@ -190,7 +190,7 @@ class WindowLayoutInfoPublisherRuleTest {
                 runTest(UnconfinedTestDispatcher(testScheduler)) {
                     assertEquals(
                         listOf(expected1, expected2, expected1, expected2),
-                        value.await().toList()
+                        value.await().toList(),
                     )
                 }
             }

@@ -124,7 +124,7 @@ class SidecarCompatDeviceTest : WindowTestBase() {
                     SidecarAdapter()
                         .translate(
                             updatedSidecarWindowLayoutInfo,
-                            sidecarCompat.sidecar!!.deviceState
+                            sidecarCompat.sidecar!!.deviceState,
                         )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), eq(expected))
             }
