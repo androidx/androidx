@@ -129,8 +129,7 @@ internal fun <K, T : Collection<*>> AssertThat<T>.contains(vararg items: K) {
     }
 }
 
-internal fun AssertThat<*>.isZero() = isEqualTo(0)
-
+internal fun AssertThat<Float>.isZero() = isEqualTo(0f, absoluteTolerance = 0.001f)
 internal fun AssertThat<Float>.isNonZero() = isNotEqualTo(0f, absoluteTolerance = 0.001f)
 
 internal fun AssertThat<*>.isNull() {
