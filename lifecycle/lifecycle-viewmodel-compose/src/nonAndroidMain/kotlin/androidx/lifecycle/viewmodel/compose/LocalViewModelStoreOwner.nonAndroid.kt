@@ -17,8 +17,11 @@
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.platform.findComposeDefaultViewModelStoreOwner
 import androidx.lifecycle.ViewModelStoreOwner
 
+@OptIn(InternalComposeApi::class)
 @Composable
 internal actual fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
-    implementedInJetBrainsFork()
+    findComposeDefaultViewModelStoreOwner()
