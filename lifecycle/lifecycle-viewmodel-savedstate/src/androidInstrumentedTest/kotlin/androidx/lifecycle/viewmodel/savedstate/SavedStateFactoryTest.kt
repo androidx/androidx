@@ -143,7 +143,7 @@ class SavedStateFactoryTest {
                 override fun <T : ViewModel> create(
                     key: String,
                     modelClass: Class<T>,
-                    handle: SavedStateHandle
+                    handle: SavedStateHandle,
                 ): T {
                     return modelClass.cast(MyAndroidViewModel(app, handle))!!
                 }
@@ -172,7 +172,7 @@ class SavedStateFactoryTest {
                 override fun <T : ViewModel> create(
                     key: String,
                     modelClass: Class<T>,
-                    handle: SavedStateHandle
+                    handle: SavedStateHandle,
                 ): T = create(modelClass)
             }
         try {

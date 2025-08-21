@@ -39,7 +39,7 @@ package androidx.lifecycle {
   }
 
   public final class ViewKt {
-    method @Deprecated public static androidx.lifecycle.LifecycleOwner? findViewTreeLifecycleOwner(android.view.View view);
+    method @BytecodeOnly @Deprecated public static androidx.lifecycle.LifecycleOwner! findViewTreeLifecycleOwner(android.view.View!);
   }
 
   public final class ViewTreeLifecycleOwner {

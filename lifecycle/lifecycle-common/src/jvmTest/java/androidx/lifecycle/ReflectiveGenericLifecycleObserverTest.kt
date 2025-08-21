@@ -219,7 +219,7 @@ class ReflectiveGenericLifecycleObserverTest {
             }
         assertEquals(
             "invalid parameter type. second arg must be an event",
-            expectedException.message
+            expectedException.message,
         )
     }
 

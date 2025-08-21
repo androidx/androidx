@@ -77,7 +77,7 @@ public class TestFragment(private val viewModelClass: Class<out ViewModel>) : Fr
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): ComposeView =
         ComposeView(requireContext()).apply {
             setContent {

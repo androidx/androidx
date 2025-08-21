@@ -34,9 +34,7 @@ class ComposableLifecycleCurrentStateDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableLifecycleCurrentStateDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(
-            ComposableLifecycleCurrentStateDetector.LifecycleCurrentStateInComposition,
-        )
+        mutableListOf(ComposableLifecycleCurrentStateDetector.LifecycleCurrentStateInComposition)
 
     private val lifecycleStub: TestFile =
         bytecodeStub(
@@ -96,7 +94,7 @@ class ComposableLifecycleCurrentStateDetectorTest : LintDetectorTest() {
                 QnibKj/dOcXMvc/IfVoe7xK6S9LBHmH+QoA1eEQxrC+Z/ZXqCkUbdUKPqm3y
                 155VcGfZaQcNii3ir5K/0IMdoBhgI0AJ1yjFZoDruNED07iJcg85DU+jouFq
                 VDW2NNY18hq1H/E8wxYlAwAA
-                """
+                """,
         )
 
     @Test
@@ -153,7 +151,7 @@ class ComposableLifecycleCurrentStateDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.Composable,
-                lifecycleStub
+                lifecycleStub,
             )
             .skipTestModes(TestMode.Companion.TYPE_ALIAS)
             .run()
@@ -282,7 +280,7 @@ Fix for src/androidx/lifecycle/foo/test.kt line 42: Replace with currentStateAsS
                     )
                     .indented(),
                 Stubs.Composable,
-                lifecycleStub
+                lifecycleStub,
             )
             .run()
             .expectClean()

@@ -26,7 +26,7 @@ import javax.lang.model.element.TypeElement
 class LifecycleProcessor : AbstractProcessor() {
     override fun process(
         annotations: MutableSet<out TypeElement>,
-        roundEnv: RoundEnvironment
+        roundEnv: RoundEnvironment,
     ): Boolean {
         val input = collectAndVerifyInput(processingEnv, roundEnv)
         writeModels(transformToOutput(processingEnv, input), processingEnv)

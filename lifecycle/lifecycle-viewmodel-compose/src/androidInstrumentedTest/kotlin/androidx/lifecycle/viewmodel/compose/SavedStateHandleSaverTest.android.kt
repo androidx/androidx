@@ -93,7 +93,7 @@ class SavedStateHandleSaverTest {
                 stateHolder =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        saver = CustomStateHolder.Saver
+                        saver = CustomStateHolder.Saver,
                     ) {
                         CustomStateHolder(0)
                     }
@@ -116,7 +116,7 @@ class SavedStateHandleSaverTest {
                 stateHolder =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        saver = CustomStateHolder.Saver
+                        saver = CustomStateHolder.Saver,
                     ) {
                         CustomStateHolder(0)
                     }
@@ -143,7 +143,7 @@ class SavedStateHandleSaverTest {
                 state =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        stateSaver = CustomState.Saver
+                        stateSaver = CustomState.Saver,
                     ) {
                         mutableStateOf(CustomState(0))
                     }
@@ -166,7 +166,7 @@ class SavedStateHandleSaverTest {
                 state =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        stateSaver = CustomState.Saver
+                        stateSaver = CustomState.Saver,
                     ) {
                         mutableStateOf(CustomState(0))
                     }
@@ -186,7 +186,7 @@ class SavedStateHandleSaverTest {
                 state =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        stateSaver = CustomState.Saver
+                        stateSaver = CustomState.Saver,
                     ) {
                         mutableStateOf(CustomState(0), referentialEqualityPolicy())
                     }
@@ -209,7 +209,7 @@ class SavedStateHandleSaverTest {
                 state =
                     viewModel.savedStateHandle.saveable(
                         key = "key",
-                        stateSaver = CustomState.Saver
+                        stateSaver = CustomState.Saver,
                     ) {
                         mutableStateOf(CustomState(0), referentialEqualityPolicy())
                     }

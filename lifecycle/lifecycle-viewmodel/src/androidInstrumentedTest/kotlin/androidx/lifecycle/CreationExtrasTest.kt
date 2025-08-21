@@ -35,6 +35,28 @@ private val STRING_KEY_2 = CreationExtras.Key<String>()
 class CreationExtrasTest {
 
     @Test
+    fun creationExtras_withInitial_includesInitialValues() {
+        val initialExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val underTest = CreationExtras(initialExtras)
+        assertThat(underTest[STRING_KEY_1]).isEqualTo("value1")
+    }
+
+    @Test
+    fun creationExtras_withInitial_combinesWithBuilderValues() {
+        val initialExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val underTest = CreationExtras(initialExtras) { this[STRING_KEY_2] = "value2" }
+        assertThat(underTest[STRING_KEY_1]).isEqualTo("value1")
+        assertThat(underTest[STRING_KEY_2]).isEqualTo("value2")
+    }
+
+    @Test
+    fun creationExtras_withInitial_builderOverridesInitialValues() {
+        val initialExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "initial_value" }
+        val underTest = CreationExtras(initialExtras) { this[STRING_KEY_1] = "overridden_value" }
+        assertThat(underTest[STRING_KEY_1]).isEqualTo("overridden_value")
+    }
+
+    @Test
     fun keyFactory_returnsDistinctInstances() {
         val key1 = CreationExtras.Key<String>()
         val key2 = CreationExtras.Key<String>()

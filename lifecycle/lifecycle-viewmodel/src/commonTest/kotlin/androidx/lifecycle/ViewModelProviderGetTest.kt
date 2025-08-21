@@ -31,7 +31,7 @@ class ViewModelProviderGetTest {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(
                     modelClass: KClass<T>,
-                    extras: CreationExtras
+                    extras: CreationExtras,
                 ): T = TestViewModel() as T
             }
         val provider = ViewModelProvider.create(ViewModelStore(), factory)

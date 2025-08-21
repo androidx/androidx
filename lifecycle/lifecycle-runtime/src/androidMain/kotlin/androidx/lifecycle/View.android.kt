@@ -30,9 +30,9 @@ import android.view.View
     replaceWith =
         ReplaceWith(
             "findViewTreeLifecycleOwner()",
-            "androidx.lifecycle.findViewTreeLifecycleOwner"
+            "androidx.lifecycle.findViewTreeLifecycleOwner",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 public fun findViewTreeLifecycleOwner(view: View): LifecycleOwner? =
     view.findViewTreeLifecycleOwner()

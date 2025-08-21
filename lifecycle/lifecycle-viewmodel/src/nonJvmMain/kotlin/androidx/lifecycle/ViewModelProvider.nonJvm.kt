@@ -20,30 +20,23 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
-import androidx.lifecycle.viewmodel.ViewModelProviderImpl
+import androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 
-public actual class ViewModelProvider
-private constructor(
-    private val impl: ViewModelProviderImpl,
-) {
+public actual class ViewModelProvider private constructor(private val impl: ViewModelProviderImpl) {
 
     @MainThread
     public actual operator fun <T : ViewModel> get(modelClass: KClass<T>): T =
         impl.getViewModel(modelClass)
 
     @MainThread
-    public actual operator fun <T : ViewModel> get(
-        key: String,
-        modelClass: KClass<T>,
-    ): T = impl.getViewModel(modelClass, key)
+    public actual operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T =
+        impl.getViewModel(modelClass, key)
 
     public actual interface Factory {
-        public actual fun <T : ViewModel> create(
-            modelClass: KClass<T>,
-            extras: CreationExtras,
-        ): T = ViewModelProviders.unsupportedCreateViewModel()
+        public actual fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
+            ViewModelProviders.unsupportedCreateViewModel()
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -62,7 +55,7 @@ private constructor(
         public actual fun create(
             store: ViewModelStore,
             factory: Factory,
-            extras: CreationExtras
+            extras: CreationExtras,
         ): ViewModelProvider = ViewModelProvider(ViewModelProviderImpl(store, factory, extras))
 
         public actual val VIEW_MODEL_KEY: Key<String> = CreationExtras.Companion.Key()

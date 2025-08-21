@@ -25,9 +25,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.NavEntry
-import androidx.navigation3.SavedStateNavEntryDecorator
-import androidx.navigation3.SceneNavDisplay
+import androidx.navigation3.runtime.DecorateNavEntry
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import kotlin.test.Test
@@ -41,8 +43,8 @@ class ViewModelStoreNavEntryDecoratorTest {
 
     @Test
     fun testViewModelProvided() {
-        val savedStateWrapper = SavedStateNavEntryDecorator
-        val viewModelWrapper = ViewModelStoreNavEntryDecorator
+        lateinit var savedStateWrapper: NavEntryDecorator<Any>
+        lateinit var viewModelWrapper: NavEntryDecorator<Any>
         lateinit var viewModel1: MyViewModel
         lateinit var viewModel2: MyViewModel
         val entry1Arg = "entry1 Arg"
@@ -58,16 +60,11 @@ class ViewModelStoreNavEntryDecoratorTest {
                 viewModel2.myArg = entry2Arg
             }
         composeTestRule.setContent {
-            savedStateWrapper.DecorateBackStack(backStack = listOf(entry1.key, entry2.key)) {
-                viewModelWrapper.DecorateBackStack(backStack = listOf(entry1.key, entry2.key)) {
-                    savedStateWrapper.DecorateEntry(
-                        NavEntry(entry1.key) { viewModelWrapper.DecorateEntry(entry1) }
-                    )
-                    savedStateWrapper.DecorateEntry(
-                        NavEntry(entry2.key) { viewModelWrapper.DecorateEntry(entry2) }
-                    )
-                }
-            }
+            savedStateWrapper = rememberSavedStateNavEntryDecorator()
+            viewModelWrapper = rememberViewModelStoreNavEntryDecorator()
+
+            DecorateNavEntry(entry1, listOf(savedStateWrapper, viewModelWrapper))
+            DecorateNavEntry(entry2, listOf(savedStateWrapper, viewModelWrapper))
         }
 
         composeTestRule.runOnIdle {
@@ -82,7 +79,7 @@ class ViewModelStoreNavEntryDecoratorTest {
 
     @Test
     fun testViewModelNoSavedStateNavEntryDecorator() {
-        val viewModelWrapper = ViewModelStoreNavEntryDecorator
+        lateinit var viewModelWrapper: NavEntryDecorator<Any>
         lateinit var viewModel1: MyViewModel
         val entry1Arg = "entry1 Arg"
         val entry1 =
@@ -92,9 +89,8 @@ class ViewModelStoreNavEntryDecoratorTest {
             }
         try {
             composeTestRule.setContent {
-                viewModelWrapper.DecorateBackStack(backStack = listOf(entry1.key)) {
-                    viewModelWrapper.DecorateEntry(entry1)
-                }
+                viewModelWrapper = rememberViewModelStoreNavEntryDecorator()
+                DecorateNavEntry(entry1, listOf(viewModelWrapper))
             }
         } catch (e: Exception) {
             assertThat(e)
@@ -113,10 +109,13 @@ class ViewModelStoreNavEntryDecoratorTest {
         lateinit var backStack: MutableList<Any>
         composeTestRule.setContent {
             backStack = remember { mutableStateListOf("Home") }
-            SceneNavDisplay(
+            NavDisplay(
                 backStack = backStack,
-                postEntryDecorators =
-                    listOf(SavedStateNavEntryDecorator, ViewModelStoreNavEntryDecorator),
+                entryDecorators =
+                    listOf(
+                        rememberSavedStateNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
                 onBack = { backStack.removeAt(backStack.lastIndex) },
             ) { key ->
                 when (key) {
@@ -164,10 +163,13 @@ class ViewModelStoreNavEntryDecoratorTest {
         lateinit var viewModel: SavedStateViewModel
         composeTestRule.setContent {
             backStack = remember { mutableStateListOf("Home") }
-            SceneNavDisplay(
+            NavDisplay(
                 backStack = backStack,
-                postEntryDecorators =
-                    listOf(SavedStateNavEntryDecorator, ViewModelStoreNavEntryDecorator),
+                entryDecorators =
+                    listOf(
+                        rememberSavedStateNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
                 onBack = { backStack.removeAt(backStack.lastIndex) },
             ) { key ->
                 when (key) {

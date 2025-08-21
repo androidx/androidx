@@ -76,9 +76,8 @@ internal fun CoroutineScope.asCloseable() = CloseableCoroutineScope(coroutineSco
  * [CoroutineScope] that provides a method to [close] it, causing the rejection of any new tasks and
  * cleanup of all underlying resources associated with the scope.
  */
-internal class CloseableCoroutineScope(
-    override val coroutineContext: CoroutineContext,
-) : AutoCloseable, CoroutineScope {
+internal class CloseableCoroutineScope(override val coroutineContext: CoroutineContext) :
+    AutoCloseable, CoroutineScope {
 
     constructor(coroutineScope: CoroutineScope) : this(coroutineScope.coroutineContext)
 

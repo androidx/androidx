@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt#viewModelScenario(androidx.lifecycle.ViewModelProvider.Factory, androidx.lifecycle.viewmodel.CreationExtras):
+    Binary breaking change: method androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt.viewModelScenario(androidx.lifecycle.ViewModelProvider.Factory,androidx.lifecycle.viewmodel.CreationExtras) has been removed from bytecode
+RemovedFromBytecode: androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt#viewModelScenario(androidx.lifecycle.viewmodel.CreationExtras, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM>):
+    Binary breaking change: method androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt.viewModelScenario(androidx.lifecycle.viewmodel.CreationExtras,kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>) has been removed from bytecode
+
+
+RemovedFromJava: androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt#viewModelScenario(androidx.lifecycle.ViewModelProvider.Factory, androidx.lifecycle.viewmodel.CreationExtras):
+    Source breaking change: method androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt.viewModelScenario(androidx.lifecycle.ViewModelProvider.Factory,androidx.lifecycle.viewmodel.CreationExtras) can no longer be resolved from Java source
+RemovedFromJava: androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt#viewModelScenario(androidx.lifecycle.viewmodel.CreationExtras, kotlin.jvm.functions.Function1<? super androidx.lifecycle.viewmodel.CreationExtras,? extends VM>):
+    Source breaking change: method androidx.lifecycle.viewmodel.testing.ViewModelScenarioKt.viewModelScenario(androidx.lifecycle.viewmodel.CreationExtras,kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>) can no longer be resolved from Java source

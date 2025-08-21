@@ -8,8 +8,8 @@ package androidx.lifecycle {
   }
 
   public final class SavedStateHandle {
-    ctor public SavedStateHandle();
-    ctor public SavedStateHandle(java.util.Map<java.lang.String,? extends java.lang.Object?> initialState);
+    ctor @VisibleForTesting public SavedStateHandle();
+    ctor @VisibleForTesting public SavedStateHandle(java.util.Map<java.lang.String,? extends java.lang.Object?> initialState);
     method @MainThread public void clearSavedStateProvider(String key);
     method @MainThread public operator boolean contains(String key);
     method @MainThread public operator <T> T? get(String key);
@@ -50,8 +50,9 @@ package androidx.lifecycle {
 package androidx.lifecycle.serialization {
 
   public final class SavedStateHandleDelegateKt {
-    method public static inline <reified T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> saved(androidx.lifecycle.SavedStateHandle, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
-    method public static <T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> saved(androidx.lifecycle.SavedStateHandle, kotlinx.serialization.KSerializer<T> serializer, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
+    method @KotlinOnly public static inline <reified T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> saved(androidx.lifecycle.SavedStateHandle, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<T> init);
+    method @BytecodeOnly @Deprecated public static kotlin.properties.ReadWriteProperty! saved(androidx.lifecycle.SavedStateHandle!, kotlinx.serialization.KSerializer!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!);
+    method public static <T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> savedNullable(androidx.lifecycle.SavedStateHandle, kotlinx.serialization.KSerializer<T> serializer, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
   }
 
 }

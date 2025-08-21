@@ -42,9 +42,9 @@ package androidx.lifecycle {
 
   public final class Transformations {
     method @CheckResult @MainThread public static <X> androidx.lifecycle.LiveData<X> distinctUntilChanged(androidx.lifecycle.LiveData<X>);
-    method @Deprecated @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y> mapFunction);
+    method @BytecodeOnly @Deprecated @CheckResult @MainThread public static androidx.lifecycle.LiveData! map(androidx.lifecycle.LiveData!, androidx.arch.core.util.Function!);
     method @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<X,Y> transform);
-    method @Deprecated @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>> switchMapFunction);
+    method @BytecodeOnly @Deprecated @CheckResult @MainThread public static androidx.lifecycle.LiveData! switchMap(androidx.lifecycle.LiveData!, androidx.arch.core.util.Function!);
     method @CheckResult @MainThread public static <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<X,androidx.lifecycle.LiveData<Y>?> transform);
   }
 

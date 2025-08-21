@@ -28,10 +28,7 @@ import kotlin.test.fail
 class ViewModelProviderTest {
 
     private val viewModelProvider =
-        ViewModelProvider.create(
-            store = ViewModelStore(),
-            factory = TestViewModelFactory(),
-        )
+        ViewModelProvider.create(store = ViewModelStore(), factory = TestViewModelFactory())
 
     @Test
     fun twoViewModelsWithSameKey() {
@@ -91,11 +88,12 @@ class ViewModelProviderTest {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(
                     modelClass: KClass<T>,
-                    extras: CreationExtras
+                    extras: CreationExtras,
                 ): T {
                     val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isEqualTo("customKey")
-                    @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
+                    @Suppress("UNCHECKED_CAST")
+                    return TestViewModel1() as T
                 }
             }
         val provider = ViewModelProvider.create(owner, explicitlyKeyed)
@@ -104,11 +102,12 @@ class ViewModelProviderTest {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(
                     modelClass: KClass<T>,
-                    extras: CreationExtras
+                    extras: CreationExtras,
                 ): T {
                     val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isNotNull()
-                    @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
+                    @Suppress("UNCHECKED_CAST")
+                    return TestViewModel1() as T
                 }
             }
         ViewModelProvider.create(owner, implicitlyKeyed)["customKey", TestViewModel1::class]
@@ -122,7 +121,7 @@ class ViewModelProviderTest {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(
                     modelClass: KClass<T>,
-                    extras: CreationExtras
+                    extras: CreationExtras,
                 ): T {
                     val mutableKey = CreationExtras.Key<String>()
                     val mutableValue = "value"
@@ -133,7 +132,8 @@ class ViewModelProviderTest {
                     assertThat(mutableExtras[TEST_KEY]).isEqualTo(TEST_VALUE)
                     assertThat(mutableExtras[mutableKey]).isEqualTo(mutableValue)
                     wasCalled[0] = true
-                    @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
+                    @Suppress("UNCHECKED_CAST")
+                    return TestViewModel1() as T
                 }
             }
         ViewModelProvider.create(owner, testFactory)["customKey", TestViewModel1::class]
@@ -155,13 +155,14 @@ class ViewModelProviderTest {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(
                     modelClass: KClass<T>,
-                    extras: CreationExtras
+                    extras: CreationExtras,
                 ): T {
                     val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isEqualTo("customKey")
                     assertThat(extras[TEST_KEY]).isEqualTo(TEST_VALUE)
                     wasCalled[0] = true
-                    @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
+                    @Suppress("UNCHECKED_CAST")
+                    return TestViewModel1() as T
                 }
             }
         ViewModelProvider.create(owner, testFactory)["customKey", TestViewModel1::class]
@@ -178,7 +179,7 @@ class ViewModelProviderTest {
     class ViewModelStoreOwnerWithFactory
     internal constructor(
         private val mStore: ViewModelStore,
-        private val mFactory: ViewModelProvider.Factory
+        private val mFactory: ViewModelProvider.Factory,
     ) : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
         override val viewModelStore: ViewModelStore = mStore
         override val defaultViewModelProviderFactory = mFactory

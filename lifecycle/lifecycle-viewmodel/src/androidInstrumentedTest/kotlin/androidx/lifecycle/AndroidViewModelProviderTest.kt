@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class AndroidViewModelProviderTest {
 
-    /** @see androidx.lifecycle.viewmodel.createViewModel */
+    /** @see androidx.lifecycle.viewmodel.internal.createViewModel */
     @Test
     fun get_throwsNotImplementedError_shouldFallbackToAvoidDesugaringIssues() {
         val extras = MutableCreationExtras()

@@ -61,7 +61,7 @@ class ComposableLifecycleCurrentStateDetector : Detector(), SourceCodeScanner {
                                 .text("currentState")
                                 .with("currentStateAsState().value")
                                 .imports("androidx.lifecycle.compose.currentStateAsState")
-                                .build()
+                                .build(),
                         )
                     }
                 }
@@ -82,8 +82,8 @@ class ComposableLifecycleCurrentStateDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ComposableLifecycleCurrentStateDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

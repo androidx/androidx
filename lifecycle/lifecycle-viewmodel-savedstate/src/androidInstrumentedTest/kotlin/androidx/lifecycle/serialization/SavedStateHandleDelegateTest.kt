@@ -64,6 +64,46 @@ class SavedStateHandleDelegateTest {
     }
 
     @Test
+    fun restoreNonNull() {
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            val viewModel: MyViewModel = ViewModelProvider(activity)[MyViewModel::class]
+            var value: String? by viewModel.savedStateHandle.saved<String?> { "initialValue" }
+            assertThat(value).isEqualTo("initialValue")
+            value = null
+            assertThat(value).isNull()
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            val viewModel: MyViewModel = ViewModelProvider(activity)[MyViewModel::class]
+            val value: String? by
+                viewModel.savedStateHandle.saved { error("Unexpected initializer call") }
+            assertThat(value).isNull()
+        }
+    }
+
+    @Test
+    fun restoreNullable() {
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            val viewModel: MyViewModel = ViewModelProvider(activity)[MyViewModel::class]
+            var value: String? by viewModel.savedStateHandle.saved { null }
+            assertThat(value).isNull()
+            value = "initialValue"
+            assertThat(value).isEqualTo("initialValue")
+        }
+
+        activityTestRuleScenario.scenario.recreate()
+
+        activityTestRuleScenario.scenario.onActivity { activity ->
+            val viewModel: MyViewModel = ViewModelProvider(activity)[MyViewModel::class]
+            val value: String? by
+                viewModel.savedStateHandle.saved { error("Unexpected initializer call") }
+            assertThat(value).isEqualTo("initialValue")
+        }
+    }
+
+    @Test
     fun explicitKey() {
         activityTestRuleScenario.scenario.onActivity { activity ->
             val viewModel: MyViewModel = ViewModelProvider(activity)[MyViewModel::class]

@@ -58,13 +58,13 @@ public // Initial value for an ongoing collect.
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = EmptyCoroutineContext,
 ): State<T> =
     collectAsStateWithLifecycle(
         initialValue = this.value,
         lifecycle = lifecycleOwner.lifecycle,
         minActiveState = minActiveState,
-        context = context
+        context = context,
     )
 
 /**
@@ -95,13 +95,13 @@ public // Initial value for an ongoing collect.
 fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycle: Lifecycle,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = EmptyCoroutineContext,
 ): State<T> =
     collectAsStateWithLifecycle(
         initialValue = this.value,
         lifecycle = lifecycle,
         minActiveState = minActiveState,
-        context = context
+        context = context,
     )
 
 /**
@@ -134,13 +134,13 @@ public fun <T> Flow<T>.collectAsStateWithLifecycle(
     initialValue: T,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = EmptyCoroutineContext,
 ): State<T> =
     collectAsStateWithLifecycle(
         initialValue = initialValue,
         lifecycle = lifecycleOwner.lifecycle,
         minActiveState = minActiveState,
-        context = context
+        context = context,
     )
 
 /**
@@ -171,7 +171,7 @@ public fun <T> Flow<T>.collectAsStateWithLifecycle(
     initialValue: T,
     lifecycle: Lifecycle,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    context: CoroutineContext = EmptyCoroutineContext
+    context: CoroutineContext = EmptyCoroutineContext,
 ): State<T> {
     return produceState(initialValue, this, lifecycle, minActiveState, context) {
         lifecycle.repeatOnLifecycle(minActiveState) {
