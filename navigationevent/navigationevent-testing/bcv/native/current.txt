@@ -1,0 +1,44 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.navigationevent:navigationevent-testing>
+final class <#A: androidx.navigationevent/NavigationEventInfo> androidx.navigationevent.testing/TestNavigationEventCallback : androidx.navigationevent/NavigationEventCallback<#A> { // androidx.navigationevent.testing/TestNavigationEventCallback|null[0]
+    constructor <init>(#A, #A? = ..., kotlin/Boolean = ..., kotlin/Function2<androidx.navigationevent.testing/TestNavigationEventCallback<#A>, androidx.navigationevent/NavigationEvent, kotlin/Unit> = ..., kotlin/Function2<androidx.navigationevent.testing/TestNavigationEventCallback<#A>, androidx.navigationevent/NavigationEvent, kotlin/Unit> = ..., kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventCallback<#A>, kotlin/Unit> = ..., kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventCallback<#A>, kotlin/Unit> = ...) // androidx.navigationevent.testing/TestNavigationEventCallback.<init>|<init>(1:0;1:0?;kotlin.Boolean;kotlin.Function2<androidx.navigationevent.testing.TestNavigationEventCallback<1:0>,androidx.navigationevent.NavigationEvent,kotlin.Unit>;kotlin.Function2<androidx.navigationevent.testing.TestNavigationEventCallback<1:0>,androidx.navigationevent.NavigationEvent,kotlin.Unit>;kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventCallback<1:0>,kotlin.Unit>;kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventCallback<1:0>,kotlin.Unit>){}[0]
+
+    final val progressedEvents // androidx.navigationevent.testing/TestNavigationEventCallback.progressedEvents|{}progressedEvents[0]
+        final fun <get-progressedEvents>(): kotlin.collections/List<androidx.navigationevent/NavigationEvent> // androidx.navigationevent.testing/TestNavigationEventCallback.progressedEvents.<get-progressedEvents>|<get-progressedEvents>(){}[0]
+    final val progressedInvocations // androidx.navigationevent.testing/TestNavigationEventCallback.progressedInvocations|{}progressedInvocations[0]
+        final fun <get-progressedInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventCallback.progressedInvocations.<get-progressedInvocations>|<get-progressedInvocations>(){}[0]
+    final val startedEvents // androidx.navigationevent.testing/TestNavigationEventCallback.startedEvents|{}startedEvents[0]
+        final fun <get-startedEvents>(): kotlin.collections/List<androidx.navigationevent/NavigationEvent> // androidx.navigationevent.testing/TestNavigationEventCallback.startedEvents.<get-startedEvents>|<get-startedEvents>(){}[0]
+    final val startedInvocations // androidx.navigationevent.testing/TestNavigationEventCallback.startedInvocations|{}startedInvocations[0]
+        final fun <get-startedInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventCallback.startedInvocations.<get-startedInvocations>|<get-startedInvocations>(){}[0]
+
+    final var cancelledInvocations // androidx.navigationevent.testing/TestNavigationEventCallback.cancelledInvocations|{}cancelledInvocations[0]
+        final fun <get-cancelledInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventCallback.cancelledInvocations.<get-cancelledInvocations>|<get-cancelledInvocations>(){}[0]
+    final var completedInvocations // androidx.navigationevent.testing/TestNavigationEventCallback.completedInvocations|{}completedInvocations[0]
+        final fun <get-completedInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventCallback.completedInvocations.<get-completedInvocations>|<get-completedInvocations>(){}[0]
+
+    final fun onEventCancelled() // androidx.navigationevent.testing/TestNavigationEventCallback.onEventCancelled|onEventCancelled(){}[0]
+    final fun onEventCompleted() // androidx.navigationevent.testing/TestNavigationEventCallback.onEventCompleted|onEventCompleted(){}[0]
+    final fun onEventProgressed(androidx.navigationevent/NavigationEvent) // androidx.navigationevent.testing/TestNavigationEventCallback.onEventProgressed|onEventProgressed(androidx.navigationevent.NavigationEvent){}[0]
+    final fun onEventStarted(androidx.navigationevent/NavigationEvent) // androidx.navigationevent.testing/TestNavigationEventCallback.onEventStarted|onEventStarted(androidx.navigationevent.NavigationEvent){}[0]
+}
+
+final class androidx.navigationevent.testing/TestNavigationEventDispatcherOwner : androidx.navigationevent/NavigationEventDispatcherOwner { // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner|null[0]
+    constructor <init>(kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventDispatcherOwner, kotlin/Unit> = ..., kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventDispatcherOwner, kotlin/Unit> = ...) // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.<init>|<init>(kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit>;kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit>){}[0]
+
+    final val navigationEventDispatcher // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.navigationEventDispatcher|{}navigationEventDispatcher[0]
+        final fun <get-navigationEventDispatcher>(): androidx.navigationevent/NavigationEventDispatcher // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.navigationEventDispatcher.<get-navigationEventDispatcher>|<get-navigationEventDispatcher>(){}[0]
+
+    final var fallbackOnBackPressedInvocations // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.fallbackOnBackPressedInvocations|{}fallbackOnBackPressedInvocations[0]
+        final fun <get-fallbackOnBackPressedInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.fallbackOnBackPressedInvocations.<get-fallbackOnBackPressedInvocations>|<get-fallbackOnBackPressedInvocations>(){}[0]
+    final var onHasEnabledCallbacksChangedInvocations // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.onHasEnabledCallbacksChangedInvocations|{}onHasEnabledCallbacksChangedInvocations[0]
+        final fun <get-onHasEnabledCallbacksChangedInvocations>(): kotlin/Int // androidx.navigationevent.testing/TestNavigationEventDispatcherOwner.onHasEnabledCallbacksChangedInvocations.<get-onHasEnabledCallbacksChangedInvocations>|<get-onHasEnabledCallbacksChangedInvocations>(){}[0]
+}
+
+final fun androidx.navigationevent.testing/TestNavigationEventCallback(kotlin/Boolean = ..., kotlin/Function2<androidx.navigationevent.testing/TestNavigationEventCallback<*>, androidx.navigationevent/NavigationEvent, kotlin/Unit> = ..., kotlin/Function2<androidx.navigationevent.testing/TestNavigationEventCallback<*>, androidx.navigationevent/NavigationEvent, kotlin/Unit> = ..., kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventCallback<*>, kotlin/Unit> = ..., kotlin/Function1<androidx.navigationevent.testing/TestNavigationEventCallback<*>, kotlin/Unit> = ...): androidx.navigationevent.testing/TestNavigationEventCallback<*> // androidx.navigationevent.testing/TestNavigationEventCallback|TestNavigationEventCallback(kotlin.Boolean;kotlin.Function2<androidx.navigationevent.testing.TestNavigationEventCallback<*>,androidx.navigationevent.NavigationEvent,kotlin.Unit>;kotlin.Function2<androidx.navigationevent.testing.TestNavigationEventCallback<*>,androidx.navigationevent.NavigationEvent,kotlin.Unit>;kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventCallback<*>,kotlin.Unit>;kotlin.Function1<androidx.navigationevent.testing.TestNavigationEventCallback<*>,kotlin.Unit>){}[0]
