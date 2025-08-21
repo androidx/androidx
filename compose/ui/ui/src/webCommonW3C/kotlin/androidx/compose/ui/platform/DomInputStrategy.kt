@@ -50,29 +50,31 @@ internal class DomInputStrategy(
         })
 
         htmlInput.addEventListener("keydown", { evt ->
-            nativeInputEventsProcessor.addKeyEvent(evt as KeyboardEvent)
+            nativeInputEventsProcessor.registerEvent(evt as KeyboardEvent)
         })
 
         htmlInput.addEventListener("keyup", { evt ->
-            nativeInputEventsProcessor.addKeyEvent(evt as KeyboardEvent)
+            nativeInputEventsProcessor.registerEvent(evt as KeyboardEvent)
         })
 
         htmlInput.addEventListener("beforeinput", { evt ->
             if (evt is InputEvent) {
                 htmlInput as HTMLElementWithValue
                 val deleteContentBackwardSize = htmlInput.selectionEnd - htmlInput.selectionStart
-                nativeInputEventsProcessor.addInputEvent(
-                    event = evt, deleteContentBackwardSize = deleteContentBackwardSize
-                )
+
+                if (deleteContentBackwardSize > 0) {
+                    evt.deleteContentBackwardSize = deleteContentBackwardSize
+                }
+                nativeInputEventsProcessor.registerEvent(evt)
             }
         })
 
         htmlInput.addEventListener("compositionstart", { evt ->
-            nativeInputEventsProcessor.addCompositionEvent(evt as CompositionEvent)
+            nativeInputEventsProcessor.registerEvent(evt as CompositionEvent)
         })
 
         htmlInput.addEventListener("compositionend", { evt ->
-            nativeInputEventsProcessor.addCompositionEvent(evt as CompositionEvent)
+            nativeInputEventsProcessor.registerEvent(evt as CompositionEvent)
         })
     }
 }
