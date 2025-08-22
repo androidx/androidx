@@ -89,25 +89,25 @@ private fun WebTextToolbarPopup() {
         contextMenuBuilderBlock = {
             if (menu.onCopyRequested != null) {
                 item(
-                    label = { getString(Strings.Copy) },
+                    label = { getString(ContextMenuStrings.Copy) },
                     onClick = { menu.onCopyRequested?.invoke() }
                 )
             }
             if (menu.onPasteRequested != null) {
                 item(
-                    label = { getString(Strings.Paste) },
+                    label = { getString(ContextMenuStrings.Paste) },
                     onClick = { menu.onPasteRequested?.invoke() }
                 )
             }
             if (menu.onCutRequested != null) {
                 item(
-                    label = { getString(Strings.Cut) },
+                    label = { getString(ContextMenuStrings.Cut) },
                     onClick = { menu.onCutRequested?.invoke() }
                 )
             }
             if (menu.onSelectAllRequested != null) {
                 item(
-                    label = { getString(Strings.SelectAll) },
+                    label = { getString(ContextMenuStrings.SelectAll) },
                     onClick = { menu.onSelectAllRequested?.invoke() }
                 )
             }
