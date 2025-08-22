@@ -31,7 +31,9 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 fun Bitmap.asImageBitmap(): ImageBitmap = AndroidImageBitmap(this)
 
 internal actual fun createImageBitmap(bytes: ByteArray): ImageBitmap {
-    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
+    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    require(bitmap != null) { "Failed to decode ImageBitmap from ByteArray: invalid or unsupported format" }
+    return bitmap.asImageBitmap()
 }
 
 internal actual fun ActualImageBitmap(
