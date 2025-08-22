@@ -16,23 +16,23 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.fr() = mapOf(
-    Strings.SelectAll to "Tout sélectionner",
-    Strings.Cut to "Couper",
-    Strings.Copy to "Copier",
-    Strings.Paste to "Coller",
-    Strings.Autofill to "Saisie automatique",
+    ContextMenuStrings.SelectAll to "Tout sélectionner",
+    ContextMenuStrings.Cut to "Couper",
+    ContextMenuStrings.Copy to "Copier",
+    ContextMenuStrings.Paste to "Coller",
+    ContextMenuStrings.Autofill to "Saisie automatique",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.frCA() = mapOf(
-    Strings.SelectAll to "Tout sélectionner",
-    Strings.Cut to "Couper",
-    Strings.Copy to "Copier",
-    Strings.Paste to "Coller",
-    Strings.Autofill to "Remplissage automatique",
+    ContextMenuStrings.SelectAll to "Tout sélectionner",
+    ContextMenuStrings.Cut to "Couper",
+    ContextMenuStrings.Copy to "Copier",
+    ContextMenuStrings.Paste to "Coller",
+    ContextMenuStrings.Autofill to "Remplissage automatique",
 )

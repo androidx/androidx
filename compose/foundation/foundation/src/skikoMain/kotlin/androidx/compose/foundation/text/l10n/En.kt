@@ -16,50 +16,50 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.en() = mapOf(
-    Strings.SelectAll to "Select all",
-    Strings.Cut to "Cut",
-    Strings.Copy to "Copy",
-    Strings.Paste to "Paste",
-    Strings.Autofill to "Autofill",
+    ContextMenuStrings.SelectAll to "Select all",
+    ContextMenuStrings.Cut to "Cut",
+    ContextMenuStrings.Copy to "Copy",
+    ContextMenuStrings.Paste to "Paste",
+    ContextMenuStrings.Autofill to "Autofill",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.enAU() = mapOf(
-    Strings.SelectAll to "Select all",
-    Strings.Cut to "Cut",
-    Strings.Copy to "Copy",
-    Strings.Paste to "Paste",
-    Strings.Autofill to "Auto-fill",
+    ContextMenuStrings.SelectAll to "Select all",
+    ContextMenuStrings.Cut to "Cut",
+    ContextMenuStrings.Copy to "Copy",
+    ContextMenuStrings.Paste to "Paste",
+    ContextMenuStrings.Autofill to "Auto-fill",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.enCA() = mapOf(
-    Strings.SelectAll to "Select all",
-    Strings.Cut to "Cut",
-    Strings.Copy to "Copy",
-    Strings.Paste to "Paste",
-    Strings.Autofill to "Autofill",
+    ContextMenuStrings.SelectAll to "Select all",
+    ContextMenuStrings.Cut to "Cut",
+    ContextMenuStrings.Copy to "Copy",
+    ContextMenuStrings.Paste to "Paste",
+    ContextMenuStrings.Autofill to "Autofill",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.enGB() = mapOf(
-    Strings.SelectAll to "Select all",
-    Strings.Cut to "Cut",
-    Strings.Copy to "Copy",
-    Strings.Paste to "Paste",
-    Strings.Autofill to "Auto-fill",
+    ContextMenuStrings.SelectAll to "Select all",
+    ContextMenuStrings.Cut to "Cut",
+    ContextMenuStrings.Copy to "Copy",
+    ContextMenuStrings.Paste to "Paste",
+    ContextMenuStrings.Autofill to "Auto-fill",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.enIN() = mapOf(
-    Strings.SelectAll to "Select all",
-    Strings.Cut to "Cut",
-    Strings.Copy to "Copy",
-    Strings.Paste to "Paste",
-    Strings.Autofill to "Auto-fill",
+    ContextMenuStrings.SelectAll to "Select all",
+    ContextMenuStrings.Cut to "Cut",
+    ContextMenuStrings.Copy to "Copy",
+    ContextMenuStrings.Paste to "Paste",
+    ContextMenuStrings.Autofill to "Auto-fill",
 )

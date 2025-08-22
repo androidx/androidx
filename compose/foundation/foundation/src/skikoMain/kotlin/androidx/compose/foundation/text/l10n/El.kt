@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.el() = mapOf(
-    Strings.SelectAll to "Επιλογή όλων",
-    Strings.Cut to "Αποκοπή",
-    Strings.Copy to "Αντιγραφή",
-    Strings.Paste to "Επικόλληση",
-    Strings.Autofill to "Αυτόματη συμπλήρωση",
+    ContextMenuStrings.SelectAll to "Επιλογή όλων",
+    ContextMenuStrings.Cut to "Αποκοπή",
+    ContextMenuStrings.Copy to "Αντιγραφή",
+    ContextMenuStrings.Paste to "Επικόλληση",
+    ContextMenuStrings.Autofill to "Αυτόματη συμπλήρωση",
 )

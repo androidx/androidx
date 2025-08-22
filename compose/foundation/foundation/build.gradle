@@ -265,6 +265,7 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     targetDirectory = project.file("src/skikoMain/kotlin/androidx/compose/foundation/text/l10n")
     targetPackageName = "androidx.compose.foundation.text.l10n"
     kotlinStringsPackageName = "androidx.compose.foundation.text"
+    kotlinStringsClassName = "ContextMenuStrings"
     stringByResourceName = [
             "copy": "Copy",
             "paste": "Paste",

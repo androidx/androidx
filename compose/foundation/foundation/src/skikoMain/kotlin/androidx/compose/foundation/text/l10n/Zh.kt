@@ -16,32 +16,32 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhCN() = mapOf(
-    Strings.SelectAll to "全选",
-    Strings.Cut to "剪切",
-    Strings.Copy to "复制",
-    Strings.Paste to "粘贴",
-    Strings.Autofill to "自动填充",
+    ContextMenuStrings.SelectAll to "全选",
+    ContextMenuStrings.Cut to "剪切",
+    ContextMenuStrings.Copy to "复制",
+    ContextMenuStrings.Paste to "粘贴",
+    ContextMenuStrings.Autofill to "自动填充",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhHK() = mapOf(
-    Strings.SelectAll to "全部選取",
-    Strings.Cut to "剪下",
-    Strings.Copy to "複製",
-    Strings.Paste to "貼上",
-    Strings.Autofill to "自動填入",
+    ContextMenuStrings.SelectAll to "全部選取",
+    ContextMenuStrings.Cut to "剪下",
+    ContextMenuStrings.Copy to "複製",
+    ContextMenuStrings.Paste to "貼上",
+    ContextMenuStrings.Autofill to "自動填入",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhTW() = mapOf(
-    Strings.SelectAll to "全部選取",
-    Strings.Cut to "剪下",
-    Strings.Copy to "複製",
-    Strings.Paste to "貼上",
-    Strings.Autofill to "自動填入",
+    ContextMenuStrings.SelectAll to "全部選取",
+    ContextMenuStrings.Cut to "剪下",
+    ContextMenuStrings.Copy to "複製",
+    ContextMenuStrings.Paste to "貼上",
+    ContextMenuStrings.Autofill to "自動填入",
 )

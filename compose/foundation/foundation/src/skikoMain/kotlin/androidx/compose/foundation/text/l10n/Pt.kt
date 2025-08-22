@@ -16,32 +16,32 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.pt() = mapOf(
-    Strings.SelectAll to "Selecionar tudo",
-    Strings.Cut to "Recortar",
-    Strings.Copy to "Copiar",
-    Strings.Paste to "Colar",
-    Strings.Autofill to "Preenchimento automático",
+    ContextMenuStrings.SelectAll to "Selecionar tudo",
+    ContextMenuStrings.Cut to "Recortar",
+    ContextMenuStrings.Copy to "Copiar",
+    ContextMenuStrings.Paste to "Colar",
+    ContextMenuStrings.Autofill to "Preenchimento automático",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ptBR() = mapOf(
-    Strings.SelectAll to "Selecionar tudo",
-    Strings.Cut to "Recortar",
-    Strings.Copy to "Copiar",
-    Strings.Paste to "Colar",
-    Strings.Autofill to "Preenchimento automático",
+    ContextMenuStrings.SelectAll to "Selecionar tudo",
+    ContextMenuStrings.Cut to "Recortar",
+    ContextMenuStrings.Copy to "Copiar",
+    ContextMenuStrings.Paste to "Colar",
+    ContextMenuStrings.Autofill to "Preenchimento automático",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ptPT() = mapOf(
-    Strings.SelectAll to "Selecionar tudo",
-    Strings.Cut to "Cortar",
-    Strings.Copy to "Copiar",
-    Strings.Paste to "Colar",
-    Strings.Autofill to "Preenchimento automático",
+    ContextMenuStrings.SelectAll to "Selecionar tudo",
+    ContextMenuStrings.Cut to "Cortar",
+    ContextMenuStrings.Copy to "Copiar",
+    ContextMenuStrings.Paste to "Colar",
+    ContextMenuStrings.Autofill to "Preenchimento automático",
 )

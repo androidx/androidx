@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.lv() = mapOf(
-    Strings.SelectAll to "Atlasīt visu",
-    Strings.Cut to "Izgriezt",
-    Strings.Copy to "Kopēt",
-    Strings.Paste to "Ielīmēt",
-    Strings.Autofill to "Automātiskā aizpilde",
+    ContextMenuStrings.SelectAll to "Atlasīt visu",
+    ContextMenuStrings.Cut to "Izgriezt",
+    ContextMenuStrings.Copy to "Kopēt",
+    ContextMenuStrings.Paste to "Ielīmēt",
+    ContextMenuStrings.Autofill to "Automātiskā aizpilde",
 )

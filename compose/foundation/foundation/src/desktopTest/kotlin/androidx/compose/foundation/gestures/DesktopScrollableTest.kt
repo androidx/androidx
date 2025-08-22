@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.sqrt
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -249,7 +248,6 @@ class DesktopScrollableTest {
     }
 
     @Test
-    @Ignore // TODO Fails on Desktop
     fun multipleScrollingModifiers() = runSkikoComposeUiTest(
         size = size,
         density = density
@@ -283,6 +281,9 @@ class DesktopScrollableTest {
                 scrollDelta = Offset(0f, -5f),
                 nativeEvent = awtWheelEvent(),
             )
+        }
+        waitForIdle()
+        scope.launch {
             scene.sendPointerEvent(
                 eventType = PointerEventType.Scroll,
                 position = Offset.Zero,

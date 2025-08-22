@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.lo() = mapOf(
-    Strings.SelectAll to "ເລືອກທັງໝົດ",
-    Strings.Cut to "ຕັດ",
-    Strings.Copy to "ສຳເນົາ",
-    Strings.Paste to "ວາງ",
-    Strings.Autofill to "ຕື່ມຂໍ້ມູນອັດຕະໂນມັດ",
+    ContextMenuStrings.SelectAll to "ເລືອກທັງໝົດ",
+    ContextMenuStrings.Cut to "ຕັດ",
+    ContextMenuStrings.Copy to "ສຳເນົາ",
+    ContextMenuStrings.Paste to "ວາງ",
+    ContextMenuStrings.Autofill to "ຕື່ມຂໍ້ມູນອັດຕະໂນມັດ",
 )
