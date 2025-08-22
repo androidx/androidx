@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,11 @@ interface PlatformWindowInsets {
      * An empty list is returned when there are no display cutouts.
      */
     val displayCutouts: List<Rect> get() = emptyList()
+    /**
+     * A [Path] representing the union of all display cutouts.
+     * Returns null if there are no cutouts or if the platform does not provide cutout geometry.
+     */
+    val cutoutPath: Path? get() = null
     val captionBar: PlatformInsets get() = PlatformInsets.Zero
     /**
      * Represents the safe inset areas that content should observe to avoid all display cutouts.

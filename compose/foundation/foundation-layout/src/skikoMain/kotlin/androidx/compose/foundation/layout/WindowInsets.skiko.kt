@@ -67,10 +67,9 @@ actual val WindowInsets.Companion.tappableElement: WindowInsets
     @Composable
     get() = LocalPlatformWindowInsets.current.tappableElement.toWindowInsets()
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-8684
 actual val WindowInsets.Companion.cutoutPath: Path?
     @Composable
-    get() = null
+    get() = LocalPlatformWindowInsets.current.cutoutPath
 
 actual val WindowInsets.Companion.waterfall: WindowInsets
     @Composable
