@@ -21,14 +21,7 @@ import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.kruth.assertThat
 import androidx.window.core.layout.WindowSizeClass
-import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import kotlin.test.Test
-
-// TODO: Replace with WindowSizeClass.WIDTH_DP_EXTRA_LARGE_LOWER_BOUND after merging last window-core
-const val WIDTH_DP_EXTRA_LARGE_LOWER_BOUND = 1600
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class NavigationSuiteScaffoldTest {
