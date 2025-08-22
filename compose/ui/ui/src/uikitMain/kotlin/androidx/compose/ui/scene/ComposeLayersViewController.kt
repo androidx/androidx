@@ -314,6 +314,6 @@ internal class ComposeLayersViewController(
 
 private class LayersWindow: UIWindow(frame = UIScreen.mainScreen.bounds) {
     override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
-        return super.hitTest(point, withEvent).takeUnless { it == this }
+        return rootViewController?.view?.hitTest(point, withEvent)
     }
 }
