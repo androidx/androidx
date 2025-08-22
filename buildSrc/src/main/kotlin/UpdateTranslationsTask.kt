@@ -27,6 +27,7 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Element
 
@@ -99,6 +100,10 @@ abstract class UpdateTranslationsTask : DefaultTask() {
      */
     @get:Input
     abstract val kotlinStringsPackageName: Property<String>
+
+    @get:Optional
+    @get:Input
+    abstract val kotlinStringsClassName: Property<String>
 
     /**
      * Updates the translations.
@@ -190,7 +195,8 @@ abstract class UpdateTranslationsTask : DefaultTask() {
 
         File(targetDirectory.get().asFile, kotlinFileName).bufferedWriter().use {
             it.write(kotlinFilePreamble())
-            it.appendLine("import ${kotlinStringsPackageName.get()}.Strings")
+            val className = kotlinStringsClassName.orNull ?: "Strings"
+            it.appendLine("import ${kotlinStringsPackageName.get()}.$className")
             it.appendLine("import ${kotlinStringsPackageName.get()}.Translations")
 
             for (locale in locales) {
@@ -223,7 +229,7 @@ abstract class UpdateTranslationsTask : DefaultTask() {
                                     .trim()
                                     .removeSurrounding("\"", "\"")
                                     .replace("\$", "\\$")
-                                it.appendLine("    Strings.$string to \"$content\",")
+                                it.appendLine("    $className.$string to \"$content\",")
                                 remainingStrings.remove(string)
                             }
                         }

@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.sl() = mapOf(
-    Strings.SelectAll to "Izberi vse",
-    Strings.Cut to "Izreži",
-    Strings.Copy to "Kopiraj",
-    Strings.Paste to "Prilepi",
-    Strings.Autofill to "Samodejno izpolnjevanje",
+    ContextMenuStrings.SelectAll to "Izberi vse",
+    ContextMenuStrings.Cut to "Izreži",
+    ContextMenuStrings.Copy to "Kopiraj",
+    ContextMenuStrings.Paste to "Prilepi",
+    ContextMenuStrings.Autofill to "Samodejno izpolnjevanje",
 )

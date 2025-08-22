@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.or() = mapOf(
-    Strings.SelectAll to "ସବୁ ଚୟନ କରନ୍ତୁ",
-    Strings.Cut to "କଟ୍‌",
-    Strings.Copy to "କପି କରନ୍ତୁ",
-    Strings.Paste to "ପେଷ୍ଟ କରନ୍ତୁ",
-    Strings.Autofill to "ଅଟୋଫିଲ୍‌",
+    ContextMenuStrings.SelectAll to "ସବୁ ଚୟନ କରନ୍ତୁ",
+    ContextMenuStrings.Cut to "କଟ୍‌",
+    ContextMenuStrings.Copy to "କପି କରନ୍ତୁ",
+    ContextMenuStrings.Paste to "ପେଷ୍ଟ କରନ୍ତୁ",
+    ContextMenuStrings.Autofill to "ଅଟୋଫିଲ୍‌",
 )

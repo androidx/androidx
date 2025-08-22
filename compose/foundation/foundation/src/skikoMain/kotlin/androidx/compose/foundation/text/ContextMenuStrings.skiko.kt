@@ -23,9 +23,6 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.intl.Locale
 import kotlin.jvm.JvmInline
 
-// FIXME: Remove. Used in generated code
-internal typealias Strings = ContextMenuStrings
-
 @Immutable
 @JvmInline
 internal actual value class ContextMenuStrings actual constructor(actual val value: Int) {

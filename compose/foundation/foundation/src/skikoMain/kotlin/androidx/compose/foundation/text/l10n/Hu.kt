@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.hu() = mapOf(
-    Strings.SelectAll to "Összes kijelölése",
-    Strings.Cut to "Kivágás",
-    Strings.Copy to "Másolás",
-    Strings.Paste to "Beillesztés",
-    Strings.Autofill to "Automatikus kitöltés",
+    ContextMenuStrings.SelectAll to "Összes kijelölése",
+    ContextMenuStrings.Cut to "Kivágás",
+    ContextMenuStrings.Copy to "Másolás",
+    ContextMenuStrings.Paste to "Beillesztés",
+    ContextMenuStrings.Autofill to "Automatikus kitöltés",
 )

@@ -16,14 +16,14 @@
 
 package androidx.compose.foundation.text.l10n
 
-import androidx.compose.foundation.text.Strings
+import androidx.compose.foundation.text.ContextMenuStrings
 import androidx.compose.foundation.text.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.`is`() = mapOf(
-    Strings.SelectAll to "Velja allt",
-    Strings.Cut to "Klippa",
-    Strings.Copy to "Afrita",
-    Strings.Paste to "Líma",
-    Strings.Autofill to "Sjálfvirk útfylling",
+    ContextMenuStrings.SelectAll to "Velja allt",
+    ContextMenuStrings.Cut to "Klippa",
+    ContextMenuStrings.Copy to "Afrita",
+    ContextMenuStrings.Paste to "Líma",
+    ContextMenuStrings.Autofill to "Sjálfvirk útfylling",
 )
