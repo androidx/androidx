@@ -64,11 +64,3 @@ private class AddTextContextMenuDataComponentsNode(
         delegate(AddTextContextMenuDataComponentsNode { builder() })
     }
 }
-
-internal class TextContextMenuItem internal constructor(
-    key: Any,
-    val enabled: Boolean,
-    val onClick: TextContextMenuSession.() -> Unit,
-) : TextContextMenuComponent(key) {
-    override fun toString(): String = "TextContextMenuItem(key=$key, enabled=$enabled)"
-}

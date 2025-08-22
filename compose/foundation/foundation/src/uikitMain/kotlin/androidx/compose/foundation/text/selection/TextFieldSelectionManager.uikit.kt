@@ -20,9 +20,9 @@ import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.Handle
-import androidx.compose.foundation.text.TextContextMenuItem
 import androidx.compose.foundation.text.addTextContextMenuComponents
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItemWithComposableLeadingIcon
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -192,8 +192,9 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         onClick: () -> Unit,
     ) {
         addComponent(
-            TextContextMenuItem(
+            TextContextMenuItemWithComposableLeadingIcon(
                 key = key,
+                label = "$key",
                 enabled = enabled,
                 onClick = {
                     onClick()
@@ -202,21 +203,11 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
         )
     }
 
-    fun TextContextMenuBuilderScope.textFieldSuspendItem(
-        key: Any,
-        enabled: Boolean,
-        onClick: suspend () -> Unit,
-    ) {
-        textFieldItem(key, enabled) {
-            coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) { onClick() }
-        }
-    }
-
     with(manager) {
         separator()
-        textFieldSuspendItem(TextContextMenuKeys.CutKey, enabled = canCut()) { cut() }
-        textFieldSuspendItem(TextContextMenuKeys.CopyKey, enabled = canCopy()) { copy(cancelSelection = false) }
-        textFieldSuspendItem(TextContextMenuKeys.PasteKey, enabled = canPaste()) { paste() }
+        textFieldItem(TextContextMenuKeys.CutKey, enabled = canCut()) { cut() }
+        textFieldItem(TextContextMenuKeys.CopyKey, enabled = canCopy()) { copy(cancelSelection = false) }
+        textFieldItem(TextContextMenuKeys.PasteKey, enabled = canPaste()) { paste() }
         textFieldItem(TextContextMenuKeys.SelectAllKey, enabled = canSelectAll()) { selectAll() }
         separator()
     }

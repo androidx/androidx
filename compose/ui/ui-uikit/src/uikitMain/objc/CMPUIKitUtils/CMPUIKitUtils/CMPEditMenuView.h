@@ -16,6 +16,15 @@
 
 #import <UIKit/UIKit.h>
 
+@interface CMPEditMenuCustomAction : NSObject
+
+@property (copy, nonatomic) NSString *title;
+@property (copy, nonatomic) void (^actionBlock)(void);
+
+- (id)initWithTitle:(NSString *)title action:(void (^)(void))actionBlock;
+
+@end
+
 @interface CMPEditMenuView : UIView
 
 @property (readonly) BOOL isEditMenuShown;
@@ -25,6 +34,13 @@
                        cut:(void (^)(void))cutBlock
                      paste:(void (^)(void))pasteBlock
                  selectAll:(void (^)(void))selectAllBlock;
+
+- (void)showEditMenuAtRect:(CGRect)targetRect
+                      copy:(void (^)(void))copyBlock
+                       cut:(void (^)(void))cutBlock
+                     paste:(void (^)(void))pasteBlock
+                 selectAll:(void (^)(void))selectAllBlock
+             customActions:(NSArray<CMPEditMenuCustomAction *> *)customActions;
 
 - (void)hideEditMenu;
 

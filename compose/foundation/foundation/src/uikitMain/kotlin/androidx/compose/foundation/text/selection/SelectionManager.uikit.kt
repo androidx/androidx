@@ -19,9 +19,9 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
-import androidx.compose.foundation.text.TextContextMenuItem
 import androidx.compose.foundation.text.addTextContextMenuComponents
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItemWithComposableLeadingIcon
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,8 +72,9 @@ internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
         onClick: () -> Unit
     ) {
         addComponent(
-            TextContextMenuItem(
+            TextContextMenuItemWithComposableLeadingIcon(
                 key = key,
+                label = "$key",
                 enabled = enabled,
                 onClick = {
                     onClick()
