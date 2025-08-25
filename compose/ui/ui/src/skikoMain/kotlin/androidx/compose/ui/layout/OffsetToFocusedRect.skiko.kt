@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -51,12 +52,21 @@ internal fun OffsetToFocusedRect(
     var offsetProgress by remember { mutableStateOf(1f) }
     val density = LocalDensity.current
 
+    fun translatedFocusedRect(): Rect? {
+        // The current implementation of OffsetToFocusedRect assumes that the focus rectangle is
+        // either static or only changes during the animation.
+        // The [Snapshot.withoutReadObservation] function is used here to avoid side effects caused
+        // by the internal implementation of the [getFocusedRect] function.
+        val rect = Snapshot.withoutReadObservation { getFocusedRect() }
+        return rect?.translate(-currentOffset.toOffset())
+    }
+
     LaunchedEffect(insets, animationDuration) {
         startOffset = currentOffset
         if (animationDuration.isPositive()) {
             if (startOffset == density.adjustedToFocusedRectOffset(
                     insets = insets,
-                    focusedRect = getFocusedRect()?.translate(-currentOffset.toOffset()),
+                    focusedRect = translatedFocusedRect(),
                     size = size
                 )
             ) {
@@ -77,7 +87,7 @@ internal fun OffsetToFocusedRect(
         measurePolicy = { measurables, constraints ->
             val endOffset = density.adjustedToFocusedRectOffset(
                 insets = insets,
-                focusedRect = getFocusedRect()?.translate(-currentOffset.toOffset()),
+                focusedRect = translatedFocusedRect(),
                 size = size
             )
 

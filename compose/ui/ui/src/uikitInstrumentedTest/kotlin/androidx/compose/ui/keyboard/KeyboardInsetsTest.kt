@@ -357,7 +357,6 @@ internal class KeyboardInsetsTest {
 
     @OptIn(ExperimentalForeignApi::class)
     @Test
-    @Ignore // FIXME Fails after 1.10.0-alpha01 merge
     fun testRefocusByTapKeyboardSizeNotChanges() = runUIKitInstrumentedTest {
         val keyboardFrames = mutableListOf<DpRect>()
         val contentFrames = mutableListOf<DpRect>()
@@ -390,7 +389,7 @@ internal class KeyboardInsetsTest {
             Column(modifier = Modifier.fillMaxSize().imePadding().onGloballyPositioned {
                 contentFrames.add(it.boundsInRoot().toDpRect(density))
             }) {
-                Spacer(Modifier.weight(100f))
+                Spacer(Modifier.weight(1f))
                 TextField(
                     value = "",
                     onValueChange = {},
@@ -427,7 +426,6 @@ internal class KeyboardInsetsTest {
 
     @OptIn(ExperimentalForeignApi::class)
     @Test
-    @Ignore // FIXME Fails after 1.10.0-alpha01 merge
     fun testRefocusProgrammaticallyKeyboardSizeNotChanges() = runUIKitInstrumentedTest {
         val focusRequester1 = FocusRequester()
         val focusRequester2 = FocusRequester()
@@ -462,7 +460,7 @@ internal class KeyboardInsetsTest {
             Column(modifier = Modifier.fillMaxSize().imePadding().onGloballyPositioned {
                 contentFrames.add(it.boundsInRoot().toDpRect(density))
             }) {
-                Spacer(Modifier.weight(100f))
+                Spacer(Modifier.weight(1f))
                 TextField(
                     value = "",
                     onValueChange = {},
