@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
@@ -115,8 +117,9 @@ class ClickableFocusTest {
         onNodeWithTag("box1").assertIsFocused()
     }
 
-    @Test
-    fun focus_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab() = runComposeUiTest {
+    private fun focus_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab(
+        content: @Composable (indication1: TestFocusIndicationNodeFactory, indication2: TestFocusIndicationNodeFactory) -> Unit
+    ) = runComposeUiTest {
         // the test depends on "Request focus on click" feature
         if (!isRequestFocusOnClickEnabled()) return@runComposeUiTest
 
@@ -128,12 +131,8 @@ class ClickableFocusTest {
         setContent {
             // TODO remove after fixing https://youtrack.jetbrains.com/issue/CMP-5819/Change-of-state-in-onDraw-doesnt-invalidate-the-window
             scope = currentRecomposeScope
-            Column {
-                Box(Modifier.testTag("box1").size(40.dp)
-                    .clickable(indication = indication1, interactionSource = null) {  })
-                Box(Modifier.testTag("box2").size(40.dp)
-                    .clickable(indication = indication2, interactionSource = null) {  })
-            }
+
+            content(indication1, indication2)
         }
 
         waitForIdle()
@@ -189,6 +188,41 @@ class ClickableFocusTest {
         assertFalse(indication1.isFocusedDrawn)
         assertFalse(indication2.isFocusedDrawn)
     }
+
+
+    @Test
+    fun focus_specified_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab() =
+        focus_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab { ind1, ind2 ->
+            Column {
+                Box(Modifier.testTag("box1").size(40.dp)
+                    .clickable(indication = ind1, interactionSource = null) {  })
+                Box(Modifier.testTag("box2").size(40.dp)
+                    .clickable(indication = ind2, interactionSource = null) {  })
+            }
+        }
+
+    @Test
+    fun focus_local_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab() =
+        focus_indication_is_hidden_when_click_with_mouse_and_shown_after_Tab { ind1, ind2 ->
+            Column {
+                CompositionLocalProvider(LocalIndication provides ind1) {
+                    Box(
+                        Modifier
+                            .testTag("box1")
+                            .size(40.dp)
+                            .clickable { }
+                    )
+                }
+                CompositionLocalProvider(LocalIndication provides ind2) {
+                    Box(
+                        Modifier
+                            .testTag("box2")
+                            .size(40.dp)
+                            .clickable { }
+                    )
+                }
+            }
+        }
 
     private class TestFocusIndicationNodeFactory : IndicationNodeFactory {
         var isFocusedDrawn = false

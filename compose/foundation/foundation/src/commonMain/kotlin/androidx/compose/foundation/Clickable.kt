@@ -700,7 +700,7 @@ internal inline fun Modifier.clickableWithIndicationIfNeeded(
             // Fast path - indication is managed internally
             indication is IndicationNodeFactory -> createClickable(
                 interactionSource,
-                platformIndication(indication) as IndicationNodeFactory
+                indication
             )
             // Fast path - no need for indication
             indication == null -> createClickable(interactionSource, null)
@@ -1631,11 +1631,12 @@ internal abstract class AbstractClickableNode(
         val indicationFactory =
             if (useLocalIndication) localIndicationNodeFactory else indicationNodeFactory
         indicationFactory?.let { factory ->
+            val platformFactory = platformIndication(factory) as IndicationNodeFactory
             if (interactionSource == null) {
                 interactionSource = MutableInteractionSource()
             }
             focusableNode.update(interactionSource)
-            val node = factory.create(interactionSource!!)
+            val node = platformFactory.create(interactionSource!!)
             delegate(node)
             indicationNode = node
         }
