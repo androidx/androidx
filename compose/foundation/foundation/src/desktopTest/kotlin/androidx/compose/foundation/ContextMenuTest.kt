@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation
 
-import androidx.compose.foundation.copyPasteAndroidTests.lazy.list.assertIsNotPlaced
-import androidx.compose.foundation.copyPasteAndroidTests.lazy.list.assertIsPlaced
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -36,7 +34,11 @@ import androidx.compose.ui.platform.PlatformLocalization
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -149,35 +151,44 @@ class ContextMenuTest {
             }
         }
 
-        onNodeWithText(localization.copy).assertIsNotPlaced()
-        onNodeWithText(localization.cut).assertIsNotPlaced()
-        onNodeWithText(localization.paste).assertIsNotPlaced()
-        onNodeWithText(localization.selectAll).assertIsNotPlaced()
+        onNodeWithText(localization.copy).assertDoesNotExist()
+        onNodeWithText(localization.cut).assertDoesNotExist()
+        onNodeWithText(localization.paste).assertDoesNotExist()
+        onNodeWithText(localization.selectAll).assertDoesNotExist()
 
         onNodeWithTag("textfield").performMouseInput { rightClick() }
-        onNodeWithText(localization.copy).assertIsNotPlaced()
-        onNodeWithText(localization.cut).assertIsNotPlaced()
-        onNodeWithText(localization.paste).isDisplayed()
-        onNodeWithText(localization.selectAll).isDisplayed()
+        onNodeWithText(localization.copy).assertMenuItemDoesNotExistOrIsDisabled()
+        onNodeWithText(localization.cut).assertMenuItemDoesNotExistOrIsDisabled()
+        onNodeWithText(localization.paste).assertExists()
+        onNodeWithText(localization.selectAll).assertExists()
 
         onNodeWithTag("textfield").performKeyInput { pressKey(Key.Escape) }
-        onNodeWithText(localization.copy).assertIsNotPlaced()
-        onNodeWithText(localization.cut).assertIsNotPlaced()
-        onNodeWithText(localization.paste).assertIsNotPlaced()
-        onNodeWithText(localization.selectAll).assertIsNotPlaced()
+        onNodeWithText(localization.copy).assertDoesNotExist()
+        onNodeWithText(localization.cut).assertDoesNotExist()
+        onNodeWithText(localization.paste).assertDoesNotExist()
+        onNodeWithText(localization.selectAll).assertDoesNotExist()
 
         onNodeWithTag("textfield").performTextInputSelection(TextRange(0, "Text".length))
         onNodeWithTag("textfield").performMouseInput { rightClick() }
-        onNodeWithText(localization.copy).isDisplayed()
-        onNodeWithText(localization.cut).isDisplayed()
-        onNodeWithText(localization.paste).isDisplayed()
-        onNodeWithText(localization.selectAll).assertIsNotPlaced()
+        onNodeWithText(localization.copy).assertExists()
+        onNodeWithText(localization.cut).assertExists()
+        onNodeWithText(localization.paste).assertExists()
+        onNodeWithText(localization.selectAll).assertMenuItemDoesNotExistOrIsDisabled()
 
         onNodeWithTag("textfield").performKeyInput { pressKey(Key.Escape) }
-        onNodeWithText(localization.copy).assertIsNotPlaced()
-        onNodeWithText(localization.cut).assertIsNotPlaced()
-        onNodeWithText(localization.paste).assertIsNotPlaced()
-        onNodeWithText(localization.selectAll).assertIsNotPlaced()
+        onNodeWithText(localization.copy).assertDoesNotExist()
+        onNodeWithText(localization.cut).assertDoesNotExist()
+        onNodeWithText(localization.paste).assertDoesNotExist()
+        onNodeWithText(localization.selectAll).assertDoesNotExist()
+    }
+
+    private fun SemanticsNodeInteraction.assertMenuItemDoesNotExistOrIsDisabled() {
+        // New context menus disabled items; old context menus don't show disabled items.
+        if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+            assertIsNotEnabled()
+        } else {
+            assertDoesNotExist()
+        }
     }
 
     @Test
@@ -216,9 +227,9 @@ class ContextMenuTest {
 
         onNodeWithTag("textfield").performMouseInput { rightClick(Offset(1f, height/2f)) }
         onNodeWithText(localization.copy).apply {
-            assertIsPlaced()
+            assertExists()
             performClick()
-            assertIsNotPlaced()
+            assertDoesNotExist()
         }
     }
 

@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -50,10 +52,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -98,8 +97,6 @@ internal fun DefaultOpenContextMenu(
             }
         },
     ) {
-        focusManager = LocalFocusManager.current
-        inputModeManager = LocalInputModeManager.current
         Column(
             modifier = Modifier
                 .shadow(8.dp)
@@ -110,21 +107,10 @@ internal fun DefaultOpenContextMenu(
         ) {
             components.forEach { component ->
                 when (component) {
-                    is TextContextMenuSeparator -> MenuSeparator(colors.textColor)
-                    is TextContextMenuItemWithComposableLeadingIcon -> {
-                        MenuItemContent(
-                            itemHoverColor = colors.hoverColor,
-                            onClick = { component.onClick(session) },
-                        ) {
-                            component.leadingIcon?.let { icon ->
-                                icon(colors.resolveIconColor(component.enabled))
-                            }
-                            BasicText(
-                                text = component.label,
-                                style = TextStyle(colors.resolveTextColor(component.enabled))
-                            )
-                        }
-                    }
+                    is TextContextMenuSeparator ->
+                        MenuSeparator(colors.textColor)
+                    is TextContextMenuItemWithComposableLeadingIcon ->
+                        MenuItem(session, colors, component)
                 }
             }
         }
@@ -143,19 +129,51 @@ private fun MenuSeparator(color: Color) {
 }
 
 @Composable
-private fun MenuItemContent(
-    itemHoverColor: Color,
-    onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit
+private fun MenuItem(
+    session: TextContextMenuSession,
+    colors: ContextMenuColors,
+    component: TextContextMenuItemWithComposableLeadingIcon
 ) {
-    var hovered by remember { mutableStateOf(false) }
+    MenuItemContent(
+        colors = colors,
+        onClick = { component.onClick(session) },
+        enabled = component.enabled
+    ) {
+        component.leadingIcon?.let { icon ->
+            icon(colors.resolveIconColor(component.enabled))
+        }
+        BasicText(
+            text = component.label,
+            style = TextStyle(colors.resolveTextColor(component.enabled))
+        )
+    }
+}
+
+@Composable
+private fun MenuItemContent(
+    colors: ContextMenuColors,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .clickable(
                 onClick = onClick,
+                interactionSource = interactionSource,
+                enabled = enabled,
             )
-            .onHover { hovered = it }
-            .background(if (hovered) itemHoverColor else Color.Transparent)
+            .semantics(mergeDescendants = true) {}
+            .then(
+                if (enabled) {
+                    val hovered = interactionSource.collectIsHoveredAsState().value
+                    Modifier
+                        .background(if (hovered) colors.hoverColor else Color.Transparent)
+                } else {
+                    Modifier
+                }
+            )
             .fillMaxWidth()
             // Preferred min and max width used during the intrinsic measurement.
             .sizeIn(
@@ -169,22 +187,9 @@ private fun MenuItemContent(
                     vertical = 0.dp
                 )
             ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        content()
-    }
-}
-
-private fun Modifier.onHover(onHover: (Boolean) -> Unit) = pointerInput(Unit) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            when (event.type) {
-                PointerEventType.Enter -> onHover(true)
-                PointerEventType.Exit -> onHover(false)
-            }
-        }
-    }
+        verticalAlignment = Alignment.CenterVertically,
+        content = content
+    )
 }
 
 private const val DisabledAlpha = 0.38f
