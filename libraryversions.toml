@@ -97,6 +97,7 @@ MEDIA = "1.7.0-rc01"
 MEDIAROUTER = "1.8.0-alpha01"
 METRICS = "1.0.0-beta02"
 NAVIGATION = "2.9.1"
+NAVIGATION_3 = "1.0.0-alpha07"
 PAGING = "3.4.0-alpha01"
 PALETTE = "1.1.0-alpha01"
 PDF = "1.0.0-alpha03"
@@ -340,6 +341,14 @@ overrideInclude = [
     ":navigation:navigation-common",
     ":navigation:navigation-runtime",
     ":navigation:navigation-compose"
+]
+
+[groups.NAVIGATION_3_JETBRAINS]
+group = "org.jetbrains.androidx.navigation3"
+atomicGroupVersion = "versions.NAVIGATION_3"
+overrideInclude = [
+    ":navigation3:navigation3-runtime",
+    ":navigation3:navigation3-ui"
 ]
 
 [groups.SAVEDSTATE_JETBRAINS]

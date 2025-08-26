@@ -21,38 +21,42 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
+import androidx.build.JetbrainsAndroidXPlugin
+import androidx.build.AndroidXComposePlugin
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXComposePlugin")
     alias(libs.plugins.kotlinSerialization)
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.navigation3.runtime"
-        androidResources.enable = true
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
-    }
-    jvmStubs()
-    linuxX64Stubs()
+androidXComposeMultiplatform {
+    android()
+    desktop()
+    darwin()
+    js()
+    wasm()
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinSerializationCore)
-                api("androidx.compose.runtime:runtime:1.9.0-beta01")
-                api("androidx.compose.runtime:runtime-saveable:1.9.0-beta01")
-                api("androidx.savedstate:savedstate:1.3.0")
-                api("androidx.savedstate:savedstate-compose:1.3.0")
-                implementation("androidx.collection:collection:1.4.5")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.9.1")
+                api("org.jetbrains.compose.runtime:runtime:1.9.0-beta01")
+                api("org.jetbrains.compose.runtime:runtime-saveable:1.9.0-beta01")
+                api("org.jetbrains.androidx.savedstate:savedstate:1.3.0")
+                api("org.jetbrains.androidx.savedstate:savedstate-compose:1.3.0")
+                implementation("androidx.collection:collection:1.5.0")
+                implementation("androidx.lifecycle:lifecycle-runtime:2.9.2")
             }
         }
 
@@ -64,11 +68,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
+        jvmMain.dependsOn(commonMain)
+        jvmTest.dependsOn(commonTest)
 
         androidInstrumentedTest {
             dependsOn(jvmTest)
@@ -86,22 +87,48 @@ androidXMultiplatform {
             }
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
+        nonAndroidMain.dependsOn(commonMain)
+        nonAndroidTest.dependsOn(commonTest)
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
         }
 
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
         }
+
+        nativeMain.dependsOn(nonJvmMain)
+        nativeTest.dependsOn(nonJvmTest)
+
+        webMain.dependsOn(nonJvmMain)
+        webTest.dependsOn(nonJvmTest)
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
+        }
+
     }
 }
 
 androidx {
     name = "Androidx Navigation 3 Runtime"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2024"
     description = "Provides the building blocks for a Compose first Navigation solution that " +
             "easily supports extensions."
-    samples(project(":navigation3:navigation3-runtime:navigation3-runtime-samples"))
-    addGoldenImageAssets()
+}
+
+android {
+    namespace "androidx.navigation3.runtime"
 }

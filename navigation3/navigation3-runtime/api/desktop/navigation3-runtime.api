@@ -1,0 +1,98 @@
+public final class androidx/navigation3/runtime/DecoratedNavEntryProviderKt {
+	public static final fun DecoratedNavEntryProvider (Ljava/util/List;Lkotlin/jvm/functions/Function1;Ljava/util/List;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/navigation3/runtime/EntryClassProvider {
+	public static final field $stable I
+	public fun <init> (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public final fun component1 ()Lkotlin/reflect/KClass;
+	public final fun component2 ()Lkotlin/jvm/functions/Function1;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun component4 ()Lkotlin/jvm/functions/Function3;
+	public final fun copy (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)Landroidx/navigation3/runtime/EntryClassProvider;
+	public static synthetic fun copy$default (Landroidx/navigation3/runtime/EntryClassProvider;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Landroidx/navigation3/runtime/EntryClassProvider;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClazz ()Lkotlin/reflect/KClass;
+	public final fun getClazzContentKey ()Lkotlin/jvm/functions/Function1;
+	public final fun getContent ()Lkotlin/jvm/functions/Function3;
+	public final fun getMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/navigation3/runtime/EntryDsl : java/lang/annotation/Annotation {
+}
+
+public final class androidx/navigation3/runtime/EntryProvider {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun component4 ()Lkotlin/jvm/functions/Function3;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)Landroidx/navigation3/runtime/EntryProvider;
+	public static synthetic fun copy$default (Landroidx/navigation3/runtime/EntryProvider;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Landroidx/navigation3/runtime/EntryProvider;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Lkotlin/jvm/functions/Function3;
+	public final fun getContentKey ()Ljava/lang/Object;
+	public final fun getKey ()Ljava/lang/Object;
+	public final fun getMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/navigation3/runtime/EntryProviderBuilder {
+	public static final field $stable I
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final fun addEntryProvider (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public final fun addEntryProvider (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public static synthetic fun addEntryProvider$default (Landroidx/navigation3/runtime/EntryProviderBuilder;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public static synthetic fun addEntryProvider$default (Landroidx/navigation3/runtime/EntryProviderBuilder;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public final fun build ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class androidx/navigation3/runtime/EntryProviderKt {
+	public static final fun entry (Landroidx/navigation3/runtime/EntryProviderBuilder;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public static synthetic fun entry$default (Landroidx/navigation3/runtime/EntryProviderBuilder;Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public static final fun entryProvider (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Lkotlin/jvm/functions/Function1;
+	public static synthetic fun entryProvider$default (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlin/jvm/functions/Function1;
+}
+
+public class androidx/navigation3/runtime/NavEntry {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;)V
+	public synthetic fun <init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Map;Lkotlin/jvm/functions/Function3;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun Content (Landroidx/compose/runtime/Composer;I)V
+	public final fun getContentKey ()Ljava/lang/Object;
+	public fun getMetadata ()Ljava/util/Map;
+	public final fun isInBackStack (Ljava/util/List;)Z
+}
+
+public final class androidx/navigation3/runtime/NavEntryDecorator {
+	public static final field $stable I
+}
+
+public final class androidx/navigation3/runtime/NavEntryDecoratorKt {
+	public static final fun DecorateNavEntry (Landroidx/navigation3/runtime/NavEntry;Ljava/util/List;Landroidx/compose/runtime/Composer;I)V
+	public static final fun navEntryDecorator (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;)Landroidx/navigation3/runtime/NavEntryDecorator;
+	public static synthetic fun navEntryDecorator$default (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Landroidx/navigation3/runtime/NavEntryDecorator;
+}
+
+public final class androidx/navigation3/runtime/NavEntryKt {
+	public static final fun defaultContentKey (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public class androidx/navigation3/runtime/NavEntryWrapper : androidx/navigation3/runtime/NavEntry {
+	public static final field $stable I
+	public fun <init> (Landroidx/navigation3/runtime/NavEntry;)V
+	public final fun getNavEntry ()Landroidx/navigation3/runtime/NavEntry;
+}
+
+public abstract interface class androidx/navigation3/runtime/NavKey {
+}
+
+public final class androidx/navigation3/runtime/SavedStateNavEntryDecoratorKt {
+	public static final fun SavedStateNavEntryDecorator (Landroidx/compose/runtime/saveable/SaveableStateHolder;)Landroidx/navigation3/runtime/NavEntryDecorator;
+	public static final fun rememberSavedStateNavEntryDecorator (Landroidx/compose/runtime/saveable/SaveableStateHolder;Landroidx/compose/runtime/Composer;II)Landroidx/navigation3/runtime/NavEntryDecorator;
+}
+
