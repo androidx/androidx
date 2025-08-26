@@ -46,4 +46,8 @@
 
 - (NSTimeInterval)editMenuDelay;
 
+- (UIView *)inputView;
+
+- (UIView *)inputAccessoryView;
+
 @end

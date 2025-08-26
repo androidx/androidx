@@ -100,6 +100,9 @@ internal class IntermediateTextInputUIView(
 
     var inputTraits: SkikoUITextInputTraits = EmptyInputTraits
 
+    override fun inputView(): UIView? = inputTraits.inputView()
+    override fun inputAccessoryView(): UIView? = inputTraits.inputAccessoryView()
+
     override fun canBecomeFirstResponder() = true
 
     override fun resignFirstResponder(): Boolean {

@@ -25,6 +25,7 @@ import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
 import platform.UIKit.UITextContentType
+import platform.UIKit.UIView
 
 private class PlatformImeOptionsImpl(
     val keyboardType: UIKeyboardType?,
@@ -35,7 +36,9 @@ private class PlatformImeOptionsImpl(
     val enablesReturnKeyAutomatically: Boolean,
     val autocapitalizationType: UITextAutocapitalizationType?,
     val autocorrectionType: UITextAutocorrectionType?,
-    val hasExplicitTextContentType: Boolean
+    val hasExplicitTextContentType: Boolean,
+    val inputView: UIView?,
+    val inputAccessoryView: UIView?,
 ): PlatformImeOptions()
 
 /**
@@ -52,7 +55,8 @@ class PlatformImeOptionsConfiguration internal constructor() {
     private var autocapitalizationType: UITextAutocapitalizationType? = null
     private var autocorrectionType: UITextAutocorrectionType? = null
     private var hasExplicitTextContentType: Boolean = false
-
+    private var inputView: UIView? = null
+    private var inputAccessoryView: UIView? = null
     /**
      * Sets the keyboard type to be used for the text input field.
      * If not set, the value will be derived from [ImeOptions].
@@ -140,6 +144,28 @@ class PlatformImeOptionsConfiguration internal constructor() {
     }
 
     /**
+     * Sets a custom input view to be presented instead of the system keyboard when IME becomes first responder.
+     * Default value is `null`.
+     *
+     * See [UIKit documentation](https://developer.apple.com/documentation/uikit/uiresponder/inputview)
+     */
+    @ExperimentalComposeUiApi
+    fun inputView(value: UIView?): PlatformImeOptionsConfiguration = apply {
+        inputView = value
+    }
+
+    /**
+     * Sets a custom accessory view to be attached to system keyboard or custom [inputView] when IME becomes first responder.
+     * Default value is `null`.
+     *
+     * See [UIKit documentation](https://developer.apple.com/documentation/uikit/uiresponder/inputaccessoryview)
+     */
+    @ExperimentalComposeUiApi
+    fun inputAccessoryView(value: UIView?): PlatformImeOptionsConfiguration = apply {
+        inputAccessoryView = value
+    }
+
+    /**
      * Builds the final PlatformImeOptions instance with the configured values.
      */
     internal fun build(): PlatformImeOptions {
@@ -152,7 +178,9 @@ class PlatformImeOptionsConfiguration internal constructor() {
             enablesReturnKeyAutomatically = enablesReturnKeyAutomatically,
             autocapitalizationType = autocapitalizationType,
             autocorrectionType = autocorrectionType,
-            hasExplicitTextContentType = hasExplicitTextContentType
+            hasExplicitTextContentType = hasExplicitTextContentType,
+            inputView = inputView,
+            inputAccessoryView = inputAccessoryView,
         )
     }
 }
@@ -206,3 +234,11 @@ val PlatformImeOptions.autocorrectionType: UITextAutocorrectionType?
 @ExperimentalComposeUiApi
 val PlatformImeOptions.hasExplicitTextContentType: Boolean
     get() = (this as? PlatformImeOptionsImpl)?.hasExplicitTextContentType ?: false
+
+@ExperimentalComposeUiApi
+val PlatformImeOptions.inputView: UIView?
+    get() = (this as? PlatformImeOptionsImpl)?.inputView
+
+@ExperimentalComposeUiApi
+val PlatformImeOptions.inputAccessoryView: UIView?
+    get() = (this as? PlatformImeOptionsImpl)?.inputAccessoryView
