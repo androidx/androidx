@@ -120,6 +120,7 @@ includeProject(":lifecycle:lifecycle-runtime", "lifecycle/lifecycle-runtime-comp
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/lifecycle-viewmodel-compatibility-stub")
 includeProject(":lifecycle:lifecycle-viewmodel-savedstate", "lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub")
 includeProject(":savedstate:savedstate", "savedstate/savedstate-compatibility-stub")
+includeProject(":window:window-core", "window/window-core-compatibility-stub")
 
 includeProject(":annotation:annotation-sampled")
 includeProject(":compose:animation")
@@ -236,7 +237,6 @@ includeProject(":kruth:kruth")
 includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 
-includeProject(":graphics:graphics-shapes")
 includeProject(":lifecycle:lifecycle-runtime-compose")
 includeProject(":lifecycle:lifecycle-runtime-lint")
 includeProject(":lifecycle:lifecycle-viewmodel-compose")
@@ -247,7 +247,6 @@ includeProject(":navigation:navigation-compose")
 includeProject(":navigation:navigation-runtime")
 includeProject(":navigation:navigation-testing")
 includeProject(":savedstate:savedstate-compose")
-includeProject(":window:window-core")
 includeProject(":navigation3:navigation3-runtime")
 includeProject(":navigation3:navigation3-ui")
 

@@ -79,13 +79,6 @@ val libraryToComponents = mapOf(
         ComposeComponent(":compose:material3:adaptive:adaptive-layout"),
         ComposeComponent(":compose:material3:adaptive:adaptive-navigation"),
     ),
-    "GRAPHICS_SHAPES" to listOf(
-        ComposeComponent(
-            path = ":graphics:graphics-shapes",
-            // TODO: Maybe it makes sense to support mingwX64 here for consistency
-            supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE
-        ),
-    ),
     "LIFECYCLE" to listOf(
         ComposeComponent(
             path = ":lifecycle:lifecycle-common",

@@ -9,6 +9,7 @@
 - `:lifecycle:lifecycle-viewmodel` is stubbed by `lifecycle/lifecycle-viewmodel-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel`
 - `:lifecycle:lifecycle-viewmodel-savedstate` is stubbed by `lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-savedstate`
 - `:savedstate:savedstate` is stubbed by `savedstate/savedstate-compatibility-stub`, it depends on `androidx.savedstate:savedstate`
+- `:window:window-core` is stubbed by `window/window-core-compatibility-stub`, it depends on `androidx.window:window-core`
 
 ### Purpose
 The need for "stubbed projects" appeared in this PR - https://github.com/JetBrains/compose-multiplatform-core/pull/1819
