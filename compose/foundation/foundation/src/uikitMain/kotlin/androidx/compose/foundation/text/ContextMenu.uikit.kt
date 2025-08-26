@@ -49,7 +49,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.uikit.LocalUIView
 import androidx.compose.ui.uikit.utils.CMPEditMenuView
 import androidx.compose.ui.uikit.utils.CMPEditMenuCustomAction
 import androidx.compose.ui.unit.Density
@@ -152,7 +151,6 @@ private fun ProvideNewContextMenuDefaultProviders(
         }
 
         val density = LocalDensity.current
-        val localView = LocalUIView.current
         val provider = remember {
             val editMenuView = CMPEditMenuView().also {
                 it.userInteractionEnabled = false
@@ -161,7 +159,6 @@ private fun ProvideNewContextMenuDefaultProviders(
             ContextMenuToolbarProvider(
                 menuDelay = menuDelay,
                 editMenuView = editMenuView,
-                localView = localView,
                 density = density,
                 coordinates = { layoutCoordinates.value }
             )
@@ -199,7 +196,6 @@ private class ContextMenuItemsState(
 private class ContextMenuToolbarProvider(
     private val menuDelay: Duration,
     val editMenuView: CMPEditMenuView,
-    private val localView: UIView,
     private val density: Density,
     private val coordinates: () -> LayoutCoordinates?
 ): TextContextMenuProvider {
@@ -299,11 +295,11 @@ private class ContextMenuToolbarProvider(
             // the keyboard to hide.
             // To fix the problem, we're looking for the active IntermediateTextInputUIView in
             // UIVIew hierarchy and use it to show the menu.
-            fun findEditMenuViewRecursively(view: UIView): CMPEditMenuView? {
+            fun findEditMenuViewRecursively(view: UIView?): CMPEditMenuView? {
                 if (view is CMPEditMenuView) {
                     return view
                 }
-                view.subviews.forEach {
+                view?.subviews?.forEach {
                     if (it is UIView) {
                         val editMenuView = findEditMenuViewRecursively(it)
                         if (editMenuView != null && editMenuView.isFirstResponder()) {
@@ -313,7 +309,7 @@ private class ContextMenuToolbarProvider(
                 }
                 return null
             }
-            return findEditMenuViewRecursively(localView) ?: editMenuView
+            return findEditMenuViewRecursively(editMenuView.superview) ?: editMenuView
         }
     }
 }
