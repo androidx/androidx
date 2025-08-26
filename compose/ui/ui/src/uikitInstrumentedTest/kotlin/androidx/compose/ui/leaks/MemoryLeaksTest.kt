@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.leaks
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -105,13 +107,20 @@ class MemoryLeaksTest {
         // Allow run loop to start the application
         runApplicationLoop(1.milliseconds)
 
-        collectSubviewsRecursively(appDelegate.window?.rootViewController?.view!!, subviewsReferences)
+        collectSubviewsRecursively(
+            appDelegate.window?.rootViewController?.view!!,
+            subviewsReferences
+        )
 
         assertEquals(
             expected = 4,
             actual = subviewsReferences.count(),
             message = "Expected 4 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView]" +
-                ", but given: ${subviewsReferences.mapNotNull { it.get()?.let { it::class.simpleName } }}"
+                ", but given: ${
+                    subviewsReferences.mapNotNull {
+                        it.get()?.let { it::class.simpleName }
+                    }
+                }"
         )
 
         appDelegate.cleanUp()
@@ -155,9 +164,63 @@ class MemoryLeaksTest {
         assertNull(composeViewControllerRef.get())
     }
 
-    @OptIn(ExperimentalForeignApi::class)
+    @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
     @Test
-    fun testComposeUIViewControllerSubviewsWithTextInputDisposal() = runBlocking {
+    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndOldContextMenu() = runBlocking(
+        newContextMenuEnabled = false
+    ) {
+        val appDelegate = MockAppDelegate()
+        val subviewsReferences = mutableListOf<WeakReference<UIView>>()
+
+        run {
+            val controller = ComposeUIViewController({
+                enforceStrictPlistSanityCheck = false
+            }) {
+                val focusRequester = FocusRequester()
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.focusRequester(focusRequester)
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+            }
+
+            appDelegate.setUpWindow(controller)
+        }
+
+        // Allow run loop to start the application
+        runApplicationLoop(KeyboardAnimationDelay)
+
+        collectSubviewsRecursively(
+            appDelegate.window?.rootViewController?.view!!,
+            subviewsReferences
+        )
+
+        assertEquals(
+            expected = 5,
+            actual = subviewsReferences.count(),
+            message = "Expected 5 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, IntermediateTextInputUIView]" +
+                ", but given: ${subviewsReferences.mapNotNull { it.get()?.let { it::class.simpleName } }}"
+        )
+
+        appDelegate.cleanUp()
+        // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
+        // strong references on this view. For test purposes, staring another text input session
+        // to let UIKit release reference to the previous text input view.
+        startFakeTextInputSession()
+
+        cleanupMemory()
+
+        assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
+    }
+
+    @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
+    @Test
+    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndNewContextMenu() = runBlocking(
+        newContextMenuEnabled = true
+    ) {
         val appDelegate = MockAppDelegate()
         val subviewsReferences = mutableListOf<WeakReference<UIView>>()
 
@@ -185,9 +248,9 @@ class MemoryLeaksTest {
         collectSubviewsRecursively(appDelegate.window?.rootViewController?.view!!, subviewsReferences)
 
         assertEquals(
-            expected = 5,
+            expected = 6,
             actual = subviewsReferences.count(),
-            message = "Expected 5 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, IntermediateTextInputUIView]" +
+            message = "Expected 6 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, CMPEditMenuView, IntermediateTextInputUIView]" +
                 ", but given: ${subviewsReferences.mapNotNull { it.get()?.let { it::class.simpleName } }}"
         )
 
@@ -236,5 +299,16 @@ class MemoryLeaksTest {
         UIApplication.sharedApplication.keyWindow?.rootViewController?.view?.addSubview(input)
         input.setFrame(CGRectMake(0.0, 0.0, 100.0, 100.0))
         input.becomeFirstResponder()
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun runBlocking(newContextMenuEnabled: Boolean, block: suspend () -> Unit) {
+        val defaultValue = ComposeFoundationFlags.isNewContextMenuEnabled
+        try {
+            ComposeFoundationFlags.isNewContextMenuEnabled = newContextMenuEnabled
+            runBlocking { block() }
+        } finally {
+            ComposeFoundationFlags.isNewContextMenuEnabled = defaultValue
+        }
     }
 }
