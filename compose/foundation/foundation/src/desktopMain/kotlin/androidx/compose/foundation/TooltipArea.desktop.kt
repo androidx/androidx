@@ -28,18 +28,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.areAnyPressed
-import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.LayoutBoundsHolder
+import androidx.compose.ui.layout.layoutBounds
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
@@ -102,7 +101,7 @@ fun TooltipArea(
     ),
     content: @Composable () -> Unit
 ) {
-    var parentBounds by remember { mutableStateOf(Rect.Zero) }
+    val parentBounds = remember { LayoutBoundsHolder() }
     var cursorPosition by remember { mutableStateOf(Offset.Zero) }
     var isVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -124,15 +123,18 @@ fun TooltipArea(
         isVisible = false
     }
 
-    fun hideIfNotHovered(globalPosition: Offset) {
-        if (!parentBounds.contains(globalPosition)) {
+    fun hideIfNotHovered(localBounds: LayoutBoundsHolder, localPointerPosition: Offset) {
+        val offsetInRoot = localBounds.bounds?.positionInRoot ?: return
+        val pointerPositionInRoot = offsetInRoot + localPointerPosition.round()
+        val parentBoundsInRoot = parentBounds.bounds?.boundsInRoot ?: return
+        if (!parentBoundsInRoot.contains(pointerPositionInRoot)) {
             hide()
         }
     }
 
     Box(
         modifier = modifier
-            .onGloballyPositioned { parentBounds = it.boundsInWindow() }
+            .layoutBounds(parentBounds)
             .onPointerEvent(PointerEventType.Enter) {
                 cursorPosition = it.position
                 if (!isVisible && !it.buttons.areAnyPressed) {
@@ -146,7 +148,7 @@ fun TooltipArea(
                 }
             }
             .onPointerEvent(PointerEventType.Exit) {
-                hideIfNotHovered(parentBounds.topLeft + it.position)
+                hideIfNotHovered(parentBounds, it.position)
             }
             .onPointerEvent(PointerEventType.Press, pass = PointerEventPass.Initial) {
                 hide()
@@ -159,15 +161,15 @@ fun TooltipArea(
                 popupPositionProvider = tooltipPlacement.positionProvider(cursorPosition),
                 onDismissRequest = { isVisible = false }
             ) {
-                var popupPosition by remember { mutableStateOf(Offset.Zero) }
+                val popupLayoutBounds = remember { LayoutBoundsHolder() }
                 Box(
                     Modifier
-                        .onGloballyPositioned { popupPosition = it.positionInWindow() }
+                        .layoutBounds(popupLayoutBounds)
                         .onPointerEvent(PointerEventType.Move) {
-                            hideIfNotHovered(popupPosition + it.position)
+                            hideIfNotHovered(popupLayoutBounds, it.position)
                         }
                         .onPointerEvent(PointerEventType.Exit) {
-                            hideIfNotHovered(popupPosition + it.position)
+                            hideIfNotHovered(popupLayoutBounds, it.position)
                         }
                 ) {
                     tooltip()
