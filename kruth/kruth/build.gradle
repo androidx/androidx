@@ -47,7 +47,9 @@ kotlin {
     js {
         browser()
     }
-    wasmJs()
+    wasmJs {
+        browser()
+    }
 
     watchosArm64()
     watchosArm32()

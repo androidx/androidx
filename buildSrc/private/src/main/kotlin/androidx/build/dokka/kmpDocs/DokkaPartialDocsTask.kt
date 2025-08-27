@@ -253,8 +253,7 @@ internal abstract class DokkaPartialDocsTask @Inject constructor(
                     val additionalClasspath =
                         if (compilation.target.platformType == KotlinPlatformType.androidJvm) {
                             // This is a workaround for https://youtrack.jetbrains.com/issue/KT-33893
-                            @Suppress("DEPRECATION") // for compatibility
-                            (compilation.compileKotlinTask as
+                            (compilation.compileTaskProvider.get() as
                                 org.jetbrains.kotlin.gradle.tasks.KotlinCompile).libraries
                         } else {
                             compilation.compileDependencyFiles

@@ -56,7 +56,7 @@ repositories {
 kotlin {
     jvm("desktop")
     js(IR) {
-        moduleName = "mpp-demo"
+        outputModuleName = "mpp-demo"
         browser {
             commonWebpackConfig {
                 outputFileName = "demo.js"
@@ -64,8 +64,8 @@ kotlin {
         }
         binaries.executable()
     }
-    wasmJs() {
-        moduleName = "mpp-demo"
+    wasmJs {
+        outputModuleName = "mpp-demo"
         browser {
             commonWebpackConfig {
                 outputFileName = "demo.js"
@@ -277,7 +277,7 @@ if (System.getProperty("os.name") == "Mac OS X") {
     } else {
         // Otherwise copy the executable into the Xcode output directory.
         tasks.create("packForXCode", Copy::class.java) {
-            dependsOn(kotlinBinary.linkTask)
+            dependsOn(kotlinBinary.linkTaskProvider)
 
             group = xcodeIntegrationGroup
             destinationDir = file(targetBuildDir)
@@ -312,7 +312,7 @@ tasks.create("runDesktop", JavaExec::class.java) {
 
 
 project.tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += listOf(
+    compilerOptions.freeCompilerArgs.addAll(
         "-Xir-dce",
         "-Xwasm-generate-wat",
         "-Xwasm-enable-array-range-checks"

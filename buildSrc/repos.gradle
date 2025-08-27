@@ -60,10 +60,10 @@ def addMavenRepositories(RepositoryHandler handler) {
     def isJBFork = true
     if (isJBFork) {
         handler.mavenCentral()
-        // Keep mavenLocal() repository below mavenCentral to avoid issues with stdlib imports
-        handler.mavenLocal()
         handler.google()
         handler.gradlePluginPortal()
+        // Keep mavenLocal() repository below mavenCentral and google to avoid issues with stdlib imports
+        handler.mavenLocal()
         handler.maven {
                url("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         }

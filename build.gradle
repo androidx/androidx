@@ -44,5 +44,6 @@ if (project.hasProperty("androidx.update.signatures")) {
 allprojects {
     this.tasks.configureEach {
         if (it.name == "kotlinStoreYarnLock") it.enabled = false
+        if (it.name == "kotlinWasmStoreYarnLock") it.enabled = false
     }
 }

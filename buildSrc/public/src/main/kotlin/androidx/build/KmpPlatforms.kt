@@ -65,7 +65,7 @@ enum class PlatformIdentifier(
 ) {
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
-    WASM("wasm", PlatformGroup.WASM),
+    WASM_JS("wasmJs", PlatformGroup.WASM),
     ANDROID("android", PlatformGroup.JVM),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),

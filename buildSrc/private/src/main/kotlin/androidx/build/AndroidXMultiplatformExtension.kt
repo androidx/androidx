@@ -298,6 +298,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         requestedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
             kotlinExtension.js().also {
+                project.configurePinnedKotlinLibraries(PlatformIdentifier.JS)
                 it.browser {
                     block?.execute(this)
                 }
@@ -312,9 +313,10 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun wasm(
         block: Action<KotlinJsBrowserDsl>? = null
     ): KotlinJsTargetDsl? {
-        requestedPlatforms.add(PlatformIdentifier.WASM)
+        requestedPlatforms.add(PlatformIdentifier.WASM_JS)
         return if (project.enableWasm()) {
             kotlinExtension.wasmJs().also {
+                project.configurePinnedKotlinLibraries(PlatformIdentifier.WASM_JS)
                 it.browser {
                     block?.execute(this)
                 }
@@ -326,6 +328,26 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
+    }
+}
+
+
+private fun Project.configurePinnedKotlinLibraries(platform: PlatformIdentifier) {
+    multiplatformExtension?.let {
+        val kotlinLibSuffix =
+            when (platform) {
+                PlatformIdentifier.JS -> "js"
+                PlatformIdentifier.WASM_JS -> "wasm-js"
+                else -> throw IllegalStateException("Unsupported platform: $platform")
+            }
+        val kotlinVersion = project.getVersionByName("kotlin")
+        it.sourceSets.getByName("${platform.id}Main").dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-stdlib-$kotlinLibSuffix:$kotlinVersion")
+        }
+        it.sourceSets.getByName("${platform.id}Test").dependencies {
+            implementation("org.jetbrains.kotlin:kotlin-stdlib-$kotlinLibSuffix:$kotlinVersion")
+            implementation("org.jetbrains.kotlin:kotlin-test-$kotlinLibSuffix:$kotlinVersion")
+        }
     }
 }
 
