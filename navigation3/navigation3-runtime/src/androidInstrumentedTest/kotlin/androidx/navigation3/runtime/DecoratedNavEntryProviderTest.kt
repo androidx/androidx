@@ -16,6 +16,7 @@
 
 package androidx.navigation3.runtime
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -714,6 +715,7 @@ class DecoratedNavEntryProviderTest {
                 entry.Content()
             }
 
+        @SuppressLint("MutableCollectionMutableState")
         composeTestRule.setContent {
             currStateMap = remember { mutableStateOf(stateMap1) }
             backStackState = remember { mutableStateOf(1) }

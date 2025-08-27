@@ -31,7 +31,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigationevent.DirectNavigationEventInputHandler
+import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -131,12 +131,13 @@ class NavDisplayPredictiveBackTest {
         lateinit var numberOnScreen1: MutableState<Int>
         lateinit var numberOnScreen2: MutableState<Int>
         lateinit var navEventDispatcher: NavigationEventDispatcher
-        lateinit var inputHandler: DirectNavigationEventInputHandler
+        lateinit var input: DirectNavigationEventInput
         lateinit var backStack: MutableList<Any>
         composeTestRule.setContent {
             navEventDispatcher =
                 LocalNavigationEventDispatcherOwner.current!!.navigationEventDispatcher
-            inputHandler = DirectNavigationEventInputHandler(navEventDispatcher)
+            input = DirectNavigationEventInput()
+            navEventDispatcher.addInput(input)
             backStack = remember { mutableStateListOf(first) }
             NavDisplay(
                 backStack = backStack,
@@ -187,13 +188,13 @@ class NavDisplayPredictiveBackTest {
         assertThat(composeTestRule.onNodeWithText("numberOnScreen2: 4").isDisplayed()).isTrue()
 
         composeTestRule.runOnIdle {
-            inputHandler.handleOnStarted(NavigationEvent(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
-            inputHandler.handleOnProgressed(NavigationEvent(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT))
+            input.start(NavigationEvent(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+            input.progress(NavigationEvent(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT))
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.runOnIdle { inputHandler.handleOnCompleted() }
+        composeTestRule.runOnIdle { input.complete() }
 
         composeTestRule.runOnIdle {
             assertWithMessage("The number should be restored")
