@@ -424,9 +424,16 @@ public final class androidx/compose/ui/autofill/ContentType$Companion {
 }
 
 public abstract interface class androidx/compose/ui/autofill/FillableData {
-	public fun getBool ()Ljava/lang/Boolean;
-	public fun getCharSequence ()Ljava/lang/CharSequence;
-	public fun getInt ()Ljava/lang/Integer;
+	public fun getBooleanValue ()Ljava/lang/Boolean;
+	public fun getListIndexOrDefault (I)I
+	public fun getListIndexValue ()Ljava/lang/Integer;
+	public fun getTextValue ()Ljava/lang/CharSequence;
+}
+
+public final class androidx/compose/ui/autofill/FillableDataKt {
+	public static final fun FillableData (I)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun FillableData (Ljava/lang/CharSequence;)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun FillableData (Z)Landroidx/compose/ui/autofill/FillableData;
 }
 
 public final class androidx/compose/ui/awt/AwtEvents_desktopKt {
@@ -3961,6 +3968,7 @@ public final class androidx/compose/ui/semantics/SemanticsActions {
 	public final fun getInsertTextAtCursor ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getOnAutofillText ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getOnClick ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
+	public final fun getOnFillData ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getOnImeAction ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getOnLongClick ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getPageDown ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
@@ -4066,6 +4074,7 @@ public final class androidx/compose/ui/semantics/SemanticsProperties {
 	public final fun getDisabled ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getEditableText ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getError ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
+	public final fun getFillableData ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getFocused ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getHeading ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getHideFromAccessibility ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
@@ -4124,6 +4133,7 @@ public final class androidx/compose/ui/semantics/SemanticsPropertiesKt {
 	public static final fun getContentType (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Landroidx/compose/ui/autofill/ContentType;
 	public static final fun getCustomActions (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Ljava/util/List;
 	public static final fun getEditableText (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Landroidx/compose/ui/text/AnnotatedString;
+	public static final fun getFillableData (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Landroidx/compose/ui/autofill/FillableData;
 	public static final fun getFocused (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Z
 	public static final fun getHorizontalScrollAxisRange (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)Landroidx/compose/ui/semantics/ScrollAxisRange;
 	public static final fun getImeAction (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)I
@@ -4162,6 +4172,8 @@ public final class androidx/compose/ui/semantics/SemanticsPropertiesKt {
 	public static synthetic fun onAutofillText$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun onClick (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun onClick$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static final fun onFillData (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun onFillData$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun onImeAction-9UiTYpY (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;ILjava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static synthetic fun onImeAction-9UiTYpY$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;ILjava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public static final fun onLongClick (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
@@ -4197,6 +4209,7 @@ public final class androidx/compose/ui/semantics/SemanticsPropertiesKt {
 	public static final fun setCustomActions (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/util/List;)V
 	public static final fun setEditable (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Z)V
 	public static final fun setEditableText (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Landroidx/compose/ui/text/AnnotatedString;)V
+	public static final fun setFillableData (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Landroidx/compose/ui/autofill/FillableData;)V
 	public static final fun setFocused (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Z)V
 	public static final fun setHorizontalScrollAxisRange (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Landroidx/compose/ui/semantics/ScrollAxisRange;)V
 	public static final fun setImeAction-4L7nppU (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;I)V
