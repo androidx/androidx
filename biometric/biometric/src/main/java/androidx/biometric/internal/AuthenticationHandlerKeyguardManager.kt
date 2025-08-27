@@ -251,6 +251,7 @@ public class ConfirmCredentialCallerFragment : Fragment() {
     }
 }
 
+@Suppress("deprecation")
 private fun Context.getConfirmCredentialIntent(viewModelStoreOwner: ViewModelStoreOwner): Intent? {
     val viewModel: BiometricViewModel =
         ViewModelProvider(viewModelStoreOwner)[BiometricViewModel::class.java]
