@@ -50,10 +50,10 @@ internal fun createCryptoObject(
     // Create a spec for the key to be generated.
     val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
     val keySpec =
-        Api23Impl.createKeyGenParameterSpecBuilder(KEY_NAME, keyPurpose).run {
-            Api23Impl.setBlockModeCBC(this)
-            Api23Impl.setEncryptionPaddingPKCS7(this)
-            Api23Impl.setUserAuthenticationRequired(this, true)
+        KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose).run {
+            setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            setUserAuthenticationRequired(true)
 
             // Require authentication for each use of the key.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -64,10 +64,10 @@ internal fun createCryptoObject(
                     allowDeviceCredentialAuth,
                 )
             } else {
-                Api23Impl.setUserAuthenticationValidityDurationSeconds(this, -1)
+                setUserAuthenticationValidityDurationSeconds(-1)
             }
 
-            Api23Impl.buildKeyGenParameterSpec(this)
+            build()
         }
 
     // Generate and store the key in the Android keystore.
@@ -117,42 +117,5 @@ private object Api30Impl {
         }
 
         builder.setUserAuthenticationParameters(timeout, keyType)
-    }
-}
-
-/** Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23). */
-private object Api23Impl {
-    fun createKeyGenParameterSpecBuilder(
-        keyName: String,
-        keyPurpose: Int,
-    ): KeyGenParameterSpec.Builder = KeyGenParameterSpec.Builder(keyName, keyPurpose)
-
-    fun setBlockModeCBC(builder: KeyGenParameterSpec.Builder) {
-        builder.setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-    }
-
-    fun setEncryptionPaddingPKCS7(builder: KeyGenParameterSpec.Builder) {
-        builder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-    }
-
-    fun setUserAuthenticationRequired(
-        builder: KeyGenParameterSpec.Builder,
-        userAuthenticationRequired: Boolean,
-    ) {
-        builder.setUserAuthenticationRequired(userAuthenticationRequired)
-    }
-
-    @Suppress("DEPRECATION")
-    fun setUserAuthenticationValidityDurationSeconds(
-        builder: KeyGenParameterSpec.Builder,
-        userAuthenticationValidityDurationSeconds: Int,
-    ) {
-        builder.setUserAuthenticationValidityDurationSeconds(
-            userAuthenticationValidityDurationSeconds
-        )
-    }
-
-    fun buildKeyGenParameterSpec(builder: KeyGenParameterSpec.Builder): KeyGenParameterSpec {
-        return builder.build()
     }
 }
