@@ -43,7 +43,6 @@ private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
  */
 @Suppress("DEPRECATION")
 @SuppressLint("TrulyRandom")
-@RequiresApi(Build.VERSION_CODES.M)
 internal fun createCryptoObject(
     allowBiometricAuth: Boolean,
     allowDeviceCredentialAuth: Boolean,
@@ -83,7 +82,6 @@ internal fun createCryptoObject(
 }
 
 /** Returns the cipher that will be used for encryption. */
-@RequiresApi(Build.VERSION_CODES.M)
 private fun getCipher(): Cipher {
     return Cipher.getInstance(
         KeyProperties.KEY_ALGORITHM_AES +
@@ -123,7 +121,6 @@ private object Api30Impl {
 }
 
 /** Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23). */
-@RequiresApi(Build.VERSION_CODES.M)
 private object Api23Impl {
     fun createKeyGenParameterSpecBuilder(
         keyName: String,

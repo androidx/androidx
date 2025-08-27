@@ -270,10 +270,7 @@ class AuthenticationResultTestActivity : FragmentActivity() {
 
     /** Returns a new crypto object for authentication or `null`, based on the selected options. */
     private fun createCryptoOrNull(): BiometricPrompt.CryptoObject? {
-        return if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                binding.common.useCryptoAuthCheckbox.isChecked
-        ) {
+        return if (binding.common.useCryptoAuthCheckbox.isChecked) {
             createCryptoObject(isBiometricAllowed, isCredentialAllowed)
         } else {
             null

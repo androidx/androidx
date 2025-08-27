@@ -18,9 +18,7 @@ package androidx.biometric.utils;
 
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
@@ -42,11 +40,7 @@ public class KeyguardUtils {
      * @return An instance of {@link KeyguardManager}.
      */
     public static @Nullable KeyguardManager getKeyguardManager(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.getKeyguardManager(context);
-        }
-        final Object service = context.getSystemService(Context.KEYGUARD_SERVICE);
-        return service instanceof KeyguardManager ? (KeyguardManager) service : null;
+        return context.getSystemService(KeyguardManager.class);
     }
 
     /**
@@ -60,39 +54,6 @@ public class KeyguardUtils {
         if (keyguardManager == null) {
             return false;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.isDeviceSecure(keyguardManager);
-        }
-        return keyguardManager.isKeyguardSecure();
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
-     */
-    @RequiresApi(Build.VERSION_CODES.M)
-    private static class Api23Impl {
-        // Prevent instantiation.
-        private Api23Impl() {
-        }
-
-        /**
-         * Gets an instance of the {@link KeyguardManager} system service.
-         *
-         * @param context The application or activity context.
-         * @return An instance of {@link KeyguardManager}.
-         */
-        static @Nullable KeyguardManager getKeyguardManager(@NonNull Context context) {
-            return context.getSystemService(KeyguardManager.class);
-        }
-
-        /**
-         * Calls {@link KeyguardManager#isDeviceSecure()} for the given keyguard manager.
-         *
-         * @param keyguardManager An instance of {@link KeyguardManager}.
-         * @return The result of {@link KeyguardManager#isDeviceSecure()}.
-         */
-        static boolean isDeviceSecure(@NonNull KeyguardManager keyguardManager) {
-            return keyguardManager.isDeviceSecure();
-        }
+        return keyguardManager.isDeviceSecure();
     }
 }

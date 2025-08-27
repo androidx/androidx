@@ -18,7 +18,6 @@ package androidx.biometric.integration.testapp
 
 import android.app.KeyguardManager
 import android.content.Context
-import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS
@@ -31,14 +30,7 @@ internal fun hasEnrolledBiometric(context: Context): Boolean {
 
 /** Checks [context] to determine if the device is currently locked. */
 internal fun isDeviceLocked(context: Context): Boolean {
-    val keyguard =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            context.getSystemService(KeyguardManager::class.java)
-        else context.getSystemService(Context::KEYGUARD_SERVICE.toString()) as KeyguardManager?
+    val keyguard = context.getSystemService(KeyguardManager::class.java)
 
-    return when {
-        keyguard == null -> false
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 -> keyguard.isDeviceLocked
-        else -> keyguard.isKeyguardLocked
-    }
+    return keyguard?.isDeviceLocked ?: false
 }

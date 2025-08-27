@@ -308,7 +308,6 @@ public class CryptoObjectUtils {
      * @return An internal-only instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
      */
     @SuppressLint("TrulyRandom")
-    @RequiresApi(Build.VERSION_CODES.M)
     public static BiometricPrompt.@Nullable CryptoObject createFakeCryptoObject() {
         try {
             final KeyStore keystore = KeyStore.getInstance(KEYSTORE_INSTANCE);
@@ -539,7 +538,6 @@ public class CryptoObjectUtils {
     /**
      * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
      */
-    @RequiresApi(Build.VERSION_CODES.M)
     private static class Api23Impl {
         // Prevent instantiation.
         private Api23Impl() {
