@@ -95,7 +95,8 @@ fun ComponentActivity.enableEdgeToEdge(
                 EdgeToEdgeApi26()
             } else {
                 EdgeToEdgeApi23()
-            }.also { Impl = it }
+            }
+    Impl = impl
     impl.setUp(
         statusBarStyle,
         navigationBarStyle,
