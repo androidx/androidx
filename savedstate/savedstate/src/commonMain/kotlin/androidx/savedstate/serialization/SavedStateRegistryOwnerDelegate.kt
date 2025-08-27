@@ -21,7 +21,6 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.internal.canonicalName
-import androidx.savedstate.read
 import androidx.savedstate.savedState
 import kotlin.jvm.JvmName
 import kotlin.properties.ReadWriteProperty
@@ -147,9 +146,6 @@ private class SavedStateRegistryOwnerDelegate<T>(
      */
     private object UNINITIALIZED
 
-    // TODO(mgalhardo): encode/decode operations with SavedState requires a non-nullable type.
-    //  To support nullable values, we rely on unchecked casts and brittle generic workarounds.
-    //  Once the codec supports nullables directly, this logic can be simplified.
     private var cachedValue: Any? = UNINITIALIZED
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
@@ -185,8 +181,7 @@ private class SavedStateRegistryOwnerDelegate<T>(
         if (cachedValue == UNINITIALIZED) return savedState()
 
         // Using `putNull` distinguishes a saved `null` from a state that was never saved.
-        @Suppress("UNCHECKED_CAST")
-        val typedValue = cachedValue as? T ?: return savedState { putNull(key = "") }
+        @Suppress("UNCHECKED_CAST") val typedValue = cachedValue as T
 
         return encodeToSavedState(serializer, typedValue, configuration)
     }
@@ -199,9 +194,6 @@ private class SavedStateRegistryOwnerDelegate<T>(
      */
     private fun loadInitialValue(qualifiedKey: String): T? {
         val restored = registry.consumeRestoredStateForKey(qualifiedKey) ?: return init()
-
-        // Check for the special marker used in `saveState()` for a `null` value.
-        if (restored.read { isNull(key = "") && size() == 1 }) return null
 
         @Suppress("UNCHECKED_CAST")
         return decodeFromSavedState(

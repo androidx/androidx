@@ -18,6 +18,7 @@ package androidx.savedstate.serialization
 
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -45,7 +46,34 @@ import kotlinx.serialization.serializer
  * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
  * @see encodeToSavedState
  */
+@Deprecated(
+    message =
+        "Use the new 'decodeFromSavedState' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 public inline fun <reified T : Any> decodeFromSavedState(
+    savedState: SavedState,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): T = decodeFromSavedState(configuration.serializersModule.serializer(), savedState, configuration)
+
+/**
+ * Decode a serializable object from a [SavedState] with the default deserializer.
+ *
+ * **Format not stable:** The internal structure of the given [SavedState] is subject to change in
+ * future releases for optimization. While it is guaranteed to be compatible with
+ * [encodeToSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.decode
+ * @param savedState The [SavedState] to decode from.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @return The decoded object.
+ * @throws SerializationException in case of any decoding-specific error.
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
+ * @see encodeToSavedState
+ */
+@JvmName("decodeFromSavedStateNullable")
+public inline fun <reified T> decodeFromSavedState(
     savedState: SavedState,
     configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
 ): T = decodeFromSavedState(configuration.serializersModule.serializer(), savedState, configuration)
@@ -68,8 +96,41 @@ public inline fun <reified T : Any> decodeFromSavedState(
  * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
  * @see encodeToSavedState
  */
+@Deprecated(
+    message =
+        "Use the new 'decodeFromSavedState' overload that supports both nullable and non-nullable types.",
+    level = DeprecationLevel.HIDDEN,
+)
 @JvmOverloads
 public fun <T : Any> decodeFromSavedState(
+    deserializer: DeserializationStrategy<T>,
+    savedState: SavedState,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): T {
+    return SavedStateDecoder(savedState, configuration).decodeSerializableValue(deserializer)
+}
+
+/**
+ * Decodes and deserializes the given [SavedState] to the value of type [T] using the given
+ * [deserializer].
+ *
+ * **Format not stable:** The internal structure of the given [SavedState] is subject to change in
+ * future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.decodeWithExplicitSerializerAndConfig
+ * @param deserializer The deserializer to use.
+ * @param savedState The [SavedState] to decode from.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @return The deserialized object.
+ * @throws SerializationException in case of any decoding-specific error.
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
+ * @see encodeToSavedState
+ */
+@JvmOverloads
+@JvmName("decodeFromSavedStateNullable")
+public fun <T> decodeFromSavedState(
     deserializer: DeserializationStrategy<T>,
     savedState: SavedState,
     configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,

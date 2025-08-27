@@ -49,6 +49,22 @@ internal abstract class SavedStateSerializationBaseTest(
             serializersModule = modules.overwriteWith(configuration.serializersModule)
         }
 
+    protected fun doTestNullWithNullableStaticType(
+        configuration: SavedStateConfiguration? = this.configuration,
+        serializer: KSerializer<BooleanData?>? = null,
+        assertion: SavedStateAssertionScope<BooleanData?>.() -> Unit,
+    ) {
+        doTest(null, configuration, serializer, assertion)
+    }
+
+    protected fun doTestNonNullWithNullableStaticType(
+        configuration: SavedStateConfiguration? = this.configuration,
+        serializer: KSerializer<BooleanData?>? = null,
+        assertion: SavedStateAssertionScope<BooleanData?>.() -> Unit,
+    ) {
+        doTest(BooleanData(true), configuration, serializer, assertion)
+    }
+
     protected fun doTestNullData(
         configuration: SavedStateConfiguration? = this.configuration,
         serializer: KSerializer<NullData>? = null,
@@ -488,7 +504,7 @@ internal abstract class SavedStateSerializationBaseTest(
      * @param configuration Optional `SavedStateConfig` for encoding configuration.
      * @param assertion A block to perform additional assertions on the test results.
      */
-    protected inline fun <reified T : Any> doTest(
+    protected inline fun <reified T> doTest(
         original: T,
         configuration: SavedStateConfiguration? = this.configuration,
         serializer: KSerializer<T>? = null,
@@ -513,7 +529,7 @@ internal abstract class SavedStateSerializationBaseTest(
      * Encodes an instance of `T` into a `SavedState` using optional serialization and
      * configuration.
      */
-    protected inline fun <reified T : Any> doEncodeToSavedState(
+    protected inline fun <reified T> doEncodeToSavedState(
         original: T,
         serializer: KSerializer<T>? = null,
         configuration: SavedStateConfiguration? = this.configuration,
@@ -528,7 +544,7 @@ internal abstract class SavedStateSerializationBaseTest(
     }
 
     /** Decodes a `SavedState` back into an instance of `T`. */
-    protected inline fun <reified T : Any> doDecodeFromSavedState(
+    protected inline fun <reified T> doDecodeFromSavedState(
         serialized: SavedState,
         strategy: DeserializationStrategy<T>? = null,
         configuration: SavedStateConfiguration? = this.configuration,

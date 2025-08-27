@@ -45,5 +45,25 @@ internal class SavedStateCodecEncodeDefaultsTest : SavedStateSerializationBaseTe
         }
     }
 
+    @Test
+    fun encodeDefault_true_nullWithNullableStaticType() {
+        val config = SavedStateConfiguration { encodeDefaults = true }
+        doTest<Data?>(null, config) {
+            assertThat(original).isEqualTo(deserialized)
+            assertThat(representation).isEqualTo(platformRepresentation)
+            assertThat(representation).isEqualTo("[=null]")
+        }
+    }
+
+    @Test
+    fun encodeDefault_true_nonNullWithNullableStaticType() {
+        val config = SavedStateConfiguration { encodeDefaults = true }
+        doTest<Data?>(Data(), config) {
+            assertThat(original).isEqualTo(deserialized)
+            assertThat(representation).isEqualTo(platformRepresentation)
+            assertThat(representation).isEqualTo("[value=7]")
+        }
+    }
+
     @Serializable private data class Data(val value: Int = 7)
 }
