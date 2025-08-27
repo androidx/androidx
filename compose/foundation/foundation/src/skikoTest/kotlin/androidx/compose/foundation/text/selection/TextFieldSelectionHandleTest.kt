@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.sp
 import kotlin.math.pow
 import kotlin.test.Test
+import kotlinx.test.IgnoreJsTarget
+import kotlinx.test.IgnoreWasmTarget
 
 @OptIn(ExperimentalTestApi::class)
 class BasicTextFieldSelectionHandleTest {
@@ -121,6 +123,9 @@ class BasicTextFieldSelectionHandleTest {
     }
 
     @Test
+    // FIXME https://youtrack.jetbrains.com/issue/CMP-8803
+    @IgnoreJsTarget
+    @IgnoreWasmTarget
     fun coreTextFieldSelectionHandles() = runSkikoComposeUiTest(size = Size(100f, 100f)) {
         val selection = TextRange(1, 3)
         var selectionStart: Rect = Rect.Zero
