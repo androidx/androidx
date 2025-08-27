@@ -45,21 +45,16 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -117,7 +112,7 @@ fun runInternalSkikoComposeUiTest(
     coroutineDispatcher: TestDispatcher = defaultTestDispatcher(),
     block: suspend SkikoComposeUiTest.() -> Unit
 ): TestResult {
-    return kotlinx.coroutines.test.runTest {
+    return runTest {
         SkikoComposeUiTest(
             width = width,
             height = height,
@@ -200,10 +195,14 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     private val composeRootRegistry = ComposeRootRegistry()
 
-    override val mainClock: MainTestClock = MainTestClockImpl(
-        testScheduler = coroutineDispatcher.scheduler,
-        frameDelayMillis = FRAME_DELAY_MILLIS
+    private val mainClockImpl = MainTestClockImpl(
+        scheduler = coroutineDispatcher.scheduler,
+        frameDelayMillis = FRAME_DELAY_MILLIS,
+        isStandardTestDispatcherSupportEnabled = ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled,
     )
+    override val mainClock: MainTestClock
+        get() = mainClockImpl
+
     private val uncaughtExceptionHandler = UncaughtExceptionHandler()
     private val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
         override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
@@ -441,6 +440,9 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     @OptIn(InternalComposeUiApi::class)
     internal inner class SkikoTestOwner : TestOwner {
+        override val mainClock
+            get() = mainClockImpl
+
         override fun <T> runOnUiThread(action: () -> T): T {
             return this@SkikoComposeUiTest.runOnUiThread(action)
         }
@@ -450,8 +452,9 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             return composeRootRegistry.getComposeRoots()
         }
 
-        override val mainClock get() =
-            this@SkikoComposeUiTest.mainClock
+        override fun runCurrent() {
+            mainClockImpl.runCurrent()
+        }
 
         fun captureToImage(semanticsNode: SemanticsNode): ImageBitmap =
             this@SkikoComposeUiTest.captureToImage(semanticsNode)
