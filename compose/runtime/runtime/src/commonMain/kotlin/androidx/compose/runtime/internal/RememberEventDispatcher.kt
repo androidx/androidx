@@ -23,12 +23,12 @@ import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.RecomposeScopeImpl
-import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.Stack
 import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.Stack
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.tooling.CompositionErrorContext
 

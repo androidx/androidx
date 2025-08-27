@@ -638,6 +638,9 @@ internal class AndroidInputDispatcher(
                 currentClockTime = event.eventTime
                 sendAndRecycleEvent(event)
             }
+            // Run all due tasks to make sure the last event is being handled.
+            // This is necessary in case we're on a confined scheduler.
+            testContext.testOwner.runCurrent()
         }
     }
 

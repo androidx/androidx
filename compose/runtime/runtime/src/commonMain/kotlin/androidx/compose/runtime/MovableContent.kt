@@ -256,3 +256,58 @@ public fun <R, P1, P2, P3> movableContentWithReceiverOf(
 
 // An arbitrary key created randomly. This key is used for the group containing the movable content
 internal const val movableContentKey = 0x078cc281
+
+/**
+ * This class is used internally by [movableContentOf]. Please see [movableContentOf] which has
+ * documentation and example for how to use movable content. This class cannot be used directly.
+ *
+ * A Compose compiler plugin API. DO NOT call directly.
+ *
+ * An instance used to track the identity of the movable content. Using a holder object allows
+ * creating unique movable content instances from the same instance of a lambda. This avoids using
+ * the identity of a lambda instance as it can be merged into a singleton or merged by later
+ * rewritings and using its identity might lead to unpredictable results that might change from the
+ * debug and release builds.
+ *
+ * @see movableContentOf
+ */
+@InternalComposeApi
+public class MovableContent<P>(public val content: @Composable (parameter: P) -> Unit) {
+    internal var used: Boolean = false
+}
+
+/**
+ * A Compose compiler plugin API. DO NOT call directly.
+ *
+ * A reference to the movable content state prior to changes being applied.
+ */
+@InternalComposeApi
+public class MovableContentStateReference
+internal constructor(
+    internal val content: MovableContent<Any?>,
+    internal val parameter: Any?,
+    internal val composition: ControlledComposition,
+    internal val slotStorage: SlotStorage,
+    internal val anchor: Anchor,
+    internal var invalidations: List<Pair<RecomposeScopeImpl, Any?>>,
+    internal val locals: PersistentCompositionLocalMap,
+    internal val nestedReferences: List<MovableContentStateReference>?,
+) {
+    /** Transfer any invalidations that may have accumulated since this reference was created. */
+    internal fun transferPendingInvalidations() {
+        if (anchor.valid) {
+            invalidations =
+                invalidations + (composition as CompositionImpl).extractInvalidationsOf(anchor)
+        }
+    }
+}
+
+/**
+ * A Compose compiler plugin API. DO NOT call directly.
+ *
+ * A reference to the state of a [MovableContent] after changes have being applied. This is the
+ * state that was removed from the `from` composition during [ControlledComposition.applyChanges]
+ * and before it is inserted during [ControlledComposition.insertMovableContent].
+ */
+@InternalComposeApi
+public class MovableContentState internal constructor(internal val slotStorage: SlotStorage)

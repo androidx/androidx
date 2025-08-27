@@ -29,6 +29,6 @@ public class SolidBackgroundModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierBackground(mColor, 0);
+        writer.addModifierBackground(mColor, 0);
     }
 }

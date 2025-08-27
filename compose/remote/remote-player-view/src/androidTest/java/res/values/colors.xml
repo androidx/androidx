@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="round_button_color">#AECBFA</color>
-    <color name="round_gradient_button_start_color">#DC2424</color>
-    <color name="round_gradient_button_end_color">#4A569D</color>
-</resources>

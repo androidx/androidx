@@ -34,6 +34,7 @@ import androidx.compose.remote.core.operations.ConditionalOperations;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /** This test the function call syntax */
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(JUnit4.class)
 public class ConditionTest {
     private final boolean mSaveImages = false;

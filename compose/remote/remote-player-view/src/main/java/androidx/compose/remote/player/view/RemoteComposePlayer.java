@@ -15,10 +15,9 @@
  */
 package androidx.compose.remote.player.view;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.compose.remote.core.CoreDocument.MAJOR_VERSION;
 import static androidx.compose.remote.core.CoreDocument.MINOR_VERSION;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -54,7 +53,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
-import java.time.Clock;
 
 /**
  * This is a player for a RemoteComposeDocument.
@@ -181,6 +179,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * @inheritDoc
      */
+    @Override
     public void requestLayout() {
         super.requestLayout();
 
@@ -192,6 +191,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     /**
      * @inheritDoc
      */
+    @Override
     public void invalidate() {
         super.invalidate();
 
@@ -200,31 +200,28 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         }
     }
 
-    @RestrictTo(LIBRARY_GROUP)
     /**
      * Returns true if the document supports drag touch events. This is used in platform.
      *
      * @return true if draggable content, false otherwise
-     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public boolean isDraggable() {
         return mInner.isDraggable();
     }
 
-    @RestrictTo(LIBRARY_GROUP)
     /**
      * Turn on debug information
      *
      * @param debugFlags 1 to set debug on
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setDebug(int debugFlags) {
         mInner.setDebug(debugFlags);
     }
 
     /**
      * Returns the document
-     *
-     * @hide
      */
     public @NonNull RemoteComposeDocument getDocument() {
         return mInner.getDocument();
@@ -234,7 +231,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * This will update values in the already loaded document.
      *
      * @param value the document to update variables in the current document width
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void updateDocument(RemoteComposeDocument value) {
@@ -283,18 +279,10 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         setDocument(document);
     }
 
-    @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
-    private void setDocument(InputStream inputStream, Clock clock) {
-        RemoteComposeDocument document = new RemoteComposeDocument(inputStream, clock);
-        setDocument(document);
-    }
-
     /**
      * Set a document on the player
      *
      * @param value
-     * @hide
      */
     public void setDocument(@NonNull RemoteComposeDocument value) {
         if (value != null) {
@@ -542,7 +530,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * This is the number of ops used to calculate the last frame.
      *
      * @return number of ops
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public int getOpsPerFrame() {
@@ -679,7 +666,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * a number of evaluations.
      *
      * @return time in ms
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public float getEvalTime() {
@@ -691,7 +677,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * accept shaders.
      *
      * @param ctl the controller
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setShaderControl(CoreDocument.ShaderControl ctl) {

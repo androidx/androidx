@@ -18,5 +18,4 @@ package androidx.compose.ui.viewinterop
 
 actual typealias InteropView = Any
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias InteropViewGroup = Any

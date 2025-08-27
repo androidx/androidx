@@ -122,6 +122,7 @@ fun Font(
  * @param loadingStrategy loadingStrategy this font will provide in fallback chains
  * @param typefaceLoader a loader that knows how to load this [AndroidFont], may be shared between
  *   several fonts
+ * @param variationSettings the settings that will be applied to this font, if supported by the font
  */
 abstract class AndroidFont
 constructor(

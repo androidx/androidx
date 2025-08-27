@@ -22,7 +22,7 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
-internal actual fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavior =
+internal actual fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultFlingBehavior =
     DefaultFlingBehavior(
         SplineBasedFloatDecayAnimationSpec(UnityDensity).generateDecayAnimationSpec()
     )

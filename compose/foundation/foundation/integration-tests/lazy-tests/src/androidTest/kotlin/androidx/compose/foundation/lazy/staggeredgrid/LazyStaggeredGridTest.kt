@@ -2105,4 +2105,51 @@ class LazyStaggeredGridTest(
 
         rule.onNodeWithTag(LazyStaggeredGridTag).assertIsDisplayed()
     }
+
+    @Test
+    fun fullSpanItem_correctOrderWhenUpdated() {
+        lateinit var state: LazyStaggeredGridState
+
+        // ┌───┬───────┐
+        // │ 0 │       │
+        // ├───┴───────┤
+        // │   full    │
+        // └───────────┘
+
+        var itemCount by mutableStateOf(1)
+        rule.setContentWithConfigurableLookahead {
+            state = rememberLazyStaggeredGridState().apply { prefetchingEnabled = false }
+            LazyStaggeredGrid(
+                lanes = 3,
+                state = state,
+                modifier = Modifier.mainAxisSize(itemSizeDp * 2).crossAxisSize(itemSizeDp * 3),
+            ) {
+                items(itemCount) { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("$it")) }
+
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    Spacer(Modifier.mainAxisSize(itemSizeDp))
+                }
+            }
+        }
+
+        // ┌───┬───┬───┐
+        // │ 0 │ 1 │   │
+        // ├───┴───┴───┤
+        // │   full    │
+        // └───────────┘
+
+        itemCount++
+        rule.onNodeWithTag("0").assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1").assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
+
+        // ┌───┬───┬───┐
+        // │ 0 │ 1 │ 2 │
+        // ├───┴───┴───┤
+        // │   full    │
+        // └───────────┘
+        itemCount++
+        rule.onNodeWithTag("0").assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1").assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
+        rule.onNodeWithTag("2").assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2)
+    }
 }

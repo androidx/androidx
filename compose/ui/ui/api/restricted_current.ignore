@@ -1,8 +1,118 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.ui.Alignment#align(androidx.compose.ui.unit.IntSize, androidx.compose.ui.unit.IntSize, androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: Added method androidx.compose.ui.Alignment.align(androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.LayoutDirection)
+AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropModifierNode#drag(androidx.compose.ui.draganddrop.DragAndDropTransferData, androidx.compose.ui.geometry.Size, kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>):
+    Source breaking change: Added method androidx.compose.ui.draganddrop.DragAndDropModifierNode.drag(androidx.compose.ui.draganddrop.DragAndDropTransferData,androidx.compose.ui.geometry.Size,kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropSourceModifierNode#requestDragAndDropTransfer(androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.draganddrop.DragAndDropSourceModifierNode.requestDragAndDropTransfer(androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropStartTransferScope#startDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData, androidx.compose.ui.geometry.Size, kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>):
+    Source breaking change: Added method androidx.compose.ui.draganddrop.DragAndDropStartTransferScope.startDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData,androidx.compose.ui.geometry.Size,kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.ui.focus.FocusManager#moveFocus(androidx.compose.ui.focus.FocusDirection):
+    Source breaking change: Added method androidx.compose.ui.focus.FocusManager.moveFocus(androidx.compose.ui.focus.FocusDirection)
+AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#requestFocus(androidx.compose.ui.focus.FocusDirection):
+    Source breaking change: Added method androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus(androidx.compose.ui.focus.FocusDirection)
+AddedAbstractMethod: androidx.compose.ui.hapticfeedback.HapticFeedback#performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType):
+    Source breaking change: Added method androidx.compose.ui.hapticfeedback.HapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType)
+AddedAbstractMethod: androidx.compose.ui.input.InputModeManager#requestInputMode(androidx.compose.ui.input.InputMode):
+    Source breaking change: Added method androidx.compose.ui.input.InputModeManager.requestInputMode(androidx.compose.ui.input.InputMode)
+AddedAbstractMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onKeyEvent(androidx.compose.ui.input.key.KeyEvent):
+    Source breaking change: Added method androidx.compose.ui.input.key.KeyInputModifierNode.onKeyEvent(androidx.compose.ui.input.key.KeyEvent)
+AddedAbstractMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onPreKeyEvent(androidx.compose.ui.input.key.KeyEvent):
+    Source breaking change: Added method androidx.compose.ui.input.key.KeyInputModifierNode.onPreKeyEvent(androidx.compose.ui.input.key.KeyEvent)
+AddedAbstractMethod: androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode#onInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.input.key.KeyEvent):
+    Source breaking change: Added method androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode.onInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.input.key.KeyEvent)
+AddedAbstractMethod: androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode#onPreInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.input.key.KeyEvent):
+    Source breaking change: Added method androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode.onPreInterceptKeyBeforeSoftKeyboard(androidx.compose.ui.input.key.KeyEvent)
+AddedAbstractMethod: androidx.compose.ui.input.pointer.PointerInputFilter#onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent, androidx.compose.ui.input.pointer.PointerEventPass, androidx.compose.ui.unit.IntSize):
+    Source breaking change: Added method androidx.compose.ui.input.pointer.PointerInputFilter.onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent,androidx.compose.ui.input.pointer.PointerEventPass,androidx.compose.ui.unit.IntSize)
+AddedAbstractMethod: androidx.compose.ui.layout.ApproachLayoutModifierNode#approachMeasure(androidx.compose.ui.layout.ApproachMeasureScope, androidx.compose.ui.layout.Measurable, androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.layout.ApproachLayoutModifierNode.approachMeasure(androidx.compose.ui.layout.ApproachMeasureScope,androidx.compose.ui.layout.Measurable,androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.layout.ApproachLayoutModifierNode#isMeasurementApproachInProgress(androidx.compose.ui.unit.IntSize):
+    Source breaking change: Added method androidx.compose.ui.layout.ApproachLayoutModifierNode.isMeasurementApproachInProgress(androidx.compose.ui.unit.IntSize)
+AddedAbstractMethod: androidx.compose.ui.layout.BeyondBoundsLayout#layout(androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection, kotlin.jvm.functions.Function1<androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,T>):
+    Source breaking change: Added method androidx.compose.ui.layout.BeyondBoundsLayout.layout(androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection,kotlin.jvm.functions.Function1<androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,T>)
+AddedAbstractMethod: androidx.compose.ui.layout.ContentScale#computeScaleFactor(androidx.compose.ui.geometry.Size, androidx.compose.ui.geometry.Size):
+    Source breaking change: Added method androidx.compose.ui.layout.ContentScale.computeScaleFactor(androidx.compose.ui.geometry.Size,androidx.compose.ui.geometry.Size)
+AddedAbstractMethod: androidx.compose.ui.layout.LayoutCoordinates#localPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.layout.LayoutCoordinates.localPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.layout.LayoutCoordinates#localToRoot(androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.layout.LayoutCoordinates.localToRoot(androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.layout.LayoutCoordinates#localToWindow(androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.layout.LayoutCoordinates.localToWindow(androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.layout.LayoutCoordinates#windowToLocal(androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.layout.LayoutCoordinates.windowToLocal(androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.layout.LayoutModifier#measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable, androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.layout.LayoutModifier.measure(androidx.compose.ui.layout.MeasureScope,androidx.compose.ui.layout.Measurable,androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.layout.Measurable#measure(androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.layout.Measurable.measure(androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.layout.MeasurePolicy#measure(androidx.compose.ui.layout.MeasureScope, java.util.List<androidx.compose.ui.layout.Measurable>, androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.layout.MeasurePolicy.measure(androidx.compose.ui.layout.MeasureScope,java.util.List<androidx.compose.ui.layout.Measurable>,androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.layout.MultiContentMeasurePolicy#measure(androidx.compose.ui.layout.MeasureScope, java.util.List<java.util.List<androidx.compose.ui.layout.Measurable>>, androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.layout.MultiContentMeasurePolicy.measure(androidx.compose.ui.layout.MeasureScope,java.util.List<java.util.List<androidx.compose.ui.layout.Measurable>>,androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.layout.OnRemeasuredModifier#onRemeasured(androidx.compose.ui.unit.IntSize):
+    Source breaking change: Added method androidx.compose.ui.layout.OnRemeasuredModifier.onRemeasured(androidx.compose.ui.unit.IntSize)
+AddedAbstractMethod: androidx.compose.ui.layout.Placeable#placeAt(androidx.compose.ui.unit.IntOffset, float, kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>):
+    Source breaking change: Added method androidx.compose.ui.layout.Placeable.placeAt(androidx.compose.ui.unit.IntOffset,float,kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>)
+AddedAbstractMethod: androidx.compose.ui.node.LayoutModifierNode#measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable, androidx.compose.ui.unit.Constraints):
+    Source breaking change: Added method androidx.compose.ui.node.LayoutModifierNode.measure(androidx.compose.ui.layout.MeasureScope,androidx.compose.ui.layout.Measurable,androidx.compose.ui.unit.Constraints)
+AddedAbstractMethod: androidx.compose.ui.node.PointerInputModifierNode#onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent, androidx.compose.ui.input.pointer.PointerEventPass, androidx.compose.ui.unit.IntSize):
+    Source breaking change: Added method androidx.compose.ui.node.PointerInputModifierNode.onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent,androidx.compose.ui.input.pointer.PointerEventPass,androidx.compose.ui.unit.IntSize)
+AddedAbstractMethod: androidx.compose.ui.node.RootForTest#sendKeyEvent(androidx.compose.ui.input.key.KeyEvent):
+    Source breaking change: Added method androidx.compose.ui.node.RootForTest.sendKeyEvent(androidx.compose.ui.input.key.KeyEvent)
+AddedAbstractMethod: androidx.compose.ui.window.PopupPositionProvider#calculatePosition(androidx.compose.ui.unit.IntRect, androidx.compose.ui.unit.IntSize, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.unit.IntSize):
+    Source breaking change: Added method androidx.compose.ui.window.PopupPositionProvider.calculatePosition(androidx.compose.ui.unit.IntRect,androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.LayoutDirection,androidx.compose.ui.unit.IntSize)
+
+
+ChangedType: androidx.compose.ui.graphics.TransformOrigin#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.graphics.TransformOrigin.copy has changed return type from long to androidx.compose.ui.graphics.TransformOrigin
+ChangedType: androidx.compose.ui.graphics.TransformOriginKt#TransformOrigin(float, float):
+    Binary breaking change: Method androidx.compose.ui.graphics.TransformOriginKt.TransformOrigin has changed return type from long to androidx.compose.ui.graphics.TransformOrigin
+ChangedType: androidx.compose.ui.input.key.Key_androidKt#Key(int):
+    Binary breaking change: Method androidx.compose.ui.input.key.Key_androidKt.Key has changed return type from long to androidx.compose.ui.input.key.Key
+ChangedType: androidx.compose.ui.input.pointer.PointerEventKt#positionChange(androidx.compose.ui.input.pointer.PointerInputChange):
+    Binary breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChange has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.input.pointer.PointerEventKt#positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange):
+    Binary breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChangeIgnoreConsumed has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.input.pointer.util.VelocityTracker#calculateVelocity():
+    Source breaking change: Method androidx.compose.ui.input.pointer.util.VelocityTracker.calculateVelocity has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInParent(androidx.compose.ui.layout.LayoutCoordinates):
+    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInParent has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInRoot(androidx.compose.ui.layout.LayoutCoordinates):
+    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInRoot has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInWindow(androidx.compose.ui.layout.LayoutCoordinates):
+    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInWindow has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates):
+    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionOnScreen has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.layout.ScaleFactor#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.layout.ScaleFactor.copy has changed return type from long to androidx.compose.ui.layout.ScaleFactor
+ChangedType: androidx.compose.ui.layout.ScaleFactor#div(float):
+    Source breaking change: Method androidx.compose.ui.layout.ScaleFactor.div has changed return type from long to androidx.compose.ui.layout.ScaleFactor
+ChangedType: androidx.compose.ui.layout.ScaleFactor#times(float):
+    Source breaking change: Method androidx.compose.ui.layout.ScaleFactor.times has changed return type from long to androidx.compose.ui.layout.ScaleFactor
+ChangedType: androidx.compose.ui.layout.ScaleFactorKt#ScaleFactor(float, float):
+    Binary breaking change: Method androidx.compose.ui.layout.ScaleFactorKt.ScaleFactor has changed return type from long to androidx.compose.ui.layout.ScaleFactor
+ChangedType: androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle#getSize(int):
+    Source breaking change: Method androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle.getSize has changed return type from long to androidx.compose.ui.unit.IntSize
+ChangedType: androidx.compose.ui.node.DpTouchBoundsExpansion#roundToTouchBoundsExpansion(androidx.compose.ui.unit.Density):
+    Source breaking change: Method androidx.compose.ui.node.DpTouchBoundsExpansion.roundToTouchBoundsExpansion has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
+ChangedType: androidx.compose.ui.node.TouchBoundsExpansion.Companion#Absolute(int, int, int, int):
+    Source breaking change: Method androidx.compose.ui.node.TouchBoundsExpansion.Companion.Absolute has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
+ChangedType: androidx.compose.ui.node.TouchBoundsExpansionKt#TouchBoundsExpansion(int, int, int, int):
+    Binary breaking change: Method androidx.compose.ui.node.TouchBoundsExpansionKt.TouchBoundsExpansion has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
+ChangedType: androidx.compose.ui.res.ColorResources_androidKt#colorResource(int):
+    Source breaking change: Method androidx.compose.ui.res.ColorResources_androidKt.colorResource has changed return type from long to androidx.compose.ui.graphics.Color
+ChangedType: androidx.compose.ui.res.PrimitiveResources_androidKt#dimensionResource(int):
+    Source breaking change: Method androidx.compose.ui.res.PrimitiveResources_androidKt.dimensionResource has changed return type from float to androidx.compose.ui.unit.Dp
 ChangedType: androidx.compose.ui.semantics.SemanticsOwnerKt#getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner, boolean):
     Binary breaking change: Method androidx.compose.ui.semantics.SemanticsOwnerKt.getAllSemanticsNodes has changed return type from java.util.List<androidx.compose.ui.semantics.SemanticsNode> to java.util.List
 
 
+ParameterNameChange: androidx.compose.ui.FrameRateKt#preferredFrameRate(androidx.compose.ui.Modifier, float) parameter #1:
+    Source breaking change: Attempted to change parameter name from frameRateCategory to frameRate in method androidx.compose.ui.FrameRateKt.preferredFrameRate
+
+
+RemovedDeprecatedMethod: androidx.compose.ui.draganddrop.DragAndDropModifierNode#drag(androidx.compose.ui.draganddrop.DragAndDropTransferData, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.draganddrop.DragAndDropModifierNode.drag(androidx.compose.ui.draganddrop.DragAndDropTransferData,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>)
 RemovedDeprecatedMethod: androidx.compose.ui.draw.ShadowKt#shadow(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape, boolean):
     Binary breaking change: Removed deprecated method androidx.compose.ui.draw.ShadowKt.shadow(androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape,boolean)
 RemovedDeprecatedMethod: androidx.compose.ui.graphics.GraphicsLayerModifierKt#graphicsLayer(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean):
@@ -13,6 +123,8 @@ RemovedDeprecatedMethod: androidx.compose.ui.graphics.GraphicsLayerModifierKt#gr
     Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.GraphicsLayerModifierKt.graphicsLayer(androidx.compose.ui.Modifier,float,float,float,float,float,float,float,float,float,float,long,androidx.compose.ui.graphics.Shape,boolean,androidx.compose.ui.graphics.RenderEffect,long,long)
 RemovedDeprecatedMethod: androidx.compose.ui.graphics.GraphicsLayerModifierKt#graphicsLayer(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean, androidx.compose.ui.graphics.RenderEffect, long, long, int):
     Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.GraphicsLayerModifierKt.graphicsLayer(androidx.compose.ui.Modifier,float,float,float,float,float,float,float,float,float,float,long,androidx.compose.ui.graphics.Shape,boolean,androidx.compose.ui.graphics.RenderEffect,long,long,int)
+RemovedDeprecatedMethod: androidx.compose.ui.graphics.vector.VectorPainterKt#rememberVectorPainter(float, float, float, float, String, long, int, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit>):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.graphics.vector.VectorPainterKt.rememberVectorPainter(float,float,float,float,String,long,int,kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit>)
 RemovedDeprecatedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getDrag():
     Binary breaking change: Removed deprecated method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getDrag()
 RemovedDeprecatedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getFling():
@@ -21,10 +133,44 @@ RemovedDeprecatedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSour
     Binary breaking change: Removed deprecated method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getRelocate()
 RemovedDeprecatedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getWheel():
     Binary breaking change: Removed deprecated method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getWheel()
+RemovedDeprecatedMethod: androidx.compose.ui.input.pointer.PointerEventKt#isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.input.pointer.PointerEventKt.isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange,long)
 RemovedDeprecatedMethod: androidx.compose.ui.input.pointer.PointerInputChange#copy(long, long, long, boolean, long, long, boolean, androidx.compose.ui.input.pointer.ConsumedData, int):
     Binary breaking change: Removed deprecated method androidx.compose.ui.input.pointer.PointerInputChange.copy(long,long,long,boolean,long,long,boolean,androidx.compose.ui.input.pointer.ConsumedData,int)
+RemovedDeprecatedMethod: androidx.compose.ui.input.pointer.PointerInputChange#copy(long, long, long, boolean, long, long, boolean, androidx.compose.ui.input.pointer.ConsumedData, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.input.pointer.PointerInputChange.copy(long,long,long,boolean,long,long,boolean,androidx.compose.ui.input.pointer.ConsumedData,int,long)
 RemovedDeprecatedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int):
     Binary breaking change: Removed deprecated method androidx.compose.ui.semantics.SemanticsPropertiesKt.setImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int)
+
+
+RemovedFromBytecode: androidx.compose.ui.graphics.TransformOrigin#component1():
+    Binary breaking change: method androidx.compose.ui.graphics.TransformOrigin.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.TransformOrigin#component2():
+    Binary breaking change: method androidx.compose.ui.graphics.TransformOrigin.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.TransformOrigin#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.graphics.TransformOrigin.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.input.pointer.util.VelocityTracker#calculateVelocity():
+    Binary breaking change: method androidx.compose.ui.input.pointer.util.VelocityTracker.calculateVelocity() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.ScaleFactor#component1():
+    Binary breaking change: method androidx.compose.ui.layout.ScaleFactor.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.ScaleFactor#component2():
+    Binary breaking change: method androidx.compose.ui.layout.ScaleFactor.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.ScaleFactor#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.layout.ScaleFactor.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.ScaleFactor#div(float):
+    Binary breaking change: method androidx.compose.ui.layout.ScaleFactor.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.ScaleFactor#times(float):
+    Binary breaking change: method androidx.compose.ui.layout.ScaleFactor.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle#getSize(int):
+    Binary breaking change: method androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle.getSize(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.node.DpTouchBoundsExpansion#roundToTouchBoundsExpansion(androidx.compose.ui.unit.Density):
+    Binary breaking change: method androidx.compose.ui.node.DpTouchBoundsExpansion.roundToTouchBoundsExpansion(androidx.compose.ui.unit.Density) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.node.TouchBoundsExpansion.Companion#Absolute(int, int, int, int):
+    Binary breaking change: method androidx.compose.ui.node.TouchBoundsExpansion.Companion.Absolute(int,int,int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.res.ColorResources_androidKt#colorResource(int):
+    Binary breaking change: method androidx.compose.ui.res.ColorResources_androidKt.colorResource(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.res.PrimitiveResources_androidKt#dimensionResource(int):
+    Binary breaking change: method androidx.compose.ui.res.PrimitiveResources_androidKt.dimensionResource(int) has been removed from bytecode
 
 
 RemovedFromKotlin: androidx.compose.ui.ComposedModifierKt#materialize(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier):
@@ -85,12 +231,26 @@ RemovedFromKotlin: androidx.compose.ui.semantics.SemanticsPropertiesKt#getTextSe
     Source breaking change: method androidx.compose.ui.semantics.SemanticsPropertiesKt.getTextSelectionRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver) can no longer be resolved from Kotlin source
 
 
+RemovedMethod: androidx.compose.ui.Alignment#align(long, long, androidx.compose.ui.unit.LayoutDirection):
+    Binary breaking change: Removed method androidx.compose.ui.Alignment.align(long,long,androidx.compose.ui.unit.LayoutDirection)
+RemovedMethod: androidx.compose.ui.BiasAbsoluteAlignment#align(long, long, androidx.compose.ui.unit.LayoutDirection):
+    Binary breaking change: Removed method androidx.compose.ui.BiasAbsoluteAlignment.align(long,long,androidx.compose.ui.unit.LayoutDirection)
+RemovedMethod: androidx.compose.ui.BiasAlignment#align(long, long, androidx.compose.ui.unit.LayoutDirection):
+    Binary breaking change: Removed method androidx.compose.ui.BiasAlignment.align(long,long,androidx.compose.ui.unit.LayoutDirection)
 RemovedMethod: androidx.compose.ui.FrameRateCategory.Companion#getDefault():
     Binary breaking change: Removed method androidx.compose.ui.FrameRateCategory.Companion.getDefault()
 RemovedMethod: androidx.compose.ui.FrameRateCategory.Companion#getHigh():
     Binary breaking change: Removed method androidx.compose.ui.FrameRateCategory.Companion.getHigh()
 RemovedMethod: androidx.compose.ui.FrameRateCategory.Companion#getNormal():
     Binary breaking change: Removed method androidx.compose.ui.FrameRateCategory.Companion.getNormal()
+RemovedMethod: androidx.compose.ui.draganddrop.DragAndDropSourceModifierNode#requestDragAndDropTransfer(long):
+    Binary breaking change: Removed method androidx.compose.ui.draganddrop.DragAndDropSourceModifierNode.requestDragAndDropTransfer(long)
+RemovedMethod: androidx.compose.ui.draganddrop.DragAndDropStartTransferScope#startDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.draganddrop.DragAndDropStartTransferScope.startDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.draw.BlurKt#blur(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: Removed method androidx.compose.ui.draw.BlurKt.blur(androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape)
+RemovedMethod: androidx.compose.ui.draw.BlurKt#blur(androidx.compose.ui.Modifier, float, float, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: Removed method androidx.compose.ui.draw.BlurKt.blur(androidx.compose.ui.Modifier,float,float,androidx.compose.ui.graphics.Shape)
 RemovedMethod: androidx.compose.ui.draw.BlurredEdgeTreatment.Companion#getRectangle():
     Binary breaking change: Removed method androidx.compose.ui.draw.BlurredEdgeTreatment.Companion.getRectangle()
 RemovedMethod: androidx.compose.ui.draw.BlurredEdgeTreatment.Companion#getUnbounded():
@@ -99,6 +259,10 @@ RemovedMethod: androidx.compose.ui.draw.BuildDrawCacheParams#getSize():
     Binary breaking change: Removed method androidx.compose.ui.draw.BuildDrawCacheParams.getSize()
 RemovedMethod: androidx.compose.ui.draw.CacheDrawScope#getSize():
     Binary breaking change: Removed method androidx.compose.ui.draw.CacheDrawScope.getSize()
+RemovedMethod: androidx.compose.ui.draw.CacheDrawScope#record(androidx.compose.ui.graphics.layer.GraphicsLayer, androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.draw.CacheDrawScope.record(androidx.compose.ui.graphics.layer.GraphicsLayer,androidx.compose.ui.unit.Density,androidx.compose.ui.unit.LayoutDirection,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.ContentDrawScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.draw.ShadowKt#shadow(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape, boolean, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.draw.ShadowKt.shadow(androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape,boolean,long,long)
 RemovedMethod: androidx.compose.ui.draw.ShadowScope#getBlendMode():
     Binary breaking change: Removed method androidx.compose.ui.draw.ShadowScope.getBlendMode()
 RemovedMethod: androidx.compose.ui.draw.ShadowScope#getColor():
@@ -129,10 +293,18 @@ RemovedMethod: androidx.compose.ui.focus.FocusDirection.Companion#getUp():
     Binary breaking change: Removed method androidx.compose.ui.focus.FocusDirection.Companion.getUp()
 RemovedMethod: androidx.compose.ui.focus.FocusEnterExitScope#getRequestedFocusDirection():
     Binary breaking change: Removed method androidx.compose.ui.focus.FocusEnterExitScope.getRequestedFocusDirection()
+RemovedMethod: androidx.compose.ui.focus.FocusManager#moveFocus(int):
+    Binary breaking change: Removed method androidx.compose.ui.focus.FocusManager.moveFocus(int)
+RemovedMethod: androidx.compose.ui.focus.FocusRequester#requestFocus(int):
+    Binary breaking change: Removed method androidx.compose.ui.focus.FocusRequester.requestFocus(int)
 RemovedMethod: androidx.compose.ui.focus.FocusTargetModifierNode#getFocusability():
     Binary breaking change: Removed method androidx.compose.ui.focus.FocusTargetModifierNode.getFocusability()
+RemovedMethod: androidx.compose.ui.focus.FocusTargetModifierNode#requestFocus(int):
+    Binary breaking change: Removed method androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus(int)
 RemovedMethod: androidx.compose.ui.focus.FocusTargetModifierNode#setFocusability(int):
     Binary breaking change: Removed method androidx.compose.ui.focus.FocusTargetModifierNode.setFocusability(int)
+RemovedMethod: androidx.compose.ui.focus.FocusTargetModifierNodeKt#FocusTargetModifierNode(int, kotlin.jvm.functions.Function2<? super androidx.compose.ui.focus.FocusState,? super androidx.compose.ui.focus.FocusState,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.focus.FocusTargetModifierNodeKt.FocusTargetModifierNode(int,kotlin.jvm.functions.Function2<? super androidx.compose.ui.focus.FocusState,? super androidx.compose.ui.focus.FocusState,kotlin.Unit>)
 RemovedMethod: androidx.compose.ui.focus.Focusability.Companion#getAlways():
     Binary breaking change: Removed method androidx.compose.ui.focus.Focusability.Companion.getAlways()
 RemovedMethod: androidx.compose.ui.focus.Focusability.Companion#getNever():
@@ -145,6 +317,8 @@ RemovedMethod: androidx.compose.ui.graphics.CompositingStrategy.Companion#getMod
     Binary breaking change: Removed method androidx.compose.ui.graphics.CompositingStrategy.Companion.getModulateAlpha()
 RemovedMethod: androidx.compose.ui.graphics.CompositingStrategy.Companion#getOffscreen():
     Binary breaking change: Removed method androidx.compose.ui.graphics.CompositingStrategy.Companion.getOffscreen()
+RemovedMethod: androidx.compose.ui.graphics.GraphicsLayerModifierKt#graphicsLayer(androidx.compose.ui.Modifier, float, float, float, float, float, float, float, float, float, float, long, androidx.compose.ui.graphics.Shape, boolean, androidx.compose.ui.graphics.RenderEffect, long, long, int, int, androidx.compose.ui.graphics.ColorFilter):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.GraphicsLayerModifierKt.graphicsLayer(androidx.compose.ui.Modifier,float,float,float,float,float,float,float,float,float,float,long,androidx.compose.ui.graphics.Shape,boolean,androidx.compose.ui.graphics.RenderEffect,long,long,int,int,androidx.compose.ui.graphics.ColorFilter)
 RemovedMethod: androidx.compose.ui.graphics.GraphicsLayerScope#getAmbientShadowColor():
     Binary breaking change: Removed method androidx.compose.ui.graphics.GraphicsLayerScope.getAmbientShadowColor()
 RemovedMethod: androidx.compose.ui.graphics.GraphicsLayerScope#getBlendMode():
@@ -177,14 +351,24 @@ RemovedMethod: androidx.compose.ui.graphics.vector.ImageVector#getTintBlendMode(
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.ImageVector.getTintBlendMode()
 RemovedMethod: androidx.compose.ui.graphics.vector.ImageVector#getTintColor():
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.ImageVector.getTintColor()
+RemovedMethod: androidx.compose.ui.graphics.vector.ImageVector.Builder#addPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>, int, String, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.Brush, float, float, int, int, float, float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.vector.ImageVector.Builder.addPath(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>,int,String,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.Brush,float,float,int,int,float,float,float,float)
+RemovedMethod: androidx.compose.ui.graphics.vector.ImageVectorKt#path(androidx.compose.ui.graphics.vector.ImageVector.Builder, String, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.Brush, float, float, int, int, float, int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.vector.ImageVectorKt.path(androidx.compose.ui.graphics.vector.ImageVector.Builder,String,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.Brush,float,float,int,int,float,int,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.vector.PathBuilder,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.graphics.vector.VectorComposeKt#Path(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>, int, String, androidx.compose.ui.graphics.Brush, float, androidx.compose.ui.graphics.Brush, float, float, int, int, float, float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorComposeKt.Path(java.util.List<? extends androidx.compose.ui.graphics.vector.PathNode>,int,String,androidx.compose.ui.graphics.Brush,float,androidx.compose.ui.graphics.Brush,float,float,int,int,float,float,float,float)
 RemovedMethod: androidx.compose.ui.graphics.vector.VectorPainter#getIntrinsicSize():
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorPainter.getIntrinsicSize()
+RemovedMethod: androidx.compose.ui.graphics.vector.VectorPainterKt#rememberVectorPainter(float, float, float, float, String, long, int, boolean, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorPainterKt.rememberVectorPainter(float,float,float,float,String,long,int,boolean,kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Float,kotlin.Unit>)
 RemovedMethod: androidx.compose.ui.graphics.vector.VectorPath#getPathFillType():
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorPath.getPathFillType()
 RemovedMethod: androidx.compose.ui.graphics.vector.VectorPath#getStrokeLineCap():
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorPath.getStrokeLineCap()
 RemovedMethod: androidx.compose.ui.graphics.vector.VectorPath#getStrokeLineJoin():
     Binary breaking change: Removed method androidx.compose.ui.graphics.vector.VectorPath.getStrokeLineJoin()
+RemovedMethod: androidx.compose.ui.hapticfeedback.HapticFeedback#performHapticFeedback(int):
+    Binary breaking change: Removed method androidx.compose.ui.hapticfeedback.HapticFeedback.performHapticFeedback(int)
 RemovedMethod: androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion#getConfirm():
     Binary breaking change: Removed method androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion.getConfirm()
 RemovedMethod: androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion#getContextClick():
@@ -217,6 +401,8 @@ RemovedMethod: androidx.compose.ui.input.InputMode.Companion#getTouch():
     Binary breaking change: Removed method androidx.compose.ui.input.InputMode.Companion.getTouch()
 RemovedMethod: androidx.compose.ui.input.InputModeManager#getInputMode():
     Binary breaking change: Removed method androidx.compose.ui.input.InputModeManager.getInputMode()
+RemovedMethod: androidx.compose.ui.input.InputModeManager#requestInputMode(int):
+    Binary breaking change: Removed method androidx.compose.ui.input.InputModeManager.requestInputMode(int)
 RemovedMethod: androidx.compose.ui.input.key.Key.Companion#getA():
     Binary breaking change: Removed method androidx.compose.ui.input.key.Key.Companion.getA()
 RemovedMethod: androidx.compose.ui.input.key.Key.Companion#getAllApps():
@@ -811,8 +997,32 @@ RemovedMethod: androidx.compose.ui.input.key.KeyEvent_androidKt#isMetaPressed(an
     Binary breaking change: Removed method androidx.compose.ui.input.key.KeyEvent_androidKt.isMetaPressed(android.view.KeyEvent)
 RemovedMethod: androidx.compose.ui.input.key.KeyEvent_androidKt#isShiftPressed(android.view.KeyEvent):
     Binary breaking change: Removed method androidx.compose.ui.input.key.KeyEvent_androidKt.isShiftPressed(android.view.KeyEvent)
+RemovedMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onKeyEvent(android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.input.key.KeyInputModifierNode.onKeyEvent(android.view.KeyEvent)
+RemovedMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onPreKeyEvent(android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.input.key.KeyInputModifierNode.onPreKeyEvent(android.view.KeyEvent)
 RemovedMethod: androidx.compose.ui.input.key.Key_androidKt#getNativeKeyCode(long):
     Binary breaking change: Removed method androidx.compose.ui.input.key.Key_androidKt.getNativeKeyCode(long)
+RemovedMethod: androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode#onInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode.onInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent)
+RemovedMethod: androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode#onPreInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode.onPreInterceptKeyBeforeSoftKeyboard(android.view.KeyEvent)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollConnection#onPostFling(long, long, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollConnection.onPostFling(long,long,kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollConnection#onPostScroll(long, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollConnection.onPostScroll(long,long,int)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollConnection#onPreFling(long, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollConnection.onPreFling(long,kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollConnection#onPreScroll(long, int):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollConnection.onPreScroll(long,int)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher#dispatchPostFling(long, long, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher.dispatchPostFling(long,long,kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher#dispatchPostScroll(long, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher.dispatchPostScroll(long,long,int)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher#dispatchPreFling(long, kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher.dispatchPreFling(long,kotlin.coroutines.Continuation<? super androidx.compose.ui.unit.Velocity>)
+RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher#dispatchPreScroll(long, int):
+    Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher.dispatchPreScroll(long,int)
 RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getSideEffect():
     Binary breaking change: Removed method androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.getSideEffect()
 RemovedMethod: androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion#getUserInput():
@@ -829,6 +1039,8 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent#getKeyboardModifie
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent.getKeyboardModifiers()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent#getType():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent.getType()
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEventKt#isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEventKt.isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange,long,long)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEventType.Companion#getEnter():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEventType.Companion.getEnter()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEventType.Companion#getExit():
@@ -845,6 +1057,10 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerEventType.Companion#getU
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEventType.Companion.getUnknown()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#getAreAnyPressed(int):
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.getAreAnyPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#indexOfFirstPressed(int):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.indexOfFirstPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#indexOfLastPressed(int):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.indexOfLastPressed(int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isAltGraphPressed(int):
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isAltGraphPressed(int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isAltPressed(int):
@@ -863,6 +1079,8 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isMetaPr
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isMetaPressed(int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isNumLockOn(int):
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isNumLockOn(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isPressed(int, int):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isPressed(int,int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isPrimaryPressed(int):
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isPrimaryPressed(int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isScrollLockOn(int):
@@ -875,6 +1093,12 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isSymPre
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isSymPressed(int)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerEvent_androidKt#isTertiaryPressed(int):
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerEvent_androidKt.isTertiaryPressed(int)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#copy(long, long, long, boolean, float, long, long, boolean, int, java.util.List<androidx.compose.ui.input.pointer.HistoricalChange>, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputChange.copy(long,long,long,boolean,float,long,long,boolean,int,java.util.List<androidx.compose.ui.input.pointer.HistoricalChange>,long)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#copy(long, long, long, boolean, float, long, long, boolean, int, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputChange.copy(long,long,long,boolean,float,long,long,boolean,int,long)
+RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#copy(long, long, long, boolean, long, long, boolean, int, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputChange.copy(long,long,long,boolean,long,long,boolean,int,long)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#getId():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputChange.getId()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#getPosition():
@@ -887,6 +1111,8 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerInputChange#getType():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputChange.getType()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerInputFilter#getSize():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputFilter.getSize()
+RemovedMethod: androidx.compose.ui.input.pointer.PointerInputFilter#onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent, androidx.compose.ui.input.pointer.PointerEventPass, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputFilter.onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent,androidx.compose.ui.input.pointer.PointerEventPass,long)
 RemovedMethod: androidx.compose.ui.input.pointer.PointerInputScope#getExtendedTouchPadding():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerInputScope.getExtendedTouchPadding()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerInputScope#getSize():
@@ -901,10 +1127,24 @@ RemovedMethod: androidx.compose.ui.input.pointer.PointerType.Companion#getTouch(
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerType.Companion.getTouch()
 RemovedMethod: androidx.compose.ui.input.pointer.PointerType.Companion#getUnknown():
     Binary breaking change: Removed method androidx.compose.ui.input.pointer.PointerType.Companion.getUnknown()
+RemovedMethod: androidx.compose.ui.input.pointer.util.VelocityTracker#addPosition(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.util.VelocityTracker.addPosition(long,long)
+RemovedMethod: androidx.compose.ui.input.pointer.util.VelocityTracker#calculateVelocity(long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.util.VelocityTracker.calculateVelocity(long)
+RemovedMethod: androidx.compose.ui.input.pointer.util.VelocityTrackerKt#addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker, androidx.compose.ui.input.pointer.PointerInputChange, long):
+    Binary breaking change: Removed method androidx.compose.ui.input.pointer.util.VelocityTrackerKt.addPointerInputChange(androidx.compose.ui.input.pointer.util.VelocityTracker,androidx.compose.ui.input.pointer.PointerInputChange,long)
 RemovedMethod: androidx.compose.ui.layout.ApproachIntrinsicMeasureScope#getLookaheadConstraints():
     Binary breaking change: Removed method androidx.compose.ui.layout.ApproachIntrinsicMeasureScope.getLookaheadConstraints()
 RemovedMethod: androidx.compose.ui.layout.ApproachIntrinsicMeasureScope#getLookaheadSize():
     Binary breaking change: Removed method androidx.compose.ui.layout.ApproachIntrinsicMeasureScope.getLookaheadSize()
+RemovedMethod: androidx.compose.ui.layout.ApproachLayoutModifierNode#approachMeasure(androidx.compose.ui.layout.ApproachMeasureScope, androidx.compose.ui.layout.Measurable, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ApproachLayoutModifierNode.approachMeasure(androidx.compose.ui.layout.ApproachMeasureScope,androidx.compose.ui.layout.Measurable,long)
+RemovedMethod: androidx.compose.ui.layout.ApproachLayoutModifierNode#isMeasurementApproachInProgress(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ApproachLayoutModifierNode.isMeasurementApproachInProgress(long)
+RemovedMethod: androidx.compose.ui.layout.ApproachLayoutModifierNode#measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ApproachLayoutModifierNode.measure(androidx.compose.ui.layout.MeasureScope,androidx.compose.ui.layout.Measurable,long)
+RemovedMethod: androidx.compose.ui.layout.BeyondBoundsLayout#layout(int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,? extends T>):
+    Binary breaking change: Removed method androidx.compose.ui.layout.BeyondBoundsLayout.layout(int,kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,? extends T>)
 RemovedMethod: androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion#getAbove():
     Binary breaking change: Removed method androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.getAbove()
 RemovedMethod: androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion#getAfter():
@@ -917,24 +1157,86 @@ RemovedMethod: androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Com
     Binary breaking change: Removed method androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.getLeft()
 RemovedMethod: androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion#getRight():
     Binary breaking change: Removed method androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.getRight()
+RemovedMethod: androidx.compose.ui.layout.ContentScale#computeScaleFactor(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ContentScale.computeScaleFactor(long,long)
+RemovedMethod: androidx.compose.ui.layout.FixedScale#computeScaleFactor(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.FixedScale.computeScaleFactor(long,long)
 RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#getSize():
     Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.getSize()
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#localPositionOf(androidx.compose.ui.layout.LayoutCoordinates, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.localPositionOf(androidx.compose.ui.layout.LayoutCoordinates,long)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#localPositionOf(androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.localPositionOf(androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#localToRoot(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.localToRoot(long)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#localToScreen(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.localToScreen(long)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#localToWindow(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.localToWindow(long)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#screenToLocal(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.screenToLocal(long)
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#transformFrom(androidx.compose.ui.layout.LayoutCoordinates, float[]):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.transformFrom(androidx.compose.ui.layout.LayoutCoordinates,float[])
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#transformToScreen(float[]):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.transformToScreen(float[])
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#windowToLocal(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutCoordinates.windowToLocal(long)
+RemovedMethod: androidx.compose.ui.layout.LayoutModifier#measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LayoutModifier.measure(androidx.compose.ui.layout.MeasureScope,androidx.compose.ui.layout.Measurable,long)
+RemovedMethod: androidx.compose.ui.layout.LookaheadScope#localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates, long, boolean):
+    Binary breaking change: Removed method androidx.compose.ui.layout.LookaheadScope.localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.layout.LayoutCoordinates,long,boolean)
+RemovedMethod: androidx.compose.ui.layout.Measurable#measure(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Measurable.measure(long)
+RemovedMethod: androidx.compose.ui.layout.MeasurePolicy#measure(androidx.compose.ui.layout.MeasureScope, java.util.List<? extends androidx.compose.ui.layout.Measurable>, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.MeasurePolicy.measure(androidx.compose.ui.layout.MeasureScope,java.util.List<? extends androidx.compose.ui.layout.Measurable>,long)
+RemovedMethod: androidx.compose.ui.layout.MultiContentMeasurePolicy#measure(androidx.compose.ui.layout.MeasureScope, java.util.List<? extends java.util.List<? extends androidx.compose.ui.layout.Measurable>>, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.MultiContentMeasurePolicy.measure(androidx.compose.ui.layout.MeasureScope,java.util.List<? extends java.util.List<? extends androidx.compose.ui.layout.Measurable>>,long)
+RemovedMethod: androidx.compose.ui.layout.OnRemeasuredModifier#onRemeasured(long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.OnRemeasuredModifier.onRemeasured(long)
 RemovedMethod: androidx.compose.ui.layout.Placeable#getApparentToRealOffset():
     Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.getApparentToRealOffset()
 RemovedMethod: androidx.compose.ui.layout.Placeable#getMeasuredSize():
     Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.getMeasuredSize()
 RemovedMethod: androidx.compose.ui.layout.Placeable#getMeasurementConstraints():
     Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.getMeasurementConstraints()
+RemovedMethod: androidx.compose.ui.layout.Placeable#placeAt(long, float, androidx.compose.ui.graphics.layer.GraphicsLayer):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.placeAt(long,float,androidx.compose.ui.graphics.layer.GraphicsLayer)
+RemovedMethod: androidx.compose.ui.layout.Placeable#placeAt(long, float, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.placeAt(long,float,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.ui.layout.Placeable#setMeasuredSize(long):
     Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.setMeasuredSize(long)
 RemovedMethod: androidx.compose.ui.layout.Placeable#setMeasurementConstraints(long):
     Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.setMeasurementConstraints(long)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#place(androidx.compose.ui.layout.Placeable, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.place(androidx.compose.ui.layout.Placeable,long,float)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#placeRelative(androidx.compose.ui.layout.Placeable, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.placeRelative(androidx.compose.ui.layout.Placeable,long,float)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, long, androidx.compose.ui.graphics.layer.GraphicsLayer, float):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.placeRelativeWithLayer(androidx.compose.ui.layout.Placeable,long,androidx.compose.ui.graphics.layer.GraphicsLayer,float)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#placeRelativeWithLayer(androidx.compose.ui.layout.Placeable, long, float, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.placeRelativeWithLayer(androidx.compose.ui.layout.Placeable,long,float,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#placeWithLayer(androidx.compose.ui.layout.Placeable, long, androidx.compose.ui.graphics.layer.GraphicsLayer, float):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.placeWithLayer(androidx.compose.ui.layout.Placeable,long,androidx.compose.ui.graphics.layer.GraphicsLayer,float)
+RemovedMethod: androidx.compose.ui.layout.Placeable.PlacementScope#placeWithLayer(androidx.compose.ui.layout.Placeable, long, float, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.layout.Placeable.PlacementScope.placeWithLayer(androidx.compose.ui.layout.Placeable,long,float,kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.ui.layout.ScaleFactor.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactor.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#div(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.div(long,long)
 RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#isSpecified(long):
     Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.isSpecified(long)
 RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#isUnspecified(long):
     Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.layout.ScaleFactor>):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.layout.ScaleFactor>)
+RemovedMethod: androidx.compose.ui.layout.ScaleFactorKt#times(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.ScaleFactorKt.times(long,long)
+RemovedMethod: androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle#premeasure(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle.premeasure(int,long)
+RemovedMethod: androidx.compose.ui.node.DelegatableNodeKt#dispatchOnScrollChanged(androidx.compose.ui.node.DelegatableNode, long):
+    Binary breaking change: Removed method androidx.compose.ui.node.DelegatableNodeKt.dispatchOnScrollChanged(androidx.compose.ui.node.DelegatableNode,long)
 RemovedMethod: androidx.compose.ui.node.DpTouchBoundsExpansion#getBottom():
     Binary breaking change: Removed method androidx.compose.ui.node.DpTouchBoundsExpansion.getBottom()
 RemovedMethod: androidx.compose.ui.node.DpTouchBoundsExpansion#getEnd():
@@ -943,10 +1245,22 @@ RemovedMethod: androidx.compose.ui.node.DpTouchBoundsExpansion#getStart():
     Binary breaking change: Removed method androidx.compose.ui.node.DpTouchBoundsExpansion.getStart()
 RemovedMethod: androidx.compose.ui.node.DpTouchBoundsExpansion#getTop():
     Binary breaking change: Removed method androidx.compose.ui.node.DpTouchBoundsExpansion.getTop()
+RemovedMethod: androidx.compose.ui.node.DpTouchBoundsExpansion.Companion#Absolute(float, float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.node.DpTouchBoundsExpansion.Companion.Absolute(float,float,float,float)
+RemovedMethod: androidx.compose.ui.node.LayoutAwareModifierNode#onRemeasured(long):
+    Binary breaking change: Removed method androidx.compose.ui.node.LayoutAwareModifierNode.onRemeasured(long)
+RemovedMethod: androidx.compose.ui.node.LayoutModifierNode#measure(androidx.compose.ui.layout.MeasureScope, androidx.compose.ui.layout.Measurable, long):
+    Binary breaking change: Removed method androidx.compose.ui.node.LayoutModifierNode.measure(androidx.compose.ui.layout.MeasureScope,androidx.compose.ui.layout.Measurable,long)
 RemovedMethod: androidx.compose.ui.node.PointerInputModifierNode#getTouchBoundsExpansion():
     Binary breaking change: Removed method androidx.compose.ui.node.PointerInputModifierNode.getTouchBoundsExpansion()
+RemovedMethod: androidx.compose.ui.node.PointerInputModifierNode#onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent, androidx.compose.ui.input.pointer.PointerEventPass, long):
+    Binary breaking change: Removed method androidx.compose.ui.node.PointerInputModifierNode.onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent,androidx.compose.ui.input.pointer.PointerEventPass,long)
+RemovedMethod: androidx.compose.ui.node.RootForTest#sendKeyEvent(android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.node.RootForTest.sendKeyEvent(android.view.KeyEvent)
 RemovedMethod: androidx.compose.ui.node.TouchBoundsExpansion.Companion#getNone():
     Binary breaking change: Removed method androidx.compose.ui.node.TouchBoundsExpansion.Companion.getNone()
+RemovedMethod: androidx.compose.ui.node.TouchBoundsExpansionKt#DpTouchBoundsExpansion(float, float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.node.TouchBoundsExpansionKt.DpTouchBoundsExpansion(float,float,float,float)
 RemovedMethod: androidx.compose.ui.platform.ViewConfiguration#getMinimumTouchTargetSize():
     Binary breaking change: Removed method androidx.compose.ui.platform.ViewConfiguration.getMinimumTouchTargetSize()
 RemovedMethod: androidx.compose.ui.platform.WindowInfo#getContainerSize():
@@ -983,15 +1297,23 @@ RemovedMethod: androidx.compose.ui.semantics.SemanticsNode#getPositionOnScreen()
     Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsNode.getPositionOnScreen()
 RemovedMethod: androidx.compose.ui.semantics.SemanticsNode#getSize():
     Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsNode.getSize()
+RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#onImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int, String, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.onImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int,String,kotlin.jvm.functions.Function0<java.lang.Boolean>)
 RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int):
     Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.setLiveRegion(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int)
 RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver, int):
     Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.setRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver,int)
 RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setTextSelectionRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver, long):
     Binary breaking change: Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.setTextSelectionRange(androidx.compose.ui.semantics.SemanticsPropertyReceiver,long)
+RemovedMethod: androidx.compose.ui.spatial.RelativeLayoutBounds#fractionVisibleInWindowWithInsets(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.spatial.RelativeLayoutBounds.fractionVisibleInWindowWithInsets(long,long)
 RemovedMethod: androidx.compose.ui.spatial.RelativeLayoutBounds#getPositionInRoot():
     Binary breaking change: Removed method androidx.compose.ui.spatial.RelativeLayoutBounds.getPositionInRoot()
 RemovedMethod: androidx.compose.ui.spatial.RelativeLayoutBounds#getPositionInScreen():
     Binary breaking change: Removed method androidx.compose.ui.spatial.RelativeLayoutBounds.getPositionInScreen()
 RemovedMethod: androidx.compose.ui.spatial.RelativeLayoutBounds#getPositionInWindow():
     Binary breaking change: Removed method androidx.compose.ui.spatial.RelativeLayoutBounds.getPositionInWindow()
+RemovedMethod: androidx.compose.ui.window.AndroidPopup_androidKt#Popup(androidx.compose.ui.Alignment, long, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.window.PopupProperties, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.window.AndroidPopup_androidKt.Popup(androidx.compose.ui.Alignment,long,kotlin.jvm.functions.Function0<kotlin.Unit>,androidx.compose.ui.window.PopupProperties,kotlin.jvm.functions.Function0<kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.window.PopupPositionProvider#calculatePosition(androidx.compose.ui.unit.IntRect, long, androidx.compose.ui.unit.LayoutDirection, long):
+    Binary breaking change: Removed method androidx.compose.ui.window.PopupPositionProvider.calculatePosition(androidx.compose.ui.unit.IntRect,long,androidx.compose.ui.unit.LayoutDirection,long)

@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.actions;
 
-import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatExpressionChangeActionOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -32,7 +31,6 @@ public class ValueFloatExpressionChange implements Action {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        ValueFloatExpressionChangeActionOperation.apply(
-                writer.getBuffer().getBuffer(), mValueId, mValue);
+        writer.addValueFloatExpressionChangeActionOperation(mValueId, mValue);
     }
 }

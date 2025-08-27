@@ -15,8 +15,6 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
-import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
-import androidx.compose.remote.core.operations.layout.ContainerEnd;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.actions.Action;
 
@@ -27,7 +25,8 @@ import java.util.List;
 
 /** Encapsulate actions */
 public class ClickActionModifier implements RecordingModifier.Element {
-    @NonNull ArrayList<Action> mList = new ArrayList<>();
+    @NonNull
+    ArrayList<Action> mList = new ArrayList<>();
 
     public ClickActionModifier(@NonNull List<Action> actions) {
         mList.addAll(actions);
@@ -35,11 +34,11 @@ public class ClickActionModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        ClickModifierOperation.apply(writer.getBuffer().getBuffer());
+        writer.addClickModifierOperation();
         for (Action m : mList) {
             m.write(writer);
         }
-        ContainerEnd.apply(writer.getBuffer().getBuffer());
+        writer.addContainerEnd();
     }
 
     public @NonNull List<Action> getActions() {

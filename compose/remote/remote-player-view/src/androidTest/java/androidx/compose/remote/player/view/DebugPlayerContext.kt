@@ -48,6 +48,7 @@ class DebugPlayerContext : RemoteContext() {
     var dataMapCache = IntMap<DataMap>()
     val mObjectMap = IntMap<Any>()
     val mPathDataMap = IntMap<FloatArray>()
+    val mPathWindingMap = IntIntMap()
     var varNamesMap = HashMap<String, Int>(200)
 
     fun clearResults() {
@@ -66,9 +67,16 @@ class DebugPlayerContext : RemoteContext() {
         hideString = h
     }
 
-    override fun loadPathData(instanceId: Int, floatPath: FloatArray) {
-        stringBuilder.append("loadPathData($instanceId)=" + pathString(floatPath) + "\n")
+    override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {
+        if (winding == 0) {
+            stringBuilder.append("loadPathData($instanceId)=" + pathString(floatPath) + "\n")
+        } else {
+            stringBuilder.append(
+                "loadPathData($instanceId)= [$winding]" + pathString(floatPath) + "\n"
+            )
+        }
         mPathDataMap.put(instanceId, floatPath)
+        mPathWindingMap.put(instanceId, winding)
     }
 
     override fun getPathData(instanceId: Int): FloatArray {

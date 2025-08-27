@@ -16,13 +16,11 @@
 package androidx.compose.remote.player.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import androidx.annotation.RestrictTo;
 
 import android.graphics.Rect;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.semantics.AccessibilitySemantics;

@@ -1,14 +1,80 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#isKeyDown(androidx.compose.ui.input.key.Key):
+    Source breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.isKeyDown(androidx.compose.ui.input.key.Key)
+AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#keyDown(androidx.compose.ui.input.key.Key):
+    Source breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.keyDown(androidx.compose.ui.input.key.Key)
+AddedAbstractMethod: androidx.compose.ui.test.KeyInjectionScope#keyUp(androidx.compose.ui.input.key.Key):
+    Source breaking change: Added method androidx.compose.ui.test.KeyInjectionScope.keyUp(androidx.compose.ui.input.key.Key)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#enter(androidx.compose.ui.geometry.Offset, long):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.enter(androidx.compose.ui.geometry.Offset,long)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#exit(androidx.compose.ui.geometry.Offset, long):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.exit(androidx.compose.ui.geometry.Offset,long)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#moveTo(androidx.compose.ui.geometry.Offset, long):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.moveTo(androidx.compose.ui.geometry.Offset,long)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#press(androidx.compose.ui.test.MouseButton):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.press(androidx.compose.ui.test.MouseButton)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#release(androidx.compose.ui.test.MouseButton):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.release(androidx.compose.ui.test.MouseButton)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#scroll(float, androidx.compose.ui.test.ScrollWheel):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.scroll(float,androidx.compose.ui.test.ScrollWheel)
+AddedAbstractMethod: androidx.compose.ui.test.MouseInjectionScope#updatePointerTo(androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.test.MouseInjectionScope.updatePointerTo(androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.test.TouchInjectionScope#down(int, androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.test.TouchInjectionScope.down(int,androidx.compose.ui.geometry.Offset)
+AddedAbstractMethod: androidx.compose.ui.test.TouchInjectionScope#updatePointerTo(int, androidx.compose.ui.geometry.Offset):
+    Source breaking change: Added method androidx.compose.ui.test.TouchInjectionScope.updatePointerTo(int,androidx.compose.ui.geometry.Offset)
+
+
 ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>>, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
     Binary breaking change: Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from void to androidx.compose.ui.test.SemanticsNodeInteraction
 ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>>):
     Binary breaking change: Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from void to androidx.compose.ui.test.SemanticsNodeInteraction
+ChangedType: androidx.compose.ui.test.BoundsAssertionsKt#getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine):
+    Binary breaking change: Method androidx.compose.ui.test.BoundsAssertionsKt.getAlignmentLinePosition has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.test.GestureScopeKt#percentOffset(androidx.compose.ui.test.GestureScope, float, float):
+    Binary breaking change: Method androidx.compose.ui.test.GestureScopeKt.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.test.InjectionScope#percentOffset(float, float):
+    Source breaking change: Method androidx.compose.ui.test.InjectionScope.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
 
 
 RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScope#getVisibleSize():
     Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScope.getVisibleSize()
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#click(androidx.compose.ui.test.GestureScope, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.click(androidx.compose.ui.test.GestureScope,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#doubleClick(androidx.compose.ui.test.GestureScope, long, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.doubleClick(androidx.compose.ui.test.GestureScope,long,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#down(androidx.compose.ui.test.GestureScope, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.down(androidx.compose.ui.test.GestureScope,int,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#down(androidx.compose.ui.test.GestureScope, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.down(androidx.compose.ui.test.GestureScope,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#longClick(androidx.compose.ui.test.GestureScope, long, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.longClick(androidx.compose.ui.test.GestureScope,long,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#moveBy(androidx.compose.ui.test.GestureScope, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.moveBy(androidx.compose.ui.test.GestureScope,int,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#moveBy(androidx.compose.ui.test.GestureScope, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.moveBy(androidx.compose.ui.test.GestureScope,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#movePointerBy(androidx.compose.ui.test.GestureScope, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.movePointerBy(androidx.compose.ui.test.GestureScope,int,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#movePointerTo(androidx.compose.ui.test.GestureScope, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.movePointerTo(androidx.compose.ui.test.GestureScope,int,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#moveTo(androidx.compose.ui.test.GestureScope, int, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.moveTo(androidx.compose.ui.test.GestureScope,int,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#moveTo(androidx.compose.ui.test.GestureScope, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.moveTo(androidx.compose.ui.test.GestureScope,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#pinch(androidx.compose.ui.test.GestureScope, long, long, long, long, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.pinch(androidx.compose.ui.test.GestureScope,long,long,long,long,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#swipe(androidx.compose.ui.test.GestureScope, long, long, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.swipe(androidx.compose.ui.test.GestureScope,long,long,long)
+RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#swipeWithVelocity(androidx.compose.ui.test.GestureScope, long, long, float, long):
+    Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScopeKt.swipeWithVelocity(androidx.compose.ui.test.GestureScope,long,long,float,long)
 RemovedDeprecatedMethod: androidx.compose.ui.test.TextActionsKt#performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long):
     Binary breaking change: Removed deprecated method androidx.compose.ui.test.TextActionsKt.performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction,long)
+
+
+RemovedFromBytecode: androidx.compose.ui.test.InjectionScope#percentOffset(float, float):
+    Binary breaking change: method androidx.compose.ui.test.InjectionScope.percentOffset(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.test.TouchInjectionScope#currentPosition(int):
+    Binary breaking change: method androidx.compose.ui.test.TouchInjectionScope.currentPosition(int) has been removed from bytecode
 
 
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomCenter(androidx.compose.ui.test.GestureScope):
@@ -31,6 +97,30 @@ RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopRight(androidx.
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 
 
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertHeightIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertHeightIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertIsEqualTo(float, float, String, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertIsEqualTo(float,float,String,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertLeftPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertLeftPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertTopPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertTopPositionInRootIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertTouchHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertTouchHeightIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertTouchWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertTouchWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertWidthIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertWidthIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float):
+    Binary breaking change: Removed method androidx.compose.ui.test.BoundsAssertionsKt.assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction,float)
+RemovedMethod: androidx.compose.ui.test.DeviceConfigurationOverride_androidKt#ForcedSize(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.DeviceConfigurationOverride_androidKt.ForcedSize(androidx.compose.ui.test.DeviceConfigurationOverride.Companion,long)
+RemovedMethod: androidx.compose.ui.test.FiltersKt#hasImeAction(int):
+    Binary breaking change: Removed method androidx.compose.ui.test.FiltersKt.hasImeAction(int)
 RemovedMethod: androidx.compose.ui.test.InjectionScope#getBottomCenter():
     Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getBottomCenter()
 RemovedMethod: androidx.compose.ui.test.InjectionScope#getBottomLeft():
@@ -51,15 +141,95 @@ RemovedMethod: androidx.compose.ui.test.InjectionScope#getTopRight():
     Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getTopRight()
 RemovedMethod: androidx.compose.ui.test.InjectionScope#getVisibleSize():
     Binary breaking change: Removed method androidx.compose.ui.test.InjectionScope.getVisibleSize()
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScope#isKeyDown(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScope.isKeyDown(long)
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScope#keyDown(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScope.keyDown(long)
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScope#keyUp(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScope.keyUp(long)
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScopeKt#pressKey(androidx.compose.ui.test.KeyInjectionScope, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScopeKt.pressKey(androidx.compose.ui.test.KeyInjectionScope,long,long)
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScopeKt#withKeyDown(androidx.compose.ui.test.KeyInjectionScope, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScopeKt.withKeyDown(androidx.compose.ui.test.KeyInjectionScope,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.test.KeyInjectionScopeKt#withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit>):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInjectionScopeKt.withKeyToggled(androidx.compose.ui.test.KeyInjectionScope,long,kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit>)
+RemovedMethod: androidx.compose.ui.test.KeyInputHelpersKt#performKeyPress(androidx.compose.ui.test.SemanticsNodeInteraction, android.view.KeyEvent):
+    Binary breaking change: Removed method androidx.compose.ui.test.KeyInputHelpersKt.performKeyPress(androidx.compose.ui.test.SemanticsNodeInteraction,android.view.KeyEvent)
 RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getPrimary():
     Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getPrimary()
 RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getSecondary():
     Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getSecondary()
 RemovedMethod: androidx.compose.ui.test.MouseButton.Companion#getTertiary():
     Binary breaking change: Removed method androidx.compose.ui.test.MouseButton.Companion.getTertiary()
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#enter(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.enter(long,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#exit(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.exit(long,long)
 RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#getCurrentPosition():
     Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.getCurrentPosition()
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#moveBy(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.moveBy(long,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#moveTo(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.moveTo(long,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#press(int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.press(int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#release(int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.release(int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#scroll(float, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.scroll(float,int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#updatePointerBy(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.updatePointerBy(long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScope#updatePointerTo(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScope.updatePointerTo(long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#animateMoveBy(androidx.compose.ui.test.MouseInjectionScope, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.animateMoveBy(androidx.compose.ui.test.MouseInjectionScope,long,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#animateMoveTo(androidx.compose.ui.test.MouseInjectionScope, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.animateMoveTo(androidx.compose.ui.test.MouseInjectionScope,long,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#click(androidx.compose.ui.test.MouseInjectionScope, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.click(androidx.compose.ui.test.MouseInjectionScope,long,int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#doubleClick(androidx.compose.ui.test.MouseInjectionScope, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.doubleClick(androidx.compose.ui.test.MouseInjectionScope,long,int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#dragAndDrop(androidx.compose.ui.test.MouseInjectionScope, long, long, int, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.dragAndDrop(androidx.compose.ui.test.MouseInjectionScope,long,long,int,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#longClick(androidx.compose.ui.test.MouseInjectionScope, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.longClick(androidx.compose.ui.test.MouseInjectionScope,long,int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#rightClick(androidx.compose.ui.test.MouseInjectionScope, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.rightClick(androidx.compose.ui.test.MouseInjectionScope,long)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#smoothScroll(androidx.compose.ui.test.MouseInjectionScope, float, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.smoothScroll(androidx.compose.ui.test.MouseInjectionScope,float,long,int)
+RemovedMethod: androidx.compose.ui.test.MouseInjectionScopeKt#tripleClick(androidx.compose.ui.test.MouseInjectionScope, long, int):
+    Binary breaking change: Removed method androidx.compose.ui.test.MouseInjectionScopeKt.tripleClick(androidx.compose.ui.test.MouseInjectionScope,long,int)
 RemovedMethod: androidx.compose.ui.test.ScrollWheel.Companion#getHorizontal():
     Binary breaking change: Removed method androidx.compose.ui.test.ScrollWheel.Companion.getHorizontal()
 RemovedMethod: androidx.compose.ui.test.ScrollWheel.Companion#getVertical():
     Binary breaking change: Removed method androidx.compose.ui.test.ScrollWheel.Companion.getVertical()
+RemovedMethod: androidx.compose.ui.test.TextActionsKt#performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction, long, boolean):
+    Binary breaking change: Removed method androidx.compose.ui.test.TextActionsKt.performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction,long,boolean)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#down(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.down(int,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#down(long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.down(long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#moveBy(int, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.moveBy(int,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#moveBy(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.moveBy(long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#moveTo(int, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.moveTo(int,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#moveTo(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.moveTo(long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#updatePointerBy(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.updatePointerBy(int,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScope#updatePointerTo(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScope.updatePointerTo(int,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#click(androidx.compose.ui.test.TouchInjectionScope, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.click(androidx.compose.ui.test.TouchInjectionScope,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#doubleClick(androidx.compose.ui.test.TouchInjectionScope, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.doubleClick(androidx.compose.ui.test.TouchInjectionScope,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#longClick(androidx.compose.ui.test.TouchInjectionScope, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.longClick(androidx.compose.ui.test.TouchInjectionScope,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#pinch(androidx.compose.ui.test.TouchInjectionScope, long, long, long, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.pinch(androidx.compose.ui.test.TouchInjectionScope,long,long,long,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#swipe(androidx.compose.ui.test.TouchInjectionScope, long, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.swipe(androidx.compose.ui.test.TouchInjectionScope,long,long,long)
+RemovedMethod: androidx.compose.ui.test.TouchInjectionScopeKt#swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope, long, long, float, long):
+    Binary breaking change: Removed method androidx.compose.ui.test.TouchInjectionScopeKt.swipeWithVelocity(androidx.compose.ui.test.TouchInjectionScope,long,long,float,long)

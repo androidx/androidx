@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.collection.Stack
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 
 /**

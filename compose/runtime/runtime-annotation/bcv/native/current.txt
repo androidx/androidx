@@ -6,6 +6,13 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.runtime:runtime-annotation>
+open annotation class androidx.compose.runtime.annotation/DoNotRetain : kotlin/Annotation { // androidx.compose.runtime.annotation/DoNotRetain|null[0]
+    constructor <init>(kotlin/String = ...) // androidx.compose.runtime.annotation/DoNotRetain.<init>|<init>(kotlin.String){}[0]
+
+    final val explanation // androidx.compose.runtime.annotation/DoNotRetain.explanation|{}explanation[0]
+        final fun <get-explanation>(): kotlin/String // androidx.compose.runtime.annotation/DoNotRetain.explanation.<get-explanation>|<get-explanation>(){}[0]
+}
+
 open annotation class androidx.compose.runtime.annotation/FrequentlyChangingValue : kotlin/Annotation { // androidx.compose.runtime.annotation/FrequentlyChangingValue|null[0]
     constructor <init>() // androidx.compose.runtime.annotation/FrequentlyChangingValue.<init>|<init>(){}[0]
 }

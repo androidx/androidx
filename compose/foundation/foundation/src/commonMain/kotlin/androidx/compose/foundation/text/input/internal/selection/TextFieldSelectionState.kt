@@ -839,7 +839,21 @@ internal class TextFieldSelectionState(
         }
 
         override fun onExtend(downPosition: Offset): Boolean {
+            val layoutResult = textLayoutState.layoutResult
+            if (!enabled || layoutResult == null || textFieldState.visualText.isEmpty()) {
+                return false
+            }
+
             logDebug { "Mouse.onExtend" }
+            isDoubleOrTripleClickOnly = false
+            requestFocus()
+            updateSelection(
+                dragPosition = downPosition,
+                adjustment = SelectionAdjustment.None,
+                layoutResult = layoutResult,
+                isStartOfSelection = false,
+            )
+
             return true
         }
 
@@ -1403,8 +1417,11 @@ internal class TextFieldSelectionState(
      * requires the selection to not be collapsed, the text field to be editable, and for it to NOT
      * be a password.
      */
-    fun canCut(): Boolean = clipboard.isWriteSupported()
-        && !textFieldState.visualText.selection.collapsed && editable && !isPassword
+    fun canCut(): Boolean =
+        !textFieldState.visualText.selection.collapsed &&
+            editable &&
+            !isPassword &&
+            clipboard.isWriteSupported()
 
     /**
      * The method for cutting text.
@@ -1434,9 +1451,10 @@ internal class TextFieldSelectionState(
      * Whether a copy operation can execute now and modify the clipboard. The copy operation
      * requires the selection to not be collapsed, and the text field to NOT be a password.
      */
-    fun canCopy(): Boolean = clipboard.isWriteSupported()
-        && !textFieldState.visualText.selection.collapsed
-        && !isPassword
+    fun canCopy(): Boolean =
+        !textFieldState.visualText.selection.collapsed &&
+            !isPassword &&
+            clipboard.isWriteSupported()
 
     /**
      * The method for copying text.

@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.state
 
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TimeAttribute
@@ -308,7 +312,7 @@ abstract class RemoteFloat internal constructor(override val hasConstantValue: B
      */
     val dp: RemoteFloat
         get() {
-            return RemoteFloatExpression(hasConstantValue) { creationState ->
+            return RemoteFloatExpression(false) { creationState ->
                 floatArrayOf(
                     *arrayForCreationState(creationState),
                     RemoteContext.FLOAT_DENSITY,
@@ -324,8 +328,8 @@ abstract class RemoteFloat internal constructor(override val hasConstantValue: B
     operator fun get(v: RemoteFloat): RemoteFloat {
         return RemoteFloatExpression(hasConstantValue) { creationState ->
             floatArrayOf(
-                *v.arrayForCreationState(creationState),
                 *arrayForCreationState(creationState),
+                *v.arrayForCreationState(creationState),
                 AnimatedFloatExpression.A_DEREF,
             )
         }
@@ -338,8 +342,8 @@ abstract class RemoteFloat internal constructor(override val hasConstantValue: B
     operator fun get(v: Int): RemoteFloat {
         return RemoteFloatExpression(hasConstantValue) { creationState ->
             floatArrayOf(
-                v.toFloat(),
                 *arrayForCreationState(creationState),
+                v.toFloat(),
                 AnimatedFloatExpression.A_DEREF,
             )
         }
@@ -352,8 +356,8 @@ abstract class RemoteFloat internal constructor(override val hasConstantValue: B
     operator fun get(v: RemoteInt): RemoteFloat {
         return RemoteFloatExpression(hasConstantValue && v.hasConstantValue) { creationState ->
             floatArrayOf(
-                v.getFloatIdForCreationState(creationState),
                 *arrayForCreationState(creationState),
+                v.getFloatIdForCreationState(creationState),
                 AnimatedFloatExpression.A_DEREF,
             )
         }

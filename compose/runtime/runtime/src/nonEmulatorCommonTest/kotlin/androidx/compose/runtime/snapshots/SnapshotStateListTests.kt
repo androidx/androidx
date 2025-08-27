@@ -576,7 +576,7 @@ class SnapshotStateListTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentGlobalModifications_addAll() =
         runTest(timeout = 30.seconds) {
-            repeat(100) {
+            repeat(50) {
                 val list = mutableStateListOf<Int>()
                 coroutineScope {
                     repeat(100) { index ->

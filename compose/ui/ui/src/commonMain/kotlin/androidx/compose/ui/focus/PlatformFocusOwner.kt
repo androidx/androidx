@@ -42,4 +42,11 @@ internal interface PlatformFocusOwner {
      * view that has focus.
      */
     fun getEmbeddedViewFocusRect(): Rect?
+
+    // TODO(b/438567275) Add a default implementation that could be used for non-android devices.
+    /**
+     * Let's the owner know that a new focus target is available. The owner can use this as a signal
+     * to run initial focus.
+     */
+    fun focusTargetAvailable() {}
 }

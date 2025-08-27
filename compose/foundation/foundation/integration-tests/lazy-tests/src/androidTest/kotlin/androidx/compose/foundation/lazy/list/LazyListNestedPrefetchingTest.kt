@@ -256,7 +256,6 @@ class LazyListNestedPrefetchingTest(val config: Config) :
 
     @Test
     fun automaticNestedPrefetchingBasedOnNumberOfVisibleItems() {
-
         val state = createState() // using the default strategy
         composeList(
             state,

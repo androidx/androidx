@@ -432,7 +432,7 @@ class VelocityTrackingListParityTest {
         content: @Composable () -> Unit,
     ) {
         onActivity { activity ->
-            activity.setTheme(R.style.Theme_MaterialComponents_Light)
+            activity.setTheme(com.google.android.material.R.style.Theme_MaterialComponents_Light)
             activity.setContentView(layout)
             with(activity.findViewById<ComposeView>(R.id.compose_view)) { setContent(content) }
 

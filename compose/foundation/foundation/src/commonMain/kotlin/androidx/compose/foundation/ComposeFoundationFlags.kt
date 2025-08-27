@@ -134,9 +134,7 @@ object ComposeFoundationFlags {
      * [androidx.compose.foundation.gestures.draggable2D] and
      * [androidx.compose.foundation.gestures.anchoredDraggable].
      */
-    @Suppress("MutableBareField")
-    @JvmField
-    var isNonSuspendingPointerInputInDraggableEnabled = false
+    @Suppress("MutableBareField") @JvmField var isNonSuspendingPointerInputInDraggableEnabled = true
 
     /**
      * Used to enable support for 2 dimensional mouse wheel event in scrollable modifier and

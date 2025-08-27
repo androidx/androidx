@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.layout
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.graphics.Picture
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.Image
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.remote.frontend.modifier.height

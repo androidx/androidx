@@ -74,8 +74,8 @@ class DebugCreationContext : RemoteContext() {
         TODO("Not yet implemented")
     }
 
-    override fun loadPathData(instanceId: Int, floatPath: FloatArray) {
-        stringBuilder.append("loadPathData($instanceId)=" + pathString(floatPath) + "\n")
+    override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {
+        TODO("Not yet implemented")
     }
 
     override fun getPathData(instanceId: Int): FloatArray? {

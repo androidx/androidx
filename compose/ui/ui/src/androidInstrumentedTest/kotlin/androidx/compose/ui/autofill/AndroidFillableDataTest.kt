@@ -32,92 +32,113 @@ class AndroidFillableDataTest {
     private val testInt = 123
 
     @Test
-    fun getCharSequence_whenValueIsText_returnsText() {
+    fun textValue_whenValueIsText_returnsText() {
         // Arrange
         val autofillValue = AutofillValue.forText(testString)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getCharSequence()).isEqualTo(testString)
+        assertThat(fillableData.textValue).isEqualTo(testString)
     }
 
     @Test
-    fun getBool_whenValueIsText_returnsNull() {
+    fun booleanValue_whenValueIsText_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forText(testString)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getBool()).isNull()
+        assertThat(fillableData.booleanValue).isNull()
     }
 
     @Test
-    fun getInt_whenValueIsText_returnsNull() {
+    fun listIndexValue_whenValueIsText_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forText(testString)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getInt()).isNull()
+        assertThat(fillableData.listIndexValue).isNull()
     }
 
     @Test
-    fun getBool_whenValueIsToggle_returnsBoolean() {
+    fun booleanValue_whenValueIsToggle_returnsBoolean() {
         // Arrange
         val autofillValue = AutofillValue.forToggle(testBoolean)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getBool()).isEqualTo(testBoolean)
+        assertThat(fillableData.booleanValue).isEqualTo(testBoolean)
     }
 
     @Test
-    fun getCharSequence_whenValueIsToggle_returnsNull() {
+    fun textValue_whenValueIsToggle_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forToggle(testBoolean)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getCharSequence()).isNull()
+        assertThat(fillableData.textValue).isNull()
     }
 
     @Test
-    fun getInt_whenValueIsToggle_returnsNull() {
+    fun listIndexValue_whenValueIsToggle_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forToggle(testBoolean)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getInt()).isNull()
+        assertThat(fillableData.listIndexValue).isNull()
     }
 
     @Test
-    fun getInt_whenValueIsList_returnsInt() {
+    fun listIndexValue_whenValueIsList_returnsInt() {
         // Arrange
         val autofillValue = AutofillValue.forList(testInt)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getInt()).isEqualTo(testInt)
+        assertThat(fillableData.listIndexValue).isEqualTo(testInt)
     }
 
     @Test
-    fun getCharSequence_whenValueIsList_returnsNull() {
+    fun textValue_whenValueIsList_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forList(testInt)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getCharSequence()).isNull()
+        assertThat(fillableData.textValue).isNull()
     }
 
     @Test
-    fun getBool_whenValueIsList_returnsNull() {
+    fun booleanValue_whenValueIsList_returnsNull() {
         // Arrange
         val autofillValue = AutofillValue.forList(testInt)
         val fillableData: FillableData = AndroidFillableData(autofillValue)
 
         // Act & Assert
-        assertThat(fillableData.getBool()).isNull()
+        assertThat(fillableData.booleanValue).isNull()
+    }
+
+    @Test
+    fun getListIndexOrDefault_whenValueIsList_returnsInt() {
+        // Arrange
+        val autofillValue = AutofillValue.forList(testInt)
+        val fillableData: FillableData = AndroidFillableData(autofillValue)
+
+        // Act & Assert
+        assertThat(fillableData.getListIndexOrDefault(defaultValue = -1)).isEqualTo(testInt)
+    }
+
+    @Test
+    fun getListIndexOrDefault_whenValueIsText_returnsDefault() {
+        // Arrange
+        val autofillValue = AutofillValue.forText(testString)
+        val fillableData: FillableData = AndroidFillableData(autofillValue)
+        val defaultValue = -1
+
+        // Act & Assert
+        assertThat(fillableData.getListIndexOrDefault(defaultValue)).isEqualTo(defaultValue)
     }
 }

@@ -22,7 +22,7 @@ import androidx.compose.foundation.gestures.cupertino.CupertinoFlingBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
-internal actual fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavior =
+internal actual fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultFlingBehavior =
     CupertinoFlingBehavior(CupertinoScrollDecayAnimationSpec().generateDecayAnimationSpec())
 
 @Composable
@@ -30,5 +30,5 @@ internal actual fun rememberPlatformDefaultFlingBehavior(): FlingBehavior =
     // Unlike other platforms, we don't need to remember it based on density,
     // because it's density independent
     remember {
-        platformDefaultFlingBehavior()
+        platformScrollableDefaultFlingBehavior()
     }

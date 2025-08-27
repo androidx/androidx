@@ -21,6 +21,8 @@ package androidx.compose.ui.input.pointer
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import androidx.collection.IntObjectMap
+import androidx.compose.runtime.ForgetfulRetainScope
+import androidx.compose.runtime.RetainScope
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -3392,6 +3394,9 @@ private class MockOwner(
 
     override val autofillManager: AutofillManager
         get() = TODO("Not yet implemented")
+
+    override val retainScope: RetainScope
+        get() = ForgetfulRetainScope
 
     override val density: Density
         get() = Density(1f)

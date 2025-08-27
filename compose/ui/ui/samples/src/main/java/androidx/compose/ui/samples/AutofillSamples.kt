@@ -23,8 +23,11 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.fillableData
+import androidx.compose.ui.semantics.onFillData
 import androidx.compose.ui.semantics.semantics
 
 @Sampled
@@ -46,5 +49,27 @@ fun AutofillableTextFieldWithContentTypeSemantics() {
         label = { Text("Enter your new password here.") },
         // Set the content type hint with semantics.
         modifier = Modifier.semantics { contentType = ContentType.NewPassword },
+    )
+}
+
+@Sampled
+@Composable
+fun AutofillableTextFieldWithFillableDataSemantics() {
+    val state = rememberTextFieldState()
+
+    TextField(
+        state = state,
+        label = { Text("Enter your username here.") },
+        modifier =
+            Modifier.semantics {
+                contentType = ContentType.Username
+                // Set the fillable data with semantics.
+                FillableData(state.text)?.let { fillableData = it }
+                // Replace the state value with data from the autofill provider.
+                onFillData { savedAutofillValue ->
+                    savedAutofillValue.textValue?.let { state.edit { replace(0, length, it) } }
+                    true
+                }
+            },
     )
 }

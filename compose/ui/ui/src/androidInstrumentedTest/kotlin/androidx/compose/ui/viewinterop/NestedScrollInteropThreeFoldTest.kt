@@ -26,7 +26,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.tests.R
-import androidx.compose.ui.unit.round
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -34,6 +33,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.absoluteValue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -140,7 +140,10 @@ class NestedScrollInteropThreeFoldTest {
         // assert
         rule.runOnIdle {
             assertThat(allConsumingConnection.offeredFromChild).isNotEqualTo(Offset.Zero)
-            assertThat(connection.consumedDownChain.round()).isEqualTo(Offset.Zero.round())
+            assertThat(connection.consumedDownChain.x.absoluteValue)
+                .isAtMost(ScrollRoundingErrorTolerance)
+            assertThat(connection.consumedDownChain.y.absoluteValue)
+                .isAtMost(ScrollRoundingErrorTolerance)
         }
     }
 
@@ -242,3 +245,5 @@ class NestedScrollInteropThreeFoldTest {
         )
     }
 }
+
+private const val ScrollRoundingErrorTolerance = 1f

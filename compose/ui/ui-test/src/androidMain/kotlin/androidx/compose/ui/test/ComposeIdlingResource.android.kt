@@ -33,6 +33,7 @@ internal class ComposeIdlingResource(
     private val composeRootRegistry: ComposeRootRegistry,
     private val clock: MainTestClockImpl,
     private val mainRecomposer: Recomposer,
+    private val isStandardTestDispatcherSupportEnabled: Boolean,
 ) : IdlingResource {
 
     private var hadAwaitersOnMainClock = false
@@ -58,6 +59,12 @@ internal class ComposeIdlingResource(
      */
     override val isIdleNow: Boolean
         get() {
+            if (isStandardTestDispatcherSupportEnabled) {
+                require(isOnUiThread()) {
+                    "ComposeIdlingResource.isIdleNow may only be called from the UI thread"
+                }
+            }
+
             fun shouldPumpTime(): Boolean {
                 hadAwaitersOnMainClock = clock.hasAwaiters
                 hadSnapshotChanges = Snapshot.current.hasPendingChanges()
@@ -71,6 +78,14 @@ internal class ComposeIdlingResource(
             // Apply any pending snapshot changes, so the recomposer can wake up if necessary
             // If there are no pending snapshot changes, this call does nothing
             Snapshot.sendApplyNotifications()
+
+            // Run all tasks that are due. They are starting or resuming coroutines, e.g. the
+            // recomposer that is resumed, or a launched effect being launched. If a task makes a
+            // write to a snapshot, it will be applied immediately by the
+            // ApplyingContinuationInterceptor so it will be seen by all subsequently running tasks.
+            if (isStandardTestDispatcherSupportEnabled) {
+                clock.runCurrent()
+            }
 
             var i = 0
             while (i < 100 && shouldPumpTime()) {

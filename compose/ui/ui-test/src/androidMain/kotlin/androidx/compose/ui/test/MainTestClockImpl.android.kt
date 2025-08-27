@@ -21,8 +21,15 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 internal class MainTestClockImpl(
-    testScheduler: TestCoroutineScheduler,
+    scheduler: TestCoroutineScheduler,
     frameClock: TestMonotonicFrameClock,
-) : AbstractMainTestClock(testScheduler, frameClock.frameDelayMillis, ::runOnUiThread) {
+    isStandardTestDispatcherSupportEnabled: Boolean,
+) :
+    AbstractMainTestClock(
+        scheduler,
+        frameClock.frameDelayMillis,
+        isStandardTestDispatcherSupportEnabled,
+        ::runOnUiThread,
+    ) {
     internal val hasAwaiters = frameClock.hasAwaiters
 }

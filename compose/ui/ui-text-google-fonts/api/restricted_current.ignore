@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.ui.text.googlefonts.GoogleFontKt#Font(androidx.compose.ui.text.googlefonts.GoogleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider, androidx.compose.ui.text.font.FontWeight, int):
+    Binary breaking change: Removed method androidx.compose.ui.text.googlefonts.GoogleFontKt.Font(androidx.compose.ui.text.googlefonts.GoogleFont,androidx.compose.ui.text.googlefonts.GoogleFont.Provider,androidx.compose.ui.text.font.FontWeight,int)

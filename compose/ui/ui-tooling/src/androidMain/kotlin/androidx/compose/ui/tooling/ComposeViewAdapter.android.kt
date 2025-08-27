@@ -39,6 +39,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.CompositionGroup
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -52,9 +53,11 @@ import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.NodeGroup
+import androidx.compose.ui.tooling.data.SourceContext
 import androidx.compose.ui.tooling.data.SourceLocation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.asTree
+import androidx.compose.ui.tooling.data.makeTree
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntRect
@@ -175,8 +178,6 @@ internal class ComposeViewAdapter : FrameLayout {
     /** Callback invoked when onDraw has been called. */
     private var onDraw = {}
 
-    internal var stitchTrees = true
-
     private val debugBoundsPaint =
         Paint().apply {
             pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -235,11 +236,31 @@ internal class ComposeViewAdapter : FrameLayout {
         )
     }
 
+    /** This function is called recursively from [TreeBuilder.mapTree] in Post-Order (LRN). */
+    private fun toViewInfoFactory(
+        group: CompositionGroup,
+        context: SourceContext,
+        children: List<ViewInfo>,
+        childrenToStitch: List<ViewInfo>?,
+    ): ViewInfo {
+        var allChildren = children
+        if (childrenToStitch != null) {
+            allChildren = children + childrenToStitch!!
+        }
+        return ViewInfo(
+            context.location?.sourceFile ?: "",
+            context.location?.lineNumber ?: -1,
+            context.bounds,
+            context.location,
+            allChildren,
+            group.node as? LayoutInfo,
+            context.name,
+        )
+    }
+
     /** Processes the recorded slot table and re-generates the [viewInfos] attribute. */
     private fun processViewInfos() {
-        val newViewInfos = slotTableRecord.store.map { it.asTree().toViewInfo() }.toList()
-
-        viewInfos = if (stitchTrees) stitchTrees(newViewInfos) else newViewInfos
+        viewInfos = slotTableRecord.store.makeTree(::toViewInfoFactory)
 
         if (debugViewInfos) {
             val debugString = viewInfos.toDebugString()

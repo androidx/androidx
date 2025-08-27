@@ -16,7 +16,6 @@
 package androidx.compose.remote.player.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
@@ -167,7 +166,7 @@ public class RemoteComposeDocument {
     }
 
     /**
-     * @hide Returns a list of useful statistics for the runtime document
+     * Returns a list of useful statistics for the runtime document
      * @return array of strings representing some useful statistics
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -179,7 +178,7 @@ public class RemoteComposeDocument {
     }
 
     /**
-     * @hide Returns the number of sensor listeners
+     * Returns the number of sensor listeners
      * @param ids
      * @return
      */
@@ -189,7 +188,7 @@ public class RemoteComposeDocument {
     }
 
     /**
-     * @hide Returns the current clock
+     * Returns the current clock
      * @return
      */
     public @NonNull Clock getClock() {
@@ -197,7 +196,7 @@ public class RemoteComposeDocument {
     }
 
     /**
-     * @hide Returns true if the current document is an update-only document
+     * Returns true if the current document is an update-only document
      * @return
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -206,7 +205,7 @@ public class RemoteComposeDocument {
     }
 
     /**
-     * @hide Serialize the document
+     * Serialize the document
      * @param serializer
      */
     @RestrictTo(LIBRARY_GROUP)

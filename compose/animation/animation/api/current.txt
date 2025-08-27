@@ -26,9 +26,9 @@ package androidx.compose.animation {
   public sealed interface AnimatedContentTransitionScope<S> extends androidx.compose.animation.core.Transition.Segment<S> {
     method public androidx.compose.ui.Alignment getContentAlignment();
     method public default androidx.compose.animation.ExitTransition getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion);
-    method public androidx.compose.animation.EnterTransition slideIntoContainer(int towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> initialOffset);
+    method @KotlinOnly public androidx.compose.animation.EnterTransition slideIntoContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer> initialOffset);
     method @BytecodeOnly public androidx.compose.animation.EnterTransition slideIntoContainer-mOhB8PU(int, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset!>, kotlin.jvm.functions.Function1<? super java.lang.Integer!,java.lang.Integer!>);
-    method public androidx.compose.animation.ExitTransition slideOutOfContainer(int towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> targetOffset);
+    method @KotlinOnly public androidx.compose.animation.ExitTransition slideOutOfContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer> targetOffset);
     method @BytecodeOnly public androidx.compose.animation.ExitTransition slideOutOfContainer-mOhB8PU(int, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset!>, kotlin.jvm.functions.Function1<? super java.lang.Integer!,java.lang.Integer!>);
     method public infix androidx.compose.animation.ContentTransform using(androidx.compose.animation.ContentTransform, androidx.compose.animation.SizeTransform? sizeTransform);
     property public default androidx.compose.animation.ExitTransition androidx.compose.animation.ExitTransition.Companion.KeepUntilTransitionsFinished;
@@ -126,9 +126,9 @@ package androidx.compose.animation {
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition expandVertically(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional androidx.compose.ui.Alignment.Vertical expandFrom, optional boolean clip, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> initialHeight);
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition fadeIn(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float initialAlpha);
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition fadeOut(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float targetAlpha);
-    method @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition scaleIn(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float initialScale, optional long transformOrigin);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition scaleIn(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float initialScale, optional androidx.compose.ui.graphics.TransformOrigin transformOrigin);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition scaleIn-L8ZKh-E(androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>, float, long);
-    method @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition scaleOut(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float targetScale, optional long transformOrigin);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition scaleOut(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float targetScale, optional androidx.compose.ui.graphics.TransformOrigin transformOrigin);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition scaleOut-L8ZKh-E(androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>, float, long);
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition shrinkHorizontally(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional androidx.compose.ui.Alignment.Horizontal shrinkTowards, optional boolean clip, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> targetWidth);
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition shrinkOut(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> animationSpec, optional androidx.compose.ui.Alignment shrinkTowards, optional boolean clip, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntSize,androidx.compose.ui.unit.IntSize> targetSize);
@@ -169,9 +169,7 @@ package androidx.compose.animation {
 
   @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi public final class SharedTransitionDefaults {
     method public androidx.compose.animation.BoundsTransform getBoundsTransform();
-    method public kotlin.jvm.functions.Function1<androidx.compose.animation.SharedTransitionScope,java.lang.Boolean> getRenderInOverlay();
     property public androidx.compose.animation.BoundsTransform BoundsTransform;
-    property public kotlin.jvm.functions.Function1<androidx.compose.animation.SharedTransitionScope,java.lang.Boolean> RenderInOverlay;
     field public static final androidx.compose.animation.SharedTransitionDefaults INSTANCE;
   }
 
@@ -201,7 +199,7 @@ package androidx.compose.animation {
   }
 
   public static fun interface SharedTransitionScope.PlaceHolderSize {
-    method public long calculateSize(long contentSize, long animatedSize);
+    method @KotlinOnly public androidx.compose.ui.unit.IntSize calculateSize(androidx.compose.ui.unit.IntSize contentSize, androidx.compose.ui.unit.IntSize animatedSize);
     method @BytecodeOnly public long calculateSize-JyjRU_E(long, long);
     field public static final androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion Companion;
   }
@@ -225,7 +223,7 @@ package androidx.compose.animation {
   }
 
   public static interface SharedTransitionScope.SharedContentConfig {
-    method public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect targetBoundsBeforeRemoval, long sharedTransitionLayoutSize);
+    method @KotlinOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect targetBoundsBeforeRemoval, androidx.compose.ui.geometry.Size sharedTransitionLayoutSize);
     method @BytecodeOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval-cSwnlzA(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect, long);
     method public default boolean getShouldKeepEnabledForOngoingAnimation();
     method public default boolean isEnabled(androidx.compose.animation.SharedTransitionScope.SharedContentState);
@@ -252,15 +250,15 @@ package androidx.compose.animation {
   }
 
   public final class SingleValueAnimationKt {
-    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.animation.core.Animatable<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> Animatable(long initialValue);
+    method @KotlinOnly @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.animation.core.Animatable<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D> Animatable(androidx.compose.ui.graphics.Color initialValue);
     method @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.animation.core.Animatable<androidx.compose.ui.graphics.Color!,androidx.compose.animation.core.AnimationVector4D!> Animatable-8_81llA(long);
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColorAsState(long targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,kotlin.Unit>? finishedListener);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColorAsState(androidx.compose.ui.graphics.Color targetValue, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label, optional kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.Color,kotlin.Unit>? finishedListener);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateColorAsState-KTwxG1Y(long, androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color!> animateColorAsState-euL9pac(long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.graphics.Color!>?, String?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public interface SizeTransform {
-    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> createAnimationSpec(long initialSize, long targetSize);
+    method @KotlinOnly public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> createAnimationSpec(androidx.compose.ui.unit.IntSize initialSize, androidx.compose.ui.unit.IntSize targetSize);
     method @BytecodeOnly public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize!> createAnimationSpec-TemP2vQ(long, long);
     method public boolean getClip();
     property public abstract boolean clip;
@@ -287,7 +285,7 @@ package androidx.compose.animation {
   }
 
   public final class TransitionKt {
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, long initialValue, long targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, androidx.compose.ui.graphics.Color initialValue, androidx.compose.ui.graphics.Color targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label);
     method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.graphics.Color> targetValueByState);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color!> animateColor(androidx.compose.animation.core.Transition<S!>, kotlin.jvm.functions.Function3<? super androidx.compose.animation.core.Transition.Segment<S!>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color!>!>?, String?, kotlin.jvm.functions.Function3<? super S!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,androidx.compose.ui.graphics.Color!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color!> animateColor-DTcfvLk(androidx.compose.animation.core.InfiniteTransition, long, long, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color!>, String?, androidx.compose.runtime.Composer?, int, int);

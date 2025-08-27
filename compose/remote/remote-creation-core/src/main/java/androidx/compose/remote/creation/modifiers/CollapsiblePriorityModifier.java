@@ -16,7 +16,6 @@
 package androidx.compose.remote.creation.modifiers;
 
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority;
-import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -37,7 +36,6 @@ public class CollapsiblePriorityModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        CollapsiblePriorityModifierOperation.apply(
-                writer.getBuffer().getBuffer(), mOrientation, mPriority);
+        writer.addCollapsiblePriorityModifier(mOrientation, mPriority);
     }
 }

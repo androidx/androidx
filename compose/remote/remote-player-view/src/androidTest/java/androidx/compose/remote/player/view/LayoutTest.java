@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.actions.HostAction;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.modifiers.RoundedRectShape;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +61,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4.class)
 public class LayoutTest {
 

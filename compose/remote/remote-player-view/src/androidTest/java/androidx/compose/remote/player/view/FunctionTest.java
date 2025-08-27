@@ -30,6 +30,7 @@ import android.util.Log;
 
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** This test the function call syntax */
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(JUnit4.class)
 public class FunctionTest {
     private final boolean mSaveImages = false;

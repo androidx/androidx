@@ -27,7 +27,7 @@ public class GraphicsLayerModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierGraphicsLayer(mAttributes);
+        writer.addModifierGraphicsLayer(mAttributes);
     }
 
     /**

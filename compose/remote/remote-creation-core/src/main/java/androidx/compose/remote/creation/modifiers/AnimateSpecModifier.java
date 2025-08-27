@@ -50,14 +50,13 @@ public class AnimateSpecModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        AnimationSpec.apply(
-                writer.getBuffer().getBuffer(),
+        writer.addAnimationSpecModifier(
                 mAnimationId,
                 mMotionDuration,
                 mMotionEasingType,
                 mVisibilityDuration,
                 mVisibilityEasingType,
-                mEnterAnimation,
-                mExitAnimation);
+                mEnterAnimation.ordinal(),
+                mExitAnimation.ordinal());
     }
 }

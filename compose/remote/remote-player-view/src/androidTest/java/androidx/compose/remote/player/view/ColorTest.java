@@ -38,6 +38,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -47,6 +48,7 @@ import org.junit.runners.JUnit4;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@SdkSuppress(minSdkVersion = 26) // b/43795894
 @RunWith(JUnit4.class)
 public class ColorTest {
     private boolean mSaveImages = false;

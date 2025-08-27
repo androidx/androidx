@@ -162,15 +162,14 @@ public class AnimationSpec extends Operation implements ModifierOperation {
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(
-                buffer,
+        apply(buffer,
                 mAnimationId,
                 mMotionDuration,
                 mMotionEasingType,
                 mVisibilityDuration,
                 mVisibilityEasingType,
-                mEnterAnimation,
-                mExitAnimation);
+                mEnterAnimation.ordinal(),
+                mExitAnimation.ordinal());
     }
 
     @Override
@@ -262,16 +261,16 @@ public class AnimationSpec extends Operation implements ModifierOperation {
             int motionEasingType,
             float visibilityDuration,
             int visibilityEasingType,
-            @NonNull ANIMATION enterAnimation,
-            @NonNull ANIMATION exitAnimation) {
+            int enterAnimation,
+            int exitAnimation) {
         buffer.start(Operations.ANIMATION_SPEC);
         buffer.writeInt(animationId);
         buffer.writeFloat(motionDuration);
         buffer.writeInt(motionEasingType);
         buffer.writeFloat(visibilityDuration);
         buffer.writeInt(visibilityEasingType);
-        buffer.writeInt(animationToInt(enterAnimation));
-        buffer.writeInt(animationToInt(exitAnimation));
+        buffer.writeInt(enterAnimation);
+        buffer.writeInt(exitAnimation);
     }
 
     /**

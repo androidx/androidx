@@ -15,7 +15,7 @@ package androidx.compose.ui.text.googlefonts {
   }
 
   public final class GoogleFontKt {
-    method public static androidx.compose.ui.text.font.Font Font(androidx.compose.ui.text.googlefonts.GoogleFont googleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider fontProvider, optional androidx.compose.ui.text.font.FontWeight weight, optional int style);
+    method @KotlinOnly public static androidx.compose.ui.text.font.Font Font(androidx.compose.ui.text.googlefonts.GoogleFont googleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider fontProvider, optional androidx.compose.ui.text.font.FontWeight weight, optional androidx.compose.ui.text.font.FontStyle style);
     method @BytecodeOnly public static androidx.compose.ui.text.font.Font Font-wCLgNak(androidx.compose.ui.text.googlefonts.GoogleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider, androidx.compose.ui.text.font.FontWeight, int);
     method @WorkerThread public static boolean isAvailableOnDevice(androidx.compose.ui.text.googlefonts.GoogleFont.Provider, android.content.Context context);
   }

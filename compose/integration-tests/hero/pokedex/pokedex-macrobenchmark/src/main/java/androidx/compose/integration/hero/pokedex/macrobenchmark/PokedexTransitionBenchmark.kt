@@ -17,26 +17,26 @@
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
 import android.content.Intent
-import android.util.Log
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.SearchCondition
+import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
-import kotlin.IllegalArgumentException
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -47,7 +47,14 @@ class PokedexTransitionBenchmark(
     val enableSharedTransitionScope: Boolean,
     val enableSharedElementTransitions: Boolean,
 ) {
-    @get:Rule val benchmarkRule = MacrobenchmarkRule()
+    val benchmarkRule = MacrobenchmarkRule()
+
+    @get:Rule
+    val pokedexBenchmarkRuleChain: RuleChain =
+        RuleChain.outerRule(PokedexDatabaseCleanupRule()).around(benchmarkRule)
+
+    private val FirstPokemonToClickOn = "Ablazeon"
+    private val SecondPokemonToClickOn = "Astrobat"
 
     @OptIn(ExperimentalMetricApi::class)
     @Test
@@ -58,9 +65,6 @@ class PokedexTransitionBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
-                // Start out by deleting any existing data
-                resetPokedexDatabase()
-
                 val intent = Intent()
                 intent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY"
                 intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
@@ -71,60 +75,107 @@ class PokedexTransitionBenchmark(
                 startActivityAndWait(intent)
 
                 // Ablazeon always is the first pokemon in the grid
-                val searchCondition = Until.hasObject(By.res("Ablazeon_card"))
-                device.wait(searchCondition, 3_000)
-                val content = device.findObject(By.res("PokedexList"))
+                device.waitOrThrow(Until.hasObject(By.text(FirstPokemonToClickOn)), 3_000)
+                val content = device.findObjectOrThrow(By.res("PokedexList"))
                 // Set gesture margin to avoid triggering gesture navigation
                 content.setGestureMargin(device.displayWidth / 5)
             },
         ) {
-            homeToDetailsAndBackAction("Ablazeon")
-            device.waitForIdle()
-            homeToDetailsAndBackAction("Anglark")
+            homeToDetailsAndBackAction(
+                FirstPokemonToClickOn,
+                waitForActiveTransitionStatus = true,
+                waitForProgressBarAnimation = true,
+                backButtonSelector = By.res("pokedexDetailsBack"),
+            )
+            // Wait until we're back on the pokedex list/home screen
+            device.waitOrThrow(Until.hasObject(By.text(SecondPokemonToClickOn)), 1_000)
+            homeToDetailsAndBackAction(
+                SecondPokemonToClickOn,
+                waitForActiveTransitionStatus = true,
+                waitForProgressBarAnimation = true,
+                backButtonSelector = By.res("pokedexDetailsBack"),
+            )
         }
     }
 
-    private fun MacrobenchmarkScope.homeToDetailsAndBackAction(pokemonName: String) {
-        val list = device.findObject(By.res("PokedexList"))
-        val pokemonCard = list.findObject(By.res("${pokemonName}_card"))
-        pokemonCard.click()
+    @OptIn(ExperimentalMetricApi::class)
+    @Test
+    fun homeToDetailsTransitionViews() {
+        benchmarkRule.measureRepeated(
+            packageName = POKEDEX_TARGET_PACKAGE_NAME,
+            metrics = defaultComposeScrollingMetrics() + FrameTimingGfxInfoMetric(),
+            compilationMode = compilationMode,
+            iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY"
+                intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
+                intent.putExtra(
+                    POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS,
+                    enableSharedElementTransitions,
+                )
+                startActivityAndWait(intent)
 
-        if (enableSharedElementTransitions) {
-            waitForTransitionStatus("details", active = true)
-            waitForTransitionStatus("details", active = false)
+                device.waitOrThrow(Until.hasObject(By.text(FirstPokemonToClickOn)), 3_000)
+                val content =
+                    device.findObjectOrThrow(By.res(POKEDEX_TARGET_PACKAGE_NAME, "PokedexList"))
+                // Set gesture margin to avoid triggering gesture navigation
+                content.setGestureMargin(device.displayWidth / 5)
+            },
+        ) {
+            homeToDetailsAndBackAction(
+                FirstPokemonToClickOn,
+                waitForActiveTransitionStatus = false,
+                waitForProgressBarAnimation = false,
+                backButtonSelector = By.res(POKEDEX_TARGET_PACKAGE_NAME, "pokedexDetailsBack"),
+            )
+            device.waitOrThrow(Until.hasObject(By.text(SecondPokemonToClickOn)), 1_000)
+            homeToDetailsAndBackAction(
+                SecondPokemonToClickOn,
+                waitForActiveTransitionStatus = false,
+                waitForProgressBarAnimation = false,
+                backButtonSelector = By.res(POKEDEX_TARGET_PACKAGE_NAME, "pokedexDetailsBack"),
+            )
+            device.waitOrThrow(Until.hasObject(By.text(SecondPokemonToClickOn)), 1_000)
         }
+    }
 
-        device.waitOrThrow(Until.hasObject(By.res("progress-animation-active-true")), 1000)
-        device.waitOrThrow(Until.gone(By.res("progress-animation-active-true")), 1000)
-
-        device.findObject(By.res("pokedexDetailsBack")).click()
-
-        if (enableSharedElementTransitions) {
-            waitForTransitionStatus("home", active = true)
-        }
-        waitForTransitionStatus("home", active = false)
+    private fun MacrobenchmarkScope.homeToDetailsAndBackAction(
+        pokemonName: String,
+        backButtonSelector: BySelector,
+        waitForActiveTransitionStatus: Boolean,
+        waitForProgressBarAnimation: Boolean,
+    ) {
+        device.findObjectOrThrow(By.text(pokemonName)).click()
         device.waitForIdle()
+        if (enableSharedElementTransitions && waitForActiveTransitionStatus) {
+            device.waitForTransitionStatus(name = "details", active = true)
+        }
+        device.waitForTransitionStatus(name = "details", active = false)
+
+        if (waitForProgressBarAnimation) {
+            device.waitOrThrow(
+                condition = Until.hasObject(By.res("progress-animation-active-true")),
+                timeoutMillis = 1000,
+            )
+            device.waitOrThrow(Until.gone(By.res("progress-animation-active-true")), 1000)
+        }
+
+        device.findObjectOrThrow(backButtonSelector).click()
+        device.waitForIdle()
+
+        if (enableSharedElementTransitions && waitForActiveTransitionStatus) {
+            device.waitForTransitionStatus("home", active = true)
+        }
+        device.waitForTransitionStatus("home", active = false)
     }
 
-    private fun MacrobenchmarkScope.waitForTransitionStatus(
+    private fun UiDevice.waitForTransitionStatus(
         name: String,
         active: Boolean,
         timeoutMs: Long = 2_000L,
     ) {
-        val transitionElementName = "pokedex-$name-transition-active-$active"
-        val waitForPokedexDetailsTransitionResult: Boolean? =
-            device.wait(Until.hasObject(By.res(transitionElementName)), timeoutMs)
-        if (waitForPokedexDetailsTransitionResult == null) {
-            Log.d(
-                "PokedexTransitionBenchmark",
-                "Waited for $transitionElementName, did not appear after $timeoutMs ms." +
-                    "Dumping window hierarchy.",
-            )
-            device.dumpWindowHierarchy(System.out)
-            throw IllegalArgumentException(
-                "Waited for $transitionElementName, did not appear" + " after $timeoutMs ms."
-            )
-        }
+        waitOrThrow(Until.hasObject(By.text("pokedex-$name-transition-active-$active")), timeoutMs)
     }
 
     companion object {
@@ -146,6 +197,3 @@ class PokedexTransitionBenchmark(
             }
     }
 }
-
-private fun <U> UiDevice.waitOrThrow(condition: SearchCondition<U>, timeout: Long): U =
-    requireNotNull(wait(condition, timeout))

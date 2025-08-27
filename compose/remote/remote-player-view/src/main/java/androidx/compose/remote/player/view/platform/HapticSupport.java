@@ -17,16 +17,15 @@ package androidx.compose.remote.player.view.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.core.view.HapticFeedbackConstantsCompat;
 
-@RestrictTo(LIBRARY_GROUP)
 /** Provides haptic support */
+@RestrictTo(LIBRARY_GROUP)
 public class HapticSupport {
 
     private static final int[] sHapticTable;

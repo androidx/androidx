@@ -18,7 +18,6 @@ package androidx.compose.remote.player.view.accessibility.platform;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.RestrictTo;
-
 import androidx.compose.remote.player.view.accessibility.RemoteComposeAccessibilityRegistrar;
 
 @RestrictTo(LIBRARY_GROUP)

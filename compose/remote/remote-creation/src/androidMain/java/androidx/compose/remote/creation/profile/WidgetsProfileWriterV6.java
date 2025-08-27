@@ -24,6 +24,7 @@ import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.Rc;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
+import androidx.compose.remote.creation.modifiers.RecordingModifier;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -50,8 +51,21 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
      * @param data the font data
      * @return the id of the font use in painter.setTypeface(id)
      */
+    @Override
     public int addFont(byte @NonNull [] data) {
         throw new RuntimeException("Adding custom fonts is not available in V6");
+    }
+
+    /**
+     * Intercepts invalid image operations.
+     */
+    @Override
+    public void image(@NonNull RecordingModifier modifier, int imageId, int scaleType,
+            float alpha) {
+        if (Float.isNaN(alpha)) {
+            throw new IllegalArgumentException("Invalid alpha in V6");
+        }
+        super.image(modifier, imageId, scaleType, alpha);
     }
 
     /**
@@ -61,6 +75,7 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
      * @param ops Combination
      * @return the id of the expression as a Nan float
      */
+    @Override
     public @NonNull Float floatExpression(float @NonNull ... ops) {
         validateOps(ops);
         return super.floatExpression(ops);
@@ -70,10 +85,11 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
      * Example of validating parameters on the writer Add a float expression that is a computation
      * based on variables. see packAnimation
      *
-     * @param value A RPN style float operation i.e. "4, 3, ADD" outputs 7
+     * @param value     A RPN style float operation i.e. "4, 3, ADD" outputs 7
      * @param animation Array of floats that represents animation
      * @return NaN id of the result of the calculation
      */
+    @Override
     public float floatExpression(float @NonNull [] value, float @Nullable [] animation) {
         validateOps(value);
         return super.floatExpression(value, animation);
@@ -82,11 +98,12 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
     /**
      * set the Matrix relative to the path
      *
-     * @param pathId the id of the path object
+     * @param pathId   the id of the path object
      * @param fraction the position on path
-     * @param vOffset the vertical offset to position the string
-     * @param flags flags to set path 1=position only , 2 = Tangent
+     * @param vOffset  the vertical offset to position the string
+     * @param flags    flags to set path 1=position only , 2 = Tangent
      */
+    @Override
     public void matrixFromPath(int pathId, float fraction, float vOffset, int flags) {
         throw new RuntimeException("matrixFromPath is not available in V6");
     }

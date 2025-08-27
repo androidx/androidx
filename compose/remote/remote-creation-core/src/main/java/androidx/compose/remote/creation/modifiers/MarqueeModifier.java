@@ -45,8 +45,7 @@ public class MarqueeModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer()
-                .addModifierMarquee(
+        writer.addModifierMarquee(
                         mIterations,
                         mAnimationMode,
                         mRepeatDelayMillis,

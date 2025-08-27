@@ -347,6 +347,32 @@ fun isDialog(): SemanticsMatcher = hasKey(SemanticsProperties.IsDialog)
 fun isPopup(): SemanticsMatcher = hasKey(SemanticsProperties.IsPopup)
 
 /**
+ * Returns whether the node is hidden from accessibility.
+ *
+ * This checks if the node itself has the [SemanticsProperties.HideFromAccessibility] property. It
+ * does not check the node's ancestors.
+ *
+ * @see SemanticsProperties.HideFromAccessibility
+ */
+fun isHiddenFromAccessibility(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility)
+
+/**
+ * Returns whether the node is in a subtree that is hidden from accessibility.
+ *
+ * This is the matcher you'll typically want to use to filter for nodes that are not visible to
+ * accessibility services.
+ *
+ * It checks if the node itself is hidden OR if it has an ancestor that is hidden.
+ *
+ * @see SemanticsProperties.HideFromAccessibility
+ */
+fun isInHiddenAccessibilitySubtree(): SemanticsMatcher {
+    val isHidden = isHiddenFromAccessibility()
+    return isHidden or hasAnyAncestor(isHidden)
+}
+
+/**
  * Returns whether the node defines the given IME action.
  *
  * @param actionType the action to match.

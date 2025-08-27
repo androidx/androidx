@@ -235,7 +235,7 @@ internal class PointerInteropFilter : PointerInputModifier {
                         changes.fastAny {
                             it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
                         } ||
-                        hasUnconsumedMove
+                        (hasUnconsumedMove)
 
                 if (state !== DispatchToViewState.NotDispatching) {
                     if (pass == PointerEventPass.Initial && dispatchDuringInitialTunnel) {
@@ -255,13 +255,12 @@ internal class PointerInteropFilter : PointerInputModifier {
                         changes.fastForEach { it.consume() }
                     }
 
-                    val dispatchToFinalCriteria =
+                    if (
                         pass == PointerEventPass.Final &&
                             !dispatchDuringInitialTunnel &&
                             // this was already dispatched during the initial pass
                             pointerEvent != lastEventDispatchedToInitialPass
-
-                    if (dispatchToFinalCriteria) {
+                    ) {
                         dispatchToView(pointerEvent, true)
                     }
                 }

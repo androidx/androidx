@@ -404,6 +404,17 @@ internal class SimpleInnerShadowNode(private var shape: Shape, private var shado
     }
 }
 
+/** Resets all shadow properties to their default values */
+private fun ShadowScope.resetShadow() {
+    this.radius = 0f
+    this.spread = 0f
+    this.offset = Offset.Zero
+    this.color = Color.Black
+    this.brush = null
+    this.alpha = 1f
+    this.blendMode = BlendMode.SrcOver
+}
+
 internal class BlockInnerShadowElement(val shape: Shape, val block: InnerShadowScope.() -> Unit) :
     ModifierNodeElement<BlockInnerShadowNode>() {
 
@@ -537,7 +548,7 @@ internal class BlockInnerShadowNode(private var shape: Shape, block: InnerShadow
         val newDensity = requireDensity()
         if (densityObject != newDensity) {
             densityObject = newDensity
-            block.invoke(this)
+            blockRead = false
             invalidateShadow()
         }
     }
@@ -555,6 +566,7 @@ internal class BlockInnerShadowNode(private var shape: Shape, block: InnerShadow
     private fun obtainPainter(): InnerShadowPainter {
         if (!blockRead) {
             blockRead = true
+            resetShadow()
             observeReads { block(this) }
         }
         var shadow = targetShadow
@@ -591,8 +603,8 @@ internal class BlockInnerShadowNode(private var shape: Shape, block: InnerShadow
     }
 
     override fun onObservedReadsChanged() {
-        invalidateShadow()
         blockRead = false
+        invalidateShadow()
     }
 
     private fun invalidateShadow() {
@@ -736,7 +748,7 @@ internal class BlockDropShadowNode(private var shape: Shape, block: DropShadowSc
         val newDensity = requireDensity()
         if (densityObject != newDensity) {
             densityObject = newDensity
-            block.invoke(this)
+            blockRead = false
             invalidateShadow()
         }
     }
@@ -754,6 +766,7 @@ internal class BlockDropShadowNode(private var shape: Shape, block: DropShadowSc
     private fun obtainPainter(): DropShadowPainter {
         if (!blockRead) {
             blockRead = true
+            resetShadow()
             observeReads { block() }
         }
         var shadow = targetShadow
@@ -789,8 +802,8 @@ internal class BlockDropShadowNode(private var shape: Shape, block: DropShadowSc
     }
 
     override fun onObservedReadsChanged() {
-        invalidateShadow()
         blockRead = false
+        invalidateShadow()
     }
 
     private fun invalidateShadow() {

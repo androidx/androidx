@@ -461,14 +461,13 @@ public interface SharedTransitionScope : LookaheadScope {
      *
      * @sample androidx.compose.animation.samples.SharedElementWithFABInOverlaySample
      * @param renderInOverlay [renderInOverlay] determines when the content should be rendered in
-     *   the overlay. Defaults to [SharedTransitionDefaults.RenderInOverlay], which renders the
-     *   content in the overlay only when the transition is active.
+     *   the overlay. Defaults to { [isTransitionActive] }, which renders the content in the overlay
+     *   only when the transition is active.
      * @param zIndexInOverlay The zIndex of the content in the overlay. Defaults to 0f.
      */
     public fun Modifier.renderInSharedTransitionScopeOverlay(
         zIndexInOverlay: Float = 0f,
-        renderInOverlay: (SharedTransitionScope) -> Boolean =
-            SharedTransitionDefaults.RenderInOverlay,
+        renderInOverlay: SharedTransitionScope.() -> Boolean = { isTransitionActive },
     ): Modifier
 
     /**
@@ -976,7 +975,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     override fun Modifier.renderInSharedTransitionScopeOverlay(
         zIndexInOverlay: Float,
-        renderInOverlay: (SharedTransitionScope) -> Boolean,
+        renderInOverlay: SharedTransitionScope.() -> Boolean,
     ): Modifier =
         this.then(
             RenderInTransitionOverlayNodeElement(
@@ -1541,16 +1540,4 @@ public object SharedTransitionDefaults {
      * @see SharedTransitionScope.SharedContentConfig
      */
     public object SharedContentConfig : SharedTransitionScope.SharedContentConfig
-
-    /**
-     * Default configuration for [SharedTransitionScope.renderInSharedTransitionScopeOverlay] to
-     * determine when the layout using this modifier should be rendered in the overlay. This
-     * configuration specifies that the layout should be rendered in the overlay until all shared
-     * element transitions complete (i.e., while [SharedTransitionScope.isTransitionActive] is
-     * true).
-     *
-     * @see SharedTransitionScope.renderInSharedTransitionScopeOverlay
-     * @see SharedTransitionScope.isTransitionActive
-     */
-    public val RenderInOverlay: (SharedTransitionScope) -> Boolean = { it.isTransitionActive }
 }

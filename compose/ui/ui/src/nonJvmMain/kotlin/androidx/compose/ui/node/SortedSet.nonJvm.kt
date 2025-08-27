@@ -32,6 +32,7 @@ internal actual class SortedSet<E> actual constructor(
     /**
      * Compares two elements using the [comparator].
      */
+    @Suppress("NOTHING_TO_INLINE")
     private inline operator fun E.compareTo(value: E): Int = comparator.compare(this, value)
 
     /**

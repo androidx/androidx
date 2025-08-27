@@ -144,7 +144,7 @@ public class DebugMessage extends Operation implements VariableSupport {
         String str = context.getText(mTextID);
 
         System.out.println("Debug message : " + str + " " + mOutFloatValue);
-        if ((mFlags & SHOW_USAGE) > 0 || Float.isNaN(mFloatValue)) {
+        if ((mFlags & SHOW_USAGE) > 0) {
             ArrayList<VariableSupport> list = context.getListeners(Utils.idFromNan(mFloatValue));
             for (VariableSupport varSupport : list) {
                 System.out.println("Debug message : " + str + " " + varSupport.toString());

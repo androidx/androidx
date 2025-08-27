@@ -23,7 +23,8 @@ import org.jspecify.annotations.NonNull;
 /** Semantics modifier, including */
 public class SemanticsModifier implements RecordingModifier.Element {
 
-    @NonNull AccessibilityModifier mSemantics;
+    @NonNull
+    AccessibilityModifier mSemantics;
 
     public SemanticsModifier(@NonNull AccessibilityModifier semantics) {
         this.mSemantics = semantics;
@@ -37,5 +38,15 @@ public class SemanticsModifier implements RecordingModifier.Element {
     public void write(@NonNull RemoteComposeWriter writer) {
         writer.getBuffer().getBuffer().start(mSemantics.getOpCode());
         mSemantics.write(writer.getBuffer().getBuffer());
+//      TODO change to use writer
+//        writer.addSemanticsModifier(
+//                mSemantics.mContentDescriptionId,
+//                (byte) ((mSemantics.mRole != null) ? mSemantics.mRole.ordinal() : -1),
+//                mSemantics.mTextId,
+//                mSemantics.mStateDescriptionId,
+//                (byte) mSemantics.mMode.ordinal(),
+//                mSemantics.mEnabled,
+//                mSemantics.mClickable);
+
     }
 }

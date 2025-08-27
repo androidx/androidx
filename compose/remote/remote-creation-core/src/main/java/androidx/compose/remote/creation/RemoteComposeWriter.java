@@ -448,6 +448,63 @@ public class RemoteComposeWriter {
         mBuffer.wakeIn(seconds);
     }
 
+    /**
+     * Add a path expression
+     *
+     * @param expressionX the x expression
+     * @param expressionY the y expression
+     * @param start the start value
+     * @param end the end value
+     * @param count the number of points
+     * @param flags the flags
+     * @return the id of the path
+     */
+    public int addPathExpression(
+            float @NonNull [] expressionX,
+            float @NonNull [] expressionY,
+            float start,
+            float end,
+            float count,
+            int flags) {
+
+        int id = mState.createNextAvailableId();
+        mBuffer.addPathExpression(id, expressionX, expressionY, start, end, count, flags);
+        return id;
+    }
+
+    /**
+     * Add a polar path expression
+     *
+     * @param expressionR the radius expression
+     * @param start the start value
+     * @param end the end value
+     * @param count the number of points
+     * @param centerX the center x
+     * @param centerY the center y
+     * @param flags the flags
+     * @return the id of the path
+     */
+    public int addPolarPathExpression(
+            float @NonNull [] expressionR,
+            float start,
+            float end,
+            float count,
+            float centerX,
+            float centerY,
+            int flags) {
+
+        int id = mState.createNextAvailableId();
+        mBuffer.addPathExpression(
+                id,
+                expressionR,
+                new float[] {centerX, centerY},
+                start,
+                end,
+                count,
+                Rc.PathExpression.POLAR_PATH | flags);
+        return id;
+    }
+
     /** Used to create the tag values in the header */
     public static class HTag {
         @NonNull Short mTag;
@@ -1234,7 +1291,25 @@ public class RemoteComposeWriter {
     public int addPathData(@NonNull Object path) {
         float[] pathData = mPlatform.pathToFloatArray(path);
         int id = mState.cacheData(path);
+        if (pathData == null) {
+            throw new IllegalArgumentException("Invalid path data");
+        }
         return mBuffer.addPathData(id, pathData);
+    }
+
+    /**
+     * Add an android Path object. (It is converted to internal path)
+     *
+     * @param path Android Path object
+     * @return id of the path object to be used by drawPath, etc.
+     */
+    public int addPathData(@NonNull Object path, int winding) {
+        float[] pathData = mPlatform.pathToFloatArray(path);
+        int id = mState.cacheData(path);
+        if (pathData == null) {
+            throw new IllegalArgumentException("Invalid path data");
+        }
+        return mBuffer.addPathData(id, pathData, winding);
     }
 
     /**
@@ -2768,6 +2843,7 @@ public class RemoteComposeWriter {
         addContentStart();
     }
 
+
     /**
      * Start a box layout
      *
@@ -3423,5 +3499,329 @@ public class RemoteComposeWriter {
      */
     public void drawOnBitmap(int bitmapId) {
         mBuffer.drawOnBitmap(bitmapId, 0, 0);
+    }
+
+    /**
+     * Add a component visibility operation
+     *
+     * @param valueId the value to set the visibility to
+     */
+    public void addComponentVisibilityOperation(int valueId) {
+        mBuffer.addComponentVisibilityOperation(valueId);
+    }
+
+    /**
+     * Add a width modifier operation
+     *
+     * @param type    the type the width
+     * @param valueId the value to set the width to
+     */
+    public void addWidthModifierOperation(int type, float valueId) {
+        mBuffer.addWidthModifierOperation(type, valueId);
+    }
+
+    /**
+     * Add a height modifier operation
+     *
+     * @param type    the type the height
+     * @param valueId the value to set the height to
+     */
+    public void addHeightModifierOperation(int type, float valueId) {
+        mBuffer.addHeightModifierOperation(type, valueId);
+    }
+
+    /**
+     * Add a modifier ripple
+     */
+    public void addModifierRipple() {
+        mBuffer.addModifierRipple();
+    }
+
+    /**
+     * Add a modifier zIndex
+     *
+     * @param value the zIndex to set
+     */
+    public void addModifierZIndex(float value) {
+        mBuffer.addModifierZIndex(value);
+    }
+
+    /**
+     * Add a modifier marquee
+     *
+     * @param iterations         the number of iterations
+     * @param animationMode      the animation mode
+     * @param repeatDelayMillis  the repeat delay
+     * @param initialDelayMillis the initial delay
+     * @param spacing            the spacing
+     * @param velocity           the velocity
+     */
+    public void addModifierMarquee(int iterations,
+                                   int animationMode,
+                                   float repeatDelayMillis,
+                                   float initialDelayMillis,
+                                   float spacing,
+                                   float velocity) {
+        mBuffer.addModifierMarquee(iterations,
+                animationMode,
+                repeatDelayMillis,
+                initialDelayMillis,
+                spacing,
+                velocity);
+    }
+
+    /**
+     * Add a height in modifier operation
+     *
+     * @param min the minimum height
+     * @param max the maximum height
+     */
+    public void addHeightInModifierOperation(float min, float max) {
+        mBuffer.addHeightInModifierOperation(min, max);
+    }
+
+    /**
+     * Add a modifier graphics layer
+     *
+     * @param attributes the attributes to set
+     */
+    public void addModifierGraphicsLayer(@NonNull HashMap<Integer, Object> attributes) {
+        mBuffer.addModifierGraphicsLayer(attributes);
+    }
+
+    /**
+     * Add a touch down modifier operation
+     */
+    public void addTouchDownModifierOperation() {
+        mBuffer.addTouchDownModifierOperation();
+    }
+
+    /**
+     * Add a touch up modifier operation
+     */
+    public void addTouchUpModifierOperation() {
+        mBuffer.addTouchUpModifierOperation();
+    }
+
+    /**
+     * Add a touch cancel modifier operation
+     */
+    public void addTouchCancelModifierOperation() {
+        mBuffer.addTouchCancelModifierOperation();
+    }
+
+    /**
+     * Add a container start
+     */
+    public void addContainerEnd() {
+        mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Add a modifier offset
+     *
+     * @param x offset
+     * @param y offset
+     */
+    public void addModifierOffset(float x, float y) {
+        mBuffer.addModifierOffset(x, y);
+    }
+
+    /**
+     * Add a modifier background
+     *
+     * @param color the color to set
+     * @param shape the shape to set
+     */
+    public void addModifierBackground(int color, int shape) {
+        mBuffer.addModifierBackground(color, shape);
+    }
+
+    /**
+     * Add a clip rect modifier
+     */
+    public void addClipRectModifier() {
+        mBuffer.addClipRectModifier();
+    }
+
+    /**
+     * Add a round clip rect modifier
+     *
+     * @param topStart    the top start value
+     * @param topEnd      the top end value
+     * @param bottomStart the bottom start value
+     * @param bottomEnd   the bottom end value
+     */
+    public void addRoundClipRectModifier(float topStart,
+                                         float topEnd,
+                                         float bottomStart,
+                                         float bottomEnd) {
+        mBuffer.addRoundClipRectModifier(topStart, topEnd, bottomStart, bottomEnd);
+    }
+
+    /**
+     * Add a width in modifier operation
+     *
+     * @param min the minimum width
+     * @param max the maximum width
+     */
+    public void addWidthInModifierOperation(float min, float max) {
+        mBuffer.addWidthInModifierOperation(min, max);
+    }
+
+    /**
+     * Add a modifier padding
+     *
+     * @param left   the left padding
+     * @param top    the top padding
+     * @param right  the right padding
+     * @param bottom the bottom padding
+     */
+    public void addModifierPadding(float left, float top, float right, float bottom) {
+        mBuffer.addModifierPadding(left, top, right, bottom);
+    }
+
+    /**
+     * Add a draw content operation
+     */
+    public void addDrawContentOperation() {
+        mBuffer.addDrawContentOperation();
+    }
+
+    /**
+     * Add a semantics modifier
+     *
+     * @param contentDescriptionId the content description id
+     * @param role                 the role
+     * @param textId               the text id
+     * @param stateDescriptionId   the state description id
+     * @param mode                 the mode
+     * @param enabled              the enabled
+     * @param clickable            the clickable
+     */
+    public void addSemanticsModifier(int contentDescriptionId,
+                                     byte role,
+                                     int textId,
+                                     int stateDescriptionId,
+                                     int mode,
+                                     boolean enabled,
+                                     boolean clickable) {
+
+        mBuffer.addSemanticsModifier(contentDescriptionId,
+                role,
+                textId,
+                stateDescriptionId,
+                mode,
+                enabled,
+                clickable);
+    }
+
+    /**
+     * Add a click modifier operation
+     */
+    public void addClickModifierOperation() {
+        mBuffer.addClickModifierOperation();
+    }
+
+    /**
+     * Add a collapsible priority modifier
+     *
+     * @param orientation the orientation
+     * @param priority    the priority
+     */
+    public void addCollapsiblePriorityModifier(int orientation, float priority) {
+        mBuffer.addCollapsiblePriorityModifier(orientation, priority);
+    }
+
+    /**
+     * Add an animation spec modifier
+     *
+     * @param animationId          the animation id
+     * @param motionDuration       the motion duration
+     * @param motionEasingType     the motion easing type
+     * @param visibilityDuration   the visibility duration
+     * @param visibilityEasingType the visibility easing type
+     * @param enterAnimation       the enter animation
+     * @param exitAnimation        the exit animation
+     */
+    public void addAnimationSpecModifier(int animationId,
+                                         float motionDuration,
+                                         int motionEasingType,
+                                         float visibilityDuration,
+                                         int visibilityEasingType,
+                                         int enterAnimation,
+                                         int exitAnimation) {
+        mBuffer.addAnimationSpecModifier(
+                animationId,
+                motionDuration,
+                motionEasingType,
+                visibilityDuration,
+                visibilityEasingType,
+                enterAnimation,
+                exitAnimation);
+    }
+
+    /**
+     * Add a modifier border
+     *
+     * @param width         the width
+     * @param roundedCorner the rounded corner
+     * @param color         the color
+     * @param shapeType     the shape type
+     */
+    public void addModifierBorder(float width, float roundedCorner, int color, int shapeType) {
+        mBuffer.addModifierBorder(width, roundedCorner, color, shapeType);
+    }
+
+    /**
+     * Add a value string change action operation
+     *
+     * @param destTextId the text id to change
+     * @param srcTextId  the text id to copy from
+     */
+    public void addValueStringChangeActionOperation(int destTextId, int srcTextId) {
+        mBuffer.addValueStringChangeActionOperation(destTextId, srcTextId);
+    }
+
+    /**
+     * Add a value float expression change action operation
+     *
+     * @param destIntegerId the integer id to change
+     * @param srcIntegerId  the integer id to copy from
+     */
+    public void addValueIntegerExpressionChangeActionOperation(
+            long destIntegerId,
+            long srcIntegerId) {
+        mBuffer.addValueIntegerExpressionChangeActionOperation(destIntegerId, srcIntegerId);
+    }
+
+    /**
+     * Add a value float change action operation
+     *
+     * @param mValueId the value id to change
+     * @param mValue   the value to change to
+     */
+    public void addValueFloatChangeActionOperation(int mValueId, float mValue) {
+        mBuffer.addValueFloatChangeActionOperation(mValueId, mValue);
+    }
+
+    /**
+     * Add a value integer change action operation
+     *
+     * @param valueId the value id to change
+     * @param value   the value to change to
+     */
+    public void addValueIntegerChangeActionOperation(int valueId, int value) {
+        mBuffer.addValueIntegerChangeActionOperation(valueId, value);
+    }
+
+    /**
+     * Add a value float expression change action operation
+     *
+     * @param mValueId the value id to change
+     * @param mValue   the value to change to
+     */
+    public void addValueFloatExpressionChangeActionOperation(int mValueId, int mValue) {
+        mBuffer.addValueFloatExpressionChangeActionOperation(mValueId, mValue);
     }
 }

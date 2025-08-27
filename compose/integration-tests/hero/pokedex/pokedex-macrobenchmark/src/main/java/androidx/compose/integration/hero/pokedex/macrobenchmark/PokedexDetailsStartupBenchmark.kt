@@ -20,15 +20,17 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.Compose.POKEDEX_START_DESTINATION
-import androidx.compose.integration.hero.pokedex.macrobenchmark.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_START_DESTINATION
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
 import androidx.test.filters.LargeTest
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.measureStartup
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -40,10 +42,18 @@ class PokedexDetailsStartupBenchmark(
     private val enableSharedTransitionScope: Boolean,
     private val enableSharedElementTransitions: Boolean,
 ) {
-    @get:Rule val benchmarkRule = MacrobenchmarkRule()
+    val benchmarkRule = MacrobenchmarkRule()
+
+    @get:Rule
+    val pokedexBenchmarkRuleChain: RuleChain =
+        RuleChain.outerRule(PokedexDatabaseCleanupRule()).around(benchmarkRule)
 
     @Test
     fun startupCompose() = measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY")
+
+    @Test
+    fun startupViews() =
+        measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_DETAIL_ACTIVITY")
 
     private fun measureStartup(action: String) =
         benchmarkRule.measureStartup(

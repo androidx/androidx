@@ -16,7 +16,6 @@
 package androidx.compose.remote.creation.modifiers;
 
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
-import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -41,7 +40,7 @@ public class HeightModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        HeightModifierOperation.apply(writer.getBuffer().getBuffer(), mType.ordinal(), mValue);
+        writer.addHeightModifierOperation(mType.ordinal(), mValue);
     }
 
     /**

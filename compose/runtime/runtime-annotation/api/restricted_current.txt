@@ -14,6 +14,12 @@ package androidx.compose.runtime {
 
 package androidx.compose.runtime.annotation {
 
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface DoNotRetain {
+    ctor @KotlinOnly public DoNotRetain(optional String explanation);
+    method public abstract String explanation() default "";
+    property public abstract String explanation;
+  }
+
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface FrequentlyChangingValue {
   }
 

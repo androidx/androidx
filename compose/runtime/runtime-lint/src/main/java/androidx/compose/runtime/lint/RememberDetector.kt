@@ -44,38 +44,7 @@ class RememberDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
         val callExpressionType = node.getExpressionType()
-        if (!callExpressionType.isVoidOrUnit) return
-
-        val sourcePsi = node.sourcePsi
-        val isReallyUnit =
-            when {
-                node.typeArguments.singleOrNull()?.isVoidOrUnit == true -> {
-                    // Call with an explicit type argument, e.g., remember<Unit> { 42 }
-                    true
-                }
-                sourcePsi is KtCallExpression -> {
-                    // Even though the return type is Unit, we should double check if the type of
-                    // the lambda expression matches
-                    val calculationParameterIndex = method.parameters.lastIndex
-                    val argument =
-                        node.getArgumentForParameter(calculationParameterIndex)?.sourcePsi
-                    // If the argument is a lambda, check the expression inside
-                    if (argument is KtLambdaExpression) {
-                        val lastExp = argument.bodyExpression?.statements?.lastOrNull()
-                        val lastExpType =
-                            lastExp?.toUElementOfType<UExpression>()?.getExpressionType()
-                        // If unresolved (i.e., type error), the expression type will be actually
-                        // `null`
-                        callExpressionType == lastExpType
-                    } else {
-                        // Otherwise return true, since it is a reference to something else that is
-                        // unit (such as a variable)
-                        true
-                    }
-                }
-                else -> true
-            }
-        if (isReallyUnit) {
+        if (callExpressionType.isVoidOrUnit && isReallyUnit(node, method)) {
             context.report(
                 RememberReturnType,
                 node,
@@ -105,5 +74,34 @@ class RememberDetector : Detector(), SourceCodeScanner {
                     EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
                 ),
             )
+
+        internal fun isReallyUnit(node: UCallExpression, method: PsiMethod): Boolean =
+            when {
+                node.typeArguments.singleOrNull()?.isVoidOrUnit == true -> {
+                    // Call with an explicit type argument, e.g., retain<Unit> { 42 }
+                    true
+                }
+                node.sourcePsi is KtCallExpression -> {
+                    // Even though the return type is Unit, we should double check if the type of
+                    // the lambda expression matches
+                    val calculationParameterIndex = method.parameters.lastIndex
+                    val argument =
+                        node.getArgumentForParameter(calculationParameterIndex)?.sourcePsi
+                    // If the argument is a lambda, check the expression inside
+                    if (argument is KtLambdaExpression) {
+                        val lastExp = argument.bodyExpression?.statements?.lastOrNull()
+                        val lastExpType =
+                            lastExp?.toUElementOfType<UExpression>()?.getExpressionType()
+                        // If unresolved (i.e., type error), the expression type will be actually
+                        // `null`
+                        node.getExpressionType() == lastExpType
+                    } else {
+                        // Otherwise return true, since it is a reference to something else that is
+                        // unit (such as a variable)
+                        true
+                    }
+                }
+                else -> true
+            }
     }
 }

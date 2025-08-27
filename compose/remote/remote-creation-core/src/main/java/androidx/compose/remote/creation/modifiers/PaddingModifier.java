@@ -51,6 +51,6 @@ public class PaddingModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierPadding(mLeft, mTop, mRight, mBottom);
+        writer.addModifierPadding(mLeft, mTop, mRight, mBottom);
     }
 }

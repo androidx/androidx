@@ -19,28 +19,26 @@ package androidx.compose.ui.input.pointer.util
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
-import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.throwIllegalArgumentException
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastCoerceAtLeast
-import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40
-// TODO: Upstream https://youtrack.jetbrains.com/issue/CMP-6853
-internal expect val HistorySize: Int
+private const val HistorySize: Int = 20
 
 // TODO(b/204895043): Keep value in sync with VelocityPathFinder.HorizonMilliSeconds
 private const val HorizonMilliseconds: Int = 100
 
 /**
- * Computes a pointer's velocity.
+ * Calculates the velocity of a pointer based on tracked pointer events or positions and timestamps.
+ * VelocityTracker is platform-specific, so the output result may vary depending on the platform.
  *
- * The input data is provided by calling [addPosition]. Adding data is cheap.
+ * The input data is provided by calling [addPosition] or [addPointerInputChange]. Adding data is
+ * cheap.
  *
  * To obtain a velocity, call [calculateVelocity]. This will compute the velocity based on the data
  * added so far. Only call this when you need to use the velocity, as it is comparatively expensive.
@@ -49,18 +47,7 @@ private const val HorizonMilliseconds: Int = 100
  */
 @OptIn(ExperimentalVelocityTrackerApi::class)
 class VelocityTracker {
-
-    private val strategy =
-        if (VelocityTrackerStrategyUseImpulse) {
-            VelocityTracker1D.Strategy.Impulse
-        } else {
-            VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
-        }
-    private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
-    private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
-
-    internal var currentPointerPositionAccumulator = Offset.Zero
-    internal var lastMoveEventTimeStamp = 0L
+    internal val platformVelocityTracker = PlatformVelocityTracker()
 
     /**
      * Adds a position at the given time to the tracker.
@@ -72,10 +59,8 @@ class VelocityTracker {
     // TODO(shepshapard): VelocityTracker needs to be updated to be passed vectors instead of
     //   positions. For velocity tracking, the only thing that is important is the change in
     //   position over time.
-    fun addPosition(timeMillis: Long, position: Offset) {
-        xVelocityTracker.addDataPoint(timeMillis, position.x)
-        yVelocityTracker.addDataPoint(timeMillis, position.y)
-    }
+    fun addPosition(timeMillis: Long, position: Offset) =
+        platformVelocityTracker.addPosition(timeMillis, position)
 
     /**
      * Computes the estimated velocity of the pointer at the time of the last provided data point.
@@ -100,22 +85,50 @@ class VelocityTracker {
      * @param maximumVelocity the absolute values of the X and Y maximum velocities to be returned
      *   in units/second. `units` is the units of the positions provided to this VelocityTracker.
      */
-    fun calculateVelocity(maximumVelocity: Velocity): Velocity {
-        checkPrecondition(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
-            "maximumVelocity should be a positive value. You specified=$maximumVelocity"
-        }
-        val velocityX = xVelocityTracker.calculateVelocity(maximumVelocity.x)
-        val velocityY = yVelocityTracker.calculateVelocity(maximumVelocity.y)
-        return Velocity(velocityX, velocityY)
-    }
+    fun calculateVelocity(maximumVelocity: Velocity): Velocity =
+        platformVelocityTracker.calculateVelocity(maximumVelocity)
 
     /** Clears the tracked positions added by [addPosition]. */
-    fun resetTracking() {
-        xVelocityTracker.resetTracking()
-        yVelocityTracker.resetTracking()
-        lastMoveEventTimeStamp = 0L
-    }
+    fun resetTracking() = platformVelocityTracker.resetTracking()
 }
+
+/**
+ * Track the positions and timestamps inside this event change.
+ *
+ * For optimal tracking, this should be called for the DOWN event and all MOVE events, including any
+ * touch-slop-captured MOVE event.
+ *
+ * Since Compose uses relative positions inside PointerInputChange, this should be taken into
+ * consideration when using this method. Right now, we use the first down to initialize an
+ * accumulator and use subsequent deltas to simulate an actual movement from relative positions in
+ * PointerInputChange. This is required because VelocityTracker requires data that can be fit into a
+ * curve, which might not happen with relative positions inside a moving target for instance.
+ *
+ * @param event Pointer change to track.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+fun VelocityTracker.addPointerInputChange(event: PointerInputChange) =
+    addPointerInputChange(event, Offset.Zero)
+
+/**
+ * Track the positions and timestamps inside this event change.
+ *
+ * For optimal tracking, this should be called for the DOWN event and all MOVE events, including any
+ * touch-slop-captured MOVE event.
+ *
+ * Since Compose uses relative positions inside PointerInputChange, this should be taken into
+ * consideration when using this method. Right now, we use the first down to initialize an
+ * accumulator and use subsequent deltas to simulate an actual movement from relative positions in
+ * PointerInputChange. This is required because VelocityTracker requires data that can be fit into a
+ * curve, which might not happen with relative positions inside a moving target for instance.
+ *
+ * @param event Pointer change to track.
+ * @param offset An optional offset that should be applied to the position of the [event] before
+ *   adding it to the tracker.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+fun VelocityTracker.addPointerInputChange(event: PointerInputChange, offset: Offset) =
+    platformVelocityTracker.addPointerInputChange(event, offset)
 
 /**
  * A velocity tracker calculating velocity in 1 dimension.
@@ -144,15 +157,15 @@ internal constructor(
 
     /**
      * Constructor to create a new velocity tracker. It allows to specify whether or not the tracker
-     * should consider the data points provided via [addDataPoint] as differential or
+     * should consider the data ponits provided via [addDataPoint] as differential or
      * non-differential.
      *
-     * Differential data points represent change in displacement. For instance, differential data
+     * Differential data ponits represent change in displacement. For instance, differential data
      * points of [2, -1, 5] represent: the object moved by "2" units, then by "-1" units, then by
      * "5" units. An example use case for differential data points is when tracking velocity for an
      * object whose displacements (or change in positions) over time are known.
      *
-     * Non-differential data points represent position of the object whose velocity is tracked. For
+     * Non-differential data ponits represent position of the object whose velocity is tracked. For
      * instance, non-differential data points of [2, -1, 5] represent: the object was at position
      * "2", then at position "-1", then at position "5". An example use case for non-differential
      * data points is when tracking velocity for an object whose positions on a geometrical axis
@@ -233,7 +246,6 @@ internal constructor(
         val newestSample: DataPointAtTime = samples[index] ?: return 0f
 
         var previousSample: DataPointAtTime = newestSample
-        var afterPointerStop = false
 
         // Starting with the most recent PointAtTime sample, iterate backwards while
         // the samples represent continuous motion.
@@ -248,11 +260,7 @@ internal constructor(
                 } else {
                     newestSample
                 }
-            if (delta > AssumePointerMoveStoppedMilliseconds) {
-                afterPointerStop = true
-                break
-            }
-            if (age > HorizonMilliseconds) {
+            if (age > HorizonMilliseconds || delta > AssumePointerMoveStoppedMilliseconds) {
                 break
             }
 
@@ -263,13 +271,7 @@ internal constructor(
             sampleCount += 1
         } while (sampleCount < HistorySize)
 
-        if (sampleCount >= minSampleSize && shouldUseDataPoints(
-                dataPoints,
-                time,
-                sampleCount,
-                afterPointerStop
-            )
-        ) {
+        if (sampleCount >= minSampleSize) {
             // Choose computation logic based on strategy.
             return when (strategy) {
                 Strategy.Impulse -> {
@@ -354,125 +356,6 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
         currentEntry.time = time
         currentEntry.dataPoint = dataPoint
     }
-}
-
-/**
- * Some platforms (e.g. iOS) ignore certain events during velocity calculation.
- */
-internal expect fun VelocityTracker1D.shouldUseDataPoints(
-    points: FloatArray,
-    times: FloatArray,
-    count: Int,
-    afterPointerStop: Boolean
-): Boolean
-
-
-/**
- * Track the positions and timestamps inside this event change.
- *
- * For optimal tracking, this should be called for the DOWN event and all MOVE events, including any
- * touch-slop-captured MOVE event.
- *
- * Since Compose uses relative positions inside PointerInputChange, this should be taken into
- * consideration when using this method. Right now, we use the first down to initialize an
- * accumulator and use subsequent deltas to simulate an actual movement from relative positions in
- * PointerInputChange. This is required because VelocityTracker requires data that can be fit into a
- * curve, which might not happen with relative positions inside a moving target for instance.
- *
- * @param event Pointer change to track.
- */
-@OptIn(ExperimentalComposeUiApi::class)
-fun VelocityTracker.addPointerInputChange(event: PointerInputChange) =
-    addPointerInputChange(event, Offset.Zero)
-
-/**
- * Track the positions and timestamps inside this event change.
- *
- * For optimal tracking, this should be called for the DOWN event and all MOVE events, including any
- * touch-slop-captured MOVE event.
- *
- * Since Compose uses relative positions inside PointerInputChange, this should be taken into
- * consideration when using this method. Right now, we use the first down to initialize an
- * accumulator and use subsequent deltas to simulate an actual movement from relative positions in
- * PointerInputChange. This is required because VelocityTracker requires data that can be fit into a
- * curve, which might not happen with relative positions inside a moving target for instance.
- *
- * @param event Pointer change to track.
- * @param offset An optional offset that should be applied to the position of the [event] before
- *   adding it to the tracker.
- */
-@OptIn(ExperimentalComposeUiApi::class)
-fun VelocityTracker.addPointerInputChange(event: PointerInputChange, offset: Offset) {
-    if (VelocityTrackerAddPointsFix) {
-        addPointerInputChangeWithFix(event, offset)
-    } else {
-        addPointerInputChangeLegacy(event, offset)
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange, offset: Offset) {
-
-    // Register down event as the starting point for the accumulator
-    if (event.changedToDownIgnoreConsumed()) {
-        currentPointerPositionAccumulator = event.position
-        resetTracking()
-    }
-
-    // To calculate delta, for each step we want to  do currentPosition - previousPosition.
-    // Initially the previous position is the previous position of the current event
-    var previousPointerPosition = event.previousPosition
-    @OptIn(ExperimentalComposeUiApi::class)
-    event.historical.fastForEach {
-        // Historical data happens within event.position and event.previousPosition
-        // That means, event.previousPosition < historical data < event.position
-        // Initially, the first delta will happen between the previousPosition and
-        // the first position in historical delta. For subsequent historical data, the
-        // deltas happen between themselves. That's why we need to update previousPointerPosition
-        // everytime.
-        val historicalDelta = it.position - previousPointerPosition
-        previousPointerPosition = it.position
-
-        // Update the current position with the historical delta and add it to the tracker
-        currentPointerPositionAccumulator += historicalDelta
-        addPosition(it.uptimeMillis, currentPointerPositionAccumulator + offset)
-    }
-
-    // For the last position in the event
-    // If there's historical data, the delta is event.position - lastHistoricalPoint
-    // If there's no historical data, the delta is event.position - event.previousPosition
-    val delta = event.position - previousPointerPosition
-    currentPointerPositionAccumulator += delta
-    addPosition(event.uptimeMillis, currentPointerPositionAccumulator + offset)
-}
-
-private fun VelocityTracker.addPointerInputChangeWithFix(
-    event: PointerInputChange,
-    offset: Offset,
-) {
-    // If this is ACTION_DOWN: Reset the tracking.
-    if (event.changedToDownIgnoreConsumed()) {
-        resetTracking()
-    }
-
-    // If this is not ACTION_UP event: Add events to the tracker as per the platform implementation.
-    // In the platform implementation the historical events array is used, they store the current
-    // event data in the position HistoricalArray.Size. Our historical array doesn't have access
-    // to the final position, but we can get that information from the original event data X and Y
-    // coordinates.
-    if (!event.changedToUpIgnoreConsumed()) {
-        event.historical.fastForEach {
-            addPosition(it.uptimeMillis, it.originalEventPosition + offset)
-        }
-        addPosition(event.uptimeMillis, event.originalEventPosition + offset)
-    }
-
-    // If this is ACTION_UP. Fix for b/238654963. If there's been enough time after the last MOVE
-    // event, reset the tracker.
-    if (event.changedToUpIgnoreConsumed() && (event.uptimeMillis - lastMoveEventTimeStamp) > 40L) {
-        resetTracking()
-    }
-    lastMoveEventTimeStamp = event.uptimeMillis
 }
 
 internal data class DataPointAtTime(var time: Long, var dataPoint: Float)
@@ -597,7 +480,7 @@ internal fun polyFitLeastSquares(
  * should be provided in reverse chronological order. The returned velocity is in "units/ms", where
  * "units" is unit of the [dataPoints].
  *
- * Calculates the resulting velocity based on the total impulse provided by the data points.
+ * Calculates the resulting velocity based on the total immpulse provided by the data ponits.
  *
  * The moving object in these calculations is the touchscreen (if we are calculating touch
  * velocity), or any input device from which the data points are generated. We refer to this object

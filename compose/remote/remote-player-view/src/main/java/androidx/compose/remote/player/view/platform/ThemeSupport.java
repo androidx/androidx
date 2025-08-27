@@ -17,14 +17,14 @@ package androidx.compose.remote.player.view.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.TypedValue;
 
-@RestrictTo(LIBRARY_GROUP)
+import androidx.annotation.RestrictTo;
+
 /** Implement color theme support */
+@RestrictTo(LIBRARY_GROUP)
 public class ThemeSupport {
 
     RemoteComposeView mInner;

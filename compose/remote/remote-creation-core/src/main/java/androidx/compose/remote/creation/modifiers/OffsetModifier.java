@@ -39,6 +39,6 @@ public class OffsetModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierOffset(mX, mY);
+        writer.addModifierOffset(mX, mY);
     }
 }

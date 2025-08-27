@@ -16,8 +16,11 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.AtomicLong
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
@@ -33,7 +36,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,7 +65,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -823,18 +824,66 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
         assertThat(state.currentValue).isEqualTo(C)
     }
 
-    private val DefaultSnapAnimationSpec = tween<Float>()
+    @Test
+    fun anchoredDraggable_fling_confirmValueChange_returnsFalse_returnsToSettledAnchor() {
+        val inspectAnimationSpec = InspectSpringAnimationSpec(DefaultSnapAnimationSpec)
+        val (state, modifier) =
+            createStateAndModifier(
+                initialValue = A,
+                Orientation.Horizontal,
+                confirmValueChange = { it != B },
+                snapAnimationSpec = inspectAnimationSpec,
+            )
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at AnchoredDraggableBoxSize.value / 2f
+            C at AnchoredDraggableBoxSize.value
+        }
+        state.updateAnchors(anchors)
 
-    private class HandPumpTestFrameClock : MonotonicFrameClock {
-        private val frameCh = Channel<Long>(1)
-        private val time = AtomicLong(0)
-
-        suspend fun advanceByFrame() {
-            frameCh.send(time.getAndAdd(16_000_000L))
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                WithTouchSlop(0f) {
+                    Box(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier.requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .then(modifier)
+                                .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+                                .background(Color.Red)
+                        )
+                    }
+                }
+            }
         }
 
-        override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
-            return onFrame(frameCh.receive())
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.settledValue).isEqualTo(A)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipeRight(endX = right / 2)
+        }
+        assertThat(state.offset).isWithin(0.5f).of(anchors.positionOf(B))
+        rule.waitForIdle()
+
+        assertThat(inspectAnimationSpec.animationWasExecutions).isEqualTo(1)
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.settledValue).isEqualTo(A)
+        assertThat(state.offset).isEqualTo(anchors.positionOf(A))
+    }
+
+    private val DefaultSnapAnimationSpec = tween<Float>()
+
+    private class InspectSpringAnimationSpec(private val animation: AnimationSpec<Float>) :
+        AnimationSpec<Float> {
+
+        var animationWasExecutions = 0
+
+        override fun <V : AnimationVector> vectorize(
+            converter: TwoWayConverter<Float, V>
+        ): VectorizedAnimationSpec<V> {
+            animationWasExecutions++
+            return animation.vectorize(converter)
         }
     }
 

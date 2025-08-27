@@ -18,7 +18,6 @@ package androidx.compose.ui.draw
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -33,23 +32,23 @@ import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
-import androidx.compose.ui.runOnUiThreadIR
-import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.waitAndScreenShot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -63,17 +62,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InnerShadowTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    private lateinit var activity: TestActivity
-    private lateinit var drawLatch: CountDownLatch
+    @get:Rule val rule = createComposeRule()
+
+    private val InnerShadowItemTag = "innerShadowItemTag"
+
+    private val wrapperModifier = Modifier.testTag(InnerShadowItemTag)
 
     @Before
     fun setup() {
-        activity = rule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        drawLatch = CountDownLatch(1)
         isDebugInspectorInfoEnabled = true
     }
 
@@ -85,52 +81,42 @@ class InnerShadowTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shadowDrawn() {
-        rule.runOnUiThreadIR { activity.setContent { ShadowContainer() } }
+        rule.setContent { ShadowContainer(wrapperModifier) }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        takeScreenShot(12).apply { hasShadow() }
+        takeScreenShot().apply { hasShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shadowRedrawnWhenValueChanges() {
         var radiusDp by mutableStateOf(2.dp)
-        rule.runOnUiThread {
-            activity.setContent {
-                with(LocalDensity.current) {
-                    Box(modifier = Modifier.size(12.toDp()).background(Color.White)) {
-                        Box(
-                            Modifier.align(Alignment.Center)
-                                .size(8.toDp())
-                                .innerShadow(RectangleShape) { radius = radiusDp.toPx() }
-                                .drawBehind { drawLatch.countDown() }
-                        )
-                    }
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(modifier = wrapperModifier.size(12.toDp()).background(Color.White)) {
+                    Box(
+                        Modifier.align(Alignment.Center).size(8.toDp()).innerShadow(
+                            RectangleShape
+                        ) {
+                            radius = radiusDp.toPx()
+                        }
+                    )
                 }
             }
         }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        takeScreenShot(12).apply { hasShadow() }
-        drawLatch = CountDownLatch(1)
-        radiusDp = 0.dp
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        takeScreenShot(12).apply { hasNoShadow() }
-        drawLatch = CountDownLatch(1)
-        radiusDp = 2.dp
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        takeScreenShot(12).apply { hasShadow() }
+        takeScreenShot().apply { hasShadow() }
+        rule.runOnUiThread { radiusDp = 0.dp }
+        takeScreenShot().apply { hasNoShadow() }
+        rule.runOnUiThread { radiusDp = 2.dp }
+        takeScreenShot().apply { hasShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shadowDrawnInsideRenderNode() {
-        rule.runOnUiThreadIR {
-            activity.setContent { ShadowContainer(modifier = Modifier.graphicsLayer()) }
-        }
+        rule.setContent { ShadowContainer(modifier = wrapperModifier.graphicsLayer()) }
 
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        takeScreenShot(12).apply { hasShadow() }
+        takeScreenShot().apply { hasShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -138,16 +124,13 @@ class InnerShadowTest {
     fun switchFromNoShadowToShadowWithNestedRepaintBoundaries() {
         val radius = mutableStateOf(0.dp)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                ShadowContainer(modifier = Modifier.graphicsLayer(clip = true), radius)
-            }
+        rule.setContent {
+            ShadowContainer(modifier = wrapperModifier.graphicsLayer(clip = true), radius)
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        rule.runOnUiThreadIR { radius.value = 2.dp }
+        rule.runOnUiThread { radius.value = 2.dp }
 
-        takeScreenShot(12).apply { hasShadow() }
+        takeScreenShot().apply { hasShadow() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -155,30 +138,77 @@ class InnerShadowTest {
     fun emitShadowLater() {
         val model = mutableStateOf(false)
 
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(size = 12, modifier = Modifier.background(Color.White)) {
-                    val shadow =
-                        if (model.value) {
-                            Modifier.innerShadow(RectangleShape, Shadow(2.dp))
-                        } else {
-                            Modifier
-                        }
-                    AtLeastSize(size = 8, modifier = shadow) {}
+        rule.setContent {
+            AtLeastSize(size = 12, modifier = wrapperModifier.background(Color.White)) {
+                val shadow =
+                    if (model.value) {
+                        Modifier.innerShadow(RectangleShape, Shadow(2.dp))
+                    } else {
+                        Modifier
+                    }
+                AtLeastSize(size = 8, modifier = shadow) {}
+            }
+        }
+
+        rule.runOnUiThread { model.value = true }
+
+        takeScreenShot().apply { hasShadow() }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun innerShadowPropertiesResetWhenScopeChanges() {
+        var capturedRadius: Float? = null
+        val redInnerShadow: InnerShadowScope.() -> Unit = {
+            color = Color.Red
+            radius = 2f
+            capturedRadius = radius
+        }
+        val bigRadiusInnerShadow: InnerShadowScope.() -> Unit = {
+            // This scope does not set the color, so it should use the default (Black).
+            radius = 4f
+            capturedRadius = radius
+        }
+        var shadowBlock by mutableStateOf(redInnerShadow)
+
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(modifier = wrapperModifier.size(12.toDp()).background(Color.White)) {
+                    Box(
+                        Modifier.align(Alignment.Center)
+                            .size(8.toDp())
+                            .innerShadow(RectangleShape, block = shadowBlock)
+                    )
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        drawLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR { model.value = true }
+        takeScreenShot().apply {
+            hasShadow()
+            val shadowColor = color(width / 2, 3)
+            assertTrue("Inner shadow color should be red", shadowColor.red > shadowColor.green)
+            assertTrue("Inner shadow color should be red", shadowColor.red > shadowColor.blue)
+        }
 
-        takeScreenShot(12).apply { hasShadow() }
+        assertEquals("Inner shadow radius should be 2f", 2f, capturedRadius)
+        rule.runOnUiThread { shadowBlock = bigRadiusInnerShadow }
+
+        takeScreenShot().apply {
+            val shadowColor = color(width / 2, 3)
+            hasShadow()
+            // Assert that the color is now black (or a dark gray), not red.
+            val red = shadowColor.red
+            val green = shadowColor.green
+            val blue = shadowColor.blue
+            assertEquals("Inner shadow color should reset to default (black)", red, green)
+            assertEquals("Inner shadow color should reset to default (black)", green, blue)
+        }
+        assertEquals("Inner shadow radius should be 4f", 4f, capturedRadius)
     }
 
     @Test
     fun testInspectorValue() {
-        rule.runOnUiThreadIR {
+        rule.runOnUiThread {
             val modifier =
                 Modifier.innerShadow(RectangleShape, Shadow(8.dp)).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("innerShadow")
@@ -218,17 +248,9 @@ class InnerShadowTest {
         assertEquals(Color.White, color(width / 2, 0))
     }
 
-    private fun Modifier.background(color: Color): Modifier = drawBehind {
-        drawRect(color)
-        drawLatch.countDown()
-    }
+    private fun Modifier.background(color: Color): Modifier = drawBehind { drawRect(color) }
 
-    // waitAndScreenShot() requires API level 26
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun takeScreenShot(width: Int, height: Int = width): Bitmap {
-        val bitmap = rule.waitAndScreenShot()
-        assertEquals(width, bitmap.width)
-        assertEquals(height, bitmap.height)
-        return bitmap
-    }
+    private fun takeScreenShot(): Bitmap =
+        rule.onNodeWithTag(InnerShadowItemTag).captureToImage().asAndroidBitmap()
 }

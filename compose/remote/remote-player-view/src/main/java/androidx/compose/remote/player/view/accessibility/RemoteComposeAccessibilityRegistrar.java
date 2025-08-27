@@ -16,12 +16,10 @@
 package androidx.compose.remote.player.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import androidx.annotation.RestrictTo;
 
 import android.view.View;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 
 /**

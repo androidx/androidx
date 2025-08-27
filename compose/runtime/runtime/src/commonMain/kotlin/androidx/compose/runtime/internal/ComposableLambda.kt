@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(InternalComposeApi::class)
+@file:Suppress("EXPECT_ACTUAL_INCOMPATIBILITY") // b/418285824
 
 package androidx.compose.runtime.internal
 

@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1;
+
 import androidx.compose.remote.core.operations.Utils;
 
 /**
@@ -72,6 +74,16 @@ public class NanMap {
      */
     public static boolean isDataVariable(float value) {
         return (fromNaN(value) >> 20) == 2;
+    }
+
+    /**
+     * Returns true if the float id is a var1
+     *
+     * @param value the id encoded as float NaN
+     * @return true if the float id is a var1
+     */
+    public static boolean isVar1(float value) {
+        return Float.floatToRawIntBits(value) == Float.floatToRawIntBits(VAR1);
     }
 
     /**

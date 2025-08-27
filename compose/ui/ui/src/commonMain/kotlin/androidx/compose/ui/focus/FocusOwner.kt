@@ -164,6 +164,9 @@ internal interface FocusOwner : FocusManager {
         onFocusedItem: () -> Boolean = { false },
     ): Boolean
 
+    /** Lets the FocusOwner know that a focus target is placed. */
+    fun focusTargetAvailable()
+
     /** Schedule a FocusTarget node to be invalidated after onApplyChanges. */
     fun scheduleInvalidation(node: FocusTargetNode)
 

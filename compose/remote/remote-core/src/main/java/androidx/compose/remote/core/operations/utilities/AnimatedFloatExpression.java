@@ -314,7 +314,7 @@ public class AnimatedFloatExpression {
         mCollectionsAccess = ca;
         int sp = -1;
 
-        for (int i = 0; i < mStack.length; i++) {
+        for (int i = 0; i < len; i++) {
             float v = mStack[i];
             if (Float.isNaN(v)) {
                 int id = fromNaN(v);
@@ -378,7 +378,6 @@ public class AnimatedFloatExpression {
         mStack = mLocalStack;
         mVar = var;
         int sp = -1;
-
         for (int i = 0; i < len; i++) {
             float v = mStack[i];
             if (Float.isNaN(v)) {
@@ -911,7 +910,6 @@ public class AnimatedFloatExpression {
                 mStack[sp - 1] = mStack[sp - 1] * mStack[sp - 1] + mStack[sp] * mStack[sp];
                 return sp - 1;
             case OP_STEP:
-                System.out.println(mStack[sp] + " > " + mStack[sp - 1]);
                 mStack[sp - 1] = (mStack[sp - 1] > mStack[sp]) ? 1f : 0f;
                 return sp - 1;
             case OP_SQUARE:
@@ -962,14 +960,14 @@ public class AnimatedFloatExpression {
                 mStack[sp - 1] = (tmp < mStack[sp]) ? tmp : max_2 - tmp;
                 return sp - 1;
             case OP_FIRST_VAR:
-                mStack[sp] = mVar[0];
-                return sp;
+                mStack[sp + 1] = mVar[0];
+                return sp + 1;
             case OP_SECOND_VAR:
-                mStack[sp] = mVar[1];
-                return sp;
+                mStack[sp + 1] = mVar[1];
+                return sp + 1;
             case OP_THIRD_VAR:
-                mStack[sp] = mVar[2];
-                return sp;
+                mStack[sp + 1] = mVar[2];
+                return sp + 1;
         }
         return sp;
     }

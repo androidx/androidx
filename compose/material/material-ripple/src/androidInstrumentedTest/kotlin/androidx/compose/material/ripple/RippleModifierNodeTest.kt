@@ -111,7 +111,7 @@ class RippleModifierNodeTest {
             other as TestIndicationNodeFactory
 
             if (color != other.color) return false
-            if (rippleAlpha != other.rippleAlpha) return false
+            if (rippleAlpha !== other.rippleAlpha) return false
 
             return true
         }

@@ -39,7 +39,11 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class TextListScrollBenchmark(private val styled: Boolean, private val prefetch: Boolean) {
+class TextListScrollBenchmark(
+    private val styled: Boolean,
+    private val prefetch: Boolean,
+    private val enableContentCapture: Boolean,
+) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     private lateinit var device: UiDevice
@@ -77,6 +81,10 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
                         label = "precompose",
                         mode = TraceSectionMetric.Mode.Sum,
                     ),
+                    TraceSectionMetric(
+                        sectionName = "ContentCapture:sendPendingContentCaptureEvents",
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
                 ),
             compilationMode = CompilationMode.Full(),
             iterations = 3,
@@ -85,6 +93,7 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
                 intent.action = Action
                 intent.putExtra(BenchmarkConfig.Prefetch, prefetch)
                 intent.putExtra(BenchmarkConfig.Styled, styled)
+                intent.putExtra(BenchmarkConfig.EnableContentCapture, enableContentCapture)
                 intent.putExtra(BenchmarkConfig.WordCount, 2)
                 intent.putExtra(BenchmarkConfig.TextCount, 18)
                 intent.putExtra(BenchmarkConfig.WordLength, 8)
@@ -111,14 +120,16 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
             val WordLength = "word_length" // Integer
             val Styled = "styled" // Boolean
             val Prefetch = "prefetch" // Boolean
+            val EnableContentCapture = "enableContentCapture"
         }
 
-        @Parameterized.Parameters(name = "styled={0}, prefetch={1}")
+        @Parameterized.Parameters(name = "styled={0}, prefetch={1}, enableContentCapture={2}")
         @JvmStatic
         fun parameters() =
             cartesian(
                 arrayOf(false), // styled
                 arrayOf(true, false), // prefetch
+                arrayOf(true, false), // enableContentCapture
             )
     }
 }

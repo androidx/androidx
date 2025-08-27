@@ -735,6 +735,7 @@ internal abstract class InsetsConsumingModifierNode : Modifier.Node(), Traversab
 
     override fun onDetach() {
         // This modifier is being removed, so we must tell all children
+        consumedInsets = ancestorConsumedInsets
         invalidateChildConsumedInsets()
         super.onDetach()
     }

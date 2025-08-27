@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,13 @@ import androidx.compose.runtime.internal.classHash
  *                                           └──────────────────────────┘
  * ```
  *
+ * **Important:** Retained values are held longer than the lifespan of the composable they are
+ * associated with. This can cause memory leaks if a retained object is kept beyond its expected
+ * lifetime. Be cautious with the types of data that you retain. Never retain an Android Context or
+ * an object that references a Context (including View), either directly or indirectly. To mark that
+ * a custom class should not be retained (possibly because it will cause a memory leak), you can
+ * annotate your class definition with [androidx.compose.runtime.annotation.DoNotRetain].
+ *
  * @param calculation A computation to invoke to create a new value, which will be used when a
  *   previous one is not available to return because it was neither remembered nor retained.
  * @return The result of [calculation]
@@ -145,6 +152,13 @@ public inline fun <reified T> retain(noinline calculation: () -> T): T {
  *                                    └─No──▶│     value is retired     │
  *                                           └──────────────────────────┘
  * ```
+ *
+ * **Important:** Retained values are held longer than the lifespan of the composable they are
+ * associated with. This can cause memory leaks if a retained object is kept beyond its expected
+ * lifetime. Be cautious with the types of data that you retain. Never retain an Android Context or
+ * an object that references a Context (including View), either directly or indirectly. To mark that
+ * a custom class should not be retained (possibly because it will cause a memory leak), you can
+ * annotate your class definition with [androidx.compose.runtime.annotation.DoNotRetain].
  *
  * @param keys An arbitrary list of keys that, if changed, will cause an old retained value to be
  *   discarded and for [calculation] to return a new value, regardless of whether the old value was
