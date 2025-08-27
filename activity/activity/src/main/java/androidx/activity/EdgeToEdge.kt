@@ -93,9 +93,9 @@ fun ComponentActivity.enableEdgeToEdge(
                 EdgeToEdgeApi28()
             } else if (Build.VERSION.SDK_INT >= 26) {
                 EdgeToEdgeApi26()
-            } else if (Build.VERSION.SDK_INT >= 23) {
+            } else {
                 EdgeToEdgeApi23()
-            } else EdgeToEdgeApi21().also { Impl = it }
+            }.also { Impl = it }
     impl.setUp(
         statusBarStyle,
         navigationBarStyle,
@@ -218,43 +218,13 @@ private interface EdgeToEdgeImpl {
     fun adjustLayoutInDisplayCutoutMode(window: Window)
 }
 
-private open class EdgeToEdgeBase : EdgeToEdgeImpl {
-
-    override fun setUp(
-        statusBarStyle: SystemBarStyle,
-        navigationBarStyle: SystemBarStyle,
-        window: Window,
-        view: View,
-        statusBarIsDark: Boolean,
-        navigationBarIsDark: Boolean,
-    ) {
-        // No edge-to-edge before SDK 21.
-    }
+private abstract class EdgeToEdgeBase : EdgeToEdgeImpl {
 
     override fun adjustLayoutInDisplayCutoutMode(window: Window) {
         // No display cutout before SDK 28.
     }
 }
 
-private class EdgeToEdgeApi21 : EdgeToEdgeBase() {
-
-    @Suppress("DEPRECATION")
-    @DoNotInline
-    override fun setUp(
-        statusBarStyle: SystemBarStyle,
-        navigationBarStyle: SystemBarStyle,
-        window: Window,
-        view: View,
-        statusBarIsDark: Boolean,
-        navigationBarIsDark: Boolean,
-    ) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-    }
-}
-
-@RequiresApi(23)
 private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
 
     @Suppress("DEPRECATION")

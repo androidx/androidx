@@ -294,7 +294,7 @@ open class ComponentActivity() :
         )
         savedStateRegistryController.performAttach()
         enableSavedStateHandles()
-        if (Build.VERSION.SDK_INT <= 23) {
+        if (Build.VERSION.SDK_INT == 23) {
             @Suppress("LeakingThis") lifecycle.addObserver(ImmLeaksCleaner(this))
         }
         savedStateRegistry.registerSavedStateProvider(ACTIVITY_RESULT_TAG) {
@@ -804,9 +804,7 @@ open class ComponentActivity() :
                     .putExtra(EXTRA_PERMISSION_GRANT_RESULTS, grantResults),
             )
         ) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
