@@ -77,10 +77,8 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"Ώρα"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"για λεπτά"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"για ώρα"</string>
-    <!-- no translation found for m3c_time_picker_toggle_keyboard (4323189593686596153) -->
-    <skip />
-    <!-- no translation found for m3c_time_picker_toggle_touch (1380272826693645088) -->
-    <skip />
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Εναλλαγή στη λειτουργία εισαγωγής κειμένου"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Εναλλαγή στη λειτουργία ρολογιού"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Επιλογή ώρας"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Εισαγωγή ώρας"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Κλείσιμο στήλης"</string>

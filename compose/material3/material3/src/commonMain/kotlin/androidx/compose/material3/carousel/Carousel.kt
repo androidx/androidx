@@ -712,11 +712,11 @@ private fun Modifier.drawDebugLines(
     val maxScrollOffset = calculateMaxScrollOffset(state, strategyResult)
     val keylines = strategyResult.getKeylineListForScrollOffset(scrollOffset, maxScrollOffset)
     val strokeWidthPx = strokeWidth.toPx()
-    keylines.forEach {
+    for (i in keylines.indices) {
         drawLine(
             color = strokeColor,
-            start = Offset(x = it.offset, y = 0f),
-            end = Offset(x = it.offset, y = 100f),
+            start = Offset(x = keylines[i].offset, y = 0f),
+            end = Offset(x = keylines[i].offset, y = 100f),
             strokeWidth = strokeWidthPx,
         )
     }

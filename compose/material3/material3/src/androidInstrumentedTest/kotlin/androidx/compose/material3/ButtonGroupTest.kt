@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -983,6 +984,7 @@ class ButtonGroupTest {
         rule.onNodeWithText("9").assertIsDisplayed()
     }
 
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @Test
     fun horizontalArrangement_startArrangement_buttonGroupPositioning() {
         val interactionSources = List(3) { MutableInteractionSource() }
@@ -1009,6 +1011,7 @@ class ButtonGroupTest {
         assertThat(expectedPositioning in buttonRange).isTrue()
     }
 
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @Test
     fun horizontalArrangement_centerArrangement_buttonGroupPositioning() {
         val interactionSources = List(3) { MutableInteractionSource() }
@@ -1035,6 +1038,7 @@ class ButtonGroupTest {
         assertThat(expectedPositioning in buttonRange).isTrue()
     }
 
+    @SuppressLint("ConfigurationScreenWidthHeight")
     @Test
     fun horizontalArrangement_endArrangement_buttonGroupPositioning() {
         val interactionSources = List(3) { MutableInteractionSource() }

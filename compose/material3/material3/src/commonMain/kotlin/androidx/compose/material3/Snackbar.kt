@@ -193,6 +193,7 @@ fun Snackbar(
  * @param dismissActionContentColor the preferred content color for the optional dismiss action
  *   inside this snackbar. See [SnackbarVisuals.withDismissAction].
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Snackbar(
     snackbarData: SnackbarData,
@@ -221,15 +222,22 @@ fun Snackbar(
     val dismissActionComposable: (@Composable () -> Unit)? =
         if (snackbarData.visuals.withDismissAction) {
             @Composable {
-                IconButton(
-                    onClick = { snackbarData.dismiss() },
-                    content = {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = getString(Strings.SnackbarDismiss),
-                        )
-                    },
-                )
+                val contentDescription = getString(Strings.SnackbarDismiss)
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip { Text(contentDescription) } },
+                    state = rememberTooltipState(),
+                ) {
+                    IconButton(
+                        onClick = { snackbarData.dismiss() },
+                        content = {
+                            Icon(Icons.Filled.Close, contentDescription = contentDescription)
+                        },
+                    )
+                }
             }
         } else {
             null
@@ -401,8 +409,8 @@ private fun OneRowSnackbar(
 
         layout(containerWidth, containerHeight) {
             textPlaceable.placeRelative(0, textPlaceY)
-            dismissButtonPlaceable?.placeRelative(dismissButtonPlaceX, dismissButtonPlaceY)
             actionButtonPlaceable?.placeRelative(actionButtonPlaceX, actionButtonPlaceY)
+            dismissButtonPlaceable?.placeRelative(dismissButtonPlaceX, dismissButtonPlaceY)
         }
     }
 }

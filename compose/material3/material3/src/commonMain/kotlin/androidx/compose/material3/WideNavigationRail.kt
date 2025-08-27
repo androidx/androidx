@@ -21,7 +21,6 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -29,7 +28,6 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -75,6 +73,11 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -544,8 +547,9 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
             }
         }
 
-        // Display a non modal rail when collapsed.
-        if (!shouldHideOnCollapse && isCollapsed) {
+        // Display a non modal rail if it shouldn't hide on collapsed.
+        if (!shouldHideOnCollapse) {
+            // Keep this rail even when expanded so that screen layout doesn't change.
             WideNavigationRailLayout(
                 modifier = modifier,
                 isModal = false,
@@ -555,7 +559,13 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
                 header = header,
                 windowInsets = windowInsets,
                 arrangement = arrangement,
-                content = rememberContent,
+                content = {
+                    // Only display content if it's collapsed, so that it doesn't affect this
+                    // collapsed rail or the screen layout.
+                    if (isCollapsed) {
+                        rememberContent()
+                    }
+                },
             )
         }
 
@@ -577,14 +587,6 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
 
         // Display a modal container when expanded.
         if (!isCollapsed) {
-            if (!shouldHideOnCollapse) {
-                // Have a spacer the size of the collapsed rail so that screen content doesn't
-                // shift.
-                Box(Modifier.background(color = colors.containerColor, shape = collapsedShape)) {
-                    Spacer(modifier = modifier.widthIn(min = CollapsedRailWidth).fillMaxHeight())
-                }
-            }
-
             val scope = rememberCoroutineScope()
             val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
             val predictiveBackState = remember { RailPredictiveBackState() }
@@ -602,7 +604,16 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
                 },
                 predictiveBackState = predictiveBackState,
             ) {
-                Box(modifier = Modifier.fillMaxSize().imePadding()) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().imePadding().onKeyEvent {
+                            if (it.type == KeyEventType.KeyUp && it.key == Key.Escape) {
+                                scope.launch { state.collapse() }
+                                return@onKeyEvent true
+                            }
+                            return@onKeyEvent false
+                        }
+                ) {
                     val isScrimVisible =
                         if (shouldHideOnCollapse) {
                             (modalState.targetValue != WideNavigationRailValue.Collapsed)

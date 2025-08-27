@@ -22,6 +22,7 @@ import androidx.compose.material3.TimePickerScreenshotTest.ColorSchemeWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ForcedSize
@@ -103,9 +104,23 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .assertAgainstGolden(screenshotRule, "time_picker_dialog_xlarge${scheme.name}")
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun time_picker_dialog_with_custom_container_color() {
+        rule.setMaterialContent(scheme.colorScheme) { Dialog(containerColor = Color.Magenta) }
+
+        rule
+            .onNode(isDialog())
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "time_picker_dialog_with_custom_container_color${scheme.name}",
+            )
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun Dialog() {
+    private fun Dialog(containerColor: Color = TimePickerDialogDefaults.containerColor) {
         TimePickerDialog(
             modifier = Modifier,
             title = { TimePickerDialogDefaults.Title(displayMode = TimePickerDisplayMode.Picker) },
@@ -118,6 +133,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     displayMode = TimePickerDisplayMode.Picker,
                 )
             },
+            containerColor = containerColor,
         ) {
             TimePicker(state = rememberTimePickerState())
         }

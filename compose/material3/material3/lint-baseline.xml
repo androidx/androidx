@@ -2,51 +2,6 @@
 <issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="                assertThat(dateRangePickerState.getSelectedEndDate())"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/DateRangePickerTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="            assertThat(sheetState.currentValue == SheetValue.Expanded)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ModalBottomSheetTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="        assertThat(keylines.firstFocal == keylines.firstNonAnchor)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidUnitTest/kotlin/androidx/compose/material3/carousel/MultiBrowseTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="        assertThat(keylines.lastFocal == keylines.lastNonAnchor)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidUnitTest/kotlin/androidx/compose/material3/carousel/MultiBrowseTest.kt"/>
-    </issue>
-
-    <issue
-        id="CheckResult"
-        message="The result of `assertThat` is not used"
-        errorLine1="        assertThat(rule.onNodeWithTag(&quot;ROW_TAG&quot;).assertWidthIsEqualTo(expectedWidth))"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationBarTest.kt"/>
-    </issue>
-
-    <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
         errorLine1="        Thread.sleep(300)"
@@ -524,51 +479,6 @@
     </issue>
 
     <issue
-        id="ComposableNaming"
-        message="Composable functions with a return type should start with a lowercase letter"
-        errorLine1="fun DropdownMenu("
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material3/AndroidMenu.android.kt"/>
-    </issue>
-
-    <issue
-        id="ComposableNaming"
-        message="Composable functions that return Unit should start with an uppercase letter"
-        errorLine1="    private fun testContent("
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonMenuScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="ConfigurationScreenWidthHeight"
-        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
-        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
-    </issue>
-
-    <issue
-        id="ConfigurationScreenWidthHeight"
-        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
-        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
-    </issue>
-
-    <issue
-        id="ConfigurationScreenWidthHeight"
-        message="Using Configuration.screenWidthDp instead of LocalWindowInfo.current.containerSize"
-        errorLine1="            screenWidth = configuration.screenWidthDp.dp"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupTest.kt"/>
-    </issue>
-
-    <issue
         id="ConfigurationScreenWidthHeight"
         message="Using Configuration.screenHeightDp instead of LocalWindowInfo.current.containerSize"
         errorLine1="            val screenHeight = LocalContext.current.resources.configuration.screenHeightDp.dp"
@@ -899,15 +809,6 @@
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/material3/DynamicTonalPalette.android.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    keylines.forEach {"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/carousel/Carousel.kt"/>
     </issue>
 
     <issue

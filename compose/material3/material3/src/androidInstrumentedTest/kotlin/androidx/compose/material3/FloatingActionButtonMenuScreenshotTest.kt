@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -66,7 +65,7 @@ class FloatingActionButtonMenuScreenshotTest {
 
     @Test
     fun fabMenu_collapsed_lightTheme() {
-        rule.setMaterialContent(lightColorScheme()) { testContent() }
+        rule.setMaterialContent(lightColorScheme()) { TestContent() }
 
         rule
             .onNodeWithTag(FabMenuTestTag)
@@ -76,7 +75,7 @@ class FloatingActionButtonMenuScreenshotTest {
 
     @Test
     fun fabMenu_collapsed_darkTheme() {
-        rule.setMaterialContent(darkColorScheme()) { testContent() }
+        rule.setMaterialContent(darkColorScheme()) { TestContent() }
 
         rule
             .onNodeWithTag(FabMenuTestTag)
@@ -86,7 +85,7 @@ class FloatingActionButtonMenuScreenshotTest {
 
     @Test
     fun fabMenu_expanded_lightTheme() {
-        rule.setMaterialContent(lightColorScheme()) { testContent() }
+        rule.setMaterialContent(lightColorScheme()) { TestContent() }
 
         rule.onNodeWithTag(ToggleFabTestTag).performClick()
 
@@ -98,7 +97,7 @@ class FloatingActionButtonMenuScreenshotTest {
 
     @Test
     fun fabMenu_expanded_darkTheme() {
-        rule.setMaterialContent(darkColorScheme()) { testContent() }
+        rule.setMaterialContent(darkColorScheme()) { TestContent() }
 
         rule.onNodeWithTag(ToggleFabTestTag).performClick()
 
@@ -111,7 +110,7 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuMediumSecondaryContainer_collapsed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            testContent(
+            TestContent(
                 containerColor =
                     ToggleFloatingActionButtonDefaults.containerColor(
                         MaterialTheme.colorScheme.secondaryContainer,
@@ -142,7 +141,7 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuMediumSecondaryContainer_expanded_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            testContent(
+            TestContent(
                 containerColor =
                     ToggleFloatingActionButtonDefaults.containerColor(
                         MaterialTheme.colorScheme.secondaryContainer,
@@ -175,7 +174,7 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuLargeTertiary_collapsed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            testContent(
+            TestContent(
                 containerColor =
                     ToggleFloatingActionButtonDefaults.containerColor(
                         MaterialTheme.colorScheme.tertiary,
@@ -203,7 +202,7 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuLargeTertiary_expanded_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            testContent(
+            TestContent(
                 containerColor =
                     ToggleFloatingActionButtonDefaults.containerColor(
                         MaterialTheme.colorScheme.tertiary,
@@ -292,7 +291,7 @@ class FloatingActionButtonMenuScreenshotTest {
     private val ToggleFabTestTag = "toggleableFab"
 
     @Composable
-    private fun testContent(
+    private fun TestContent(
         containerColor: (Float) -> Color = ToggleFloatingActionButtonDefaults.containerColor(),
         containerSize: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerSize(),
         containerCornerRadius: (Float) -> Dp =

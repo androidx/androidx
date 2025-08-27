@@ -30,8 +30,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -58,6 +60,8 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.WindowInsets
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
@@ -91,6 +95,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.width
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsCompat.Type
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -1824,6 +1831,58 @@ class AppBarTest {
     }
 
     @Test
+    fun topAppBar_correctlyPadsWhenParentHandlesInsetsAndContentPaddingIsUsed() {
+        val appBarHeightDp = AppBarSmallTokens.ContainerHeight
+        val siblingBoxHeightDp = 40.dp
+        val topAppBarContentPaddingTopDp = 20.dp
+        val statusBarHeightDp = 10.dp
+
+        // The test illustrates "sibling problem": inset consumption isn't shared between sibling
+        // components. If one uses an inset, its siblings aren't aware. In the example  the parent
+        // consumes insets.
+        rule.setMaterialContent(lightColorScheme()) {
+            val statusBarInsets =
+                Insets.of(0, with(LocalDensity.current) { statusBarHeightDp.roundToPx() }, 0, 0)
+            val windowInsets =
+                WindowInsetsCompat.Builder().setInsets(Type.statusBars(), statusBarInsets).build()
+            DeviceConfigurationOverride(DeviceConfigurationOverride.WindowInsets(windowInsets)) {
+                Column(
+                    modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
+                ) {
+                    TopAppBar(
+                        modifier = Modifier.testTag(TopAppBarTestTag),
+                        title = { Text("Title") },
+                        contentPadding = PaddingValues(top = topAppBarContentPaddingTopDp),
+                    )
+                    Box(
+                        modifier =
+                            Modifier.testTag(BoxTestTag)
+                                .fillMaxWidth()
+                                .height(siblingBoxHeightDp)
+                                .windowInsetsPadding(WindowInsets.statusBars),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("Sibling Box")
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithTag(TopAppBarTestTag)
+            .assertTopPositionInRootIsEqualTo(statusBarHeightDp)
+            .assertHeightIsEqualTo(appBarHeightDp + topAppBarContentPaddingTopDp)
+        rule
+            .onNodeWithTag(BoxTestTag)
+            .assertHeightIsEqualTo(siblingBoxHeightDp)
+            .assertTopPositionInRootIsEqualTo(
+                topAppBarContentPaddingTopDp + appBarHeightDp + statusBarHeightDp
+            )
+    }
+
+    @Test
     @Ignore("b/422735600")
     fun bottomAppBarWithFAB_heightIsFromSpec() {
         rule
@@ -2623,4 +2682,5 @@ class AppBarTest {
     private val SubtitleTestTag = "subtitle"
     private val ActionsTestTag = "actions"
     private val RowTestTag = "row"
+    private val BoxTestTag = "BoxTestTag"
 }
