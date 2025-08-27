@@ -19,29 +19,31 @@ package androidx.navigationevent
 import androidx.annotation.MainThread
 
 /**
- * An input handler that can send events to a [NavigationEventDispatcher].
- *
- * @param dispatcher The [NavigationEventDispatcher] to send events to.
+ * An input that can send events to a [NavigationEventDispatcher]. Instead of subclassing
+ * [NavigationEventInput], users can create instances of this class and use it directly.
  */
-public class DirectNavigationEventInputHandler(dispatcher: NavigationEventDispatcher) :
-    NavigationEventInputHandler(dispatcher) {
+public class DirectNavigationEventInput() : NavigationEventInput() {
+    /** Send "start" event to the connected dispatcher. */
     @MainThread
-    public fun handleOnStarted(event: NavigationEvent) {
+    public fun start(event: NavigationEvent) {
         dispatchOnStarted(event)
     }
 
+    /** Send "progress" event to the connected dispatcher. */
     @MainThread
-    public fun handleOnProgressed(event: NavigationEvent) {
+    public fun progress(event: NavigationEvent) {
         dispatchOnProgressed(event)
     }
 
+    /** Send "complete" event to the connected dispatcher. */
     @MainThread
-    public fun handleOnCompleted() {
+    public fun complete() {
         dispatchOnCompleted()
     }
 
+    /** Send "cancel" event to the connected dispatcher. */
     @MainThread
-    public fun handleOnCancelled() {
+    public fun cancel() {
         dispatchOnCancelled()
     }
 }

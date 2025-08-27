@@ -16,15 +16,20 @@
 
 package androidx.navigationevent
 
+import androidx.annotation.EmptySuper
+
 /**
- * Callback for handling [NavigationEvent]s.
+ * Receives and handles [NavigationEvent]s dispatched by a [NavigationEventDispatcher].
  *
- * This class maintains its own [isEnabled] state and will only receive callbacks when enabled.
+ * This is the base class you should extend to create custom navigation event logic. Callbacks are
+ * added to a [NavigationEventDispatcher] and will only receive events when both the callback and
+ * its dispatcher are enabled.
  *
- * @param isEnabled The initial enabled state for this callback.
+ * @param isEnabled The initial enabled state for this callback. Defaults to `true`.
  * @see NavigationEventDispatcher
+ * @see NavigationEventInput
  */
-public abstract class NavigationEventCallback<T : NavigationEventInfo>(isEnabled: Boolean) {
+public abstract class NavigationEventCallback<T : NavigationEventInfo>(isEnabled: Boolean = true) {
 
     /** The most recent navigation info provided via [setInfo]. */
     internal var currentInfo: T? = null
@@ -95,15 +100,79 @@ public abstract class NavigationEventCallback<T : NavigationEventInfo>(isEnabled
         dispatcher?.sharedProcessor?.updateEnabledCallbackState(callback = this)
     }
 
-    /** Callback for handling [NavigationEventDispatcher.dispatchOnStarted]. */
-    public open fun onEventStarted(event: NavigationEvent) {}
+    /**
+     * Internal-only method for dispatching.
+     *
+     * @see onEventStarted
+     * @see NavigationEventDispatcher.dispatchOnStarted
+     */
+    internal fun doOnEventStarted(event: NavigationEvent) {
+        onEventStarted(event)
+    }
 
-    /** Callback for handling [NavigationEventDispatcher.dispatchOnProgressed]. */
-    public open fun onEventProgressed(event: NavigationEvent) {}
+    /**
+     * Override this to handle the beginning of a navigation event.
+     *
+     * This is called when a user action, such as a swipe gesture, initiates a navigation. It's the
+     * ideal place to prepare UI elements for a transition.
+     *
+     * @param event The [NavigationEvent] that triggered this callback.
+     */
+    @EmptySuper protected open fun onEventStarted(event: NavigationEvent) {}
 
-    /** Callback for handling [NavigationEventDispatcher.dispatchOnCompleted]. */
-    public open fun onEventCompleted() {}
+    /**
+     * Internal-only method for dispatching.
+     *
+     * @see onEventProgressed
+     * @see NavigationEventDispatcher.dispatchOnProgressed
+     */
+    internal fun doOnEventProgressed(event: NavigationEvent) {
+        onEventProgressed(event)
+    }
 
-    /** Callback for handling [NavigationEventDispatcher.dispatchOnCancelled]. */
-    public open fun onEventCancelled() {}
+    /**
+     * Override this to handle the progress of an ongoing navigation event.
+     *
+     * This is called repeatedly during a gesture-driven navigation (e.g., a predictive back swipe)
+     * to update the UI in real-time based on the user's input.
+     *
+     * @param event The [NavigationEvent] containing progress information.
+     */
+    @EmptySuper protected open fun onEventProgressed(event: NavigationEvent) {}
+
+    /**
+     * Internal-only method for dispatching.
+     *
+     * @see onEventCompleted
+     * @see NavigationEventDispatcher.dispatchOnCompleted
+     */
+    internal fun doOnEventCompleted() {
+        onEventCompleted()
+    }
+
+    /**
+     * Override this to handle the completion of a navigation event.
+     *
+     * This is called when the user commits to the navigation action (e.g., by lifting their finger
+     * at the end of a swipe), signaling that the navigation should be finalized.
+     */
+    protected abstract fun onEventCompleted()
+
+    /**
+     * Internal-only method for dispatching.
+     *
+     * @see onEventCancelled
+     * @see NavigationEventDispatcher.dispatchOnCancelled
+     */
+    internal fun doOnEventCancelled() {
+        onEventCancelled()
+    }
+
+    /**
+     * Override this to handle the cancellation of a navigation event.
+     *
+     * This is called when the user cancels the navigation action (e.g., by returning their finger
+     * to the edge of the screen), signaling that the UI should return to its original state.
+     */
+    @EmptySuper protected open fun onEventCancelled() {}
 }

@@ -27,14 +27,15 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 33)
-class OnBackInvokedInputHandlerTest {
+class OnBackInvokedInputTest {
 
     @Test
     fun testSimpleInvoker() {
         val invoker = TestOnBackInvokedDispatcher()
 
         val dispatcher = NavigationEventDispatcher {}
-        OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback()
 
@@ -53,7 +54,8 @@ class OnBackInvokedInputHandlerTest {
 
         val dispatcher = NavigationEventDispatcher {}
 
-        OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback()
 
@@ -90,7 +92,8 @@ class OnBackInvokedInputHandlerTest {
 
         val callback = TestNavigationEventCallback(isEnabled = false)
 
-        OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         dispatcher.addCallback(callback)
 
@@ -115,7 +118,8 @@ class OnBackInvokedInputHandlerTest {
 
         dispatcher.addCallback(callback)
 
-        OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         assertThat(invoker.registerCount).isEqualTo(1)
 
@@ -131,7 +135,8 @@ class OnBackInvokedInputHandlerTest {
 
         val dispatcher = NavigationEventDispatcher {}
 
-        val inputHandler = OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback()
 
@@ -160,7 +165,8 @@ class OnBackInvokedInputHandlerTest {
 
         val dispatcher = NavigationEventDispatcher {}
 
-        val inputHandler = OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback()
 
@@ -183,7 +189,8 @@ class OnBackInvokedInputHandlerTest {
 
         val dispatcher = NavigationEventDispatcher {}
 
-        val inputHandler = OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback(onEventStarted = { remove() })
 
@@ -204,7 +211,8 @@ class OnBackInvokedInputHandlerTest {
         val invoker = TestOnBackInvokedDispatcher()
         val dispatcher = NavigationEventDispatcher {}
 
-        val inputHandler = OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback = TestNavigationEventCallback()
 
@@ -227,7 +235,8 @@ class OnBackInvokedInputHandlerTest {
         val invoker = TestOnBackInvokedDispatcher()
 
         val dispatcher = NavigationEventDispatcher {}
-        val inputHandler = OnBackInvokedInputHandler(dispatcher, invoker)
+        val input = OnBackInvokedInput(invoker)
+        dispatcher.addInput(input)
 
         val callback1 = TestNavigationEventCallback()
 

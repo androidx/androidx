@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,44 +22,30 @@
  * modifying its settings.
  */
 
-import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.navigationevent.testing"
-    }
-    jvm()
-    mac()
-    linux()
-    ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
+dependencies {
+    api(libs.kotlinStdlib)
+    implementation(project(":navigationevent:navigationevent"))
+    implementation(project(":navigationevent:navigationevent-compose"))
+    implementation(project(":navigationevent:navigationevent-testing"))
+    compileOnly(project(":annotation:annotation-sampled"))
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":navigationevent:navigationevent"))
-            }
-        }
-    }
+android {
+    compileSdk = 36
+    namespace = "androidx.navigationevent.samples"
 }
 
 androidx {
-    name = "Navigation Event Testing"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    samples(project(":navigationevent:navigationevent-samples"))
+    name = "androidx.navigationevent:navigationevent-samples"
+    type = SoftwareType.SAMPLES
     inceptionYear = "2025"
-    description = "Testing utilities for 'navigationevent' artifact"
+    description = "Sample code for NavigationEvent"
 }
