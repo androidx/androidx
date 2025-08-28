@@ -4,11 +4,14 @@
 - `:annotation:annotation` is stubbed by `:annotation:annotation-compatibility-stubs`, it depends on `androidx.annotation`
 - `:collection:collection` is stubbed by `:collection:collection-compatibility-stubs`, it depends on `androidx.collection`
 - `:compose:runtime:runtime` is stubbed by `:compose:runtime:runtime-compatibility-stubs`, it depends on `androidx.compose.runtime:runtime`
+- `:compose:runtime:runtime-saveable` is stubbed by `:compose:runtime:runtime-saveable-compatibility-stubs`, it depends on `androidx.compose.runtime:runtime-saveable`
 - `:lifecycle:lifecycle-common` is stubbed by `lifecycle/lifecycle-common-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-common`
 - `:lifecycle:lifecycle-runtime` is stubbed by `lifecycle/lifecycle-runtime-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-runtime`
+- `:lifecycle:lifecycle-runtime-compose` is stubbed by `lifecycle/lifecycle-runtime-compose-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-runtime-compose`
 - `:lifecycle:lifecycle-viewmodel` is stubbed by `lifecycle/lifecycle-viewmodel-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel`
 - `:lifecycle:lifecycle-viewmodel-savedstate` is stubbed by `lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-savedstate`
 - `:savedstate:savedstate` is stubbed by `savedstate/savedstate-compatibility-stub`, it depends on `androidx.savedstate:savedstate`
+- `:savedstate:savedstate-compose` is stubbed by `savedstate/savedstate-compose-compatibility-stub`, it depends on `androidx.savedstate:savedstate-compose`
 - `:window:window-core` is stubbed by `window/window-core-compatibility-stub`, it depends on `androidx.window:window-core`
 
 ### Purpose
