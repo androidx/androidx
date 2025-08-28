@@ -20,24 +20,22 @@ import android.content.Context;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.util.AttributeSet;
-import android.view.View;
 
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.core.content.ContextCompat;
 import androidx.mediarouter.R;
 
 /**
  * Chevron/Caret button to expand/collapse group volume list with animation.
  */
 class MediaRouteExpandCollapseButton extends AppCompatImageButton {
-    final AnimationDrawable mExpandAnimationDrawable;
-    final AnimationDrawable mCollapseAnimationDrawable;
-    final String mExpandGroupDescription;
-    final String mCollapseGroupDescription;
-    boolean mIsGroupExpanded;
-    OnClickListener mListener;
+    private final AnimatedVectorDrawable mExpandAnimatedDrawable;
+    private final AnimatedVectorDrawable mCollapseAnimatedDrawable;
+    private final String mExpandGroupDescription;
+    private final String mCollapseGroupDescription;
+    private boolean mIsGroupExpanded;
+    private OnClickListener mListener;
 
     public MediaRouteExpandCollapseButton(Context context) {
         this(context, null);
@@ -49,32 +47,32 @@ class MediaRouteExpandCollapseButton extends AppCompatImageButton {
 
     public MediaRouteExpandCollapseButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mExpandAnimationDrawable = (AnimationDrawable) ContextCompat.getDrawable(
-                context, R.drawable.mr_group_expand);
-        mCollapseAnimationDrawable = (AnimationDrawable) ContextCompat.getDrawable(
-                context, R.drawable.mr_group_collapse);
+        mExpandAnimatedDrawable = (AnimatedVectorDrawable) context.getDrawable(
+                R.drawable.mr_group_expand);
+        mCollapseAnimatedDrawable = (AnimatedVectorDrawable) context.getDrawable(
+                R.drawable.mr_group_collapse);
 
         ColorFilter filter = new PorterDuffColorFilter(
                 MediaRouterThemeHelper.getControllerColor(context, defStyleAttr),
                 PorterDuff.Mode.SRC_IN);
-        mExpandAnimationDrawable.setColorFilter(filter);
-        mCollapseAnimationDrawable.setColorFilter(filter);
+        mExpandAnimatedDrawable.setColorFilter(filter);
+        mCollapseAnimatedDrawable.setColorFilter(filter);
 
         mExpandGroupDescription = context.getString(R.string.mr_controller_expand_group);
         mCollapseGroupDescription = context.getString(R.string.mr_controller_collapse_group);
 
-        setImageDrawable(mExpandAnimationDrawable.getFrame(0));
+        setImageDrawable(mExpandAnimatedDrawable);
         setContentDescription(mExpandGroupDescription);
 
         super.setOnClickListener(view -> {
             mIsGroupExpanded = !mIsGroupExpanded;
             if (mIsGroupExpanded) {
-                setImageDrawable(mExpandAnimationDrawable);
-                mExpandAnimationDrawable.start();
+                setImageDrawable(mExpandAnimatedDrawable);
+                mExpandAnimatedDrawable.start();
                 setContentDescription(mCollapseGroupDescription);
             } else {
-                setImageDrawable(mCollapseAnimationDrawable);
-                mCollapseAnimationDrawable.start();
+                setImageDrawable(mCollapseAnimatedDrawable);
+                mCollapseAnimatedDrawable.start();
                 setContentDescription(mExpandGroupDescription);
             }
             if (mListener != null) {
