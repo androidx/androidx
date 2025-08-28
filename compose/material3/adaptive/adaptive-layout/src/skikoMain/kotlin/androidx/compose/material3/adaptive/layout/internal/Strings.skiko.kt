@@ -33,19 +33,19 @@ internal actual value class Strings(val value: Int) {
             get() = Strings(0)
 
         actual val defaultPaneExpansionDragHandleStateDescription
-            get() = Strings(0)
+            get() = Strings(1)
 
         actual val defaultPaneExpansionDragHandleActionDescription
-            get() = Strings(0)
+            get() = Strings(2)
 
         actual val defaultPaneExpansionProportionAnchorDescription
-            get() = Strings(0)
+            get() = Strings(3)
 
         actual val defaultPaneExpansionStartOffsetAnchorDescription
-            get() = Strings(0)
+            get() = Strings(4)
 
         actual val defaultPaneExpansionEndOffsetAnchorDescription
-            get() = Strings(0)
+            get() = Strings(5)
     }
 }
 
