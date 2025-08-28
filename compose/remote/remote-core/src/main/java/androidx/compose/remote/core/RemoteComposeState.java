@@ -55,6 +55,7 @@ public class RemoteComposeState implements CollectionsAccess {
     // path information
     private final IntMap<Object> mPathMap = new IntMap<>();
     private final IntMap<float[]> mPathData = new IntMap<>();
+    private final IntIntMap mPathWinding = new IntIntMap();
 
     private boolean[] mColorOverride = new boolean[sMaxColors];
     @NonNull private final IntMap<ArrayAccess> mCollectionMap = new IntMap<>();
@@ -180,6 +181,24 @@ public class RemoteComposeState implements CollectionsAccess {
      */
     public float @Nullable [] getPathData(int id) {
         return mPathData.get(id);
+    }
+
+    /**
+     * Get the winding associated with the path id
+     * @param id the id of the path
+     * @return the winding
+     */
+    public int getPathWinding(int id) {
+        return mPathWinding.get(id);
+    }
+
+    /**
+     * Set the winding associated with the path id
+     * @param id the id of the path
+     * @param winding the winding
+     */
+    public void putPathWinding(int id, int winding) {
+        mPathWinding.put(id, winding);
     }
 
     /**

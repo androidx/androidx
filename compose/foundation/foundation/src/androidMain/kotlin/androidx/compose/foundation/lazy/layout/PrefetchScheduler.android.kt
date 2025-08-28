@@ -280,7 +280,7 @@ internal class AndroidPrefetchScheduler(private val view: View) :
 @Suppress("DEPRECATION") // b/420551535
 @ExperimentalFoundationApi
 private val RobolectricImpl =
-    if (Build.FINGERPRINT.lowercase() == "robolectric") {
+    if (Build.FINGERPRINT != null && Build.FINGERPRINT.lowercase() == "robolectric") {
         object : PrefetchScheduler {
             override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
                 // Robolectric is reporting incorrect frame start time, so we have to completely

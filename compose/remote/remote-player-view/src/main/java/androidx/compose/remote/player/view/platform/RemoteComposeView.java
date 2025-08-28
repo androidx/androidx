@@ -15,11 +15,8 @@
  */
 package androidx.compose.remote.player.view.platform;
 
-import static androidx.compose.remote.core.RemoteClock.nanoTime;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import androidx.annotation.RestrictTo;
+import static androidx.compose.remote.core.RemoteClock.nanoTime;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -36,6 +33,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
@@ -184,6 +182,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param value The {@link RemoteComposeDocument} to set.
      */
+    @SuppressWarnings("ReferenceEquality") // newClock != mClock
     public void setDocument(@NonNull RemoteComposeDocument value) {
         Clock newClock = value.getClock();
         if (newClock != mClock) {
@@ -566,7 +565,6 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int index = event.getActionIndex();
-        int action = event.getActionMasked();
         int pointerId = event.getPointerId(index);
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.onTouchEvent(event);

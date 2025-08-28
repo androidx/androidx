@@ -754,6 +754,7 @@ internal abstract class DragGestureNode(
         initialDown: PointerInputChange,
         pointerId: PointerId,
         initialTouchSlopPositionChange: Offset = Offset.Zero,
+        verifyConsumptionInFinalPass: Boolean = false,
     ) {
         currentDragState =
             awaitTouchSlopState.apply {
@@ -765,6 +766,7 @@ internal abstract class DragGestureNode(
                     touchSlopDetector?.orientation = orientationLock
                     touchSlopDetector?.reset(initialTouchSlopPositionChange)
                 }
+                this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
             }
     }
 
@@ -850,51 +852,83 @@ internal abstract class DragGestureNode(
         pass: PointerEventPass,
         state: DragDetectionState.AwaitTouchSlop,
     ) {
-        /** Slop detection only happens during the main pass */
-        if (pass != PointerEventPass.Main) return
+        /** Slop detection only cares about the main and final passes */
+        if (pass == PointerEventPass.Initial) return
         val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == state.pointerId } ?: return
 
-        /** Do we have unconsumed events for this pointer? */
-        if (!dragEvent.isConsumed) {
-            if (dragEvent.changedToUpIgnoreConsumed()) {
-                /** The pointer lifted, look for another pointer */
-                val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
-                if (otherDown == null) {
-                    // There are no other pointers down, reset the state
-                    moveToAwaitDownState()
+        /**
+         * Slop detection routines happens during the Main pass. Do we have unconsumed events for
+         * this pointer?
+         */
+        if (pass == PointerEventPass.Main) {
+            if (!dragEvent.isConsumed) {
+                if (dragEvent.changedToUpIgnoreConsumed()) {
+                    /** The pointer lifted, look for another pointer */
+                    val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
+                    if (otherDown == null) {
+                        // There are no other pointers down, reset the state
+                        moveToAwaitDownState()
+                    } else {
+                        // a new pointer was found, update the current state.
+                        state.pointerId = otherDown.id
+                    }
                 } else {
-                    // a new pointer was found, update the current state.
-                    state.pointerId = otherDown.id
+                    // this is a regular event (MOVE)
+                    val touchSlop =
+                        currentValueOf(LocalViewConfiguration).pointerSlop(dragEvent.type)
+
+                    // add data to the slop detector
+                    val postSlopOffset =
+                        requireTouchSlopDetector().addPointerInputChange(dragEvent, touchSlop)
+
+                    // slop was crossed, dispatch the drag start event and change to dragging state
+                    if (postSlopOffset.isSpecified) {
+                        dragEvent.consume()
+                        sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
+                        sendDragEvent(dragEvent, postSlopOffset)
+                        moveToDraggingState(dragEvent.id)
+                    } else {
+                        state.verifyConsumptionInFinalPass = true
+                    }
                 }
             } else {
-                // this is a regular event (MOVE)
-                val touchSlop = currentValueOf(LocalViewConfiguration).pointerSlop(dragEvent.type)
-
-                // add data to the slop detector
-                val postSlopOffset =
-                    requireTouchSlopDetector().addPointerInputChange(dragEvent, touchSlop)
-
-                // slop was crossed, dispatch the drag start event and change to dragging state
-                if (postSlopOffset.isSpecified) {
-                    dragEvent.consume()
-                    sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
-                    sendDragEvent(dragEvent, postSlopOffset)
-                    moveToDraggingState(dragEvent.id)
-                }
+                // This draggable "lost" the event as it was consumed by someone else, enter the
+                // gesture pickup state if the feature is enabled.
+                // Someone consumed this gesture, move this to the await pickup state.
+                moveToAwaitGesturePickupState(
+                    requireNotNull(state.initialDown) {
+                        "AwaitTouchSlop.initialDown was not initialized"
+                    },
+                    state.pointerId,
+                    requireNotNull(touchSlopDetector) {
+                        "AwaitTouchSlop.touchSlopDetector was not initialized"
+                    },
+                )
             }
-        } else {
-            // This draggable "lost" the event as it was consumed by someone else, enter the
-            // gesture pickup state if the feature is enabled.
-            // Someone consumed this gesture, move this to the await pickup state.
-            moveToAwaitGesturePickupState(
-                requireNotNull(state.initialDown) {
-                    "AwaitTouchSlop.initialDown was not initialized"
-                },
-                state.pointerId,
-                requireNotNull(touchSlopDetector) {
-                    "AwaitTouchSlop.touchSlopDetector was not initialized"
-                },
-            )
+        }
+
+        /**
+         * This checks 2 cases: 1) A parent consumed in the main pass and this child can only see
+         * that consumption during the final pass. 2) The parent actually consumed during the final
+         * pass.
+         */
+        if (pass == PointerEventPass.Final && state.verifyConsumptionInFinalPass) {
+            if (dragEvent.isConsumed) {
+                // This draggable "lost" the event as it was consumed by someone else, enter the
+                // gesture pickup state if the feature is enabled.
+                // Someone consumed this gesture, move this to the await pickup state.
+                moveToAwaitGesturePickupState(
+                    requireNotNull(state.initialDown) {
+                        "AwaitTouchSlop.initialDown was not initialized"
+                    },
+                    state.pointerId,
+                    requireNotNull(touchSlopDetector) {
+                        "AwaitTouchSlop.touchSlopDetector was not initialized"
+                    },
+                )
+            } else {
+                state.verifyConsumptionInFinalPass = false
+            }
         }
     }
 
@@ -1095,6 +1129,7 @@ private sealed class DragDetectionState {
     class AwaitTouchSlop(
         var initialDown: PointerInputChange? = null,
         var pointerId: PointerId = PointerId(Long.MAX_VALUE),
+        var verifyConsumptionInFinalPass: Boolean = false,
     ) : DragDetectionState()
 
     /**

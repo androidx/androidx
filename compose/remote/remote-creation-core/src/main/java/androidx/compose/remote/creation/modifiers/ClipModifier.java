@@ -34,11 +34,10 @@ public class ClipModifier implements RecordingModifier.Element {
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mShape instanceof RectShape) {
-            writer.getBuffer().addClipRectModifier();
+            writer.addClipRectModifier();
         } else if (mShape instanceof RoundedRectShape) {
             RoundedRectShape rShape = (RoundedRectShape) mShape;
-            writer.getBuffer()
-                    .addRoundClipRectModifier(
+            writer.addRoundClipRectModifier(
                             rShape.getTopStart(),
                             rShape.getTopEnd(),
                             rShape.getBottomStart(),

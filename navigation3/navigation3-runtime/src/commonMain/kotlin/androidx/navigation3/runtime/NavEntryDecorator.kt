@@ -83,7 +83,7 @@ public fun <T : Any> DecorateNavEntry(
 ) {
     @Suppress("UNCHECKED_CAST")
     (entryDecorators as List<@JvmSuppressWildcards NavEntryDecorator<T>>)
-        .distinct()
+        .fastDistinctOrDistinct()
         .foldRight(initial = entry) { decorator, wrappedEntry ->
             object : NavEntryWrapper<T>(wrappedEntry) {
                 @Composable

@@ -597,16 +597,22 @@ class TextFieldSelectionManagerTest {
     @Test
     fun showSelectionToolbar_trigger_textToolbar_showMenu_noText_inClipboard_not_show_paste() =
         runTestWithCoroutineScope {
-            manager.value =
-                TextFieldValue(
-                    text = text + text,
-                    selection = TextRange("Hello".length, text.length),
-                )
+            Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+                mockedClipboardUtils
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
+                    .thenReturn(false)
 
-            manager.showSelectionToolbar()
+                manager.value =
+                    TextFieldValue(
+                        text = text + text,
+                        selection = TextRange("Hello".length, text.length),
+                    )
 
-            verify(textToolbar, times(1))
-                .showMenu(any(), any(), isNull(), any(), anyOrNull(), isNull())
+                manager.showSelectionToolbar()
+
+                verify(textToolbar, times(1))
+                    .showMenu(any(), any(), isNull(), any(), anyOrNull(), isNull())
+            }
         }
 
     @ContextMenuFlagSuppress(suppressedFlagValue = true)
@@ -614,11 +620,8 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_trigger_textToolbar_showMenu_hasText_inClipboard_show_paste() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
-
                 mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
 
                 manager.value =
@@ -644,7 +647,7 @@ class TextFieldSelectionManagerTest {
                     .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
                     .thenReturn(AnnotatedString(text))
                 mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
 
                 whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
@@ -662,11 +665,8 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_trigger_textToolbar_showMenu_no_text_show_paste_only() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
-
                 mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
                 manager.value = TextFieldValue()
 
@@ -680,28 +680,28 @@ class TextFieldSelectionManagerTest {
     @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_no_menu() = runTestWithCoroutineScope {
-        whenever(clipboard.getClipEntry()).thenReturn(null)
-        manager.value = TextFieldValue()
+        Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+            mockedClipboardUtils
+                .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
+                .thenReturn(false)
+            manager.value = TextFieldValue()
 
-        manager.showSelectionToolbar()
+            manager.showSelectionToolbar()
 
-        verify(textToolbar, times(1)).showMenu(any(), isNull(), isNull(), isNull(), isNull(), any())
+            verify(textToolbar, times(1))
+                .showMenu(any(), isNull(), isNull(), isNull(), isNull(), any())
+        }
     }
 
     @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_passwordTextField_not_show_copy_cut() = runTestWithCoroutineScope {
         Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-            val clipEntry = mock<ClipEntry>()
             mockedClipboardUtils
-                .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
-                .thenReturn(AnnotatedString(text))
-            mockedClipboardUtils
-                .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                 .thenReturn(true)
 
             manager.visualTransformation = PasswordVisualTransformation()
-            whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
             manager.value = TextFieldValue(text, TextRange(0, 5))
 
             manager.showSelectionToolbar()
@@ -732,11 +732,8 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_trigger_textToolbar_showMenu_hasText_inClipboard_show_paste_newContextMenu() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
-
                 mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
 
                 manager.value =
@@ -757,15 +754,9 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_trigger_textToolbar_showMenu_selection_collapse_not_show_copy_cut_newContextMenu() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
                 mockedClipboardUtils
-                    .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
-                    .thenReturn(AnnotatedString(text))
-                mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
-
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
                 manager.value = TextFieldValue(text = text + text, selection = TextRange(0, 0))
 
                 manager.showSelectionToolbar()
@@ -780,11 +771,8 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_trigger_textToolbar_showMenu_no_text_show_paste_only_newContextMenu() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
-
                 mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
                 manager.value = TextFieldValue()
 
@@ -813,16 +801,11 @@ class TextFieldSelectionManagerTest {
     fun showSelectionToolbar_passwordTextField_not_show_copy_cut_newContextMenu() =
         runTestWithCoroutineScope {
             Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
-                val clipEntry = mock<ClipEntry>()
                 mockedClipboardUtils
-                    .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
-                    .thenReturn(AnnotatedString(text))
-                mockedClipboardUtils
-                    .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipboard) }
                     .thenReturn(true)
 
                 manager.visualTransformation = PasswordVisualTransformation()
-                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
                 manager.value = TextFieldValue(text, TextRange(0, 5))
 
                 manager.showSelectionToolbar()

@@ -204,7 +204,7 @@ internal enum class PausedCompositionState {
 internal class PausedCompositionImpl(
     val composition: CompositionImpl,
     val context: CompositionContext,
-    val composer: ComposerImpl,
+    val composer: InternalComposer,
     abandonSet: MutableSet<RememberObserver>,
     val content: @Composable () -> Unit,
     val reusable: Boolean,

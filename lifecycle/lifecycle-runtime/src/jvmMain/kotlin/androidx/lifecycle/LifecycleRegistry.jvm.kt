@@ -123,6 +123,7 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         if (state == next) {
             return
         }
+        @Suppress("NewApi") // b/437073246
         checkLifecycleStateTransition(lifecycleOwner.get(), state, next)
 
         state = next
@@ -176,6 +177,7 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         if (previous != null) {
             return
         }
+        @Suppress("NewApi") // b/437073246
         val lifecycleOwner =
             lifecycleOwner.get()
                 ?: // it is null we should be destroyed. Fallback quickly
@@ -272,6 +274,7 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
     // happens only on the top of stack (never in reentrance),
     // so it doesn't have to take in account parents
     private fun sync() {
+        @Suppress("NewApi") // b/437073246
         val lifecycleOwner =
             lifecycleOwner.get()
                 ?: throw IllegalStateException(

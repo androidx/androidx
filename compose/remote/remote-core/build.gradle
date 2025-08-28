@@ -25,11 +25,19 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Remote Compose Core"
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2024"
-    description = "Under Development"
+    description = "Java core for RemoteCompose document player"
+}
+
+// b/434969628: Force Gradle to resolve to JAR and not classes directory when created Kzip
+configurations.configureEach { configuration ->
+    if (configuration.name == "runtimeElements" || configuration.name == "apiElements") {
+        configuration.outgoing.variants.removeIf { it.name == "classes" }
+    }
 }

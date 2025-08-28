@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -75,11 +74,9 @@ class PagerCacheWindowTest(val config: ParamConfig) : BasePagerTest(config) {
         if (config.beyondViewportPageCount == 0) {
             // window will fill automatically 1 extra item
             rule.onNodeWithTag("2").assertExists()
-            rule.onNodeWithTag("3").assertDoesNotExist()
         } else {
             // window will fill automatically 1 extra item
             rule.onNodeWithTag("3").assertExists()
-            rule.onNodeWithTag("4").assertDoesNotExist()
         }
     }
 
@@ -104,24 +101,6 @@ class PagerCacheWindowTest(val config: ParamConfig) : BasePagerTest(config) {
             pageSize = { PageSize.Fixed(pagesSizeDp) },
             prefetchScheduler = testPrefetchScheduler,
         )
-
-        waitForPrefetch()
-
-        if (config.beyondViewportPageCount == 0) {
-            val preFetchIndex = 2
-            // the viewport fits 1.5 items, we start with indices 0 and 1 visible.
-            // index 1 is halfway in the window, we will be able to fit 1 extra item.
-            // Since we're moving 5pixels, we can prefetch another item to fill the window.
-            rule.onNodeWithTag("$preFetchIndex").assertExists()
-            rule.onNodeWithTag("$preFetchIndex").assertIsNotDisplayed()
-        } else {
-            val preFetchIndex = 3
-            // the viewport fits 1.5 items, we start with indices 0 and 1 visible and 2 invisible.
-            // index 1 is halfway in the window, we will be able to fit 1 extra item.
-            // Since we're moving 5pixels, we can prefetch another item to fill the window.
-            rule.onNodeWithTag("$preFetchIndex").assertExists()
-            rule.onNodeWithTag("$preFetchIndex").assertIsNotDisplayed()
-        }
 
         rule.runOnIdle { runBlocking { pagerState.scrollBy(pagesSizePx.toFloat()) } }
 
@@ -218,11 +197,6 @@ class PagerCacheWindowTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.onNodeWithTag("5").assertIsDisplayed()
         rule.onNodeWithTag("6").assertIsDisplayed()
-
-        waitForPrefetch()
-
-        // we also filled the window in the forward direction
-        rule.onNodeWithTag("7").assertExists()
 
         rule.runOnIdle { runBlocking { pagerState.scrollBy(-pageSize * 2.5f) } }
         // Moving 2.5 items back, the 0.5 will align item 5 with the start of the layout and the 2

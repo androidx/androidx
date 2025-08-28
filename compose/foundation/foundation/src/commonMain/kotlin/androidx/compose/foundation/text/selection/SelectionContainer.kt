@@ -108,9 +108,7 @@ internal fun SelectionContainer(
                         clipboard.setClipEntry(textToCopy.toClipEntry())
                     }
                 }
-            } else {
-                null
-            }
+            } else null
         }
     manager.textToolbar = LocalTextToolbar.current
     manager.onSelectionChange = onSelectionChange

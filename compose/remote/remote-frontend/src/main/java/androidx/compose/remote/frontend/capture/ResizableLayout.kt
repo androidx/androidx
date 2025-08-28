@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.capture
 
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 
 /**
  * This allows us to more easily resize the layout hosting the compose view, allowing us to control

@@ -1,4 +1,86 @@
 // Baseline format: 1.0
+ChangedType: androidx.compose.ui.geometry.CornerRadius#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.geometry.CornerRadius.copy has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+ChangedType: androidx.compose.ui.geometry.CornerRadius#div(float):
+    Source breaking change: Method androidx.compose.ui.geometry.CornerRadius.div has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+ChangedType: androidx.compose.ui.geometry.CornerRadius#times(float):
+    Source breaking change: Method androidx.compose.ui.geometry.CornerRadius.times has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+ChangedType: androidx.compose.ui.geometry.CornerRadius#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.geometry.CornerRadius.unaryMinus has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+ChangedType: androidx.compose.ui.geometry.CornerRadiusKt#CornerRadius(float, float):
+    Binary breaking change: Method androidx.compose.ui.geometry.CornerRadiusKt.CornerRadius has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+ChangedType: androidx.compose.ui.geometry.Offset#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.geometry.Offset.copy has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.Offset#div(float):
+    Source breaking change: Method androidx.compose.ui.geometry.Offset.div has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.Offset#rem(float):
+    Source breaking change: Method androidx.compose.ui.geometry.Offset.rem has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.Offset#times(float):
+    Source breaking change: Method androidx.compose.ui.geometry.Offset.times has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.Offset#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.geometry.Offset.unaryMinus has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.OffsetKt#Offset(float, float):
+    Binary breaking change: Method androidx.compose.ui.geometry.OffsetKt.Offset has changed return type from long to androidx.compose.ui.geometry.Offset
+ChangedType: androidx.compose.ui.geometry.Size#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.geometry.Size.copy has changed return type from long to androidx.compose.ui.geometry.Size
+ChangedType: androidx.compose.ui.geometry.Size#div(float):
+    Source breaking change: Method androidx.compose.ui.geometry.Size.div has changed return type from long to androidx.compose.ui.geometry.Size
+ChangedType: androidx.compose.ui.geometry.Size#times(float):
+    Source breaking change: Method androidx.compose.ui.geometry.Size.times has changed return type from long to androidx.compose.ui.geometry.Size
+ChangedType: androidx.compose.ui.geometry.SizeKt#Size(float, float):
+    Binary breaking change: Method androidx.compose.ui.geometry.SizeKt.Size has changed return type from long to androidx.compose.ui.geometry.Size
+
+
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#component1():
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#component2():
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#div(float):
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#isCircular():
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.isCircular() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#isZero():
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.isZero() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#times(float):
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.geometry.CornerRadius.unaryMinus() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#component1():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#component2():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#div(float):
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#getDistance():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.getDistance() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#getDistanceSquared():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.getDistanceSquared() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#isValid():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.isValid() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#rem(float):
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.rem(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#times(float):
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Offset#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.geometry.Offset.unaryMinus() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#component1():
+    Binary breaking change: method androidx.compose.ui.geometry.Size.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#component2():
+    Binary breaking change: method androidx.compose.ui.geometry.Size.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.geometry.Size.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#div(float):
+    Binary breaking change: method androidx.compose.ui.geometry.Size.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#isEmpty():
+    Binary breaking change: method androidx.compose.ui.geometry.Size.isEmpty() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.geometry.Size#times(float):
+    Binary breaking change: method androidx.compose.ui.geometry.Size.times(float) has been removed from bytecode
+
+
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component5-kKHJgLs():
     Source breaking change: method androidx.compose.ui.geometry.RoundRect.component5-kKHJgLs() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component6-kKHJgLs():
@@ -13,8 +95,16 @@ RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getCenter(androidx.c
     Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getCenter(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
 
 
+RemovedMethod: androidx.compose.ui.geometry.CornerRadius#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.CornerRadius.minus(long)
+RemovedMethod: androidx.compose.ui.geometry.CornerRadius#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.CornerRadius.plus(long)
 RemovedMethod: androidx.compose.ui.geometry.CornerRadius.Companion#getZero():
     Binary breaking change: Removed method androidx.compose.ui.geometry.CornerRadius.Companion.getZero()
+RemovedMethod: androidx.compose.ui.geometry.CornerRadiusKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.CornerRadiusKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#contains(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.contains(long)
 RemovedMethod: androidx.compose.ui.geometry.MutableRect#getBottomCenter():
     Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getBottomCenter()
 RemovedMethod: androidx.compose.ui.geometry.MutableRect#getBottomLeft():
@@ -35,6 +125,16 @@ RemovedMethod: androidx.compose.ui.geometry.MutableRect#getTopLeft():
     Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getTopLeft()
 RemovedMethod: androidx.compose.ui.geometry.MutableRect#getTopRight():
     Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.getTopRight()
+RemovedMethod: androidx.compose.ui.geometry.MutableRect#translate(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRect.translate(long)
+RemovedMethod: androidx.compose.ui.geometry.MutableRectKt#MutableRect(long, float):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRectKt.MutableRect(long,float)
+RemovedMethod: androidx.compose.ui.geometry.MutableRectKt#MutableRect(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.MutableRectKt.MutableRect(long,long)
+RemovedMethod: androidx.compose.ui.geometry.Offset#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.minus(long)
+RemovedMethod: androidx.compose.ui.geometry.Offset#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.plus(long)
 RemovedMethod: androidx.compose.ui.geometry.Offset.Companion#getInfinite():
     Binary breaking change: Removed method androidx.compose.ui.geometry.Offset.Companion.getInfinite()
 RemovedMethod: androidx.compose.ui.geometry.Offset.Companion#getUnspecified():
@@ -47,6 +147,12 @@ RemovedMethod: androidx.compose.ui.geometry.OffsetKt#isSpecified(long):
     Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.isSpecified(long)
 RemovedMethod: androidx.compose.ui.geometry.OffsetKt#isUnspecified(long):
     Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.geometry.OffsetKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.geometry.OffsetKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.OffsetKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Offset>)
+RemovedMethod: androidx.compose.ui.geometry.Rect#contains(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.contains(long)
 RemovedMethod: androidx.compose.ui.geometry.Rect#getBottomCenter():
     Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getBottomCenter()
 RemovedMethod: androidx.compose.ui.geometry.Rect#getBottomLeft():
@@ -67,6 +173,14 @@ RemovedMethod: androidx.compose.ui.geometry.Rect#getTopLeft():
     Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getTopLeft()
 RemovedMethod: androidx.compose.ui.geometry.Rect#getTopRight():
     Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.getTopRight()
+RemovedMethod: androidx.compose.ui.geometry.Rect#translate(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.Rect.translate(long)
+RemovedMethod: androidx.compose.ui.geometry.RectKt#Rect(long, float):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RectKt.Rect(long,float)
+RemovedMethod: androidx.compose.ui.geometry.RectKt#Rect(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RectKt.Rect(long,long)
+RemovedMethod: androidx.compose.ui.geometry.RoundRect#contains(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.contains(long)
 RemovedMethod: androidx.compose.ui.geometry.RoundRect#getBottomLeftCornerRadius():
     Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getBottomLeftCornerRadius()
 RemovedMethod: androidx.compose.ui.geometry.RoundRect#getBottomRightCornerRadius():
@@ -75,6 +189,14 @@ RemovedMethod: androidx.compose.ui.geometry.RoundRect#getTopLeftCornerRadius():
     Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getTopLeftCornerRadius()
 RemovedMethod: androidx.compose.ui.geometry.RoundRect#getTopRightCornerRadius():
     Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRect.getTopRightCornerRadius()
+RemovedMethod: androidx.compose.ui.geometry.RoundRectKt#RoundRect(androidx.compose.ui.geometry.Rect, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRectKt.RoundRect(androidx.compose.ui.geometry.Rect,long)
+RemovedMethod: androidx.compose.ui.geometry.RoundRectKt#RoundRect(androidx.compose.ui.geometry.Rect, long, long, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRectKt.RoundRect(androidx.compose.ui.geometry.Rect,long,long,long,long)
+RemovedMethod: androidx.compose.ui.geometry.RoundRectKt#RoundRect(float, float, float, float, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRectKt.RoundRect(float,float,float,float,long)
+RemovedMethod: androidx.compose.ui.geometry.RoundRectKt#translate(androidx.compose.ui.geometry.RoundRect, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.RoundRectKt.translate(androidx.compose.ui.geometry.RoundRect,long)
 RemovedMethod: androidx.compose.ui.geometry.Size.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.geometry.Size.Companion.getUnspecified()
 RemovedMethod: androidx.compose.ui.geometry.Size.Companion#getZero():
@@ -85,3 +207,15 @@ RemovedMethod: androidx.compose.ui.geometry.SizeKt#isSpecified(long):
     Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.isSpecified(long)
 RemovedMethod: androidx.compose.ui.geometry.SizeKt#isUnspecified(long):
     Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Size>):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Size>)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#times(double, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.times(double,long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#times(float, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.times(float,long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#times(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.times(int,long)
+RemovedMethod: androidx.compose.ui.geometry.SizeKt#toRect(long):
+    Binary breaking change: Removed method androidx.compose.ui.geometry.SizeKt.toRect(long)

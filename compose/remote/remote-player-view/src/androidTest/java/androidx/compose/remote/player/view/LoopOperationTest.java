@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,7 @@ import org.junit.runners.JUnit4;
 
 import java.io.ByteArrayInputStream;
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(JUnit4.class)
 public class LoopOperationTest {
 

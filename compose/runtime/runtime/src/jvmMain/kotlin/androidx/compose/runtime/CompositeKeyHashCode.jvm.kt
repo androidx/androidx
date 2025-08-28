@@ -22,7 +22,7 @@ import kotlin.text.toString as stdlibToString
 
 public actual typealias CompositeKeyHashCode = Long
 
-public actual inline fun CompositeKeyHashCode.toLong() = this
+public actual inline fun CompositeKeyHashCode.toLong(): CompositeKeyHashCode = this
 
 public actual inline fun CompositeKeyHashCode.toString(radix: Int): String =
     this.stdlibToString(radix)

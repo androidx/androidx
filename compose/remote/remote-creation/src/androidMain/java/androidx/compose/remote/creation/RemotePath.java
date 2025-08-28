@@ -793,6 +793,7 @@ public class RemotePath {
          float rx, float ry, Path.Direction dir) {
     */
     /** This is useful to create an approximate circle using remote float */
+    @SuppressWarnings("FloatingPointLiteralPrecision")
     public static @NonNull RemotePath createCirclePath(
             @NonNull RemoteComposeWriter rc, float x, float y, float rad) {
         float k = 0.5522847498f;

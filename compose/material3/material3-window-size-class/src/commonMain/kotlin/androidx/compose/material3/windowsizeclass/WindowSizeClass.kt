@@ -54,6 +54,7 @@ private constructor(
          * @return [WindowSizeClass] corresponding to the given width and height
          */
         @ExperimentalMaterial3WindowSizeClassApi
+        @Suppress("PrimitiveInCollection")
         fun calculateFromSize(
             size: DpSize,
             supportedWidthSizeClasses: Set<WindowWidthSizeClass> =
@@ -173,6 +174,7 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and a
          * given [Density] from [supportedSizeClasses].
          */
+        @Suppress("PrimitiveInCollection")
         internal fun fromWidth(
             width: Dp,
             supportedSizeClasses: Set<WindowWidthSizeClass>,
@@ -272,6 +274,7 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and a
          * given [Density] from [supportedSizeClasses].
          */
+        @Suppress("PrimitiveInCollection")
         internal fun fromHeight(
             height: Dp,
             supportedSizeClasses: Set<WindowHeightSizeClass>,

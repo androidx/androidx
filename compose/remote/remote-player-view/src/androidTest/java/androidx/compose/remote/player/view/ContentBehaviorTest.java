@@ -31,12 +31,14 @@ import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(AndroidJUnit4.class)
 public class ContentBehaviorTest {
 

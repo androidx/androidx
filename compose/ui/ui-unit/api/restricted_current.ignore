@@ -1,4 +1,200 @@
 // Baseline format: 1.0
+ChangedType: androidx.compose.ui.unit.Constraints#copy(int, int, int, int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.copy has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints#copyMaxDimensions():
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.copyMaxDimensions has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#fitPrioritizingHeight(int, int, int, int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingHeight has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#fitPrioritizingWidth(int, int, int, int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#fixed(int, int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.fixed has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#fixedHeight(int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.fixedHeight has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#fixedWidth(int):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.fixedWidth has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Constraints.Companion#restrictConstraints(int, int, int, int, boolean):
+    Source breaking change: Method androidx.compose.ui.unit.Constraints.Companion.restrictConstraints has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.ConstraintsKt#Constraints(int, int, int, int):
+    Binary breaking change: Method androidx.compose.ui.unit.ConstraintsKt.Constraints has changed return type from long to androidx.compose.ui.unit.Constraints
+ChangedType: androidx.compose.ui.unit.Density#toDp(float):
+    Source breaking change: Method androidx.compose.ui.unit.Density.toDp has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Density#toDp(int):
+    Source breaking change: Method androidx.compose.ui.unit.Density.toDp has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Density#toSp(float):
+    Source breaking change: Method androidx.compose.ui.unit.Density.toSp has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.Density#toSp(int):
+    Source breaking change: Method androidx.compose.ui.unit.Density.toSp has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.Dp#div(float):
+    Source breaking change: Method androidx.compose.ui.unit.Dp.div has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Dp#div(int):
+    Source breaking change: Method androidx.compose.ui.unit.Dp.div has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Dp#times(float):
+    Source breaking change: Method androidx.compose.ui.unit.Dp.times has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Dp#times(int):
+    Source breaking change: Method androidx.compose.ui.unit.Dp.times has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.Dp#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.unit.Dp.unaryMinus has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.DpSize#component1():
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.component1 has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.DpSize#component2():
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.component2 has changed return type from float to androidx.compose.ui.unit.Dp
+ChangedType: androidx.compose.ui.unit.DpSize#div(float):
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.div has changed return type from long to androidx.compose.ui.unit.DpSize
+ChangedType: androidx.compose.ui.unit.DpSize#div(int):
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.div has changed return type from long to androidx.compose.ui.unit.DpSize
+ChangedType: androidx.compose.ui.unit.DpSize#times(float):
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.times has changed return type from long to androidx.compose.ui.unit.DpSize
+ChangedType: androidx.compose.ui.unit.DpSize#times(int):
+    Source breaking change: Method androidx.compose.ui.unit.DpSize.times has changed return type from long to androidx.compose.ui.unit.DpSize
+ChangedType: androidx.compose.ui.unit.IntOffset#copy(int, int):
+    Source breaking change: Method androidx.compose.ui.unit.IntOffset.copy has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntOffset#div(float):
+    Source breaking change: Method androidx.compose.ui.unit.IntOffset.div has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntOffset#rem(int):
+    Source breaking change: Method androidx.compose.ui.unit.IntOffset.rem has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntOffset#times(float):
+    Source breaking change: Method androidx.compose.ui.unit.IntOffset.times has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntOffset#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.unit.IntOffset.unaryMinus has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntOffsetKt#IntOffset(int, int):
+    Binary breaking change: Method androidx.compose.ui.unit.IntOffsetKt.IntOffset has changed return type from long to androidx.compose.ui.unit.IntOffset
+ChangedType: androidx.compose.ui.unit.IntSize#div(int):
+    Source breaking change: Method androidx.compose.ui.unit.IntSize.div has changed return type from long to androidx.compose.ui.unit.IntSize
+ChangedType: androidx.compose.ui.unit.IntSize#times(int):
+    Source breaking change: Method androidx.compose.ui.unit.IntSize.times has changed return type from long to androidx.compose.ui.unit.IntSize
+ChangedType: androidx.compose.ui.unit.IntSizeKt#IntSize(int, int):
+    Binary breaking change: Method androidx.compose.ui.unit.IntSizeKt.IntSize has changed return type from long to androidx.compose.ui.unit.IntSize
+ChangedType: androidx.compose.ui.unit.TextUnit#div(double):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.div has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#div(float):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.div has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#div(int):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.div has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#times(double):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.times has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#times(float):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.times has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#times(int):
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.times has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnit#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.unit.TextUnit.unaryMinus has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.TextUnitKt#pack(long, float):
+    Binary breaking change: Method androidx.compose.ui.unit.TextUnitKt.pack has changed return type from long to androidx.compose.ui.unit.TextUnit
+ChangedType: androidx.compose.ui.unit.Velocity#copy(float, float):
+    Source breaking change: Method androidx.compose.ui.unit.Velocity.copy has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.unit.Velocity#div(float):
+    Source breaking change: Method androidx.compose.ui.unit.Velocity.div has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.unit.Velocity#rem(float):
+    Source breaking change: Method androidx.compose.ui.unit.Velocity.rem has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.unit.Velocity#times(float):
+    Source breaking change: Method androidx.compose.ui.unit.Velocity.times has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.unit.Velocity#unaryMinus():
+    Source breaking change: Method androidx.compose.ui.unit.Velocity.unaryMinus has changed return type from long to androidx.compose.ui.unit.Velocity
+ChangedType: androidx.compose.ui.unit.VelocityKt#Velocity(float, float):
+    Binary breaking change: Method androidx.compose.ui.unit.VelocityKt.Velocity has changed return type from long to androidx.compose.ui.unit.Velocity
+
+
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints#copy(int, int, int, int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.copy(int,int,int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints#copyMaxDimensions():
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.copyMaxDimensions() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fitPrioritizingHeight(int, int, int, int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingHeight(int,int,int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fitPrioritizingWidth(int, int, int, int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth(int,int,int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fixed(int, int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fixed(int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fixedHeight(int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fixedHeight(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fixedWidth(int):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fixedWidth(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#restrictConstraints(int, int, int, int, boolean):
+    Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.restrictConstraints(int,int,int,int,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Density#toDp(float):
+    Binary breaking change: method androidx.compose.ui.unit.Density.toDp(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Density#toDp(int):
+    Binary breaking change: method androidx.compose.ui.unit.Density.toDp(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Density#toSp(float):
+    Binary breaking change: method androidx.compose.ui.unit.Density.toSp(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Density#toSp(int):
+    Binary breaking change: method androidx.compose.ui.unit.Density.toSp(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#compareTo(T):
+    Binary breaking change: method androidx.compose.ui.unit.Dp.compareTo(androidx.compose.ui.unit.Dp) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#div(float):
+    Binary breaking change: method androidx.compose.ui.unit.Dp.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#div(int):
+    Binary breaking change: method androidx.compose.ui.unit.Dp.div(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#times(float):
+    Binary breaking change: method androidx.compose.ui.unit.Dp.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#times(int):
+    Binary breaking change: method androidx.compose.ui.unit.Dp.times(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Dp#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.unit.Dp.unaryMinus() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#component1():
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#component2():
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#div(float):
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#div(int):
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.div(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#times(float):
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.DpSize#times(int):
+    Binary breaking change: method androidx.compose.ui.unit.DpSize.times(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#component1():
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#component2():
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#copy(int, int):
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.copy(int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#div(float):
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#rem(int):
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.rem(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#times(float):
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.unit.IntOffset.unaryMinus() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntSize#component1():
+    Binary breaking change: method androidx.compose.ui.unit.IntSize.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntSize#component2():
+    Binary breaking change: method androidx.compose.ui.unit.IntSize.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntSize#div(int):
+    Binary breaking change: method androidx.compose.ui.unit.IntSize.div(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.IntSize#times(int):
+    Binary breaking change: method androidx.compose.ui.unit.IntSize.times(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#div(double):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.div(double) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#div(float):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#div(int):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.div(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#times(double):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.times(double) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#times(float):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#times(int):
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.times(int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.unit.TextUnit.unaryMinus() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#component1():
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#component2():
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#copy(float, float):
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.copy(float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#div(float):
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.div(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#rem(float):
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.rem(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#times(float):
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.times(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.unit.Velocity#unaryMinus():
+    Binary breaking change: method androidx.compose.ui.unit.Velocity.unaryMinus() has been removed from bytecode
+
+
 RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(double):
     Source breaking change: method androidx.compose.ui.unit.DpKt.getDp(double) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(float):
@@ -35,12 +231,50 @@ RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getSp(int):
     Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getSp(int) can no longer be resolved from Kotlin source
 
 
+RemovedMethod: androidx.compose.ui.unit.ConstraintsKt#constrain(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.ConstraintsKt.constrain(long,long)
+RemovedMethod: androidx.compose.ui.unit.ConstraintsKt#constrainHeight(long, int):
+    Binary breaking change: Removed method androidx.compose.ui.unit.ConstraintsKt.constrainHeight(long,int)
+RemovedMethod: androidx.compose.ui.unit.ConstraintsKt#constrainWidth(long, int):
+    Binary breaking change: Removed method androidx.compose.ui.unit.ConstraintsKt.constrainWidth(long,int)
+RemovedMethod: androidx.compose.ui.unit.ConstraintsKt#isSatisfiedBy(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.ConstraintsKt.isSatisfiedBy(long,long)
+RemovedMethod: androidx.compose.ui.unit.ConstraintsKt#offset(long, int, int):
+    Binary breaking change: Removed method androidx.compose.ui.unit.ConstraintsKt.offset(long,int,int)
+RemovedMethod: androidx.compose.ui.unit.Density#roundToPx(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.roundToPx(float)
+RemovedMethod: androidx.compose.ui.unit.Density#roundToPx(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.roundToPx(long)
+RemovedMethod: androidx.compose.ui.unit.Density#toDpSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.toDpSize(long)
+RemovedMethod: androidx.compose.ui.unit.Density#toPx(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.toPx(float)
+RemovedMethod: androidx.compose.ui.unit.Density#toPx(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.toPx(long)
+RemovedMethod: androidx.compose.ui.unit.Density#toSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Density.toSize(long)
+RemovedMethod: androidx.compose.ui.unit.Dp#compareTo(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.compareTo(float)
+RemovedMethod: androidx.compose.ui.unit.Dp#minus(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.minus(float)
+RemovedMethod: androidx.compose.ui.unit.Dp#plus(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.plus(float)
 RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getHairline():
     Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getHairline()
 RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getInfinity():
     Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getInfinity()
 RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.DpKt#DpOffset(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.DpOffset(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#DpSize(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.DpSize(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#coerceAtLeast(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.coerceAtLeast(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#coerceAtMost(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.coerceAtMost(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#coerceIn(float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.coerceIn(float,float,float)
 RemovedMethod: androidx.compose.ui.unit.DpKt#getCenter(long):
     Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.getCenter(long)
 RemovedMethod: androidx.compose.ui.unit.DpKt#isFinite(float):
@@ -53,6 +287,36 @@ RemovedMethod: androidx.compose.ui.unit.DpKt#isUnspecified(float):
     Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isUnspecified(float)
 RemovedMethod: androidx.compose.ui.unit.DpKt#isUnspecified(long):
     Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.unit.DpKt#lerp(float, float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.lerp(float,float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#max(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.max(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#min(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.min(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#takeOrElse(float, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp>):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.takeOrElse(float,kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp>)
+RemovedMethod: androidx.compose.ui.unit.DpKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpOffset>):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpOffset>)
+RemovedMethod: androidx.compose.ui.unit.DpKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpSize>):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpSize>)
+RemovedMethod: androidx.compose.ui.unit.DpKt#times(double, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.times(double,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#times(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.times(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#times(float, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.times(float,long)
+RemovedMethod: androidx.compose.ui.unit.DpKt#times(int, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.times(int,float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#times(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.times(int,long)
+RemovedMethod: androidx.compose.ui.unit.DpOffset#copy(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.copy(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpOffset#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.minus(long)
+RemovedMethod: androidx.compose.ui.unit.DpOffset#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.plus(long)
 RemovedMethod: androidx.compose.ui.unit.DpOffset.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.Companion.getUnspecified()
 RemovedMethod: androidx.compose.ui.unit.DpOffset.Companion#getZero():
@@ -65,14 +329,40 @@ RemovedMethod: androidx.compose.ui.unit.DpRect#getRight():
     Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getRight()
 RemovedMethod: androidx.compose.ui.unit.DpRect#getTop():
     Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getTop()
+RemovedMethod: androidx.compose.ui.unit.DpSize#copy(float, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.copy(float,float)
+RemovedMethod: androidx.compose.ui.unit.DpSize#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.minus(long)
+RemovedMethod: androidx.compose.ui.unit.DpSize#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.plus(long)
 RemovedMethod: androidx.compose.ui.unit.DpSize.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.Companion.getUnspecified()
 RemovedMethod: androidx.compose.ui.unit.DpSize.Companion#getZero():
     Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.FontScaling#toDp(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.FontScaling.toDp(long)
+RemovedMethod: androidx.compose.ui.unit.FontScaling#toSp(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.FontScaling.toSp(float)
+RemovedMethod: androidx.compose.ui.unit.IntOffset#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.minus(long)
+RemovedMethod: androidx.compose.ui.unit.IntOffset#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.plus(long)
 RemovedMethod: androidx.compose.ui.unit.IntOffset.Companion#getMax():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.Companion.getMax()
 RemovedMethod: androidx.compose.ui.unit.IntOffset.Companion#getZero():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.IntOffsetKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffsetKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.unit.IntOffsetKt#minus(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffsetKt.minus(long,long)
+RemovedMethod: androidx.compose.ui.unit.IntOffsetKt#plus(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffsetKt.plus(long,long)
+RemovedMethod: androidx.compose.ui.unit.IntOffsetKt#round(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffsetKt.round(long)
+RemovedMethod: androidx.compose.ui.unit.IntOffsetKt#toOffset(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffsetKt.toOffset(long)
+RemovedMethod: androidx.compose.ui.unit.IntRect#contains(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.contains(long)
 RemovedMethod: androidx.compose.ui.unit.IntRect#getBottomCenter():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getBottomCenter()
 RemovedMethod: androidx.compose.ui.unit.IntRect#getBottomLeft():
@@ -93,21 +383,61 @@ RemovedMethod: androidx.compose.ui.unit.IntRect#getTopLeft():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getTopLeft()
 RemovedMethod: androidx.compose.ui.unit.IntRect#getTopRight():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getTopRight()
+RemovedMethod: androidx.compose.ui.unit.IntRect#translate(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.translate(long)
+RemovedMethod: androidx.compose.ui.unit.IntRectKt#IntRect(long, int):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRectKt.IntRect(long,int)
+RemovedMethod: androidx.compose.ui.unit.IntRectKt#IntRect(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRectKt.IntRect(long,long)
 RemovedMethod: androidx.compose.ui.unit.IntSize.Companion#getZero():
     Binary breaking change: Removed method androidx.compose.ui.unit.IntSize.Companion.getZero()
 RemovedMethod: androidx.compose.ui.unit.IntSizeKt#getCenter(long):
     Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.getCenter(long)
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#roundToIntSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.roundToIntSize(long)
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#times(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.times(int,long)
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#toIntRect(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.toIntRect(long)
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#toIntSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.toIntSize(long)
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#toSize(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.toSize(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnit#compareTo(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnit.compareTo(long)
 RemovedMethod: androidx.compose.ui.unit.TextUnit.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnit.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#TextUnit(float, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.TextUnit(float,long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#checkArithmetic(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.checkArithmetic(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#checkArithmetic(long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.checkArithmetic(long,long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#checkArithmetic(long, long, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.checkArithmetic(long,long,long)
 RemovedMethod: androidx.compose.ui.unit.TextUnitKt#isSpecified(long):
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.isSpecified(long)
 RemovedMethod: androidx.compose.ui.unit.TextUnitKt#isUnspecified(long):
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#lerp(long, long, float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.lerp(long,long,float)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit>):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.takeOrElse(long,kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit>)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#times(double, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.times(double,long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#times(float, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.times(float,long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#times(int, long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.times(int,long)
 RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getEm():
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getEm()
 RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getSp():
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getSp()
 RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getUnspecified():
     Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.Velocity#minus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Velocity.minus(long)
+RemovedMethod: androidx.compose.ui.unit.Velocity#plus(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.Velocity.plus(long)
 RemovedMethod: androidx.compose.ui.unit.Velocity.Companion#getZero():
     Binary breaking change: Removed method androidx.compose.ui.unit.Velocity.Companion.getZero()

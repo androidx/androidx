@@ -15,16 +15,14 @@
  */
 package androidx.compose.remote.player.view.platform;
 
-import static androidx.compose.remote.core.operations.Utils.idFromNan;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import androidx.annotation.RestrictTo;
+import static androidx.compose.remote.core.operations.Utils.idFromNan;
 
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.PathData;
 
 /**

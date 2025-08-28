@@ -16,31 +16,9 @@
 package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.Anchor
-import androidx.compose.runtime.ComposerImpl.CompositionContextHolder
-import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.GroupSourceInformation
-import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.SlotReader
-import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.SlotWriter
+import androidx.compose.runtime.composer.GroupSourceInformation
 import androidx.compose.runtime.defaultsKey
-import androidx.compose.runtime.reference
-import androidx.compose.runtime.referenceKey
 import androidx.compose.runtime.snapshots.fastForEach
-
-internal class WriterTraceBuilder(private val writer: SlotWriter) : ComposeStackTraceBuilder() {
-    override fun sourceInformationOf(anchor: Anchor): GroupSourceInformation? =
-        writer.sourceInformationOf(writer.anchorIndex(anchor))
-
-    override fun groupKeyOf(anchor: Anchor): Int = writer.groupKey(writer.anchorIndex(anchor))
-}
-
-internal class ReaderTraceBuilder(private val reader: SlotReader) : ComposeStackTraceBuilder() {
-    override fun sourceInformationOf(anchor: Anchor): GroupSourceInformation? =
-        reader.table.sourceInformationOf(reader.table.anchorIndex(anchor))
-
-    override fun groupKeyOf(anchor: Anchor): Int = reader.groupKey(reader.table.anchorIndex(anchor))
-}
 
 internal abstract class ComposeStackTraceBuilder {
     private val _trace = mutableListOf<ComposeStackTraceFrame>()
@@ -85,10 +63,10 @@ internal abstract class ComposeStackTraceBuilder {
 
                     // If sourceInformation is null, it means that default group does not capture
                     // source information yet.
-                    if (isDefaultGroup && sourceInfo?.sourceInformation == null) {
+                    if (isDefaultGroup && sourceInfo.sourceInformation == null) {
                         // defaults group does not contain a separate source information string
                         // and should be calculated separately.
-                        sourceInfo?.groups?.fastForEach {
+                        sourceInfo.groups?.fastForEach {
                             if (sourceInformationOf(it)?.isCall() == true) {
                                 callCount++
                             }
@@ -186,127 +164,6 @@ internal abstract class ComposeStackTraceBuilder {
     abstract fun sourceInformationOf(anchor: Anchor): GroupSourceInformation?
 
     abstract fun groupKeyOf(anchor: Anchor): Int
-}
-
-internal fun SlotWriter.buildTrace(
-    child: Any? = null,
-    group: Int = currentGroup,
-    parent: Int? = null,
-): List<ComposeStackTraceFrame> {
-    val writer = this
-    if (!writer.closed && writer.size != 0) {
-        val traceBuilder = WriterTraceBuilder(writer)
-        var currentGroup = group
-        // sometimes in composition the parent is not completed, so we have to use writer.parent
-        // whenever it is reasonably set.
-        var parentGroup =
-            parent ?: if (writer.parent < 0) writer.parent(currentGroup) else writer.parent
-        var childData: Any? = child ?: writer.groupSlotIndex(currentGroup)
-        while (currentGroup >= 0) {
-            traceBuilder.processEdge(writer.sourceInformationOf(currentGroup), childData)
-            childData = writer.anchor(currentGroup)
-            currentGroup = parentGroup
-
-            if (currentGroup >= 0) {
-                parentGroup = writer.parent(currentGroup)
-            }
-        }
-        return traceBuilder.trace()
-    }
-    return emptyList()
-}
-
-internal fun SlotReader.buildTrace(): List<ComposeStackTraceFrame> {
-    val reader = this
-    if (!reader.closed && reader.size != 0) {
-        val traceBuilder = ReaderTraceBuilder(reader)
-        var currentGroup = reader.parent
-        var childAnchor: Any? = reader.slot
-        while (currentGroup >= 0) {
-            traceBuilder.processEdge(reader.table.sourceInformationOf(currentGroup), childAnchor)
-            childAnchor = reader.anchor(currentGroup)
-            val parentGroup = reader.parent(currentGroup)
-            currentGroup = parentGroup
-        }
-        return traceBuilder.trace()
-    }
-    return emptyList()
-}
-
-internal fun SlotReader.traceForGroup(
-    group: Int,
-    child: Any?, /* Anchor | Int | null */
-): List<ComposeStackTraceFrame> {
-    val reader = this
-    val traceBuilder = ReaderTraceBuilder(reader)
-    var currentGroup = group
-    var parentGroup = reader.parent(group)
-    var parentAnchor = reader.anchor(currentGroup)
-    var childAnchor: Any? = child
-    while (currentGroup >= 0) {
-        traceBuilder.processEdge(reader.table.sourceInformationOf(currentGroup), childAnchor)
-        currentGroup = parentGroup
-        childAnchor = parentAnchor
-        if (currentGroup >= 0) {
-            parentAnchor = reader.anchor(parentGroup)
-            parentGroup = reader.parent(parentGroup)
-        }
-    }
-
-    return traceBuilder.trace()
-}
-
-internal fun SlotTable.findLocation(filter: (value: Any?) -> Boolean): ObjectLocation? {
-    // potential optimization: indexOf in slots and binary search the group number
-    read { reader ->
-        var current = 0
-        while (current < groupsSize) {
-            if (reader.isNode(current) && filter(reader.node(current))) {
-                return ObjectLocation(current, null)
-            }
-
-            repeat(reader.slotSize(current)) { slotIndex ->
-                val slot = reader.groupGet(current, slotIndex)
-                if (filter(slot)) {
-                    return ObjectLocation(current, slotIndex)
-                }
-            }
-
-            current++
-        }
-    }
-
-    return null
-}
-
-internal fun SlotTable.findSubcompositionContextGroup(context: CompositionContext): Int? {
-    read { reader ->
-        fun scanGroup(group: Int, end: Int): Int? {
-            var current = group
-            while (current < end) {
-                val next = current + reader.groupSize(current)
-                if (
-                    reader.hasMark(current) &&
-                        reader.groupKey(current) == referenceKey &&
-                        reader.groupObjectKey(current) == reference
-                ) {
-                    val observerHolder = reader.groupGet(current, 0) as? RememberObserverHolder
-                    val contextHolder = observerHolder?.wrapped as? CompositionContextHolder
-                    if (contextHolder != null && contextHolder.ref == context) {
-                        return current
-                    }
-                }
-                if (reader.containsMark(current)) {
-                    scanGroup(current + 1, next)?.let {
-                        return it
-                    }
-                }
-                current = next
-            }
-            return null
-        }
-        return scanGroup(0, reader.size)
-    }
 }
 
 internal data class ObjectLocation(val group: Int, val dataOffset: Int?)

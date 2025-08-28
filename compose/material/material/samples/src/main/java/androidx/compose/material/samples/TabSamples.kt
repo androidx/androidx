@@ -55,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @Sampled
@@ -372,7 +373,7 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: In
                 .fillMaxSize()
                 .wrapContentSize(align = Alignment.BottomStart)
                 // Apply an offset from the start to correctly position the indicator around the tab
-                .offset(x = indicatorStart)
+                .offset { IntOffset(indicatorStart.roundToPx(), 0) }
                 // Make the width of the indicator follow the animated width as we move between tabs
                 .width(indicatorEnd - indicatorStart),
     )

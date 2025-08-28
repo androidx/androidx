@@ -112,6 +112,7 @@ class SelectionManagerTest {
         selectionManager.textToolbar = textToolbar
         selectionManager.selection = fakeSelection
         selectionManager.onSelectionChange = { onSelectionChangeCalledTimes++ }
+        selectionManager.onCopyHandler = {}
     }
 
     @Test

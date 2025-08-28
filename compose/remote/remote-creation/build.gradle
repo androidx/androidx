@@ -15,30 +15,74 @@
  */
 
 import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
 androidx {
     name = "Remote Compose Creation"
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2024"
-    description = "Under Development"
+    description = "Provides a procedural API to create RemoteCompose documents"
 }
 
-android {
-    namespace 'androidx.compose.remote.creation'
+androidXMultiplatform {
+    androidLibrary {
+        withJava()
+        namespace = "androidx.compose.remote.creation"
+        compileSdk = 35
+    }
+    jvm()
 
-    compileSdk 35
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.jspecify)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:remote:remote-core"))
+            }
+        }
+
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:remote:remote-core"))
+                api(project(":compose:remote:remote-creation-core"))
+                implementation(project(":graphics:graphics-path"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.testExtJunit)
+                implementation(libs.testRules)
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.kotlinTest)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(project(":compose:remote:test-utils"))
+                implementation(project(":compose:remote:remote-player-view"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-manifest"))
+            }
+        }
+    }
 }
 
-dependencies {
-    api(libs.jspecify)
-    implementation(project(":compose:remote:remote-core"))
-    implementation(project(":graphics:graphics-path"))
-    androidTestImplementation(libs.testRunner)
-    testImplementation(libs.junit)
-}

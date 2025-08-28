@@ -185,7 +185,7 @@ internal inline fun DelegatableNode.visitSubtreeIf(
         val branch = branches.removeAt(branches.size - 1)
         if (branch.aggregateChildKindSet and mask != 0) {
             var node: Modifier.Node? = branch
-            while (node != null) {
+            while (node != null && node.isAttached) {
                 if (node.kindSet and mask != 0) {
                     val diveDeeper = block(node)
                     if (!diveDeeper) continue@outer

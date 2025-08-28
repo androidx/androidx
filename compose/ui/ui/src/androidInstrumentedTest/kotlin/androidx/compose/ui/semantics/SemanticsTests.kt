@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.semantics
 
-import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,6 +65,7 @@ import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.IntSize
@@ -76,7 +76,6 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import org.junit.After
@@ -323,12 +322,13 @@ class SemanticsTests {
             )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun fillableDataProperty() {
         rule.setContent {
             SimpleTestLayout(
-                Modifier.testTag(TestTag).semantics { fillableData = FillableData("foo") }
+                Modifier.testTag(TestTag).semantics {
+                    FillableData("foo")?.let { fillableData = it }
+                }
             ) {}
         }
 
@@ -336,8 +336,7 @@ class SemanticsTests {
             .onNodeWithTag(TestTag, useUnmergedTree = true)
             .assert(
                 SemanticsMatcher("fillableData") {
-                    it.config.getOrNull(SemanticsProperties.FillableData)?.getCharSequence() ==
-                        "foo"
+                    it.config.getOrNull(SemanticsProperties.FillableData)?.textValue == "foo"
                 }
             )
 
@@ -345,47 +344,50 @@ class SemanticsTests {
             .onNodeWithTag(TestTag)
             .assert(
                 SemanticsMatcher("fillableData") {
-                    it.config.getOrNull(SemanticsProperties.FillableData)?.getCharSequence() ==
-                        "foo"
+                    it.config.getOrNull(SemanticsProperties.FillableData)?.textValue == "foo"
                 }
             )
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun onFillDataAction() {
         val actionLabel = "fill"
+        var receivedData: FillableData? = null
         rule.setContent {
             SimpleTestLayout(
                 Modifier.testTag(TestTag).semantics {
-                    onFillData(label = actionLabel, action = { true })
+                    onFillData(
+                        label = actionLabel,
+                        action = {
+                            receivedData = it
+                            true
+                        },
+                    )
                 }
             ) {}
         }
 
-        rule
-            .onNodeWithTag(TestTag, useUnmergedTree = true)
-            .assert(
-                SemanticsMatcher("fill") {
-                    it.config.getOrNull(SemanticsActions.OnFillData)?.label == actionLabel &&
-                        it.config
-                            .getOrNull(SemanticsActions.OnFillData)
-                            ?.action
-                            ?.invoke(FillableData("foo")) == true
-                }
-            )
+        val fillableData = FillableData("foo")
+        rule.onNodeWithTag(TestTag).performSemanticsAction(SemanticsActions.OnFillData) {
+            fillableData?.let { data -> it(data) }
+        }
 
-        rule
-            .onNodeWithTag(TestTag)
-            .assert(
-                SemanticsMatcher("fill") {
-                    it.config.getOrNull(SemanticsActions.OnFillData)?.label == actionLabel &&
-                        it.config
-                            .getOrNull(SemanticsActions.OnFillData)
-                            ?.action
-                            ?.invoke(FillableData("foo")) == true
+        assertThat(receivedData?.textValue).isEqualTo("foo")
+        fillableData?.let { data ->
+            val fillMatcher =
+                SemanticsMatcher("fill") { node ->
+                    // Assert that the SemanticsAction.OnFillData exists,
+                    node.config.getOrNull(SemanticsActions.OnFillData)?.let { action ->
+                        // has the correct label and,
+                        action.label == actionLabel
+                        // when invoked with the provided data, the action returns true.
+                        && action.action?.invoke(data) == true
+                    } ?: false
                 }
-            )
+
+            rule.onNodeWithTag(TestTag, useUnmergedTree = true).assert(fillMatcher)
+            rule.onNodeWithTag(TestTag).assert(fillMatcher)
+        }
     }
 
     @Test

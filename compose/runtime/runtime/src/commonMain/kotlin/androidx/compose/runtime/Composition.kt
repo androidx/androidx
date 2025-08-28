@@ -19,10 +19,15 @@
 package androidx.compose.runtime
 
 import androidx.collection.MutableScatterSet
+import androidx.collection.ObjectList
+import androidx.collection.ScatterMap
 import androidx.collection.ScatterSet
-import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.composer.DebugStringFormattable
+import androidx.compose.runtime.composer.InvalidationResult
+import androidx.compose.runtime.composer.RememberManager
+import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
 import androidx.compose.runtime.internal.trace
@@ -32,7 +37,7 @@ import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
-import androidx.compose.runtime.snapshots.fastForEach
+import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
 import androidx.compose.runtime.tooling.ObservableComposition
@@ -430,6 +435,75 @@ private const val DEACTIVATED = 1
 private const val INCONSISTENT = 2
 private const val DISPOSED = 3
 
+internal abstract class Anchor {
+    abstract val valid: Boolean
+}
+
+internal abstract class SlotStorage {
+    abstract val isEmpty: Boolean
+
+    /** Clear the content of the slot table. Report removes to the remember manager */
+    abstract fun clear(rememberManager: RememberManager)
+
+    /** Tell the slot storage to collect call-by information (used by live-edit) */
+    abstract fun collectCalledByInformation()
+
+    /** Tell the slot storage to collect source information (used by tooling) */
+    abstract fun collectSourceInformation()
+
+    /** Deactivate all nodes in the storage (used by lazy) */
+    abstract fun deactivateAll(rememberManager: RememberManager)
+
+    abstract fun dispose()
+
+    /** Extract one or more states of movable content that is nested in the slot storage */
+    abstract fun extractNestedStates(
+        applier: Applier<*>,
+        references: ObjectList<MovableContentStateReference>,
+    ): ScatterMap<MovableContentStateReference, MovableContentState>
+
+    /** Invalidate all scopes in the storage (used by live-edit) */
+    abstract fun invalidateAll()
+
+    /** Invalidates all groups with the [target] group key (used by live-edit) */
+    abstract fun invalidateGroupsWithKey(target: Int): List<RecomposeScopeImpl>?
+
+    /** Returns true if the recompose scope is in the slot storage */
+    abstract fun ownsRecomposeScope(scope: RecomposeScopeImpl): Boolean
+
+    /** Returns true if the group indicated by group owns the recompose scope */
+    abstract fun groupContainsAnchor(group: Int, anchor: Anchor): Boolean
+
+    /** Returns true if the [parent] group contains the [child] group */
+    abstract fun inGroup(parent: Anchor, child: Anchor): Boolean
+
+    /** Debugging */
+    abstract fun toDebugString(): String
+
+    /**
+     * Testing. Throws an exception if the slot table is not well-formed. A well-formed slot storage
+     * is a slot storage where all the internal invariants hold.
+     */
+    @TestOnly abstract fun verifyWellFormed()
+
+    @TestOnly abstract fun getSlots(): Iterable<Any?>
+}
+
+internal abstract class Changes : DebugStringFormattable() {
+    abstract fun clear()
+
+    abstract fun execute(
+        slotStorage: SlotStorage,
+        applier: Applier<*>,
+        rememberManager: RememberManager,
+        errorContext: CompositionErrorContextImpl?,
+    )
+
+    abstract fun isEmpty(): Boolean
+
+    fun isNotEmpty() = !isEmpty()
+}
+
 /**
  * The implementation of the [Composition] interface.
  *
@@ -480,11 +554,15 @@ internal class CompositionImpl(
 
     /** The slot table is used to store the composition information required for recomposition. */
     @Suppress("MemberVisibilityCanBePrivate") // published as internal
-    internal val slotTable =
-        SlotTable().also {
+    internal val slotStorage: SlotStorage =
+        createSlotStorage().also {
             if (parent.collectingCallByInformation) it.collectCalledByInformation()
             if (parent.collectingSourceInformation) it.collectSourceInformation()
         }
+
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createSlotStorage(): SlotStorage =
+        androidx.compose.runtime.composer.gapbuffer.SlotTable()
 
     /**
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
@@ -524,11 +602,11 @@ internal class CompositionImpl(
         get() = conditionallyInvalidatedScopes.asSet().toList()
 
     /**
-     * A list of changes calculated by [Composer] to be applied to the [Applier] and the [SlotTable]
-     * to reflect the result of composition. This is a list of lambdas that need to be invoked in
-     * order to produce the desired effects.
+     * A list of changes calculated by [Composer] to be applied to the [Applier] and the
+     * [SlotStorage] to reflect the result of composition. This is a list of lambdas that need to be
+     * invoked in order to produce the desired effects.
      */
-    private val changes = ChangeList()
+    private val changes: Changes = createChangeList()
 
     /**
      * A list of changes calculated by [Composer] to be applied after all other compositions have
@@ -538,7 +616,7 @@ internal class CompositionImpl(
      * inserts might be earlier in the composition than the position it is deleted, this move must
      * be done in two phases.
      */
-    private val lateChanges = ChangeList()
+    private val lateChanges: Changes = createChangeList()
 
     /**
      * When an observable object is modified during composition any recompose scopes that are
@@ -562,7 +640,7 @@ internal class CompositionImpl(
      * As [RecomposeScope]s are removed the corresponding entries in the observations set must be
      * removed as well. This process is expensive so should only be done if it is certain the
      * [observations] set contains [RecomposeScope] that is no longer needed. [pendingInvalidScopes]
-     * is set to true whenever a [RecomposeScope] is removed from the [slotTable].
+     * is set to true whenever a [RecomposeScope] is removed from the [slotStorage].
      */
     @Suppress("MemberVisibilityCanBePrivate") // published as internal
     internal var pendingInvalidScopes = false
@@ -584,18 +662,24 @@ internal class CompositionImpl(
     private val rememberManager = RememberEventDispatcher()
 
     /** The [Composer] to use to create and update the tree managed by this composition. */
-    internal val composer: ComposerImpl =
-        ComposerImpl(
-                applier = applier,
-                parentContext = parent,
-                slotTable = slotTable,
-                abandonSet = abandonSet,
-                changes = changes,
-                lateChanges = lateChanges,
-                composition = this,
-                observerHolder = observerHolder,
-            )
-            .also { parent.registerComposer(it) }
+    internal val composer: InternalComposer = createComposer().also { parent.registerComposer(it) }
+
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createComposer(): InternalComposer =
+        GapComposer(
+            applier = applier,
+            parentContext = parent,
+            slotTable = slotStorage.asGapBufferSlotTable(),
+            abandonSet = abandonSet,
+            changes = changes,
+            lateChanges = lateChanges,
+            composition = this,
+            observerHolder = observerHolder,
+        )
+
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createChangeList(): Changes =
+        androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList()
 
     /** The [CoroutineContext] override, if there is one, for this composition. */
     private val _recomposeContext: CoroutineContext? = recomposeContext
@@ -744,7 +828,7 @@ internal class CompositionImpl(
     }
 
     fun invalidateGroupsWithKey(key: Int) {
-        val scopesToInvalidate = synchronized(lock) { slotTable.invalidateGroupsWithKey(key) }
+        val scopesToInvalidate = synchronized(lock) { slotStorage.invalidateGroupsWithKey(key) }
         // Calls to invalidate must be performed without the lock as the they may cause the
         // recomposer to take its lock to respond to the invalidation and that takes the locks
         // in the opposite order of composition so if composition begins in another thread taking
@@ -768,7 +852,7 @@ internal class CompositionImpl(
                 // Do nothing, just start composing.
             }
             PendingApplyNoModifications -> {
-                composeRuntimeError("pending composition has not been applied")
+                composeImmediateRuntimeError("pending composition has not been applied")
             }
             is Set<*> -> {
                 addPendingInvalidationsLocked(toRecord as Set<Any>, forgetConditionalScopes = true)
@@ -777,7 +861,10 @@ internal class CompositionImpl(
                 for (changed in toRecord as Array<Set<Any>>) {
                     addPendingInvalidationsLocked(changed, forgetConditionalScopes = true)
                 }
-            else -> composeRuntimeError("corrupt pendingModifications drain: $pendingModifications")
+            else ->
+                composeImmediateRuntimeError(
+                    "corrupt pendingModifications drain: $pendingModifications"
+                )
         }
     }
 
@@ -795,10 +882,13 @@ internal class CompositionImpl(
                     addPendingInvalidationsLocked(changed, forgetConditionalScopes = false)
                 }
             null ->
-                composeRuntimeError(
+                composeImmediateRuntimeError(
                     "calling recordModificationsOf and applyChanges concurrently is not supported"
                 )
-            else -> composeRuntimeError("corrupt pendingModifications drain: $pendingModifications")
+            else ->
+                composeImmediateRuntimeError(
+                    "corrupt pendingModifications drain: $pendingModifications"
+                )
         }
     }
 
@@ -871,12 +961,12 @@ internal class CompositionImpl(
                 // this is done after applying deferred changes above to avoid sending `
                 // onForgotten` notification to objects that are still part of movable content that
                 // will be moved to a new location.
-                val nonEmptySlotTable = slotTable.groupsSize > 0
+                val nonEmptySlotTable = !slotStorage.isEmpty
                 if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                     rememberManager.use(abandonSet, composer.errorContext) {
                         if (nonEmptySlotTable) {
                             applier.onBeginChanges()
-                            slotTable.write { writer -> writer.removeCurrentGroup(rememberManager) }
+                            slotStorage.clear(rememberManager)
                             applier.clear()
                             applier.onEndChanges()
                             dispatchRememberObservers()
@@ -938,10 +1028,10 @@ internal class CompositionImpl(
     internal fun extractInvalidationsOf(anchor: Anchor): List<Pair<RecomposeScopeImpl, Any>> {
         return if (invalidations.size > 0) {
             val result = mutableListOf<Pair<RecomposeScopeImpl, Any>>()
-            val slotTable = slotTable
+            val slotStorage = slotStorage
             invalidations.removeIf { scope, value ->
                 val scopeAnchor = scope.anchor
-                if (scopeAnchor != null && slotTable.inGroup(anchor, scopeAnchor)) {
+                if (scopeAnchor != null && slotStorage.inGroup(anchor, scopeAnchor)) {
                     result.add(scope to value)
 
                     // Remove the invalidation
@@ -1090,13 +1180,12 @@ internal class CompositionImpl(
 
     override fun disposeUnusedMovableContent(state: MovableContentState) {
         rememberManager.use(abandonSet, composer.errorContext) {
-            val slotTable = state.slotTable
-            slotTable.write { writer -> writer.removeCurrentGroup(rememberManager) }
+            state.slotStorage.clear(rememberManager)
             dispatchRememberObservers()
         }
     }
 
-    private fun applyChangesInLocked(changes: ChangeList) {
+    private fun applyChangesInLocked(changes: Changes) {
         rememberManager.prepare(abandonSet, composer.errorContext)
         try {
             if (changes.isEmpty()) return
@@ -1111,15 +1200,8 @@ internal class CompositionImpl(
                 val rememberManager = pendingPausedComposition?.rememberManager ?: rememberManager
                 applier.onBeginChanges()
 
-                // Apply all changes
-                slotTable.write { slots ->
-                    changes.executeAndFlushAllPendingChanges(
-                        applier,
-                        slots,
-                        rememberManager,
-                        composer.errorContext,
-                    )
-                }
+                changes.execute(slotStorage, applier, rememberManager, composer.errorContext)
+
                 applier.onEndChanges()
             }
 
@@ -1216,15 +1298,14 @@ internal class CompositionImpl(
     }
 
     override fun invalidateAll() {
-        synchronized(lock) { slotTable.slots.forEach { (it as? RecomposeScopeImpl)?.invalidate() } }
+        synchronized(lock) { slotStorage.invalidateAll() }
     }
 
     override fun verifyConsistent() {
         synchronized(lock) {
             if (!isComposing) {
                 composer.verifyConsistent()
-                slotTable.verifyWellFormed()
-                validateRecomposeScopeAnchors(slotTable)
+                slotStorage.verifyWellFormed()
             }
         }
     }
@@ -1261,7 +1342,7 @@ internal class CompositionImpl(
         val anchor = scope.anchor
         if (anchor == null || !anchor.valid)
             return InvalidationResult.IGNORED // The scope was removed from the composition
-        if (!slotTable.ownsAnchor(anchor)) {
+        if (!slotStorage.ownsRecomposeScope(scope)) {
             // The scope might be owned by the delegate
             val delegate = synchronized(lock) { invalidationDelegate }
             if (delegate?.tryImminentInvalidation(scope, instance) == true)
@@ -1306,7 +1387,7 @@ internal class CompositionImpl(
                         // composer and will arrive here. this redirects the invalidations that
                         // will be moved to the destination composer instead of recording an
                         // invalid invalidation in the from composer.
-                        if (slotTable.groupContainsAnchor(invalidationDelegateGroup, anchor)) {
+                        if (slotStorage.groupContainsAnchor(invalidationDelegateGroup, anchor)) {
                             changeDelegate
                         } else null
                     }
@@ -1364,23 +1445,6 @@ internal class CompositionImpl(
         return invalidations
     }
 
-    /**
-     * Helper for [verifyConsistent] to ensure the anchor match there respective invalidation
-     * scopes.
-     */
-    private fun validateRecomposeScopeAnchors(slotTable: SlotTable) {
-        val scopes = slotTable.slots.mapNotNull { it as? RecomposeScopeImpl }
-        scopes.fastForEach { scope ->
-            scope.anchor?.let { anchor ->
-                checkPrecondition(scope in slotTable.slotsOf(anchor.toIndexFor(slotTable))) {
-                    val dataIndex = slotTable.slots.indexOf(scope)
-                    "Misaligned anchor $anchor in scope $scope encountered, scope found at " +
-                        "$dataIndex"
-                }
-            }
-        }
-    }
-
     private inline fun <T> trackAbandonedValues(block: () -> T): T {
         var success = false
         return try {
@@ -1399,15 +1463,13 @@ internal class CompositionImpl(
             checkPrecondition(pendingPausedComposition == null) {
                 "Deactivate is not supported while pausable composition is in progress"
             }
-            val nonEmptySlotTable = slotTable.groupsSize > 0
+            val nonEmptySlotTable = !slotStorage.isEmpty
             if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
                 trace("Compose:deactivate") {
                     rememberManager.use(abandonSet, composer.errorContext) {
                         if (nonEmptySlotTable) {
                             applier.onBeginChanges()
-                            slotTable.write { writer ->
-                                writer.deactivateCurrentGroup(rememberManager)
-                            }
+                            slotStorage.deactivateAll(rememberManager)
                             applier.onEndChanges()
                             dispatchRememberObservers()
                         }
@@ -1427,7 +1489,7 @@ internal class CompositionImpl(
     }
 
     // This is only used in tests to ensure the stacks do not silently leak.
-    internal fun composerStacksSizes(): Int = composer.stacksSize()
+    @TestOnly internal fun composerStacksSizes(): Int = composer.stacksSize()
 }
 
 internal object ScopeInvalidated

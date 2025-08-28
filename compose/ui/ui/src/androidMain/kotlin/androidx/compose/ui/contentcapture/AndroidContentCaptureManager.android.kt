@@ -72,11 +72,7 @@ import kotlinx.coroutines.delay
 internal class AndroidContentCaptureManager(
     val view: AndroidComposeView,
     var onContentCaptureSession: () -> ContentCaptureSessionWrapper?,
-) :
-    ContentCaptureManager,
-    DefaultLifecycleObserver,
-    View.OnAttachStateChangeListener,
-    SemanticsListener {
+) : DefaultLifecycleObserver, View.OnAttachStateChangeListener, SemanticsListener {
 
     @VisibleForTesting internal var contentCaptureSession: ContentCaptureSessionWrapper? = null
 
@@ -259,33 +255,36 @@ internal class AndroidContentCaptureManager(
         if (isEnabled) notifySubtreeStateChangeIfNeeded()
     }
 
+    @VisibleForTesting
     internal fun sendPendingContentCaptureEvents() {
-        if (ComposeUiFlags.isContentCaptureOptimizationEnabled) {
-            if (appearedSemanticsIds.isNotEmpty()) {
-                currentSemanticsNodesSnapshotTimestampMillis = System.currentTimeMillis()
+        if (isEnabled && ComposeUiFlags.isContentCaptureOptimizationEnabled) {
+            trace("ContentCapture:sendPendingContentCaptureEvents") {
+                if (appearedSemanticsIds.isNotEmpty()) {
+                    currentSemanticsNodesSnapshotTimestampMillis = System.currentTimeMillis()
 
-                appearedSemanticsIds.forEach { semanticsId ->
-                    view.layoutNodes[semanticsId]?.let { semanticsInfo ->
-                        updateBuffersOnAppeared(semanticsInfo)
-                    }
-                }
-                appearedSemanticsIds.clear()
-            }
-
-            if (updatedSemanticsIds.isNotEmpty()) {
-                updatedSemanticsIds.forEach { semanticsId ->
-                    val newText =
+                    appearedSemanticsIds.forEach { semanticsId ->
                         view.layoutNodes[semanticsId]?.let { semanticsInfo ->
-                            semanticsInfo.semanticsConfiguration
-                                ?.getOrNull(SemanticsProperties.Text)
-                                ?.firstOrNull()
+                            updateBuffersOnAppeared(semanticsInfo)
                         }
-                    sendContentCaptureTextUpdateEvent(semanticsId, newText.toString())
+                    }
+                    appearedSemanticsIds.clear()
                 }
-                updatedSemanticsIds.clear()
-            }
 
-            notifyContentCaptureChanges()
+                if (updatedSemanticsIds.isNotEmpty()) {
+                    updatedSemanticsIds.forEach { semanticsId ->
+                        val newText =
+                            view.layoutNodes[semanticsId]?.let { semanticsInfo ->
+                                semanticsInfo.semanticsConfiguration
+                                    ?.getOrNull(SemanticsProperties.Text)
+                                    ?.firstOrNull()
+                            }
+                        sendContentCaptureTextUpdateEvent(semanticsId, newText.toString())
+                    }
+                    updatedSemanticsIds.clear()
+                }
+
+                notifyContentCaptureChanges()
+            }
         }
     }
 

@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
+@file:JvmName("FillableDataKt")
+
 package androidx.compose.ui.autofill
 
-private class PlatformFillableData(
-    private val value: Any?
-) : FillableData {
-    override fun getCharSequence(): CharSequence? = value as? CharSequence?
-    override fun getBool(): Boolean? = value as? Boolean?
-    override fun getInt(): Int? = value as? Int?
-}
+import kotlin.jvm.JvmName
 
-internal actual fun FillableData(charSequenceValue: CharSequence): FillableData {
-    return PlatformFillableData(charSequenceValue)
-}
+// TODO https://youtrack.jetbrains.com/issue/CMP-8576
 
-internal actual fun FillableData(booleanValue: Boolean): FillableData {
-    return PlatformFillableData(booleanValue)
-}
-
-internal actual fun FillableData(intValue: Int): FillableData {
-    return PlatformFillableData(intValue)
-}
+actual fun FillableData(booleanValue: Boolean): FillableData? = null
+actual fun FillableData(textValue: CharSequence): FillableData? = null
+actual fun FillableData(listIndexValue: Int): FillableData? = null

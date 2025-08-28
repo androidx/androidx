@@ -365,17 +365,17 @@ class ModalBottomSheetTest {
                 )
             }
 
-            assertThat(sheetState.currentValue == ModalBottomSheetValue.Hidden)
+            assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
 
             sheetState.show()
 
             advanceClock()
 
-            assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded)
+            assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Expanded)
 
             sheetState.hide()
 
-            assertThat(sheetState.currentValue == ModalBottomSheetValue.Hidden)
+            assertThat(sheetState.currentValue).isEqualTo(ModalBottomSheetValue.Hidden)
         }
 
     @Test

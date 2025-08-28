@@ -154,11 +154,19 @@ object ComposeUiFlags {
     @JvmField
     var isClearFocusOnResetEnabled: Boolean = false
 
+    /** Enable initial focus when a focusable is added to a screen with no focusable content. */
+    @Suppress("MutableBareField") @JvmField var isInitialFocusOnFocusableAvailable: Boolean = false
+
     /**
      * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
      * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
      */
     @Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
+
+    /** Flag for enabling the fix for using the correct node for nested scroll operations. */
+    @Suppress("MutableBareField")
+    @JvmField
+    var isNestedScrollDispatcherNodeFixEnabled: Boolean = true
 
     /** Flag for enabling indirect touch event navigation gestures in Compose. */
     @Suppress("MutableBareField")
@@ -181,5 +189,5 @@ object ComposeUiFlags {
     var isNestedScrollInteropIntegerPropagationEnabled: Boolean = true
 
     /** This flag enables clearing focus on pointer down by default. */
-    @Suppress("MutableBareField") @JvmField var isClearFocusOnPointerDownEnabled: Boolean = true
+    @Suppress("MutableBareField") @JvmField var isClearFocusOnPointerDownEnabled: Boolean = false
 }

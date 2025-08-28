@@ -2,15 +2,6 @@
 <issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
 
     <issue
-        id="LambdaStructuralEquality"
-        message="Checking lambdas for structural equality, instead of checking for referential equality"
-        errorLine1="            if (rippleAlpha != other.rippleAlpha) return false"
-        errorLine2="                            ~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material/ripple/RippleModifierNodeTest.kt"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is never &lt; 23"
         errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M) {"

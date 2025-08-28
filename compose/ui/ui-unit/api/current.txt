@@ -15,9 +15,9 @@ package androidx.compose.ui.unit {
     ctor @KotlinOnly public Constraints(long value);
     method @BytecodeOnly public static androidx.compose.ui.unit.Constraints! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
-    method public long copy(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method @KotlinOnly public androidx.compose.ui.unit.Constraints copy(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
     method @BytecodeOnly public static long copy-Zbe2FdA(long, int, int, int, int);
-    method public inline long copyMaxDimensions();
+    method @KotlinOnly public inline androidx.compose.ui.unit.Constraints copyMaxDimensions();
     method @BytecodeOnly public static long copyMaxDimensions-msEJaDk(long);
     method @BytecodeOnly public static boolean getHasBoundedHeight-impl(long);
     method @BytecodeOnly public static boolean getHasBoundedWidth-impl(long);
@@ -43,57 +43,58 @@ package androidx.compose.ui.unit {
   }
 
   public static final class Constraints.Companion {
-    method @androidx.compose.runtime.Stable public long fitPrioritizingHeight(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fitPrioritizingHeight(int minWidth, int maxWidth, int minHeight, int maxHeight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long fitPrioritizingHeight-Zbe2FdA(int, int, int, int);
-    method @androidx.compose.runtime.Stable public long fitPrioritizingWidth(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fitPrioritizingWidth(int minWidth, int maxWidth, int minHeight, int maxHeight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long fitPrioritizingWidth-Zbe2FdA(int, int, int, int);
-    method @androidx.compose.runtime.Stable public long fixed(int width, int height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixed(int width, int height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long fixed-JhjzzOo(int, int);
-    method @androidx.compose.runtime.Stable public long fixedHeight(int height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedHeight(int height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long fixedHeight-OenEA2s(int);
-    method @androidx.compose.runtime.Stable public long fixedWidth(int width);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedWidth(int width);
     method @BytecodeOnly @androidx.compose.runtime.Stable public long fixedWidth-OenEA2s(int);
-    method @Deprecated @androidx.compose.runtime.Stable public long restrictConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints restrictConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Stable public long restrictConstraints-xF2OJ5Q(int, int, int, int, boolean);
     property public static int Infinity;
   }
 
   public final class ConstraintsKt {
-    method @androidx.compose.runtime.Stable public static long Constraints(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
-    method public static long constrain(long, long otherConstraints);
-    method @androidx.compose.runtime.Stable public static long constrain(long, long size);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method @KotlinOnly public static androidx.compose.ui.unit.Constraints constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long constrain-4WqzIAM(long, long);
     method @BytecodeOnly public static long constrain-N9IONVI(long, long);
-    method @androidx.compose.runtime.Stable public static int constrainHeight(long, int height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static int constrainHeight(androidx.compose.ui.unit.Constraints, int height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int constrainHeight-K40F9xA(long, int);
-    method @androidx.compose.runtime.Stable public static int constrainWidth(long, int width);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static int constrainWidth(androidx.compose.ui.unit.Constraints, int width);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int constrainWidth-K40F9xA(long, int);
-    method @androidx.compose.runtime.Stable public static boolean isSatisfiedBy(long, long size);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static boolean isSatisfiedBy(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static boolean isSatisfiedBy-4WqzIAM(long, long);
-    method @androidx.compose.runtime.Stable public static long offset(long, optional int horizontal, optional int vertical);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, optional int horizontal, optional int vertical);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long offset-NN6Ew-U(long, int, int);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScaling {
     method public float getDensity();
-    method @androidx.compose.runtime.Stable public default int roundToPx(float);
-    method @androidx.compose.runtime.Stable public default int roundToPx(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default int roundToPx(androidx.compose.ui.unit.Dp);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default int roundToPx(androidx.compose.ui.unit.TextUnit);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default int roundToPx--R2X_6o(long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default int roundToPx-0680j_4(float);
-    method @androidx.compose.runtime.Stable public default float toDp(float);
-    method @androidx.compose.runtime.Stable public default float toDp(int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.Dp toDp(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.Dp toDp(int);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default float toDp-u2uoSUM(float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default float toDp-u2uoSUM(int);
-    method @androidx.compose.runtime.Stable public default long toDpSize(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.DpSize toDpSize(androidx.compose.ui.geometry.Size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default long toDpSize-k-rfVVM(long);
-    method @androidx.compose.runtime.Stable public default float toPx(float);
-    method @androidx.compose.runtime.Stable public default float toPx(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default float toPx(androidx.compose.ui.unit.Dp);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default float toPx(androidx.compose.ui.unit.TextUnit);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default float toPx--R2X_6o(long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default float toPx-0680j_4(float);
     method @androidx.compose.runtime.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.DpRect);
-    method @androidx.compose.runtime.Stable public default long toSize(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.geometry.Size toSize(androidx.compose.ui.unit.DpSize);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default long toSize-XkaWNTQ(long);
-    method @androidx.compose.runtime.Stable public default long toSp(int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.TextUnit toSp(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.TextUnit toSp(int);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default long toSp-kPz2Gy4(float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default long toSp-kPz2Gy4(int);
     property @androidx.compose.runtime.Stable public abstract float density;
@@ -106,26 +107,26 @@ package androidx.compose.ui.unit {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Dp implements java.lang.Comparable<androidx.compose.ui.unit.Dp> {
     ctor @KotlinOnly public Dp(float value);
     method @BytecodeOnly public static androidx.compose.ui.unit.Dp! box-impl(float);
-    method @androidx.compose.runtime.Stable public operator int compareTo(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator int compareTo(androidx.compose.ui.unit.Dp other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public int compareTo-0680j_4(float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int compareTo-0680j_4(float, float);
     method @BytecodeOnly public static float constructor-impl(float);
-    method @androidx.compose.runtime.Stable public inline operator float div(float other);
-    method @androidx.compose.runtime.Stable public inline operator float div(float other);
-    method @androidx.compose.runtime.Stable public inline operator float div(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator float div(androidx.compose.ui.unit.Dp other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp div(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp div(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float div-0680j_4(float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float div-u2uoSUM(float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float div-u2uoSUM(float, int);
     method public float getValue();
-    method @androidx.compose.runtime.Stable public inline operator float minus(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp minus(androidx.compose.ui.unit.Dp other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float minus-5rwHm24(float, float);
-    method @androidx.compose.runtime.Stable public inline operator float plus(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp plus(androidx.compose.ui.unit.Dp other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float plus-5rwHm24(float, float);
-    method @androidx.compose.runtime.Stable public inline operator float times(float other);
-    method @androidx.compose.runtime.Stable public inline operator float times(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp times(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp times(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float times-u2uoSUM(float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float times-u2uoSUM(float, int);
-    method @androidx.compose.runtime.Stable public inline operator float unaryMinus();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp unaryMinus();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float unaryMinus-D9Ej5fM(float);
     method @BytecodeOnly public float unbox-impl();
     property public float value;
@@ -142,15 +143,15 @@ package androidx.compose.ui.unit {
   }
 
   public final class DpKt {
-    method @androidx.compose.runtime.Stable public static inline long DpOffset(float x, float y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.DpOffset DpOffset(androidx.compose.ui.unit.Dp x, androidx.compose.ui.unit.Dp y);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long DpOffset-YgX7TsA(float, float);
-    method @androidx.compose.runtime.Stable public static long DpSize(float width, float height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.DpSize DpSize(androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long DpSize-YgX7TsA(float, float);
-    method @androidx.compose.runtime.Stable public static inline float coerceAtLeast(float, float minimumValue);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.Dp coerceAtLeast(androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp minimumValue);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float coerceAtLeast-YgX7TsA(float, float);
-    method @androidx.compose.runtime.Stable public static inline float coerceAtMost(float, float maximumValue);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.Dp coerceAtMost(androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp maximumValue);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float coerceAtMost-YgX7TsA(float, float);
-    method @androidx.compose.runtime.Stable public static inline float coerceIn(float, float minimumValue, float maximumValue);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.Dp coerceIn(androidx.compose.ui.unit.Dp, androidx.compose.ui.unit.Dp minimumValue, androidx.compose.ui.unit.Dp maximumValue);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float coerceIn-2z7ARbQ(float, float, float);
     method @BytecodeOnly public static long getCenter-EaSLcWc(long);
     method @BytecodeOnly public static float getDp(double);
@@ -166,27 +167,27 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static boolean isUnspecified-0680j_4(float);
     method @BytecodeOnly public static boolean isUnspecified-EaSLcWc(long);
     method @BytecodeOnly public static boolean isUnspecified-jo-Fl9I(long);
-    method @androidx.compose.runtime.Stable public static float lerp(float start, float stop, float fraction);
-    method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
-    method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp lerp(androidx.compose.ui.unit.Dp start, androidx.compose.ui.unit.Dp stop, float fraction);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.DpOffset lerp(androidx.compose.ui.unit.DpOffset start, androidx.compose.ui.unit.DpOffset stop, float fraction);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.DpSize lerp(androidx.compose.ui.unit.DpSize start, androidx.compose.ui.unit.DpSize stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-IDex15A(long, long, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float lerp-Md-fbLM(float, float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-xhh869w(long, long, float);
-    method @androidx.compose.runtime.Stable public static inline float max(float a, float b);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.Dp max(androidx.compose.ui.unit.Dp a, androidx.compose.ui.unit.Dp b);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float max-YgX7TsA(float, float);
-    method @androidx.compose.runtime.Stable public static inline float min(float a, float b);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.Dp min(androidx.compose.ui.unit.Dp a, androidx.compose.ui.unit.Dp b);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float min-YgX7TsA(float, float);
-    method public static inline float takeOrElse(float, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp> block);
-    method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpOffset> block);
-    method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpSize> block);
+    method @KotlinOnly public static inline androidx.compose.ui.unit.Dp takeOrElse(androidx.compose.ui.unit.Dp, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp> block);
+    method @KotlinOnly public static inline androidx.compose.ui.unit.DpOffset takeOrElse(androidx.compose.ui.unit.DpOffset, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpOffset> block);
+    method @KotlinOnly public static inline androidx.compose.ui.unit.DpSize takeOrElse(androidx.compose.ui.unit.DpSize, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpSize> block);
     method @BytecodeOnly public static float takeOrElse-D5KLDUw(float, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp!>);
     method @BytecodeOnly public static long takeOrElse-gVKV90s(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpOffset!>);
     method @BytecodeOnly public static long takeOrElse-itqla9I(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.DpSize!>);
-    method @androidx.compose.runtime.Stable public static inline operator float times(double, float other);
-    method @androidx.compose.runtime.Stable public static inline operator float times(float, float other);
-    method @androidx.compose.runtime.Stable public static inline operator long times(float, long size);
-    method @androidx.compose.runtime.Stable public static inline operator float times(int, float other);
-    method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.Dp times(double, androidx.compose.ui.unit.Dp other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.Dp times(float, androidx.compose.ui.unit.Dp other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.DpSize times(float, androidx.compose.ui.unit.DpSize size);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.Dp times(int, androidx.compose.ui.unit.Dp other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.DpSize times(int, androidx.compose.ui.unit.DpSize size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float times-3ABfNKs(double, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float times-3ABfNKs(float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float times-3ABfNKs(int, float);
@@ -212,14 +213,14 @@ package androidx.compose.ui.unit {
     ctor @KotlinOnly public DpOffset(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.unit.DpOffset! box-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
-    method public long copy(optional float x, optional float y);
+    method @KotlinOnly public androidx.compose.ui.unit.DpOffset copy(optional androidx.compose.ui.unit.Dp x, optional androidx.compose.ui.unit.Dp y);
     method @BytecodeOnly public static long copy-tPigGR8(long, float, float);
     method public long getPackedValue();
     method @BytecodeOnly public static float getX-D9Ej5fM(long);
     method @BytecodeOnly public static float getY-D9Ej5fM(long);
-    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpOffset minus(androidx.compose.ui.unit.DpOffset other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-CB-Mgk4(long, long);
-    method @androidx.compose.runtime.Stable public operator long plus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpOffset plus(androidx.compose.ui.unit.DpOffset other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-CB-Mgk4(long, long);
     method @BytecodeOnly public long unbox-impl();
     property public long packedValue;
@@ -240,10 +241,15 @@ package androidx.compose.ui.unit {
     ctor @KotlinOnly public DpRect(androidx.compose.ui.unit.DpOffset origin, androidx.compose.ui.unit.DpSize size);
     ctor @BytecodeOnly public DpRect(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public DpRect(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public operator androidx.compose.ui.unit.Dp component1();
     method @BytecodeOnly public float component1-D9Ej5fM();
+    method @KotlinOnly public operator androidx.compose.ui.unit.Dp component2();
     method @BytecodeOnly public float component2-D9Ej5fM();
+    method @KotlinOnly public operator androidx.compose.ui.unit.Dp component3();
     method @BytecodeOnly public float component3-D9Ej5fM();
+    method @KotlinOnly public operator androidx.compose.ui.unit.Dp component4();
     method @BytecodeOnly public float component4-D9Ej5fM();
+    method @KotlinOnly public androidx.compose.ui.unit.DpRect copy(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly public androidx.compose.ui.unit.DpRect copy-a9UjIt4(float, float, float, float);
     method @BytecodeOnly public float getBottom-D9Ej5fM();
     method @BytecodeOnly public float getLeft-D9Ej5fM();
@@ -261,24 +267,24 @@ package androidx.compose.ui.unit {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DpSize {
     method @BytecodeOnly public static androidx.compose.ui.unit.DpSize! box-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator float component1();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-D9Ej5fM(long);
-    method @androidx.compose.runtime.Stable public inline operator float component2();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.Dp component2();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component2-D9Ej5fM(long);
-    method public long copy(optional float width, optional float height);
+    method @KotlinOnly public androidx.compose.ui.unit.DpSize copy(optional androidx.compose.ui.unit.Dp width, optional androidx.compose.ui.unit.Dp height);
     method @BytecodeOnly public static long copy-DwJknco(long, float, float);
-    method @androidx.compose.runtime.Stable public operator long div(float other);
-    method @androidx.compose.runtime.Stable public operator long div(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize div(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize div(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-Gh9hcWk(long, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-Gh9hcWk(long, int);
     method @BytecodeOnly public static float getHeight-D9Ej5fM(long);
     method @BytecodeOnly public static float getWidth-D9Ej5fM(long);
-    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize minus(androidx.compose.ui.unit.DpSize other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-e_xh8Ic(long, long);
-    method @androidx.compose.runtime.Stable public operator long plus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize plus(androidx.compose.ui.unit.DpSize other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-e_xh8Ic(long, long);
-    method @androidx.compose.runtime.Stable public operator long times(float other);
-    method @androidx.compose.runtime.Stable public operator long times(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize times(float other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.DpSize times(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-Gh9hcWk(long, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-Gh9hcWk(long, int);
     method @BytecodeOnly public long unbox-impl();
@@ -299,9 +305,9 @@ package androidx.compose.ui.unit {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface FontScaling {
     method public float getFontScale();
-    method @androidx.compose.runtime.Stable public default float toDp(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.Dp toDp(androidx.compose.ui.unit.TextUnit);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default float toDp-GaN1DYA(long);
-    method @androidx.compose.runtime.Stable public default long toSp(float);
+    method @KotlinOnly @androidx.compose.runtime.Stable public default androidx.compose.ui.unit.TextUnit toSp(androidx.compose.ui.unit.Dp);
     method @BytecodeOnly @androidx.compose.runtime.Stable public default long toSp-0xMU5do(float);
     property @androidx.compose.runtime.Stable public abstract float fontScale;
   }
@@ -309,27 +315,27 @@ package androidx.compose.ui.unit {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
     ctor @KotlinOnly public IntOffset(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.unit.IntOffset! box-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component1-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator int component2();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component2();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component2-impl(long);
     method @BytecodeOnly public static long constructor-impl(long);
-    method public long copy(optional int x, optional int y);
+    method @KotlinOnly public androidx.compose.ui.unit.IntOffset copy(optional int x, optional int y);
     method @BytecodeOnly public static long copy-iSbpLlY(long, int, int);
-    method @androidx.compose.runtime.Stable public operator long div(float operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-Bjo55l4(long, float);
     method public long getPackedValue();
     method @BytecodeOnly public static int getX-impl(long);
     method @BytecodeOnly public static int getY-impl(long);
-    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset minus(androidx.compose.ui.unit.IntOffset other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-qkQi6aY(long, long);
-    method @androidx.compose.runtime.Stable public operator long plus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset plus(androidx.compose.ui.unit.IntOffset other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-qkQi6aY(long, long);
-    method @androidx.compose.runtime.Stable public operator long rem(int operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset rem(int operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long rem-Bjo55l4(long, int);
-    method @androidx.compose.runtime.Stable public operator long times(float operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset times(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-Bjo55l4(long, float);
-    method @androidx.compose.runtime.Stable public operator long unaryMinus();
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset unaryMinus();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long unaryMinus-nOcc-ac(long);
     method @BytecodeOnly public long unbox-impl();
     property public long packedValue;
@@ -346,20 +352,20 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntOffsetKt {
-    method @androidx.compose.runtime.Stable public static inline long IntOffset(int x, int y);
-    method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset lerp(androidx.compose.ui.unit.IntOffset start, androidx.compose.ui.unit.IntOffset stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-81ZRxRo(long, long, float);
-    method @androidx.compose.runtime.Stable public static operator long minus(long, long offset);
-    method @androidx.compose.runtime.Stable public static operator long minus(long, long offset);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-Nv-tHpc(long, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-oCl6YwE(long, long);
-    method @androidx.compose.runtime.Stable public static operator long plus(long, long offset);
-    method @androidx.compose.runtime.Stable public static operator long plus(long, long offset);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-Nv-tHpc(long, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-oCl6YwE(long, long);
-    method @androidx.compose.runtime.Stable public static long round(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset round(androidx.compose.ui.geometry.Offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long round-k-4lQ0M(long);
-    method @androidx.compose.runtime.Stable public static inline long toOffset(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.compose.ui.unit.IntOffset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long toOffset--gyyYBs(long);
   }
 
@@ -369,7 +375,7 @@ package androidx.compose.ui.unit {
     method public int component2();
     method public int component3();
     method public int component4();
-    method public boolean contains(long offset);
+    method @KotlinOnly public boolean contains(androidx.compose.ui.unit.IntOffset offset);
     method @BytecodeOnly public boolean contains--gyyYBs(long);
     method public androidx.compose.ui.unit.IntRect copy(optional int left, optional int top, optional int right, optional int bottom);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect deflate(int delta);
@@ -395,8 +401,8 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect intersect(androidx.compose.ui.unit.IntRect other);
     method public boolean isEmpty();
     method public boolean overlaps(androidx.compose.ui.unit.IntRect other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(androidx.compose.ui.unit.IntOffset offset);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(int translateX, int translateY);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(long offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate--gyyYBs(long);
     property @androidx.compose.runtime.Stable public int bottom;
     property public androidx.compose.ui.unit.IntOffset bottomCenter;
@@ -426,9 +432,9 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntRectKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long center, int radius);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long offset, long size);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long topLeft, long bottomRight);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(androidx.compose.ui.unit.IntOffset topLeft, androidx.compose.ui.unit.IntOffset bottomRight);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(androidx.compose.ui.unit.IntOffset offset, androidx.compose.ui.unit.IntSize size);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(androidx.compose.ui.unit.IntOffset center, int radius);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect-E1MhUcY(long, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect-VbeCjmY(long, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect-ar5cAso(long, int);
@@ -439,16 +445,16 @@ package androidx.compose.ui.unit {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntSize {
     method @BytecodeOnly public static androidx.compose.ui.unit.IntSize! box-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component1-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator int component2();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component2();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component2-impl(long);
-    method @androidx.compose.runtime.Stable public operator long div(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize div(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-YEO4UFw(long, int);
     method @BytecodeOnly public static int getHeight-impl(long);
     method public long getPackedValue();
     method @BytecodeOnly public static int getWidth-impl(long);
-    method @androidx.compose.runtime.Stable public operator long times(int other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize times(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-YEO4UFw(long, int);
     method @BytecodeOnly public long unbox-impl();
     property @androidx.compose.runtime.Stable public inline int height;
@@ -463,17 +469,17 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntSizeKt {
-    method @androidx.compose.runtime.Stable public static inline long IntSize(int width, int height);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntSize IntSize(int width, int height);
     method @BytecodeOnly public static long getCenter-ozmzZPI(long);
-    method @androidx.compose.runtime.Stable public static long roundToIntSize(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize roundToIntSize(androidx.compose.ui.geometry.Size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long roundToIntSize-uvyYCjk(long);
-    method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.IntSize times(int, androidx.compose.ui.unit.IntSize size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-O0kMr_c(int, long);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect(androidx.compose.ui.unit.IntSize);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect toIntRect-ozmzZPI(long);
-    method @androidx.compose.runtime.Stable public static long toIntSize(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize toIntSize(androidx.compose.ui.geometry.Size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long toIntSize-uvyYCjk(long);
-    method @androidx.compose.runtime.Stable public static long toSize(long);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Size toSize(androidx.compose.ui.unit.IntSize);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long toSize-ozmzZPI(long);
     property @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset androidx.compose.ui.unit.IntSize.center;
   }
@@ -485,11 +491,11 @@ package androidx.compose.ui.unit {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TextUnit {
     method @BytecodeOnly public static androidx.compose.ui.unit.TextUnit! box-impl(long);
-    method public inline operator int compareTo(long other);
+    method @KotlinOnly public inline operator int compareTo(androidx.compose.ui.unit.TextUnit other);
     method @BytecodeOnly public static int compareTo--R2X_6o(long, long);
-    method public inline operator long div(double other);
-    method public inline operator long div(float other);
-    method public inline operator long div(int other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit div(double other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit div(float other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit div(int other);
     method @BytecodeOnly public static long div-kPz2Gy4(long, double);
     method @BytecodeOnly public static long div-kPz2Gy4(long, float);
     method @BytecodeOnly public static long div-kPz2Gy4(long, int);
@@ -497,13 +503,13 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static float getValue-impl(long);
     method @BytecodeOnly public static boolean isEm-impl(long);
     method @BytecodeOnly public static boolean isSp-impl(long);
-    method public inline operator long times(double other);
-    method public inline operator long times(float other);
-    method public inline operator long times(int other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit times(double other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit times(float other);
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit times(int other);
     method @BytecodeOnly public static long times-kPz2Gy4(long, double);
     method @BytecodeOnly public static long times-kPz2Gy4(long, float);
     method @BytecodeOnly public static long times-kPz2Gy4(long, int);
-    method public inline operator long unaryMinus();
+    method @KotlinOnly public inline operator androidx.compose.ui.unit.TextUnit unaryMinus();
     method @BytecodeOnly public static long unaryMinus-XSAIIZE(long);
     method @BytecodeOnly public long unbox-impl();
     property public boolean isEm;
@@ -519,7 +525,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class TextUnitKt {
-    method public static long TextUnit(float value, long type);
+    method @KotlinOnly public static androidx.compose.ui.unit.TextUnit TextUnit(float value, androidx.compose.ui.unit.TextUnitType type);
     method @BytecodeOnly public static long TextUnit-anM5pPY(float, long);
     method @BytecodeOnly public static long getEm(double);
     method @BytecodeOnly public static long getEm(float);
@@ -529,13 +535,13 @@ package androidx.compose.ui.unit {
     method @BytecodeOnly public static long getSp(int);
     method @BytecodeOnly public static boolean isSpecified--R2X_6o(long);
     method @BytecodeOnly public static boolean isUnspecified--R2X_6o(long);
-    method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.TextUnit lerp(androidx.compose.ui.unit.TextUnit start, androidx.compose.ui.unit.TextUnit stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-C3pnCVY(long, long, float);
-    method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);
+    method @KotlinOnly public static inline androidx.compose.ui.unit.TextUnit takeOrElse(androidx.compose.ui.unit.TextUnit, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);
     method @BytecodeOnly public static long takeOrElse-eAf_CNQ(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit!>);
-    method @androidx.compose.runtime.Stable public static inline operator long times(double, long other);
-    method @androidx.compose.runtime.Stable public static inline operator long times(float, long other);
-    method @androidx.compose.runtime.Stable public static inline operator long times(int, long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.TextUnit times(double, androidx.compose.ui.unit.TextUnit other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.TextUnit times(float, androidx.compose.ui.unit.TextUnit other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline operator androidx.compose.ui.unit.TextUnit times(int, androidx.compose.ui.unit.TextUnit other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-mpE4wyQ(double, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-mpE4wyQ(float, long);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-mpE4wyQ(int, long);
@@ -568,25 +574,25 @@ package androidx.compose.ui.unit {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Velocity {
     method @BytecodeOnly public static androidx.compose.ui.unit.Velocity! box-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator float component1();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator float component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component1-impl(long);
-    method @androidx.compose.runtime.Stable public inline operator float component2();
+    method @KotlinOnly @androidx.compose.runtime.Stable public inline operator float component2();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float component2-impl(long);
-    method public long copy(optional float x, optional float y);
+    method @KotlinOnly public androidx.compose.ui.unit.Velocity copy(optional float x, optional float y);
     method @BytecodeOnly public static long copy-OhffZ5M(long, float, float);
-    method @androidx.compose.runtime.Stable public operator long div(float operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-adjELrA(long, float);
     method @BytecodeOnly public static float getX-impl(long);
     method @BytecodeOnly public static float getY-impl(long);
-    method @androidx.compose.runtime.Stable public operator long minus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity minus(androidx.compose.ui.unit.Velocity other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long minus-AH228Gc(long, long);
-    method @androidx.compose.runtime.Stable public operator long plus(long other);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity plus(androidx.compose.ui.unit.Velocity other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long plus-AH228Gc(long, long);
-    method @androidx.compose.runtime.Stable public operator long rem(float operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity rem(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long rem-adjELrA(long, float);
-    method @androidx.compose.runtime.Stable public operator long times(float operand);
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity times(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long times-adjELrA(long, float);
-    method @androidx.compose.runtime.Stable public operator long unaryMinus();
+    method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.Velocity unaryMinus();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long unaryMinus-9UxMQ8M(long);
     method @BytecodeOnly public long unbox-impl();
     property @androidx.compose.runtime.Stable public float x;
@@ -600,7 +606,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class VelocityKt {
-    method @androidx.compose.runtime.Stable public static long Velocity(float x, float y);
+    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Velocity Velocity(float x, float y);
   }
 
 }

@@ -136,7 +136,7 @@ object SemanticsProperties {
         )
 
     /** @see SemanticsPropertyReceiver.fillableData */
-    internal val FillableData =
+    val FillableData =
         SemanticsPropertyKey<FillableData>(
             name = "FillableData",
             mergePolicy = { parentValue, _ ->
@@ -311,7 +311,7 @@ object SemanticsActions {
     val OnAutofillText = ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
 
     /** @see SemanticsPropertyReceiver.onFillData */
-    internal val OnFillData = ActionPropertyKey<(FillableData) -> Boolean>("OnFillData")
+    val OnFillData = ActionPropertyKey<(FillableData) -> Boolean>("OnFillData")
 
     /** @see SemanticsPropertyReceiver.setProgress */
     val SetProgress = ActionPropertyKey<(progress: Float) -> Boolean>("SetProgress")
@@ -985,14 +985,18 @@ var SemanticsPropertyReceiver.contentType by SemanticsProperties.ContentType
 var SemanticsPropertyReceiver.contentDataType by SemanticsProperties.ContentDataType
 
 /**
- * Fillable data information.
+ * The current value of a component that can be autofilled.
  *
- * This API can be used to set the actual data used to fill supported components. This may be
- * invoked via [SemanticsActions.OnFillData].
+ * This property is used to expose the component's current data *to* the autofill service. The
+ * service can then read this value, for example, to save it for future autofill suggestions.
  *
- * @see SemanticsProperties.ContentType
+ * This is the counterpart to the [onFillData] action, which is used to *receive* data from the
+ * autofill service.
+ *
+ * @sample androidx.compose.ui.samples.AutofillableTextFieldWithFillableDataSemantics
+ * @see SemanticsProperties.FillableData
  */
-internal var SemanticsPropertyReceiver.fillableData by SemanticsProperties.FillableData
+var SemanticsPropertyReceiver.fillableData by SemanticsProperties.FillableData
 
 /**
  * A value to manually control screenreader traversal order.
@@ -1285,12 +1289,20 @@ fun SemanticsPropertyReceiver.onAutofillText(
 }
 
 /**
- * Action to autofill a component.
+ * Action that an autofill service can invoke to fill the component with data.
  *
+ * The [action] will be called by the system, passing the [FillableData] that should be used to
+ * update the component's state.
+ *
+ * This is the counterpart to the [fillableData] property, which is used to *provide* the
+ * component's current data to the autofill service.
+ *
+ * @sample androidx.compose.ui.samples.AutofillableTextFieldWithFillableDataSemantics
  * @param label Optional label for this action.
- * @param action Action to be performed when [SemanticsActions.OnFillData] is called.
+ * @param action Action to be performed when [SemanticsActions.OnFillData] is called. The lambda
+ *   receives the [FillableData] from the autofill service.
  */
-internal fun SemanticsPropertyReceiver.onFillData(
+fun SemanticsPropertyReceiver.onFillData(
     label: String? = null,
     action: ((FillableData) -> Boolean)?,
 ) {

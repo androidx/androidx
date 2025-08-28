@@ -423,6 +423,10 @@ internal class FocusOwnerImpl(
         return false
     }
 
+    override fun focusTargetAvailable() {
+        platformFocusOwner.focusTargetAvailable()
+    }
+
     override fun scheduleInvalidation(node: FocusTargetNode) {
         focusInvalidationManager.scheduleInvalidation(node)
     }

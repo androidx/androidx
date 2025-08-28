@@ -92,22 +92,6 @@ abstract class BaseComposeTest {
         get() = activityRule.activity
 
     fun compose(composable: @Composable () -> Unit) = ComposeTester(activity, composable)
-
-    @Composable
-    @Suppress("UNUSED_PARAMETER")
-    fun subCompose(block: @Composable () -> Unit) {
-        //        val reference = rememberCompositionContext()
-        //        remember {
-        //            Composition(
-        //                UiApplier(View(activity)),
-        //                reference
-        //            )
-        //        }.apply {
-        //            setContent {
-        //                block()
-        //            }
-        //        }
-    }
 }
 
 class ComposeTester(val activity: ComponentActivity, val composable: @Composable () -> Unit) {
@@ -115,6 +99,17 @@ class ComposeTester(val activity: ComponentActivity, val composable: @Composable
         fun then(block: ActiveTest.(activity: Activity) -> Unit): ActiveTest {
             activity.waitForAFrame()
             activity.uiThread { block(activity) }
+            return this
+        }
+
+        fun repeatedly(
+            count: Int,
+            block: ActiveTest.(activity: Activity, index: Int) -> Unit,
+        ): ActiveTest {
+            repeat(count) {
+                activity.waitForAFrame()
+                activity.uiThread { block(activity, it) }
+            }
             return this
         }
 

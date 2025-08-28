@@ -115,62 +115,8 @@ class ComposeViewAdapterTest {
     }
 
     @Test
-    fun lazyColumn() {
-        run {
-            composeViewAdapter.stitchTrees = false
-            val viewInfos =
-                assertRendersCorrectly(
-                    "androidx.compose.ui.tooling.LazyColumnPreviewKt",
-                    "SimpleLazyComposablePreview",
-                )
-
-            assertEquals(
-                """
-                    |<root>
-                    .|LazyColumnPreview.kt:31
-                    |<root>
-                    .|LazyColumnPreview.kt:31
-                    |<root>
-                    .|LazyColumnPreview.kt:31
-                    |<root>
-                    .|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:31
-                """
-                    .trimIndent(),
-                viewInfos.toDebugString { it.fileName == "LazyColumnPreview.kt" }.trimIndent(),
-            )
-        }
-
-        run {
-            composeViewAdapter.stitchTrees = true
-            val viewInfos =
-                assertRendersCorrectly(
-                    "androidx.compose.ui.tooling.LazyColumnPreviewKt",
-                    "SimpleLazyComposablePreview",
-                )
-
-            assertEquals(1, viewInfos.size)
-            assertEquals(
-                """
-                    |<root>
-                    .|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:31
-                    ...|LazyColumnPreview.kt:31
-                    ...|LazyColumnPreview.kt:31
-                    ...|LazyColumnPreview.kt:31
-                """
-                    .trimIndent(),
-                viewInfos.toDebugString() { it.fileName == "LazyColumnPreview.kt" }.trimIndent(),
-            )
-        }
-    }
-
-    @Test
     fun complexTreeStitchLazyColumn() {
         run {
-            composeViewAdapter.stitchTrees = true
             val viewInfos =
                 assertRendersCorrectly(
                     "androidx.compose.ui.tooling.LazyColumnPreviewKt",

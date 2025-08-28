@@ -17,13 +17,12 @@ package androidx.compose.remote.player.view.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
 import androidx.compose.remote.core.TouchListener;
@@ -95,8 +94,9 @@ public class AndroidRemoteContext extends RemoteContext {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void loadPathData(int instanceId, float @NonNull [] floatPath) {
+    public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {
         mRemoteComposeState.putPathData(instanceId, floatPath);
+        mRemoteComposeState.putPathWinding(instanceId, winding);
     }
 
     @Override
@@ -207,6 +207,7 @@ public class AndroidRemoteContext extends RemoteContext {
      * @param colorName name of color
      * @param color
      */
+    @Override
     public void setNamedColorOverride(@NonNull String colorName, int color) {
         if (mVarNameHashMap.get(colorName) != null) {
             int id = mVarNameHashMap.get(colorName).mId;
@@ -441,6 +442,7 @@ public class AndroidRemoteContext extends RemoteContext {
      * @param id The ID of the integer to override.
      * @param value The new integer value.
      */
+    @Override
     public void overrideInteger(int id, int value) {
         mRemoteComposeState.overrideInteger(id, value);
     }
@@ -451,6 +453,7 @@ public class AndroidRemoteContext extends RemoteContext {
      * @param id The ID of the text to override.
      * @param valueId The ID of the text value to use for the override.
      */
+    @Override
     public void overrideText(int id, int valueId) {
         String text = getText(valueId);
         overrideText(id, text);
@@ -550,6 +553,7 @@ public class AndroidRemoteContext extends RemoteContext {
      *
      * @param type 0 = none, 1-21 ,see HapticFeedbackConstants
      */
+    @Override
     public void hapticEffect(int type) {
         mDocument.haptic(type);
     }

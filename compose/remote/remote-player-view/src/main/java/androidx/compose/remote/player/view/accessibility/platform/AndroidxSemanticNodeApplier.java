@@ -17,11 +17,10 @@ package androidx.compose.remote.player.view.accessibility.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-
 import android.graphics.Rect;
 import android.view.View;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
 import androidx.compose.remote.player.view.accessibility.BaseSemanticNodeApplier;

@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.modifier
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.creation.modifiers.CircleShape
@@ -235,21 +239,23 @@ fun RemoteModifier.graphicsLayer(
             ModulateAlpha -> 2
             else -> 0
         }
-    return GraphicsLayerModifier(
-        sX,
-        sY,
-        rX,
-        rY,
-        rZ,
-        sE,
-        tOX,
-        tOY,
-        tX,
-        tY,
-        shape,
-        cS,
-        tA,
-        tCD,
-        renderEffect,
+    return then(
+        GraphicsLayerModifier(
+            sX,
+            sY,
+            rX,
+            rY,
+            rZ,
+            sE,
+            tOX,
+            tOY,
+            tX,
+            tY,
+            shape,
+            cS,
+            tA,
+            tCD,
+            renderEffect,
+        )
     )
 }

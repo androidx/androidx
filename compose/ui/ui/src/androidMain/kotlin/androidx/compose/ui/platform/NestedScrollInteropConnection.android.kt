@@ -191,18 +191,26 @@ private fun toOffset(dx: Int, dy: Int, consumed: IntArray, available: Offset): O
     /**
      * Since our conversion from Float to Int may result in overflow not being reported correctly we
      * need to re-add the overflow when passing the consumption data back to compose. We will assume
-     * that the overflow was also consumed.
+     * that the overflow was also consumed if something else was consumed.
      */
     val overflowX =
         if (isNestedScrollInteropIntegerPropagationEnabled) {
-            available.x - dx.reverseAxis()
+            if (consumed[0].absoluteValue == 0) {
+                0f
+            } else {
+                available.x - dx.reverseAxis()
+            }
         } else {
             0f
         }
 
     val overflowY =
         if (isNestedScrollInteropIntegerPropagationEnabled) {
-            available.y - dy.reverseAxis()
+            if (consumed[1].absoluteValue == 0) {
+                0f
+            } else {
+                available.y - dy.reverseAxis()
+            }
         } else {
             0f
         }

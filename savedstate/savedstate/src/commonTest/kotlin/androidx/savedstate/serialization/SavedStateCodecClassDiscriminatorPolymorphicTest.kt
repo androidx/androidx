@@ -29,6 +29,24 @@ internal class SavedStateCodecClassDiscriminatorPolymorphicTest :
     ) {
 
     @Test
+    fun testNullWithNullableStaticType() {
+        doTestNullWithNullableStaticType {
+            assertThat(original).isEqualTo(deserialized)
+            assertThat(representation).isEqualTo(platformRepresentation)
+            assertThat(representation).isEqualTo("[=null]")
+        }
+    }
+
+    @Test
+    fun testNonNullWithNullableStaticType() {
+        doTestNonNullWithNullableStaticType {
+            assertThat(original).isEqualTo(deserialized)
+            assertThat(representation).isEqualTo(platformRepresentation)
+            assertThat(representation).isEqualTo("[value=true]")
+        }
+    }
+
+    @Test
     fun testNullData() {
         doTestNullData {
             assertThat(original).isEqualTo(deserialized)

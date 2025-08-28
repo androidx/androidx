@@ -15,17 +15,15 @@
  */
 package androidx.compose.remote.player.view.accessibility.platform;
 
-import static androidx.compose.remote.player.view.accessibility.RemoteComposeDocumentAccessibility.RootId;
-
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import androidx.annotation.RestrictTo;
+import static androidx.compose.remote.player.view.accessibility.RemoteComposeDocumentAccessibility.RootId;
 
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.semantics.AccessibilitySemantics;
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode;

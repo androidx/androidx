@@ -548,6 +548,7 @@ class DateRangePickerTest {
                 assertThat(dateRangePickerState.getSelectedStartDate())
                     .isEqualTo(LocalDate.of(2019, 3, 15))
                 assertThat(dateRangePickerState.getSelectedEndDate())
+                    .isEqualTo(LocalDate.of(2019, 3, 15))
             }
         }
 

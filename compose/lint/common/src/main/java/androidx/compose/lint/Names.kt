@@ -50,6 +50,9 @@ object Names {
         val MutableStateMapOf = Name(PackageName, "mutableStateMapOf")
         val ProduceState = Name(PackageName, "produceState")
         val Remember = Name(PackageName, "remember")
+        val RememberObserver = Name(PackageName, "RememberObserver")
+        val Retain = Name(PackageName, "retain")
+        val RetainObserver = Name(PackageName, "RetainObserver")
         val DisposableEffect = Name(PackageName, "DisposableEffect")
         val RememberSaveable = Name(PackageName, "rememberSaveable")
         val LaunchedEffect = Name(PackageName, "LaunchedEffect")
@@ -61,6 +64,7 @@ object Names {
             val PackageName = Package(Runtime.PackageName, "annotation")
             val FrequentlyChangingValue = Name(PackageName, "FrequentlyChangingValue")
             val RememberInComposition = Name(PackageName, "RememberInComposition")
+            val DoNotRetain = Name(PackageName, "DoNotRetain")
         }
     }
 

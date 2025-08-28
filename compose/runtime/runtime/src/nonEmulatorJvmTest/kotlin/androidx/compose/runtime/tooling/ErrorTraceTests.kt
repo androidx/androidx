@@ -659,11 +659,15 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
                 if (trace.contains(TestFile)) {
                     trace
                 } else {
-                    val line = trace.substringAfter(':').substringBefore(')')
+                    // Ignore differences due to composer implementation change
+                    val effectiveTrace =
+                        trace.replace("GapComposer", "Composer").replace("LinkComposer", "Composer")
+                    val line = effectiveTrace.substringAfter(':').substringBefore(')')
+                    @Suppress("SimplifyBooleanWithConstants")
                     if (line == "<unknown line>" || DebugKeepLineNumbers) {
-                        trace
+                        effectiveTrace
                     } else {
-                        trace.replace(line, "<line number>")
+                        effectiveTrace.replace(line, "<line number>")
                     }
                 }
             }

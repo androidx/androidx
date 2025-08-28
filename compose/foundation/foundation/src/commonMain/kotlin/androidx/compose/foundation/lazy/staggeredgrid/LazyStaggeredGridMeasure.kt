@@ -1211,9 +1211,23 @@ private fun LazyStaggeredGridMeasureContext.ensureIndicesInRange(
             indices[i] = findPreviousItemIndex(indices[i], i)
         }
         if (indices[i] >= 0) {
-            // reserve item for span
-            if (!itemProvider.isFullSpan(indices[i])) {
-                laneInfo.setLane(indices[i], i)
+            val itemIndex = indices[i]
+            // in cases when full span item got updated, reset it to the first column of the span
+            if (!itemProvider.isFullSpan(itemIndex)) {
+                val lane =
+                    if (laneInfo.getLane(itemIndex) == LaneFullSpan) {
+                        val targetLane = indices.indexOfFirst { it == itemIndex }
+                        for (lane in (targetLane + 1)..i) {
+                            if (indices[lane] == itemIndex) {
+                                indices[lane] = findPreviousItemIndex(itemIndex, lane)
+                            }
+                        }
+                        targetLane
+                    } else {
+                        i
+                    }
+
+                laneInfo.setLane(itemIndex, lane)
             }
         }
     }

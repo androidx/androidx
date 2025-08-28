@@ -555,6 +555,6 @@ class NavigationBarTest {
 
         val expectedWidth = iconSize + NavigationBarItemToIconMinimumPadding * 2
 
-        assertThat(rule.onNodeWithTag("ROW_TAG").assertWidthIsEqualTo(expectedWidth))
+        rule.onNodeWithTag("ROW_TAG").assertWidthIsEqualTo(expectedWidth)
     }
 }

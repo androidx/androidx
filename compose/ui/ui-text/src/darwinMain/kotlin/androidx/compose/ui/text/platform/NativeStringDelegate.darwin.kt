@@ -30,12 +30,14 @@ internal class NativeStringDelegate : PlatformStringDelegate {
     override fun toUpperCase(string: String, locale: PlatformLocale): String =
         toUpperCase(string as NSString, locale)
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun toUpperCase(string: NSString, locale: PlatformLocale): String =
         string.uppercaseStringWithLocale(locale)
 
     override fun toLowerCase(string: String, locale: PlatformLocale): String =
         toLowerCase(string as NSString, locale)
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun toLowerCase(string: NSString, locale: PlatformLocale): String =
         string.lowercaseStringWithLocale(locale)
 
@@ -47,12 +49,14 @@ internal class NativeStringDelegate : PlatformStringDelegate {
                 it.toString()
         }
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun capitalize(string: NSString, locale: PlatformLocale): String =
         string.capitalizedStringWithLocale(locale)
 
     override fun decapitalize(string: String, locale: PlatformLocale): String =
         string.replaceFirstChar { decapitalize(it.toString() as NSString, locale) }
 
+    @Suppress("NOTHING_TO_INLINE")
     private inline fun decapitalize(string: NSString, locale: PlatformLocale): String =
         string.lowercaseStringWithLocale(locale)
 }

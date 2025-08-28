@@ -58,7 +58,7 @@ public class EntryProviderBuilder<T : Any>(
      * @param T the type of the key for this NavEntry
      * @param key key for this entry
      * @param contentKey A unique, stable id that uniquely identifies the content of this NavEntry.
-     *   To maximize stability, it should ge derived from the [key]. The contentKey type must be
+     *   To maximize stability, it should be derived from the [key]. The contentKey type must be
      *   saveable (i.e. on Android, it should be saveable via Android). Defaults to
      *   [key].toString().
      * @param metadata provides information to the display
@@ -83,7 +83,7 @@ public class EntryProviderBuilder<T : Any>(
      * @param T the type of the key for this NavEntry
      * @param clazz the KClass<T> of the key for this NavEntry
      * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content
-     *   of this NavEntry. To maximize stability, it should ge derived from the factory's provided
+     *   of this NavEntry. To maximize stability, it should be derived from the factory's provided
      *   key. The resulting key must be saveable (i.e. on Android, it should be saveable via
      *   Android). The generated key will be stored in [NavEntry.contentKey].
      * @param metadata provides information to the display
@@ -121,7 +121,7 @@ public class EntryProviderBuilder<T : Any>(
  * @param T the type of the key for this NavEntry
  * @param key key for this entry
  * @param contentKey A unique, stable id that uniquely identifies the content of this NavEntry. To
- *   maximize stability, it should ge derived from the [key]. The contentKey type must be saveable
+ *   maximize stability, it should be derived from the [key]. The contentKey type must be saveable
  *   (i.e. on Android, it should be saveable via Android). Defaults to [key].toString().
  * @param metadata provides information to the display
  * @param content content for this entry to be displayed when this entry is active
@@ -140,7 +140,7 @@ public fun <T : Any> EntryProviderBuilder<T>.entry(
  *
  * @param T the type of the key for this NavEntry
  * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content of
- *   this NavEntry. To maximize stability, it should ge derived from the factory's provided key. The
+ *   this NavEntry. To maximize stability, it should be derived from the factory's provided key. The
  *   resulting key must be saveable (i.e. on Android, it should be saveable via Android). The
  *   generated key will be stored in [NavEntry.contentKey].
  * @param metadata provides information to the display
@@ -160,7 +160,7 @@ public inline fun <reified T : Any> EntryProviderBuilder<*>.entry(
  * @param T the type of the key for this NavEntry
  * @param clazz the KClass<T> of the key for this NavEntry
  * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content of
- *   this NavEntry. To maximize stability, it should ge derived from the factory's provided key. The
+ *   this NavEntry. To maximize stability, it should be derived from the factory's provided key. The
  *   resulting key must be saveable (i.e. on Android, it should be saveable via Android). The
  *   generated key will be stored in [NavEntry.contentKey].
  * @param metadata provides information to the display
@@ -180,7 +180,7 @@ public data class EntryClassProvider<T : Any>(
  * @param T the type of the key for this NavEntry
  * @param key key for this entry
  * @param contentKey A unique, stable id that uniquely identifies the content of this NavEntry. To
- *   maximize stability, it should ge derived from the [key]. The contentKey type must be saveable
+ *   maximize stability, it should be derived from the [key]. The contentKey type must be saveable
  *   (i.e. on Android, it should be saveable via Android). Defaults to [key].toString().
  * @param metadata provides information to the display
  * @param content content for this entry to be displayed when this entry is active

@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.actions;
 
-import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerExpressionChangeActionOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -32,7 +31,6 @@ public class ValueIntegerExpressionChange implements Action {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        ValueIntegerExpressionChangeActionOperation.apply(
-                writer.getBuffer().getBuffer(), mValueId, mValue);
+        writer.addValueIntegerExpressionChangeActionOperation(mValueId, mValue);
     }
 }

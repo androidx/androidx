@@ -36,6 +36,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
@@ -351,6 +352,9 @@ internal constructor(
     internal val pageSizeWithSpacing: Int
         get() = pageSize + pageSpacing
 
+    // non state backed version
+    internal var latestPageSizeWithSpacing: Int = 0
+
     /**
      * How far the current page needs to scroll so the target page is considered to be the next
      * page.
@@ -458,7 +462,23 @@ internal constructor(
             Snapshot.withoutReadObservation { schedulePrecomposition(firstVisiblePage) }
         }
 
-    internal val cacheWindowLogic = PagerCacheWindowLogic(1.0f, prefetchState) { pageCount }
+    /**
+     * Cache window in Pager Initial Layout prefetching happens after the initial measure pass and
+     * latestPageSizeWithSpacing is updated before the prefetching happens.
+     *
+     * For scroll backed prefetching we will use the last known latestPageSizeWithSpacing.
+     */
+    private val pagerCacheWindow =
+        object : LazyLayoutCacheWindow {
+            override fun Density.calculateAheadWindow(viewport: Int): Int =
+                latestPageSizeWithSpacing
+
+            override fun Density.calculateBehindWindow(viewport: Int): Int =
+                latestPageSizeWithSpacing
+        }
+
+    internal val cacheWindowLogic =
+        PagerCacheWindowLogic(pagerCacheWindow, prefetchState) { pageCount }
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -688,6 +708,9 @@ internal constructor(
         // update the prefetch state with the number of nested prefetch items this layout
         // should use.
         prefetchState.idealNestedPrefetchCount = result.visiblePagesInfo.size
+
+        // Update non state backed page size info
+        latestPageSizeWithSpacing = result.pageSize + result.pageSpacing
 
         if (!isLookingAhead && hasLookaheadOccurred) {
             debugLog { "Applying Approach Measure Result" }

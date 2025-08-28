@@ -220,6 +220,25 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         rule.onNodeWithTag("97").assertDoesNotExist()
     }
 
+    @Test
+    fun datasetChanged_scrollBack_shouldKeepAroundWithinBounds_notCrash() {
+        val numItems = mutableStateOf(40)
+
+        composeList(numItems = numItems, cacheWindow = viewportWindow, numberOfItemsInTheList = 20f)
+        // scroll forward, this will set the windowEndIndex to a large number
+        rule.runOnIdle { runBlocking { state.scrollBy(4 * itemsSizePx.toFloat()) } }
+
+        // now the dataset changes and it's smaller than windowEndIndex
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isNotEqualTo(0)
+            numItems.value = 33
+        }
+
+        // when we scroll back, this should not crash because we will update the windowEndIndex
+        // correctly.
+        rule.runOnIdle { runBlocking { state.scrollBy(-4 * itemsSizePx.toFloat()) } }
+    }
+
     private val activeNodes = mutableSetOf<Int>()
 
     private fun composeList(
@@ -228,6 +247,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
         numItems: State<Int> = mutableStateOf(100),
+        numberOfItemsInTheList: Float = 1.5f,
         cacheWindow: LazyLayoutCacheWindow,
     ) {
         rule.setContent {
@@ -239,7 +259,7 @@ class LazyListCacheWindowTest(orientation: Orientation) :
                     cacheWindow = cacheWindow,
                 )
             LazyColumnOrRow(
-                Modifier.mainAxisSize(itemsSizeDp * 1.5f)
+                Modifier.mainAxisSize(itemsSizeDp * numberOfItemsInTheList)
                     .then(
                         object : RemeasurementModifier {
                             override fun onRemeasurementAvailable(remeasurement: Remeasurement) {

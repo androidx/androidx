@@ -23,10 +23,12 @@ public abstract interface class androidx/compose/material3/AppBarColumnScope : a
 public final class androidx/compose/material3/AppBarKt {
 	public static final fun BottomAppBar-1oL4kX8 (Landroidx/compose/ui/Modifier;JJFLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/layout/WindowInsets;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun BottomAppBar-Snr_uVM (Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;JJFLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/runtime/Composer;II)V
-	public static final fun CenterAlignedTopAppBar-GHTll3U (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun CenterAlignedTopAppBar-GHTll3U (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
+	public static final fun CenterAlignedTopAppBar-gNPyAyM (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/runtime/Composer;II)V
 	public static final fun LargeTopAppBar-oKE7A98 (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FFLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
 	public static final fun MediumTopAppBar-oKE7A98 (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FFLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
-	public static final fun TopAppBar-GHTll3U (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun TopAppBar-GHTll3U (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/runtime/Composer;II)V
+	public static final fun TopAppBar-gNPyAyM (Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;FLandroidx/compose/foundation/layout/WindowInsets;Landroidx/compose/material3/TopAppBarColors;Landroidx/compose/material3/TopAppBarScrollBehavior;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/runtime/Composer;II)V
 	public static final fun rememberTopAppBarState (FFFLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/TopAppBarState;
 }
 
@@ -212,15 +214,19 @@ public final class androidx/compose/material3/CardKt {
 
 public final class androidx/compose/material3/CheckboxColors {
 	public static final field $stable I
+	public synthetic fun <init> (JJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun copy-2qZNXz8 (JJJJJJJJJJJJ)Landroidx/compose/material3/CheckboxColors;
+	public final synthetic fun copy-2qZNXz8 (JJJJJJJJJJJJ)Landroidx/compose/material3/CheckboxColors;
 	public static synthetic fun copy-2qZNXz8$default (Landroidx/compose/material3/CheckboxColors;JJJJJJJJJJJJILjava/lang/Object;)Landroidx/compose/material3/CheckboxColors;
+	public final fun copy-daRQuJA (JJJJJJJJJJJJJ)Landroidx/compose/material3/CheckboxColors;
+	public static synthetic fun copy-daRQuJA$default (Landroidx/compose/material3/CheckboxColors;JJJJJJJJJJJJJILjava/lang/Object;)Landroidx/compose/material3/CheckboxColors;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCheckedBorderColor-0d7_KjU ()J
 	public final fun getCheckedBoxColor-0d7_KjU ()J
 	public final fun getCheckedCheckmarkColor-0d7_KjU ()J
 	public final fun getDisabledBorderColor-0d7_KjU ()J
 	public final fun getDisabledCheckedBoxColor-0d7_KjU ()J
+	public final fun getDisabledCheckmarkColor-0d7_KjU ()J
 	public final fun getDisabledIndeterminateBorderColor-0d7_KjU ()J
 	public final fun getDisabledIndeterminateBoxColor-0d7_KjU ()J
 	public final fun getDisabledUncheckedBorderColor-0d7_KjU ()J
@@ -236,6 +242,7 @@ public final class androidx/compose/material3/CheckboxDefaults {
 	public static final field INSTANCE Landroidx/compose/material3/CheckboxDefaults;
 	public final fun colors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/CheckboxColors;
 	public final fun colors-5tl4gsc (JJJJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/CheckboxColors;
+	public final fun colors-kwJvTHA (JJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Landroidx/compose/material3/CheckboxColors;
 	public final fun getStrokeWidth-D9Ej5fM ()F
 }
 
@@ -381,11 +388,11 @@ public final class androidx/compose/material3/ComposableSingletons$AppBarKt {
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$AppBarKt;
 	public fun <init> ()V
 	public final fun getLambda$-1113422563$material3 ()Lkotlin/jvm/functions/Function2;
-	public final fun getLambda$-1168245838$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-1230986050$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-1270442071$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-1276513184$material3 ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$-1401945836$material3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1342205566$material3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-1609649717$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-1707954976$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-1846660506$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-185842620$material3 ()Lkotlin/jvm/functions/Function2;
@@ -396,6 +403,7 @@ public final class androidx/compose/material3/ComposableSingletons$AppBarKt {
 	public final fun getLambda$-541682128$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-643931612$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$-661145402$material3 ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$-684072357$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-699106370$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-780193532$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$-790317886$material3 ()Lkotlin/jvm/functions/Function2;
@@ -406,10 +414,13 @@ public final class androidx/compose/material3/ComposableSingletons$AppBarKt {
 	public final fun getLambda$1767216677$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$1866429650$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$1921811868$material3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$2094288676$material3 ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$2136598717$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$37575796$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$575301698$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$657782987$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$917296843$material3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$968008621$material3 ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$BottomSheetScaffoldKt {
@@ -463,12 +474,6 @@ public final class androidx/compose/material3/ComposableSingletons$SnackbarHostK
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$SnackbarHostKt;
 	public fun <init> ()V
 	public final fun getLambda$-1548712596$material3 ()Lkotlin/jvm/functions/Function3;
-}
-
-public final class androidx/compose/material3/ComposableSingletons$SnackbarKt {
-	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$SnackbarKt;
-	public fun <init> ()V
-	public final fun getLambda$984817901$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$TabRowKt {
@@ -1988,6 +1993,7 @@ public final class androidx/compose/material3/TopAppBarDefaults {
 	public static final field INSTANCE Landroidx/compose/material3/TopAppBarDefaults;
 	public final fun centerAlignedTopAppBarColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/TopAppBarColors;
 	public final fun centerAlignedTopAppBarColors-zjMxDiM (JJJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/TopAppBarColors;
+	public final fun getContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
 	public final fun getLargeAppBarCollapsedHeight-D9Ej5fM ()F
 	public final fun getLargeAppBarExpandedHeight-D9Ej5fM ()F
 	public final fun getLargeFlexibleAppBarWithSubtitleExpandedHeight-D9Ej5fM ()F

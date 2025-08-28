@@ -33,6 +33,6 @@ public class ZIndexModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierZIndex(mValue);
+        writer.addModifierZIndex(mValue);
     }
 }

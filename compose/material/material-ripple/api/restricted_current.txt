@@ -14,14 +14,14 @@ package androidx.compose.material.ripple {
   }
 
   public final class RippleKt {
-    method public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource interactionSource, boolean bounded, float radius, androidx.compose.ui.graphics.ColorProducer color, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha> rippleAlpha);
+    method @KotlinOnly public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource interactionSource, boolean bounded, androidx.compose.ui.unit.Dp radius, androidx.compose.ui.graphics.ColorProducer color, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha> rippleAlpha);
     method @BytecodeOnly public static androidx.compose.ui.node.DelegatableNode createRippleModifierNode-TDGSqEk(androidx.compose.foundation.interaction.InteractionSource, boolean, float, androidx.compose.ui.graphics.ColorProducer, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha!>);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.Indication rememberRipple(optional boolean bounded, optional float radius, optional long color);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.Indication rememberRipple(optional boolean bounded, optional androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.graphics.Color color);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.Indication rememberRipple-9IZ8Weo(boolean, float, long, androidx.compose.runtime.Composer?, int, int);
   }
 
   @Deprecated public interface RippleTheme {
-    method @Deprecated @androidx.compose.runtime.Composable public long defaultColor();
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color defaultColor();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public long defaultColor-WaAFU9c(androidx.compose.runtime.Composer?, int);
     method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material.ripple.RippleAlpha rippleAlpha();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material.ripple.RippleAlpha rippleAlpha(androidx.compose.runtime.Composer?, int);
@@ -29,9 +29,9 @@ package androidx.compose.material.ripple {
   }
 
   @Deprecated public static final class RippleTheme.Companion {
-    method @Deprecated public androidx.compose.material.ripple.RippleAlpha defaultRippleAlpha(long contentColor, boolean lightTheme);
+    method @KotlinOnly @Deprecated public androidx.compose.material.ripple.RippleAlpha defaultRippleAlpha(androidx.compose.ui.graphics.Color contentColor, boolean lightTheme);
     method @BytecodeOnly @Deprecated public androidx.compose.material.ripple.RippleAlpha defaultRippleAlpha-DxMtmZc(long, boolean);
-    method @Deprecated public long defaultRippleColor(long contentColor, boolean lightTheme);
+    method @KotlinOnly @Deprecated public androidx.compose.ui.graphics.Color defaultRippleColor(androidx.compose.ui.graphics.Color contentColor, boolean lightTheme);
     method @BytecodeOnly @Deprecated public long defaultRippleColor-5vOe2sY(long, boolean);
   }
 

@@ -1,5 +1,19 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.material.ripple.RippleTheme#defaultColor-WaAFU9c(androidx.compose.runtime.Composer, int):
-    Binary breaking change: Added method androidx.compose.material.ripple.RippleTheme.defaultColor-WaAFU9c(androidx.compose.runtime.Composer,int)
-AddedAbstractMethod: androidx.compose.material.ripple.RippleTheme#rippleAlpha(androidx.compose.runtime.Composer, int):
-    Binary breaking change: Added method androidx.compose.material.ripple.RippleTheme.rippleAlpha(androidx.compose.runtime.Composer,int)
+ChangedType: androidx.compose.material.ripple.RippleTheme#defaultColor():
+    Source breaking change: Method androidx.compose.material.ripple.RippleTheme.defaultColor has changed return type from long to androidx.compose.ui.graphics.Color
+
+
+RemovedDeprecatedMethod: androidx.compose.material.ripple.RippleKt#rememberRipple(boolean, float, long):
+    Binary breaking change: Removed deprecated method androidx.compose.material.ripple.RippleKt.rememberRipple(boolean,float,long)
+RemovedDeprecatedMethod: androidx.compose.material.ripple.RippleTheme.Companion#defaultRippleAlpha(long, boolean):
+    Binary breaking change: Removed deprecated method androidx.compose.material.ripple.RippleTheme.Companion.defaultRippleAlpha(long,boolean)
+RemovedDeprecatedMethod: androidx.compose.material.ripple.RippleTheme.Companion#defaultRippleColor(long, boolean):
+    Binary breaking change: Removed deprecated method androidx.compose.material.ripple.RippleTheme.Companion.defaultRippleColor(long,boolean)
+
+
+RemovedFromBytecode: androidx.compose.material.ripple.RippleTheme#defaultColor():
+    Binary breaking change: method androidx.compose.material.ripple.RippleTheme.defaultColor() has been removed from bytecode
+
+
+RemovedMethod: androidx.compose.material.ripple.RippleKt#createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource, boolean, float, androidx.compose.ui.graphics.ColorProducer, kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha>):
+    Binary breaking change: Removed method androidx.compose.material.ripple.RippleKt.createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource,boolean,float,androidx.compose.ui.graphics.ColorProducer,kotlin.jvm.functions.Function0<androidx.compose.material.ripple.RippleAlpha>)

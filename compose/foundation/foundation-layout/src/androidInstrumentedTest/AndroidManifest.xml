@@ -27,5 +27,9 @@
             android:name="androidx.compose.foundation.layout.WindowInsetsActionBarActivity"
             android:windowSoftInputMode="adjustResize"
             android:theme="@android:style/Theme.Material.Light" />
+        <activity
+            android:name="androidx.compose.foundation.layout.WindowInsetsNoActionBarActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
     </application>
 </manifest>

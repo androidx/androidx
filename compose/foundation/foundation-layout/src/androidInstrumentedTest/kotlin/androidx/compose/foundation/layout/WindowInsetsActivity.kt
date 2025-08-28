@@ -28,12 +28,24 @@ open class WindowInsetsActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         createdLatch.countDown()
+        topActivity = this
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        topActivity = null
     }
 
     override fun onAttachedToWindow() {
         attachedToWindowLatch.countDown()
         super.onAttachedToWindow()
     }
+
+    companion object {
+        var topActivity: WindowInsetsActivity? = null
+    }
 }
 
 class WindowInsetsActionBarActivity : WindowInsetsActivity()
+
+class WindowInsetsNoActionBarActivity : WindowInsetsActivity()

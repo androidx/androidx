@@ -24,12 +24,14 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import java.io.ByteArrayInputStream
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Test of RemoteComposeDocument class verifying serialization/deserialization */
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(AndroidJUnit4::class)
 class DisplayDocumentTest {
 

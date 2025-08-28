@@ -120,21 +120,12 @@ class ModalWideNavigationRailTest {
 
     @Test
     fun modalWideRail_collapses() {
+        lateinit var scope: CoroutineScope
         lateinit var state: WideNavigationRailState
         rule.setMaterialContentForSizeAssertions {
             state = rememberWideNavigationRailState(WideNavigationRailValue.Expanded)
-            val scope = rememberCoroutineScope()
-
-            ModalWideNavigationRail(
-                modifier = Modifier.testTag("rail"),
-                state = state,
-                header = {
-                    Button(
-                        modifier = Modifier.testTag("header"),
-                        onClick = { scope.launch { state.toggle() } },
-                    ) {}
-                },
-            ) {
+            scope = rememberCoroutineScope()
+            ModalWideNavigationRail(modifier = Modifier.testTag("rail"), state = state) {
                 WideNavigationRailItem(
                     railExpanded = state.targetValue.isExpanded,
                     icon = { Icon(Icons.Filled.Favorite, null) },
@@ -145,8 +136,8 @@ class ModalWideNavigationRailTest {
             }
         }
 
-        // Click on header to collapse.
-        rule.onNodeWithTag("header").performClick()
+        // Collapse.
+        rule.runOnIdle { scope.launch { state.toggle() } }
 
         // Assert rail is collapsed.
         assertThat(state.targetValue.isExpanded).isFalse()

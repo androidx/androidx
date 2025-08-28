@@ -24,6 +24,8 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -171,47 +173,27 @@ androidXMultiplatform {
         }
 
         wasmJsMain {
-            dependsOn(webMain)
             dependencies {
-                implementation(libs.kotlinStdlibWasm)
                 implementation(libs.kotlinXw3c)
             }
         }
 
-        wasmJsTest {
-            dependsOn(webTest)
-        }
-
-        jsMain {
-            dependsOn(webMain)
-            dependencies {
-                implementation(libs.kotlinStdlibJs)
-            }
-        }
-
-        jsTest {
-            dependsOn(webTest)
-            dependencies {
-                implementation(libs.kotlinTestJs)
-            }
-        }
-
         targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+            if (target.platformType == KotlinPlatformType.native) {
                 if (target.konanTarget.family.appleFamily) {
                     target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
                     target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                } else if (target.konanTarget.family == Family.LINUX) {
                     target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
                     target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                } else if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.MINGW) {
+                } else if (target.konanTarget.family == Family.MINGW) {
                     target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
                     target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
                 } else {
                     target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
                     target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
                 }
-            } else if (target.platformType in [org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.js, org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.wasm]) {
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
                 target.compilations["main"].defaultSourceSet.dependsOn(webMain)
                 target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
@@ -222,6 +204,7 @@ androidXMultiplatform {
 androidx {
     name = "Navigation Event"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    samples(project(":navigationevent:navigationevent-samples"))
     inceptionYear = "2025"
     description = "Provides APIs to easily intercept platform navigation events, including " +
             "swipes and clicks, to provide a consistent API surface for handling these events."

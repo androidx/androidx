@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
-import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -30,6 +29,6 @@ public class VisibilityModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        ComponentVisibilityOperation.apply(writer.getBuffer().getBuffer(), mValueId);
+        writer.addComponentVisibilityOperation(mValueId);
     }
 }

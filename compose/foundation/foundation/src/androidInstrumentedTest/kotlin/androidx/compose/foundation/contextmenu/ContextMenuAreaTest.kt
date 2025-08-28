@@ -187,9 +187,7 @@ class ContextMenuAreaTest {
             with(rule.density) { rule.onAllNodes(isRoot()).onFirst().getBoundsInRoot().toRect() }
         val offset = rootRect.roundToIntRect().bottomRight - IntOffset(1, 1)
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(offset.x, offset.y)
-        rule.waitForIdle()
-
-        assertThatContextMenuState(state).statusIsClosed()
+        rule.waitUntil { state.status == Status.Closed }
         interaction.assertDoesNotExist()
     }
 

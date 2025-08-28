@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
+import androidx.compose.runtime.RetainScope
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -142,6 +143,14 @@ internal interface Owner : PositionCalculator {
 
     /** Provide information about the window that hosts this [Owner]. */
     val windowInfo: WindowInfo
+
+    /**
+     * Sets the [RetainScope] for the composition. On Android, this is a lifecycle-aware RetainScope
+     * that persists values across configuration changes and activity recreations.
+     * [androidx.compose.runtime.ForgetfulRetainScope] is a reasonable default for platforms without
+     * window-level retain scenarios.
+     */
+    val retainScope: RetainScope
 
     /** Provides a queryable and observable index of nodes' bounding rectangles */
     val rectManager: RectManager

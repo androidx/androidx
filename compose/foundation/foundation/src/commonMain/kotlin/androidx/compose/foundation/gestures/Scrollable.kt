@@ -288,7 +288,7 @@ internal class ScrollableNode(
     private val scrollableContainerNode = delegate(ScrollableContainerNode(enabled))
 
     // Place holder fling behavior, we'll initialize it when the density is available.
-    private val defaultFlingBehavior = platformDefaultFlingBehavior()
+    private val defaultFlingBehavior = platformScrollableDefaultFlingBehavior()
 
     private val scrollingLogic =
         ScrollingLogic(
@@ -569,9 +569,7 @@ internal class ScrollableNode(
 object ScrollableDefaults {
 
     /** Create and remember default [FlingBehavior] that will represent natural fling curve. */
-    // TODO: It should differ between platforms, move it under expect/actual
-    @Composable
-    fun flingBehavior(): FlingBehavior = rememberPlatformDefaultFlingBehavior()
+    @Composable fun flingBehavior(): FlingBehavior = rememberPlatformDefaultFlingBehavior()
 
     /**
      * Returns a remembered [OverscrollEffect] created from the current value of
@@ -988,14 +986,17 @@ private val FlingBehavior.shouldBeTriggeredByMouseWheel
 
 /**
  * This method returns [ScrollableDefaultFlingBehavior] whose density will be managed by the
- * [ScrollableElement] because it's not created inside [Composable] context.
- * This is different from [rememberPlatformDefaultFlingBehavior] which creates [FlingBehavior] whose density
- * depends on [LocalDensity] and is automatically resolved.
+ * [ScrollableElement] because it's not created inside [Composable] context. This is different from
+ * [rememberPlatformDefaultFlingBehavior] which creates [FlingBehavior] whose density depends on
+ * [LocalDensity] and is automatically resolved.
  */
-internal expect fun platformDefaultFlingBehavior(): ScrollableDefaultFlingBehavior
+internal expect fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultFlingBehavior
 
-@Composable
-internal expect fun rememberPlatformDefaultFlingBehavior(): FlingBehavior
+/**
+ * Create and remember default [FlingBehavior] that will represent natural platform fling decay
+ * behavior.
+ */
+@Composable internal expect fun rememberPlatformDefaultFlingBehavior(): FlingBehavior
 
 internal class DefaultFlingBehavior(
     private var flingDecay: DecayAnimationSpec<Float>,

@@ -60,6 +60,6 @@ public class BorderModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierBorder(mWidth, mRoundedCorner, mColor, mShapeType);
+        writer.addModifierBorder(mWidth, mRoundedCorner, mColor, mShapeType);
     }
 }

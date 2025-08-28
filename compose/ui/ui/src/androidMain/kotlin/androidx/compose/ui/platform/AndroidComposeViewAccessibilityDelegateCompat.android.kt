@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
 import android.content.Context
 import android.content.res.Resources
@@ -32,6 +33,7 @@ import android.text.SpannableString
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnAttachStateChangeListener
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
@@ -159,7 +161,10 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
 @Suppress("NullAnnotationGroup")
 @OptIn(InternalTextApi::class)
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
-    AccessibilityDelegateCompat() {
+    AccessibilityDelegateCompat(),
+    OnAttachStateChangeListener,
+    AccessibilityStateChangeListener,
+    TouchExplorationStateChangeListener {
     @Suppress("ConstPropertyName")
     companion object {
         /** Virtual node identifier value for invalid nodes. */
@@ -261,23 +266,18 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     internal var SendRecurringAccessibilityEventsIntervalMillis = 100L
 
-    private val enabledStateListener = AccessibilityStateChangeListener { enabled ->
-        // `getEnabledAccessibilityServiceList` returns an empty list if there are no services
-        enabledServices =
-            if (enabled) {
-                accessibilityManager.getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
-            } else {
-                emptyList()
-            }
+    private var _enabledServices: List<AccessibilityServiceInfo>? = null
+
+    private fun resetEnabledAccessibilityServiceList() {
+        _enabledServices = null
     }
 
-    private val touchExplorationStateListener = TouchExplorationStateChangeListener {
-        // `getEnabledAccessibilityServiceList` returns an empty list if there are no services
-        enabledServices = accessibilityManager.getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
-    }
-
-    private var enabledServices =
-        accessibilityManager.getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
+    private val enabledServices: List<AccessibilityServiceInfo>
+        get() =
+            _enabledServices
+                ?: accessibilityManager.getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK).also {
+                    _enabledServices = it
+                }
 
     /**
      * True if any accessibility service enabled in the system, except the UIAutomator (as it
@@ -385,32 +385,33 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     private val drawingOrder = mutableIntIntMapOf()
 
     init {
-        // Remove callbacks that rely on view being attached to a window when we become detached.
-        view.addOnAttachStateChangeListener(
-            object : View.OnAttachStateChangeListener {
-                override fun onViewAttachedToWindow(view: View) {
-                    // Whenever the window is reattached, update the `enabledServices` value in case
-                    // there have been changes while the window was detached that the listeners
-                    // might not catch.
-                    with(accessibilityManager) {
-                        enabledServices =
-                            accessibilityManager.getEnabledAccessibilityServiceList(
-                                FEEDBACK_ALL_MASK
-                            )
-                        addAccessibilityStateChangeListener(enabledStateListener)
-                        addTouchExplorationStateChangeListener(touchExplorationStateListener)
-                    }
-                }
+        // Remove callbacks that rely on view being attached to a window when we become
+        // detached.
+        view.addOnAttachStateChangeListener(this)
+    }
 
-                override fun onViewDetachedFromWindow(view: View) {
-                    handler.removeCallbacks(semanticsChangeChecker)
-                    with(accessibilityManager) {
-                        removeAccessibilityStateChangeListener(enabledStateListener)
-                        removeTouchExplorationStateChangeListener(touchExplorationStateListener)
-                    }
-                }
-            }
-        )
+    override fun onViewAttachedToWindow(view: View) {
+        // Whenever the window is reattached, update the `enabledServices` value in
+        // case
+        // there have been changes while the window was detached that the listeners
+        // might not catch.
+        if (accessibilityManager.isEnabled) resetEnabledAccessibilityServiceList()
+        accessibilityManager.addAccessibilityStateChangeListener(this)
+        accessibilityManager.addTouchExplorationStateChangeListener(this)
+    }
+
+    override fun onViewDetachedFromWindow(view: View) {
+        handler.removeCallbacks(semanticsChangeChecker)
+        accessibilityManager.removeAccessibilityStateChangeListener(this)
+        accessibilityManager.removeTouchExplorationStateChangeListener(this)
+    }
+
+    override fun onAccessibilityStateChanged(enabled: Boolean) {
+        resetEnabledAccessibilityServiceList()
+    }
+
+    override fun onTouchExplorationStateChanged(enabled: Boolean) {
+        resetEnabledAccessibilityServiceList()
     }
 
     /**

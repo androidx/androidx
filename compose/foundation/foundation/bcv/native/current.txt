@@ -525,6 +525,15 @@ abstract interface androidx.compose.foundation/OverscrollFactory { // androidx.c
     abstract fun hashCode(): kotlin/Int // androidx.compose.foundation/OverscrollFactory.hashCode|hashCode(){}[0]
 }
 
+abstract interface androidx.compose.foundation/ScrollIndicatorState { // androidx.compose.foundation/ScrollIndicatorState|null[0]
+    abstract val contentSize // androidx.compose.foundation/ScrollIndicatorState.contentSize|{}contentSize[0]
+        abstract fun <get-contentSize>(): kotlin/Int // androidx.compose.foundation/ScrollIndicatorState.contentSize.<get-contentSize>|<get-contentSize>(){}[0]
+    abstract val scrollOffset // androidx.compose.foundation/ScrollIndicatorState.scrollOffset|{}scrollOffset[0]
+        abstract fun <get-scrollOffset>(): kotlin/Int // androidx.compose.foundation/ScrollIndicatorState.scrollOffset.<get-scrollOffset>|<get-scrollOffset>(){}[0]
+    abstract val viewportSize // androidx.compose.foundation/ScrollIndicatorState.viewportSize|{}viewportSize[0]
+        abstract fun <get-viewportSize>(): kotlin/Int // androidx.compose.foundation/ScrollIndicatorState.viewportSize.<get-viewportSize>|<get-viewportSize>(){}[0]
+}
+
 sealed interface <#A: out kotlin/Any?> androidx.compose.foundation.lazy.layout/IntervalList { // androidx.compose.foundation.lazy.layout/IntervalList|null[0]
     abstract val size // androidx.compose.foundation.lazy.layout/IntervalList.size|{}size[0]
         abstract fun <get-size>(): kotlin/Int // androidx.compose.foundation.lazy.layout/IntervalList.size.<get-size>|<get-size>(){}[0]

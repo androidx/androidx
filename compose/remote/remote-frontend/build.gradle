@@ -29,6 +29,7 @@ androidx {
     inceptionYear = "2024"
     description = "Provides a compose API to create RemoteCompose documents"
     enableRobolectric()
+    addGoldenImageAssets()
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":compose:remote:test-utils"))
+    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(project(":compose:ui:ui-test-manifest"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 }

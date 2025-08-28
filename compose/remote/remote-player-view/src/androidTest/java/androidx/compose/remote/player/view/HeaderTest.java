@@ -33,6 +33,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -45,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(JUnit4.class)
 public class HeaderTest {
     private final boolean mSaveImages = false;

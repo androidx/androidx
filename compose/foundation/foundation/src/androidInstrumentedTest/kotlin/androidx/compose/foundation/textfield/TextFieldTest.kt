@@ -1334,6 +1334,7 @@ class TextFieldTest : FocusedWindowTest {
         val longText = "Text".repeat(4)
         val shortText = "Text".repeat(2)
 
+        val mockedNativeClipboard = mock<NativeClipboard>()
         var tfv by mutableStateOf(TextFieldValue(shortText))
         val clipboard =
             object : Clipboard {
@@ -1348,7 +1349,7 @@ class TextFieldTest : FocusedWindowTest {
                 }
 
                 override val nativeClipboard: NativeClipboard
-                    get() = error("FakeClipboard doesn't have a backing NativeClipboard")
+                    get() = mockedNativeClipboard
             }
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalClipboard provides clipboard) {

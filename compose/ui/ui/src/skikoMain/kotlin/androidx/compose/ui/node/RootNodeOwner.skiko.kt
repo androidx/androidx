@@ -18,6 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.runtime.ForgetfulRetainScope
+import androidx.compose.runtime.RetainScope
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -493,6 +495,7 @@ internal class RootNodeOwner(
         override val pointerIconService = PointerIconServiceImpl()
         override val semanticsOwner = SemanticsOwner(root, rootSemanticsNode, layoutNodes)
         override val windowInfo get() = platformContext.windowInfo
+        override val retainScope: RetainScope get() = ForgetfulRetainScope
         // TODO: 1.8.0-alpha02 Implement ComposeUiFlags.isRectTrackingEnabled
         //  https://youtrack.jetbrains.com/issue/CMP-6715/Support-ComposeUiFlags.isRectTrackingEnabled
         override val rectManager = RectManager()

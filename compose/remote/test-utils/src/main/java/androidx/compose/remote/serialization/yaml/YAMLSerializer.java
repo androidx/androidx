@@ -140,7 +140,7 @@ public class YAMLSerializer extends AbstractSerializer {
                 // We assume keys are scalars for this basic formatting
                 if (keyNode instanceof ScalarNode) {
                     String t = ((ScalarNode) keyNode).getValue();
-                    typeFlag = (mSkipList.contains(t));
+                    typeFlag = mSkipList.contains(t);
                     if (!typeFlag) {
                         stringBuilder.append(t).append(": ");
                     }
@@ -222,7 +222,7 @@ public class YAMLSerializer extends AbstractSerializer {
                 if (keyNode instanceof ScalarNode) {
                     String t = ((ScalarNode) keyNode).getValue();
                     if (!"Value".equals(t)) {
-                        typeFlag = (mSkipList.contains(t));
+                        typeFlag = mSkipList.contains(t);
                         if (!typeFlag) {
                             stringBuilder.append(t).append("= ");
                         }

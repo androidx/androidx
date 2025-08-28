@@ -28,23 +28,13 @@ import androidx.navigationevent.NavigationEventDispatcherOwner
  *
  * @param fallbackOnBackPressed A lambda invoked by the [NavigationEventDispatcher] when a back
  *   press occurs and no other callbacks handle it.
- * @param onHasEnabledCallbacksChanged A lambda invoked by the [NavigationEventDispatcher] when its
- *   [NavigationEventDispatcher.hasEnabledCallbacks] status changes.
  */
 public class TestNavigationEventDispatcherOwner(
-    fallbackOnBackPressed: TestNavigationEventDispatcherOwner.() -> Unit = {},
-    onHasEnabledCallbacksChanged: TestNavigationEventDispatcherOwner.() -> Unit = {},
+    fallbackOnBackPressed: TestNavigationEventDispatcherOwner.() -> Unit = {}
 ) : NavigationEventDispatcherOwner {
 
     /** The number of times [NavigationEventDispatcher.fallbackOnBackPressed] has been invoked. */
     public var fallbackOnBackPressedInvocations: Int = 0
-        private set
-
-    /**
-     * The number of times [NavigationEventDispatcher.onHasEnabledCallbacksChanged] has been
-     * invoked.
-     */
-    public var onHasEnabledCallbacksChangedInvocations: Int = 0
         private set
 
     override val navigationEventDispatcher: NavigationEventDispatcher =
@@ -52,10 +42,6 @@ public class TestNavigationEventDispatcherOwner(
             fallbackOnBackPressed = {
                 fallbackOnBackPressedInvocations++
                 fallbackOnBackPressed.invoke(this)
-            },
-            onHasEnabledCallbacksChanged = {
-                onHasEnabledCallbacksChangedInvocations++
-                onHasEnabledCallbacksChanged.invoke(this)
-            },
+            }
         )
 }

@@ -17,10 +17,9 @@ package androidx.compose.remote.player.view.accessibility.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import androidx.annotation.RestrictTo;
-
 import android.view.View;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContextActions;
 import androidx.compose.remote.core.operations.layout.Component;
@@ -67,6 +66,7 @@ public class AndroidxRemoteComposeAccessibilityRegistrar
      * @param document The CoreDocument containing the accessibility information for the UI
      *     elements.
      */
+    @Override
     public void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document) {
         ViewCompat.setAccessibilityDelegate(
                 remoteComposePlayer, forRemoteComposePlayer(remoteComposePlayer, document));
@@ -77,6 +77,7 @@ public class AndroidxRemoteComposeAccessibilityRegistrar
      *
      * @param remoteComposePlayer The View representing the remote compose player.
      */
+    @Override
     public void clearAccessibilityDelegate(View remoteComposePlayer) {
         ViewCompat.setAccessibilityDelegate(remoteComposePlayer, null);
     }

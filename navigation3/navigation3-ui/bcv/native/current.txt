@@ -43,6 +43,15 @@ final class <#A: kotlin/Any> androidx.navigation3.ui/SinglePaneSceneStrategy : a
     final fun calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin/Function1<kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.ui/Scene<#A> // androidx.navigation3.ui/SinglePaneSceneStrategy.calculateScene|calculateScene(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>;kotlin.Function1<kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 }
 
+final class androidx.navigation3.ui/NavDisplayInfo : androidx.navigationevent/NavigationEventInfo { // androidx.navigation3.ui/NavDisplayInfo|null[0]
+    final val visibleEntries // androidx.navigation3.ui/NavDisplayInfo.visibleEntries|{}visibleEntries[0]
+        final fun <get-visibleEntries>(): kotlin.collections/List<kotlin/Any> // androidx.navigation3.ui/NavDisplayInfo.visibleEntries.<get-visibleEntries>|<get-visibleEntries>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation3.ui/NavDisplayInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigation3.ui/NavDisplayInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.navigation3.ui/NavDisplayInfo.toString|toString(){}[0]
+}
+
 final object androidx.navigation3.ui/NavDisplay { // androidx.navigation3.ui/NavDisplay|null[0]
     final val defaultPredictivePopTransitionSpec // androidx.navigation3.ui/NavDisplay.defaultPredictivePopTransitionSpec|{}defaultPredictivePopTransitionSpec[0]
         final fun <get-defaultPredictivePopTransitionSpec>(): kotlin/Function2<androidx.compose.animation/AnimatedContentTransitionScope<*>, kotlin/Int, androidx.compose.animation/ContentTransform> // androidx.navigation3.ui/NavDisplay.defaultPredictivePopTransitionSpec.<get-defaultPredictivePopTransitionSpec>|<get-defaultPredictivePopTransitionSpec>(){}[0]
@@ -60,6 +69,7 @@ final val androidx.navigation3.ui/androidx_navigation3_ui_DialogScene$stableprop
 final val androidx.navigation3.ui/androidx_navigation3_ui_DialogSceneStrategy$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_DialogSceneStrategy$stableprop|#static{}androidx_navigation3_ui_DialogSceneStrategy$stableprop[0]
 final val androidx.navigation3.ui/androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop|#static{}androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop[0]
 final val androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop|#static{}androidx_navigation3_ui_NavDisplay$stableprop[0]
+final val androidx.navigation3.ui/androidx_navigation3_ui_NavDisplayInfo$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplayInfo$stableprop|#static{}androidx_navigation3_ui_NavDisplayInfo$stableprop[0]
 final val androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneScene$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneScene$stableprop|#static{}androidx_navigation3_ui_SinglePaneScene$stableprop[0]
 final val androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop // androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop|#static{}androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop[0]
 
@@ -69,6 +79,7 @@ final fun androidx.navigation3.ui/androidx_navigation3_ui_DialogScene$stableprop
 final fun androidx.navigation3.ui/androidx_navigation3_ui_DialogSceneStrategy$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_DialogSceneStrategy$stableprop_getter|androidx_navigation3_ui_DialogSceneStrategy$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop_getter|androidx_navigation3_ui_LocalNavigationEventDispatcherOwner$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplay$stableprop_getter|androidx_navigation3_ui_NavDisplay$stableprop_getter(){}[0]
+final fun androidx.navigation3.ui/androidx_navigation3_ui_NavDisplayInfo$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_NavDisplayInfo$stableprop_getter|androidx_navigation3_ui_NavDisplayInfo$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneScene$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneScene$stableprop_getter|androidx_navigation3_ui_SinglePaneScene$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop_getter(): kotlin/Int // androidx.navigation3.ui/androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop_getter|androidx_navigation3_ui_SinglePaneSceneStrategy$stableprop_getter(){}[0]
 final fun androidx.navigation3.ui/rememberSceneSetupNavEntryDecorator(androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.runtime/NavEntryDecorator<kotlin/Any> // androidx.navigation3.ui/rememberSceneSetupNavEntryDecorator|rememberSceneSetupNavEntryDecorator(androidx.compose.runtime.Composer?;kotlin.Int){}[0]

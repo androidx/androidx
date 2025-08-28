@@ -15,10 +15,6 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
-import androidx.compose.remote.core.operations.layout.ContainerEnd;
-import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation;
-import androidx.compose.remote.core.operations.layout.TouchDownModifierOperation;
-import androidx.compose.remote.core.operations.layout.TouchUpModifierOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.actions.Action;
 
@@ -29,7 +25,8 @@ import java.util.List;
 
 /** Encapsulate actions */
 public class TouchActionModifier implements RecordingModifier.Element {
-    @NonNull ArrayList<Action> mList = new ArrayList<>();
+    @NonNull
+    ArrayList<Action> mList = new ArrayList<>();
 
     public static final int DOWN = 0;
     public static final int UP = 1;
@@ -45,16 +42,17 @@ public class TouchActionModifier implements RecordingModifier.Element {
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mType == DOWN) {
-            TouchDownModifierOperation.apply(writer.getBuffer().getBuffer());
+            writer.addTouchDownModifierOperation();
         } else if (mType == UP) {
-            TouchUpModifierOperation.apply(writer.getBuffer().getBuffer());
+            writer.addTouchUpModifierOperation();
         } else {
-            TouchCancelModifierOperation.apply(writer.getBuffer().getBuffer());
+            writer.addTouchCancelModifierOperation();
         }
         for (Action m : mList) {
             m.write(writer);
         }
-        ContainerEnd.apply(writer.getBuffer().getBuffer());
+        writer.addContainerEnd();
+
     }
 
     public @NonNull List<Action> getActions() {

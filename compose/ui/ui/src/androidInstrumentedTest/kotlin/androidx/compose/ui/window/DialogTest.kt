@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.window
 
-import android.content.pm.ActivityInfo
 import android.graphics.Point
 import android.os.Build
 import android.util.DisplayMetrics
@@ -40,8 +39,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -68,7 +65,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -927,18 +923,9 @@ class DialogTest {
     }
 
     @Test
-    fun fullScreenDialogPortraitNotDefaultWidthDecorFitsMatchesContainerSize() {
-        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        verifyFullScreenDialogMatchesContainer()
-    }
-
-    @Test
-    fun fullScreenDialogLandscapeNotDefaultWidthDecorFitsMatchesContainerSize() {
-        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        verifyFullScreenDialogMatchesContainer()
-    }
-
-    private fun verifyFullScreenDialogMatchesContainer() {
+    // TODO(b/211022812): Remove SdkSuppress annotation once linked bug is fixed
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S_V2)
+    fun fullScreenDialogNotDefaultWidthDecorFitsMatchesContainerSize() {
         var mainContentWidth = 0
         var mainContentHeight = 0
         var dialogWidth = 0
@@ -969,55 +956,6 @@ class DialogTest {
                                 dialogHeight = it.size.height
                             }
                     ) {}
-                }
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(mainContentWidth).isEqualTo(dialogWidth)
-            assertThat(mainContentHeight).isEqualTo(dialogHeight)
-        }
-    }
-
-    @Test
-    fun fullScreenDialogWithImeNotDefaultWidthDecorFitsMatchesContainerSize() {
-        var mainContentWidth = 0
-        var mainContentHeight = 0
-        var dialogWidth = 0
-        var dialogHeight = 0
-        rule.activityRule.scenario.onActivity {
-            WindowCompat.setDecorFitsSystemWindows(it.window, false)
-        }
-        rule.setContent {
-            val keyboardController = LocalSoftwareKeyboardController.current
-            keyboardController?.show()
-            Box(
-                modifier =
-                    Modifier.safeDrawingPadding().fillMaxSize().onGloballyPositioned {
-                        mainContentWidth = it.size.width
-                        mainContentHeight = it.size.height
-                    }
-            ) {
-                Dialog(
-                    onDismissRequest = {},
-                    properties =
-                        DialogProperties(
-                            usePlatformDefaultWidth = false,
-                            decorFitsSystemWindows = true,
-                        ),
-                ) {
-                    Box(
-                        modifier =
-                            Modifier.fillMaxSize().onGloballyPositioned {
-                                dialogWidth = it.size.width
-                                dialogHeight = it.size.height
-                            }
-                    ) {
-                        TextField(
-                            state = rememberTextFieldState(initialText = "Hello"),
-                            label = { Text("Label") },
-                        )
-                    }
                 }
             }
         }

@@ -36,13 +36,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.fastMap
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleOwner
 import androidx.navigation3.runtime.DecoratedNavEntryProvider
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -175,13 +178,9 @@ public fun <T : Any> NavDisplay(
 ) {
     require(backStack.isNotEmpty()) { "NavDisplay backstack cannot be empty" }
 
-    var isSettled by remember { mutableStateOf(true) }
-    val transitionAwareLifecycleNavEntryDecorator =
-        transitionAwareLifecycleNavEntryDecorator(backStack, isSettled)
-
     DecoratedNavEntryProvider(
         backStack = backStack,
-        entryDecorators = entryDecorators + transitionAwareLifecycleNavEntryDecorator,
+        entryDecorators = entryDecorators,
         entryProvider = entryProvider,
     ) { entries ->
         val allScenes =
@@ -205,23 +204,35 @@ public fun <T : Any> NavDisplay(
             }
 
         // Predictive Back Handling
-        val gestureState by
+
+        val navigationEventDispatcher =
             checkNotNull(LocalNavigationEventDispatcherOwner.current) {
                     "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
                 }
                 .navigationEventDispatcher
-                .state
-                .collectAsState()
 
-        val progress = gestureState.progress
+        val gestureScope = rememberCoroutineScope()
+        val currentInfo = NavDisplayInfo(scene.entries.fastMap { it.contentKey })
+        val gestureStateFlow = remember {
+            // Only treat as predictive back if the gesture came from NavDisplay itself.
+            // Without this, all `NavigationEventHandler` instances would match.
+            navigationEventDispatcher.getState(gestureScope, initialInfo = currentInfo)
+        }
+        val gestureState by gestureStateFlow.collectAsState()
+
         val inPredictiveBack = gestureState is InProgress
+        val progress = gestureState.progress
         val swipeEdge =
             when (val currentGestureState = gestureState) {
                 is InProgress -> currentGestureState.latestEvent.swipeEdge
                 else -> EDGE_NONE
             }
 
-        NavigationEventHandler(enabled = scene.previousEntries.isNotEmpty()) { progress ->
+        NavigationEventHandler(
+            currentInfo = currentInfo,
+            previousInfo = NavDisplayInfo(scene.previousEntries.fastMap { it.contentKey }),
+            enabled = scene.previousEntries.isNotEmpty(),
+        ) { progress ->
             progress.collect()
 
             // If `enabled` becomes stale (e.g., it was set to false but a gesture was
@@ -392,7 +403,18 @@ public fun <T : Any> NavDisplay(
                 LocalEntriesToRenderInCurrentScene provides
                     sceneToRenderableEntryMap.getValue(targetSceneKey),
             ) {
-                targetScene.content()
+                val isInBackStack = targetScene.key in backStack
+                val isSettled = transition.currentState == transition.targetState
+                LifecycleOwner(
+                    maxLifecycle =
+                        when {
+                            isInBackStack && isSettled -> Lifecycle.State.RESUMED
+                            isInBackStack && !isSettled -> Lifecycle.State.STARTED
+                            else /* !isInBackStack */ -> Lifecycle.State.CREATED
+                        }
+                ) {
+                    targetScene.content()
+                }
             }
         }
 
@@ -401,23 +423,21 @@ public fun <T : Any> NavDisplay(
             snapshotFlow { transition.isRunning }
                 .filter { !it }
                 .collect {
+                    // Creating a copy to avoid ConcurrentModificationException
+                    @Suppress("ListIterator")
                     scenes.keys.toList().forEach { key ->
                         if (key != transition.targetState) {
                             scenes.remove(key)
                         }
                     }
+                    // Creating a copy to avoid ConcurrentModificationException
+                    @Suppress("ListIterator")
                     mostRecentSceneKeys.toList().forEach { key ->
                         if (key != transition.targetState) {
                             mostRecentSceneKeys.remove(key)
                         }
                     }
                 }
-        }
-
-        LaunchedEffect(transition.currentState, transition.targetState) {
-            // If we've reached the targetState, our animation has settled
-            val settled = transition.currentState == transition.targetState
-            isSettled = settled
         }
 
         // Show all OverlayScene instances above the AnimatedContent

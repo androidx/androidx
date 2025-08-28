@@ -23,6 +23,20 @@ RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(
     Binary breaking change: method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.runtime.ComposablesKt#ReusableComposeNode(kotlin.jvm.functions.Function0<? extends T>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: method androidx.compose.runtime.ComposablesKt.ReusableComposeNode(kotlin.jvm.functions.Function0<T>,kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>,kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<T>,kotlin.Unit>,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.SkippableUpdater#update(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.Updater<T>,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.SkippableUpdater.update(kotlin.jvm.functions.Function1<androidx.compose.runtime.Updater<T>,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#init(kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.init(kotlin.jvm.functions.Function1<T,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#reconcile(kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.reconcile(kotlin.jvm.functions.Function1<T,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#set(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.set(V,kotlin.jvm.functions.Function2<T,V,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#set(int, kotlin.jvm.functions.Function2<? super T,? super java.lang.Integer,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.set(int,kotlin.jvm.functions.Function2<T,java.lang.Integer,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#update(V, kotlin.jvm.functions.Function2<? super T,? super V,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.update(V,kotlin.jvm.functions.Function2<T,V,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.Updater#update(int, kotlin.jvm.functions.Function2<? super T,? super java.lang.Integer,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.runtime.Updater.update(int,kotlin.jvm.functions.Function2<T,java.lang.Integer,kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#map(kotlin.jvm.functions.Function1<? super T,? extends R>):
     Binary breaking change: method androidx.compose.runtime.collection.MutableVector.map(kotlin.jvm.functions.Function1<T,R>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.runtime.collection.MutableVector#mapIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends R>):

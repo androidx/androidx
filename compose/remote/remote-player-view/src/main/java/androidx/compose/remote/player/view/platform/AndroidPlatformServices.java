@@ -115,7 +115,6 @@ public class AndroidPlatformServices implements Platform {
             estimatedSize++;
         }
 
-        PathIterator iter = path.getPathIterator();
         float[] pathFloat = new float[estimatedSize * 10];
 
         int count = 0;

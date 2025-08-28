@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,7 +31,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
@@ -42,6 +45,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
@@ -576,6 +580,19 @@ class NestedScrollInteropConnectionTest {
         }
     }
 
+    @Test
+    fun performScrollThroughSemantics_shouldNotHang() {
+        // arrange
+        createViewComposeActivity {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                repeat(200) { TestItem(it.toString()) }
+            }
+        }
+
+        rule.onNodeWithTag("199").performScrollTo()
+        rule.onNodeWithTag("199").assertIsDisplayed()
+    }
+
     private fun createViewComposeActivity(
         enableInterop: Boolean = true,
         content: @Composable () -> Unit,
@@ -627,7 +644,7 @@ private fun TestListWithNestedScroll(
 @Composable
 private fun TestItem(item: String) {
     Box(
-        modifier = Modifier.padding(16.dp).height(56.dp).fillMaxWidth().testTag(item),
+        modifier = Modifier.padding(16.dp).height(96.dp).fillMaxWidth().testTag(item),
         contentAlignment = Alignment.Center,
     ) {
         BasicText(item)

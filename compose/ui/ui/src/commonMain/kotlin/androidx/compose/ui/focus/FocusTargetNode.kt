@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
@@ -36,6 +38,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
@@ -55,6 +58,7 @@ internal class FocusTargetNode(
     private val onDispatchEventsCompleted: ((FocusTargetNode) -> Unit)? = null,
 ) :
     CompositionLocalConsumerModifierNode,
+    LayoutAwareModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
     ModifierLocalModifierNode,
@@ -196,6 +200,13 @@ internal class FocusTargetNode(
         }
         // This node might be reused, so we reset its state.
         committedFocusState = null
+    }
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isInitialFocusOnFocusableAvailable) {
+            node.requireOwner().focusOwner.focusTargetAvailable()
+        }
     }
 
     /**

@@ -17,96 +17,70 @@
 package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.autoSaver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.savedstate.SavedState
-import androidx.savedstate.serialization.decodeFromSavedState
-import androidx.savedstate.serialization.encodeToSavedState
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.descriptors.serialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
-import kotlinx.serialization.encoding.encodeStructure
-import kotlinx.serialization.serializer
+import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlinx.serialization.modules.SerializersModule
 
 /**
  * Provides a [NavBackStack] that is automatically remembered in the Compose hierarchy across
- * process death and config changes.
+ * process death and configuration changes.
  *
- * Classes/objects added to the [NavBackStack] should be annotated with [Serializable] to ensure
- * they can be saved and restored properly.
+ * This function uses [NavBackStackSerializer] under the hood to save and restore the back stack via
+ * [rememberSerializable].
  *
- * @param elements the starting keys of this backStack
+ * ### Serialization requirements
+ * - Each element placed in the [NavBackStack] must be `@Serializable`.
+ * - For **closed polymorphism** (sealed hierarchies), the compiler knows all subtypes and generates
+ *   serializers automatically. No custom [SavedStateConfiguration] is required.
+ * - For **open polymorphism** (interfaces or non-sealed hierarchies):
+ *     - On Android, `SavedStateConfiguration.DEFAULT` uses a reflective serializer that can handle
+ *       subtypes without registration.
+ *     - On other platforms, or when you supply a custom configuration, you must register all
+ *       subtypes of [NavKey] in a [SerializersModule] and pass that via [configuration]. You must
+ *       also provide the same configuration to the encoder/decoder when saving/restoring state.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * @Serializable sealed interface Screen : NavKey
+ * @Serializable data class Home(val id: String) : Screen
+ * @Serializable data class Details(val itemId: Long) : Screen
+ *
+ * // Closed polymorphism with sealed interface works out of the box on Android:
+ * val backStack = rememberNavBackStack(Home("start"))
+ *
+ * // Open polymorphism requires registering subtypes (non-Android):
+ * val module = SerializersModule {
+ *   polymorphic(Screen::class) {
+ *     subclass(Home::class, Home.serializer())
+ *     subclass(Details::class, Details.serializer())
+ *   }
+ * }
+ * val config = SavedStateConfiguration(serializersModule = module)
+ * val backStack = rememberNavBackStack(Home("start"), configuration = config)
+ * ```
+ *
+ * @param elements The initial keys of this back stack.
+ * @param configuration Controls how element serializers are resolved. On Android,
+ *   [SavedStateConfiguration.DEFAULT] uses reflection; otherwise, the provided [SerializersModule]
+ *   is used.
+ * @return A [NavBackStack] that survives process death and configuration changes.
+ * @see NavBackStackSerializer
  */
 @Composable
-public fun <T : NavKey> rememberNavBackStack(vararg elements: T): NavBackStack {
-    return rememberSaveable(saver = snapshotStateListSaver(serializableListSaver())) {
+public inline fun <reified T : NavKey> rememberNavBackStack(
+    vararg elements: T,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): NavBackStack {
+    return rememberSerializable(
+        configuration = configuration,
+        serializer = NavBackStackSerializer<NavKey>(configuration = configuration),
+    ) {
         elements.toList().toMutableStateList()
     }
 }
 
 /** A List of objects that extend the [NavKey] marker class. */
 public typealias NavBackStack = SnapshotStateList<NavKey>
-
-internal fun <T : Any> serializableListSaver(
-    serializer: KSerializer<T> = UnsafePolymorphicSerializer()
-) =
-    listSaver<List<T>, SavedState>(
-        save = { list -> list.map { encodeToSavedState(serializer, it) } },
-        restore = { list -> list.map { decodeFromSavedState(serializer, it) } },
-    )
-
-@Suppress("UNCHECKED_CAST")
-internal fun <T> snapshotStateListSaver(
-    listSaver: Saver<List<T>, out Any> = autoSaver()
-): Saver<SnapshotStateList<T>, Any> =
-    with(listSaver as Saver<List<T>, Any>) {
-        Saver(
-            save = { state ->
-                // We use toMutableList() here to ensure that save() is
-                // sent a list that is saveable by default (e.g., something
-                // that autoSaver() can handle)
-                save(state.toList().toMutableList())
-            },
-            restore = { state -> restore(state)?.toMutableStateList() },
-        )
-    }
-
-@OptIn(InternalSerializationApi::class)
-internal class UnsafePolymorphicSerializer<T : Any> : KSerializer<T> {
-
-    override val descriptor =
-        buildClassSerialDescriptor("PolymorphicData") {
-            element(elementName = "type", serialDescriptor<String>())
-            element(elementName = "payload", buildClassSerialDescriptor("Any"))
-        }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun deserialize(decoder: Decoder): T {
-        return decoder.decodeStructure(descriptor) {
-            val className = decodeStringElement(descriptor, decodeElementIndex(descriptor))
-            val classRef = Class.forName(className).kotlin
-            val serializer = classRef.serializer()
-
-            decodeSerializableElement(descriptor, decodeElementIndex(descriptor), serializer) as T
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun serialize(encoder: Encoder, value: T) {
-        encoder.encodeStructure(descriptor) {
-            val className = value::class.java.name
-            encodeStringElement(descriptor, index = 0, className)
-            val serializer = value::class.serializer() as KSerializer<T>
-            encodeSerializableElement(descriptor, index = 1, serializer, value)
-        }
-    }
-}

@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -104,11 +105,10 @@ internal fun BasicTooltipBox(
 ) {
     val scope = rememberCoroutineScope()
     val forceFocusableForKeyboardNav = remember { mutableStateOf(false) }
+    val accessibilityServiceEnabled by rememberTouchExplorationOrSwitchAccessServiceState()
     // The focusable value will be forced to true for correct a11y or keyboard navigation behaviors.
     val shouldForceFocusableForA11y =
-        hasAction &&
-            (rememberTouchExplorationOrSwitchAccessServiceState().value ||
-                forceFocusableForKeyboardNav.value)
+        hasAction && (accessibilityServiceEnabled || forceFocusableForKeyboardNav.value)
 
     Box {
         if (state.isVisible) {
@@ -465,7 +465,7 @@ internal expect object BasicTooltipStrings {
 
 /** Returns the current accessibility touch exploration or switch access service [State]. */
 @Composable
-private fun rememberTouchExplorationOrSwitchAccessServiceState() =
+private fun rememberTouchExplorationOrSwitchAccessServiceState(): State<Boolean> =
     rememberAccessibilityServiceState(
         listenToTouchExplorationState = true,
         listenToSwitchAccessState = true,

@@ -19,8 +19,9 @@ package androidx.compose.runtime
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.ScatterSet
-import androidx.compose.runtime.platform.makeSynchronizedObject
-import androidx.compose.runtime.snapshots.fastAny
+import androidx.compose.runtime.composer.InvalidationResult
+import androidx.compose.runtime.composer.gapbuffer.GapAnchor
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.snapshots.fastForEach
 
 /**
@@ -74,8 +75,6 @@ internal interface RecomposeScopeOwner {
     fun recordReadOf(value: Any)
 }
 
-private val callbackLock = makeSynchronizedObject()
-
 /**
  * A RecomposeScope is created for a region of the composition that can be recomposed independently
  * of the rest of the composition. The composer will position the slot table to the location stored
@@ -103,7 +102,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
         get() = owner != null && anchor?.valid ?: false
 
     val canRecompose: Boolean
-        get() = block != null
+        get() = valid && block != null
 
     /**
      * Used is set when the [RecomposeScopeImpl] is used by, for example, [currentRecomposeScope].
@@ -205,7 +204,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
 
     /**
      * Release the recompose scope. This is called when the recompose scope has been removed by the
-     * compostion because the part of the composition it was tracking was removed.
+     * composition because the part of the composition it was tracking was removed.
      */
     fun release() {
         owner?.recomposeScopeReleased(this)
@@ -296,11 +295,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
             trackedInstances ?: MutableObjectIntMap<Any>().also { trackedInstances = it }
 
         val token = trackedInstances.put(instance, currentToken, default = -1)
-        if (token == currentToken) {
-            return true
-        }
-
-        return false
+        return token == currentToken
     }
 
     fun recordDerivedStateValue(instance: DerivedState<*>, value: Any?) {
@@ -418,7 +413,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
     companion object {
         internal fun adoptAnchoredScopes(
             slots: SlotWriter,
-            anchors: List<Anchor>,
+            anchors: List<GapAnchor>,
             newOwner: RecomposeScopeOwner,
         ) {
             if (anchors.isNotEmpty()) {
@@ -430,12 +425,5 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
                 }
             }
         }
-
-        internal fun hasAnchoredRecomposeScopes(slots: SlotTable, anchors: List<Anchor>) =
-            anchors.isNotEmpty() &&
-                anchors.fastAny {
-                    slots.ownsAnchor(it) &&
-                        slots.slot(slots.anchorIndex(it), 0) is RecomposeScopeImpl
-                }
     }
 }

@@ -18,6 +18,7 @@ package androidx.compose.remote.player.view.state;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
+
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;

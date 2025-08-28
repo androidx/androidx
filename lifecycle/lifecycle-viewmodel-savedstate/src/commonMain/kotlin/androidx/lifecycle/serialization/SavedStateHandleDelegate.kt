@@ -20,7 +20,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.internal.canonicalName
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
-import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
@@ -147,9 +146,6 @@ private class SavedStateHandleDelegate<T>(
      */
     private object UNINITIALIZED
 
-    // TODO(mgalhardo): encode/decode operations with SavedState requires a non-nullable type.
-    //  To support nullable values, we rely on unchecked casts and brittle generic workarounds.
-    //  Once the codec supports nullables directly, this logic can be simplified.
     private var cachedValue: Any? = UNINITIALIZED
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
@@ -184,9 +180,7 @@ private class SavedStateHandleDelegate<T>(
         // Don't save anything if the value was never even accessed.
         if (cachedValue == UNINITIALIZED) return savedState()
 
-        // Using `putNull` distinguishes a saved `null` from a state that was never saved.
-        @Suppress("UNCHECKED_CAST")
-        val typedValue = cachedValue as? T ?: return savedState { putNull(key = "") }
+        @Suppress("UNCHECKED_CAST") val typedValue = cachedValue as T
 
         return encodeToSavedState(serializer, typedValue, configuration)
     }
@@ -199,9 +193,6 @@ private class SavedStateHandleDelegate<T>(
      */
     private fun loadInitialValue(qualifiedKey: String): T? {
         val restored = savedStateHandle.get<SavedState>(qualifiedKey) ?: return init()
-
-        // Check for the special marker used in `saveState()` for a `null` value.
-        if (restored.read { isNull(key = "") && size() == 1 }) return null
 
         @Suppress("UNCHECKED_CAST")
         return decodeFromSavedState(

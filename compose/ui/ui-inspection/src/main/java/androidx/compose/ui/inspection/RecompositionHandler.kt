@@ -64,6 +64,22 @@ class RecompositionHandler(private val artTooling: ArtTooling) {
         }
     }
 
+    private fun composerImplementationClass(): Class<*>? {
+        val baseName = Composer::class.java.name.let { it.substring(0..it.lastIndexOf('.')) }
+        try {
+            return Class.forName(baseName + "ComposerImpl")
+        } catch (ex: Throwable) {}
+        try {
+            return Class.forName(baseName + "GapComposer")
+        } catch (ex: Throwable) {}
+        try {
+            return Class.forName(baseName + "LinkComposer")
+        } catch (ex: Throwable) {
+            Log.w(LOG_TAG, "Could not install recomposition hooks", ex)
+        }
+        return null
+    }
+
     /**
      * We install 3 hooks:
      * - entry hook for ComposerImpl.startRestartGroup gives us the [MethodKey.key]
@@ -71,13 +87,7 @@ class RecompositionHandler(private val artTooling: ArtTooling) {
      * - entry hook for ComposerImpl.skipToGroupEnd converts a recompose count to a skip count.
      */
     private fun installHooks() {
-        val composerImpl =
-            try {
-                Class.forName("${Composer::class.java.name}Impl")
-            } catch (ex: Throwable) {
-                Log.w(LOG_TAG, "Could not install recomposition hooks", ex)
-                return
-            }
+        val composerImpl = composerImplementationClass() ?: return
 
         artTooling.registerEntryHook(composerImpl, START_RESTART_GROUP) { _, args ->
             synchronized(lock) { lastMethodKey = args[0] as Int }

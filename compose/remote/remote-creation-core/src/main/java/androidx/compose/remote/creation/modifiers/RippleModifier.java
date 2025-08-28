@@ -24,6 +24,6 @@ public class RippleModifier implements RecordingModifier.Element {
 
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
-        writer.getBuffer().addModifierRipple();
+        writer.addModifierRipple();
     }
 }

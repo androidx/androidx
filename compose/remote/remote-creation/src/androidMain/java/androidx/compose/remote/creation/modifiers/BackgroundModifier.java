@@ -40,7 +40,7 @@ public class BackgroundModifier implements RecordingModifier.Element {
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mShader == null) {
-            writer.getBuffer().addModifierBackground(mColor, 0);
+            writer.addModifierBackground(mColor, 0);
         }
     }
 }

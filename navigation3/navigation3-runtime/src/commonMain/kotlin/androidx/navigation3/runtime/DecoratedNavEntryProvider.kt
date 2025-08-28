@@ -52,7 +52,7 @@ public fun <T : Any> DecoratedNavEntryProvider(
     // to ensure our lambda below takes the correct type
     entryProvider as (T) -> NavEntry<T>
     val entries =
-        backStack.mapIndexed { index, key ->
+        backStack.fastMapOrMap { key ->
             val entry = entryProvider.invoke(key)
             decorateEntry(entry, entryDecorators)
         }
@@ -94,7 +94,9 @@ internal fun <T : Any> decorateEntry(
                             // onDispose
                             // calls for clean up
                             // convert to mutableList first for backwards compat.
-                            latestDecorators.reversed().forEach { it.onPop(contentKey) }
+                            latestDecorators.fastForEachReversedOrForEachReversed {
+                                it.onPop(contentKey)
+                            }
                         }
                     }
                 }
@@ -123,13 +125,15 @@ internal fun <T : Any> PrepareBackStack(
 
     // update this backStack so that onDispose has access to the latest backStack to check
     // if an entry has been popped
-    val latestBackStack by rememberUpdatedState(entries.map { it.contentKey })
+    val latestEntries by rememberUpdatedState(entries)
     val latestDecorators by rememberUpdatedState(decorators)
-    latestBackStack.forEach { contentKey ->
+    entries.fastForEachOrForEach {
+        val contentKey = it.contentKey
         contentKeys.add(contentKey)
 
         DisposableEffect(contentKey) {
             onDispose {
+                val latestBackStack = latestEntries.fastMapOrMap { entry -> entry.contentKey }
                 val popped =
                     if (!latestBackStack.contains(contentKey)) {
                         contentKeys.remove(contentKey)
@@ -139,18 +143,17 @@ internal fun <T : Any> PrepareBackStack(
                     // we reverse the order before popping to imitate the order
                     // of onDispose calls if each scope/decorator had their own onDispose
                     // calls for clean up
-                    latestDecorators.reversed().forEach { it.onPop(contentKey) }
+                    latestDecorators.fastForEachReversedOrForEachReversed { it.onPop(contentKey) }
                 }
             }
         }
     }
-    CompositionLocalProvider(LocalNavEntryDecoratorLocalInfo provides localInfo) { content() }
+    CompositionLocalProvider(LocalNavEntryDecoratorLocalInfo provides localInfo, content)
 }
 
 private class NavEntryDecoratorLocalInfo {
     val contentKeys: MutableSet<Any> = mutableSetOf()
     val idsInComposition: MutableSet<Any> = mutableSetOf()
-    val popCallbacks: LinkedHashMap<Int, (key: Any) -> Unit> = LinkedHashMap()
 }
 
 private val LocalNavEntryDecoratorLocalInfo =

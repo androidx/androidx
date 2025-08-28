@@ -106,8 +106,8 @@ class MultiBrowseTest {
         val keylines = strategy.defaultKeylines
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(minSmallItemSize)
-        assertThat(keylines.firstFocal == keylines.firstNonAnchor)
-        assertThat(keylines.lastFocal == keylines.lastNonAnchor)
+        assertThat(keylines.firstFocal).isEqualTo(keylines.firstNonAnchor)
+        assertThat(keylines.lastFocal).isEqualTo(keylines.lastNonAnchor)
     }
 
     @Test

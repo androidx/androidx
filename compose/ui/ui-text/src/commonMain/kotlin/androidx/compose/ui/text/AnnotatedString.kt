@@ -488,6 +488,8 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * platform-specific types, such as `SpannedString` on Android, will only have their text
          * copied and any other information held in the sequence, such as Android `Span`s, will be
          * dropped.
+         *
+         * @param text the text to append
          */
         @Suppress("BuilderSetStyle", "PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun append(text: CharSequence?): Builder {
@@ -509,6 +511,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * Android, will only have their text copied and any other information held in the sequence,
          * such as Android `Span`s, will be dropped.
          *
+         * @param text the text to append
          * @param start The index of the first character in [text] to copy over (inclusive).
          * @param end The index after the last character in [text] to copy over (exclusive).
          */
@@ -548,6 +551,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * [Builder]. All spans and annotations from [text] between [start] and [end] will be copied
          * over as well.
          *
+         * @param text the text to append
          * @param start The index of the first character in [text] to copy over (inclusive).
          * @param end The index after the last character in [text] to copy over (exclusive).
          */
@@ -1541,6 +1545,7 @@ private fun <T> filterRanges(ranges: List<Range<out T>>?, start: Int, end: Int):
 /**
  * Create an AnnotatedString with a [spanStyle] that will apply to the whole text.
  *
+ * @param text the text to be styled
  * @param spanStyle [SpanStyle] to be applied to whole text
  * @param paragraphStyle [ParagraphStyle] to be applied to whole text
  */
@@ -1558,6 +1563,7 @@ fun AnnotatedString(
 /**
  * Create an AnnotatedString with a [paragraphStyle] that will apply to the whole text.
  *
+ * @param text the text to be styled
  * @param paragraphStyle [ParagraphStyle] to be applied to whole text
  */
 fun AnnotatedString(text: String, paragraphStyle: ParagraphStyle): AnnotatedString =

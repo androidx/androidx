@@ -4,6 +4,13 @@ public final class androidx/compose/ui/tooling/data/CallGroup : androidx/compose
 	public fun getParameters ()Ljava/util/List;
 }
 
+public final class androidx/compose/ui/tooling/data/CompositionDataTreeKt {
+	public static final fun makeTree (Ljava/util/Set;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/tooling/data/ContextCache;)Ljava/util/List;
+	public static final fun makeTree (Ljava/util/Set;Lkotlin/jvm/functions/Function4;Landroidx/compose/ui/tooling/data/ContextCache;)Ljava/util/List;
+	public static synthetic fun makeTree$default (Ljava/util/Set;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/tooling/data/ContextCache;ILjava/lang/Object;)Ljava/util/List;
+	public static synthetic fun makeTree$default (Ljava/util/Set;Lkotlin/jvm/functions/Function4;Landroidx/compose/ui/tooling/data/ContextCache;ILjava/lang/Object;)Ljava/util/List;
+}
+
 public final class androidx/compose/ui/tooling/data/ContextCache {
 	public static final field $stable I
 	public fun <init> ()V

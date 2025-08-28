@@ -29,6 +29,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
 import androidx.compose.remote.serialization.yaml.YAMLSerializer;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,7 @@ import org.junit.runners.JUnit4;
 
 import java.io.ByteArrayInputStream;
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(JUnit4.class)
 public class DrawCommandsTest {
 

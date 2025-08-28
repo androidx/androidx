@@ -916,11 +916,11 @@ class ModalBottomSheetTest {
                     Box(Modifier.fillMaxSize().testTag(sheetTag))
                 }
             }
-            assertThat(sheetState.currentValue == SheetValue.Expanded)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
 
             sheetState.hide()
 
-            assertThat(sheetState.currentValue == SheetValue.Hidden)
+            assertThat(sheetState.currentValue).isEqualTo(SheetValue.Hidden)
         }
 
     @Test

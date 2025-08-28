@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.layout
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.creation.Painter
@@ -35,10 +39,11 @@ import androidx.compose.ui.unit.takeOrElse
 
 private val RemoteComposeWriter.painter: Painter
     get() {
-        if (this is RemoteComposeWriterAndroid) {
-            this.painter
+        if (this !is RemoteComposeWriterAndroid) {
+            throw Exception("Invalid Writer $this, painter inaccessible")
         }
-        throw (Exception("Invalid Writer, painter inaccessible"))
+
+        return this.painter
     }
 
 @Composable

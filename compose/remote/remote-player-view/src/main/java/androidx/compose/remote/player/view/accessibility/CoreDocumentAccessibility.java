@@ -16,14 +16,12 @@
 package androidx.compose.remote.player.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
-import androidx.annotation.RestrictTo;
 
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContextActions;
@@ -114,6 +112,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
      * @param arguments Optional arguments for the action.
      * @return True if the action was successfully performed, false otherwise.
      */
+    @Override
     public boolean performAction(Component component, int action, Bundle arguments) {
         boolean needsRepaint = true;
 
@@ -220,6 +219,7 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("MixedMutabilityReturnType")
     @Override
     public List<Integer> semanticallyRelevantChildComponents(
             Component component, boolean useUnmergedTree) {

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.capture
 
 import android.app.Presentation
@@ -21,6 +23,8 @@ import android.os.Bundle
 import android.view.Display
 import android.view.SurfaceView
 import android.widget.FrameLayout
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 
 /** Implement a secondary display view hierarchy, hosting a compose host */
 class SecondaryDisplay(outerContext: Context?, display: Display?) :

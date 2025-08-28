@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.frontend.modifier
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteFloat
+import androidx.compose.remote.frontend.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -30,6 +35,17 @@ class PaddingModifier(
     val right: RemoteFloat,
     val bottom: RemoteFloat,
 ) : RemoteLayoutModifier {
+    init {
+        require(
+            (!left.hasConstantValue || left.toFloat() >= 0f) and
+                (!top.hasConstantValue || top.toFloat() >= 0f) and
+                (!right.hasConstantValue || right.toFloat() >= 0f) and
+                (!bottom.hasConstantValue || bottom.toFloat() >= 0f)
+        ) {
+            "Padding must be non-negative"
+        }
+    }
+
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.PaddingModifier(
             left.internalAsFloat(),
@@ -55,34 +71,41 @@ class PaddingModifier(
 }
 
 fun RemoteModifier.padding(
-    left: RemoteFloat,
-    top: RemoteFloat,
-    right: RemoteFloat,
-    bottom: RemoteFloat,
+    left: RemoteFloat = 0f.rf,
+    top: RemoteFloat = 0f.rf,
+    right: RemoteFloat = 0f.rf,
+    bottom: RemoteFloat = 0f.rf,
 ): RemoteModifier = then(PaddingModifier(left, top, right, bottom))
 
-fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier =
-    this.then(PaddingModifier(all, all, all, all))
+fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(all, all, all, all)
+
+fun RemoteModifier.padding(
+    horizontal: RemoteFloat = 0f.rf,
+    vertical: RemoteFloat = 0f.rf,
+): RemoteModifier =
+    padding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)
 
 @Composable
-fun RemoteModifier.padding(value: Dp): RemoteModifier {
-    val dimension = (LocalDensity.current.density * value.value)
-    return padding(RemoteFloat(dimension))
-}
+fun RemoteModifier.padding(all: Dp): RemoteModifier =
+    padding(left = all, top = all, right = all, bottom = all)
 
 @Composable
 fun RemoteModifier.padding(
-    start: Dp = 0.dp,
+    left: Dp = 0.dp,
     top: Dp = 0.dp,
-    end: Dp = 0.dp,
+    right: Dp = 0.dp,
     bottom: Dp = 0.dp,
 ): RemoteModifier {
     return with(LocalDensity.current) {
         padding(
-            RemoteFloat(start.toPx()),
+            RemoteFloat(left.toPx()),
             RemoteFloat(top.toPx()),
-            RemoteFloat(end.toPx()),
+            RemoteFloat(right.toPx()),
             RemoteFloat(bottom.toPx()),
         )
     }
 }
+
+@Composable
+fun RemoteModifier.padding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): RemoteModifier =
+    padding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)

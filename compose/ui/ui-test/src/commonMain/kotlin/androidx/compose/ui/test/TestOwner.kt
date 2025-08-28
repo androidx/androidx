@@ -49,6 +49,30 @@ internal interface TestOwner {
      *   present in the tested app. This affects synchronization efforts / timeouts of this API.
      */
     fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest>
+
+    /**
+     * Executes all tasks that are currently due for immediate execution on the virtual clock.
+     *
+     * Due tasks are operations scheduled to run on this clock without any delay. This method should
+     * only be necessary when the test is running on a **confined**
+     * [TestDispatcher][kotlinx.coroutines.test.TestDispatcher] (like
+     * [StandardTestDispatcher][kotlinx.coroutines.test.StandardTestDispatcher]), where tasks are
+     * queued but not executed automatically. On an
+     * [UnconfinedTestDispatcher][kotlinx.coroutines.test.UnconfinedTestDispatcher], all tasks that
+     * are scheduled without delay will be executed immediately, so they will never end up as a due
+     * task.
+     *
+     * This function is a fundamental building block for more advanced synchronization APIs. For
+     * example, it is used internally by APIs like `waitForIdle()`, `advanceTimeBy()`, etc. to
+     * process pending work before or after manipulating the clock.
+     *
+     * In almost all testing scenarios, you should prefer using higher-level APIs to ensure proper
+     * synchronization.
+     *
+     * Only call this function directly if you have a specific need to run only the immediately
+     * available tasks without advancing time or waiting for a complete idle state.
+     */
+    fun runCurrent()
 }
 
 /**

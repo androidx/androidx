@@ -869,7 +869,6 @@ internal class PrefetchHandleProvider(
                 trace("compose:lazy:prefetch:update_nested_prefetch_count") {
                     states.fastForEach { it.realizedNestedPrefetchCount = nestedPrefetchCount }
                 }
-
                 trace("compose:lazy:prefetch:nested") {
                     while (stateIndex < states.size) {
                         if (requestsByState[stateIndex] == null) {

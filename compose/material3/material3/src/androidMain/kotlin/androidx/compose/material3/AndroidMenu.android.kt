@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
@@ -112,6 +113,7 @@ actual fun DropdownMenu(
             "color, elevation, and border.",
 )
 @Composable
+@SuppressLint("ComposableNaming")
 fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
@@ -148,6 +150,7 @@ fun DropdownMenu(
     message = "Replaced by a DropdownMenu function with a ScrollState parameter",
 )
 @Composable
+@SuppressLint("ComposableNaming")
 fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,

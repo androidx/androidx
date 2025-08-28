@@ -53,26 +53,13 @@ androidXMultiplatform {
                 api(project(":navigationevent:navigationevent"))
             }
         }
-
-        wasmJsMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinStdlibWasm)
-            }
-        }
-
-        jsMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinStdlibJs)
-            }
-        }
     }
 }
 
 androidx {
     name = "Navigation Event Testing"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    samples(project(":navigationevent:navigationevent-samples"))
     inceptionYear = "2025"
     description = "Testing utilities for 'navigationevent' artifact"
 }

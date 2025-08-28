@@ -19,8 +19,20 @@ package androidx.navigationevent
 /**
  * Provides contextual information about a navigation state (e.g., a screen or route).
  *
- * Implement this interface on objects that represent a specific state in your UI. This allows you
- * to associate custom data with system navigation events.
+ * Implement this interface on objects that represent a specific state in your UI. A typical
+ * implementation should be a data holder (such as a `data class`) that defines meaningful
+ * structural equality (`equals`/`hashCode`). This ensures that navigation state comparisons, state
+ * flows, and recompositions work as expected. Failing to provide proper equality can lead to
+ * unnecessary recompositions or infinite update loops.
+ *
+ * Guidelines for implementors:
+ * - Prefer `data class` to automatically provide equality and `toString`.
+ * - Keep instances immutable for predictable behavior in state flows.
+ * - Ensure equality reflects the logical identity of the navigation state.
+ *
+ * This allows you to associate custom, comparable data with a system navigation event emissions.
+ *
+ * @see NavigationEventState
  */
 public interface NavigationEventInfo {
 

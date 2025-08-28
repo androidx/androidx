@@ -991,7 +991,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                         RemoteModifier.background(Color.Red)
                             .weight(1f)
                             .height(30.dp)
-                            .padding(start = 4.dp)
+                            .padding(left = 4.dp)
                 )
                 Box(modifier = RemoteModifier.fillMaxHeight().width(1.dp).background(Color.Green))
                 Box(
@@ -999,7 +999,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                         RemoteModifier.background(Color.Blue)
                             .weight(1f)
                             .height(60.dp)
-                            .padding(end = 4.dp)
+                            .padding(right = 4.dp)
                 )
             }
         }
@@ -1041,7 +1041,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                             RemoteModifier.background(Color.Red)
                                 .weight(1f)
                                 .height(60.dp)
-                                .padding(start = 4.dp)
+                                .padding(left = 4.dp)
                     )
                     Box(
                         modifier =
@@ -1052,7 +1052,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
                             RemoteModifier.background(Color.Blue)
                                 .weight(1f)
                                 .height(30.dp)
-                                .padding(end = 4.dp)
+                                .padding(right = 4.dp)
                     )
                 }
                 Box(modifier = RemoteModifier.fillMaxWidth().height(20.dp).background(Color.Yellow))

@@ -174,6 +174,8 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertValueEquals
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.isEnabled
+import androidx.compose.ui.test.isHiddenFromAccessibility
+import androidx.compose.ui.test.isInHiddenAccessibilitySubtree
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -3789,6 +3791,29 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testHideFromAccessibilityMatchers() {
+        // Arrange.
+        setContent {
+            Box(Modifier.testTag("testTag1").semantics { hideFromAccessibility() }) {
+                BasicText(modifier = Modifier.testTag("testTag2"), text = "text")
+                BasicText(
+                    modifier = Modifier.testTag("testTag3").semantics { hideFromAccessibility() },
+                    text = "text",
+                )
+            }
+        }
+        // TestTag2 is not hidden from accessibility
+        rule.onNodeWithTag("testTag2").assert(isHiddenFromAccessibility().not())
+        // TestTag2 is in a subtree hidden from accessibility
+        rule.onNodeWithTag("testTag2").assert(isInHiddenAccessibilitySubtree())
+
+        // TestTag3 is hidden from accessibility
+        rule.onNodeWithTag("testTag3").assert(isHiddenFromAccessibility())
+        // TestTag3 is in a subtree hidden from accessibility
+        rule.onNodeWithTag("testTag3").assert(isInHiddenAccessibilitySubtree())
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun viewInteropIsInvisibleToUser() {
         setContent {
@@ -3865,6 +3890,31 @@ class AndroidAccessibilityTest {
 
         // Assert.
         rule.runOnIdle { assertThat(outerNodeId).isEqualTo(hitNodeId) }
+    }
+
+    @Test
+    fun testSemanticsHitTest_unimportantForAccessibilityOverlay() {
+        // Arrange.
+        setContent {
+            Box {
+                Box(Modifier.size(100.dp).clickable {}.testTag(tag)) { BasicText("") }
+                Box(Modifier.size(100.dp).semantics {})
+            }
+        }
+        val clickableNodeId = rule.onNodeWithTag(tag).semanticsId()
+        val bounds = with(rule.density) { rule.onNodeWithTag(tag).getBoundsInRoot().toRect() }
+
+        // Act.
+        val hitNodeId =
+            rule.runOnIdle {
+                delegate.hitTestSemanticsAt(
+                    bounds.left + bounds.width / 2,
+                    bounds.top + bounds.height / 2,
+                )
+            }
+
+        // Assert.
+        rule.runOnIdle { assertThat(hitNodeId).isEqualTo(clickableNodeId) }
     }
 
     @Test

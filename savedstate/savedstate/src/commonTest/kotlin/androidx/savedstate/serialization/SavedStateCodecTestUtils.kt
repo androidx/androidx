@@ -21,28 +21,77 @@ import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateReader
 import androidx.savedstate.read
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.nullable
 
 /**
  * Utility object providing helper functions for encoding and decoding instances of `T` using
  * [SavedState]. It supports serialization, parcelization (on Android), and deserialization.
  */
 internal object SavedStateCodecTestUtils {
-
     /**
-     * Test the following steps: 1. encode `T` to a `SavedState`, 2. parcelize it to a `Parcel`,
-     * 3. marshall it to a byte array, 4. unmarshall it back to a parcel, 5. un-parcelize it back to
-     *    a `SavedState`, and 6. decode it back to a `T`. Step 2 to 5 are only performed on Android.
-     *
-     * Here's the whole process:
-     *
-     * (A)Serializable -1-> (B)SavedState -2-> (C)Parcel -3-> (D)byte array -4-> (E)Parcel -5->
-     * (F)SavedState -6-> (G)Serializable
-     *
-     * @param doMarshalling Used to enable/disable step 3 and 4.
-     * @param checkEncoded Used to check the content of "B"
-     * @param checkDecoded Used to compare the instances of "G" and "A".
+     * Test encoding the receiver and then decoding it back. It covers three cases:
+     * 1. The receiver with the static type `T`.
+     * 2. The receiver with the static type `T?`.
+     * 3. `null` with the static type `T?`.
      */
     inline fun <reified T : Any> T.encodeDecode(
+        serializer: KSerializer<T>? = null,
+        configuration: SavedStateConfiguration? = null,
+        doMarshalling: Boolean = true,
+        // Only called for the first two cases.
+        crossinline checkDecoded: (T, T) -> Unit = { decoded, original ->
+            assertThat(decoded).isEqualTo(original)
+        },
+        // Only called for the first two cases.
+        crossinline checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) },
+    ) {
+        // Encode and decode `this` with the static type `T`.
+        this.encodeDecodeImpl<T>(
+            serializer,
+            configuration,
+            doMarshalling,
+            checkDecoded,
+            checkEncoded,
+        )
+        // Encode and decode `this` with the static type `T?`.
+        this.encodeDecodeImpl<T?>(
+            serializer?.nullable,
+            configuration,
+            doMarshalling,
+            { decoded, original -> checkDecoded(decoded!!, original!!) },
+            checkEncoded,
+        )
+        // Encode and decode `null` with the static type `T?`.
+        null.encodeDecodeImpl<T?>(
+            serializer?.nullable,
+            configuration,
+            doMarshalling,
+            { decoded, original -> assertThat(decoded).isNull() },
+            {
+                assertThat(size()).isEqualTo(1)
+                assertThat(isNull("")).isTrue()
+            },
+        )
+    }
+
+    /**
+     * Test the following steps:
+     * 1. Encode `T` to a `SavedState`.
+     * 2. Parcelize it to a `Parcel`.
+     * 3. Marshall it to a byte array.
+     * 4. Unmarshall it back to a parcel.
+     * 5. Un-parcelize it back to a `SavedState`.
+     * 6. Decode it back to a `T`.
+     *
+     * (Step 2 to 5 are only performed on Android.)
+     *
+     * @param serializer The [KSerializer] to use.
+     * @param configuration The [SavedStateConfiguration] to use.
+     * @param doMarshalling Used to enable/disable step 3 and 4.
+     * @param checkDecoded Used to compare receiver with the result from step 6.
+     * @param checkEncoded Used to check the content of the result SavedState from step 1.
+     */
+    private inline fun <reified T> T.encodeDecodeImpl(
         serializer: KSerializer<T>? = null,
         configuration: SavedStateConfiguration? = null,
         doMarshalling: Boolean = true,

@@ -1739,14 +1739,20 @@ private fun <T> AnchoredDraggableLayoutInfoProvider(
 
         override fun calculateSnapOffset(velocity: Float): Float {
             val currentOffset = state.requireOffset()
-            val target =
+            val proposedTargetValue =
                 state.anchors.computeTarget(
                     currentOffset = currentOffset,
                     velocity = velocity,
                     positionalThreshold = positionalThreshold,
                     velocityThreshold = velocityThreshold,
                 )
-            return state.anchors.positionOf(target) - currentOffset
+            val targetValue =
+                if (state.confirmValueChange(proposedTargetValue)) {
+                    proposedTargetValue
+                } else {
+                    state.settledValue
+                }
+            return state.anchors.positionOf(targetValue) - currentOffset
         }
     }
 

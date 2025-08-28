@@ -66,6 +66,15 @@ internal object ClipboardUtils {
         if (clipEntry == null) return false
         return clipEntry.clipData.description.hasMimeType("text/*")
     }
+
+    /**
+     * This method allows to check if there is a text in the Clipboard without triggering the toast
+     * "APP pasted from the clipboard" on Android (unlike, clipboard.getClipEntry())
+     */
+    @JvmStatic
+    fun hasText(clipboard: Clipboard): Boolean {
+        return clipboard.nativeClipboard.primaryClipDescription?.hasMimeType("text/*") == true
+    }
 }
 
 internal actual suspend fun ClipEntry.readText(): String? {
@@ -83,6 +92,10 @@ internal actual fun AnnotatedString?.toClipEntry(): ClipEntry? {
 internal actual fun ClipEntry?.hasText(): Boolean {
     return ClipboardUtils.hasText(this)
 }
+
+internal actual fun Clipboard.isReadSupported(): Boolean = true
+
+internal actual fun Clipboard.isWriteSupported(): Boolean = true
 
 // Copy pasted from ui module
 internal fun AnnotatedString.convertToCharSequence(): CharSequence {
