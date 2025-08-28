@@ -103,7 +103,6 @@ val libraryToComponents = mapOf(
         ComposeComponent(":navigation:navigation-runtime", supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE),
     ),
     "NAVIGATION_3" to listOf(
-        ComposeComponent(":navigation3:navigation3-runtime"),
         ComposeComponent(":navigation3:navigation3-ui"),
     ),
     "SAVEDSTATE" to listOf(

@@ -345,7 +345,6 @@ overrideInclude = [
 group = "org.jetbrains.androidx.navigation3"
 atomicGroupVersion = "versions.NAVIGATION_3"
 overrideInclude = [
-    ":navigation3:navigation3-runtime",
     ":navigation3:navigation3-ui"
 ]
 

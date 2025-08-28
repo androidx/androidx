@@ -245,7 +245,6 @@ includeProject(":navigation:navigation-common")
 includeProject(":navigation:navigation-compose")
 includeProject(":navigation:navigation-runtime")
 includeProject(":navigation:navigation-testing")
-includeProject(":navigation3:navigation3-runtime")
 includeProject(":navigation3:navigation3-ui")
 
 includeProject(":internal-testutils-common", "testutils/testutils-common",)
