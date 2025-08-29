@@ -18,6 +18,7 @@ package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
@@ -143,6 +144,7 @@ internal class ComposeSceneMediator(
     var fullscreen by skiaLayerComponent::fullscreen
     val windowHandle by skiaLayerComponent::windowHandle
     val renderApi by skiaLayerComponent::renderApi
+    val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerListener::semanticsOwners
 
     /**
      * @see ComposeFeatureFlags.useInteropBlending
@@ -667,6 +669,8 @@ internal class ComposeSceneMediator(
         private val _accessibilityControllers = linkedMapOf<SemanticsOwner, AccessibilityController>()
         val accessibilityControllers get() = _accessibilityControllers.values.reversed()
 
+        val semanticsOwners = mutableStateSetOf<SemanticsOwner>()
+
         override fun onSemanticsOwnerAppended(semanticsOwner: SemanticsOwner) {
             check(semanticsOwner !in _accessibilityControllers)
             _accessibilityControllers[semanticsOwner] = AccessibilityController(
@@ -678,10 +682,12 @@ internal class ComposeSceneMediator(
             ).also {
                 it.launchSyncLoop(coroutineContext)
             }
+            semanticsOwners.add(semanticsOwner)
         }
 
         override fun onSemanticsOwnerRemoved(semanticsOwner: SemanticsOwner) {
             _accessibilityControllers.remove(semanticsOwner)?.dispose()
+            semanticsOwners.remove(semanticsOwner)
         }
 
         override fun onSemanticsChange(semanticsOwner: SemanticsOwner) {

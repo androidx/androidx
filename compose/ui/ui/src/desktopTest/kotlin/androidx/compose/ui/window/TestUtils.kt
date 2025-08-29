@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.awaitEDT
+import androidx.compose.ui.awt.ComposeWindow
 import java.awt.GraphicsEnvironment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,7 +35,6 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
-import javax.swing.JFrame
 
 
 internal fun runApplicationTest(
@@ -121,7 +121,7 @@ internal class WindowTestScope(
     var isOpen by mutableStateOf(true)
     private val initialRecomposers = Recomposer.runningRecomposers.value
 
-    lateinit var window: JFrame
+    lateinit var window: ComposeWindow
 
     fun launchTestApplication(
         content: @Composable ApplicationScope.() -> Unit
@@ -132,7 +132,7 @@ internal class WindowTestScope(
     }
 
     fun launchTestWindowApplication(
-        content: @Composable WindowScope.() -> Unit
+        content: @Composable FrameWindowScope.() -> Unit
     ) = launchTestApplication {
        Window(onCloseRequest = ::exitApplication) {
            this@WindowTestScope.window = window

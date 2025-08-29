@@ -80,6 +80,7 @@ internal class ComposeWindowPanel(
     var exceptionHandler by composeContainer::exceptionHandler
     val windowHandle by composeContainer::windowHandle
     val renderApi by composeContainer::renderApi
+    val semanticsOwners by composeContainer::semanticsOwners
 
     var isWindowTransparent: Boolean = false
         set(value) {

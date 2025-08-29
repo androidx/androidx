@@ -21,6 +21,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.UndecoratedWindowResizer
@@ -80,6 +81,17 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     // Don't override the accessible context of JFrame, since accessibility work through HardwareLayer
     internal val windowAccessible: Accessible
         get() = composePanel.windowAccessible
+
+    /**
+     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
+     * [ComposeWindow].
+     *
+     * This is backed by snapshot state, so reading this property in a restartable function (e.g., a
+     * composable function) will cause the function to restart when set of semantics owners changes.
+     */
+    @ExperimentalComposeUiApi
+    val semanticsOwners: Collection<SemanticsOwner>
+        get() = composePanel.semanticsOwners
 
     init {
         contentPane.add(composePanel)

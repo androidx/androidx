@@ -693,8 +693,8 @@ class ComplexApplicationTest {
 
         Truth
             .assertWithMessage("Memory is increased more than 15% after opening multiple windows")
-            .that(newMemory < 1.15 * oldMemory)
-            .isTrue()
+            .that(newMemory.toDouble()/oldMemory)
+            .isLessThan(1.15)
     }
 
     @Test

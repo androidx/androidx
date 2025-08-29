@@ -24,6 +24,7 @@ import androidx.compose.ui.awt.RenderSettings.SkiaSurface
 import androidx.compose.ui.awt.RenderSettings.SwingGraphics
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.scene.ComposeContainer
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.savedstate.SavedState
 import java.awt.Color
@@ -213,13 +214,24 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             _composeContainer?.windowContainer = value
         }
 
-    override fun add(component: Component): Component {
-        return super.add(component)
-    }
+    /**
+     * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this
+     * [ComposePanel].
+     *
+     * This is backed by snapshot state, so reading this property in a restartable function (e.g., a
+     * composable function) will cause the function to restart when set of semantics owners changes.
+     */
+    @ExperimentalComposeUiApi
+    val semanticsOwners: Collection<SemanticsOwner>
+        get() = _composeContainer?.semanticsOwners ?: emptyList()
 
-    override fun remove(component: Component) {
-        super.remove(component)
-    }
+    // Needed to preserve binary compatibility
+    @Suppress("RedundantOverride")
+    override fun add(component: Component): Component = super.add(component)
+
+    // Needed to preserve binary compatibility
+    @Suppress("RedundantOverride")
+    override fun remove(component: Component) = super.remove(component)
 
     override fun addNotify() {
         super.addNotify()

@@ -190,6 +190,7 @@ internal class ComposeContainer(
     val windowHandle by mediator::windowHandle
     val renderApi by mediator::renderApi
     val preferredSize by mediator::preferredSize
+    val semanticsOwners by mediator::semanticsOwners
 
     override val lifecycle = LifecycleRegistry(this)
 
