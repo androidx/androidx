@@ -95,15 +95,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.isAltPressed
-import androidx.compose.ui.input.pointer.isBackPressed
 import androidx.compose.ui.input.pointer.isCtrlPressed
-import androidx.compose.ui.input.pointer.isForwardPressed
-import androidx.compose.ui.input.pointer.isMetaPressed
-import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.isShiftPressed
-import androidx.compose.ui.input.pointer.isTertiaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
@@ -133,6 +125,8 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -705,19 +699,19 @@ class ComplexApplicationTest {
             AppWindow()
         }
 
-        delay(30 * 1000)
+        delay(30.seconds)
 
         performGC()
         val oldMemory = availableMemory
 
-        delay(3 * 60 * 1000)
+        delay(3.minutes)
 
         performGC()
         val newMemory = availableMemory
 
         Truth
             .assertWithMessage("Memory is increased more than 15% after waiting a few minutes")
-            .that(newMemory < 1.15 * oldMemory)
-            .isTrue()
+            .that(newMemory.toDouble()/oldMemory)
+            .isLessThan(1.15)
     }
 }

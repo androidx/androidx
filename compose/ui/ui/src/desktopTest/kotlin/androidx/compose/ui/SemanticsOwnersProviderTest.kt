@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,11 +44,7 @@ import javax.swing.JFrame
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 class SemanticsOwnersProviderTest {
 
@@ -84,49 +81,41 @@ class SemanticsOwnersProviderTest {
 
     private fun semanticsOwnersIsSnapshotStateBy(provider: SemanticsOwnersTestContext) {
         var latestSemanticsOwners: Collection<SemanticsOwner> = emptyList()
-        val dispatcher = StandardTestDispatcher()
-        val coroutineScope = CoroutineScope(dispatcher)
-        coroutineScope.launch {
-            snapshotFlow { provider.semanticsOwners }.collect {
-                latestSemanticsOwners = it
-            }
-        }
         var showPopup by mutableStateOf(false)
         provider.runTest(
             content = {
                 Text("Hello")
                 if (showPopup) {
-                    println("Showing popup")
                     Popup {
                         Text("World")
                     }
                 }
+
+                LaunchedEffect(Unit) {
+                    snapshotFlow { provider.semanticsOwners }.collect {
+                        latestSemanticsOwners = it
+                    }
+                }
             }
         ) {
-            try {
-                dispatcher.scheduler.advanceUntilIdle()
-                assertEquals(1, latestSemanticsOwners.size)
-                showPopup = true
-                awaitIdle()
-                dispatcher.scheduler.advanceUntilIdle()
-                assertEquals(2, latestSemanticsOwners.size)
-            } finally {
-                coroutineScope.cancel()
-            }
+            assertEquals(1, latestSemanticsOwners.size)
+            showPopup = true
+            awaitIdle()
+            assertEquals(2, latestSemanticsOwners.size)
         }
     }
 
-//    @Test
-//    fun semanticsOwnersIsSnapshotStateInComposeWindow() =
-//        semanticsOwnersIsSnapshotStateBy(ComposeWindowSemanticOwnersTestContext())
+    @Test
+    fun semanticsOwnersIsSnapshotStateInComposeWindow() =
+        semanticsOwnersIsSnapshotStateBy(ComposeWindowSemanticOwnersTestContext())
 
-//    @Test
-//    fun semanticsOwnersIsSnapshotStateInComposePanel() =
-//        semanticsOwnersIsSnapshotStateBy(ComposePanelSemanticOwnersTestContext())
+    @Test
+    fun semanticsOwnersIsSnapshotStateInComposePanel() =
+        semanticsOwnersIsSnapshotStateBy(ComposePanelSemanticOwnersTestContext())
 
-//    @Test
-//    fun semanticsOwnersIsSnapshotStateInImageComposeScene() =
-//        semanticsOwnersIsSnapshotStateBy(ImageComposeSceneSemanticOwnersTestContext())
+    @Test
+    fun semanticsOwnersIsSnapshotStateInImageComposeScene() =
+        semanticsOwnersIsSnapshotStateBy(ImageComposeSceneSemanticOwnersTestContext())
 }
 
 private interface SemanticsOwnersTestContext {
