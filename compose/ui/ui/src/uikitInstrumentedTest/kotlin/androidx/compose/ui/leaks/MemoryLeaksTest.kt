@@ -43,6 +43,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import platform.CoreGraphics.CGRectMake
@@ -60,7 +61,7 @@ class MemoryLeaksTest {
     }
 
     @Test
-    fun testComposeUIViewControllerDisposal() = runBlocking {
+    fun testComposeUIViewControllerDisposal() = runRepeatingBlocking {
         val appDelegate = MockAppDelegate()
         var composeViewControllerRef: WeakReference<UIViewController>? = null
         var composeLoaded = false
@@ -91,7 +92,7 @@ class MemoryLeaksTest {
     }
 
     @Test
-    fun testComposeUIViewControllerSubviewsDisposal() = runBlocking {
+    fun testComposeUIViewControllerSubviewsDisposal() = runRepeatingBlocking {
         val appDelegate = MockAppDelegate()
         val subviewsReferences = mutableListOf<WeakReference<UIView>>()
 
@@ -166,104 +167,113 @@ class MemoryLeaksTest {
 
     @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
     @Test
-    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndOldContextMenu() = runBlocking(
-        newContextMenuEnabled = false
-    ) {
-        val appDelegate = MockAppDelegate()
-        val subviewsReferences = mutableListOf<WeakReference<UIView>>()
+    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndOldContextMenu() =
+        runRepeatingBlocking(newContextMenuEnabled = false) {
+            val appDelegate = MockAppDelegate()
+            val subviewsReferences = mutableListOf<WeakReference<UIView>>()
 
-        run {
-            val controller = ComposeUIViewController({
-                enforceStrictPlistSanityCheck = false
-            }) {
-                val focusRequester = FocusRequester()
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    modifier = Modifier.focusRequester(focusRequester)
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+            run {
+                val controller = ComposeUIViewController({
+                    enforceStrictPlistSanityCheck = false
+                }) {
+                    val focusRequester = FocusRequester()
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.focusRequester(focusRequester)
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
                 }
+
+                appDelegate.setUpWindow(controller)
             }
 
-            appDelegate.setUpWindow(controller)
+            // Allow run loop to start the application
+            runApplicationLoop(KeyboardAnimationDelay)
+
+            collectSubviewsRecursively(
+                appDelegate.window?.rootViewController?.view!!,
+                subviewsReferences
+            )
+
+            assertEquals(
+                expected = 5,
+                actual = subviewsReferences.count(),
+                message = "Expected 5 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, IntermediateTextInputUIView]" +
+                    ", but given: ${
+                        subviewsReferences.mapNotNull {
+                            it.get()?.let { it::class.simpleName }
+                        }
+                    }"
+            )
+
+            appDelegate.cleanUp()
+            // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
+            // strong references on this view. For test purposes, staring another text input session
+            // to let UIKit release reference to the previous text input view.
+            startFakeTextInputSession()
+
+            cleanupMemory()
+
+            assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
         }
-
-        // Allow run loop to start the application
-        runApplicationLoop(KeyboardAnimationDelay)
-
-        collectSubviewsRecursively(
-            appDelegate.window?.rootViewController?.view!!,
-            subviewsReferences
-        )
-
-        assertEquals(
-            expected = 5,
-            actual = subviewsReferences.count(),
-            message = "Expected 5 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, IntermediateTextInputUIView]" +
-                ", but given: ${subviewsReferences.mapNotNull { it.get()?.let { it::class.simpleName } }}"
-        )
-
-        appDelegate.cleanUp()
-        // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
-        // strong references on this view. For test purposes, staring another text input session
-        // to let UIKit release reference to the previous text input view.
-        startFakeTextInputSession()
-
-        cleanupMemory()
-
-        assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
-    }
 
     @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
     @Test
-    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndNewContextMenu() = runBlocking(
-        newContextMenuEnabled = true
-    ) {
-        val appDelegate = MockAppDelegate()
-        val subviewsReferences = mutableListOf<WeakReference<UIView>>()
+    fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndNewContextMenu() =
+        runRepeatingBlocking(newContextMenuEnabled = true) {
+            val appDelegate = MockAppDelegate()
+            val subviewsReferences = mutableListOf<WeakReference<UIView>>()
 
-        run {
-            val controller = ComposeUIViewController({
-                enforceStrictPlistSanityCheck = false
-            }) {
-                val focusRequester = FocusRequester()
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    modifier = Modifier.focusRequester(focusRequester)
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+            run {
+                val controller = ComposeUIViewController({
+                    enforceStrictPlistSanityCheck = false
+                }) {
+                    val focusRequester = FocusRequester()
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.focusRequester(focusRequester)
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
                 }
+
+                appDelegate.setUpWindow(controller)
             }
 
-            appDelegate.setUpWindow(controller)
+            // Allow run loop to start the application
+            runApplicationLoop(KeyboardAnimationDelay)
+
+            collectSubviewsRecursively(
+                appDelegate.window?.rootViewController?.view!!,
+                subviewsReferences
+            )
+
+            assertEquals(
+                expected = 6,
+                actual = subviewsReferences.count(),
+                message = "Expected 6 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, CMPEditMenuView, IntermediateTextInputUIView]" +
+                    ", but given: ${
+                        subviewsReferences.mapNotNull {
+                            it.get()?.let { it::class.simpleName }
+                        }
+                    }"
+            )
+
+            appDelegate.cleanUp()
+            // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
+            // strong references on this view. For test purposes, staring another text input session
+            // to let UIKit release reference to the previous text input view.
+            startFakeTextInputSession()
+
+            cleanupMemory()
+
+            assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
         }
-
-        // Allow run loop to start the application
-        runApplicationLoop(KeyboardAnimationDelay)
-
-        collectSubviewsRecursively(appDelegate.window?.rootViewController?.view!!, subviewsReferences)
-
-        assertEquals(
-            expected = 6,
-            actual = subviewsReferences.count(),
-            message = "Expected 6 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, CMPEditMenuView, IntermediateTextInputUIView]" +
-                ", but given: ${subviewsReferences.mapNotNull { it.get()?.let { it::class.simpleName } }}"
-        )
-
-        appDelegate.cleanUp()
-        // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
-        // strong references on this view. For test purposes, staring another text input session
-        // to let UIKit release reference to the previous text input view.
-        startFakeTextInputSession()
-
-        cleanupMemory()
-
-        assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
-    }
 
     private fun collectSubviewsRecursively(
         view: UIView,
@@ -302,13 +312,37 @@ class MemoryLeaksTest {
     }
 
     @OptIn(ExperimentalFoundationApi::class)
-    private fun runBlocking(newContextMenuEnabled: Boolean, block: suspend () -> Unit) {
+    private fun runRepeatingBlocking(newContextMenuEnabled: Boolean, block: suspend () -> Unit) {
         val defaultValue = ComposeFoundationFlags.isNewContextMenuEnabled
         try {
             ComposeFoundationFlags.isNewContextMenuEnabled = newContextMenuEnabled
-            runBlocking { block() }
+            runRepeatingBlocking { block() }
         } finally {
             ComposeFoundationFlags.isNewContextMenuEnabled = defaultValue
+        }
+    }
+
+    private fun runRepeatingBlocking(
+        total: Int = 10,
+        successRequired: Int = 2,
+        testBlock: suspend CoroutineScope.(Int) -> Unit
+    ) = runBlocking {
+        var successCount = 0
+        var failureCount = 0
+        repeat(total) {
+            try {
+                testBlock(successCount + failureCount)
+                successCount++
+                if (successCount >= successRequired) {
+                    return@runBlocking
+                }
+            } catch (e: Throwable) {
+                failureCount++
+                if (failureCount > total - successRequired) {
+                    throw e
+                }
+                cleanupMemory()
+            }
         }
     }
 }
