@@ -61,6 +61,10 @@ kotlin {
             dependencies {
                 def version = project.findProperty('artifactRedirection.version.androidx.lifecycle')
                 api("androidx.lifecycle:lifecycle-runtime-compose:$version")
+
+                // Keep direct reference to Compose multiplatform 1.9.x to correctly resolve
+                // New redirections to Google's artifacts
+                implementation(project(":compose:runtime:runtime"))
             }
         }
     }
