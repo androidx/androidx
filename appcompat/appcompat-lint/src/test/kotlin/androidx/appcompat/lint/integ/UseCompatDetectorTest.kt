@@ -34,15 +34,15 @@ class UseCompatDetectorTest {
 
         val expected =
             """
-src/com/example/android/appcompat/AppCompatLintDemo.java:68: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
+src/com/example/android/appcompat/AppCompatLintDemo.java:65: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
         Switch mySwitch = new Switch(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/com/example/android/appcompat/AppCompatLintDemo.java:63: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
-            noop.setCompoundDrawableTintList(csl);
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/com/example/android/appcompat/AppCompatLintDemo.java:64: Warning: Use TextViewCompat.setCompoundDrawableTintMode() [UseCompatTextViewDrawableApis]
-            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/com/example/android/appcompat/AppCompatLintDemo.java:61: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
+        noop.setCompoundDrawableTintList(csl);
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/com/example/android/appcompat/AppCompatLintDemo.java:62: Warning: Use TextViewCompat.setCompoundDrawableTintMode() [UseCompatTextViewDrawableApis]
+        noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 3 warnings
         """
                 .trimIndent()

@@ -94,7 +94,7 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     public AppCompatButton(
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         ThemeUtils.checkAppCompatTheme(this, getContext());
 

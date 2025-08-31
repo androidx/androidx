@@ -105,8 +105,7 @@ class AppCompatEmojiEditTextHelper {
     /**
      * Attaches EmojiCompat KeyListener to the widget. Should be called from {@link
      * TextView#setKeyListener(KeyListener)}. Existing keyListener is wrapped into EmojiCompat
-     * KeyListener. When used on devices running API 18 or below, this method returns
-     * {@code keyListener} that is given as a parameter.
+     * KeyListener.
      *
      * This should always be installed even when emoji processing is disabled, as it enables
      * correct behavior for editing existing emoji spans.
@@ -127,9 +126,8 @@ class AppCompatEmojiEditTextHelper {
 
     /**
      * Updates the InputConnection with emoji support. Should be called from {@link
-     * TextView#onCreateInputConnection(EditorInfo)}. When used on devices running API 18 or below,
-     * this method returns {@code inputConnection} that is given as a parameter. If
-     * {@code inputConnection} is {@code null}, returns {@code null}.
+     * TextView#onCreateInputConnection(EditorInfo)}. If {@code inputConnection} is
+     * {@code null}, returns {@code null}.
      *
      * This should always be installed even when emoji processing is disabled, as it enables
      * correct behavior for editing existing emoji spans.

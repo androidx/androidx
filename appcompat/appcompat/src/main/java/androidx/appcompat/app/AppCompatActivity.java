@@ -39,7 +39,6 @@ import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate.NightMode;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
@@ -587,9 +586,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public Resources getResources() {
-        if (mResources == null && VectorEnabledTintResources.shouldBeUsed()) {
-            mResources = new VectorEnabledTintResources(this, super.getResources());
-        }
         return mResources == null ? super.getResources() : mResources;
     }
 

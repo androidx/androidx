@@ -456,8 +456,8 @@ public final class ResourceManagerInternal {
             drawable.clearColorFilter();
         }
 
-        if (Build.VERSION.SDK_INT <= 23) {
-            // Pre-v23 there is no guarantee that a state change will invoke an invalidation,
+        if (Build.VERSION.SDK_INT == 23) {
+            // On API 23 there is no guarantee that a state change will invoke an invalidation,
             // so we force it ourselves
             drawable.invalidateSelf();
         }

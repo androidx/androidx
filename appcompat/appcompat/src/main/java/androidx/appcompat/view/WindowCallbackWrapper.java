@@ -138,10 +138,9 @@ public class WindowCallbackWrapper implements Window.Callback {
         mWrapped.onPanelClosed(featureId, menu);
     }
 
-    @RequiresApi(23)
     @Override
     public boolean onSearchRequested(SearchEvent searchEvent) {
-        return Api23Impl.onSearchRequested(mWrapped, searchEvent);
+        return mWrapped.onSearchRequested(searchEvent);
     }
 
     @Override
@@ -154,10 +153,9 @@ public class WindowCallbackWrapper implements Window.Callback {
         return mWrapped.onWindowStartingActionMode(callback);
     }
 
-    @RequiresApi(23)
     @Override
     public ActionMode onWindowStartingActionMode(ActionMode.Callback callback, int type) {
-        return Api23Impl.onWindowStartingActionMode(mWrapped, callback, type);
+        return mWrapped.onWindowStartingActionMode(callback, type);
     }
 
     @Override
@@ -185,22 +183,6 @@ public class WindowCallbackWrapper implements Window.Callback {
 
     public final Window.Callback getWrapped() {
         return mWrapped;
-    }
-
-    @RequiresApi(23)
-    static class Api23Impl {
-        private Api23Impl() {
-            // This class is not instantiable.
-        }
-
-        static boolean onSearchRequested(Window.Callback callback, SearchEvent searchEvent) {
-            return callback.onSearchRequested(searchEvent);
-        }
-
-        static ActionMode onWindowStartingActionMode(Window.Callback windowCallback,
-                ActionMode.Callback actionModeCallback, int i) {
-            return windowCallback.onWindowStartingActionMode(actionModeCallback, i);
-        }
     }
 
     @RequiresApi(24)

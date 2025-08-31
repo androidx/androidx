@@ -124,7 +124,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     public AppCompatTextView(
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
+        super(context, attrs, defStyleAttr);
 
         ThemeUtils.checkAppCompatTheme(this, getContext());
 

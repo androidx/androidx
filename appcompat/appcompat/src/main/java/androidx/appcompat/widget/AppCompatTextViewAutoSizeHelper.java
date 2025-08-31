@@ -110,16 +110,6 @@ class AppCompatTextViewAutoSizeHelper {
         }
 
         void computeAndSetTextDirection(StaticLayout.Builder layoutBuilder, TextView textView) {
-        }
-    }
-
-    @RequiresApi(23)
-    private static class Impl23 extends Impl {
-        Impl23() {}
-
-        @Override
-        void computeAndSetTextDirection(StaticLayout.Builder layoutBuilder,
-                TextView textView) {
             final TextDirectionHeuristic textDirectionHeuristic =
                     invokeAndReturnWithDefault(textView, "getTextDirectionHeuristic",
                             TextDirectionHeuristics.FIRSTSTRONG_LTR);
@@ -128,7 +118,7 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     @RequiresApi(29)
-    private static class Impl29 extends Impl23 {
+    private static class Impl29 extends Impl {
         Impl29() {}
 
         @Override
@@ -148,8 +138,6 @@ class AppCompatTextViewAutoSizeHelper {
         mContext = mTextView.getContext();
         if (Build.VERSION.SDK_INT >= 29) {
             mImpl = new Impl29();
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            mImpl = new Impl23();
         } else {
             mImpl = new Impl();
         }
@@ -717,22 +705,8 @@ class AppCompatTextViewAutoSizeHelper {
             int availableWidth,
             int maxLines
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Api23Impl.createStaticLayoutForMeasuring(
-                    text, alignment, availableWidth, maxLines, mTextView, mTempTextPaint, mImpl);
-        } else {
-            final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();
-            final float lineSpacingAdd = mTextView.getLineSpacingExtra();
-            final boolean includePad = mTextView.getIncludeFontPadding();
-
-            // The layout could not be constructed using the builder so fall back to the
-            // most broad constructor.
-            return new StaticLayout(text, mTempTextPaint, availableWidth,
-                    alignment,
-                    lineSpacingMultiplier,
-                    lineSpacingAdd,
-                    includePad);
-        }
+        return Api23Impl.createStaticLayoutForMeasuring(
+                text, alignment, availableWidth, maxLines, mTextView, mTempTextPaint, mImpl);
     }
 
     private boolean suggestedSizeFitsInSpace(int suggestedSizeInPx, RectF availableSpace) {
@@ -830,7 +804,6 @@ class AppCompatTextViewAutoSizeHelper {
         return !(mTextView instanceof AppCompatEditText);
     }
 
-    @RequiresApi(23)
     private static final class Api23Impl {
         private Api23Impl() {
             // This class is not instantiable.
@@ -858,8 +831,7 @@ class AppCompatTextViewAutoSizeHelper {
                     .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);
 
             try {
-                // Can use the StaticLayout.Builder (along with TextView params added in or after
-                // API 23) to construct the layout.
+                // Can use the StaticLayout.Builder to construct the layout.
                 impl.computeAndSetTextDirection(layoutBuilder, textView);
             } catch (ClassCastException e) {
                 // On some devices this exception happens, details: b/127137059.

@@ -118,8 +118,7 @@ public class LocalesUpdateActivity extends BaseTestActivity {
         if (Build.VERSION.SDK_INT >= 24) {
             return AppCompatDelegateImpl.Api24Impl.getLocales(conf);
         } else {
-            return LocaleListCompat.forLanguageTags(AppCompatDelegateImpl.Api21Impl
-                    .toLanguageTag(conf.locale));
+            return LocaleListCompat.forLanguageTags(conf.locale.toLanguageTag());
         }
     }
 

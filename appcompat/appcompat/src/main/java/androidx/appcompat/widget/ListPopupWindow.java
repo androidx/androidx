@@ -99,7 +99,7 @@ public class ListPopupWindow implements ShowableListMenu {
                         "Could not find method setEpicenterBounds(Rect) on PopupWindow. Oh well.");
             }
         }
-        if (Build.VERSION.SDK_INT <= 23) {
+        if (Build.VERSION.SDK_INT == 23) {
             try {
                 sGetMaxAvailableHeightMethod = PopupWindow.class.getDeclaredMethod(
                         "getMaxAvailableHeight", View.class, int.class, boolean.class);
@@ -1439,7 +1439,7 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     private int getMaxAvailableHeight(View anchor, int yOffset, boolean ignoreBottomDecorations) {
-        if (Build.VERSION.SDK_INT <= 23) {
+        if (Build.VERSION.SDK_INT == 23) {
             if (sGetMaxAvailableHeightMethod != null) {
                 try {
                     return (int) sGetMaxAvailableHeightMethod.invoke(mPopup, anchor, yOffset,

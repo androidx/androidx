@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 class ResourcesFlusher {
     private static final String TAG = "ResourcesFlusher";
@@ -49,37 +48,11 @@ class ResourcesFlusher {
             return;
         } else if (Build.VERSION.SDK_INT >= 24) {
             flushNougats(resources);
-        } else if (Build.VERSION.SDK_INT >= 23) {
-            flushMarshmallows(resources);
         } else {
-            flushLollipops(resources);
+            flushMarshmallows(resources);
         }
     }
 
-    private static void flushLollipops(final @NonNull Resources resources) {
-        if (!sDrawableCacheFieldFetched) {
-            try {
-                sDrawableCacheField = Resources.class.getDeclaredField("mDrawableCache");
-                sDrawableCacheField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                Log.e(TAG, "Could not retrieve Resources#mDrawableCache field", e);
-            }
-            sDrawableCacheFieldFetched = true;
-        }
-        if (sDrawableCacheField != null) {
-            Map drawableCache = null;
-            try {
-                drawableCache = (Map) sDrawableCacheField.get(resources);
-            } catch (IllegalAccessException e) {
-                Log.e(TAG, "Could not retrieve value from Resources#mDrawableCache", e);
-            }
-            if (drawableCache != null) {
-                drawableCache.clear();
-            }
-        }
-    }
-
-    @RequiresApi(23)
     private static void flushMarshmallows(final @NonNull Resources resources) {
         if (!sDrawableCacheFieldFetched) {
             try {

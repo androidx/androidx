@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
@@ -40,7 +39,6 @@ public class AppCompatImeFocusActivity extends BaseTestActivity {
         return R.layout.appcompat_edittext_ime_focus_activity;
     }
 
-    @RequiresApi(23)
     public void initActivity(int targetWidget) {
         mLayout = findViewById(R.id.ime_layout);
         if (targetWidget == TEST_COMPAT_EDIT_TEXT) {

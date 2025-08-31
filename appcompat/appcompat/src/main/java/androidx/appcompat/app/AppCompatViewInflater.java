@@ -41,7 +41,6 @@ import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.AppCompatToggleButton;
-import androidx.appcompat.widget.TintContextWrapper;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.view.ViewCompat;
 
@@ -135,9 +134,6 @@ public class AppCompatViewInflater {
         if (readAndroidTheme || readAppTheme) {
             // We then apply the theme on the context, if specified
             context = themifyContext(context, attrs, readAndroidTheme, readAppTheme);
-        }
-        if (wrapContext) {
-            context = TintContextWrapper.wrap(context);
         }
 
         View view = null;
@@ -335,8 +331,7 @@ public class AppCompatViewInflater {
 
         if (!(context instanceof ContextWrapper) || !view.hasOnClickListeners()) {
             // Skip our compat functionality if: the Context isn't a ContextWrapper, or
-            // the view doesn't have an OnClickListener (we can only rely on this on API 15+ so
-            // always use our compat code on older devices)
+            // the view doesn't have an OnClickListener
             return;
         }
 

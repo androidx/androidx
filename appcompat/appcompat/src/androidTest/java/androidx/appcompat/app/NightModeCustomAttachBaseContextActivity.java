@@ -18,8 +18,6 @@ package androidx.appcompat.app;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.os.Build;
 
 import java.util.Locale;
 
@@ -37,19 +35,9 @@ public class NightModeCustomAttachBaseContextActivity extends NightModeActivity 
 
     private Context useCustomConfig(Context context) {
         Locale.setDefault(CUSTOM_LOCALE);
-        // Configuration.setLocale is added after 17 and Configuration.locale is deprecated after 24
-        if (Build.VERSION.SDK_INT >= 17) {
-            Configuration config = new Configuration();
-            config.fontScale = CUSTOM_FONT_SCALE;
-            config.setLocale(CUSTOM_LOCALE);
-            return context.createConfigurationContext(config);
-        } else {
-            Resources res = context.getResources();
-            Configuration config = new Configuration(res.getConfiguration());
-            config.fontScale = CUSTOM_FONT_SCALE;
-            config.locale = CUSTOM_LOCALE;
-            res.updateConfiguration(config, res.getDisplayMetrics());
-            return context;
-        }
+        Configuration config = new Configuration();
+        config.fontScale = CUSTOM_FONT_SCALE;
+        config.setLocale(CUSTOM_LOCALE);
+        return context.createConfigurationContext(config);
     }
 }

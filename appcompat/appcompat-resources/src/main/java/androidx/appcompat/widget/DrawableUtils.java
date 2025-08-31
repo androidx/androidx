@@ -73,12 +73,7 @@ public class DrawableUtils {
      */
     static void fixDrawable(@NonNull Drawable drawable) {
         String className = drawable.getClass().getName();
-        if (Build.VERSION.SDK_INT == 21
-                && "android.graphics.drawable.VectorDrawable".equals(className)) {
-            // VectorDrawable has an issue on API 21 where it sometimes doesn't create its tint
-            // filter until a state change event has occurred.
-            forceDrawableStateChange(drawable);
-        } else if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 31
+        if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 31
                 && "android.graphics.drawable.ColorStateListDrawable".equals(className)) {
             // ColorStateListDrawable has an issue on APIs 29 and 30 where it doesn't set up the
             // default color until a state change event has occurred.

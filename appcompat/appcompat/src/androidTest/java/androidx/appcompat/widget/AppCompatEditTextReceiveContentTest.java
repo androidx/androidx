@@ -486,14 +486,7 @@ public class AppCompatEditTextReceiveContentTest {
             // Note: The cursor is moved to the location of the drop before calling the receiver.
             assertTextAndCursorPosition("xz", 0);
         } else {
-            if (Build.VERSION.SDK_INT <= 20) {
-                // The platform code on Android K and earlier had logic to insert a space before and
-                // after the inserted content (if no space was already present). See
-                // https://cs.android.com/android/platform/superproject/+/android-4.4.4_r2:frameworks/base/core/java/android/widget/TextView.java;l=8526,8527,8528,8545,8546
-                assertTextAndCursorPosition("ab xz", 2);
-            } else {
-                assertTextAndCursorPosition("abxz", 2);
-            }
+            assertTextAndCursorPosition("abxz", 2);
         }
     }
 
