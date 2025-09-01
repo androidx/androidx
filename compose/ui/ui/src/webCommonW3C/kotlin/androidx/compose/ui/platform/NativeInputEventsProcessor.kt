@@ -43,6 +43,7 @@ internal abstract class NativeInputEventsProcessor(
     private val collectedEvents = mutableListOf<UIEvent>()
     private var isCheckpointScheduled = false
     private var lastCompositionEndTimestamp = 0.0 // Double because of k/wasm where Number.toLong() leads to a compilation error
+    var lastProcessedEventIsBackspace: Boolean = false
 
     /**
      * Schedules a checkpoint for processing input events.
@@ -72,8 +73,6 @@ internal abstract class NativeInputEventsProcessor(
                 || it.type == "keydown" && (it as KeyboardEvent).isComposing
                 || it.type == "beforeinput" && (it as InputEvent).isComposing
         }
-
-        var lastProcessedEventIsBackspace: Boolean = false
 
         collectedEvents.forEach { evt ->
             val timestamp = evt.timeStamp.toDouble()

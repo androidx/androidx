@@ -575,7 +575,7 @@ class NativeInputEventsProcessorTest {
     }
 
     @Test
-    fun testDeleteContentBackward_with_Backspace_key_pressed() {
+    fun testDeleteContentBackward_with_Backspace_key_pressed_same_frame() {
         val communicator = MockComposeCommandCommunicator()
         val processor = TestNativeInputEventsProcessor(communicator)
 
@@ -604,4 +604,38 @@ class NativeInputEventsProcessorTest {
         assertEquals(1, communicator.keyboardEvents.size)
         assertEquals(0, communicator.editCommands.size)
     }
+
+    @Test
+    fun testDeleteContentBackward_with_Backspace_key_pressed_different_frame() {
+        val communicator = MockComposeCommandCommunicator()
+        val processor = TestNativeInputEventsProcessor(communicator)
+
+        // With a non-collapsed selection
+        val textFieldValue = TextFieldValue(
+            text = "example text",
+            selection = TextRange(2, 7) // Selection from "a" to "e" in "example"
+        )
+
+        // First add a keydown event for Backspace
+        val backspaceEvent = keyEvent(
+            key = "Backspace",
+            code = "Backspace",
+            type = "keydown"
+        )
+        processor.registerEvent(backspaceEvent)
+
+        processor.manuallyRunCheckpoint(textFieldValue)
+
+        // Then add a deleteContentBackward event
+        processor.registerEvent(
+            (beforeInput("deleteContentBackward", "") as InputEvent).apply { deleteContentBackwardSize = 1 },
+        )
+
+        processor.manuallyRunCheckpoint(textFieldValue)
+
+        // The deleteContentBackward event should be ignored since Backspace key was pressed
+        assertEquals(1, communicator.keyboardEvents.size)
+        assertEquals(0, communicator.editCommands.size)
+    }
+
 }
