@@ -358,11 +358,8 @@ internal class IntermediateTextInputUIView(
     }
 
     override fun offsetFromPosition(from: UITextPosition, toPosition: UITextPosition): NSInteger {
-        if (from !is IntermediateTextPosition) {
-            error("from !is IntermediateTextPosition: $from")
-        }
-        if (toPosition !is IntermediateTextPosition) {
-            error("toPosition !is IntermediateTextPosition: $toPosition")
+        if (from !is IntermediateTextPosition || toPosition !is IntermediateTextPosition) {
+            return 0
         }
         return (toPosition.position - from.position).toLong()
     }
