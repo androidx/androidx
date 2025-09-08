@@ -50,7 +50,7 @@ kotlin {
         commonMain {
             dependencies {
                 api("androidx.navigation3:navigation3-runtime:1.0.0-alpha08")
-                api("androidx.navigationevent:navigationevent-compose:1.0.0-alpha07")
+                api(project(":navigationevent:navigationevent-compose"))
                 api(project(":compose:animation:animation"))
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:runtime:runtime-saveable"))

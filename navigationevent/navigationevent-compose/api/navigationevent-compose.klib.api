@@ -1,0 +1,21 @@
+// Klib ABI Dump
+// Targets: [iosArm64.uikitArm64, iosSimulatorArm64.uikitSimArm64, iosX64.uikitX64, js, macosArm64, macosX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <org.jetbrains.androidx.navigationevent:navigationevent-compose>
+final object androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner { // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner|null[0]
+    final val current // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.current|{}current[0]
+        final fun <get-current>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigationevent/NavigationEventDispatcherOwner? // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.current.<get-current>|<get-current>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    final fun provides(androidx.navigationevent/NavigationEventDispatcherOwner): androidx.compose.runtime/ProvidedValue<androidx.navigationevent/NavigationEventDispatcherOwner?> // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.provides|provides(androidx.navigationevent.NavigationEventDispatcherOwner){}[0]
+}
+
+final val androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop // androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop|#static{}androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop[0]
+
+final fun <#A: androidx.navigationevent/NavigationEventInfo> androidx.navigationevent.compose/NavigationEventHandler(#A, #A?, kotlin/Boolean, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines.flow/Flow<androidx.navigationevent/NavigationEvent>, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationEventHandler|NavigationEventHandler(0:0;0:0?;kotlin.Boolean;kotlin.coroutines.SuspendFunction1<kotlinx.coroutines.flow.Flow<androidx.navigationevent.NavigationEvent>,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<androidx.navigationevent.NavigationEventInfo>}[0]
+final fun androidx.navigationevent.compose/NavigationEventDispatcherOwner(kotlin/Boolean, androidx.navigationevent/NavigationEventDispatcherOwner?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationEventDispatcherOwner|NavigationEventDispatcherOwner(kotlin.Boolean;androidx.navigationevent.NavigationEventDispatcherOwner?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.navigationevent.compose/NavigationEventHandler(kotlin/Boolean, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines.flow/Flow<androidx.navigationevent/NavigationEvent>, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.navigationevent.compose/NavigationEventHandler|NavigationEventHandler(kotlin.Boolean;kotlin.coroutines.SuspendFunction1<kotlinx.coroutines.flow.Flow<androidx.navigationevent.NavigationEvent>,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter(): kotlin/Int // androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter|androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop_getter(){}[0]

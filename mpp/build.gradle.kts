@@ -105,6 +105,9 @@ val libraryToComponents = mapOf(
     "NAVIGATION_3" to listOf(
         ComposeComponent(":navigation3:navigation3-ui"),
     ),
+    "NAVIGATION_EVENT" to listOf(
+        ComposeComponent(":navigationevent:navigationevent-compose"),
+    ),
     "SAVEDSTATE" to listOf(
         ComposeComponent(":savedstate:savedstate", supportedPlatforms = ComposePlatforms.ALL_AOSP),
         ComposeComponent(":savedstate:savedstate-compose", supportedPlatforms = ComposePlatforms.ALL),

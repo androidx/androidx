@@ -1,0 +1,16 @@
+public final class androidx/navigationevent/compose/LocalNavigationEventDispatcherOwner {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/navigationevent/compose/LocalNavigationEventDispatcherOwner;
+	public final fun getCurrent (Landroidx/compose/runtime/Composer;I)Landroidx/navigationevent/NavigationEventDispatcherOwner;
+	public final fun provides (Landroidx/navigationevent/NavigationEventDispatcherOwner;)Landroidx/compose/runtime/ProvidedValue;
+}
+
+public final class androidx/navigationevent/compose/NavigationEventDispatcherOwnerKt {
+	public static final fun NavigationEventDispatcherOwner (ZLandroidx/navigationevent/NavigationEventDispatcherOwner;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/navigationevent/compose/NavigationEventHandlerKt {
+	public static final fun NavigationEventHandler (Landroidx/navigationevent/NavigationEventInfo;Landroidx/navigationevent/NavigationEventInfo;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavigationEventHandler (ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
