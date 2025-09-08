@@ -22,31 +22,21 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
-import com.android.build.gradle.internal.lint.AndroidLintTask
-import com.android.build.gradle.internal.lint.LintModelWriterTask
-import com.android.build.gradle.internal.lint.VariantInputs
 import java.io.File
 import kotlin.reflect.KFunction
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.ClasspathNormalizer
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.jetbrains.kotlin.tooling.core.withClosure
 
 const val composeSourceOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
@@ -56,10 +46,6 @@ const val composeReportsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
 const val enableMetricsArg = "androidx.enableComposeCompilerMetrics"
 const val enableReportsArg = "androidx.enableComposeCompilerReports"
-
-@Suppress("unused") // enabled by default in kotlin 2.1.0 and newer
-const val composeStrongSkippingOption =
-    "plugin:androidx.compose.compiler.plugins.kotlin:featureFlag=StrongSkipping"
 
 /**
  * Plugin to apply common configuration for Compose projects.
@@ -431,91 +417,5 @@ private fun configureComposeCompilerPlugin(
 private fun Project.configureLintForMultiplatformLibrary(
     multiplatformExtension: KotlinMultiplatformExtension
 ) {
-    afterEvaluate {
-        // This workaround only works for libraries (apps would require changes to a different
-        // task). Given that we currently do not have any MPP app projects, this should never
-        // happen.
-        project.extensions.findByType<LibraryExtension>()
-            ?: return@afterEvaluate
-        val androidMain = multiplatformExtension.sourceSets.findByName("androidMain")
-            ?: return@afterEvaluate
-        // Get all the sourcesets androidMain transitively / directly depends on
-        val dependencies = androidMain.withClosure(KotlinSourceSet::dependsOn)
-
-        /**
-         * Helper function to add the missing sourcesets to this [VariantInputs]
-         */
-        fun VariantInputs.addSourceSets() {
-            // Each variant has a source provider for the variant (such as debug) and the 'main'
-            // variant. The actual files that Lint will run on is both of these providers
-            // combined - so we can just add the dependencies to the first we see.
-            val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-            dependencies.forEach { sourceSet ->
-                sourceProvider.javaDirectories.withChangesAllowed {
-                    from(sourceSet.kotlin.sourceDirectories)
-                }
-            }
-        }
-
-        // Lint for libraries is split into two tasks - analysis, and reporting. We need to
-        // add the new sources to both, so all parts of the pipeline are aware.
-        project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-
-        // Also configure the model writing task, so that we don't run into mismatches between
-        // analyzed sources in one module and a downstream module
-        project.tasks.withType<LintModelWriterTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-    }
-}
-
-/**
- * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
- * modifying the file collection separately (there is no time to configure it before AGP has
- * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
- * apply [block].
- */
-private fun ConfigurableFileCollection.withChangesAllowed(
-    block: ConfigurableFileCollection.() -> Unit
-) {
-    val disallowChanges = this::class.java.getDeclaredField("disallowChanges")
-    disallowChanges.isAccessible = true
-    disallowChanges.set(this, false)
-    block()
-    disallowChanges.set(this, true)
-}
-
-/**
- * General purpose implementation of a transitive closure
- * - Recursion free
- * - Predictable amount of allocations
- * - Handles loops and self references gracefully
- * @param edges: Producer function from one node to all its children. This implementation can handle loops and self references gracefully.
- * @return Note: No guarantees given about the order ot this [Set]
- */
-public inline fun <reified T> transitiveClosure(seed: T, edges: T.() -> Iterable<T>): Set<T> {
-    // Fast path when initial edges are empty
-    val initialEdges = seed.edges()
-    if (initialEdges is Collection && initialEdges.isEmpty()) return emptySet()
-
-    val queue = deque<T>(initialEdges.count() * 2)
-    val results = mutableSetOf<T>()
-    queue.addAll(initialEdges)
-    while (queue.isNotEmpty()) {
-        // ArrayDeque implementation will optimize this call to 'removeFirst'
-        val resolved = queue.removeAt(0)
-        if (resolved != seed && results.add(resolved)) {
-            queue.addAll(resolved.edges())
-        }
-    }
-
-    return results.toSet()
-}
-
-@PublishedApi
-internal inline fun <reified T> deque(initialSize: Int): MutableList<T> {
-    return if (KotlinVersion.CURRENT.isAtLeast(1, 4)) ArrayDeque(initialSize)
-    else ArrayList(initialSize)
+    // FIXME: It's not compatible with Gradle 8.13, restore it during buildSrc merging.
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXComposePlugin
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.RunApiTasks
@@ -24,7 +22,6 @@ import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
-    id("java") // https://github.com/gradle/gradle/issues/18622
     id("AndroidXComposePlugin")
     id("kotlin-multiplatform")
 }
@@ -36,9 +33,7 @@ dependencies {
 
 kotlin {
     if (desktopEnabled) {
-        jvm() {
-            withJava()
-        }
+        jvm()
     }
 
     if (desktopEnabled) {
@@ -76,9 +71,7 @@ kotlin {
 
 if (!desktopEnabled) {
     kotlin {
-        jvm("disabled") {
-            withJava()
-        }
+        jvm("disabled")
     }
 }
 

@@ -28,7 +28,7 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
+import org.gradle.api.internal.artifacts.ivyservice.TypedResolveException
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -86,7 +86,7 @@ abstract class RegenerateOldApisTask @Inject constructor(
         val inputs: JavaCompileInputs?
         try {
             inputs = getFiles(runnerProject, mavenId)
-        } catch (e: DefaultLenientConfiguration.ArtifactResolveException) {
+        } catch (e: TypedResolveException) {
             runnerProject.logger.info("Ignoring missing artifact $mavenId: $e")
             return
         }
