@@ -95,6 +95,16 @@ package androidx.collection {
     property public int last;
   }
 
+  public final class DoubleDoublePair {
+    ctor public DoubleDoublePair(double first, double second);
+    method public inline operator double component1();
+    method public inline operator double component2();
+    method public double getFirst();
+    method public double getSecond();
+    property public double first;
+    property public double second;
+  }
+
   public abstract sealed class DoubleList {
     method public final inline boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
