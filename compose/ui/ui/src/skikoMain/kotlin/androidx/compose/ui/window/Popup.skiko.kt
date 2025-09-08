@@ -18,11 +18,11 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -35,7 +35,7 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
@@ -419,9 +419,21 @@ private fun PopupLayout(
     onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    // Use a MutableState directly to avoid recomposing when the value changes
+    val parentBoundsInWindow: MutableState<IntRect> = remember { mutableStateOf(IntRect.Zero) }
+    EmptyLayout(Modifier.onPlaced { childCoordinates ->
+        // This will be called before the popup measure policy is actually asked to calculate
+        // the popup's position, so it will never see the initial value of IntRect.Zero
+        childCoordinates.parentCoordinates?.let {
+            // Nodes which read layout coordinates (including, e.g., positionInWindow) in
+            // layout/placement get invalidated when these coordinates change
+            val layoutPosition = it.positionInWindow().round()
+            val layoutSize = it.size
+            parentBoundsInWindow.value = IntRect(layoutPosition, layoutSize)
+        }
+    })
+
     val currentContent by rememberUpdatedState(content)
-    var layoutParentBoundsInWindow: IntRect? by remember { mutableStateOf(null) }
-    EmptyLayout(Modifier.parentBoundsInWindow { layoutParentBoundsInWindow = it })
     val layer = rememberComposeSceneLayer(
         focusable = properties.focusable
     )
@@ -429,7 +441,6 @@ private fun PopupLayout(
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     layer.Content {
         val platformInsets = properties.platformInsets
-        val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@Content
         val containerSize = LocalWindowInfo.current.containerSize
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
@@ -463,16 +474,6 @@ private val PopupProperties.platformInsets: PlatformInsets
         }
     }
 
-private fun Modifier.parentBoundsInWindow(
-    onBoundsChanged: (IntRect) -> Unit
-) = this.onGloballyPositioned { childCoordinates ->
-    childCoordinates.parentCoordinates?.let {
-        val layoutPosition = it.positionInWindow().round()
-        val layoutSize = it.size
-        onBoundsChanged(IntRect(layoutPosition, layoutSize))
-    }
-}
-
 @Composable
 private fun rememberPopupMeasurePolicy(
     layer: ComposeSceneLayer,
@@ -481,15 +482,16 @@ private fun rememberPopupMeasurePolicy(
     containerSize: IntSize,
     platformInsets: PlatformInsets,
     layoutDirection: LayoutDirection,
-    parentBoundsInWindow: IntRect,
+    parentBoundsInWindow: MutableState<IntRect>
 ) = remember(layer, popupPositionProvider, properties, containerSize, platformInsets, layoutDirection, parentBoundsInWindow) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { contentSize ->
+        val parentRectInWindow = parentBoundsInWindow.value
         val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
             // Position provider works in coordinates without insets.
-            val boundsWithoutInsets = parentBoundsInWindow.translate(
+            val boundsWithoutInsets = parentRectInWindow.translate(
                 -platformInsets.left,
                 -platformInsets.top
             )

@@ -211,10 +211,8 @@ internal fun rememberComposeSceneLayer(
 internal fun ComposeSceneLayer.Content(content: @Composable () -> Unit) {
     val currentContent by rememberUpdatedState(content)
     DisposableEffect(this) {
-        setContent {
-            currentContent()
-        }
-        onDispose {  }
+        setContent(currentContent)
+        onDispose { }
     }
 }
 

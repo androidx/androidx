@@ -34,6 +34,7 @@ import androidx.compose.ui.assertReceived
 import androidx.compose.ui.assertReceivedLast
 import androidx.compose.ui.assertReceivedNoEvents
 import androidx.compose.ui.assertThat
+import androidx.compose.ui.containsExactly
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asComposeCanvas
@@ -41,6 +42,8 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.isEqualTo
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
@@ -741,6 +744,44 @@ class PopupTest {
         } finally {
             scene.close()
         }
+    }
+
+    @Test
+    fun popupShownAtCorrectCoordinatesImmediately() = runSkikoComposeUiTest {
+        val positionProvider = object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize
+            ): IntOffset {
+                return anchorBounds.topLeft
+            }
+        }
+
+        var showPopup by mutableStateOf(false)
+        val popupPositions = mutableListOf<Offset>()
+        setContent {
+            Box(Modifier.size(300.dp)) {
+                Box(Modifier.size(100.dp).offset(100.dp, 100.dp)) {
+                    if (showPopup) {
+                        Popup(popupPositionProvider = positionProvider) {
+                            Box(
+                                Modifier
+                                    .size(50.dp)
+                                    .onPlaced {
+                                        popupPositions.add(it.positionInRoot())
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        showPopup = true
+        waitForIdle()
+        assertThat(popupPositions).containsExactly(Offset(100f, 100f))
     }
 }
 

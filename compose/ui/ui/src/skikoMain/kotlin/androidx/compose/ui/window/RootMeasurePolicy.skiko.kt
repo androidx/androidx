@@ -40,12 +40,12 @@ internal fun RootMeasurePolicy(
         constraints, platformInsets, usePlatformDefaultWidth
     )
     val placeables = measurables.fastMap { it.measure(platformConstraints) }
-    val contentSize = IntSize(
-        width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth,
-        height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-    )
-    val position = calculatePosition(contentSize)
     layout(constraints.maxWidth, constraints.maxHeight) {
+        val contentSize = IntSize(
+            width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth,
+            height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
+        )
+        val position = calculatePosition(contentSize)
         placeables.fastForEach {
             it.place(position.x, position.y)
         }
