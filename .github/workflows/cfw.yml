@@ -15,10 +15,10 @@ jobs:
         run: |
           google-chrome-stable --version
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'zulu'
       - name: Run CfW tests
         run: xvfb-run -a ./gradlew :mpp:testWeb --no-parallel
