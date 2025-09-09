@@ -63,7 +63,9 @@ import platform.UIKit.UIInterfaceOrientationMaskPortraitUpsideDown
 import platform.UIKit.UIInterfaceOrientationPortrait
 import platform.UIKit.UIInterfaceOrientationPortraitUpsideDown
 import platform.UIKit.UIScreen
+import platform.UIKit.UITextInputProtocol
 import platform.UIKit.UITouch
+import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
@@ -384,4 +386,25 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
     ): UIInterfaceOrientationMask {
         return supportedInterfaceOrientations
     }
+}
+
+internal fun UIKitInstrumentedTest.findFocusedUITextInput(): UITextInputProtocol? {
+    val windowScene = hostingViewController.view.window?.windowScene ?: return null
+
+    fun findFirstResponder(view: UIView): UIView? {
+        if (view.isFirstResponder) {
+            return view
+        }
+        view.subviews.forEach {
+            findFirstResponder(it as UIView)?.let { return it }
+        }
+        return null
+    }
+
+    return windowScene.windows.reversed().filter {
+        it as UIWindow
+        it.isKeyWindow() && !it.isHidden()
+    }.firstNotNullOfOrNull {
+        findFirstResponder(view = it as UIView)
+    } as? UITextInputProtocol
 }

@@ -459,7 +459,7 @@ internal class ComposeHostingViewController(
                     initLayoutDirection = layoutDirection,
                     onFocusBehavior = configuration.onFocusBehavior,
                     onAccessibilityChanged = ::onAccessibilityChanged,
-                    focusedViewsList = if (focusable) focusedViewsList else null,
+                    focusedViewsList = if (focusable) focusedViewsList?.childFocusedViewsList() else null,
                     compositionContext = compositionContext,
                     coroutineContext = composeCoroutineContext,
                     enableBackGesture = configuration.enableBackGesture,

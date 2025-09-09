@@ -526,8 +526,6 @@ internal class ComposeSceneMediator(
 
     fun setContent(content: @Composable () -> Unit) {
         _overlayView.runOnceOnAppeared {
-            focusedViewsList?.addAndFocus(userInputView)
-
             scene.setContent {
                 ProvideComposeSceneMediatorCompositionLocals {
                     FocusAboveKeyboardIfNeeded {
@@ -620,7 +618,6 @@ internal class ComposeSceneMediator(
         _overlayView.dispose()
         textInputService.stopInput()
         applicationForegroundStateListener.dispose()
-        focusedViewsList?.remove(userInputView)
         keyboardManager.dispose()
         userInputView.dispose()
 

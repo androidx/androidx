@@ -16,21 +16,35 @@
 
 package androidx.compose.ui.layers
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.UIKitInstrumentedTest
+import androidx.compose.ui.test.findFocusedUITextInput
 import androidx.compose.ui.test.findNodeWithLabel
 import androidx.compose.ui.test.findNodeWithLabelOrNull
+import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class PopupInteractionTest {
@@ -191,7 +205,7 @@ class PopupInteractionTest {
         setContent {
             Button(
                 onClick = { contentButtonClicked = true },
-                modifier = Modifier.Companion.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 Text("Content Button")
             }
@@ -223,7 +237,7 @@ class PopupInteractionTest {
         setContent {
             Button(
                 onClick = { contentButtonClicked = true },
-                modifier = Modifier.Companion.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 Text("Content Button")
             }
@@ -243,6 +257,85 @@ class PopupInteractionTest {
         findNodeWithLabel("Content Button").tap()
         waitForIdle()
         assertTrue(contentButtonClicked)
+    }
+
+    @Test
+    fun testTextInputFocusInPopup() = runUIKitInstrumentedTest {
+        setContent {
+            Popup(alignment = Alignment.Center, properties = PopupProperties(focusable = true)) {
+                TextField("", {}, modifier = Modifier.testTag("TextField"))
+            }
+        }
+
+        findNodeWithTag("TextField").tap()
+
+        waitForIdle()
+
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
+    }
+
+    @Test
+    fun testKeyboardHidesWhenFocusablePopupOpens() = runUIKitInstrumentedTest {
+        val requester = FocusRequester()
+        val showDialog = mutableStateOf(false)
+        setContent {
+            TextField("", {}, modifier = Modifier.focusRequester(requester))
+
+            if (showDialog.value) {
+                Popup(properties = PopupProperties(focusable = true)) {
+                    Box(modifier = Modifier.size(10.dp).background(Color.Red))
+                }
+            }
+        }
+
+        requester.requestFocus()
+        waitForIdle()
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
+
+        // Verify that the popup temporarily removed focus from input
+        showDialog.value = true
+        waitForIdle()
+        assertEquals(0.dp, keyboardHeight)
+
+        // Verify that focus returns to the initial input
+        showDialog.value = false
+        waitForIdle()
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
+    }
+
+    @Test
+    fun testKeyboardNotHidesWhenNonFocusablePopupOpens() = runUIKitInstrumentedTest {
+        val requester = FocusRequester()
+        val showDialog = mutableStateOf(false)
+        setContent {
+            TextField("", {}, modifier = Modifier.focusRequester(requester))
+
+            if (showDialog.value) {
+                Popup(properties = PopupProperties(focusable = false)) {
+                    Box(modifier = Modifier.size(10.dp).background(Color.Red))
+                }
+            }
+        }
+
+        requester.requestFocus()
+        waitForIdle()
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
+
+        // Verify that the non-focusable popup does not remove focus from input
+        showDialog.value = true
+        waitForIdle()
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
+
+        // Verify that focus keeps on the initial input
+        showDialog.value = false
+        waitForIdle()
+        assertNotNull(findFocusedUITextInput())
+        assertNotEquals(0.dp, keyboardHeight)
     }
 
     private val UIKitInstrumentedTest.outOfPopupBoundsPoint: DpOffset

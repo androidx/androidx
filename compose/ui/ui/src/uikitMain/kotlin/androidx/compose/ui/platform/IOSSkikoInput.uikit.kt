@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.DpOffset
 
 internal interface IOSSkikoInput {
 
+    fun onResignFocus()
+
     fun beginFloatingCursor(offset: DpOffset)
 
     fun updateFloatingCursor(offset: DpOffset)

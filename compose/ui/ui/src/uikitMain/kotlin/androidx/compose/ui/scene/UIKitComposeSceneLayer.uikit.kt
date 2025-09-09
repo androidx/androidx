@@ -59,7 +59,7 @@ internal class UIKitComposeSceneLayer(
     private val initLayoutDirection: LayoutDirection,
     private val onAccessibilityChanged: () -> Unit,
     onFocusBehavior: OnFocusBehavior,
-    focusedViewsList: FocusedViewsList?,
+    private var focusedViewsList: FocusedViewsList?,
     compositionContext: CompositionContext,
     private val coroutineContext: CoroutineContext,
     private val enableBackGesture: Boolean,
@@ -141,6 +141,9 @@ internal class UIKitComposeSceneLayer(
     private val scrimPaint = Paint()
 
     private fun onDidMoveToWindow(window: UIWindow?) {
+        if (window != null) {
+            focusedViewsList?.addAndFocus(mediator.inputView)
+        }
         backGestureDispatcher.onDidMoveToWindow(window, interactionView)
     }
 
@@ -167,6 +170,8 @@ internal class UIKitComposeSceneLayer(
     }
 
     internal fun dispose() {
+        focusedViewsList?.disposeChild()
+        focusedViewsList = null
         mediator.dispose()
         interactionView.removeFromSuperview()
         interactionView.dispose()

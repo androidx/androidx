@@ -22,11 +22,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import platform.UIKit.UIView
 
+/**
+ * A class that manages a hierarchical list of focused views, enabling nested focus handling
+ * and priority management for UI elements.
+ * The FocusedViewsList makes a first responder the last active view in the last child in the tree.
+ */
 internal class FocusedViewsList {
 
     private var activeViews = emptyList<UIView>()
     private var resignedViews = emptyList<UIView>()
     private val mainScope = MainScope()
+
+    private var parent: FocusedViewsList? = null
+    private val children = mutableListOf<FocusedViewsList>()
 
     /**
      * Add new view to list and focus on it.
@@ -34,7 +42,7 @@ internal class FocusedViewsList {
     fun addAndFocus(view: UIView) {
         activeViews += view
         resignedViews -= view
-        view.becomeFirstResponder()
+        rootList().onListHierarchyChanged(delayMillis = null)
     }
 
     /**
@@ -46,18 +54,78 @@ internal class FocusedViewsList {
             resignedViews += view
             activeViews = activeViews.filter { it != view }
 
-            mainScope.launch {
-                delay(delayMillis)
-                resignedViews.fastForEachReversed {
-                    it.resignFirstResponder()
-                }
-                resignedViews = emptyList()
-                activeViews.lastOrNull()?.let {
-                    if (!it.isFirstResponder) {
-                        it.becomeFirstResponder()
-                    }
-                }
+            rootList().onListHierarchyChanged(delayMillis)
+        }
+    }
+
+    /**
+     * Create a new child list that will have focus priority over the parent list and previously
+     * created children of the parent list.
+     */
+    fun childFocusedViewsList(): FocusedViewsList {
+        return FocusedViewsList().also {
+            children.add(it)
+            it.parent = this
+        }
+    }
+
+    /**
+     * Dispose the child list, providing focus back to the parent list.
+     */
+    fun disposeChild() {
+        assert(parent != null) { "Only child focused views list can be disposed." }
+        parent?.children?.remove(this)
+        parent?.let {
+            parent = null
+            it.rootList().onListHierarchyChanged(delayMillis = 0)
+        }
+        children.forEach { it.disposeChild() }
+
+        resignedViews += activeViews
+        activeViews = emptyList()
+        mainScope.launch {
+            resignScheduledViews()
+        }
+    }
+
+    private fun onListHierarchyChanged(delayMillis: Long?) {
+        fun refocusOnLastViewInHierarchy() {
+            val viewToFocus = lastViewToFocus()
+            if (viewToFocus != null) {
+                viewToFocus.becomeFirstResponder()
+                viewToFocus.window?.makeKeyWindow()
+            } else {
+                resignScheduledViews()
             }
         }
+        if (delayMillis == null) {
+            refocusOnLastViewInHierarchy()
+        } else {
+            mainScope.launch {
+                delay(delayMillis)
+                refocusOnLastViewInHierarchy()
+            }
+        }
+    }
+
+    private fun lastViewToFocus(): UIView? {
+        return children.reversed().firstNotNullOfOrNull { it.lastViewToFocus() }
+            ?: activeViews.lastOrNull()
+    }
+
+    private fun resignScheduledViews() {
+        resignedViews.fastForEachReversed {
+            it.resignFirstResponder()
+        }
+        resignedViews = emptyList()
+        children.forEach { it.resignScheduledViews() }
+    }
+
+    private fun rootList(): FocusedViewsList {
+        var root = this
+        while (root.parent != null) {
+            root = root.parent!!
+        }
+        return root
     }
 }
