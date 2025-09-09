@@ -100,16 +100,17 @@ open class JetbrainsExtensions(
         }
 
         val rootProjectName = project.rootProject.name // compose-multiplatform-core
-
-        val redirectedProjects = project.rootProject.subprojects.mapNotNull { project ->
-            project.takeIf {
-                // we are not interested in intermediate (structural) projects which are not published.
-                // they have a group name with rootProjectName in it
-               !it.group.toString().contains(rootProjectName)
-            }?.artifactRedirection()?.takeIf {
-                it.targetNames.contains(targetName) || it.targetNames.contains(altName)
-            }?.let {
-                project.path to it.groupId + ":" + project.name + ":" + it.versionForTargetOrDefault(targetName)
+        val redirectedProjects by lazy {
+            project.rootProject.subprojects.mapNotNull { project ->
+                project.takeIf {
+                    // we are not interested in intermediate (structural) projects which are not published.
+                    // they have a group name with rootProjectName in it
+                    !it.group.toString().contains(rootProjectName)
+                }?.artifactRedirection()?.takeIf {
+                    it.targetNames.contains(targetName) || it.targetNames.contains(altName)
+                }?.let {
+                    project.path to it.groupId + ":" + project.name + ":" + it.versionForTargetOrDefault(targetName)
+                }
             }
         }
 
@@ -124,12 +125,17 @@ open class JetbrainsExtensions(
                 configurations.compileOnlyConfiguration
             )
         }.forEach { c ->
-            c?.resolutionStrategy {
-                it.dependencySubstitution {
-                    redirectedProjects.forEach { entry ->
-                        val path = entry.first
-                        val artifact = entry.second
-                        it.substitute(it.project(path)).using(it.module(artifact))
+            // call after all projects configurations, but before dependency resolve
+            // because we iterate over all subprojects, and depend on
+            // overridden groupId in these projects (inside "artifactRedirection")
+            c?.incoming?.beforeResolve {
+                c.resolutionStrategy {
+                    it.dependencySubstitution { sub ->
+                        redirectedProjects.forEach { entry ->
+                            val path = entry.first
+                            val artifact = entry.second
+                            sub.substitute(sub.project(path)).using(sub.module(artifact))
+                        }
                     }
                 }
             }
