@@ -7,7 +7,6 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("kotlin-multiplatform")
-    id("org.jetbrains.gradle.apple.applePlugin") version "222.4550-0.22"
     id("JetbrainsAndroidXPlugin")
 }
 
@@ -78,38 +77,6 @@ kotlin {
             val iosSimulatorArm64Main by getting { dependsOn(uikitMain) }
         } else {
             val iosX64Main by getting { dependsOn(uikitMain) }
-        }
-    }
-}
-
-apple {
-    iosApp {
-        productName = "composeuikit"
-
-        sceneDelegateClass = "SceneDelegate"
-        launchStoryboard = "LaunchScreen"
-
-        val runOnDevice = findProperty("xcode.arch") == "arm64"
-        val projectProperties = Properties()
-        val projectPropertiesFile = rootProject.file("project.properties")
-        if (projectPropertiesFile.exists()) {
-            projectProperties.load(projectPropertiesFile.reader())
-        } else {
-            projectPropertiesFile.createNewFile()
-        }
-        val teamId = projectProperties.getProperty("TEAM_ID")
-        if (runOnDevice && teamId == null) {
-            error("Add TEAM_ID=... to file ${projectPropertiesFile.absolutePath}")
-        }
-        if (teamId != null) {
-            buildSettings.DEVELOPMENT_TEAM(teamId)
-        }
-        buildSettings.DEPLOYMENT_TARGET("15.0")
-
-        // TODO: add 'CADisableMinimumFrameDurationOnPhone' set to 'YES'
-
-        dependencies {
-            // Here we can add additional dependencies to Swift sourceSet
         }
     }
 }

@@ -144,12 +144,7 @@ includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desk
 includeProject(":compose:desktop:desktop:desktop-samples-material3", "compose/desktop/desktop/samples-material3")
 includeProject(":compose:mpp")
 includeProject(":compose:mpp:demo")
-
-// workaround for issue that on linux and windows CommonizeCInterop task fails
-// It seems that this workaround can be removed after Kotlin 1.8.20
-if (DefaultNativePlatform.getCurrentOperatingSystem().isMacOsX()) {
-    includeProject(":compose:mpp:demo-uikit")
-}
+includeProject(":compose:mpp:demo-swiftui")
 
 includeProject(":compose:foundation")
 includeProject(":compose:foundation:foundation")
