@@ -112,28 +112,17 @@ private fun getTapHandlerModifier(
                     )
                     if (currentState.handleState != HandleState.Selection) {
                         currentState.layoutResult?.let { layoutResult ->
-                            // TODO: Research native behavior with any text transformations (which adds symbols like with using NSNumberFormatter)
-                            if (currentManager.visualTransformation != VisualTransformation.None) {
-                                TextFieldDelegate.setCursorOffset(
-                                    touchPointOffset,
-                                    layoutResult,
-                                    currentState.processor,
-                                    currentOffsetMapping,
-                                    currentState.onValueChange
-                                )
-                            } else {
-                                TextFieldDelegate.cupertinoSetCursorOffsetFocused(
-                                    position = touchPointOffset,
-                                    textLayoutResult = layoutResult,
-                                    editProcessor = currentState.processor,
-                                    offsetMapping = currentOffsetMapping,
-                                    showContextMenu = { show ->
-                                        // it shouldn't be selection, but this is a way to call a context menu in BasicTextField
-                                        if (show) { currentManager.enterSelectionMode() } else { currentManager.exitSelectionMode() }
-                                    },
-                                    onValueChange = currentState.onValueChange
-                                )
-                            }
+                            TextFieldDelegate.cupertinoSetCursorOffsetFocused(
+                                position = touchPointOffset,
+                                textLayoutResult = layoutResult,
+                                editProcessor = currentState.processor,
+                                offsetMapping = currentOffsetMapping,
+                                showContextMenu = { show ->
+                                    // it shouldn't be selection, but this is a way to call a context menu in BasicTextField
+                                    if (show) { currentManager.enterSelectionMode() } else { currentManager.exitSelectionMode() }
+                                },
+                                onValueChange = currentState.onValueChange
+                            )
                         }
                     } else {
                         currentManager.deselect(touchPointOffset)
