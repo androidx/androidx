@@ -147,7 +147,10 @@ private class CanvasLayersComposeSceneImpl(
             forEachLayer { it.owner.size = value }
         }
 
-    override val focusManager = ComposeSceneFocusManager { focusedOwner.focusOwner }
+    override val focusManager = ComposeSceneFocusManager(
+        focusOwner = { focusedOwner.focusOwner },
+        measureAndLayout = ::doMeasureAndLayout
+    )
 
     override val rootDragAndDropNode = ComposeSceneDragAndDropNode { focusedOwner.dragAndDropOwner }
 

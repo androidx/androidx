@@ -290,7 +290,7 @@ internal abstract class BaseComposeScene(
         }
     }
 
-    private fun doMeasureAndLayout() {
+    protected fun doMeasureAndLayout() {
         snapshotInvalidationTracker.onMeasureAndLayout()
         measureAndLayout()
     }

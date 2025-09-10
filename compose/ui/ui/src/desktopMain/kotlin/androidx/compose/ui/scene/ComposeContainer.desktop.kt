@@ -334,6 +334,7 @@ internal class ComposeContainer(
     }
 
     fun removeNotify() {
+        mediator.onComponentDetached()
         isDetached = true
         updateLifecycleState()
         setWindow(null)

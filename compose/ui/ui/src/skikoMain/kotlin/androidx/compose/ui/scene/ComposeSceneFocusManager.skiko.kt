@@ -27,34 +27,38 @@ import androidx.compose.ui.geometry.Rect
  */
 @InternalComposeUiApi
 class ComposeSceneFocusManager internal constructor(
-    private val focusOwner: () -> FocusOwner
+    private val focusOwner: () -> FocusOwner,
+    private val measureAndLayout: () -> Unit,
 ) {
     /**
-     * `true` if any child has focus
+     * Returns whether any child has focus.
      */
     val hasFocus: Boolean get() = focusOwner().rootState.hasFocus
 
-    /**
-     * Searches for the currently focused item, and returns its coordinates as a rect.
-     */
-    fun getFocusRect(): Rect? = focusOwner().getFocusRect()
+    private inline fun <T: Any?> measureAndLayoutThen(request: () -> T): T {
+        measureAndLayout()
+        return request()
+    }
 
     /**
-     * Take focus to ComposeScene in specified [focusDirection].
-     *
-     * Returns false if there are no focusable elements in this direction:
-     * - the scene is empty
-     * - we are in the end of the scene and move forward
-     * - we are in the beginning of the scene and move backward
+     * Searches for the currently focused node and returns its coordinates as a rect.
      */
-    fun takeFocus(focusDirection: FocusDirection): Boolean {
+    fun getFocusRect(): Rect? = measureAndLayoutThen { focusOwner().getFocusRect() }
+
+    /**
+     * Take focus to [ComposeScene] in specified [focusDirection].
+     *
+     * Returns `false` if there are no focusable elements in this direction:
+     * - The scene is empty
+     * - We are at the end of the scene and are asked to move forward
+     * - We are at the beginning of the scene and are asked to move backward
+     */
+    fun takeFocus(focusDirection: FocusDirection): Boolean = measureAndLayoutThen {
         return focusOwner().takeFocus(focusDirection, previouslyFocusedRect = null)
     }
 
     /**
-     * Release focus from ComposeScene
+     * Release focus from [ComposeScene].
      */
-    fun releaseFocus() {
-        focusOwner().releaseFocus()
-    }
+    fun releaseFocus() = measureAndLayoutThen { focusOwner().releaseFocus() }
 }

@@ -83,6 +83,11 @@ internal class WindowComposeSceneLayer(
                 mediator?.contentComponent?.requestFocusInWindow()
             }
         }
+
+        override fun removeNotify() {
+            mediator?.onComponentDetached()
+            super.removeNotify()
+        }
     }.also {
         it.layout = null
         it.isOpaque = !transparent

@@ -125,6 +125,7 @@ internal class ComposeSceneMediator(
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
 ) : SkikoRenderDelegate {
     private var isDisposed = false
+    private var isComponentAttached = false
     private val invisibleComponent = InvisibleComponent()
 
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
@@ -238,9 +239,9 @@ internal class ComposeSceneMediator(
     }
     private val focusListener = object : FocusListener {
         override fun focusGained(e: FocusEvent) {
-            // We don't reset focus for Compose when the component loses focus temporary.
+            // We don't reset focus for Compose when the component loses focus temporarily.
             // Partially because we don't support restoring focus after clearing it.
-            // Focus can be lost temporary when another window or popup takes focus.
+            // Focus can be lost temporarily when another window or popup takes focus.
             if (!e.isTemporary && !e.isFocusGainedHandledBySwingPanel(container)) {
                 when (e.cause) {
                     TRAVERSAL_BACKWARD -> {
@@ -259,10 +260,10 @@ internal class ComposeSceneMediator(
         }
 
         override fun focusLost(e: FocusEvent) {
-            // We don't reset focus for Compose when the component loses focus temporary.
+            // We don't reset focus for Compose when the component loses focus temporarily.
             // Partially because we don't support restoring focus after clearing it.
-            // Focus can be lost temporary when another window or popup takes focus.
-            if (!e.isTemporary) {
+            // Focus can be lost temporarily when another window or popup takes focus.
+            if (!e.isTemporary && isComponentAttached) {
                 scene.focusManager.releaseFocus()
             }
         }
@@ -510,10 +511,16 @@ internal class ComposeSceneMediator(
     }
 
     fun onComponentAttached() {
+        isComponentAttached = true
         onChangeDensity()
 
         _onComponentAttached?.invoke()
         _onComponentAttached = null
+    }
+
+    fun onComponentDetached() {
+        isComponentAttached = false
+        scene.focusManager.releaseFocus()
     }
 
     private var onPreviewKeyEvent: (ComposeKeyEvent) -> Boolean = { false }

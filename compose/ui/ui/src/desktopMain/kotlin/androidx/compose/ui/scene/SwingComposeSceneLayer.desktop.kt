@@ -61,6 +61,11 @@ internal class SwingComposeSceneLayer(
             }
         }
 
+        override fun removeNotify() {
+            mediator?.onComponentDetached()
+            super.removeNotify()
+        }
+
         override fun paint(g: Graphics) {
             scrimColor?.let { scrimColor ->
                 g.color = scrimColor.toAwtColor()

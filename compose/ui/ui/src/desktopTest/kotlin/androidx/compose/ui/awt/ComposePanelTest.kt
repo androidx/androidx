@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
@@ -257,7 +260,7 @@ class ComposePanelTest {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun `compose state shouldn't reset on panel remove and add with isDisposeOnRemove = false`() {
+    fun `compose state should not reset on panel remove and add with isDisposeOnRemove = false`() {
         assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
 
         runBlocking(MainUIDispatcher) {
@@ -686,4 +689,28 @@ class ComposePanelTest {
             }
         }
     }
+
+    // https://youtrack.jetbrains.com/issue/CMP-8131/ComposePanel-doesnt-receive-initial-focus-in-JBR
+    @Test
+    fun `ComposePanel content receives initial focus`() = runApplicationTest {
+        val composePanel = ComposePanel()
+        var isTextFieldFocused = false
+        composePanel.setContent {
+            TextField(rememberTextFieldState(), Modifier.onFocusChanged { isTextFieldFocused = it.isFocused })
+        }
+
+        val window = JFrame()
+        try {
+            window.size = Dimension(200, 200)
+            window.contentPane.add(composePanel, BorderLayout.CENTER)
+            window.isVisible = true
+
+            awaitIdle()
+
+            assertTrue(isTextFieldFocused)
+        } finally {
+            window.dispose()
+        }
+    }
+
 }

@@ -125,7 +125,10 @@ private class PlatformLayersComposeSceneImpl(
             mainOwner.size = value
         }
 
-    override val focusManager = ComposeSceneFocusManager { mainOwner.focusOwner }
+    override val focusManager = ComposeSceneFocusManager(
+        focusOwner = { mainOwner.focusOwner },
+        measureAndLayout = ::doMeasureAndLayout
+    )
 
     // TODO: Extract to interface and return `mainOwner.dragAndDropOwner.rootDragAndDropNode`
     override val rootDragAndDropNode = ComposeSceneDragAndDropNode { mainOwner.dragAndDropOwner }
