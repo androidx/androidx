@@ -17,7 +17,7 @@
 package androidx.compose.ui.integrations
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.backhandler.UIKitBackGestureDispatcher
+import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.scene.PlatformLayersComposeScene
@@ -98,8 +98,7 @@ class ComposeSceneMediatorTest {
                 useSeparateRenderThreadWhenPossible = false,
                 render = { _, _ -> }
             ),
-            backGestureDispatcher = UIKitBackGestureDispatcher(
-                enableBackGesture = false,
+            navigationEventInput = UIKitNavigationEventInput(
                 density = Density(1f),
                 getTopLeftOffsetInWindow = { IntOffset.Zero }
             ),

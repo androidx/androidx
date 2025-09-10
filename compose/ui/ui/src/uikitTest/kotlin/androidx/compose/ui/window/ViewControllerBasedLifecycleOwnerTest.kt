@@ -16,11 +16,10 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.platform.IOSLifecycleOwner
+import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
 import androidx.lifecycle.Lifecycle
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
@@ -32,7 +31,7 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun allEvents() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = IOSLifecycleOwner()
+        val lifecycleOwner = UIKitArchitectureComponentsOwner()
         val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
@@ -63,7 +62,7 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun foregroundThenViewWillAppear() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = IOSLifecycleOwner()
+        val lifecycleOwner = UIKitArchitectureComponentsOwner()
         val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
 
         notificationCenter.postNotificationName(UIApplicationWillEnterForegroundNotification, UIApplication.sharedApplication)
@@ -76,7 +75,7 @@ class ViewControllerBasedLifecycleOwnerTest {
     @Test
     fun viewDidDisappearThenBackground() {
         val notificationCenter = NSNotificationCenter()
-        val lifecycleOwner = IOSLifecycleOwner()
+        val lifecycleOwner = UIKitArchitectureComponentsOwner()
         val lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner, notificationCenter)
         lifecycleDelegate.viewControllerWillAppear()
 

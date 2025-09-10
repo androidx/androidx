@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.navigationevent.compose
+package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
-@OptIn(InternalComposeApi::class)
+/**
+ * Internal helper to provide [NavigationEventDispatcherOwner] from Compose UI module.
+ * In applications please use [androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner].
+ *
+ * @hide
+ */
+internal val LocalInternalNavigationEventDispatcherOwner =
+    staticCompositionLocalOf<NavigationEventDispatcherOwner?> { null }
+
+
+@InternalComposeApi
 @Composable
-internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
-    findDefaultNavigationEventDispatcherOwner()
+fun findDefaultNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
+    LocalInternalNavigationEventDispatcherOwner.current

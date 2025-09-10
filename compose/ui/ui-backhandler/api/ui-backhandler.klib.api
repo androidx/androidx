@@ -7,9 +7,5 @@
 
 // Library unique name: <org.jetbrains.compose.ui:ui-backhandler>
 final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop|#static{}androidx_compose_ui_backhandler_BackEventCompat$stableprop[0]
-final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop|#static{}androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop[0]
-final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop|#static{}androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop[0]
 
 final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter|androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter(){}[0]
-final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop_getter|androidx_compose_ui_backhandler_BackGestureDispatcher$stableprop_getter(){}[0]
-final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop_getter|androidx_compose_ui_backhandler_BackGestureListenerImpl$stableprop_getter(){}[0]

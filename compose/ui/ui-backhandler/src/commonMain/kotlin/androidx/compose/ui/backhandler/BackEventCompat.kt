@@ -25,6 +25,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
  * Holds information about the touch event, swipe direction and the animation progress
  * that predictive back animations should seek to.
  */
+@Deprecated("Use NavigationEvent instead")
 @ExperimentalComposeUiApi
 expect class BackEventCompat {
 

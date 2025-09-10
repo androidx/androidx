@@ -17,62 +17,32 @@
 package androidx.compose.ui.backhandler
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationEventHandler
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-/**
- * Provides a [BackGestureDispatcher] that can be used by Composables to handle back events.
- */
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
-val LocalBackGestureDispatcher = staticCompositionLocalOf<BackGestureDispatcher?> { null }
-
 @Composable
-@ExperimentalComposeUiApi
 actual fun PredictiveBackHandler(
     enabled: Boolean,
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
 ) {
-    val backGestureDispatcher = LocalBackGestureDispatcher.current ?: return
-    val onBackScope = rememberCoroutineScope()
-
-    val currentOnBack by rememberUpdatedState(onBack)
-    val currentDispatcher by rememberUpdatedState(backGestureDispatcher)
-
-    val listener = remember {
-        BackGestureListenerImpl(
-            scope = onBackScope,
-            onBack = { currentOnBack(it) },
-            onReadyStateChanged = { currentDispatcher.activeListenerChanged() }
-        )
-    }
-
-    LaunchedEffect(enabled) { listener.enabled = enabled }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.lifecycle.currentStateFlow.collect { state ->
-            listener.active = (state == Lifecycle.State.STARTED || state == Lifecycle.State.RESUMED)
+    LocalNavigationEventDispatcherOwner.current ?: return
+    NavigationEventHandler(enabled) { progress ->
+        val compatProgress = progress.map { navEvent ->
+            BackEventCompat(navEvent.touchX, navEvent.touchY, navEvent.progress, navEvent.swipeEdge)
         }
-    }
-
-    DisposableEffect(backGestureDispatcher) {
-        backGestureDispatcher.addListener(listener)
-        onDispose { backGestureDispatcher.removeListener(listener) }
+        onBack(compatProgress)
     }
 }
 
-@Composable
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
+@Composable
 actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
     PredictiveBackHandler(enabled) { progress ->
         try {

@@ -67,12 +67,6 @@ class ComposeUIViewControllerConfiguration {
      */
     @ExperimentalComposeUiApi
     var parallelRendering: Boolean = false
-
-    /**
-     * A flag to enable or disable iOS BackGesture recognizer.
-     */
-    @ExperimentalComposeUiApi
-    var enableBackGesture: Boolean = true
 }
 
 /**

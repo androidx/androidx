@@ -16,37 +16,37 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.platform.IOSLifecycleOwner
+import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
 import androidx.compose.ui.uikit.utils.CMPViewControllerLifecycleDelegateProtocol
 import platform.Foundation.NSNotificationCenter
 import platform.darwin.NSObject
 
 internal class ViewControllerLifecycleDelegate(
-    private val lifecycleOwner: IOSLifecycleOwner,
+    private val archComponentsOwner: UIKitArchitectureComponentsOwner,
     notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter
 ): NSObject(), CMPViewControllerLifecycleDelegateProtocol {
 
     private val applicationForegroundStateListener =
         ApplicationForegroundStateListener(notificationCenter) { isForeground ->
-            lifecycleOwner.isAppForeground = isForeground
+            archComponentsOwner.isAppForeground = isForeground
         }
 
     private val applicationActiveStateListener =
         ApplicationActiveStateListener(notificationCenter) { isActive ->
-            lifecycleOwner.isAppActive = isActive
+            archComponentsOwner.isAppActive = isActive
         }
 
     override fun viewControllerWillDealloc() {
         applicationForegroundStateListener.dispose()
         applicationActiveStateListener.dispose()
-        lifecycleOwner.dispose()
+        archComponentsOwner.dispose()
     }
 
     override fun viewControllerWillAppear() {
-        lifecycleOwner.isViewAppeared = true
+        archComponentsOwner.isViewAppeared = true
     }
 
     override fun viewControllerDidDisappear() {
-        lifecycleOwner.isViewAppeared = false
+        archComponentsOwner.isViewAppeared = false
     }
 }

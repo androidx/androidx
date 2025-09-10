@@ -20,14 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
-import androidx.compose.ui.backhandler.LocalBackGestureDispatcher
-import androidx.compose.ui.backhandler.UIKitBackGestureDispatcher
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.LocalUIViewController
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.FocusedViewsList
+import androidx.navigationevent.NavigationEventDispatcher
 import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGPoint
@@ -62,8 +62,8 @@ internal class UIKitComposeSceneLayer(
     private var focusedViewsList: FocusedViewsList?,
     compositionContext: CompositionContext,
     private val coroutineContext: CoroutineContext,
-    private val enableBackGesture: Boolean,
-    private val interfaceOrientationState: State<InterfaceOrientation>
+    private val interfaceOrientationState: State<InterfaceOrientation>,
+    private val navigationEventDispatcher: NavigationEventDispatcher,
 ) : ComposeSceneLayer {
 
     override var focusable: Boolean = focusedViewsList != null
@@ -82,11 +82,10 @@ internal class UIKitComposeSceneLayer(
 
     val overlayView: UIView get() = mediator.overlayView
 
-    private val backGestureDispatcher = UIKitBackGestureDispatcher(
-        enableBackGesture = enableBackGesture,
+    private val navigationEventInput = UIKitNavigationEventInput(
         density = interactionView.density,
         getTopLeftOffsetInWindow = { boundsInWindow.topLeft }
-    )
+    ).also { navigationEventDispatcher.addInput(it) }
 
     private val mediator = ComposeSceneMediator(
         onFocusBehavior = onFocusBehavior,
@@ -95,7 +94,7 @@ internal class UIKitComposeSceneLayer(
         coroutineContext = compositionContext.effectCoroutineContext,
         redrawer = layersViewController.metalView.redrawer,
         composeSceneFactory = ::createComposeScene,
-        backGestureDispatcher = backGestureDispatcher,
+        navigationEventInput = navigationEventInput,
         interfaceOrientationState = interfaceOrientationState
     ).also {
         interactionView.embedSubview(it.inputView)
@@ -144,7 +143,7 @@ internal class UIKitComposeSceneLayer(
         if (window != null) {
             focusedViewsList?.addAndFocus(mediator.inputView)
         }
-        backGestureDispatcher.onDidMoveToWindow(window, interactionView)
+        navigationEventInput.onDidMoveToWindow(window, interactionView)
     }
 
     fun render(canvas: Canvas, nanoTime: Long) {
@@ -170,6 +169,7 @@ internal class UIKitComposeSceneLayer(
     }
 
     internal fun dispose() {
+        navigationEventDispatcher.removeInput(navigationEventInput)
         focusedViewsList?.disposeChild()
         focusedViewsList = null
         mediator.dispose()
@@ -181,7 +181,6 @@ internal class UIKitComposeSceneLayer(
     private fun ProvideComposeSceneLayerCompositionLocals(
         content: @Composable () -> Unit
     ) = CompositionLocalProvider(
-        LocalBackGestureDispatcher provides backGestureDispatcher,
         LocalUIViewController provides layersViewController,
         content = content
     )

@@ -46,7 +46,6 @@ kotlin {
                 implementation(project(":annotation:annotation"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":lifecycle:lifecycle-runtime-compose"))
             }
         }
 
@@ -60,7 +59,12 @@ kotlin {
             }
         }
 
-        jbMain.dependsOn(commonMain)
+        jbMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(project(":navigationevent:navigationevent-compose"))
+            }
+        }
         desktopMain.dependsOn(jbMain)
         nonJvmMain.dependsOn(jbMain)
         nativeMain.dependsOn(nonJvmMain)

@@ -25,12 +25,12 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
-import androidx.compose.ui.backhandler.LocalBackGestureDispatcher
-import androidx.compose.ui.backhandler.UIKitBackGestureDispatcher
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
-import androidx.compose.ui.platform.IOSLifecycleOwner
+import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
+import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalInternalNavigationEventDispatcherOwner
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.MotionDurationScaleImpl
 import androidx.compose.ui.platform.PlatformContext
@@ -98,9 +98,9 @@ import platform.darwin.dispatch_get_main_queue
 internal class ComposeHostingViewController(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val content: @Composable () -> Unit,
-    private val lifecycleOwner: IOSLifecycleOwner = IOSLifecycleOwner(),
+    private val archComponentsOwner: UIKitArchitectureComponentsOwner = UIKitArchitectureComponentsOwner(),
     coroutineContext: CoroutineContext = Dispatchers.Main
-) : CMPViewController(lifecycleDelegate = ViewControllerLifecycleDelegate(lifecycleOwner)) {
+) : CMPViewController(lifecycleDelegate = ViewControllerLifecycleDelegate(archComponentsOwner)) {
     private val hapticFeedback = CupertinoHapticFeedback()
 
     private val rootView = ComposeView(
@@ -122,9 +122,7 @@ internal class ComposeHostingViewController(
     private val interfaceOrientationObserver = SceneGeometryObserver {
         updateInterfaceOrientationState()
     }
-
-    private val backGestureDispatcher = UIKitBackGestureDispatcher(
-        enableBackGesture = configuration.enableBackGesture,
+    private val navigationEventInput = UIKitNavigationEventInput(
         density = rootView.density,
         getTopLeftOffsetInWindow = { IntOffset.Zero } //full screen
     )
@@ -207,7 +205,7 @@ internal class ComposeHostingViewController(
     }
 
     private fun onDidMoveToWindow(window: UIWindow?) {
-        backGestureDispatcher.onDidMoveToWindow(window, rootView)
+        navigationEventInput.onDidMoveToWindow(window, rootView)
         interfaceOrientationObserver.windowScene = window?.windowScene
 
         val windowContainer = window ?: return
@@ -265,7 +263,7 @@ internal class ComposeHostingViewController(
 
         // Because the container view can change during the modal transition animation,
         // the gesture handlers and layers view are added back when the animation ends.
-        backGestureDispatcher.onDidMoveToWindow(view.window, rootView)
+        navigationEventInput.onDidMoveToWindow(view.window, rootView)
     }
 
     @Suppress("DEPRECATION")
@@ -274,7 +272,7 @@ internal class ComposeHostingViewController(
         mediator?.sceneWillDisappear()
         configuration.delegate.viewWillDisappear(animated)
 
-        backGestureDispatcher.onDidMoveToWindow(null, rootView)
+        navigationEventInput.onDidMoveToWindow(null, rootView)
     }
 
     @Suppress("DEPRECATION")
@@ -322,7 +320,7 @@ internal class ComposeHostingViewController(
             composeSceneFactory = { invalidate, context ->
                 createComposeScene(invalidate, context, holder)
             },
-            backGestureDispatcher = backGestureDispatcher,
+            navigationEventInput = navigationEventInput,
             interfaceOrientationState = interfaceOrientationState,
         ).also { mediator ->
             rootView.embedSubview(mediator.inputView)
@@ -342,7 +340,8 @@ internal class ComposeHostingViewController(
         }
         interfaceOrientationObserver.isObservingEnabled = true
 
-        backGestureDispatcher.onDidMoveToWindow(view.window, rootView)
+        archComponentsOwner.navigationEventDispatcher.addInput(navigationEventInput)
+        navigationEventInput.onDidMoveToWindow(view.window, rootView)
         onAccessibilityChanged()
     }
 
@@ -358,7 +357,8 @@ internal class ComposeHostingViewController(
         )
 
         rootView.updateMetalView(metalView = null)
-        backGestureDispatcher.onDidMoveToWindow(null, rootView)
+        navigationEventInput.onDidMoveToWindow(null, rootView)
+        archComponentsOwner.navigationEventDispatcher.removeInput(navigationEventInput)
 
         mediator?.dispose()
         mediator = null
@@ -462,8 +462,8 @@ internal class ComposeHostingViewController(
                     focusedViewsList = if (focusable) focusedViewsList?.childFocusedViewsList() else null,
                     compositionContext = compositionContext,
                     coroutineContext = composeCoroutineContext,
-                    enableBackGesture = configuration.enableBackGesture,
-                    interfaceOrientationState = interfaceOrientationState
+                    interfaceOrientationState = interfaceOrientationState,
+                    navigationEventDispatcher = archComponentsOwner.navigationEventDispatcher,
                 )
 
                 layersHolder.getLayersViewController().attach(layer)
@@ -510,9 +510,9 @@ internal class ComposeHostingViewController(
             LocalHapticFeedback provides hapticFeedback,
             LocalUIViewController provides this,
             LocalSystemTheme provides systemThemeState.value,
-            LocalLifecycleOwner provides lifecycleOwner,
-            LocalInternalViewModelStoreOwner provides lifecycleOwner,
-            LocalBackGestureDispatcher provides backGestureDispatcher,
+            LocalLifecycleOwner provides archComponentsOwner,
+            LocalInternalViewModelStoreOwner provides archComponentsOwner,
+            LocalInternalNavigationEventDispatcherOwner provides archComponentsOwner,
             LocalSaveableStateRegistry provides savableStateRegistry,
             content = content
         )

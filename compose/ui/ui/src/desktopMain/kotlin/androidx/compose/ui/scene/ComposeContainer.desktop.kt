@@ -29,10 +29,10 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.RenderSettings
-import androidx.compose.ui.backhandler.DesktopBackGestureDispatcher
-import androidx.compose.ui.backhandler.LocalBackGestureDispatcher
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.navigationevent.DesktopNavigationEventInput
 import androidx.compose.ui.platform.DisposableSaveableStateRegistry
+import androidx.compose.ui.platform.LocalInternalNavigationEventDispatcherOwner
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -56,6 +56,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.enableSavedStateHandles
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
@@ -107,6 +109,7 @@ internal class ComposeContainer(
 ) : WindowFocusListener,
     WindowListener,
     LifecycleOwner,
+    NavigationEventDispatcherOwner,
     SavedStateRegistryOwner,
     ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
@@ -199,7 +202,8 @@ internal class ComposeContainer(
         get() = savedStateController.savedStateRegistry
     override val viewModelStore = ViewModelStore()
 
-    private val backGestureDispatcher = DesktopBackGestureDispatcher()
+    override val navigationEventDispatcher = NavigationEventDispatcher()
+    private val navigationEventInput = DesktopNavigationEventInput()
 
     private var isDisposed = false
     private var isDetached = true
@@ -210,6 +214,7 @@ internal class ComposeContainer(
         savedStateController.performAttach()
         savedStateController.performRestore(savedState)
         enableSavedStateHandles()
+        navigationEventDispatcher.addInput(navigationEventInput)
 
         setWindow(window)
         this.windowContainer = windowContainer
@@ -235,6 +240,7 @@ internal class ComposeContainer(
         isDisposed = true
         updateLifecycleState()
         viewModelStore.clear()
+        navigationEventDispatcher.removeInput(navigationEventInput)
 
         _windowContainer?.removeComponentListener(windowContainerComponentListener)
         mediator.dispose()
@@ -376,14 +382,14 @@ internal class ComposeContainer(
         mediator.setKeyEventListeners(
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = {
-                onKeyEvent(it) || backGestureDispatcher.onKeyEvent(it)
+                onKeyEvent(it) || navigationEventInput.onKeyEvent(it)
             }
         )
     }
 
     fun setContent(content: @Composable () -> Unit) {
         mediator.setContent {
-            ProvideContainerCompositionLocals(this, backGestureDispatcher) {
+            ProvideContainerCompositionLocals(this) {
                 content()
             }
         }
@@ -570,7 +576,6 @@ internal class ComposeContainer(
 @Composable
 private fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,
-    backGestureDispatcher: DesktopBackGestureDispatcher,
     content: @Composable () -> Unit,
 ) {
     val saveableStateRegistry = remember {
@@ -583,7 +588,7 @@ private fun ProvideContainerCompositionLocals(
         LocalSavedStateRegistryOwner provides composeContainer,
         LocalSaveableStateRegistry provides saveableStateRegistry,
         LocalInternalViewModelStoreOwner provides composeContainer,
-        LocalBackGestureDispatcher provides backGestureDispatcher,
+        LocalInternalNavigationEventDispatcherOwner provides composeContainer,
         content = content,
     )
 }

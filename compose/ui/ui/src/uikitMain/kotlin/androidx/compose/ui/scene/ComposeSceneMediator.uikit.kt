@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.animation.withAnimationProgress
-import androidx.compose.ui.backhandler.UIKitBackGestureDispatcher
 import androidx.compose.ui.draganddrop.UIKitDragAndDropManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -45,6 +44,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.layout.OffsetToFocusedRect
+import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
@@ -188,7 +188,7 @@ internal class ComposeSceneMediator(
     private val windowContext: PlatformWindowContext,
     private val coroutineContext: CoroutineContext,
     private val redrawer: MetalRedrawer,
-    private val backGestureDispatcher: UIKitBackGestureDispatcher,
+    private val navigationEventInput: UIKitNavigationEventInput,
     interfaceOrientationState: State<InterfaceOrientation>,
     composeSceneFactory: (
         invalidate: () -> Unit,
@@ -287,7 +287,7 @@ internal class ComposeSceneMediator(
         ::onCancelScroll,
         ::onHoverEvent,
         ::onKeyboardPresses,
-        backGestureDispatcher::isBackGestureActive
+        navigationEventInput::isBackGestureActive
     )
 
     val inputView: UIView get() = userInputView
@@ -681,7 +681,7 @@ internal class ComposeSceneMediator(
         textInputService.onPreviewKeyEvent(keyEvent) // TODO: fix redundant call
             || onPreviewKeyEvent(keyEvent)
             || scene.sendKeyEvent(keyEvent)
-            || backGestureDispatcher.onKeyEvent(keyEvent)
+            || navigationEventInput.onKeyEvent(keyEvent)
             || onKeyEvent(keyEvent)
 
     private inner class PlatformContextImpl : PlatformContext {

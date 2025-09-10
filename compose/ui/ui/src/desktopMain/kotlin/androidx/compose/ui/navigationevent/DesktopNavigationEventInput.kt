@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.backhandler
+package androidx.compose.ui.navigationevent
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.navigationevent.NavigationEventInput
 
-@OptIn(ExperimentalComposeUiApi::class)
-internal class DesktopBackGestureDispatcher : BackGestureDispatcher() {
+internal class DesktopNavigationEventInput : NavigationEventInput() {
     fun onKeyEvent(event: KeyEvent): Boolean {
-        return handleBackKeyEvent(event, activeListener)
+        if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+            dispatchOnCompleted()
+            return true
+        } else {
+            return false
+        }
     }
 }

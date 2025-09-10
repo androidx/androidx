@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIColor
 import platform.UIKit.UIModalPresentationFormSheet
@@ -64,12 +66,18 @@ private fun IosPredictiveBackExampleContent() {
         verticalArrangement = Arrangement.Center,
     ) {
         var showDialog by remember { mutableStateOf(false) }
+        var showPopup by remember { mutableStateOf(false) }
         var enablePredictiveBackHandler by remember { mutableStateOf(true) }
         var predictiveBackHandlerState by remember { mutableStateOf("empty") }
         Button(
             onClick = { showDialog = true }
         ) {
             Text("Show dialog with Back Handler")
+        }
+        Button(
+            onClick = { showPopup = true }
+        ) {
+            Text("Show popup with Back Handler")
         }
         if (showDialog) {
             Dialog(
@@ -89,6 +97,36 @@ private fun IosPredictiveBackExampleContent() {
                                 }
                                 bhState = "DONE"
                                 showDialog = false
+                            } catch (e: Exception) {
+                                bhState = "CANCEL"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (showPopup) {
+            Popup(
+                alignment = Alignment.Center,
+                onDismissRequest = { showPopup = false },
+                properties = PopupProperties(
+                    focusable = false,
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
+                    clippingEnabled = true
+                )
+            ) {
+                Card {
+                    Box(modifier = Modifier.background(MaterialTheme.colors.surface).padding(16.dp)) {
+                        var bhState by remember { mutableStateOf("empty") }
+                        Text("state: $bhState")
+                        PredictiveBackHandler { events ->
+                            try {
+                                events.collect { event ->
+                                    bhState = "\nx=${event.touchX}\ny=${event.touchY}\nprogress=${event.progress}\nedge=${event.swipeEdge}"
+                                }
+                                bhState = "DONE"
+                                showPopup = false
                             } catch (e: Exception) {
                                 bhState = "CANCEL"
                             }

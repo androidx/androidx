@@ -17,8 +17,11 @@
 package androidx.navigation3.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
+@OptIn(InternalComposeApi::class)
 @Composable
 internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
-    null
+    findDefaultNavigationEventDispatcherOwner()

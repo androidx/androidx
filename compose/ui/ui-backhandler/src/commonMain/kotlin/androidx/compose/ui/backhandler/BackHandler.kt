@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.Flow
  * @param enabled if this BackHandler should be enabled, true by default
  * @param onBack the action invoked by back gesture
  */
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
 @Composable
 expect fun PredictiveBackHandler(
@@ -67,6 +68,7 @@ expect fun PredictiveBackHandler(
  * @param enabled if this BackHandler should be enabled
  * @param onBack the action invoked by system back event
  */
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
 @Composable
 expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)

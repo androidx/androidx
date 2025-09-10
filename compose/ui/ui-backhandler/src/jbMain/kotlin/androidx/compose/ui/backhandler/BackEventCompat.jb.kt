@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.ui.ExperimentalComposeUiApi
 
+@Deprecated("Use NavigationEvent instead")
 @ExperimentalComposeUiApi
 actual class BackEventCompat(
     actual val touchX: Float,

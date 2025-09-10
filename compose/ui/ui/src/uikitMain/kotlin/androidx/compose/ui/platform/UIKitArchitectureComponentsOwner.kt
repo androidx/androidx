@@ -22,10 +22,16 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
 
-internal class IOSLifecycleOwner: LifecycleOwner, ViewModelStoreOwner {
+internal class UIKitArchitectureComponentsOwner :
+    LifecycleOwner,
+    ViewModelStoreOwner,
+    NavigationEventDispatcherOwner {
     override val lifecycle = LifecycleRegistry(this)
     override val viewModelStore = ViewModelStore()
+    override val navigationEventDispatcher = NavigationEventDispatcher()
 
     var isViewAppeared = false
         set(value) {

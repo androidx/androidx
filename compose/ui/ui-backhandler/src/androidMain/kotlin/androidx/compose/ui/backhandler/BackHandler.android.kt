@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import kotlinx.coroutines.flow.Flow
 
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
 @Composable
 actual fun PredictiveBackHandler(
@@ -27,6 +28,7 @@ actual fun PredictiveBackHandler(
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
 ) = androidx.activity.compose.PredictiveBackHandler(enabled, onBack)
 
+@Deprecated("Use NavigationEventHandler instead")
 @ExperimentalComposeUiApi
 @Composable
 actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) =
