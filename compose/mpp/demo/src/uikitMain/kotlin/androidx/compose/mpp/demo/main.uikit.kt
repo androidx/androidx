@@ -19,9 +19,15 @@ import platform.UIKit.UIApplicationDelegateProtocolMeta
 import platform.UIKit.UIApplicationMain
 import platform.UIKit.UIResponder
 import platform.UIKit.UIResponderMeta
-import platform.UIKit.UIScreen
+import platform.UIKit.UIScene
+import platform.UIKit.UISceneConfiguration
+import platform.UIKit.UISceneConnectionOptions
+import platform.UIKit.UISceneDelegateProtocol
+import platform.UIKit.UISceneSession
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
+import platform.UIKit.UIWindowScene
+import platform.UIKit.UIWindowSceneDelegateProtocol
 
 /**
  * To run the demo project:
@@ -83,27 +89,51 @@ private fun UIKitMain(makeRootViewController: () -> UIViewController) {
     }
 }
 
-@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 private class IOSAppDelegate : UIResponder, UIApplicationDelegateProtocol {
     companion object Companion : UIResponderMeta(), UIApplicationDelegateProtocolMeta
 
+    @Suppress("unused")
+    @OptIn(BetaInteropApi::class)
+    @OverrideInit
+    constructor() : super()
+
+    override fun application(
+        application: UIApplication,
+        didFinishLaunchingWithOptions: Map<Any?, *>?
+    ): Boolean = true
+
+    @OptIn(BetaInteropApi::class)
+    override fun application(
+        application: UIApplication,
+        configurationForConnectingSceneSession: UISceneSession,
+        options: UISceneConnectionOptions
+    ): UISceneConfiguration {
+        val config = UISceneConfiguration()
+        config.delegateClass = IOSSceneDelegate.`class`()
+        config.sceneClass = UIWindowScene.`class`()
+        return config
+    }
+}
+
+private class IOSSceneDelegate: UIResponder, UIWindowSceneDelegateProtocol, UISceneDelegateProtocol {
+    companion object Companion : UIResponderMeta(), UIApplicationDelegateProtocolMeta
+
+    @Suppress("unused")
     @OptIn(BetaInteropApi::class)
     @OverrideInit
     constructor() : super()
 
     private var _window: UIWindow? = null
     override fun window() = _window
-    override fun setWindow(window: UIWindow?) {
-        _window = window
-    }
 
-    override fun application(
-        application: UIApplication,
-        didFinishLaunchingWithOptions: Map<Any?, *>?
-    ): Boolean {
-        window = UIWindow(frame = UIScreen.mainScreen.bounds)
-        window!!.rootViewController = MakeRootViewController()
-        window!!.makeKeyAndVisible()
-        return true
+    override fun scene(
+        scene: UIScene,
+        willConnectToSession: UISceneSession,
+        options: UISceneConnectionOptions
+    ) {
+        scene as UIWindowScene
+        _window = UIWindow(windowScene = scene)
+        _window!!.rootViewController = MakeRootViewController()
+        _window!!.makeKeyAndVisible()
     }
 }
