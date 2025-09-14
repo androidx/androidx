@@ -1072,7 +1072,7 @@ object ProcessorErrors {
             or @DeleteColumn annotation to specify the change to be performed:
             1) RENAME:
                 @RenameColumn.Entries(
-                    @RenameColumn(
+                    RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
@@ -1080,7 +1080,7 @@ object ProcessorErrors {
                 )
             2) DELETE:
                 @DeleteColumn.Entries(
-                    @DeleteColumn(
+                    DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
                     )
@@ -1093,7 +1093,7 @@ object ProcessorErrors {
             change to be performed:
             1) RENAME:
                 @RenameColumn.Entries(
-                    @RenameColumn(
+                    RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
@@ -1101,7 +1101,7 @@ object ProcessorErrors {
                 )
             2) DELETE:
                 @DeleteColumn.Entries(
-                    @DeleteColumn(
+                    DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
                     )
@@ -1118,14 +1118,14 @@ object ProcessorErrors {
             annotation to specify the change to be performed:
             1) RENAME:
                 @RenameTable.Entries(
-                    @RenameTable(
+                    RenameTable(
                         fromTableName = "$tableName",
                         toTableName = <NEW_TABLE_NAME>
                     )
                 )
             2) DELETE:
                 @DeleteTable.Entries(
-                    @DeleteTable(
+                    DeleteTable(
                         tableName = "$tableName"
                     )
                 )
@@ -1137,14 +1137,14 @@ object ProcessorErrors {
             to be performed:
             1) RENAME:
                 @RenameTable.Entries(
-                    @RenameTable(
+                    RenameTable(
                         fromTableName = "$tableName",
                         toTableName = <NEW_TABLE_NAME>
                     )
                 )
             2) DELETE:
                 @DeleteTable.Entries(
-                    @DeleteTable(
+                    DeleteTable(
                         tableName = "$tableName"
                     )
                 )
