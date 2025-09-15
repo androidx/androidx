@@ -519,7 +519,7 @@ internal class ComposeSceneMediator(
 
     private var lastFocusedRect: Rect? = null
     private fun getFocusedRect(): Rect? {
-        return scene.focusManager.getFocusRect()?.also {
+        return scene.focusManager.getFocusRect(afterLayout = false)?.also {
             lastFocusedRect = it
         } ?: lastFocusedRect
     }

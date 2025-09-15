@@ -42,9 +42,14 @@ class ComposeSceneFocusManager internal constructor(
 
     /**
      * Searches for the currently focused node and returns its coordinates as a rect.
+     * @param afterLayout If true, the coordinates are calculated after a layout pass.
+     * Otherwise, returns current coordinates.
      */
-    fun getFocusRect(): Rect? = measureAndLayoutThen { focusOwner().getFocusRect() }
-
+    fun getFocusRect(afterLayout: Boolean): Rect? = if (afterLayout) {
+        measureAndLayoutThen { focusOwner().getFocusRect() }
+    } else {
+        focusOwner().getFocusRect()
+    }
     /**
      * Take focus to [ComposeScene] in specified [focusDirection].
      *
