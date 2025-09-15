@@ -58,11 +58,14 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -73,6 +76,7 @@ import kotlinx.coroutines.launch
 fun ModalNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val focusRequester = FocusRequester()
     // icons to mimic drawer destinations
     val items =
         listOf(
@@ -124,10 +128,22 @@ fun ModalNavigationDrawerSample() {
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
+                Button(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onClick = { scope.launch { drawerState.open() } },
+                ) {
+                    Text("Click to open")
+                }
             }
         },
     )
+
+    LaunchedEffect(drawerState.isClosed) {
+        if (drawerState.isClosed) {
+            // Keyboard focus should go back to button once drawer closes.
+            focusRequester.requestFocus()
+        }
+    }
 }
 
 @Preview
@@ -191,6 +207,7 @@ fun PermanentNavigationDrawerSample() {
 fun DismissibleNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val focusRequester = FocusRequester()
     // icons to mimic drawer destinations
     val items =
         listOf(
@@ -243,8 +260,20 @@ fun DismissibleNavigationDrawerSample() {
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
+                Button(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onClick = { scope.launch { drawerState.open() } },
+                ) {
+                    Text("Click to open")
+                }
             }
         },
     )
+
+    LaunchedEffect(drawerState.isClosed) {
+        if (drawerState.isClosed) {
+            // Keyboard focus should go back to button once drawer closes.
+            focusRequester.requestFocus()
+        }
+    }
 }

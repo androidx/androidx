@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
@@ -48,6 +49,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -876,6 +878,96 @@ class TooltipTest {
 
         assertThat(topState.isVisible).isTrue()
         assertThat(bottomState.isVisible).isTrue()
+    }
+
+    @Test
+    fun tooltipMouseHover_notPersistentState_dismiss() {
+        lateinit var state: TooltipState
+        rule.setContent {
+            state = rememberTooltipState()
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {},
+                state = state,
+            ) {
+                Icon(
+                    Icons.Filled.Favorite,
+                    modifier = Modifier.testTag(AnchorTestTag),
+                    contentDescription = null,
+                )
+            }
+        }
+
+        // Test will manually advance the time to check the timeout
+        rule.mainClock.autoAdvance = false
+
+        assertThat(state.isVisible).isFalse()
+
+        val anchorNode = rule.onNodeWithTag(AnchorTestTag, useUnmergedTree = true)
+        anchorNode.performMouseInput { moveTo(center) }
+
+        // Advance by the fade in time
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
+
+        assertThat(state.isVisible).isTrue()
+
+        // Even if the tooltip is not persistent, the tooltip should
+        // still be showing if hover is detected after the timeout duration.
+        rule.mainClock.advanceTimeBy(milliseconds = BasicTooltipDefaults.TooltipDuration)
+        assertThat(state.isVisible).isTrue()
+
+        // Move the house out of the bounds of the anchor, essentially triggering exit()
+        anchorNode.performMouseInput { moveTo(Offset(-1f, -1f)) }
+
+        // Tooltip should dismiss after hover stops
+        rule.mainClock.advanceTimeBy(milliseconds = TooltipFadeOutDuration)
+        assertThat(state.isVisible).isFalse()
+    }
+
+    @Test
+    fun tooltipMouseHover_persistentState_persistent() {
+        lateinit var state: TooltipState
+        rule.setContent {
+            state = rememberTooltipState(isPersistent = true)
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {},
+                state = state,
+            ) {
+                Icon(
+                    Icons.Filled.Favorite,
+                    modifier = Modifier.testTag(AnchorTestTag),
+                    contentDescription = null,
+                )
+            }
+        }
+
+        // Test will manually advance the time to check the timeout
+        rule.mainClock.autoAdvance = false
+
+        assertThat(state.isVisible).isFalse()
+
+        val anchorNode = rule.onNodeWithTag(AnchorTestTag, useUnmergedTree = true)
+        anchorNode.performMouseInput { moveTo(center) }
+
+        // Advance by the fade in time
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
+
+        assertThat(state.isVisible).isTrue()
+
+        // Even if the tooltip is not persistent, the tooltip should
+        // still be showing if hover is detected after the timeout duration.
+        rule.mainClock.advanceTimeBy(milliseconds = BasicTooltipDefaults.TooltipDuration)
+        assertThat(state.isVisible).isTrue()
+
+        // Move the house out of the bounds of the anchor, essentially triggering exit()
+        anchorNode.performMouseInput { moveTo(Offset(-1f, -1f)) }
+
+        // Tooltip should be persistent after no longer hover since the tooltip is persistent
+        rule.mainClock.advanceTimeBy(milliseconds = TooltipFadeOutDuration)
+        assertThat(state.isVisible).isTrue()
     }
 
     @Composable

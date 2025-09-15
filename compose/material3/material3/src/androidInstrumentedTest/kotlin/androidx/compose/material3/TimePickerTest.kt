@@ -41,6 +41,7 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
@@ -68,6 +69,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.input.ImeAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -724,6 +726,47 @@ class TimePickerTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun clockFace_24Hour_everyValue_byKeyboard() {
+        val state =
+            AnalogTimePickerState(
+                TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
+            )
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ClockFace(
+                modifier = Modifier,
+                state = state,
+                colors = TimePickerDefaults.colors(),
+                autoSwitchToMinute = false,
+            )
+        }
+
+        rule.onNodeWithTimeValue(0, TimePickerSelectionMode.Hour, is24Hour = true).requestFocus()
+
+        repeat(24) { number ->
+            rule
+                .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
+                .assertIsFocused()
+            rule
+                .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
+                .performKeyInput { pressKey(Key.Enter) }
+
+            rule.runOnIdle {
+                state.selection = TimePickerSelectionMode.Hour
+                assertThat(state.hour).isEqualTo(number)
+            }
+            rule
+                .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
+                .assertIsSelected()
+
+            rule
+                .onNodeWithTimeValue(number, TimePickerSelectionMode.Hour, is24Hour = true)
+                .performKeyInput { pressKey(Key.Tab) }
+        }
+    }
+
     @Test
     fun clockFace_12Hour_everyValue() {
         val state =
@@ -756,6 +799,51 @@ class TimePickerTest {
             rule
                 .onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour, is24Hour = false)
                 .assertIsSelected()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun clockFace_12Hour_everyValue_byKeyboard() {
+        val state =
+            AnalogTimePickerState(
+                TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = false)
+            )
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ClockFace(
+                modifier = Modifier,
+                state = state,
+                colors = TimePickerDefaults.colors(),
+                autoSwitchToMinute = false,
+            )
+        }
+
+        rule.onNodeWithTimeValue(12, TimePickerSelectionMode.Hour).requestFocus()
+
+        repeat(12) { number ->
+            val hour =
+                when {
+                    number == 0 -> 12
+                    else -> number
+                }
+
+            rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).assertIsFocused()
+            rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).performKeyInput {
+                pressKey(Key.Enter)
+            }
+
+            rule.runOnIdle {
+                state.selection = TimePickerSelectionMode.Hour
+                assertThat(state.hour).isEqualTo(number)
+            }
+            rule
+                .onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour, is24Hour = false)
+                .assertIsSelected()
+
+            rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).performKeyInput {
+                pressKey(Key.Tab)
+            }
         }
     }
 

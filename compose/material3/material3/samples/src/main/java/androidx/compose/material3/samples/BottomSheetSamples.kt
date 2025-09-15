@@ -44,6 +44,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -58,6 +59,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
@@ -170,7 +172,12 @@ fun SimpleBottomSheetScaffoldSample() {
                 }
                 Text("Sheet content")
                 Button(
-                    modifier = Modifier.padding(bottom = 64.dp),
+                    modifier =
+                        Modifier.padding(bottom = 64.dp).focusProperties {
+                            // Make sure the button is not keyboard focusable when it's offscreen.
+                            canFocus =
+                                scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                        },
                     onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } },
                 ) {
                     Text("Click to collapse sheet")

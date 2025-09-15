@@ -111,6 +111,7 @@ import androidx.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
+import androidx.compose.material3.samples.FilterChipWithTrailingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonMenuSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
 import androidx.compose.material3.samples.FullScreenSearchBarScaffoldSample
@@ -753,6 +754,14 @@ val ChipsExamples =
             isExpressive = false,
         ) {
             FilterChipWithLeadingIconSample()
+        },
+        Example(
+            name = "FilterChipWithTrailingIconSample",
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            FilterChipWithTrailingIconSample()
         },
         Example(
             name = "InputChipSample",

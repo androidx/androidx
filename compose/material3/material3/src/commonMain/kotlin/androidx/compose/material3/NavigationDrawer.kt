@@ -77,12 +77,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -343,6 +350,7 @@ fun ModalNavigationDrawer(
     var anchorsInitialized by remember { mutableStateOf(false) }
     var minValue by remember(density) { mutableFloatStateOf(0f) }
     val maxValue = 0f
+    val focusRequester = remember { FocusRequester() }
 
     // TODO Load the motionScheme tokens from the component tokens file
     val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
@@ -355,6 +363,13 @@ fun ModalNavigationDrawer(
         drawerState.openDrawerMotionSpec = openMotion
         drawerState.closeDrawerMotionSpec = closeMotion
         drawerState.anchoredDraggableMotionSpec = anchoredDraggableMotion
+    }
+
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            // Keyboard focus should go to first element of the drawer when it opens
+            focusRequester.requestFocus()
+        }
     }
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -404,7 +419,20 @@ fun ModalNavigationDrawer(
                                 true
                             }
                         }
-                    },
+                    }
+                    .onKeyEvent {
+                        // Drawer should close via escape key.
+                        if (
+                            drawerState.isOpen &&
+                                it.type == KeyEventType.KeyUp &&
+                                it.key == Key.Escape
+                        ) {
+                            scope.launch { drawerState.close() }
+                            return@onKeyEvent true
+                        }
+                        return@onKeyEvent false
+                    }
+                    .focusRequester(focusRequester),
         ) { measurables, constraints ->
             val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             val placeables = measurables.fastMap { it.measure(looseConstraints) }
@@ -428,7 +456,13 @@ fun ModalNavigationDrawer(
                         }
                     )
                 }
-                placeables.fastForEach { it.placeRelative(0, 0) }
+                val isDrawerVisible =
+                    calculateFraction(minValue, maxValue, drawerState.requireOffset()) != 0f
+                if (isDrawerVisible) {
+                    // Only place the drawer when it's visible so that keyboard focus doesn't
+                    // navigate to an offscreen element.
+                    placeables.fastForEach { it.placeRelative(0, 0) }
+                }
             }
         }
     }
@@ -464,6 +498,7 @@ fun DismissibleNavigationDrawer(
 ) {
     var anchorsInitialized by remember { mutableStateOf(false) }
     val density = LocalDensity.current
+    val focusRequester = remember { FocusRequester() }
 
     // TODO Load the motionScheme tokens from the component tokens file
     val openMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value()
@@ -473,6 +508,13 @@ fun DismissibleNavigationDrawer(
         drawerState.density = density
         drawerState.openDrawerMotionSpec = openMotion
         drawerState.closeDrawerMotionSpec = closeMotion
+    }
+
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            // Keyboard focus should go to first element of the drawer when it opens
+            focusRequester.requestFocus()
+        }
     }
 
     val scope = rememberCoroutineScope()
@@ -491,16 +533,29 @@ fun DismissibleNavigationDrawer(
             content = {
                 Box(
                     Modifier.semantics {
-                        paneTitle = navigationMenu
-                        if (drawerState.isOpen) {
-                            dismiss {
-                                if (drawerState.confirmStateChange(DrawerValue.Closed)) {
-                                    scope.launch { drawerState.close() }
+                            paneTitle = navigationMenu
+                            if (drawerState.isOpen) {
+                                dismiss {
+                                    if (drawerState.confirmStateChange(DrawerValue.Closed)) {
+                                        scope.launch { drawerState.close() }
+                                    }
+                                    true
                                 }
-                                true
                             }
                         }
-                    }
+                        .onKeyEvent {
+                            // Drawer should close via escape key.
+                            if (
+                                drawerState.isOpen &&
+                                    it.type == KeyEventType.KeyUp &&
+                                    it.key == Key.Escape
+                            ) {
+                                scope.launch { drawerState.close() }
+                                return@onKeyEvent true
+                            }
+                            return@onKeyEvent false
+                        }
+                        .focusRequester(focusRequester)
                 ) {
                     drawerContent()
                 }
@@ -526,11 +581,14 @@ fun DismissibleNavigationDrawer(
                     )
                 }
 
-                contentPlaceable.placeRelative(
-                    sheetPlaceable.width + drawerState.requireOffset().roundToInt(),
-                    0,
-                )
-                sheetPlaceable.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                val contentX = sheetPlaceable.width + drawerState.requireOffset().roundToInt()
+                contentPlaceable.placeRelative(contentX, 0)
+                // The drawer is visible when the content has been offset.
+                if (contentX != 0) {
+                    // Only place the drawer when it's visible so that keyboard focus doesn't
+                    // navigate to an offscreen element.
+                    sheetPlaceable.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                }
             }
         }
     }
