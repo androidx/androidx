@@ -27,4 +27,10 @@ internal fun Translations.sr() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Проценат: %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Тачака података од почетка: %d",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Тачака података од краја: %d",
+    Strings.dragToResizeClickToExpandDescription to "прошири",
+    Strings.dragToResizeClickToCollapseDescription to "скупи",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "делимично прошири",
+    Strings.dragToResizeExpandedStateDescription to "проширено",
+    Strings.dragToResizeCollapsedStateDescription to "скупљено",
+    Strings.dragToResizePartiallyExpandedStateDescription to "делимично проширено",
 )

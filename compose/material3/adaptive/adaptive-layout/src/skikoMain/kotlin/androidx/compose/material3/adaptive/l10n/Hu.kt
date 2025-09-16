@@ -27,4 +27,10 @@ internal fun Translations.hu() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d százalék",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d sűrűségfüggetlen képpont az elejétől",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d sűrűségfüggetlen képpont a végétől",
+    Strings.dragToResizeClickToExpandDescription to "kibontás",
+    Strings.dragToResizeClickToCollapseDescription to "összecsukás",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "részleges kibontás",
+    Strings.dragToResizeExpandedStateDescription to "kibontva",
+    Strings.dragToResizeCollapsedStateDescription to "összecsukva",
+    Strings.dragToResizePartiallyExpandedStateDescription to "részben kibontva",
 )

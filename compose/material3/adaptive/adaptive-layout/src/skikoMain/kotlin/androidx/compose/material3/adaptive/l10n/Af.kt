@@ -27,4 +27,10 @@ internal fun Translations.af() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d persent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP’s van begin af",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP’s van einde af",
+    Strings.dragToResizeClickToExpandDescription to "vou uit",
+    Strings.dragToResizeClickToCollapseDescription to "vou in",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "vou gedeeltelik uit",
+    Strings.dragToResizeExpandedStateDescription to "uitgevou",
+    Strings.dragToResizeCollapsedStateDescription to "ingevou",
+    Strings.dragToResizePartiallyExpandedStateDescription to "gedeeltelik uitgevou",
 )

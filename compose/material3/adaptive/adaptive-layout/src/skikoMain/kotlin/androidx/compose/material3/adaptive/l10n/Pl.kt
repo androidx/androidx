@@ -27,4 +27,10 @@ internal fun Translations.pl() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP od początku",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP od końca",
+    Strings.dragToResizeClickToExpandDescription to "rozwiń",
+    Strings.dragToResizeClickToCollapseDescription to "zwiń",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "częściowo rozwiń",
+    Strings.dragToResizeExpandedStateDescription to "rozwinięty",
+    Strings.dragToResizeCollapsedStateDescription to "zwinięty",
+    Strings.dragToResizePartiallyExpandedStateDescription to "częściowo rozwinięty",
 )

@@ -27,4 +27,10 @@ internal fun Translations.de() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d Prozent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs vom Anfang",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs vom Ende",
+    Strings.dragToResizeClickToExpandDescription to "maximieren",
+    Strings.dragToResizeClickToCollapseDescription to "minimieren",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "teilweise maximieren",
+    Strings.dragToResizeExpandedStateDescription to "maximiert",
+    Strings.dragToResizeCollapsedStateDescription to "minimiert",
+    Strings.dragToResizePartiallyExpandedStateDescription to "teilweise maximiert",
 )

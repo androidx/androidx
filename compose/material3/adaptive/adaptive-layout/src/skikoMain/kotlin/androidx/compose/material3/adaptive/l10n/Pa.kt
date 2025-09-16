@@ -27,4 +27,10 @@ internal fun Translations.pa() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ਫ਼ੀਸਦ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "ਸ਼ੁਰੂਆਤ ਤੋਂ %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "ਅਖੀਰ ਵਿੱਚ %d DP",
+    Strings.dragToResizeClickToExpandDescription to "ਵਿਸਤਾਰ ਕਰੋ",
+    Strings.dragToResizeClickToCollapseDescription to "ਸਮੇਟੋ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ਅੰਸ਼ਕ ਤੌਰ \'ਤੇ ਵਿਸਤਾਰ ਕਰੋ",
+    Strings.dragToResizeExpandedStateDescription to "ਵਿਸਤਾਰ ਕੀਤਾ ਗਿਆ",
+    Strings.dragToResizeCollapsedStateDescription to "ਸਮੇਟਿਆ ਗਿਆ",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ਕੁਝ ਹਿੱਸੇ ਦਾ ਵਿਸਤਾਰ ਕੀਤਾ ਗਿਆ",
 )

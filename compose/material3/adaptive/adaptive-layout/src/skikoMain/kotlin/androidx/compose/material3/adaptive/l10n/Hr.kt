@@ -27,4 +27,10 @@ internal fun Translations.hr() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d posto",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP-ova od početka",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP-ova od kraja",
+    Strings.dragToResizeClickToExpandDescription to "proširi",
+    Strings.dragToResizeClickToCollapseDescription to "sažmi",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "djelomično proširi",
+    Strings.dragToResizeExpandedStateDescription to "prošireno",
+    Strings.dragToResizeCollapsedStateDescription to "sažeto",
+    Strings.dragToResizePartiallyExpandedStateDescription to "djelomično prošireno",
 )

@@ -27,4 +27,10 @@ internal fun Translations.kk() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d пайыз",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Басынан %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Соңынан %d DP",
+    Strings.dragToResizeClickToExpandDescription to "жаю",
+    Strings.dragToResizeClickToCollapseDescription to "жию",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "жартылай жаю",
+    Strings.dragToResizeExpandedStateDescription to "жайылды",
+    Strings.dragToResizeCollapsedStateDescription to "жиылды",
+    Strings.dragToResizePartiallyExpandedStateDescription to "жартылай жайылды",
 )

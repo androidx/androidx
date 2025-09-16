@@ -27,4 +27,10 @@ internal fun Translations.te() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d శాతం",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "మొదటి నుండి %d DPలు",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "చివరి నుండి %d DPలు",
+    Strings.dragToResizeClickToExpandDescription to "విస్తరించండి",
+    Strings.dragToResizeClickToCollapseDescription to "కుదించండి",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "పాక్షికంగా విస్తరించండి",
+    Strings.dragToResizeExpandedStateDescription to "విస్తరించబడింది",
+    Strings.dragToResizeCollapsedStateDescription to "కుదించబడింది",
+    Strings.dragToResizePartiallyExpandedStateDescription to "పాక్షికంగా విస్తరించబడింది",
 )

@@ -27,4 +27,10 @@ internal fun Translations.ml() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ശതമാനം",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "തുടക്ക ഭാഗത്ത് നിന്ന് %d DP-കൾ",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "അവസാന ഭാഗത്ത് നിന്ന് %d DP-കൾ",
+    Strings.dragToResizeClickToExpandDescription to "വികസിപ്പിക്കുക",
+    Strings.dragToResizeClickToCollapseDescription to "ചുരുക്കുക",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ഭാഗികമായി വികസിപ്പിക്കുക",
+    Strings.dragToResizeExpandedStateDescription to "വിപുലീകരിച്ചു",
+    Strings.dragToResizeCollapsedStateDescription to "ചുരുക്കി",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ഭാഗികമായി വികസിപ്പിച്ചു",
 )

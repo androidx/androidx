@@ -27,4 +27,10 @@ internal fun Translations.ar() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "‏‫%d في المئة",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "‏تعديل بمقدار وحدات بكسل مستقلة الكثافة عددها %d من البداية",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "‏تعديل بمقدار وحدات بكسل مستقلة الكثافة عددها %d من النهاية",
+    Strings.dragToResizeClickToExpandDescription to "توسيع",
+    Strings.dragToResizeClickToCollapseDescription to "تصغير",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "التوسيع جزئيًا",
+    Strings.dragToResizeExpandedStateDescription to "تم التوسيع",
+    Strings.dragToResizeCollapsedStateDescription to "تم التصغير",
+    Strings.dragToResizePartiallyExpandedStateDescription to "تم التوسيع جزئيًا",
 )

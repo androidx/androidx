@@ -27,4 +27,10 @@ internal fun Translations.it() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d percentuale",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "A %d DP dall\'inizio",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "A %d DP dalla fine",
+    Strings.dragToResizeClickToExpandDescription to "espandi",
+    Strings.dragToResizeClickToCollapseDescription to "comprimi",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "espandi parzialmente",
+    Strings.dragToResizeExpandedStateDescription to "espanso",
+    Strings.dragToResizeCollapsedStateDescription to "compresso",
+    Strings.dragToResizePartiallyExpandedStateDescription to "parzialmente espanso",
 )

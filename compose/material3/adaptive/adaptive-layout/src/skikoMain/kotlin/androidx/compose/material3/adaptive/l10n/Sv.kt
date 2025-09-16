@@ -27,4 +27,10 @@ internal fun Translations.sv() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP från början",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP från slutet",
+    Strings.dragToResizeClickToExpandDescription to "utöka",
+    Strings.dragToResizeClickToCollapseDescription to "komprimera",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "utöka delvis",
+    Strings.dragToResizeExpandedStateDescription to "utökades",
+    Strings.dragToResizeCollapsedStateDescription to "komprimerades",
+    Strings.dragToResizePartiallyExpandedStateDescription to "utökades delvis",
 )

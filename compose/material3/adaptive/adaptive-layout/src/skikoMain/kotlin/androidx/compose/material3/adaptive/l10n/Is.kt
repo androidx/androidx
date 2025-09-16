@@ -27,4 +27,10 @@ internal fun Translations.`is`() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d prósent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d pixlar óháðir þéttleika (DP) frá upphafspunkti",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d pixlar óháðir þéttleika (DP) frá endapunkti",
+    Strings.dragToResizeClickToExpandDescription to "stækka",
+    Strings.dragToResizeClickToCollapseDescription to "draga saman",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "stækka að hluta",
+    Strings.dragToResizeExpandedStateDescription to "stækkað",
+    Strings.dragToResizeCollapsedStateDescription to "minnkað",
+    Strings.dragToResizePartiallyExpandedStateDescription to "stækkað að hluta",
 )

@@ -27,4 +27,10 @@ internal fun Translations.da() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP\'er fra starten",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP\'er fra slutningen",
+    Strings.dragToResizeClickToExpandDescription to "udvid",
+    Strings.dragToResizeClickToCollapseDescription to "skjul",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "udvid delvist",
+    Strings.dragToResizeExpandedStateDescription to "udvidet",
+    Strings.dragToResizeCollapsedStateDescription to "skjult",
+    Strings.dragToResizePartiallyExpandedStateDescription to "delvist udvidet",
 )

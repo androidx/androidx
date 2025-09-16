@@ -27,4 +27,10 @@ internal fun Translations.sw() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Asilimia %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "DP %d kutoka mwanzo",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "DP %d kutoka mwisho",
+    Strings.dragToResizeClickToExpandDescription to "panua",
+    Strings.dragToResizeClickToCollapseDescription to "kunja",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "panua kiasi",
+    Strings.dragToResizeExpandedStateDescription to "imepanuliwa",
+    Strings.dragToResizeCollapsedStateDescription to "imekunjwa",
+    Strings.dragToResizePartiallyExpandedStateDescription to "imepanuliwa kiasi",
 )

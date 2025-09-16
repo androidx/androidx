@@ -27,4 +27,10 @@ internal fun Translations.bg() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Процент: %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d независещи от плътността пиксели от началото",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d независещи от плътността пиксели от края",
+    Strings.dragToResizeClickToExpandDescription to "разгъване",
+    Strings.dragToResizeClickToCollapseDescription to "свиване",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "частично разгъване",
+    Strings.dragToResizeExpandedStateDescription to "разгънато",
+    Strings.dragToResizeCollapsedStateDescription to "свито",
+    Strings.dragToResizePartiallyExpandedStateDescription to "частично разгънато",
 )

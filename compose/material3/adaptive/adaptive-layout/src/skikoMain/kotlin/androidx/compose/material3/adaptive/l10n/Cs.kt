@@ -27,4 +27,10 @@ internal fun Translations.cs() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP od začátku",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP od konce",
+    Strings.dragToResizeClickToExpandDescription to "rozbalit",
+    Strings.dragToResizeClickToCollapseDescription to "sbalit",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "částečně rozbalit",
+    Strings.dragToResizeExpandedStateDescription to "rozbaleno",
+    Strings.dragToResizeCollapsedStateDescription to "sbaleno",
+    Strings.dragToResizePartiallyExpandedStateDescription to "částečně rozbaleno",
 )

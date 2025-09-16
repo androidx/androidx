@@ -27,4 +27,10 @@ internal fun Translations.lv() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procents(-i)",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP no sākuma",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP no beigām",
+    Strings.dragToResizeClickToExpandDescription to "izvērst",
+    Strings.dragToResizeClickToCollapseDescription to "sakļaut",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "daļēji izvērst",
+    Strings.dragToResizeExpandedStateDescription to "izvērsts",
+    Strings.dragToResizeCollapsedStateDescription to "sakļauts",
+    Strings.dragToResizePartiallyExpandedStateDescription to "daļēji izvērsts",
 )

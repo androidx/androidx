@@ -27,6 +27,12 @@ internal fun Translations.ptBR() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d por cento",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs do início",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs do fim",
+    Strings.dragToResizeClickToExpandDescription to "abrir",
+    Strings.dragToResizeClickToCollapseDescription to "fechar",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "abrir parcialmente",
+    Strings.dragToResizeExpandedStateDescription to "aberto",
+    Strings.dragToResizeCollapsedStateDescription to "fechado",
+    Strings.dragToResizePartiallyExpandedStateDescription to "parcialmente aberto",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -37,6 +43,12 @@ internal fun Translations.ptPT() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d por cento",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs do início",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs do fim",
+    Strings.dragToResizeClickToExpandDescription to "expandir",
+    Strings.dragToResizeClickToCollapseDescription to "reduzir",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "expandir parcialmente",
+    Strings.dragToResizeExpandedStateDescription to "expandido",
+    Strings.dragToResizeCollapsedStateDescription to "reduzido",
+    Strings.dragToResizePartiallyExpandedStateDescription to "parcialmente expandido",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -47,4 +59,10 @@ internal fun Translations.pt() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d por cento",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs do início",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs do fim",
+    Strings.dragToResizeClickToExpandDescription to "abrir",
+    Strings.dragToResizeClickToCollapseDescription to "fechar",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "abrir parcialmente",
+    Strings.dragToResizeExpandedStateDescription to "aberto",
+    Strings.dragToResizeCollapsedStateDescription to "fechado",
+    Strings.dragToResizePartiallyExpandedStateDescription to "parcialmente aberto",
 )

@@ -27,4 +27,10 @@ internal fun Translations.ne() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d प्रतिशत",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "सुरुबाट %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "अन्त्यबाट %d DP",
+    Strings.dragToResizeClickToExpandDescription to "एक्स्पान्ड गर्नुहोस्",
+    Strings.dragToResizeClickToCollapseDescription to "कोल्याप्स गर्नुहोस्",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "आंशिक रूपमा एक्स्पान्ड गर्नुहोस्",
+    Strings.dragToResizeExpandedStateDescription to "एक्स्पान्ड गरिएको छ",
+    Strings.dragToResizeCollapsedStateDescription to "कोल्याप्स गरिएको छ",
+    Strings.dragToResizePartiallyExpandedStateDescription to "आंशिक रूपमा एक्स्पान्ड गरिएको छ",
 )

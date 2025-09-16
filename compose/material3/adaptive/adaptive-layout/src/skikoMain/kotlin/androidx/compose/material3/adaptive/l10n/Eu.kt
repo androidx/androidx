@@ -27,4 +27,10 @@ internal fun Translations.eu() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Ehuneko %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d dp hasieratik",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d dp amaieratik",
+    Strings.dragToResizeClickToExpandDescription to "zabaldu",
+    Strings.dragToResizeClickToCollapseDescription to "tolestu",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "zabaldu partzialki",
+    Strings.dragToResizeExpandedStateDescription to "zabalduta",
+    Strings.dragToResizeCollapsedStateDescription to "tolestuta",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partzialki zabalduta",
 )

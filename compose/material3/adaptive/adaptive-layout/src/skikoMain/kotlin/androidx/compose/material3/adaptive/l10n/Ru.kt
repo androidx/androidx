@@ -27,4 +27,10 @@ internal fun Translations.ru() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Значение в процентах: %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP с начала",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP с конца",
+    Strings.dragToResizeClickToExpandDescription to "развернуть",
+    Strings.dragToResizeClickToCollapseDescription to "свернуть",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "частично развернуть",
+    Strings.dragToResizeExpandedStateDescription to "развернуто",
+    Strings.dragToResizeCollapsedStateDescription to "свернуто",
+    Strings.dragToResizePartiallyExpandedStateDescription to "в частично развернутом виде",
 )

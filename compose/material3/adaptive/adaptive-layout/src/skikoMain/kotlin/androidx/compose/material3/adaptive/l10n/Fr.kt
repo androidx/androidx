@@ -27,6 +27,12 @@ internal fun Translations.frCA() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d pour cent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP à partir du début",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs à partir de la fin",
+    Strings.dragToResizeClickToExpandDescription to "Développer",
+    Strings.dragToResizeClickToCollapseDescription to "Réduire",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "Développer partiellement",
+    Strings.dragToResizeExpandedStateDescription to "Développé",
+    Strings.dragToResizeCollapsedStateDescription to "Réduit",
+    Strings.dragToResizePartiallyExpandedStateDescription to "Partiellement développé",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -37,4 +43,10 @@ internal fun Translations.fr() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d pour cent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP depuis le début",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP depuis la fin",
+    Strings.dragToResizeClickToExpandDescription to "développer",
+    Strings.dragToResizeClickToCollapseDescription to "réduire",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "développer partiellement",
+    Strings.dragToResizeExpandedStateDescription to "développé",
+    Strings.dragToResizeCollapsedStateDescription to "réduit",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partiellement développé",
 )

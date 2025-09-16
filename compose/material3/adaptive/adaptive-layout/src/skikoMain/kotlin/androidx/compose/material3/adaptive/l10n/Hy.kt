@@ -27,4 +27,10 @@ internal fun Translations.hy() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d տոկոս",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d dp՝ սկզբից",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d dp՝ վերջից",
+    Strings.dragToResizeClickToExpandDescription to "ծավալել",
+    Strings.dragToResizeClickToCollapseDescription to "ծալել",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "մասամբ ծավալել",
+    Strings.dragToResizeExpandedStateDescription to "ծավալված է",
+    Strings.dragToResizeCollapsedStateDescription to "ծալված է",
+    Strings.dragToResizePartiallyExpandedStateDescription to "մասամբ ծավալված է",
 )

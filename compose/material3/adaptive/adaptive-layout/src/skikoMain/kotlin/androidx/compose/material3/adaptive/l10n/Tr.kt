@@ -27,4 +27,10 @@ internal fun Translations.tr() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Yüzde %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Başlangıçtan %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Sondan %d DP",
+    Strings.dragToResizeClickToExpandDescription to "genişlet",
+    Strings.dragToResizeClickToCollapseDescription to "daralt",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "kısmen genişlet",
+    Strings.dragToResizeExpandedStateDescription to "genişletildi",
+    Strings.dragToResizeCollapsedStateDescription to "daraltıldı",
+    Strings.dragToResizePartiallyExpandedStateDescription to "kısmen genişletildi",
 )

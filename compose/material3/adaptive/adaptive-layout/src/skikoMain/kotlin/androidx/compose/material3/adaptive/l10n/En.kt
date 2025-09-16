@@ -27,6 +27,12 @@ internal fun Translations.en() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d percent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs from start",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs from end",
+    Strings.dragToResizeClickToExpandDescription to "expand",
+    Strings.dragToResizeClickToCollapseDescription to "collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "partially expand",
+    Strings.dragToResizeExpandedStateDescription to "expanded",
+    Strings.dragToResizeCollapsedStateDescription to "collapsed",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partially expanded",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -37,6 +43,12 @@ internal fun Translations.enAU() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d per cent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs from start",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs from end",
+    Strings.dragToResizeClickToExpandDescription to "expand",
+    Strings.dragToResizeClickToCollapseDescription to "collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "partially expand",
+    Strings.dragToResizeExpandedStateDescription to "expanded",
+    Strings.dragToResizeCollapsedStateDescription to "collapsed",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partially expanded",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -47,6 +59,12 @@ internal fun Translations.enCA() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d percent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs from start",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs from end",
+    Strings.dragToResizeClickToExpandDescription to "expand",
+    Strings.dragToResizeClickToCollapseDescription to "collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "partially expand",
+    Strings.dragToResizeExpandedStateDescription to "expanded",
+    Strings.dragToResizeCollapsedStateDescription to "collapsed",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partially expanded",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -57,6 +75,12 @@ internal fun Translations.enGB() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d per cent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs from start",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs from end",
+    Strings.dragToResizeClickToExpandDescription to "expand",
+    Strings.dragToResizeClickToCollapseDescription to "collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "partially expand",
+    Strings.dragToResizeExpandedStateDescription to "expanded",
+    Strings.dragToResizeCollapsedStateDescription to "collapsed",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partially expanded",
 )
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
@@ -67,4 +91,10 @@ internal fun Translations.enIN() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d per cent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs from start",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs from end",
+    Strings.dragToResizeClickToExpandDescription to "expand",
+    Strings.dragToResizeClickToCollapseDescription to "collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "partially expand",
+    Strings.dragToResizeExpandedStateDescription to "expanded",
+    Strings.dragToResizeCollapsedStateDescription to "collapsed",
+    Strings.dragToResizePartiallyExpandedStateDescription to "partially expanded",
 )

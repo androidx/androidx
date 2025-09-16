@@ -27,4 +27,10 @@ internal fun Translations.ja() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d パーセント",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "開始地点から %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "終了地点から %d DP",
+    Strings.dragToResizeClickToExpandDescription to "開く",
+    Strings.dragToResizeClickToCollapseDescription to "閉じる",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "一部開く",
+    Strings.dragToResizeExpandedStateDescription to "開いています",
+    Strings.dragToResizeCollapsedStateDescription to "閉じています",
+    Strings.dragToResizePartiallyExpandedStateDescription to "一部開いています",
 )

@@ -27,4 +27,10 @@ internal fun Translations.or() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ଶତକଡ଼ା",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "ଆରମ୍ଭରୁ %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "ଶେଷରୁ %d DP",
+    Strings.dragToResizeClickToExpandDescription to "ବିସ୍ତାର କରନ୍ତୁ",
+    Strings.dragToResizeClickToCollapseDescription to "ସଙ୍କୁଚିତ କରନ୍ତୁ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ଆଶିଂକ ଭାବେ ବିସ୍ତାର କରନ୍ତୁ",
+    Strings.dragToResizeExpandedStateDescription to "ବିସ୍ତାର କରାଯାଇଛି",
+    Strings.dragToResizeCollapsedStateDescription to "ସଙ୍କୁଚିତ କରାଯାଇଛି",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ଆଶିଂକ ଭାବେ ବିସ୍ତାର କରାଯାଇଛି",
 )

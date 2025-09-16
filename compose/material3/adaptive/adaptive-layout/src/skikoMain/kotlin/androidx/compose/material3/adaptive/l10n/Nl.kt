@@ -27,4 +27,10 @@ internal fun Translations.nl() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP\'s vanaf het begin",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP\'s vanaf het eind",
+    Strings.dragToResizeClickToExpandDescription to "uitvouwen",
+    Strings.dragToResizeClickToCollapseDescription to "samenvouwen",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "gedeeltelijk uitvouwen",
+    Strings.dragToResizeExpandedStateDescription to "uitgevouwen",
+    Strings.dragToResizeCollapsedStateDescription to "samengevouwen",
+    Strings.dragToResizePartiallyExpandedStateDescription to "gedeeltelijk uitgevouwen",
 )

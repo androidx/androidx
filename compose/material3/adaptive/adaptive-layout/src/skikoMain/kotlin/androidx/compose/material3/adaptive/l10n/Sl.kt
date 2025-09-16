@@ -27,4 +27,10 @@ internal fun Translations.sl() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d odstotkov",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d slikovnih pik DP od začetka",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d slikovnih pik DP od konca",
+    Strings.dragToResizeClickToExpandDescription to "razširitev",
+    Strings.dragToResizeClickToCollapseDescription to "strnitev",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "delna razširitev",
+    Strings.dragToResizeExpandedStateDescription to "razširjeno",
+    Strings.dragToResizeCollapsedStateDescription to "strnjeno",
+    Strings.dragToResizePartiallyExpandedStateDescription to "delno razširjeno",
 )

@@ -27,4 +27,10 @@ internal fun Translations.be() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d працэнтаў",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP ад пачатку",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP ад канца",
+    Strings.dragToResizeClickToExpandDescription to "разгарнуць",
+    Strings.dragToResizeClickToCollapseDescription to "згарнуць",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "часткова разгарнуць",
+    Strings.dragToResizeExpandedStateDescription to "разгорнута",
+    Strings.dragToResizeCollapsedStateDescription to "згорнута",
+    Strings.dragToResizePartiallyExpandedStateDescription to "часткова разгорнута",
 )

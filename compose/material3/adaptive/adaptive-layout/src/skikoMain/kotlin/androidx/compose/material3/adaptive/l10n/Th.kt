@@ -27,4 +27,10 @@ internal fun Translations.th() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d เปอร์เซ็นต์",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP จากจุดเริ่มต้น",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP จากปลายทาง",
+    Strings.dragToResizeClickToExpandDescription to "ขยาย",
+    Strings.dragToResizeClickToCollapseDescription to "ยุบ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ขยายบางส่วน",
+    Strings.dragToResizeExpandedStateDescription to "ขยายแล้ว",
+    Strings.dragToResizeCollapsedStateDescription to "ยุบแล้ว",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ขยายบางส่วนแล้ว",
 )

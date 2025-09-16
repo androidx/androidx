@@ -27,4 +27,10 @@ internal fun Translations.mk() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d насто",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP од почетокот",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP од крајот",
+    Strings.dragToResizeClickToExpandDescription to "прошири",
+    Strings.dragToResizeClickToCollapseDescription to "собери",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "делумно прошири",
+    Strings.dragToResizeExpandedStateDescription to "проширено",
+    Strings.dragToResizeCollapsedStateDescription to "собрано",
+    Strings.dragToResizePartiallyExpandedStateDescription to "делумно проширено",
 )

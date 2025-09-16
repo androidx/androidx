@@ -27,4 +27,10 @@ internal fun Translations.ro() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d procent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP de la început",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP de la sfârșit",
+    Strings.dragToResizeClickToExpandDescription to "extinde",
+    Strings.dragToResizeClickToCollapseDescription to "restrânge",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "extinde parțial",
+    Strings.dragToResizeExpandedStateDescription to "extins",
+    Strings.dragToResizeCollapsedStateDescription to "restrâns",
+    Strings.dragToResizePartiallyExpandedStateDescription to "extins parțial",
 )

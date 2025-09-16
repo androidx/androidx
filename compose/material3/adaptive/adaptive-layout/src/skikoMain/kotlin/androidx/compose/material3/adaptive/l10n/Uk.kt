@@ -27,4 +27,10 @@ internal fun Translations.uk() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d%%",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d пікс. від початку",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d пікс. від кінця",
+    Strings.dragToResizeClickToExpandDescription to "розгорнути",
+    Strings.dragToResizeClickToCollapseDescription to "згорнути",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "частково розгорнути",
+    Strings.dragToResizeExpandedStateDescription to "розгорнуто",
+    Strings.dragToResizeCollapsedStateDescription to "згорнуто",
+    Strings.dragToResizePartiallyExpandedStateDescription to "частково розгорнуто",
 )

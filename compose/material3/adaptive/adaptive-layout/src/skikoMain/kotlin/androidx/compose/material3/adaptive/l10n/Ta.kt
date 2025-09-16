@@ -27,4 +27,10 @@ internal fun Translations.ta() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d சதவீதம்",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "தொடக்கத்திலிருந்து %d DPகள்",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "இறுதியிலிருந்து %d DPகள்",
+    Strings.dragToResizeClickToExpandDescription to "விரிக்கும்",
+    Strings.dragToResizeClickToCollapseDescription to "சுருக்கும்",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "பகுதியளவு விரிக்கும்",
+    Strings.dragToResizeExpandedStateDescription to "விரிக்கப்பட்டது",
+    Strings.dragToResizeCollapsedStateDescription to "சுருக்கப்பட்டது",
+    Strings.dragToResizePartiallyExpandedStateDescription to "பகுதியளவு விரிக்கப்பட்டது",
 )
