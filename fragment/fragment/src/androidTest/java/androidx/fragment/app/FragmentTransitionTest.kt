@@ -24,7 +24,6 @@ import android.widget.TextView
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
 import androidx.annotation.LayoutRes
-import androidx.annotation.RequiresApi
 import androidx.core.app.SharedElementCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -1918,7 +1917,6 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class AddTransitionFragmentInActivity : FragmentActivity() {
     val fragment = TransitionFragment()
 
