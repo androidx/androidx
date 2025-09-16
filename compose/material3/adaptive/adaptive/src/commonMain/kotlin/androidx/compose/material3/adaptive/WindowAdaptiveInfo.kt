@@ -35,6 +35,7 @@ import androidx.window.core.layout.WindowSizeClass
  *   include large and extra-large widths.
  * @return [WindowAdaptiveInfo] of the provided context
  */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun currentWindowAdaptiveInfo(supportLargeAndXLargeWidth: Boolean = false): WindowAdaptiveInfo {
     val windowSize = currentWindowDpSize()
@@ -54,6 +55,7 @@ fun currentWindowAdaptiveInfo(supportLargeAndXLargeWidth: Boolean = false): Wind
  *
  * @return an [DpSize] that represents the current window size.
  */
+@ExperimentalMaterial3AdaptiveApi
 @Composable
 fun currentWindowDpSize(): DpSize =
     with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() }

@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Dp
@@ -47,6 +48,7 @@ internal class ThreePaneScaffoldScopeImpl(
     transitionScope: PaneScaffoldTransitionScope<ThreePaneScaffoldRole, ThreePaneScaffoldValue>,
     lookaheadScope: LookaheadScope,
     saveableStateHolder: SaveableStateHolder,
+    override val focusRequesters: Map<ThreePaneScaffoldRole, FocusRequester>,
 ) :
     ThreePaneScaffoldScope,
     PaneScaffoldTransitionScope<ThreePaneScaffoldRole, ThreePaneScaffoldValue> by transitionScope,
@@ -75,9 +77,13 @@ internal fun rememberThreePaneScaffoldPaneScope(
     paneRole: ThreePaneScaffoldRole,
     scaffoldScope: ThreePaneScaffoldScope,
     paneMotion: PaneMotion,
+    isInteractable: Boolean,
 ): ThreePaneScaffoldPaneScope =
     remember(scaffoldScope) { ThreePaneScaffoldPaneScopeImpl(paneRole, scaffoldScope) }
-        .apply { this.paneMotion = paneMotion }
+        .apply {
+            this.paneMotion = paneMotion
+            this.isInteractable = isInteractable
+        }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Stable
@@ -86,6 +92,8 @@ internal class ThreePaneScaffoldPaneScopeImpl(
     scaffoldScope: ThreePaneScaffoldScope,
 ) : ThreePaneScaffoldPaneScope, ThreePaneScaffoldScope by scaffoldScope {
     override var paneMotion: PaneMotion by mutableStateOf(PaneMotion.ExitToLeft)
+
+    override var isInteractable: Boolean by mutableStateOf(false)
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

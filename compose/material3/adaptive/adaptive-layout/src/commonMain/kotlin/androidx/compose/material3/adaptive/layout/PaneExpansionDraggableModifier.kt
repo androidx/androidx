@@ -22,15 +22,14 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.internal.Strings
+import androidx.compose.material3.adaptive.layout.internal.delegableSemantics
 import androidx.compose.material3.adaptive.layout.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
-import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -174,64 +173,36 @@ private fun Modifier.semanticsWithDefaults(
     if (semanticsProperties != null) {
         semantics(mergeDescendants = true, properties = semanticsProperties)
     } else {
-        then(DefaultSemanticsElement(state))
-    }
+        delegableSemantics(mergeDescendants = true) {
+            val contentDesc = getString(Strings.defaultPaneExpansionDragHandleContentDescription)
+            val currentAnchor = state.currentAnchor
+            val stateDesc =
+                currentAnchor?.run {
+                    getString(
+                        Strings.defaultPaneExpansionDragHandleStateDescription,
+                        this@delegableSemantics.description,
+                    )
+                }
+            val nextAnchor = state.nextAnchor
+            val actionLabel =
+                nextAnchor?.run {
+                    getString(
+                        Strings.defaultPaneExpansionDragHandleActionDescription,
+                        this@delegableSemantics.description,
+                    )
+                }
 
-private data class DefaultSemanticsElement(val state: PaneExpansionState) :
-    ModifierNodeElement<DefaultSemanticsNode>() {
-    private val inspectorInfo = debugInspectorInfo {
-        name = "defaultPaneExpansionDragHandleSemantics"
-        properties["state"] = state
-    }
-
-    override fun create(): DefaultSemanticsNode {
-        return DefaultSemanticsNode(state)
-    }
-
-    override fun update(node: DefaultSemanticsNode) {
-        node.state = state
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        inspectorInfo()
-    }
-}
-
-private class DefaultSemanticsNode(var state: PaneExpansionState) :
-    Modifier.Node(), CompositionLocalConsumerModifierNode, SemanticsModifierNode {
-
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        val contentDesc = getString(Strings.defaultPaneExpansionDragHandleContentDescription)
-        val currentAnchor = state.currentAnchor
-        val stateDesc =
-            currentAnchor?.run {
-                getString(
-                    Strings.defaultPaneExpansionDragHandleStateDescription,
-                    this@DefaultSemanticsNode.description,
-                )
+            contentDescription = contentDesc
+            if (stateDesc != null) {
+                stateDescription = stateDesc
             }
-        val nextAnchor = state.nextAnchor
-        val actionLabel =
-            nextAnchor?.run {
-                getString(
-                    Strings.defaultPaneExpansionDragHandleActionDescription,
-                    this@DefaultSemanticsNode.description,
-                )
+            if (nextAnchor == null) {
+                // TODO(conrachen): handle this case
+                return@delegableSemantics
             }
-
-        contentDescription = contentDesc
-        if (stateDesc != null) {
-            stateDescription = stateDesc
-        }
-        if (nextAnchor == null) {
-            // TODO(conrachen): handle this case
-            return
-        }
-        onClick(label = actionLabel) {
-            coroutineScope.launch { state.animateTo(nextAnchor) }
-            return@onClick true
+            onClick(label = actionLabel) {
+                coroutineScope.launch { state.animateTo(nextAnchor) }
+                return@onClick true
+            }
         }
     }
-
-    override val shouldMergeDescendantSemantics: Boolean = true
-}

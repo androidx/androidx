@@ -32,6 +32,12 @@ internal expect value class Strings(val value: Int) {
         val defaultPaneExpansionProportionAnchorDescription: Strings
         val defaultPaneExpansionStartOffsetAnchorDescription: Strings
         val defaultPaneExpansionEndOffsetAnchorDescription: Strings
+        val dragToResizeClickToExpandDescription: Strings
+        val dragToResizeClickToCollapseDescription: Strings
+        val dragToResizeClickToPartiallyExpandDescription: Strings
+        val dragToResizeExpandedStateDescription: Strings
+        val dragToResizeCollapsedStateDescription: Strings
+        val dragToResizePartiallyExpandedStateDescription: Strings
     }
 }
 

@@ -23,4 +23,10 @@
     <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"%d శాతం"</string>
     <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description" msgid="5056616348537665604">"మొదటి నుండి %d DPలు"</string>
     <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description" msgid="6412636251656811002">"చివరి నుండి %d DPలు"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_expand_description" msgid="6325505525872861038">"విస్తరించండి"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_collapse_description" msgid="8565061238194380345">"కుదించండి"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_partially_expand_description" msgid="2385410923144639926">"పాక్షికంగా విస్తరించండి"</string>
+    <string name="m3_adaptive_drag_to_resize_expanded_state_description" msgid="2077268415416814943">"విస్తరించబడింది"</string>
+    <string name="m3_adaptive_drag_to_resize_collapsed_state_description" msgid="825821966773165267">"కుదించబడింది"</string>
+    <string name="m3_adaptive_drag_to_resize_partially_expanded_state_description" msgid="1542167866507882321">"పాక్షికంగా విస్తరించబడింది"</string>
 </resources>

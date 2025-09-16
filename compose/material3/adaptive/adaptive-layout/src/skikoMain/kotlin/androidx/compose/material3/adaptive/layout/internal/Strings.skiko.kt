@@ -29,23 +29,18 @@ import kotlin.jvm.JvmInline
 @Immutable
 internal actual value class Strings(val value: Int) {
     actual companion object {
-        actual val defaultPaneExpansionDragHandleContentDescription
-            get() = Strings(0)
-
-        actual val defaultPaneExpansionDragHandleStateDescription
-            get() = Strings(1)
-
-        actual val defaultPaneExpansionDragHandleActionDescription
-            get() = Strings(2)
-
-        actual val defaultPaneExpansionProportionAnchorDescription
-            get() = Strings(3)
-
-        actual val defaultPaneExpansionStartOffsetAnchorDescription
-            get() = Strings(4)
-
-        actual val defaultPaneExpansionEndOffsetAnchorDescription
-            get() = Strings(5)
+        actual val defaultPaneExpansionDragHandleContentDescription = Strings(0)
+        actual val defaultPaneExpansionDragHandleStateDescription = Strings(1)
+        actual val defaultPaneExpansionDragHandleActionDescription = Strings(2)
+        actual val defaultPaneExpansionProportionAnchorDescription = Strings(3)
+        actual val defaultPaneExpansionStartOffsetAnchorDescription = Strings(4)
+        actual val defaultPaneExpansionEndOffsetAnchorDescription = Strings(5)
+        actual val dragToResizeClickToExpandDescription = Strings(6)
+        actual val dragToResizeClickToCollapseDescription = Strings(7)
+        actual val dragToResizeClickToPartiallyExpandDescription = Strings(8)
+        actual val dragToResizeExpandedStateDescription = Strings(9)
+        actual val dragToResizeCollapsedStateDescription = Strings(10)
+        actual val dragToResizePartiallyExpandedStateDescription = Strings(11)
     }
 }
 

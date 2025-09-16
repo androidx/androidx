@@ -92,7 +92,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
             }
 
             if (paneMetadata.sceneKey == sceneKey) {
-                scaffoldEntryIndices.add(idx)
+                scaffoldEntryIndices.add(0, idx)
                 scaffoldEntries.add(0, entry)
                 entriesAsNavItems.add(
                     0,
