@@ -57,7 +57,7 @@ dependencies {
     implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
-    def extensions_version = "androidx.window.extensions:extensions:1.5.0-beta01"
+    def extensions_version = "androidx.window.extensions:extensions:1.5.0"
     // A compile only dependency on extensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)

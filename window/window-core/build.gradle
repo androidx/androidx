@@ -75,9 +75,6 @@ kotlin {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
-                // TODO remove when https://youtrack.jetbrains.com/issue/KT-62368/Kotlin-1.9.X-fails-to-detect-kotlin.test.Test-annotation-reference-on-commonTest-source-set-when-targeting-JVMAndroid
-                // is fixed
-                implementation(libs.kotlinTest)
             }
         }
 

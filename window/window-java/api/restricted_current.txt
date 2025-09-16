@@ -42,7 +42,7 @@ package androidx.window.java.layout {
     method public void addWindowLayoutInfoListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
     method public void addWindowLayoutInfoListener(@UiContext android.content.Context context, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
     method public void removeWindowLayoutInfoListener(androidx.core.util.Consumer<androidx.window.layout.WindowLayoutInfo> consumer);
-    method @BytecodeOnly public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo!> windowLayoutInfo(android.app.Activity);
+    method @InaccessibleFromJava public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     property @androidx.window.RequiresWindowSdkExtension(version=6) public java.util.List<androidx.window.layout.SupportedPosture> supportedPostures;
   }
 
