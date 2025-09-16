@@ -93,6 +93,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -579,6 +580,7 @@ class SearchBarTest {
 
     // Tests for new search bar APIs below this section
 
+    @SdkSuppress(maxSdkVersion = 35) // b/441508123
     @Test
     fun newSearchBar_becomesExpandedAndFocusedOnClick_andCollapsedAndUnfocusedOnBack() {
         var softwareKeyboardController: SoftwareKeyboardController? = null

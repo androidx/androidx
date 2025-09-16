@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,9 +41,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -54,6 +59,7 @@ import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.unit.Density
@@ -65,6 +71,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -108,7 +115,7 @@ class ModalNavigationDrawerTest {
             )
         }
 
-        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+        rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
     }
 
     @Test
@@ -133,8 +140,11 @@ class ModalNavigationDrawerTest {
     @Test
     fun navigationDrawer_testOffset_customWidthSmaller_whenClosed() {
         val customWidth = 200.dp
+        lateinit var drawerState: DrawerState
+        var customWidthInPx = 0f
         rule.setMaterialContent(lightColorScheme()) {
-            val drawerState = rememberDrawerState(DrawerValue.Closed)
+            customWidthInPx = LocalDensity.current.run { customWidth.toPx() }
+            drawerState = rememberDrawerState(DrawerValue.Closed)
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
@@ -146,7 +156,7 @@ class ModalNavigationDrawerTest {
             )
         }
 
-        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(-customWidth)
+        assertThat(drawerState.currentOffset).isWithin(1f).of(-customWidthInPx)
     }
 
     @Test
@@ -176,17 +186,19 @@ class ModalNavigationDrawerTest {
     @Test
     fun navigationDrawer_testOffset_customWidthLarger_whenClosed() {
         val customWidth = NavigationDrawerWidth + 20.dp
+        var customWidthInPx = 0f
+        lateinit var drawerState: DrawerState
         val density = Density(0.5f)
-        lateinit var coords: LayoutCoordinates
         rule.setMaterialContent(lightColorScheme()) {
             // Reduce density to ensure wide drawer fits on screen
             CompositionLocalProvider(LocalDensity provides density) {
-                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                customWidthInPx = LocalDensity.current.run { customWidth.toPx() }
+                drawerState = rememberDrawerState(DrawerValue.Closed)
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(Modifier.width(customWidth)) {
-                            Box(Modifier.fillMaxSize().onGloballyPositioned { coords = it })
+                            Box(Modifier.fillMaxSize().testTag("content"))
                         }
                     },
                     content = {},
@@ -196,7 +208,7 @@ class ModalNavigationDrawerTest {
 
         rule.runOnIdle {
             with(density) {
-                assertThat(coords.positionOnScreen().x).isWithin(1f).of(-customWidth.toPx())
+                assertThat(drawerState.currentOffset).isWithin(1f).of(-customWidthInPx)
             }
         }
     }
@@ -278,9 +290,7 @@ class ModalNavigationDrawerTest {
             }
 
             // Drawer should start in closed state
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
 
             // When the drawer state is set to Opened
             drawerState.open()
@@ -290,9 +300,7 @@ class ModalNavigationDrawerTest {
             // When the drawer state is set to Closed
             drawerState.close()
             // Then the drawer should be closed
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
         }
 
     @Test
@@ -312,9 +320,7 @@ class ModalNavigationDrawerTest {
             }
 
             // Drawer should start in closed state
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
 
             // When the drawer state is set to Opened
             @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
@@ -326,9 +332,7 @@ class ModalNavigationDrawerTest {
             @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
             drawerState.animateTo(DrawerValue.Closed, TweenSpec())
             // Then the drawer should be closed
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
         }
 
     @Test
@@ -348,9 +352,7 @@ class ModalNavigationDrawerTest {
             }
 
             // Drawer should start in closed state
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
 
             // When the drawer state is set to Opened
             drawerState.snapTo(DrawerValue.Open)
@@ -360,9 +362,7 @@ class ModalNavigationDrawerTest {
             // When the drawer state is set to Closed
             drawerState.snapTo(DrawerValue.Closed)
             // Then the drawer should be closed
-            rule
-                .onNodeWithTag(DrawerTestTag)
-                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+            rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
         }
 
     @Test
@@ -669,7 +669,7 @@ class ModalNavigationDrawerTest {
             .performSemanticsAction(SemanticsActions.OnClick)
 
         // Then the drawer should be closed
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+        rule.onNodeWithTag(DrawerTestTag).assertIsNotDisplayed()
 
         topNode = rule.onNodeWithTag(topTag).fetchSemanticsNode()
         assertEquals(2, topNode.children.size)
@@ -697,6 +697,44 @@ class ModalNavigationDrawerTest {
             .getUnclippedBoundsInRoot()
             .left
             .assertIsEqualTo(-NavigationDrawerWidth)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun navigationDrawer_drawerIsFocused_whenOpened() {
+        lateinit var drawerState: DrawerState
+        rule.setMaterialContent(lightColorScheme()) {
+            val scope = rememberCoroutineScope()
+            drawerState = rememberDrawerState(DrawerValue.Closed)
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Button(
+                            onClick = { scope.launch { drawerState.close() } },
+                            modifier = Modifier.testTag(DrawerTestTag).focusable(),
+                        ) {}
+                    }
+                },
+                content = {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } },
+                        modifier = Modifier.testTag("Button").focusable(),
+                    ) {}
+                },
+            )
+        }
+
+        rule.onNodeWithTag("Button").requestFocus()
+        rule.onNodeWithTag("Button").assertIsFocused()
+
+        // Open drawer
+        rule.onNodeWithTag("Button").performClick()
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
+
+        // Assert drawer content is focused.
+        rule.onNodeWithTag(DrawerTestTag).assertIsFocused()
     }
 }
 

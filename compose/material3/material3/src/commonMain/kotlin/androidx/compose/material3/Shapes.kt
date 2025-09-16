@@ -260,6 +260,8 @@ constructor(
     internal var defaultIconToggleButtonShapesCached: IconToggleButtonShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultIconButtonShapesCached: IconButtonShapes? = null
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    internal var defaultInteractiveListItemShapesCached: InteractiveListItemShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */

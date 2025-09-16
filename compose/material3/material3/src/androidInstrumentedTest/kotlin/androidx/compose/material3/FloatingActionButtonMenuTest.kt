@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -40,6 +41,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -47,6 +49,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Rule
@@ -100,6 +103,59 @@ class FloatingActionButtonMenuTest {
         repeat(items.size) {
             rule.onNodeWithTag("button_$it").assertIsDisplayed().assertHasClickAction()
         }
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalTestApi::class)
+    @Test
+    fun fabMenu_keyboardNavigation_fromFabToFirstItem() {
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                FloatingActionButtonMenu(
+                    modifier = Modifier.align(Alignment.BottomEnd),
+                    expanded = true,
+                    button = {
+                        ToggleFloatingActionButton(
+                            checked = true,
+                            onCheckedChange = {},
+                            modifier = Modifier.testTag("fab").focusable(),
+                        ) {}
+                    },
+                ) {
+                    FloatingActionButtonMenuItem(
+                        modifier = Modifier.testTag("item1").focusable(),
+                        onClick = {},
+                        icon = {},
+                        text = { Text(text = "item1") },
+                    )
+                    FloatingActionButtonMenuItem(
+                        modifier = Modifier.testTag("item2").focusable(),
+                        onClick = {},
+                        icon = {},
+                        text = { Text(text = "item2") },
+                    )
+                }
+            }
+        }
+
+        // Move focus to FAB.
+        rule.onNodeWithTag("fab").requestFocus()
+        rule.onNodeWithTag("fab").assertIsFocused()
+
+        // Press Tab.
+        rule.onNodeWithTag("fab").performKeyInput { pressKey(Key.Tab) }
+
+        // Assert first item is focused.
+        rule.onNodeWithTag("item1").assertIsFocused()
+
+        // Move focus to FAB.
+        rule.onNodeWithTag("fab").requestFocus()
+        rule.onNodeWithTag("fab").assertIsFocused()
+
+        // Press down.
+        rule.onNodeWithTag("fab").performKeyInput { pressKey(Key.DirectionDown) }
+
+        // Assert first item is focused.
+        rule.onNodeWithTag("item1").assertIsFocused()
     }
 
     @Composable

@@ -53,6 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.toRect
@@ -61,6 +63,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.HorizontalRuler
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
@@ -112,18 +120,37 @@ fun FloatingActionButtonMenu(
     content: @Composable FloatingActionButtonMenuScope.() -> Unit,
 ) {
     var buttonHeight by remember { mutableIntStateOf(0) }
+    val focusRequester = remember { FocusRequester() }
 
     Layout(
         modifier = modifier.padding(horizontal = FabMenuPaddingHorizontal),
         content = {
             FloatingActionButtonMenuItemColumn(
+                Modifier.focusRequester(focusRequester),
                 expanded,
                 horizontalAlignment,
                 { buttonHeight },
                 content,
             )
 
-            button()
+            Box(
+                Modifier.onKeyEvent {
+                    // For keyboard a11y, the focus order should go from the fab menu button to the
+                    // first item at the top.
+                    if (
+                        expanded &&
+                            it.type == KeyEventType.KeyDown &&
+                            ((it.key == Key.Tab && !it.isShiftPressed) ||
+                                it.key == Key.DirectionDown)
+                    ) {
+                        focusRequester.requestFocus()
+                        return@onKeyEvent true
+                    }
+                    return@onKeyEvent false
+                }
+            ) {
+                button()
+            }
         },
     ) { measureables, constraints ->
         val menuItemsPlaceable = measureables[0].measure(constraints)
@@ -165,6 +192,7 @@ fun FloatingActionButtonMenu(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun FloatingActionButtonMenuItemColumn(
+    modifier: Modifier,
     expanded: Boolean,
     horizontalAlignment: Alignment.Horizontal,
     buttonHeight: () -> Int,
@@ -189,7 +217,8 @@ private fun FloatingActionButtonMenuItemColumn(
     }
     Layout(
         modifier =
-            Modifier.clipToBounds()
+            modifier
+                .clipToBounds()
                 .semantics {
                     isTraversalGroup = true
                     traversalIndex = -0.9f

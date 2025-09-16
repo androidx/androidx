@@ -180,6 +180,37 @@ fun FilterChipWithLeadingIconSample() {
 @Preview
 @Sampled
 @Composable
+fun FilterChipWithTrailingIconSample() {
+    var selected by remember { mutableStateOf(false) }
+    FilterChip(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = { Text("Filter chip") },
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                }
+            } else {
+                null
+            },
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "Localized Description",
+                modifier = Modifier.size(FilterChipDefaults.IconSize),
+            )
+        },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
 fun InputChipSample() {
     var selected by remember { mutableStateOf(false) }
     InputChip(

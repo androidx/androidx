@@ -1180,7 +1180,7 @@ private class TooltipStateImpl(
         // or until tooltip is explicitly dismissed depending on [isPersistent].
         mutatorMutex.mutate(mutatePriority) {
             try {
-                if (isPersistent) {
+                if (isPersistent || mutatePriority == MutatePriority.UserInput) {
                     cancellableShow()
                 } else {
                     withTimeout(BasicTooltipDefaults.TooltipDuration) { cancellableShow() }
