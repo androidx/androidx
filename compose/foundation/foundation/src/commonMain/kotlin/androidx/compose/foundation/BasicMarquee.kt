@@ -340,10 +340,14 @@ private class MarqueeModifierNode(
                 else -> -contentWidth - spacingPx
             }.toFloat()
 
+        var isRecorded = false
         val drawHeight = size.height
         marqueeLayer?.let { layer ->
-            layer.record(size = IntSize(contentWidth, drawHeight.roundToInt())) {
-                this@draw.drawContent()
+            if (isAttached) {
+                layer.record(size = IntSize(contentWidth, drawHeight.roundToInt())) {
+                    this@draw.drawContent()
+                }
+                isRecorded = true
             }
         }
         clipRect(left = clipOffset, right = clipOffset + containerWidth) {
@@ -351,7 +355,7 @@ private class MarqueeModifierNode(
             // Unless there are circumstances where the Modifier's draw call can be invoked without
             // an attach call, the else case here is optional. However we can be safe and make sure
             // that we definitely draw even when the layer could not be initialized for any reason.
-            if (layer != null) {
+            if (isRecorded && layer != null) {
                 if (firstCopyVisible) {
                     drawLayer(layer)
                 }
