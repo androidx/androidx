@@ -60,22 +60,28 @@ public fun NavigationEventDispatcherOwner(
         },
     content: @Composable () -> Unit,
 ) {
-    val localDispatcher = remember {
-        // If a parent dispatcher exists, link to it. Otherwise, create a new root dispatcher.
-        parent?.navigationEventDispatcher ?: NavigationEventDispatcher()
-    }
+    val localDispatcher =
+        remember(parent) {
+            // If a parent dispatcher exists, link to it. Otherwise, create a new root dispatcher.
+            if (parent != null) {
+                NavigationEventDispatcher(parentDispatcher = parent.navigationEventDispatcher)
+            } else {
+                NavigationEventDispatcher()
+            }
+        }
 
     LaunchedEffect(enabled) { localDispatcher.isEnabled = enabled }
 
     // Clean up the dispatcher on dispose to prevent memory leaks.
-    DisposableEffect(Unit) { onDispose { localDispatcher.dispose() } }
+    DisposableEffect(localDispatcher) { onDispose { localDispatcher.dispose() } }
 
     // Provide this child dispatcher to all descendant.
-    val localOwner = remember {
-        object : NavigationEventDispatcherOwner {
-            override val navigationEventDispatcher = localDispatcher
+    val localOwner =
+        remember(localDispatcher) {
+            object : NavigationEventDispatcherOwner {
+                override val navigationEventDispatcher = localDispatcher
+            }
         }
-    }
     CompositionLocalProvider(
         LocalNavigationEventDispatcherOwner provides localOwner,
         content = content,

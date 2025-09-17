@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package androidx.navigationevent.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
-import androidx.navigationevent.NavigationEventDispatcherOwner
-import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
-
-@Composable
-internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
-    LocalView.current.findViewTreeNavigationEventDispatcherOwner()
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun implementedInJetBrainsFork(): Nothing =
+    throw NotImplementedError(
+        """
+        Implemented only in JetBrains fork.
+        Please use `org.jetbrains.navigationevent:navigationevent-compose` package instead.
+        """
+            .trimIndent()
+    )

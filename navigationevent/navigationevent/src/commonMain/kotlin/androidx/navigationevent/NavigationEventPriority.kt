@@ -17,20 +17,29 @@
 package androidx.navigationevent
 
 import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmStatic
 
 /**
- * Priority to be provided to the [NavigationEventCallback] when it is being initialized to
- * determine when the callback should be triggered.
+ * Priority to be provided to the [NavigationEventHandler] when it is being initialized to determine
+ * when the handler should be triggered.
  */
+@Suppress("ValueClassDefinition")
 @JvmInline
 public value class NavigationEventPriority private constructor(internal val value: Int) {
+
     public companion object {
         /**
-         * Priority level of [NavigationEventCallback]s for overlays such as menus and navigation
+         * Priority level of [NavigationEventHandler]s for overlays such as menus and navigation
          * drawers that should receive event dispatch before non-overlays.
          */
+        @get:JvmName("getOverlay") // Disable name mangling for Java
+        @JvmStatic
         public val Overlay: NavigationEventPriority = NavigationEventPriority(0)
-        /** Default priority level of [NavigationEventCallback]s. */
+
+        /** Default priority level of [NavigationEventHandler]s. */
+        @get:JvmName("getDefault") // Disable name mangling for Java
+        @JvmStatic
         public val Default: NavigationEventPriority = NavigationEventPriority(1)
     }
 }

@@ -29,7 +29,7 @@ public class OnBackInvokedInput(private val onBackInvokedDispatcher: OnBackInvok
     NavigationEventInput() {
     private val onBackInvokedCallback: OnBackInvokedCallback =
         if (Build.VERSION.SDK_INT == 33) {
-            OnBackInvokedCallback { dispatchOnCompleted() }
+            OnBackInvokedCallback { dispatchOnBackCompleted() }
         } else { // Build.VERSION.SDK_INT >= 34
             createOnBackAnimationCallback()
         }
@@ -37,15 +37,15 @@ public class OnBackInvokedInput(private val onBackInvokedDispatcher: OnBackInvok
     private var backInvokedCallbackRegistered = false
 
     override fun onAdded(dispatcher: NavigationEventDispatcher) {
-        updateBackInvokedCallbackState(dispatcher.hasEnabledCallbacks())
+        updateBackInvokedCallbackState(dispatcher.hasEnabledHandler())
     }
 
     override fun onRemoved() {
         updateBackInvokedCallbackState(false)
     }
 
-    override fun onHasEnabledCallbacksChanged(hasEnabledCallbacks: Boolean) {
-        updateBackInvokedCallbackState(hasEnabledCallbacks)
+    override fun onHasEnabledHandlerChanged(hasEnabledHandler: Boolean) {
+        updateBackInvokedCallbackState(hasEnabledHandler)
     }
 
     private fun updateBackInvokedCallbackState(shouldBeRegistered: Boolean) {
@@ -65,19 +65,19 @@ public class OnBackInvokedInput(private val onBackInvokedDispatcher: OnBackInvok
     private fun createOnBackAnimationCallback(): OnBackInvokedCallback {
         return object : OnBackAnimationCallback {
             override fun onBackStarted(backEvent: BackEvent) {
-                dispatchOnStarted(NavigationEvent(backEvent))
+                dispatchOnBackStarted(NavigationEvent(backEvent))
             }
 
             override fun onBackProgressed(backEvent: BackEvent) {
-                dispatchOnProgressed(NavigationEvent(backEvent))
+                dispatchOnBackProgressed(NavigationEvent(backEvent))
             }
 
             override fun onBackInvoked() {
-                dispatchOnCompleted()
+                dispatchOnBackCompleted()
             }
 
             override fun onBackCancelled() {
-                dispatchOnCancelled()
+                dispatchOnBackCancelled()
             }
         }
     }

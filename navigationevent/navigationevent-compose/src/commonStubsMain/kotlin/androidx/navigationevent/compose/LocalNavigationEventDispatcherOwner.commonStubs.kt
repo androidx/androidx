@@ -17,10 +17,11 @@
 package androidx.navigationevent.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventDispatcherOwner
-import androidx.navigationevent.findViewTreeNavigationEventDispatcherOwner
 
+@OptIn(InternalComposeApi::class)
 @Composable
 internal actual fun findViewTreeNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
-    LocalView.current.findViewTreeNavigationEventDispatcherOwner()
+    implementedInJetBrainsFork()
