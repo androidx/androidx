@@ -25,12 +25,11 @@ plugins {
     id("JetbrainsAndroidXPlugin")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
-
-
 androidXMultiplatform {
     android()
-    if (desktopEnabled) desktop()
+    desktop()
+
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-8954
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -38,29 +37,23 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.9.1")
                 api(project(":compose:runtime:runtime"))
             }
         }
 
         commonTest {
             dependencies {
-
+                implementation(libs.kotlinTest)
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
         }
 
-        if (desktopEnabled) {
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:runtime:runtime"))
-                }
-            }
+        skikoMain {
+            dependsOn(commonMain)
         }
 
         androidMain {
@@ -70,26 +63,12 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(skikoMain)
-                dependsOn(jvmMain)
-                dependencies {
-
-                }
-            }
-        }
-
         jvmTest {
             dependsOn(commonTest)
-            dependencies {
-            }
         }
 
         androidAndroidTest {
             dependsOn(jvmTest)
-            dependencies {
-            }
         }
 
         androidTest {
@@ -99,14 +78,14 @@ androidXMultiplatform {
             }
         }
 
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(desktopMain)
-                dependencies {
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+        }
 
-                }
-            }
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(desktopMain)
         }
     }
 }
