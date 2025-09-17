@@ -696,7 +696,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 if (adapter instanceof android.widget.ThemedSpinnerAdapter) {
                     final android.widget.ThemedSpinnerAdapter themedAdapter =
                             (android.widget.ThemedSpinnerAdapter) adapter;
-                    if (!ObjectsCompat.equals(themedAdapter.getDropDownViewTheme(), dropDownTheme)) {
+                    final Resources.Theme dropDownViewTheme = themedAdapter.getDropDownViewTheme();
+                    if (!ObjectsCompat.equals(dropDownViewTheme, dropDownTheme)) {
                         themedAdapter.setDropDownViewTheme(dropDownTheme);
                     }
                 } else if (adapter instanceof ThemedSpinnerAdapter) {

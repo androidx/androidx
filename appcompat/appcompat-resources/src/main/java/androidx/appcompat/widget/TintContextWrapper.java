@@ -29,7 +29,9 @@ import org.jspecify.annotations.NonNull;
  * A {@link android.content.ContextWrapper} which returns a tint-aware
  * {@link android.content.res.Resources} instance from {@link #getResources()}.
  *
+ * @deprecated This class is no longer needed.
  */
+@Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TintContextWrapper extends ContextWrapper {
 

@@ -116,8 +116,7 @@ public class AppCompatViewInflater {
      *                         wrap the view's construction context if necessary
      * @param readAppTheme {@code true} to parse {@code app:theme} from {@code attrs} and wrap the
      *                     view's construction context if necessary
-     * @param wrapContext {@code true} to wrap the view's construction context to provide
-     *                    additional resource system feature backports
+     * @param wrapContext this parameter is ignored
      * @return an AppCompat-compatible widget
      */
     public final @Nullable View createView(@Nullable View parent, final @NonNull String name,
