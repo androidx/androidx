@@ -64,35 +64,35 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /** Runs platform-specific text tap gestures logic. */
-internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
-    selectionState: TextFieldSelectionState,
+internal actual suspend fun TextFieldSelectionState.detectTextFieldTapGestures(
+    pointerInputScope: PointerInputScope,
     interactionSource: MutableInteractionSource?,
     requestFocus: () -> Unit,
     showKeyboard: () -> Unit
 ) {
-    detectTapAndPress(
+    pointerInputScope.detectTapAndPress(
         onTap = { offset ->
             requestFocus()
 
-            if (selectionState.enabled && selectionState.isFocused) {
-                if (!selectionState.readOnly) {
+            if (enabled && isFocused) {
+                if (!readOnly) {
                     showKeyboard()
-                    if (selectionState.textFieldState.visualText.isNotEmpty()) {
-                        selectionState.showCursorHandle = true
+                    if (textFieldState.visualText.isNotEmpty()) {
+                        showCursorHandle = true
                     }
                 }
 
-                selectionState.updateTextToolbarState(None)
+                updateTextToolbarState(None)
 
                 val coercedOffset =
-                    selectionState.textLayoutState.coercedInVisibleBoundsOfInputText(offset)
-                val cursorMoved = selectionState.placeCursorAtDesiredOffset(
-                    selectionState.textLayoutState.fromDecorationToTextLayout(coercedOffset)
+                    textLayoutState.coercedInVisibleBoundsOfInputText(offset)
+                val cursorMoved = placeCursorAtDesiredOffset(
+                    textLayoutState.fromDecorationToTextLayout(coercedOffset)
                 )
 
                 // TODO: It should be toggleable
                 if (!cursorMoved) {
-                    selectionState.updateTextToolbarState(Cursor)
+                    updateTextToolbarState(Cursor)
                 }
             }
         },
@@ -101,18 +101,18 @@ internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
                 coroutineScope {
                     launch {
                         // Remove any old interactions if we didn't fire stop / cancel properly
-                        selectionState.pressInteraction?.let { oldValue ->
+                        pressInteraction?.let { oldValue ->
                             val interaction = PressInteraction.Cancel(oldValue)
                             interactionSource.emit(interaction)
-                            selectionState.pressInteraction = null
+                            pressInteraction = null
                         }
 
                         val press = PressInteraction.Press(offset)
                         interactionSource.emit(press)
-                        selectionState.pressInteraction = press
+                        pressInteraction = press
                     }
                     val success = tryAwaitRelease()
-                    selectionState.pressInteraction?.let { pressInteraction ->
+                    pressInteraction?.let { pressInteraction ->
                         val endInteraction =
                             if (success) {
                                 PressInteraction.Release(pressInteraction)
@@ -121,7 +121,7 @@ internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
                             }
                         interactionSource.emit(endInteraction)
                     }
-                    selectionState.pressInteraction = null
+                    pressInteraction = null
                 }
             }
         }
@@ -205,14 +205,15 @@ private fun TextFieldSelectionState.placeCursorAtDesiredOffset(offset: Offset): 
 }
 
 /** Runs platform-specific text selection gestures logic. */
-internal actual suspend fun PointerInputScope.getTextFieldSelectionGestures(
-    selectionState: TextFieldSelectionState,
+internal actual suspend fun TextFieldSelectionState.textFieldSelectionGestures(
+    pointerInputScope: PointerInputScope,
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver
 ) {
+    val selectionState = this
     val uiKitTextDragObserver = UIKitTextFieldTextDragObserver(selectionState)
-    val clicksCounter = ClicksCounter(viewConfiguration)
-    awaitEachGesture {
+    val clicksCounter = ClicksCounter(pointerInputScope.viewConfiguration)
+    pointerInputScope.awaitEachGesture {
         while (true) {
             val downEvent = awaitPress({true})
             clicksCounter.update(downEvent.changes[0])

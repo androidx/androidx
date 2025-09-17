@@ -27,19 +27,19 @@ import androidx.compose.ui.platform.Clipboard
 import kotlinx.coroutines.CoroutineScope
 
 /** Runs platform-specific text tap gestures logic. */
-internal actual suspend fun PointerInputScope.detectTextFieldTapGestures(
-    selectionState: TextFieldSelectionState,
+internal actual suspend fun TextFieldSelectionState.detectTextFieldTapGestures(
+    pointerInputScope: PointerInputScope,
     interactionSource: MutableInteractionSource?,
     requestFocus: () -> Unit,
-    showKeyboard: () -> Unit
-) = defaultDetectTextFieldTapGestures(selectionState, interactionSource, requestFocus, showKeyboard)
+    showKeyboard: () -> Unit,
+) = defaultDetectTextFieldTapGestures(pointerInputScope, interactionSource, requestFocus, showKeyboard)
 
 /** Runs platform-specific text selection gestures logic. */
-internal actual suspend fun PointerInputScope.getTextFieldSelectionGestures(
-    selectionState: TextFieldSelectionState,
+internal actual suspend fun TextFieldSelectionState.textFieldSelectionGestures(
+    pointerInputScope: PointerInputScope,
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver
-) = defaultTextFieldSelectionGestures(mouseSelectionObserver, textDragObserver)
+) = pointerInputScope.defaultTextFieldSelectionGestures(mouseSelectionObserver, textDragObserver)
 
 internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     state: TextFieldSelectionState,
