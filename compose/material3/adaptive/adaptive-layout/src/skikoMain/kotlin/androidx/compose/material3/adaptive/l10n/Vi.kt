@@ -27,4 +27,10 @@ internal fun Translations.vi() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d phần trăm",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP từ đầu",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP từ cuối",
+    Strings.dragToResizeClickToExpandDescription to "mở rộng",
+    Strings.dragToResizeClickToCollapseDescription to "thu gọn",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "mở rộng một phần",
+    Strings.dragToResizeExpandedStateDescription to "đã mở rộng",
+    Strings.dragToResizeCollapsedStateDescription to "đã thu gọn",
+    Strings.dragToResizePartiallyExpandedStateDescription to "đã mở rộng một phần",
 )

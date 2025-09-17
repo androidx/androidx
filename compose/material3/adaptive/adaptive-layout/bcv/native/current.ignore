@@ -1,0 +1,10 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/DockedEdge from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/DragToResizeState from androidx.compose.material
+[linuxX64]: Removed declaration androidx.compose.material3.adaptive.layout/rememberDragToResizeState(androidx.compose.material3.adaptive.layout/DockedEdge, androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.material
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).dragToResize(androidx.compose.material3.adaptive.layout/DragToResizeState) from androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldPaneScope
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).dragToResize(androidx.compose.material3.adaptive.layout/DragToResizeState) from androidx.compose.material3.adaptive.layout/ExtendedPaneScaffoldScope
+[linuxX64]: Removed declaration dragToResizeState from androidx.compose.material3.adaptive.layout/PaneScaffoldParentData
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).dragToResize(androidx.compose.material3.adaptive.layout/DragToResizeState) from androidx.compose.material3.adaptive.layout/PaneScaffoldScope
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).dragToResize(androidx.compose.material3.adaptive.layout/DragToResizeState) from androidx.compose.material3.adaptive.layout/ThreePaneScaffoldPaneScope
+[linuxX64]: Removed declaration (androidx.compose.ui/Modifier).dragToResize(androidx.compose.material3.adaptive.layout/DragToResizeState) from androidx.compose.material3.adaptive.layout/ThreePaneScaffoldScope

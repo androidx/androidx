@@ -27,4 +27,10 @@ internal fun Translations.et() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d protsenti",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP-d algusest",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP-d lõpust",
+    Strings.dragToResizeClickToExpandDescription to "laienda",
+    Strings.dragToResizeClickToCollapseDescription to "ahenda",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "laienda osaliselt",
+    Strings.dragToResizeExpandedStateDescription to "laiendatud",
+    Strings.dragToResizeCollapsedStateDescription to "ahendatud",
+    Strings.dragToResizePartiallyExpandedStateDescription to "osaliselt laiendatud",
 )

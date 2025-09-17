@@ -27,4 +27,10 @@ internal fun Translations.zu() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d iphesenti",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "I-%d DPs ukusukela ekuqaleni",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "I-%d DPs ukusukela ekugcineni",
+    Strings.dragToResizeClickToExpandDescription to "nweba",
+    Strings.dragToResizeClickToCollapseDescription to "goqa",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "nweba ngokwengxenye",
+    Strings.dragToResizeExpandedStateDescription to "kunwetshiwe",
+    Strings.dragToResizeCollapsedStateDescription to "kugoqiwe",
+    Strings.dragToResizePartiallyExpandedStateDescription to "kunwetshwe ngokwengxenye",
 )

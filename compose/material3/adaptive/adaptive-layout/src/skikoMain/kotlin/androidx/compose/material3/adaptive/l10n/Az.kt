@@ -27,4 +27,10 @@ internal fun Translations.az() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d faiz",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Başlanğıcdan %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Sondan %d DP",
+    Strings.dragToResizeClickToExpandDescription to "genişləndirin",
+    Strings.dragToResizeClickToCollapseDescription to "yığcamlaşdırın",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "qismən genişləndirin",
+    Strings.dragToResizeExpandedStateDescription to "genişləndirilib",
+    Strings.dragToResizeCollapsedStateDescription to "yığcamlaşdırılıb",
+    Strings.dragToResizePartiallyExpandedStateDescription to "qismən genişləndirilib",
 )

@@ -27,4 +27,10 @@ internal fun Translations.sq() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d për qind",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP nga fillimi",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP nga fundi",
+    Strings.dragToResizeClickToExpandDescription to "zgjero",
+    Strings.dragToResizeClickToCollapseDescription to "palos",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "zgjero pjesërisht",
+    Strings.dragToResizeExpandedStateDescription to "zgjeruar",
+    Strings.dragToResizeCollapsedStateDescription to "palosur",
+    Strings.dragToResizePartiallyExpandedStateDescription to "zgjeruar pjesërisht",
 )

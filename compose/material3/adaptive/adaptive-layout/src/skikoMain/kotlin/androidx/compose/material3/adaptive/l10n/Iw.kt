@@ -27,4 +27,10 @@ internal fun Translations.iw() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "‏‫%d אחוז",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "‏‫%d נקודות DP מההתחלה",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "‏‫%d נקודות DP מהסוף",
+    Strings.dragToResizeClickToExpandDescription to "הרחבה",
+    Strings.dragToResizeClickToCollapseDescription to "כיווץ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "הרחבה חלקית",
+    Strings.dragToResizeExpandedStateDescription to "במצב מורחב",
+    Strings.dragToResizeCollapsedStateDescription to "במצב מכווץ",
+    Strings.dragToResizePartiallyExpandedStateDescription to "במצב מורחב חלקית",
 )

@@ -161,6 +161,11 @@ private class AnimateBoundsNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
+        // Workaround (b/435756530): Avoid approaching measure if the animation is not enabled.
+        if (!enabled) {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         // Use the current animating fraction to get the approach size and offset of the current
         // animating layout toward the target size and offset updated in measure().
         val currentBounds = boundsTracker.updateAndGetCurrentBounds(animateFraction())

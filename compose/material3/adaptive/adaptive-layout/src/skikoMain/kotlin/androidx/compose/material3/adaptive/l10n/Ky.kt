@@ -27,4 +27,10 @@ internal fun Translations.ky() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d пайыз",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Башынан %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Аягынан %d DP",
+    Strings.dragToResizeClickToExpandDescription to "жайып көрсөтүү",
+    Strings.dragToResizeClickToCollapseDescription to "жыйыштыруу",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "жарым-жартылай жайып көрсөтүү",
+    Strings.dragToResizeExpandedStateDescription to "жайылып көрсөтүлдү",
+    Strings.dragToResizeCollapsedStateDescription to "жыйыштырылды",
+    Strings.dragToResizePartiallyExpandedStateDescription to "жарым-жартылай жайылып көрсөтүлдү",
 )

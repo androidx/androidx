@@ -27,4 +27,10 @@ internal fun Translations.kn() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "ಶೇಕಡಾ %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "ಪ್ರಾರಂಭದಿಂದ %d DP ಗಳು",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "ಕೊನೆಯಿಂದ %d DP ಗಳು",
+    Strings.dragToResizeClickToExpandDescription to "ವಿಸ್ತೃತಗೊಳಿಸಿ",
+    Strings.dragToResizeClickToCollapseDescription to "ಕುಗ್ಗಿಸಿ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ಭಾಗಶಃ ವಿಸ್ತೃತಗೊಳಿಸಿ",
+    Strings.dragToResizeExpandedStateDescription to "ವಿಸ್ತೃತಗೊಳಿಸಲಾಗಿದೆ",
+    Strings.dragToResizeCollapsedStateDescription to "ಕುಗ್ಗಿಸಲಾಗಿದೆ",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ಭಾಗಶಃ ವಿಸ್ತೃತಗೊಳಿಸಲಾಗಿದೆ",
 )

@@ -158,6 +158,12 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
             "m3_adaptive_default_pane_expansion_proportion_anchor_description"  : "defaultPaneExpansionProportionAnchorDescription",
             "m3_adaptive_default_pane_expansion_start_offset_anchor_description": "defaultPaneExpansionStartOffsetAnchorDescription",
             "m3_adaptive_default_pane_expansion_end_offset_anchor_description"  : "defaultPaneExpansionEndOffsetAnchorDescription",
+            "m3_adaptive_drag_to_resize_click_to_expand_description"            : "dragToResizeClickToExpandDescription",
+            "m3_adaptive_drag_to_resize_click_to_collapse_description"          : "dragToResizeClickToCollapseDescription",
+            "m3_adaptive_drag_to_resize_click_to_partially_expand_description"  : "dragToResizeClickToPartiallyExpandDescription",
+            "m3_adaptive_drag_to_resize_expanded_state_description"             : "dragToResizeExpandedStateDescription",
+            "m3_adaptive_drag_to_resize_collapsed_state_description"            : "dragToResizeCollapsedStateDescription",
+            "m3_adaptive_drag_to_resize_partially_expanded_state_description"   : "dragToResizePartiallyExpandedStateDescription",
     ]
     // This is all the locales translated by Compose on Android in the ui module:
     // https://github.com/androidx/androidx/tree/androidx-main/compose/material3/adaptive/adaptive-layout/src/androidMain/res

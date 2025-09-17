@@ -27,4 +27,10 @@ internal fun Translations.my() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ရာခိုင်နှုန်း",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "အစမှ %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "အဆုံးမှ %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "ချဲ့ရန်",
+    Strings.dragToResizeClickToCollapseDescription to "ချုံ့ရန်",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "တစ်စိတ်တစ်ပိုင်း ချဲ့ရန်",
+    Strings.dragToResizeExpandedStateDescription to "ချဲ့ထားသည်",
+    Strings.dragToResizeCollapsedStateDescription to "ချုံ့ထားသည်",
+    Strings.dragToResizePartiallyExpandedStateDescription to "တစ်စိတ်တစ်ပိုင်း ချဲ့ထားသည်",
 )

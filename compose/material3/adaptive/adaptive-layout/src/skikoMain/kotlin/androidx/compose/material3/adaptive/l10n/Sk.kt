@@ -27,4 +27,10 @@ internal fun Translations.sk() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "Počet percent: %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Počet dátových bodov od začiatku: %d",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Počet dátových bodov od konca: %d",
+    Strings.dragToResizeClickToExpandDescription to "rozbaliť",
+    Strings.dragToResizeClickToCollapseDescription to "zbaliť",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "čiastočne rozbaliť",
+    Strings.dragToResizeExpandedStateDescription to "rozbalené",
+    Strings.dragToResizeCollapsedStateDescription to "zbalené",
+    Strings.dragToResizePartiallyExpandedStateDescription to "čiastočne rozbalené",
 )

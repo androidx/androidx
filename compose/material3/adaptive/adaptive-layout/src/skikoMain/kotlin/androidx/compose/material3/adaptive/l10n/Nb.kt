@@ -27,4 +27,10 @@ internal fun Translations.nb() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d prosent",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d dp fra starten",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d dp fra slutten",
+    Strings.dragToResizeClickToExpandDescription to "vis",
+    Strings.dragToResizeClickToCollapseDescription to "skjul",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "vis delvis",
+    Strings.dragToResizeExpandedStateDescription to "vises",
+    Strings.dragToResizeCollapsedStateDescription to "skjules",
+    Strings.dragToResizePartiallyExpandedStateDescription to "vises delvis",
 )

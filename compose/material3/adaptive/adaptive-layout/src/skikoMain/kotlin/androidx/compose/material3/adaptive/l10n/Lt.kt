@@ -27,4 +27,10 @@ internal fun Translations.lt() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d proc.",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP nuo pradžios",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP nuo galo",
+    Strings.dragToResizeClickToExpandDescription to "išskleisti",
+    Strings.dragToResizeClickToCollapseDescription to "sutraukti",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "išskleisti iš dalies",
+    Strings.dragToResizeExpandedStateDescription to "išskleista",
+    Strings.dragToResizeCollapsedStateDescription to "sutraukta",
+    Strings.dragToResizePartiallyExpandedStateDescription to "iš dalies išskleista",
 )

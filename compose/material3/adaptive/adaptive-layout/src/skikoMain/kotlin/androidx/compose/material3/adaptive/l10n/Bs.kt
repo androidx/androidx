@@ -27,4 +27,10 @@ internal fun Translations.bs() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d posto",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Tačke podataka od početka: %d",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Tačke podataka od kraja: %d",
+    Strings.dragToResizeClickToExpandDescription to "proširivanje",
+    Strings.dragToResizeClickToCollapseDescription to "sužavanje",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "djelimično proširivanje",
+    Strings.dragToResizeExpandedStateDescription to "prošireno",
+    Strings.dragToResizeCollapsedStateDescription to "suženo",
+    Strings.dragToResizePartiallyExpandedStateDescription to "djelimično prošireno",
 )

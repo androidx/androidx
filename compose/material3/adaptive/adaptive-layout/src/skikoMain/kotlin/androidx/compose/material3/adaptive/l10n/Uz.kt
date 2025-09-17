@@ -27,4 +27,10 @@ internal fun Translations.uz() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d foiz",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Panelni boshidan %d piksel kengaytirish",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Panelni oxiridan %d piksel kengaytirish",
+    Strings.dragToResizeClickToExpandDescription to "yoyish",
+    Strings.dragToResizeClickToCollapseDescription to "yopish",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "qisman yoyish",
+    Strings.dragToResizeExpandedStateDescription to "yoyildi",
+    Strings.dragToResizeCollapsedStateDescription to "yopildi",
+    Strings.dragToResizePartiallyExpandedStateDescription to "qisman yoyilgan",
 )

@@ -27,4 +27,10 @@ internal fun Translations.`in`() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d persen",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP dari awal",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP dari akhir",
+    Strings.dragToResizeClickToExpandDescription to "luaskan",
+    Strings.dragToResizeClickToCollapseDescription to "ciutkan",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "luaskan sebagian",
+    Strings.dragToResizeExpandedStateDescription to "diluaskan",
+    Strings.dragToResizeCollapsedStateDescription to "diciutkan",
+    Strings.dragToResizePartiallyExpandedStateDescription to "diluaskan sebagian",
 )

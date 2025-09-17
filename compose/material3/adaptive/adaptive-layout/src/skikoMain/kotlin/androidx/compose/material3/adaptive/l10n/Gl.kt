@@ -27,4 +27,10 @@ internal fun Translations.gl() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d por cento",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP desde o inicio",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP desde o final",
+    Strings.dragToResizeClickToExpandDescription to "despregar",
+    Strings.dragToResizeClickToCollapseDescription to "contraer",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "despregar parcialmente",
+    Strings.dragToResizeExpandedStateDescription to "despregado",
+    Strings.dragToResizeCollapsedStateDescription to "contraído",
+    Strings.dragToResizePartiallyExpandedStateDescription to "despregado parcialmente",
 )

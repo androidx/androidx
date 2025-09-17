@@ -27,4 +27,10 @@ internal fun Translations.ka() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d პროცენტი",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP დასაწყისიდან",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP ბოლოდან",
+    Strings.dragToResizeClickToExpandDescription to "გაფართოება",
+    Strings.dragToResizeClickToCollapseDescription to "ჩაკეცვა",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ნაწილობრივ გაფართოება",
+    Strings.dragToResizeExpandedStateDescription to "გაფართოებულია",
+    Strings.dragToResizeCollapsedStateDescription to "ჩაკეცილია",
+    Strings.dragToResizePartiallyExpandedStateDescription to "გაფართოებულია ნაწილობრივ",
 )

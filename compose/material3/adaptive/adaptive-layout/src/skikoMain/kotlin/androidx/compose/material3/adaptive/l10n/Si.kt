@@ -27,4 +27,10 @@ internal fun Translations.si() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "සියයට %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "ආරම්භයේ සිට %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "අවසානයේ සිට %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "දිග හරින්න",
+    Strings.dragToResizeClickToCollapseDescription to "හකුළන්න",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "අර්ධ වශයෙන් පුළුල් කරන්න",
+    Strings.dragToResizeExpandedStateDescription to "දිග හරින ලදි",
+    Strings.dragToResizeCollapsedStateDescription to "හකුළන ලදි",
+    Strings.dragToResizePartiallyExpandedStateDescription to "අර්ධ වශයෙන් දිග හරින ලද",
 )

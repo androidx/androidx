@@ -44,4 +44,31 @@
     <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description">
         %d DPs from end
     </string>
+    <!-- Spoken click action label to expand a resizable pane. -->
+    <string name="m3_adaptive_drag_to_resize_click_to_expand_description">
+        expand
+    </string>
+    <!-- Spoken click action label to collapse a resizable pane. -->
+    <string name="m3_adaptive_drag_to_resize_click_to_collapse_description">
+        collapse
+    </string>
+    <!-- Spoken click action label to partially expand a resizable pane. -->
+    <string name="m3_adaptive_drag_to_resize_click_to_partially_expand_description">
+        partially expand
+    </string>
+    <!-- Spoken state description when a pane is resized to its expanded state; i.e., reaching its
+         maximum size. -->
+    <string name="m3_adaptive_drag_to_resize_expanded_state_description">
+        expanded
+    </string>
+    <!-- Spoken state description when a pane is resized to its collapsed state; i.e., reaching its
+         minimum size. -->
+    <string name="m3_adaptive_drag_to_resize_collapsed_state_description">
+        collapsed
+    </string>
+    <!-- Spoken state description when a pane is resized to its partially expanded state; i.e.,
+         when its size is between the maximum and the minimum size. -->
+    <string name="m3_adaptive_drag_to_resize_partially_expanded_state_description">
+        partially expanded
+    </string>
 </resources>

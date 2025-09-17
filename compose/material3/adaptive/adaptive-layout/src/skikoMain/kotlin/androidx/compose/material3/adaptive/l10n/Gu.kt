@@ -27,4 +27,10 @@ internal fun Translations.gu() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ટકા",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "શરૂઆતથી %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "અંતથી %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "મોટો કરો",
+    Strings.dragToResizeClickToCollapseDescription to "નાનો કરો",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "આંશિક રીતે મોટો કરો",
+    Strings.dragToResizeExpandedStateDescription to "મોટો કર્યો",
+    Strings.dragToResizeCollapsedStateDescription to "નાનો કર્યો",
+    Strings.dragToResizePartiallyExpandedStateDescription to "આંશિક રીતે મોટો કર્યો",
 )

@@ -27,4 +27,10 @@ internal fun Translations.mr() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d टक्के",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "सुरुवातीपासून %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "शेवटापासून %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "विस्तार करा",
+    Strings.dragToResizeClickToCollapseDescription to "कोलॅप्स करा",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "अंशतः विस्तार करा",
+    Strings.dragToResizeExpandedStateDescription to "विस्तार केला आहे",
+    Strings.dragToResizeCollapsedStateDescription to "कोलॅप्स केले आहे",
+    Strings.dragToResizePartiallyExpandedStateDescription to "अंशतः विस्तार केलेले",
 )

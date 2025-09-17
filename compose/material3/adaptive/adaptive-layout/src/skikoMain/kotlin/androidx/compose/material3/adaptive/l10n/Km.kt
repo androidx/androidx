@@ -27,4 +27,10 @@ internal fun Translations.km() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ភាគរយ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP ពីពេលចាប់ផ្ដើម",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP ពីពេលបញ្ចប់",
+    Strings.dragToResizeClickToExpandDescription to "ពង្រីក",
+    Strings.dragToResizeClickToCollapseDescription to "បង្រួម",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ពង្រីកមួយផ្នែក",
+    Strings.dragToResizeExpandedStateDescription to "បានពង្រីក",
+    Strings.dragToResizeCollapsedStateDescription to "បានបង្រួម",
+    Strings.dragToResizePartiallyExpandedStateDescription to "បានពង្រីកខ្លះ",
 )

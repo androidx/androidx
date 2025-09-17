@@ -27,4 +27,10 @@ internal fun Translations.mn() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d хувь",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "Эхлэлээс %d НХП",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "Төгсгөлөөс %d НХП",
+    Strings.dragToResizeClickToExpandDescription to "дэлгэх",
+    Strings.dragToResizeClickToCollapseDescription to "хураах",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "хэсэгчлэн дэлгэх",
+    Strings.dragToResizeExpandedStateDescription to "дэлгэсэн",
+    Strings.dragToResizeCollapsedStateDescription to "хураасан",
+    Strings.dragToResizePartiallyExpandedStateDescription to "хэсэгчлэн дэлгэсэн",
 )

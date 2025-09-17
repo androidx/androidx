@@ -27,4 +27,10 @@ internal fun Translations.ca() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "percentatge de %d",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d píxels independents de la densitat des de l\'inici",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d píxels independents de la densitat des del final",
+    Strings.dragToResizeClickToExpandDescription to "desplega",
+    Strings.dragToResizeClickToCollapseDescription to "replega",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "desplega parcialment",
+    Strings.dragToResizeExpandedStateDescription to "s\'ha desplegat",
+    Strings.dragToResizeCollapsedStateDescription to "s\'ha replegat",
+    Strings.dragToResizePartiallyExpandedStateDescription to "s\'ha desplegat parcialment",
 )

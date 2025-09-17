@@ -23,4 +23,10 @@
     <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"%d procent"</string>
     <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description" msgid="5056616348537665604">"%d DP de la început"</string>
     <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description" msgid="6412636251656811002">"%d DP de la sfârșit"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_expand_description" msgid="6325505525872861038">"extinde"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_collapse_description" msgid="8565061238194380345">"restrânge"</string>
+    <string name="m3_adaptive_drag_to_resize_click_to_partially_expand_description" msgid="2385410923144639926">"extinde parțial"</string>
+    <string name="m3_adaptive_drag_to_resize_expanded_state_description" msgid="2077268415416814943">"extins"</string>
+    <string name="m3_adaptive_drag_to_resize_collapsed_state_description" msgid="825821966773165267">"restrâns"</string>
+    <string name="m3_adaptive_drag_to_resize_partially_expanded_state_description" msgid="1542167866507882321">"extins parțial"</string>
 </resources>

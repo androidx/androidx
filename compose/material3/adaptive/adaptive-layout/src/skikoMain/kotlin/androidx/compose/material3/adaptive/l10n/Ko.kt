@@ -27,4 +27,10 @@ internal fun Translations.ko() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d퍼센트",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "시작 지점에서 %d DP",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "끝에서 %d DP",
+    Strings.dragToResizeClickToExpandDescription to "펼치기",
+    Strings.dragToResizeClickToCollapseDescription to "접기",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "부분적으로 펼치기",
+    Strings.dragToResizeExpandedStateDescription to "펼침",
+    Strings.dragToResizeCollapsedStateDescription to "접음",
+    Strings.dragToResizePartiallyExpandedStateDescription to "부분적으로 펼침",
 )

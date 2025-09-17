@@ -27,4 +27,10 @@ internal fun Translations.fa() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "‏‫%d درصد",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "‏‫%d واحد DP از ابتدا",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "‏‫%d واحد DP از انتها",
+    Strings.dragToResizeClickToExpandDescription to "ازهم بازکردن",
+    Strings.dragToResizeClickToCollapseDescription to "جمع کردن",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "تا حدودی ازهم باز شود",
+    Strings.dragToResizeExpandedStateDescription to "ازهم باز شد",
+    Strings.dragToResizeCollapsedStateDescription to "جمع شد",
+    Strings.dragToResizePartiallyExpandedStateDescription to "تاحدی ازهم باز شده",
 )

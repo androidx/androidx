@@ -27,4 +27,10 @@ internal fun Translations.ur() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "‏‎%d فیصد",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "‏شروع سے ‎%d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "‏آخر سے ‎%d ‏DPs",
+    Strings.dragToResizeClickToExpandDescription to "پھیلائیں",
+    Strings.dragToResizeClickToCollapseDescription to "سکیڑیں",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "جزوی طور پر پھیلائیں",
+    Strings.dragToResizeExpandedStateDescription to "پھیلا دیا گیا",
+    Strings.dragToResizeCollapsedStateDescription to "سکیڑا ہوا",
+    Strings.dragToResizePartiallyExpandedStateDescription to "جزوی طور پر پھیلایا گیا",
 )

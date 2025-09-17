@@ -27,4 +27,10 @@ internal fun Translations.lo() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d ເປີເຊັນ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DPs ຈາກຕອນເລີ່ມຕົ້ນ",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DPs ຈາກຕອນທ້າຍ",
+    Strings.dragToResizeClickToExpandDescription to "ຂະຫຍາຍ",
+    Strings.dragToResizeClickToCollapseDescription to "ຫຍໍ້ລົງ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "ຂະຫຍາຍບາງສ່ວນ",
+    Strings.dragToResizeExpandedStateDescription to "ຂະຫຍາຍແລ້ວ",
+    Strings.dragToResizeCollapsedStateDescription to "ຫຍໍ້ລົງແລ້ວ",
+    Strings.dragToResizePartiallyExpandedStateDescription to "ຂະຫຍາຍບາງສ່ວນແລ້ວ",
 )

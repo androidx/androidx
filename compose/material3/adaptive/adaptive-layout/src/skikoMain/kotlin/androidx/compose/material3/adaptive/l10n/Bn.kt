@@ -27,4 +27,10 @@ internal fun Translations.bn() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d শতাংশ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "শুরুর দিক থেকে %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "শেষের দিক থেকে %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "বড় করুন",
+    Strings.dragToResizeClickToCollapseDescription to "আড়াল করুন",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "আংশিক বড় করুন",
+    Strings.dragToResizeExpandedStateDescription to "বড় করা হয়েছে",
+    Strings.dragToResizeCollapsedStateDescription to "আড়াল করা হয়েছে",
+    Strings.dragToResizePartiallyExpandedStateDescription to "আংশিক বড় করা হয়েছে",
 )

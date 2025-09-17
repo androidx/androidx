@@ -27,4 +27,10 @@ internal fun Translations.ms() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d peratus",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP daripada mula",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP daripada hujung",
+    Strings.dragToResizeClickToExpandDescription to "kembangkan",
+    Strings.dragToResizeClickToCollapseDescription to "kuncupkan",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "kembangkan separa",
+    Strings.dragToResizeExpandedStateDescription to "dikembangkan",
+    Strings.dragToResizeCollapsedStateDescription to "dikuncupkan",
+    Strings.dragToResizePartiallyExpandedStateDescription to "dikembangkan separa",
 )

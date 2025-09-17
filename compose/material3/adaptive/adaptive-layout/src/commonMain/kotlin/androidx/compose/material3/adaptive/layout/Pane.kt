@@ -21,6 +21,8 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
 import androidx.compose.material3.adaptive.layout.DefaultAnimatedPaneOverride.AnimatedPane
@@ -34,6 +36,9 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
@@ -118,7 +123,8 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                             lookaheadScope = this,
                             enabled = animatingBounds,
                         )
-                        .semantics { isTraversalGroup = true }
+                        .focusRequester(focusRequesters[paneRole]!!)
+                        .focusableInWholeTree(isInteractable)
                         .then(
                             if (paneValue is PaneAdaptedValue.Levitated) {
                                 Modifier.shadow(AnimatedPaneDefaults.ShadowElevation)
@@ -135,7 +141,7 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                 }
             }
 
-            var scrim by rememberRef<Scrim?>(null)
+            var scrim by rememberRef<(@Composable () -> Unit)?>(null)
             (paneValue as? PaneAdaptedValue.Levitated)?.apply { scrim = this.scrim }
             scrim?.apply {
                 // Display a scrim when the pane gets levitated
@@ -146,10 +152,7 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                     enter = enterTransition,
                     exit = exitTransition,
                 ) {
-                    Content(
-                        defaultColor = ThreePaneScaffoldDefaults.ScrimColor,
-                        enabled = paneValue is PaneAdaptedValue.Levitated,
-                    )
+                    this@apply.invoke()
                 }
             }
         }
@@ -222,3 +225,24 @@ val LocalAnimatedPaneOverride: ProvidableCompositionLocal<AnimatedPaneOverride> 
 internal object AnimatedPaneDefaults {
     val ShadowElevation = 15.dp
 }
+
+private fun Modifier.focusableInWholeTree(focusable: Boolean): Modifier =
+    this
+        // Workaround(b/342653995): Make the whole pane a focus group but cancel any focusing
+        //   attempts so the whole subtree won't be focusable.
+        .focusGroup()
+        .focusProperties {
+            if (!focusable) {
+                canFocus = false
+                onEnter = { cancelFocusChange() }
+            }
+        }
+        .then(
+            if (focusable) {
+                Modifier.semantics { isTraversalGroup = true }
+            } else {
+                // Workaround(b/343950986): clear all semantics under the tree so no children can
+                //   get the a11y focus.
+                Modifier.clearAndSetSemantics {}
+            }
+        )

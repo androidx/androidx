@@ -13,7 +13,8 @@ package androidx.compose.material3.adaptive.layout {
 
   @androidx.compose.runtime.Immutable public static final class AdaptStrategy.Levitate implements androidx.compose.material3.adaptive.layout.AdaptStrategy {
     ctor public AdaptStrategy.Levitate();
-    ctor public AdaptStrategy.Levitate(optional androidx.compose.ui.Alignment alignment, optional androidx.compose.material3.adaptive.layout.Scrim? scrim);
+    ctor public AdaptStrategy.Levitate(optional androidx.compose.ui.Alignment alignment, optional kotlin.jvm.functions.Function0<kotlin.Unit>? scrim);
+    ctor @BytecodeOnly public AdaptStrategy.Levitate(androidx.compose.ui.Alignment, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.layout.AdaptStrategy onlyIf(boolean condition);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.layout.AdaptStrategy onlyIf(boolean, androidx.compose.runtime.Composer?, int);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.layout.AdaptStrategy onlyIfSinglePane(androidx.compose.material3.adaptive.layout.PaneScaffoldDirective scaffoldDirective);
@@ -52,31 +53,12 @@ package androidx.compose.material3.adaptive.layout {
     method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public androidx.compose.material3.adaptive.layout.AnimatedPaneScope create(androidx.compose.animation.AnimatedVisibilityScope animatedVisibilityScope);
   }
 
-  public enum DockedEdge {
-    enum_constant public static final androidx.compose.material3.adaptive.layout.DockedEdge Bottom;
-    enum_constant public static final androidx.compose.material3.adaptive.layout.DockedEdge End;
-    enum_constant public static final androidx.compose.material3.adaptive.layout.DockedEdge Start;
-    enum_constant public static final androidx.compose.material3.adaptive.layout.DockedEdge Top;
-  }
-
-  @androidx.compose.runtime.Stable public abstract class DragToResizeState implements androidx.compose.foundation.gestures.DraggableState {
-    method public void dispatchRawDelta(float delta);
-    method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    field public static final androidx.compose.material3.adaptive.layout.DragToResizeState.Companion Companion;
-  }
-
-  public static final class DragToResizeState.Companion {
-  }
-
-  public final class DragToResizeStateKt {
-    method @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.DragToResizeState rememberDragToResizeState(androidx.compose.material3.adaptive.layout.DockedEdge dockedEdge, optional float minSize, optional float maxSize);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.DragToResizeState rememberDragToResizeState-WMci_g0(androidx.compose.material3.adaptive.layout.DockedEdge, float, float, androidx.compose.runtime.Composer?, int, int);
-  }
-
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface ExtendedPaneScaffoldPaneScope<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole, ScaffoldValue extends androidx.compose.material3.adaptive.layout.PaneScaffoldValue<Role>> extends androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldScope<Role,ScaffoldValue> androidx.compose.material3.adaptive.layout.PaneScaffoldPaneScope<Role> {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface ExtendedPaneScaffoldScope<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole, ScaffoldValue extends androidx.compose.material3.adaptive.layout.PaneScaffoldValue<Role>> extends androidx.compose.material3.adaptive.layout.PaneScaffoldScope androidx.compose.ui.layout.LookaheadScope androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope<Role,ScaffoldValue> {
+    method public java.util.Map<Role,androidx.compose.ui.focus.FocusRequester> getFocusRequesters();
+    property public abstract java.util.Map<Role,androidx.compose.ui.focus.FocusRequester> focusRequesters;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class HingePolicy {
@@ -94,6 +76,17 @@ package androidx.compose.material3.adaptive.layout {
     property public androidx.compose.material3.adaptive.layout.HingePolicy AvoidOccluding;
     property public androidx.compose.material3.adaptive.layout.HingePolicy AvoidSeparating;
     property public androidx.compose.material3.adaptive.layout.HingePolicy NeverAvoid;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class LevitatedPaneScrimDefaults {
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color Color;
+    field public static final androidx.compose.material3.adaptive.layout.LevitatedPaneScrimDefaults INSTANCE;
+  }
+
+  public final class LevitatedPaneScrimKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void LevitatedPaneScrim(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void LevitatedPaneScrim-FNF3uiM(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, long, androidx.compose.runtime.Composer?, int, int);
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ListDetailPaneScaffoldDefaults {
@@ -145,17 +138,12 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   @androidx.compose.runtime.Immutable public static final class PaneAdaptedValue.Levitated implements androidx.compose.material3.adaptive.layout.PaneAdaptedValue {
-    ctor public PaneAdaptedValue.Levitated(androidx.compose.ui.Alignment alignment, optional androidx.compose.material3.adaptive.layout.Scrim? scrim);
-    method public androidx.compose.ui.Alignment getAlignment();
-    method public androidx.compose.material3.adaptive.layout.Scrim? getScrim();
-    property public androidx.compose.ui.Alignment alignment;
-    property public androidx.compose.material3.adaptive.layout.Scrim? scrim;
+    ctor public PaneAdaptedValue.Levitated(androidx.compose.ui.Alignment alignment, optional kotlin.jvm.functions.Function0<kotlin.Unit>? scrim);
+    ctor @BytecodeOnly public PaneAdaptedValue.Levitated(androidx.compose.ui.Alignment, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?);
   }
 
   @androidx.compose.runtime.Immutable public static final class PaneAdaptedValue.Reflowed implements androidx.compose.material3.adaptive.layout.PaneAdaptedValue {
     ctor public PaneAdaptedValue.Reflowed(androidx.compose.material3.adaptive.layout.PaneScaffoldRole reflowUnder);
-    method public androidx.compose.material3.adaptive.layout.PaneScaffoldRole getReflowUnder();
-    property public androidx.compose.material3.adaptive.layout.PaneScaffoldRole reflowUnder;
   }
 
   public abstract sealed class PaneExpansionAnchor {
@@ -173,9 +161,9 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public static final class PaneExpansionAnchor.Offset.Companion {
-    method public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromEnd(float offset);
+    method @KotlinOnly public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromEnd(androidx.compose.ui.unit.Dp offset);
     method @BytecodeOnly public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromEnd-0680j_4(float);
-    method public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromStart(float offset);
+    method @KotlinOnly public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromStart(androidx.compose.ui.unit.Dp offset);
     method @BytecodeOnly public androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Offset fromStart-0680j_4(float);
   }
 
@@ -237,10 +225,12 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public final class PaneExpansionStateKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(optional androidx.compose.material3.adaptive.layout.PaneExpansionStateKey key, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> anchoringAnimationSpec, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKey?, java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor!>?, int, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, androidx.compose.foundation.gestures.FlingBehavior?, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider keyProvider, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> anchoringAnimationSpec, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider, java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor!>?, int, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, androidx.compose.foundation.gestures.FlingBehavior?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState! rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKey!, java.util.List!, int, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.foundation.gestures.FlingBehavior!, androidx.compose.runtime.Composer!, int, int);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(optional androidx.compose.material3.adaptive.layout.PaneExpansionStateKey key, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> anchoringAnimationSpec, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> consumeDragDelta);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKey?, java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor!>?, int, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, androidx.compose.foundation.gestures.FlingBehavior?, kotlin.jvm.functions.Function1<? super java.lang.Float!,java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState! rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider!, java.util.List!, int, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.foundation.gestures.FlingBehavior!, androidx.compose.runtime.Composer!, int, int);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider keyProvider, optional java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor> anchors, optional int initialAnchoredIndex, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> anchoringAnimationSpec, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> consumeDragDelta);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.layout.PaneExpansionState rememberPaneExpansionState(androidx.compose.material3.adaptive.layout.PaneExpansionStateKeyProvider, java.util.List<? extends androidx.compose.material3.adaptive.layout.PaneExpansionAnchor!>?, int, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, androidx.compose.foundation.gestures.FlingBehavior?, kotlin.jvm.functions.Function1<? super java.lang.Float!,java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class PaneKt {
@@ -349,7 +339,7 @@ package androidx.compose.material3.adaptive.layout {
     ctor @KotlinOnly public PaneScaffoldDirective(int maxHorizontalPartitions, androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, int maxVerticalPartitions, androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, androidx.compose.ui.unit.Dp defaultPanePreferredWidth, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
     ctor @BytecodeOnly public PaneScaffoldDirective(int, float, int, float, float, float, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public PaneScaffoldDirective(int, float, int, float, float, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective copy(optional int maxHorizontalPartitions, optional float horizontalPartitionSpacerSize, optional int maxVerticalPartitions, optional float verticalPartitionSpacerSize, optional float defaultPanePreferredWidth, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds, optional float defaultPanePreferredHeight);
+    method @KotlinOnly public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective copy(optional int maxHorizontalPartitions, optional androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, optional int maxVerticalPartitions, optional androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, optional androidx.compose.ui.unit.Dp defaultPanePreferredWidth, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds, optional androidx.compose.ui.unit.Dp defaultPanePreferredHeight);
     method @BytecodeOnly @Deprecated public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective! copy-7PwrCCA(int, float, int, float, float, java.util.List!);
     method @BytecodeOnly public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective copy-NKeE31w(int, float, int, float, float, java.util.List<androidx.compose.ui.geometry.Rect!>, float);
     method @BytecodeOnly public float getDefaultPanePreferredHeight-D9Ej5fM();
@@ -375,10 +365,19 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public final class PaneScaffoldDirectiveKt {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional androidx.compose.material3.adaptive.layout.HingePolicy verticalHingePolicy);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirective-A-ymEG0(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int);
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional androidx.compose.material3.adaptive.layout.HingePolicy verticalHingePolicy);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth-A-ymEG0(androidx.compose.material3.adaptive.WindowAdaptiveInfo, int);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldHorizontalOrder<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
+    method public void forEach(kotlin.jvm.functions.Function1<? super Role,kotlin.Unit> action);
+    method public void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super Role,kotlin.Unit> action);
+    method public void forEachIndexedReversed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super Role,kotlin.Unit> action);
+    method public int getSize();
+    method public int indexOf(Role role);
+    property public abstract int size;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldMotionDataProvider<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
@@ -394,19 +393,19 @@ package androidx.compose.material3.adaptive.layout {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldPaneScope<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
     method public androidx.compose.material3.adaptive.layout.PaneMotion getPaneMotion();
     method public Role getPaneRole();
+    method public boolean isInteractable();
+    property public abstract boolean isInteractable;
     property public abstract androidx.compose.material3.adaptive.layout.PaneMotion paneMotion;
     property public abstract Role paneRole;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldParentData {
-    method public androidx.compose.material3.adaptive.layout.DragToResizeState? getDragToResizeState();
     method @BytecodeOnly public float getMinTouchTargetSize-D9Ej5fM();
     method @BytecodeOnly public float getPreferredHeight-D9Ej5fM();
     method public float getPreferredHeightInProportion();
     method @BytecodeOnly public float getPreferredWidth-D9Ej5fM();
     method public float getPreferredWidthInProportion();
     method public boolean isAnimatedPane();
-    property public abstract androidx.compose.material3.adaptive.layout.DragToResizeState? dragToResizeState;
     property public abstract boolean isAnimatedPane;
     property public abstract androidx.compose.ui.unit.Dp minTouchTargetSize;
     property public abstract androidx.compose.ui.unit.Dp preferredHeight;
@@ -419,15 +418,14 @@ package androidx.compose.material3.adaptive.layout {
   }
 
   public sealed interface PaneScaffoldScope {
-    method public default androidx.compose.ui.Modifier dragToResize(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.DragToResizeState state);
     method public androidx.compose.runtime.saveable.SaveableStateHolder getSaveableStateHolder();
-    method public androidx.compose.ui.Modifier paneExpansionDraggable(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState state, float minTouchTargetSize, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? semanticsProperties);
+    method @KotlinOnly public androidx.compose.ui.Modifier paneExpansionDraggable(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState state, androidx.compose.ui.unit.Dp minTouchTargetSize, androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional kotlin.jvm.functions.Function1<androidx.compose.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? semanticsProperties);
     method @BytecodeOnly public androidx.compose.ui.Modifier paneExpansionDraggable-TDGSqEk(androidx.compose.ui.Modifier, androidx.compose.material3.adaptive.layout.PaneExpansionState, float, androidx.compose.foundation.interaction.MutableInteractionSource, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsPropertyReceiver!,kotlin.Unit!>?);
+    method @KotlinOnly public androidx.compose.ui.Modifier preferredHeight(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp height);
     method public androidx.compose.ui.Modifier preferredHeight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float proportion);
-    method public androidx.compose.ui.Modifier preferredHeight(androidx.compose.ui.Modifier, float height);
     method @BytecodeOnly public androidx.compose.ui.Modifier preferredHeight-3ABfNKs(androidx.compose.ui.Modifier, float);
+    method @KotlinOnly public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp width);
     method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float proportion);
-    method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, float width);
     method @BytecodeOnly public androidx.compose.ui.Modifier preferredWidth-3ABfNKs(androidx.compose.ui.Modifier, float);
     property public abstract androidx.compose.runtime.saveable.SaveableStateHolder saveableStateHolder;
   }
@@ -443,16 +441,6 @@ package androidx.compose.material3.adaptive.layout {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface PaneScaffoldValue<Role extends androidx.compose.material3.adaptive.layout.PaneScaffoldRole> {
     method public operator androidx.compose.material3.adaptive.layout.PaneAdaptedValue get(Role role);
-  }
-
-  @androidx.compose.runtime.Immutable public final class Scrim {
-    ctor public Scrim();
-    ctor @KotlinOnly public Scrim(optional androidx.compose.ui.graphics.Color color, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onClick);
-    ctor @BytecodeOnly public Scrim(long, kotlin.jvm.functions.Function0!, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @BytecodeOnly public long getColor-0d7_KjU();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnClick();
-    property public androidx.compose.ui.graphics.Color color;
-    property public kotlin.jvm.functions.Function0<kotlin.Unit>? onClick;
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneScaffoldDefaults {
@@ -500,7 +488,7 @@ package androidx.compose.material3.adaptive.layout {
     property public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldHorizontalOrder {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldHorizontalOrder implements androidx.compose.material3.adaptive.layout.PaneScaffoldHorizontalOrder<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole> {
     method public void forEach(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);
     method public void forEachIndexed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);
     method public void forEachIndexedReversed(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,kotlin.Unit> action);

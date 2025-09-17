@@ -27,4 +27,10 @@ internal fun Translations.fi() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d prosenttia",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d DP:tä alusta",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d DP:tä lopusta",
+    Strings.dragToResizeClickToExpandDescription to "laajenna",
+    Strings.dragToResizeClickToCollapseDescription to "tiivistä",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "laajenna osittain",
+    Strings.dragToResizeExpandedStateDescription to "laajennettu",
+    Strings.dragToResizeCollapsedStateDescription to "tiivistetty",
+    Strings.dragToResizePartiallyExpandedStateDescription to "osittain laajennettu",
 )

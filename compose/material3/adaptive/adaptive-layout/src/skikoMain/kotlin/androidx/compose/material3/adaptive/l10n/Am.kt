@@ -27,4 +27,10 @@ internal fun Translations.am() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d መቶኛ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d ዲፒዎች ከመጀመሪያ",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d ዲፒዎች ከማብቂያ",
+    Strings.dragToResizeClickToExpandDescription to "ዘርጋ",
+    Strings.dragToResizeClickToCollapseDescription to "ሰብስብ",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "በከፊል ዘርጋ",
+    Strings.dragToResizeExpandedStateDescription to "ተዘርግቷል",
+    Strings.dragToResizeCollapsedStateDescription to "ተሰብስቧል",
+    Strings.dragToResizePartiallyExpandedStateDescription to "በከፊል የተዘረጋ",
 )

@@ -27,4 +27,10 @@ internal fun Translations.`as`() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d শতাংশ",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "আৰম্ভণিৰ পৰা %d DPs",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "অন্তৰ পৰা %d DPs",
+    Strings.dragToResizeClickToExpandDescription to "বিস্তাৰ কৰক",
+    Strings.dragToResizeClickToCollapseDescription to "সংকোচন কৰক",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "আংশিকভাৱে বিস্তাৰ কৰক",
+    Strings.dragToResizeExpandedStateDescription to "বিস্তাৰ কৰা আছে",
+    Strings.dragToResizeCollapsedStateDescription to "সংকোচন কৰা আছে",
+    Strings.dragToResizePartiallyExpandedStateDescription to "আংশিকভাৱে বিস্তাৰ কৰা আছে",
 )

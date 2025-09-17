@@ -27,4 +27,10 @@ internal fun Translations.tl() = mapOf(
     Strings.defaultPaneExpansionProportionAnchorDescription to "%d (na) porsyento",
     Strings.defaultPaneExpansionStartOffsetAnchorDescription to "%d (na) DP mula sa simula",
     Strings.defaultPaneExpansionEndOffsetAnchorDescription to "%d (na) DP mula sa dulo",
+    Strings.dragToResizeClickToExpandDescription to "i-expand",
+    Strings.dragToResizeClickToCollapseDescription to "i-collapse",
+    Strings.dragToResizeClickToPartiallyExpandDescription to "bahagyang i-expand",
+    Strings.dragToResizeExpandedStateDescription to "naka-expand",
+    Strings.dragToResizeCollapsedStateDescription to "naka-collapse",
+    Strings.dragToResizePartiallyExpandedStateDescription to "bahagyang naka-expand",
 )
