@@ -136,7 +136,6 @@ public final class androidx/compose/ui/test/FiltersKt {
 	public static final fun isFocused ()Landroidx/compose/ui/test/SemanticsMatcher;
 	public static final fun isHeading ()Landroidx/compose/ui/test/SemanticsMatcher;
 	public static final fun isHiddenFromAccessibility ()Landroidx/compose/ui/test/SemanticsMatcher;
-	public static final fun isInHiddenAccessibilitySubtree ()Landroidx/compose/ui/test/SemanticsMatcher;
 	public static final fun isNotEnabled ()Landroidx/compose/ui/test/SemanticsMatcher;
 	public static final fun isNotFocusable ()Landroidx/compose/ui/test/SemanticsMatcher;
 	public static final fun isNotFocused ()Landroidx/compose/ui/test/SemanticsMatcher;
