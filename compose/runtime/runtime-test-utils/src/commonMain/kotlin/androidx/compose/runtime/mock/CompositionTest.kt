@@ -164,20 +164,16 @@ interface CompositionTestScope : CoroutineScope {
 }
 
 /** Create a mock view validator and validate the view. */
-fun CompositionTestScope.validate(block: MockViewValidator.() -> Unit) {
-    verifyConsistent()
+fun CompositionTestScope.validate(block: MockViewValidator.() -> Unit) =
     MockViewListValidator(root.children).validate(block).also { validator = block }
-}
 
 /** Revalidate using the last validator */
 fun CompositionTestScope.revalidate() = validate(validator ?: error("validate was not called"))
 
 /** Advance and expect changes */
 fun CompositionTestScope.expectChanges() {
-    verifyConsistent()
     val changes = advance()
     assertTrue(actual = changes, message = "Expected changes but none were found")
-    verifyConsistent()
 }
 
 /** Advance and expect no changes */

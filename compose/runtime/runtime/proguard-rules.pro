@@ -32,3 +32,7 @@
     static java.lang.Void compose*RuntimeError(...);
 }
 
+# Runtime uses this field to enable group key based stack trace collection.
+-assumevalues class androidx.compose.runtime.tooling.ComposeStackTraceMode {
+     private static boolean isMinified return true;
+}

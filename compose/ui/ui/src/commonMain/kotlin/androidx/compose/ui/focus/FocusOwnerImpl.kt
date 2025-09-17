@@ -236,6 +236,25 @@ internal class FocusOwnerImpl(
      * @return true if focus was moved successfully. false if the focused item is unchanged.
      */
     override fun moveFocus(focusDirection: FocusDirection): Boolean {
+        return moveFocus(focusDirection, wrapAroundForOneDimensionalFocus = true)
+    }
+
+    /**
+     * Moves focus in the specified direction.
+     *
+     * This is an internal overload of the public API [moveFocus]. This is kept internal because:
+     * 1. We don't have a clear understanding of external use cases that need this.
+     * 2. We support wrap around only for 1D focus search. But based on the actual use cases we
+     *    might want to support this for 2D focus search too.
+     * 3. This is a compose only feature and won't work correctly in all interop scenarios on
+     *    Android. We make a best effort, and will not wrap around if there is a view after the
+     *    currently focused composable, but once focus moves to that view, we have no control over
+     *    the wrapping around behavior.
+     */
+    override fun moveFocus(
+        focusDirection: FocusDirection,
+        wrapAroundForOneDimensionalFocus: Boolean,
+    ): Boolean {
         // First check to see if the focus should move within child Views
         @OptIn(ExperimentalComposeUiApi::class)
         if (
@@ -267,7 +286,7 @@ internal class FocusOwnerImpl(
         if (focusSearchSuccess && requestFocusSuccess) return true
 
         // To wrap focus around, we clear focus and request initial focus.
-        if (focusDirection.is1dFocusSearch()) {
+        if (focusDirection.is1dFocusSearch() && wrapAroundForOneDimensionalFocus) {
             val clearFocus =
                 clearFocus(
                     force = false,
@@ -309,7 +328,13 @@ internal class FocusOwnerImpl(
                     Default -> {
                         /* Do Nothing */
                     }
-                    else -> return customDest.findFocusTargetNode(onFound)
+                    else ->
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        return if (ComposeUiFlags.isRequestFocusOnNonFocusableFocusTargetEnabled) {
+                            customDest.findFocusTarget(onFound)
+                        } else {
+                            customDest.findFocusTargetNode(onFound)
+                        }
                 }
             }
 

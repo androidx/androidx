@@ -17,9 +17,9 @@
 
 package androidx.compose.remote.frontend.layout
 
+import android.graphics.Typeface
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_DAY_OF_MONTH
@@ -75,20 +75,21 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
-typealias Remotable = Any
+internal typealias Remotable = Any
 
-typealias RemotableFloat = Number
+internal typealias RemotableFloat = Number
 
-open class RemoteCanvasDrawScope(
-    val remoteComposeCreationState: RemoteComposeCreationState,
-    val drawScope: DrawScope,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class RemoteCanvasDrawScope(
+    public val remoteComposeCreationState: RemoteComposeCreationState,
+    public val drawScope: DrawScope,
     override val density: Float = drawScope.density,
     override val fontScale: Float = drawScope.fontScale,
     override val drawContext: DrawContext = drawScope.drawContext,
     override val layoutDirection: LayoutDirection = drawScope.layoutDirection,
 ) : RemoteDrawScope {
 
-    fun drawCircle(
+    public fun drawCircle(
         color: Color,
         radius: RemoteFloat = remote.component.height / 2f,
         center: RemoteOffset =
@@ -108,7 +109,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawCircle(
+    public fun drawCircle(
         color: Color,
         radius: RemotableFloat = remote.component.height / 2f,
         center: RemoteOffset =
@@ -145,17 +146,20 @@ open class RemoteCanvasDrawScope(
         drawScope.drawCircle(color, r, center.asOffset(), a, style, colorFilter)
     }
 
-    class RemoteAccess(
-        val remoteDrawScope: RemoteCanvasDrawScope,
-        val drawScope: DrawScope,
-        val remoteComposeCreationState: RemoteComposeCreationState,
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class RemoteAccess(
+        public val remoteDrawScope: RemoteCanvasDrawScope,
+        public val drawScope: DrawScope,
+        public val remoteComposeCreationState: RemoteComposeCreationState,
     ) {
-        val component = RemoteComponent(drawScope, remoteComposeCreationState)
-        val time = RemoteTime(drawScope, remoteComposeCreationState)
+        public val component: RemoteComponent =
+            RemoteComponent(drawScope, remoteComposeCreationState)
+        public val time: RemoteTime = RemoteTime(drawScope, remoteComposeCreationState)
 
-        class RemoteComponent(
-            val drawScope: DrawScope,
-            val remoteComposeCreationState: RemoteComposeCreationState,
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public class RemoteComponent(
+            public val drawScope: DrawScope,
+            public val remoteComposeCreationState: RemoteComposeCreationState,
         ) {
             private fun pickValue(default: Float, value: () -> RemoteFloat): RemoteFloat {
                 if (
@@ -167,75 +171,79 @@ open class RemoteCanvasDrawScope(
                 return RemoteFloat(default)
             }
 
-            val width: RemoteFloat
+            public val width: RemoteFloat
                 get() =
                     pickValue(drawScope.size.width) {
                         remoteComponentWidth(remoteComposeCreationState)
                     }
 
-            val height: RemoteFloat
+            public val height: RemoteFloat
                 get() =
                     pickValue(drawScope.size.height) {
                         remoteComponentHeight(remoteComposeCreationState)
                     }
 
-            val centerX: RemoteFloat
+            public val centerX: RemoteFloat
                 get() =
                     pickValue(drawScope.center.x) {
                         remoteComponentCenterX(remoteComposeCreationState)
                     }
 
-            val centerY: RemoteFloat
+            public val centerY: RemoteFloat
                 get() =
                     pickValue(drawScope.center.y) {
                         remoteComponentCenterY(remoteComposeCreationState)
                     }
         }
 
-        class RemoteTime(val drawScope: DrawScope, val state: RemoteComposeCreationState) {
-            fun Hour(): RemoteFloat {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public class RemoteTime(
+            public val drawScope: DrawScope,
+            public val state: RemoteComposeCreationState,
+        ) {
+            public fun Hour(): RemoteFloat {
                 return RemoteFloat(FLOAT_TIME_IN_HR)
             }
 
-            fun Minutes(): RemoteFloat {
+            public fun Minutes(): RemoteFloat {
                 return RemoteFloat(FLOAT_TIME_IN_MIN)
             }
 
-            fun Seconds(): RemoteFloat {
+            public fun Seconds(): RemoteFloat {
                 if (state is NoRemoteCompose) { // in Compose local
                     state.time.value
                 }
                 return RemoteFloat(FLOAT_TIME_IN_SEC)
             }
 
-            val time: Long
+            public val time: Long
                 get() = if (state is NoRemoteCompose) state.time.value else 0L
 
-            fun ContinuousSec(): RemoteFloat {
+            public fun ContinuousSec(): RemoteFloat {
                 if (state is NoRemoteCompose) {
                     state.time.value
                 }
                 return RemoteFloat(FLOAT_CONTINUOUS_SEC)
             }
 
-            fun UtcOffset(): RemoteFloat {
+            public fun UtcOffset(): RemoteFloat {
                 return RemoteFloat(FLOAT_OFFSET_TO_UTC)
             }
 
-            fun DayOfWeek(): RemoteFloat {
+            public fun DayOfWeek(): RemoteFloat {
                 return RemoteFloat(FLOAT_WEEK_DAY)
             }
 
-            fun DayOfMonth(): RemoteFloat {
+            public fun DayOfMonth(): RemoteFloat {
                 return RemoteFloat(FLOAT_DAY_OF_MONTH)
             }
         }
 
-        fun value(v: Float): RemoteFloat {
+        public fun value(v: Float): RemoteFloat {
             return RemoteFloat(v)
         }
 
-        fun animateFloat(
+        public fun animateFloat(
             rf: RemoteFloat,
             duration: Float = 1f,
             type: Int = 1,
@@ -248,7 +256,7 @@ open class RemoteCanvasDrawScope(
             return AnimatedRemoteFloat(rf, anim)
         }
 
-        fun animateFloat(
+        public fun animateFloat(
             duration: Float = 1f,
             type: Int = 1,
             spec: FloatArray? = null,
@@ -259,7 +267,7 @@ open class RemoteCanvasDrawScope(
             return animateFloat(content(), duration, type, spec, initialValue, wrap)
         }
 
-        fun loop(
+        public fun loop(
             until: Int,
             from: Int = 0,
             step: Int = 1,
@@ -268,7 +276,7 @@ open class RemoteCanvasDrawScope(
             loop(until.toFloat(), from.toFloat(), step.toFloat(), content)
         }
 
-        fun loop(
+        public fun loop(
             until: Float,
             from: Float = 0f,
             step: Float = 1f,
@@ -294,7 +302,7 @@ open class RemoteCanvasDrawScope(
         }
     }
 
-    val remote = RemoteAccess(this, drawScope, remoteComposeCreationState)
+    public val remote: RemoteAccess = RemoteAccess(this, drawScope, remoteComposeCreationState)
 
     override fun drawLine(
         brush: Brush,
@@ -344,7 +352,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawLine(
+    public fun drawLine(
         color: Color,
         start: RemoteOffset,
         end: RemoteOffset,
@@ -368,7 +376,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawLine(
+    public fun drawLine(
         color: Color,
         start: Remotable,
         end: Remotable,
@@ -432,7 +440,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawRect(
+    public fun drawRect(
         brush: RemoteBrush,
         topLeft: ROffset = Offset.Zero,
         size: RSize = RSize(remote.component.width, remote.component.height),
@@ -456,7 +464,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawRect(
+    public fun drawRect(
         brush: RemoteBrush,
         topLeft: ROffset = Offset.Zero,
         size: RSize = RSize(remote.component.width, remote.component.height),
@@ -524,7 +532,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawScaledImage(
+    public fun drawScaledImage(
         image: ImageBitmap,
         srcOffset: ROffset = Offset.Zero,
         srcSize: RSize = RSize(image.width.toFloat(), image.height.toFloat()),
@@ -674,7 +682,7 @@ open class RemoteCanvasDrawScope(
         )
     }
 
-    fun drawRoundRect(
+    public fun drawRoundRect(
         brush: RemoteBrush,
         topLeft: ROffset,
         size: RSize,
@@ -714,7 +722,7 @@ open class RemoteCanvasDrawScope(
         }
     }
 
-    fun drawRoundRect(
+    public fun drawRoundRect(
         brush: RemoteBrush,
         topLeft: ROffset = Offset.Zero,
         size: RSize = RSize(remote.component.width, remote.component.height),
@@ -1120,7 +1128,7 @@ open class RemoteCanvasDrawScope(
         pany: Number,
         alpha: Number,
         drawStyle: DrawStyle,
-        typeface: android.graphics.Typeface?,
+        typeface: Typeface?,
         textSize: Number,
     ) {
         remoteDrawAnchoredText(
@@ -1144,7 +1152,7 @@ open class RemoteCanvasDrawScope(
         pany: Number,
         alpha: Number,
         drawStyle: DrawStyle,
-        typeface: android.graphics.Typeface?,
+        typeface: Typeface?,
         textSize: Number,
     ) {
         remoteDrawAnchoredText(
@@ -1168,7 +1176,7 @@ open class RemoteCanvasDrawScope(
         pany: Number,
         alpha: Number,
         drawStyle: DrawStyle,
-        typeface: android.graphics.Typeface?,
+        typeface: Typeface?,
         textSize: Number,
     ) {
         remoteDrawAnchoredText(
@@ -1192,7 +1200,7 @@ open class RemoteCanvasDrawScope(
         pany: Number,
         alpha: Number,
         drawStyle: DrawStyle,
-        typeface: android.graphics.Typeface?,
+        typeface: Typeface?,
         textSize: Number,
     ) {
         remoteDrawAnchoredText(

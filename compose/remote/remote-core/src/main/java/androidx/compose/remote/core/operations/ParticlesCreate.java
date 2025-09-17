@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -41,6 +42,7 @@ import java.util.List;
  * This creates a particle system. which consist of id, particleCount, array of id's and equations
  * for constructing the particles
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ParticlesCreate extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.PARTICLE_DEFINE;
     private static final String CLASS_NAME = "ParticlesCreate";

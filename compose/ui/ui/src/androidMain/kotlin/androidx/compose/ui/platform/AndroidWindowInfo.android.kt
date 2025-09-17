@@ -34,8 +34,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.platform.WindowInfoImpl.Companion.GlobalKeyboardModifiers
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toSize
 import java.lang.reflect.InvocationTargetException
 
 /**
@@ -43,8 +47,8 @@ import java.lang.reflect.InvocationTargetException
  * size calculation when no one is reading the value.
  */
 internal class LazyWindowInfo : WindowInfo {
-    private var onInitializeContainerSize: (() -> IntSize)? = null
-    private var _containerSize: MutableState<IntSize>? = null
+    private var onInitializeContainerSize: (() -> DerivedSize)? = null
+    private var _containerSize: MutableState<DerivedSize>? = null
 
     override var isWindowFocused: Boolean by mutableStateOf(false)
 
@@ -54,11 +58,11 @@ internal class LazyWindowInfo : WindowInfo {
             GlobalKeyboardModifiers.value = value
         }
 
-    inline fun updateContainerSizeIfObserved(calculateContainerSize: () -> IntSize) {
+    inline fun updateContainerSizeIfObserved(calculateContainerSize: () -> DerivedSize) {
         _containerSize?.let { it.value = calculateContainerSize() }
     }
 
-    fun setOnInitializeContainerSize(onInitializeContainerSize: (() -> IntSize)?) {
+    fun setOnInitializeContainerSize(onInitializeContainerSize: (() -> DerivedSize)?) {
         // If we have already initialized, no need to set a listener here
         if (_containerSize == null) {
             this.onInitializeContainerSize = onInitializeContainerSize
@@ -68,11 +72,21 @@ internal class LazyWindowInfo : WindowInfo {
     override val containerSize: IntSize
         get() {
             if (_containerSize == null) {
-                val initialSize = onInitializeContainerSize?.invoke() ?: IntSize.Zero
+                val initialSize = onInitializeContainerSize?.invoke() ?: DerivedSize.Zero
                 _containerSize = mutableStateOf(initialSize)
                 onInitializeContainerSize = null
             }
-            return _containerSize!!.value
+            return _containerSize!!.value.pxSize
+        }
+
+    override val containerDpSize: DpSize
+        get() {
+            if (_containerSize == null) {
+                val initialSize = onInitializeContainerSize?.invoke() ?: DerivedSize.Zero
+                _containerSize = mutableStateOf(initialSize)
+                onInitializeContainerSize = null
+            }
+            return _containerSize!!.value.dpSize
         }
 }
 
@@ -80,19 +94,35 @@ internal class LazyWindowInfo : WindowInfo {
  * TODO: b/369334429 Temporary fork of WindowMetricsCalculator logic until b/360934048 and
  *   b/369170239 are resolved
  */
-internal fun calculateWindowSize(androidComposeView: AndroidComposeView): IntSize {
+internal fun calculateWindowSize(androidComposeView: AndroidComposeView): DerivedSize {
     val context = androidComposeView.context
     val activity = context.findActivity()
+    val density = Density(context)
     if (activity != null) {
         val bounds = BoundsHelper.getInstance().currentWindowBounds(activity)
-        return IntSize(width = bounds.width(), height = bounds.height())
+        return DerivedSize.fromPxSize(
+            pxSize = IntSize(bounds.width(), bounds.height()),
+            density = density,
+        )
     } else {
         // Fallback behavior for views created with an applicationContext / other non-Activity host
         val configuration = context.resources.configuration
-        val density = context.resources.displayMetrics.density
-        val width = (configuration.screenWidthDp * density).fastRoundToInt()
-        val height = (configuration.screenHeightDp * density).fastRoundToInt()
-        return IntSize(width = width, height = height)
+        return DerivedSize.fromDpSize(
+            dpSize = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp),
+            density = density,
+        )
+    }
+}
+
+internal data class DerivedSize(val pxSize: IntSize, val dpSize: DpSize) {
+    companion object {
+        val Zero = DerivedSize(IntSize.Zero, DpSize.Zero)
+
+        fun fromPxSize(pxSize: IntSize, density: Density) =
+            DerivedSize(pxSize, with(density) { pxSize.toSize().toDpSize() })
+
+        fun fromDpSize(dpSize: DpSize, density: Density) =
+            DerivedSize(with(density) { dpSize.toSize().toIntSize() }, dpSize)
     }
 }
 

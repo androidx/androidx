@@ -31,6 +31,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/**
+ * Test was kept for compatibility with [ModifierLocalBeyondBoundsLayout]. The version of this test
+ * using Modifier Nodes is in BeyondBoundsLayoutProviderModifierNodeTest.
+ */
+@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class BeyondBoundsLayoutTest {

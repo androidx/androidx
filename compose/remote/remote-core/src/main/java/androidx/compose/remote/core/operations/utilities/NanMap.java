@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.utilities;
 
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.Utils;
 
 /**
@@ -27,6 +28,7 @@ import androidx.compose.remote.core.operations.Utils;
  * 4xxxxx,5xxxxx,7xxxxx are reserved for future use 0x1000-0x1100 are used for path operations in
  * PathData 0x1100-0x1200 are used for math operations in Animated float 0x
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NanMap {
 
     public static final int MOVE = 0x300_000;

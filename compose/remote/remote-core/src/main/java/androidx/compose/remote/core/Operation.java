@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** Base interface for RemoteCompose operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Operation {
 
     private static final boolean ENABLE_DIRTY_FLAG_OPTIMIZATION = true;

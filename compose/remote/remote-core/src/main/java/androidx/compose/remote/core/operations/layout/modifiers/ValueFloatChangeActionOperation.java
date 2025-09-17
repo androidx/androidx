@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -35,6 +36,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Apply a value change on an float variable. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueFloatChangeActionOperation extends Operation implements ActionOperation {
     private static final int OP_CODE = Operations.VALUE_FLOAT_CHANGE_ACTION;
 

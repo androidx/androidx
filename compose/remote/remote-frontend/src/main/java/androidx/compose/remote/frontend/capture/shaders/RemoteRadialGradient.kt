@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.capture.shaders
 
 import android.graphics.RadialGradient
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.frontend.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
@@ -59,7 +58,7 @@ import androidx.compose.ui.graphics.toAndroidTileMode
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.radialGradient(
+public fun RemoteBrush.Companion.radialGradient(
     vararg colorStops: Pair<Float, Color>,
     center: Offset = Offset.Unspecified,
     radius: Float = Float.POSITIVE_INFINITY,
@@ -98,7 +97,7 @@ fun RemoteBrush.Companion.radialGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.radialGradient(
+public fun RemoteBrush.Companion.radialGradient(
     colors: List<Color>,
     center: Offset = Offset.Unspecified,
     radius: Float = Float.POSITIVE_INFINITY,
@@ -112,8 +111,9 @@ fun RemoteBrush.Companion.radialGradient(
         tileMode = tileMode,
     )
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-data class RemoteRadialGradient(
+public data class RemoteRadialGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val center: Offset,
@@ -183,13 +183,14 @@ private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     }
 }
 
-class RemoteRadialShader(
-    var centerX: Float,
-    var centerY: Float,
-    var radius: Float,
-    var colors: IntArray,
-    var positions: FloatArray?,
-    var tileMode: TileMode,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteRadialShader(
+    public var centerX: Float,
+    public var centerY: Float,
+    public var radius: Float,
+    public var colors: IntArray,
+    public var positions: FloatArray?,
+    public var tileMode: TileMode,
 ) : RadialGradient(centerX, centerY, radius, colors, positions, tileMode), RemoteShader {
     override fun apply(paintBundle: PaintBundle) {
         paintBundle.setRadialGradient(

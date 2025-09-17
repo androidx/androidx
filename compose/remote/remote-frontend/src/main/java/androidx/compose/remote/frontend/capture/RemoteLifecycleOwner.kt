@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.capture
 
 import android.view.View
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
@@ -27,22 +26,23 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
 /** Needed to be provided for the lifecycle execution */
-class RemoteLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
-    fun onCreate() {
+    public fun onCreate() {
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     }
 
-    fun onResume() {
+    public fun onResume() {
         //        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
     }
 
-    fun onPause() {
+    public fun onPause() {
         //        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     }
 
-    fun onDestroy() {
+    public fun onDestroy() {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         viewModelStore.clear()
     }
@@ -51,7 +51,7 @@ class RemoteLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegi
      * Compose uses the Window's decor view to locate the Lifecycle/ViewModel/SavedStateRegistry
      * owners. Therefore, we need to set this class as the "owner" for the decor view.
      */
-    fun attachToDecorView(decorView: View?) {
+    public fun attachToDecorView(decorView: View?) {
         if (decorView == null) return
 
         decorView.setViewTreeLifecycleOwner(this)
@@ -64,7 +64,7 @@ class RemoteLifecycleOwner : LifecycleOwner, ViewModelStoreOwner, SavedStateRegi
     override val lifecycle: Lifecycle = lifecycleRegistry
 
     // ViewModelStore methods
-    override val viewModelStore = ViewModelStore()
+    override val viewModelStore: ViewModelStore = ViewModelStore()
 
     // SavedStateRegistry methods
     private val savedStateRegistryController = SavedStateRegistryController.create(this)

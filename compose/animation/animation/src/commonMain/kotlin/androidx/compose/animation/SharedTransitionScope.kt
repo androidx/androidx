@@ -381,8 +381,13 @@ public interface SharedTransitionScope : LookaheadScope {
      * difference:
      *
      * @sample androidx.compose.animation.samples.NestedSharedBoundsSample
+     * @param enabled A lambda that determines when the modifier should be active. Defaults to `{
+     *   isTransitionActive }`, which enables the modifier only during active shared element
+     *   transitions
      */
-    public fun Modifier.skipToLookaheadSize(): Modifier
+    public fun Modifier.skipToLookaheadSize(
+        enabled: () -> Boolean = { isTransitionActive }
+    ): Modifier
 
     /**
      * A modifier that anchors a layout at the target position obtained from the lookahead pass
@@ -400,13 +405,13 @@ public interface SharedTransitionScope : LookaheadScope {
      * anchor a layout relative to a window, it's recommended to set up [SharedTransitionLayout] in
      * a way that it does not change position in the window.
      *
-     * Note: [skipToLookaheadPosition] by default is only enabled via [isEnabled] lambda during a
+     * Note: [skipToLookaheadPosition] by default is only enabled via [enabled] lambda during a
      * shared transition. It is recommended to enable it only when necessary. When active, it
      * counteracts its ancestor layout's movement, which can incur extra placement pass costs if the
      * parent layout frequently moves (e.g., during scrolling or animation).
      *
      * @sample androidx.compose.animation.samples.SharedElementClipRevealSample
-     * @param isEnabled A lambda that determines when the modifier should be active. Defaults to `{
+     * @param enabled A lambda that determines when the modifier should be active. Defaults to `{
      *   isTransitionActive }`, which enables the modifier only during active shared element
      *   transitions
      * @see SharedTransitionLayout
@@ -415,15 +420,15 @@ public interface SharedTransitionScope : LookaheadScope {
      * @see skipToLookaheadSize
      */
     public fun Modifier.skipToLookaheadPosition(
-        isEnabled: () -> Boolean = { isTransitionActive }
+        enabled: () -> Boolean = { isTransitionActive }
     ): Modifier =
         this.approachLayout(
             isMeasurementApproachInProgress = { false },
-            isPlacementApproachInProgress = { isEnabled() },
+            isPlacementApproachInProgress = { enabled() },
         ) { m, c ->
             m.measure(c).run {
                 layout(width, height) {
-                    if (isEnabled()) {
+                    if (enabled()) {
                         coordinates?.let {
                             val target = lookaheadScopeCoordinates.localLookaheadPositionOf(it)
                             val actual = lookaheadScopeCoordinates.localPositionOf(it)
@@ -467,7 +472,7 @@ public interface SharedTransitionScope : LookaheadScope {
      */
     public fun Modifier.renderInSharedTransitionScopeOverlay(
         zIndexInOverlay: Float = 0f,
-        renderInOverlay: SharedTransitionScope.() -> Boolean = { isTransitionActive },
+        renderInOverlay: () -> Boolean = { isTransitionActive },
     ): Modifier
 
     /**
@@ -971,11 +976,12 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     @VisibleForTesting var testBlockToRun: (() -> Unit)? = null
 
-    override fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement())
+    override fun Modifier.skipToLookaheadSize(enabled: () -> Boolean): Modifier =
+        this.then(SkipToLookaheadSizeElement(isEnabled = enabled))
 
     override fun Modifier.renderInSharedTransitionScopeOverlay(
         zIndexInOverlay: Float,
-        renderInOverlay: SharedTransitionScope.() -> Boolean,
+        renderInOverlay: () -> Boolean,
     ): Modifier =
         this.then(
             RenderInTransitionOverlayNodeElement(

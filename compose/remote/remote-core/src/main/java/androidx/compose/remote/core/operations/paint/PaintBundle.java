@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.paint;
 
 import static androidx.compose.remote.core.serialize.MapSerializer.orderedOf;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Paint Bundle represents a delta of changes to a paint object */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaintBundle implements Serializable {
     int @NonNull [] mArray = new int[200];
     int @Nullable [] mOutArray = null;

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a loop of operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LoopOperation extends PaintOperation
         implements Container, VariableSupport, Serializable {
     private static final String CLASS_NAME = "LoopOperation";

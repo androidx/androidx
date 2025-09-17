@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.animation;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -33,6 +34,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Basic component animation spec */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimationSpec extends Operation implements ModifierOperation {
     public static final AnimationSpec DEFAULT = new AnimationSpec();
     public static final AnimationSpec DISABLED = new AnimationSpec(0);

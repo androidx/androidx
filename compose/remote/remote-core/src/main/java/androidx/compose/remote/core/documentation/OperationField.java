@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core.documentation;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OperationField {
     final int mType;
     @NonNull final String mName;

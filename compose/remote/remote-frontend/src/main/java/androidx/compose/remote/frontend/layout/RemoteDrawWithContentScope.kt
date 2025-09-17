@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
 import androidx.compose.remote.frontend.capture.RecordingCanvas
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
@@ -29,11 +28,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.LayoutDirection
 
-interface RemoteDrawWithContentScope : RemoteDrawScope {
-    fun drawContent()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface RemoteDrawWithContentScope : RemoteDrawScope {
+    public fun drawContent()
 }
 
-class RemoteDrawWithContentScopeImpl(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteDrawWithContentScopeImpl(
     remoteComposeCreationState: RemoteComposeCreationState,
     drawScope: DrawScope,
     density: Float = drawScope.density,

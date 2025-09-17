@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 
 import org.jspecify.annotations.NonNull;
@@ -24,6 +25,7 @@ import java.time.Clock;
 import java.util.HashMap;
 
 /** Specify an abstract paint context used by RemoteCompose commands to draw */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PaintContext {
     public static final int TEXT_MEASURE_MONOSPACE_WIDTH = 0x01;
     public static final int TEXT_MEASURE_FONT_HEIGHT = 0x02;

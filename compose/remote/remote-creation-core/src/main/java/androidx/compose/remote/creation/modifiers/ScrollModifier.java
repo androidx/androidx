@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Background modifier, takes a color and a shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ScrollModifier implements RecordingModifier.Element {
 
     public static final int VERTICAL = 0;

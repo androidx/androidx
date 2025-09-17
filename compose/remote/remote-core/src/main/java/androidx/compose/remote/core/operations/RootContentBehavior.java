@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
@@ -34,6 +35,7 @@ import java.util.List;
  * <p>It encodes the version of the document (following semantic versioning) as well as the
  * dimensions of the document in pixels.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RootContentBehavior extends Operation
         implements RemoteComposeOperation, ScrollableComponent {
     private static final int OP_CODE = Operations.ROOT_CONTENT_BEHAVIOR;

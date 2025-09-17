@@ -26,8 +26,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
@@ -382,6 +385,62 @@ class FocusRestorerTest {
         rule.runOnIdle {
             assertThat(child1State.isFocused).isTrue()
             assertThat(child2State.isFocused).isFalse()
+        }
+    }
+
+    @Test
+    fun restorationFailed_whenItemDeleted_fallbackIsUsed() {
+        // Arrange.
+        val (parent, child2, child3) = FocusRequester.createRefs()
+        var showChild3 by mutableStateOf(true)
+        lateinit var focusManager: FocusManager
+        lateinit var child1State: FocusState
+        lateinit var child2State: FocusState
+        lateinit var child3State: FocusState
+
+        rule.setFocusableContent {
+            focusManager = LocalFocusManager.current
+            Box(Modifier.size(10.dp).focusRequester(parent).focusRestorer(child2).focusGroup()) {
+                key(1) {
+                    Box(Modifier.size(10.dp).onFocusChanged { child1State = it }.focusTarget())
+                }
+                key(2) {
+                    Box(
+                        Modifier.size(10.dp)
+                            .focusRequester(child2)
+                            .onFocusChanged { child2State = it }
+                            .focusTarget()
+                    )
+                }
+                if (showChild3) {
+                    key(3) {
+                        Box(
+                            Modifier.size(10.dp)
+                                .focusRequester(child3)
+                                .onFocusChanged { child3State = it }
+                                .focusTarget()
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            parent.requestFocus()
+            child3.requestFocus()
+        }
+        // Save focused child.
+        rule.runOnIdle { focusManager.clearFocus() }
+        // Remove child that has to be restored.
+        rule.runOnIdle { showChild3 = false }
+
+        // Act - Restore focused child, which fails and the fallback item is used.
+        rule.runOnIdle { parent.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(child1State.isFocused).isFalse()
+            assertThat(child2State.isFocused).isTrue()
+            assertThat(child3State.isFocused).isFalse()
         }
     }
 

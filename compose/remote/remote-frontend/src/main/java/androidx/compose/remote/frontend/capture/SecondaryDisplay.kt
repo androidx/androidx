@@ -24,13 +24,13 @@ import android.view.Display
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 
 /** Implement a secondary display view hierarchy, hosting a compose host */
-class SecondaryDisplay(outerContext: Context?, display: Display?) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class SecondaryDisplay(outerContext: Context?, display: Display?) :
     Presentation(outerContext, display) {
 
-    val remoteLifecycleOwner = RemoteLifecycleOwner()
+    public val remoteLifecycleOwner: RemoteLifecycleOwner = RemoteLifecycleOwner()
     public lateinit var resizeLayout: ResizableLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +56,7 @@ class SecondaryDisplay(outerContext: Context?, display: Display?) :
         remoteLifecycleOwner.onDestroy()
     }
 
-    fun addView(surfaceView: SurfaceView) {
+    public fun addView(surfaceView: SurfaceView) {
         resizeLayout.addView(surfaceView)
     }
 }

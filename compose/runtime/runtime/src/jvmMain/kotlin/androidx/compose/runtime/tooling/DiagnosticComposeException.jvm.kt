@@ -16,7 +16,7 @@
 package androidx.compose.runtime.tooling
 
 internal actual class DiagnosticComposeException
-actual constructor(private val trace: List<ComposeStackTraceFrame>) : RuntimeException() {
+actual constructor(private val trace: ComposeStackTrace) : RuntimeException() {
     override fun fillInStackTrace(): Throwable {
         stackTrace = emptyArray()
         return this

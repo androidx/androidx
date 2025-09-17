@@ -16,6 +16,7 @@
 package androidx.compose.remote.creation.profile;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Platform;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
@@ -42,6 +43,7 @@ import java.util.function.Supplier;
  * (e.g. validating parameters for a specific functionality) Additional features will likely be
  * represented via Profile in the future (set of valid host actions, etc.)
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Profile {
     int mApiLevel;
     int mOperationsProfiles;

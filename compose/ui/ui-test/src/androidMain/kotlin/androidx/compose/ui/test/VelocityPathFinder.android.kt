@@ -18,7 +18,6 @@ package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
-import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 
 @OptIn(markerClass = [ExperimentalVelocityTrackerApi::class])
 internal actual fun VelocityPathFinder(
@@ -27,9 +26,5 @@ internal actual fun VelocityPathFinder(
     endVelocity: Float,
     durationMillis: Long,
 ): VelocityPathFinder {
-    return if (VelocityTrackerStrategyUseImpulse) {
-        ImpulseVelocityPathFinder(startPosition, endPosition, endVelocity, durationMillis)
-    } else {
-        LsqVelocityPathFinder(startPosition, endPosition, endVelocity, durationMillis)
-    }
+    return LsqVelocityPathFinder(startPosition, endPosition, endVelocity, durationMillis)
 }

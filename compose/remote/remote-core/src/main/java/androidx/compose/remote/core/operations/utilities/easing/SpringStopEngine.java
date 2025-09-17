@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -22,6 +24,7 @@ import org.jspecify.annotations.NonNull;
  * model. String debug(String desc, float time); float getVelocity(float time); float
  * getInterpolation(float time); float getVelocity(); boolean isStopped();
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SpringStopEngine {
     double mDamping = 0.5f;
 

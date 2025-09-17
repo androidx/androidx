@@ -20,7 +20,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.VelocityPathFinder
 import androidx.compose.ui.test.util.isAlmostBetween
@@ -52,60 +51,30 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() =
-            if (VelocityTrackerStrategyUseImpulse) {
-                mutableListOf<TestConfig>().apply {
-                    for (direction in Direction.values()) {
-                        // An essential value in the VelocityPathFinder is `d`, calculated as
-                        // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
-                        // duration of the polynomial that will result in the correct velocity, from
-                        // the
-                        // start to the end position. T is the duration of the swipe.
+            mutableListOf<TestConfig>().apply {
+                for (direction in Direction.values()) {
+                    // An essential value in the VelocityPathFinder is `d`, calculated as
+                    // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
+                    // duration of the polynomial that will result in the correct velocity, from
+                    // the
+                    // start to the end position. T is the duration of the swipe.
 
-                        // Different scenarios to test are:
-                        // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
-                        // - 100 < d < T (swipe must wait at start until d ms left)
-                        // - d > T (swipe can start immediately)
-                        // - v == 0
+                    // Different scenarios to test are:
+                    // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
+                    // - 100 < d < T (swipe must wait at start until d ms left)
+                    // - d > T (swipe can start immediately)
+                    // - v == 0
 
-                        add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
-                        add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
-                        add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
-                        add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
-                        add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                        add(TestConfig(direction.offset, 6000f, 500L, false)) // d < 100 && T > d
-                        add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
-                    }
-                    // Regression for b/182477143
-                    add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
-                    // Same as above, but for T = 100
-                    add(TestConfig(Offset(129.6f, 0f), 2000f, 100L, false))
+                    add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
+                    add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
+                    add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
+                    add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
+                    add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
+                    add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
+                    add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
                 }
-            } else {
-                mutableListOf<TestConfig>().apply {
-                    for (direction in Direction.values()) {
-                        // An essential value in the VelocityPathFinder is `d`, calculated as
-                        // `d = min(T.toDouble(), 2 / velocity * (end - start))`, and represents the
-                        // duration of the polynomial that will result in the correct velocity, from
-                        // the
-                        // start to the end position. T is the duration of the swipe.
-
-                        // Different scenarios to test are:
-                        // - d < 100 (because VelocityTracker uses the last 100ms of the polynomial)
-                        // - 100 < d < T (swipe must wait at start until d ms left)
-                        // - d > T (swipe can start immediately)
-                        // - v == 0
-
-                        add(TestConfig(direction.offset, 0f, 100L, false)) // v == 0, small T
-                        add(TestConfig(direction.offset, 0f, 500L, false)) // v == 0, medium T
-                        add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
-                        add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
-                        add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                        add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
-                        add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
-                    }
-                    // Regression for b/182477143
-                    add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
-                }
+                // Regression for b/182477143
+                add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
             }
     }
 
@@ -130,20 +99,12 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         val f: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
         val velocityTracker = simulateSwipe(config, f)
         val velocity = velocityTracker.calculateVelocity()
-        if (VelocityTrackerStrategyUseImpulse) {
-            val velocityTolerance = .1f * config.requestedVelocity // 10% of the expected value
-            assertThat(velocity.sum()).isWithin(velocityTolerance).of(config.requestedVelocity)
-            if (config.requestedVelocity > 0) {
-                // Direction of velocity of 0 is undefined, so any direction is correct
-                velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize(), 0.03f)
-            }
-        } else {
-            assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
-            if (config.requestedVelocity > 0) {
-                // Direction of velocity of 0 is undefined, so any direction is correct
-                velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())
-            }
+        assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
+        if (config.requestedVelocity > 0) {
+            // Direction of velocity of 0 is undefined, so any direction is correct
+            velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())
         }
+
         // At t = 0, the function should return the start position (which is Offset.Zero here)
         f(0).isAlmostEqualTo(Offset.Zero)
         // At any time, the function should be between the start and end

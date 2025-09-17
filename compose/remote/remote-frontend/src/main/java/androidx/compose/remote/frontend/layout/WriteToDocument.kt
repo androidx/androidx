@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LogTodo
 import androidx.compose.remote.frontend.capture.RecordingCanvas
 import androidx.compose.remote.frontend.modifier.RemoteModifier
@@ -32,7 +31,7 @@ import androidx.compose.ui.unit.dp
 
 /** Break glass mechanism to make calls direct to the RecordingCanvas or document. */
 @Composable
-fun WriteToDocument(message: String? = null, content: RecordingCanvas.() -> Unit) {
+public fun WriteToDocument(message: String? = null, content: RecordingCanvas.() -> Unit) {
     LogTodo(message ?: "WriteToDocument used")
 
     RemoteCanvas(modifier = RemoteModifier.size(0.dp)) {
@@ -45,7 +44,7 @@ fun WriteToDocument(message: String? = null, content: RecordingCanvas.() -> Unit
 }
 
 @Composable
-fun RecordingCanvas(content: RecordingCanvas.() -> Unit) {
+public fun RecordingCanvas(content: RecordingCanvas.() -> Unit) {
     androidx.compose.foundation.layout.Box(
         Modifier.drawBehind {
             drawIntoCanvas {

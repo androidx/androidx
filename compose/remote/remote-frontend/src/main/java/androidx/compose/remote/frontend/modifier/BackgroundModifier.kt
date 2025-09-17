@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.background
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.capture.shaders.RemoteBrush
@@ -30,7 +29,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
-data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.Element {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return if (brush is RemoteSolidColor) {
             androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(brush.color.toArgb())
@@ -49,8 +49,8 @@ data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.Element {
     }
 }
 
-fun RemoteModifier.background(color: Color): RemoteModifier =
+public fun RemoteModifier.background(color: Color): RemoteModifier =
     this.then(BackgroundModifier(RemoteBrush.solidColor(color)))
 
-fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
+public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
     this.then(BackgroundModifier(brush))

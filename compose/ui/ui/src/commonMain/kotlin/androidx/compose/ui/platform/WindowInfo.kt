@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 
 /** Provides information about the Window that is hosting this compose hierarchy. */
@@ -52,6 +53,15 @@ interface WindowInfo {
      */
     val containerSize: IntSize
         get() = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+
+    /**
+     * Size of the window represented as [DpSize]. This size excludes insets, such as any system
+     * bars, so it is not safe to assume that this size matches the available space of the compose
+     * hierarchy hosted inside this window. Instead this size should be used as a breakpoint when
+     * changing between UI configurations, or similar window-dependent configuration.
+     */
+    val containerDpSize: DpSize
+        get() = DpSize.Unspecified
 }
 
 @Composable
@@ -66,6 +76,8 @@ internal fun WindowFocusObserver(onWindowFocusChanged: (isWindowFocused: Boolean
 internal class WindowInfoImpl : WindowInfo {
     private val _containerSize = mutableStateOf(IntSize.Zero)
 
+    private val _containerDpSize = mutableStateOf(DpSize.Zero)
+
     override var isWindowFocused: Boolean by mutableStateOf(false)
 
     override var keyboardModifiers: PointerKeyboardModifiers
@@ -78,6 +90,12 @@ internal class WindowInfoImpl : WindowInfo {
         get() = _containerSize.value
         set(value) {
             _containerSize.value = value
+        }
+
+    override var containerDpSize: DpSize
+        get() = _containerDpSize.value
+        set(value) {
+            _containerDpSize.value = value
         }
 
     companion object {

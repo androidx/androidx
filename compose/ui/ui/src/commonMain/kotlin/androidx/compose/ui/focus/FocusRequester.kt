@@ -20,6 +20,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitChildren
@@ -80,8 +82,13 @@ class FocusRequester @RememberInComposition constructor() {
      *   canceled.
      * @sample androidx.compose.ui.samples.RequestFocusSample
      */
-    fun requestFocus(focusDirection: FocusDirection = Enter): Boolean = findFocusTargetNode {
-        it.requestFocus(focusDirection)
+    fun requestFocus(focusDirection: FocusDirection = Enter): Boolean {
+        @OptIn(ExperimentalComposeUiApi::class)
+        return if (ComposeUiFlags.isRequestFocusOnNonFocusableFocusTargetEnabled) {
+            findFocusTarget { it.requestFocus(focusDirection) }
+        } else {
+            findFocusTargetNode { it.requestFocus(focusDirection) }
+        }
     }
 
     internal fun findFocusTargetNode(onFound: (FocusTargetNode) -> Boolean): Boolean {
@@ -258,11 +265,10 @@ class FocusRequester @RememberInComposition constructor() {
      *
      * @param onFound the callback that is run when the child is found.
      * @return false if no focus nodes were found or if the FocusRequester is
-     *   [FocusRequester.Cancel]. Returns null if the FocusRequester is [FocusRequester.Default].
-     *   Otherwise returns a logical or of the result of calling [onFound] for each focus node
-     *   associated with this [FocusRequester].
+     *   [FocusRequester.Cancel]. Returns a logical or of the result of calling [onFound] for each
+     *   focus node associated with this [FocusRequester].
      */
-    private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
+    internal inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }
         if (focusRequesterNodes.isEmpty()) {

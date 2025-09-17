@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
 /** Interface for the companion operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CompanionOperation {
     /**
      * Read, create and add instance to operations

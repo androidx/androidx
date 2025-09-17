@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.paint;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Interface to a paint object For more details see Android Paint */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface PaintChanges {
 
     // MASK to be set/cleared

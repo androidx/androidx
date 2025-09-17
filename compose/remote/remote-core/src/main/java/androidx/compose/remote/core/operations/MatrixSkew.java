@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Skew the matrix command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixSkew extends DrawBase2 {
     private static final int OP_CODE = Operations.MATRIX_SKEW;
     private static final String CLASS_NAME = "MatrixSkew";

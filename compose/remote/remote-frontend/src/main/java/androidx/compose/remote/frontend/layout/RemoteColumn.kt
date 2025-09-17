@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
@@ -39,10 +38,11 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 
 /** Utility modifier to record the layout information */
-class RemoteComposeColumnModifier(
-    val modifier: RemoteModifier = RemoteModifier,
-    val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeColumnModifier(
+    public val modifier: RemoteModifier = RemoteModifier,
+    public val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    public val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
@@ -63,11 +63,12 @@ class RemoteComposeColumnModifier(
     }
 }
 
-class RemoteColumnScope {
-    fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteColumnScope {
+    public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
 
-    fun RemoteModifier.weight(weight: Float): RemoteModifier =
+    public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, RemoteFloat(weight)))
 }
 
@@ -78,7 +79,7 @@ class RemoteColumnScope {
  */
 @RemoteComposable
 @Composable
-fun RemoteColumn(
+public fun RemoteColumn(
     modifier: RemoteModifier = RemoteModifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,

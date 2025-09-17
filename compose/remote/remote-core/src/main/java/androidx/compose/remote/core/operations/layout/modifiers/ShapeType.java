@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** Known shapes, used for modifiers (clip/background/border) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ShapeType {
 
     public static final int RECTANGLE = 0;

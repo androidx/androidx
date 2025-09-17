@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.state
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
@@ -28,9 +27,10 @@ import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
  *
  * @property hasConstantValue Indicates whether the matrix value is constant
  */
-class RemoteMatrix3x3
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteMatrix3x3
 internal constructor(
-    override val hasConstantValue: Boolean,
+    public override val hasConstantValue: Boolean,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : BaseRemoteState {
 
@@ -40,7 +40,7 @@ internal constructor(
      * @param v The [RemoteMatrix3x3] to multiply with this one (this * v).
      * @return A new [RemoteMatrix3x3] representing the multiplication.
      */
-    operator fun times(v: RemoteMatrix3x3) =
+    public operator fun times(v: RemoteMatrix3x3): RemoteMatrix3x3 =
         RemoteMatrix3x3(
             true,
             { creationState ->
@@ -54,12 +54,13 @@ internal constructor(
             },
         )
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState) =
+    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
-    companion object {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
         /** Creates a [RemoteMatrix3x3] representing an identity matrix. */
-        fun createIdentity() =
+        public fun createIdentity(): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 true,
                 { creationState ->
@@ -74,7 +75,7 @@ internal constructor(
          *
          * @param angle The angle of rotation.
          */
-        fun createRotate(angle: Number) =
+        public fun createRotate(angle: Number): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 angle.hasConstantValue,
                 { creationState ->
@@ -92,7 +93,7 @@ internal constructor(
          *
          * @param x The distance to translate along the X-axis.
          */
-        fun createTranslateX(x: Number) =
+        public fun createTranslateX(x: Number): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 x.hasConstantValue,
                 { creationState ->
@@ -110,7 +111,7 @@ internal constructor(
          *
          * @param y The distance to translate along the Y-axis.
          */
-        fun createTranslateY(y: Number) =
+        public fun createTranslateY(y: Number): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 y.hasConstantValue,
                 { creationState ->
@@ -128,7 +129,7 @@ internal constructor(
          *
          * @param scale The scaling factor.
          */
-        fun createScaleX(scale: Number) =
+        public fun createScaleX(scale: Number): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 scale.hasConstantValue,
                 { creationState ->
@@ -146,7 +147,7 @@ internal constructor(
          *
          * @param scale The scaling factor.
          */
-        fun createScaleY(scale: Number) =
+        public fun createScaleY(scale: Number): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 scale.hasConstantValue,
                 { creationState ->
@@ -166,7 +167,11 @@ internal constructor(
          * @param centerX The X-coordinate of the pivot point.
          * @param centerY The Y-coordinate of the pivot point.
          */
-        fun createRotationAround(angle: Number, centerX: Number, centerY: Number) =
+        public fun createRotationAround(
+            angle: Number,
+            centerX: Number,
+            centerY: Number,
+        ): RemoteMatrix3x3 =
             RemoteMatrix3x3(
                 angle.hasConstantValue && centerX.hasConstantValue && centerY.hasConstantValue,
                 { creationState ->

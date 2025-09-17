@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** DrawWithContent modifier, allows to inject canvas operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawWithContentModifier implements RecordingModifier.Element {
 
     public DrawWithContentModifier() {

@@ -560,7 +560,7 @@ fun LiveEditTestScope.subcompose(content: @Composable () -> Unit): Composition {
 @Composable
 @ExplicitGroupsComposable
 fun LiveEditTestScope.MarkAsTarget() {
-    addTargetKey((currentComposer as InternalComposer).parentKey())
+    addTargetKey((currentComposer as ComposerImpl).parentKey())
 }
 
 enum class SourceInfo {

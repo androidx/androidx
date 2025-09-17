@@ -554,18 +554,6 @@ class RemoteFloatTest {
         assertThat(resultId).isNotEqualTo(resultDpId)
     }
 
-    @Test
-    fun arrayDeref_fetchesValueFromArray() {
-        val remoteFloatArray = creationState.document.addFloatArray(floatArrayOf(1f, 2f, 3f, 4f)).rf
-
-        val result = remoteFloatArray[1.rf]
-        val resultId = result.getIdForCreationState(creationState)
-
-        makeAndPaintCoreDocument()
-
-        assertThat(context.getFloat(resultId)).isEqualTo(2f)
-    }
-
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

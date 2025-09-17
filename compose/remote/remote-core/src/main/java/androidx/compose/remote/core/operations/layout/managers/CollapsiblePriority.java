@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePriorityModifierOperation;
@@ -22,6 +23,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.CollapsiblePrior
 import java.util.ArrayList;
 
 /** Utility class to manage collapsible priorities on components */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CollapsiblePriority {
 
     public static final int HORIZONTAL = 0;

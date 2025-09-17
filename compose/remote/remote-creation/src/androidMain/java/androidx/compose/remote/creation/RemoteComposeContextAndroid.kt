@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation
 
 import android.graphics.Bitmap
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.Platform
 import androidx.compose.remote.creation.profile.PlatformProfile
 import androidx.compose.remote.creation.profile.Profile
 
-class RemoteComposeContextAndroid : RemoteComposeContext {
+public class RemoteComposeContextAndroid : RemoteComposeContext {
 
-    val painter: Painter
+    public val painter: Painter
         get() {
             if (mRemoteWriter !is RemoteComposeWriterAndroid) {
                 throw (Exception("This RemoteComposeContext is not an Android one"))
@@ -31,7 +33,7 @@ class RemoteComposeContextAndroid : RemoteComposeContext {
             return (mRemoteWriter as RemoteComposeWriterAndroid).painter
         }
 
-    constructor(
+    public constructor(
         width: Int,
         height: Int,
         contentDescription: String,
@@ -41,7 +43,7 @@ class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
-    constructor(
+    public constructor(
         width: Int,
         height: Int,
         contentDescription: String,
@@ -55,7 +57,7 @@ class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
-    constructor(
+    public constructor(
         width: Int,
         height: Int,
         contentDescription: String,
@@ -65,7 +67,7 @@ class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
-    constructor(
+    public constructor(
         platform: Platform,
         vararg tags: RemoteComposeWriter.HTag,
         content: RemoteComposeContextAndroid.() -> Unit,
@@ -73,7 +75,7 @@ class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
-    fun addBitmap(image: Bitmap): Int {
+    public fun addBitmap(image: Bitmap): Int {
         return mRemoteWriter.addBitmap(image)
     }
 

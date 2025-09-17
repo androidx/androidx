@@ -138,7 +138,6 @@ package androidx.compose.foundation {
     property public boolean isKeepInViewFocusObservationChangeEnabled;
     property public boolean isMouseWheel1DAxisLockingEnabled;
     property public boolean isNewContextMenuEnabled;
-    property public boolean isNonComposedClickableEnabled;
     property public boolean isNonSuspendingPointerInputInClickableEnabled;
     property public boolean isNonSuspendingPointerInputInDraggableEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
@@ -150,7 +149,6 @@ package androidx.compose.foundation {
     field public static boolean isKeepInViewFocusObservationChangeEnabled;
     field public static boolean isMouseWheel1DAxisLockingEnabled;
     field public static boolean isNewContextMenuEnabled;
-    field public static boolean isNonComposedClickableEnabled;
     field public static boolean isNonSuspendingPointerInputInClickableEnabled;
     field public static boolean isNonSuspendingPointerInputInDraggableEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
@@ -348,7 +346,7 @@ package androidx.compose.foundation {
     method public float dispatchRawDelta(float delta);
     method public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method public int getMaxValue();
-    method public int getValue();
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getValue();
     method public int getViewportSize();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -360,7 +358,7 @@ package androidx.compose.foundation {
     property public boolean lastScrolledBackward;
     property public boolean lastScrolledForward;
     property public int maxValue;
-    property public int value;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int value;
     property public int viewportSize;
     field public static final androidx.compose.foundation.ScrollState.Companion Companion;
   }
@@ -1380,6 +1378,15 @@ package androidx.compose.foundation.lazy.layout {
     method @IntRange(from=0L) public int getItemCount();
     method public default Object getKey(@IntRange(from=0L) int index);
     property @IntRange(from=0L) public abstract int itemCount;
+  }
+
+  public interface LazyLayoutKeyIndexMap {
+    method public int getIndex(Object key);
+    method public Object? getKey(int index);
+  }
+
+  public final class LazyLayoutKeyIndexMapKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap LazyLayoutKeyIndexMap(kotlin.ranges.IntRange itemIndexRange, androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent<? extends java.lang.Object?> intervalContent);
   }
 
   public final class LazyLayoutKt {

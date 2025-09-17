@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.util
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.BitmapData
@@ -73,77 +72,78 @@ import androidx.compose.remote.core.operations.TextMerge
 import androidx.compose.remote.core.operations.TextSubtext
 
 /** Utility for getting summary information about a [CoreDocument]. */
-class DocumentStats {
-    var numBitmaps: Int = 0
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class DocumentStats {
+    public var numBitmaps: Int = 0
         private set
 
-    var uncompressedBitmapBytes: Int = 0
+    public var uncompressedBitmapBytes: Int = 0
         private set
 
-    var numBitmapFonts: Int = 0
+    public var numBitmapFonts: Int = 0
         private set
 
-    var numFloatExpressions: Int = 0
+    public var numFloatExpressions: Int = 0
         private set
 
-    var totalFloatExpressionSize: Int = 0
+    public var totalFloatExpressionSize: Int = 0
         private set
 
-    var numIntegerExpressions: Int = 0
+    public var numIntegerExpressions: Int = 0
         private set
 
-    var totalIntegerExpressionSize: Int = 0
+    public var totalIntegerExpressionSize: Int = 0
         private set
 
-    var numClickAreas: Int = 0
+    public var numClickAreas: Int = 0
         private set
 
-    var numClipPaths: Int = 0
+    public var numClipPaths: Int = 0
         private set
 
-    var numClipRects: Int = 0
+    public var numClipRects: Int = 0
         private set
 
-    var numColorConstants: Int = 0
+    public var numColorConstants: Int = 0
         private set
 
-    var numColorExpressions: Int = 0
+    public var numColorExpressions: Int = 0
         private set
 
-    var numConditionalOperations: Int = 0
+    public var numConditionalOperations: Int = 0
         private set
 
-    var numDrawOperations: Int = 0
+    public var numDrawOperations: Int = 0
         private set
 
-    var numMatrixOperations: Int = 0
+    public var numMatrixOperations: Int = 0
         private set
 
-    var numStringExpressions: Int = 0
+    public var numStringExpressions: Int = 0
         private set
 
-    var numStringConstants: Int = 0
+    public var numStringConstants: Int = 0
         private set
 
-    var totalConstantStringLength: Int = 0
+    public var totalConstantStringLength: Int = 0
         private set
 
-    var numFonts: Int = 0
+    public var numFonts: Int = 0
         private set
 
-    var numPaintObjects: Int = 0
+    public var numPaintObjects: Int = 0
         private set
 
-    var numPaths: Int = 0
+    public var numPaths: Int = 0
         private set
 
-    var numPathOperations: Int = 0
+    public var numPathOperations: Int = 0
         private set
 
-    var numShaders: Int = 0
+    public var numShaders: Int = 0
         private set
 
-    override fun toString(): String =
+    public override fun toString(): String =
         "numBitmaps: $numBitmaps, " +
             "uncompressedBitmapBytes: $uncompressedBitmapBytes, " +
             "numBitmapFonts: $numBitmapFonts, " +
@@ -256,9 +256,10 @@ class DocumentStats {
         }
     }
 
-    companion object {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
         /** Examines the [document] and produces [DocumentStats]. */
-        fun examineDocument(document: CoreDocument) =
+        public fun examineDocument(document: CoreDocument): DocumentStats =
             DocumentStats().apply {
                 for (op in document.operations) {
                     process(op)

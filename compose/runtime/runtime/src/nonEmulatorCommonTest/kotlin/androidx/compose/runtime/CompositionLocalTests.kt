@@ -526,6 +526,7 @@ class CompositionLocalTests {
         var provided: Array<ProvidedValue<Int>> by mutableStateOf(emptyArray())
 
         var actualValues = emptySet<Any>()
+        var composition2ContentExecutionCount = 0
 
         @Composable
         fun LocalsConsumer() {
@@ -538,6 +539,7 @@ class CompositionLocalTests {
                 composition2.setContent {
                     CompositionLocalProvider(locals) {
                         actualValues = setOf(local1.current, local2.current, staticLocal.current)
+                        composition2ContentExecutionCount++
                     }
                 }
                 onDispose {
@@ -551,38 +553,55 @@ class CompositionLocalTests {
 
         advance()
         assertEquals(setOf(0, 0, 0), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 1)
         advance()
         assertEquals(setOf(1, 0, 0), actualValues)
+        assertEquals(2, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 2)
         advance()
         assertEquals(setOf(2, 0, 0), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 2, staticLocal provides 1)
         advance()
         assertEquals(setOf(2, 0, 1), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 2, staticLocal provides 2)
         advance()
         assertEquals(setOf(2, 0, 2), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 1, staticLocal provides 1)
         advance()
         assertEquals(setOf(1, 0, 1), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 1, local2 provides 1, staticLocal provides 1)
         advance()
         assertEquals(setOf(1, 1, 1), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = arrayOf(local1 provides 1, staticLocal provides 1)
         advance()
         assertEquals(setOf(1, 0, 1), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
 
+        composition2ContentExecutionCount = 0
         provided = emptyArray()
         advance()
         assertEquals(setOf(0, 0, 0), actualValues)
+        assertEquals(1, composition2ContentExecutionCount)
     }
 
     @Test // Regression test for b/233064044

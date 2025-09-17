@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.managers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -42,6 +43,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Text component, referencing a text id */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextLayout extends LayoutManager implements VariableSupport, AccessibleComponent {
 
     public static final int TEXT_ALIGN_LEFT = 1;

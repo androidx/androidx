@@ -18,45 +18,52 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.ui.unit.dp
 
-interface Arrangement {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface Arrangement {
 
-    interface Horizontal {
-        fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Horizontal {
+        public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal
 
-        fun toRemoteCompose(): Int
+        public fun toRemoteCompose(): Int
     }
 
-    interface Vertical {
-        fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Vertical {
+        public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical
 
-        fun toRemoteCompose(): Int
+        public fun toRemoteCompose(): Int
     }
 
-    interface HorizontalOrVertical : Horizontal, Vertical {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface HorizontalOrVertical : Horizontal, Vertical {
         override fun toComposeUi():
             androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical
 
         override fun toRemoteCompose(): Int
     }
 
-    companion object {
-        val Top: Arrangement.Vertical = VerticalArrangement(0)
-        val Center: Arrangement.Vertical = VerticalArrangement(1)
-        val Bottom: Arrangement.Vertical = VerticalArrangement(2)
-        val Start: Arrangement.Horizontal = HorizontalArrangement(3)
-        val CenterHorizontally: Arrangement.Horizontal = HorizontalArrangement(4)
-        val End: Arrangement.Horizontal = HorizontalArrangement(5)
-        val SpaceBetween: Arrangement.HorizontalOrVertical = HorizontalOrVerticalArrangement(6)
-        val SpaceEvenly: Arrangement.HorizontalOrVertical = HorizontalOrVerticalArrangement(7)
-        val SpaceAround: Arrangement.HorizontalOrVertical = HorizontalOrVerticalArrangement(8)
+    public companion object {
+        public val Top: Arrangement.Vertical = VerticalArrangement(0)
+        public val Center: Arrangement.Vertical = VerticalArrangement(1)
+        public val Bottom: Arrangement.Vertical = VerticalArrangement(2)
+        public val Start: Arrangement.Horizontal = HorizontalArrangement(3)
+        public val CenterHorizontally: Arrangement.Horizontal = HorizontalArrangement(4)
+        public val End: Arrangement.Horizontal = HorizontalArrangement(5)
+        public val SpaceBetween: Arrangement.HorizontalOrVertical =
+            HorizontalOrVerticalArrangement(6)
+        public val SpaceEvenly: Arrangement.HorizontalOrVertical =
+            HorizontalOrVerticalArrangement(7)
+        public val SpaceAround: Arrangement.HorizontalOrVertical =
+            HorizontalOrVerticalArrangement(8)
     }
 }
 
-data class VerticalArrangement(var type: Int) : Arrangement.Vertical {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class VerticalArrangement(var type: Int) : Arrangement.Vertical {
     override fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical {
         when (type) {
             0 -> return androidx.compose.foundation.layout.Arrangement.Top
@@ -76,7 +83,9 @@ data class VerticalArrangement(var type: Int) : Arrangement.Vertical {
     }
 }
 
-data class HorizontalOrVerticalArrangement(var type: Int) : Arrangement.HorizontalOrVertical {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class HorizontalOrVerticalArrangement(var type: Int) :
+    Arrangement.HorizontalOrVertical {
     override fun toComposeUi():
         androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical {
         when (type) {
@@ -97,7 +106,8 @@ data class HorizontalOrVerticalArrangement(var type: Int) : Arrangement.Horizont
     }
 }
 
-data class HorizontalArrangement(var type: Int) : Arrangement.Horizontal {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class HorizontalArrangement(var type: Int) : Arrangement.Horizontal {
     override fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal {
         when (type) {
             3 -> return androidx.compose.foundation.layout.Arrangement.Start

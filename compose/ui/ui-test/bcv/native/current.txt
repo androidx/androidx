@@ -514,7 +514,6 @@ final fun androidx.compose.ui.test/isFocusable(): androidx.compose.ui.test/Seman
 final fun androidx.compose.ui.test/isFocused(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isFocused|isFocused(){}[0]
 final fun androidx.compose.ui.test/isHeading(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isHeading|isHeading(){}[0]
 final fun androidx.compose.ui.test/isHiddenFromAccessibility(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isHiddenFromAccessibility|isHiddenFromAccessibility(){}[0]
-final fun androidx.compose.ui.test/isInHiddenAccessibilitySubtree(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isInHiddenAccessibilitySubtree|isInHiddenAccessibilitySubtree(){}[0]
 final fun androidx.compose.ui.test/isNotEnabled(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isNotEnabled|isNotEnabled(){}[0]
 final fun androidx.compose.ui.test/isNotFocusable(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isNotFocusable|isNotFocusable(){}[0]
 final fun androidx.compose.ui.test/isNotFocused(): androidx.compose.ui.test/SemanticsMatcher // androidx.compose.ui.test/isNotFocused|isNotFocused(){}[0]

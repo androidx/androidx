@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.semantics.AccessibilityModifier;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Semantics modifier, including */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SemanticsModifier implements RecordingModifier.Element {
 
     @NonNull

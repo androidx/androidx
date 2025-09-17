@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -33,6 +34,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CollapsibleColumnLayout extends ColumnLayout {
 
     public CollapsibleColumnLayout(

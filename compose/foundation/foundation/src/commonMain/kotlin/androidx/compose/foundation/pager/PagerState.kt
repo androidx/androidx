@@ -473,8 +473,7 @@ internal constructor(
             override fun Density.calculateAheadWindow(viewport: Int): Int =
                 latestPageSizeWithSpacing
 
-            override fun Density.calculateBehindWindow(viewport: Int): Int =
-                latestPageSizeWithSpacing
+            override fun Density.calculateBehindWindow(viewport: Int): Int = 0
         }
 
     internal val cacheWindowLogic =

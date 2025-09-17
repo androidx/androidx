@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.basicMarquee
@@ -45,13 +44,14 @@ import androidx.compose.ui.unit.dp
  *   content before showing the beginning again.
  * @param velocity The speed of the animation in dps / second.
  */
-class MarqueeModifier(
-    val iterations: Int,
-    val animationMode: Int,
-    val repeatDelayMillis: Float,
-    val initialDelayMillis: Float,
-    val spacing: Float,
-    val velocity: Float,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MarqueeModifier(
+    public val iterations: Int,
+    public val animationMode: Int,
+    public val repeatDelayMillis: Float,
+    public val initialDelayMillis: Float,
+    public val spacing: Float,
+    public val velocity: Float,
 ) : RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
@@ -78,7 +78,7 @@ class MarqueeModifier(
     }
 }
 
-fun RemoteModifier.basicMarquee(
+public fun RemoteModifier.basicMarquee(
     iterations: Int = Int.MAX_VALUE,
     animationMode: Int = 0,
     repeatDelayMillis: Float = 0f,

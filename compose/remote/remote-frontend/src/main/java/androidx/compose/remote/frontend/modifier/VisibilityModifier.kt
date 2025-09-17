@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteInt
@@ -26,7 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 
-class VisibilityModifier(val visible: RemoteInt) : RemoteModifier.Element {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class VisibilityModifier(public val visible: RemoteInt) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         val id = visible.getIntId()
         return androidx.compose.remote.creation.modifiers.VisibilityModifier(id)
@@ -46,5 +46,5 @@ class VisibilityModifier(val visible: RemoteInt) : RemoteModifier.Element {
 }
 
 // TODO make RemoteInt a State internally so this is just RemoteInt
-fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =
+public fun RemoteModifier.visibility(visible: RemoteInt): RemoteModifier =
     then(VisibilityModifier(visible))

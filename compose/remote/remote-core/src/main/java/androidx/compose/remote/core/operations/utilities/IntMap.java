@@ -15,12 +15,15 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IntMap<T> {
 
     private static final int DEFAULT_CAPACITY = 16;

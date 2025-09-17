@@ -21,6 +21,7 @@ package androidx.compose.material.lint
 import androidx.compose.lint.test.Stubs
 import androidx.compose.lint.test.kotlinAndBytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.useFirUast
@@ -335,6 +336,7 @@ src/androidx/compose/material/foo/test.kt:55: Error: Conflicting 'on' color for 
                 Stubs.Color,
                 ColorsStub.kotlin,
             )
+            .skipTestModes(TestMode.JVM_OVERLOADS) // b/440099029
             .run()
             .expect(
                 """
@@ -385,6 +387,7 @@ src/androidx/compose/material/foo/test.kt:21: Error: Conflicting 'on' color for 
                 Stubs.Color,
                 ColorsStub.kotlin,
             )
+            .skipTestModes(TestMode.JVM_OVERLOADS) // b/440099029
             .run()
             .expect(
                 """

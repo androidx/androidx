@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.profile;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
@@ -23,6 +24,7 @@ import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
 
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PlatformProfile {
     // Platform profile
     public static final @NonNull Profile WIDGETS_V6 =

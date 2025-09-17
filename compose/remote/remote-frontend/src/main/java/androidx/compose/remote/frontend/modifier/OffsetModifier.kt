@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteDp
@@ -28,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
-class OffsetModifier(val x: RemoteFloat, val y: RemoteFloat) : RemoteLayoutModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class OffsetModifier(public val x: RemoteFloat, public val y: RemoteFloat) :
+    RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.OffsetModifier(
@@ -44,9 +45,9 @@ class OffsetModifier(val x: RemoteFloat, val y: RemoteFloat) : RemoteLayoutModif
 }
 
 @Composable
-fun RemoteModifier.offset(x: Dp, y: Dp): RemoteModifier {
+public fun RemoteModifier.offset(x: Dp, y: Dp): RemoteModifier {
     return offset(RemoteFloat(x.value).asRemoteDp(), RemoteFloat(y.value).asRemoteDp())
 }
 
-fun RemoteModifier.offset(x: RemoteDp, y: RemoteDp): RemoteModifier =
+public fun RemoteModifier.offset(x: RemoteDp, y: RemoteDp): RemoteModifier =
     then(OffsetModifier(x.value, y.value))

@@ -4511,6 +4511,169 @@ class SharedTransitionTest {
         Start,
         SharedElementWithUserManagedVisibility,
     }
+
+    @Test
+    fun testSkipToLookaheadParameter() {
+        // Set a clip shape on the shared element that is change both size and position, and check
+        // that the shape is being updated per frame.
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(true)
+        var size: IntSize? = null
+        var size2: IntSize? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier.requiredSize(100.dp).testTag("scope").background(Color.White)
+                ) {
+                    transitionScope = this
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = EnterTransition.None,
+                        exit = ExitTransition.None,
+                    ) {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform =
+                                        BoundsTransform { _, _ ->
+                                            tween(100, easing = LinearEasing)
+                                        },
+                                )
+                                .onGloballyPositioned { size = it.size }
+                                .fillMaxSize()
+                        )
+                    }
+                    AnimatedVisibility(
+                        modifier = Modifier.fillMaxSize(),
+                        visible = !visible,
+                        enter = fadeIn(tween(100)),
+                        exit = ExitTransition.None,
+                    ) {
+                        Box(
+                            Modifier.padding(25.dp)
+                                .sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    clipInOverlayDuringTransition = OverlayClip(CircleShape),
+                                    boundsTransform =
+                                        BoundsTransform { _, _ ->
+                                            tween(100, easing = LinearEasing)
+                                        },
+                                )
+                                .skipToLookaheadSize { false }
+                                .onGloballyPositioned { size2 = it.size }
+                                .background(Color.Blue)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+        assertNull(size2)
+
+        rule.mainClock.autoAdvance = false
+        visible = false
+
+        while (transitionScope?.isTransitionActive != true) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        // Now shared bounds transition started
+        while (transitionScope?.isTransitionActive != false) {
+            // Check that child size has skipped to lookahead size
+            assertEquals(size, size2)
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @Test
+    fun testSkipToLookaheadDefaultNotSkipSizeWhenTransitionIsNotActive() {
+        // Set a clip shape on the shared element that is change both size and position, and check
+        // that the shape is being updated per frame.
+        var transitionScope: SharedTransitionScope? = null
+        var visible by mutableStateOf(false)
+        var large by mutableStateOf(false)
+        var size: IntSize? = null
+        var expectedSize: IntSize? = null
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                SharedTransitionLayout(
+                    Modifier.requiredSize(100.dp).testTag("scope").background(Color.White)
+                ) {
+                    transitionScope = this
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = EnterTransition.None,
+                        exit = ExitTransition.None,
+                    ) {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform =
+                                        BoundsTransform { _, _ ->
+                                            tween(100, easing = LinearEasing)
+                                        },
+                                )
+                                .fillMaxSize()
+                        )
+                    }
+                    AnimatedVisibility(
+                        modifier = Modifier.fillMaxSize(),
+                        visible = !visible,
+                        enter = fadeIn(tween(100)),
+                        exit = ExitTransition.None,
+                    ) {
+                        Box(
+                            Modifier.padding(25.dp)
+                                .sharedElement(
+                                    rememberSharedContentState(key = "child"),
+                                    this@AnimatedVisibility,
+                                    clipInOverlayDuringTransition = OverlayClip(CircleShape),
+                                    boundsTransform =
+                                        BoundsTransform { _, _ ->
+                                            tween(100, easing = LinearEasing)
+                                        },
+                                )
+                                .onGloballyPositioned { size = it.size }
+                                .skipToLookaheadSize()
+                                .onSizeChanged { expectedSize = it }
+                                .animateContentSize()
+                                .size(if (large) 50.dp else 10.dp)
+                                .background(Color.Blue)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+
+        rule.mainClock.autoAdvance = false
+        large = true
+        while (expectedSize == IntSize(10, 10)) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        repeat(10) {
+            assertFalse(transitionScope!!.isTransitionActive)
+            // Check that child size did not skip to lookahead size
+            assertEquals(expectedSize, size)
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+    }
 }
 
 private fun assertEquals(a: IntSize, b: IntSize, delta: IntSize) {

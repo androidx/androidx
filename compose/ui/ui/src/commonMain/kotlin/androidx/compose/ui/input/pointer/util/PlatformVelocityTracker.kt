@@ -64,11 +64,7 @@ internal expect fun PlatformVelocityTracker(): PlatformVelocityTracker
 @OptIn(ExperimentalVelocityTrackerApi::class)
 internal class DefaultVelocityTracker : PlatformVelocityTracker {
     private val strategy =
-        if (VelocityTrackerStrategyUseImpulse) {
-            VelocityTracker1D.Strategy.Impulse
-        } else {
-            VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
-        }
+        VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
     private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
     private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
 

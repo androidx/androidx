@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.compose.remote.core;
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -21,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.text.DecimalFormat;
 
 /** Support access to floats in matrix */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MatrixAccess {
 
     /**

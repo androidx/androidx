@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
-import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -117,19 +116,10 @@ class SwipeWithVelocityTest(private val config: TestConfig) {
                 assertTimestampsAreIncreasing()
                 assertThat(recordedDurationMillis).isEqualTo(config.durationMillis)
 
-                if (VelocityTrackerStrategyUseImpulse) {
-                    // Check velocity
-                    // Swipe goes from left to right, so vx = velocity (within 5%) and vy = 0
-                    assertThat(recordedVelocity.x)
-                        .isWithin(0.05f * config.velocity)
-                        .of(config.velocity)
-                    assertThat(recordedVelocity.y).isWithin(.1f).of(0f)
-                } else {
-                    // Check velocity
-                    // Swipe goes from left to right, so vx = velocity and vy = 0
-                    assertThat(recordedVelocity.x).isWithin(.1f).of(config.velocity)
-                    assertThat(recordedVelocity.y).isWithin(.1f).of(0f)
-                }
+                // Check velocity
+                // Swipe goes from left to right, so vx = velocity and vy = 0
+                assertThat(recordedVelocity.x).isWithin(.1f).of(config.velocity)
+                assertThat(recordedVelocity.y).isWithin(.1f).of(0f)
             }
         }
     }

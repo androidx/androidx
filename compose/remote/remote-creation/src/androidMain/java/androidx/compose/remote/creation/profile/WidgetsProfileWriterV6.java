@@ -20,6 +20,7 @@ import static androidx.compose.remote.creation.Rc.FloatExpression.MUL;
 
 import android.graphics.Color;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.Rc;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** RemoteComposeWriter for Widgets in Baklava (Api level 6) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
 
     public WidgetsProfileWriterV6(

@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -36,6 +37,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Allows setting visibility on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentVisibilityOperation extends Operation
         implements ModifierOperation, VariableSupport, DecoratorComponent {
     private static final int OP_CODE = Operations.MODIFIER_VISIBILITY;

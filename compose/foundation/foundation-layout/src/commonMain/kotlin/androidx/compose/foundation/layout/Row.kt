@@ -221,7 +221,7 @@ internal data class RowMeasurePolicy(
     ): Int {
         val childCrossAlignment = parentData?.crossAxisAlignment
         return childCrossAlignment?.align(
-            size = crossAxisLayoutSize - placeable.height,
+            size = crossAxisLayoutSize,
             layoutDirection = LayoutDirection.Ltr,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,

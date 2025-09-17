@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.actions
 
+import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.em
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -281,5 +284,35 @@ class LinkClickTest {
         expectAssertionError(expectedMessage = noTextFoundMessage) {
             rule.onNodeWithTag("tag", useUnmergedTree = true).performFirstLinkClick { true }
         }
+    }
+
+    @Test
+    fun performFirstLinkClick_executesCallbackOnMainThread() {
+        val url = "url_to_open"
+        var clickedUrl: String? = null
+        val wasOnMainThread = AtomicBoolean(false)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalUriHandler provides
+                    object : UriHandler {
+                        override fun openUri(uri: String) {
+                            val isOnMainThread =
+                                Thread.currentThread() == Looper.getMainLooper().thread
+                            wasOnMainThread.set(isOnMainThread)
+                            clickedUrl = uri
+                        }
+                    }
+            ) {
+                BasicText(
+                    buildAnnotatedString { withLink(LinkAnnotation.Url(url)) { append("link") } }
+                )
+            }
+        }
+
+        rule.onNodeWithText("link", useUnmergedTree = true).performFirstLinkClick { true }
+        rule.waitForIdle()
+        assertThat(clickedUrl).isEqualTo(url)
+        assertTrue(wasOnMainThread.get(), "The UriHandler was not invoked on the main thread.")
     }
 }

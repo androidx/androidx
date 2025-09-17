@@ -60,7 +60,7 @@ private class OnPlacedElement(val onPlaced: (LayoutCoordinates) -> Unit) :
     }
 }
 
-private class OnPlacedNode(var callback: (LayoutCoordinates) -> Unit) :
+internal class OnPlacedNode(var callback: (LayoutCoordinates) -> Unit) :
     LayoutAwareModifierNode, Modifier.Node() {
 
     override fun onPlaced(coordinates: LayoutCoordinates) {

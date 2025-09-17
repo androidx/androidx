@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteFloat
@@ -29,11 +28,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class PaddingModifier(
-    val left: RemoteFloat,
-    val top: RemoteFloat,
-    val right: RemoteFloat,
-    val bottom: RemoteFloat,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PaddingModifier(
+    public val left: RemoteFloat,
+    public val top: RemoteFloat,
+    public val right: RemoteFloat,
+    public val bottom: RemoteFloat,
 ) : RemoteLayoutModifier {
     init {
         require(
@@ -70,27 +70,27 @@ class PaddingModifier(
     }
 }
 
-fun RemoteModifier.padding(
+public fun RemoteModifier.padding(
     left: RemoteFloat = 0f.rf,
     top: RemoteFloat = 0f.rf,
     right: RemoteFloat = 0f.rf,
     bottom: RemoteFloat = 0f.rf,
 ): RemoteModifier = then(PaddingModifier(left, top, right, bottom))
 
-fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(all, all, all, all)
+public fun RemoteModifier.padding(all: RemoteFloat): RemoteModifier = padding(all, all, all, all)
 
-fun RemoteModifier.padding(
+public fun RemoteModifier.padding(
     horizontal: RemoteFloat = 0f.rf,
     vertical: RemoteFloat = 0f.rf,
 ): RemoteModifier =
     padding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)
 
 @Composable
-fun RemoteModifier.padding(all: Dp): RemoteModifier =
+public fun RemoteModifier.padding(all: Dp): RemoteModifier =
     padding(left = all, top = all, right = all, bottom = all)
 
 @Composable
-fun RemoteModifier.padding(
+public fun RemoteModifier.padding(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
     right: Dp = 0.dp,
@@ -107,5 +107,5 @@ fun RemoteModifier.padding(
 }
 
 @Composable
-fun RemoteModifier.padding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): RemoteModifier =
+public fun RemoteModifier.padding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): RemoteModifier =
     padding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)

@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 import java.time.Clock;
 
 /** Extends java.time.Clock to allow controlling System.nanoTime for testing. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteClock extends Clock {
     /**
      * Return System.nanoTime, or something with similar properties such as not being affected by

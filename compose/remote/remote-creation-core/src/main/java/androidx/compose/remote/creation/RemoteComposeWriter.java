@@ -43,6 +43,7 @@ import static androidx.compose.remote.core.operations.utilities.IntegerExpressio
 import static androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator.I_VAR2;
 import static androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator.I_XOR;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Platform;
 import androidx.compose.remote.core.RemoteComposeBuffer;
@@ -77,6 +78,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeWriter {
     protected @NonNull RemoteComposeBuffer mBuffer;
     protected @NonNull RemoteComposeState mState = new RemoteComposeState();

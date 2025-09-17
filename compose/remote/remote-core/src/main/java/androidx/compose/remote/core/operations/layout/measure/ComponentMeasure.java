@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.core.operations.layout.measure;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
 
 /** Encapsulate the result of a measure pass for a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentMeasure {
     int mId = -1;
     float mX;

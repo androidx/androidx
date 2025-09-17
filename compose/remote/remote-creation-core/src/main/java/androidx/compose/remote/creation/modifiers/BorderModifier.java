@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Border modifier, takes a color and a shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BorderModifier implements RecordingModifier.Element {
     float mWidth;
     float mRoundedCorner;

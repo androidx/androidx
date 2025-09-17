@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFrom
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
@@ -327,7 +328,7 @@ class SemanticsTests {
         rule.setContent {
             SimpleTestLayout(
                 Modifier.testTag(TestTag).semantics {
-                    FillableData("foo")?.let { fillableData = it }
+                    FillableData.createFrom("foo")?.let { fillableData = it }
                 }
             ) {}
         }
@@ -367,7 +368,7 @@ class SemanticsTests {
             ) {}
         }
 
-        val fillableData = FillableData("foo")
+        val fillableData = FillableData.createFrom("foo")
         rule.onNodeWithTag(TestTag).performSemanticsAction(SemanticsActions.OnFillData) {
             fillableData?.let { data -> it(data) }
         }

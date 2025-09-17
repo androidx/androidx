@@ -645,7 +645,7 @@ class RectListIntegrationTest {
 
     @Test
     @SmallTest
-    fun testScaledBox() {
+    fun testTranslatedAndRotatedBox() {
         var toggle by mutableStateOf(true)
         rule.setContent {
             Box(
@@ -666,7 +666,7 @@ class RectListIntegrationTest {
 
     @Test
     @SmallTest
-    fun testScaledBoxUpdate() {
+    fun testScaledBox() {
         rule.setContent {
             Box(Modifier.testTag("outer").padding(10.dp).scale(2f)) {
                 Box(Modifier.testTag("inner").size(10.dp))
@@ -842,6 +842,48 @@ class RectListIntegrationTest {
             rule.onNodeWithTag("Item-10").assertRectCount(5)
             rule.onNodeWithTag("Item-11").assertRectCount(5)
         }
+    }
+
+    @Test
+    @SmallTest
+    fun testLayoutPlacingWithOffsetAndScale() {
+        rule.setContent {
+            Layout(content = { Box(Modifier.testTag("inner").size(10.dp)) }) {
+                measurables,
+                constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    val offset = 10.dp.roundToPx()
+                    placeable.placeWithLayer(offset, offset) {
+                        scaleX = 2f
+                        scaleY = 2f
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("inner").assertRectDp(5.dp, 5.dp, 25.dp, 25.dp)
+    }
+
+    @Test
+    @SmallTest
+    fun testLayoutPlacingWithTranslateOnLayer() {
+        rule.setContent {
+            Layout(content = { Box(Modifier.testTag("inner").size(10.dp)) }) {
+                measurables,
+                constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    val offset = 5.dp.roundToPx()
+                    placeable.placeWithLayer(offset, offset) {
+                        translationX = 10.dp.toPx()
+                        translationY = 20.dp.toPx()
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("inner").assertRectDp(15.dp, 25.dp, 25.dp, 35.dp)
     }
 
     /**

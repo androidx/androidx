@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.state
 
 import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
@@ -41,33 +40,36 @@ import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
  *   the value is the horizontal adjustment in pixels for that glyph pair. Can be empty. The maximum
  *   size of the kerning table is 65535 entries.
  */
-class RemoteBitmapFont(val glyphs: List<Glyph>, val kerningTable: Map<String, Short> = emptyMap()) :
-    BaseRemoteState {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteBitmapFont(
+    public val glyphs: List<Glyph>,
+    public val kerningTable: Map<String, Short> = emptyMap(),
+) : BaseRemoteState {
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
-    class Glyph(
+    public class Glyph(
         /** The character(s) this glyph represents. */
-        val chars: String,
+        public val chars: String,
 
         /** The bitmap for this glyph, or null for a space. */
-        val bitmap: Bitmap?,
+        public val bitmap: Bitmap?,
 
         /** The margin in pixels to the left of the glyph bitmap. */
-        val marginLeft: Short,
+        public val marginLeft: Short,
 
         /** The margin in pixels above of the glyph bitmap. */
-        val marginTop: Short,
+        public val marginTop: Short,
 
         /** The margin in pixels to the right of the glyph bitmap. */
-        val marginRight: Short,
+        public val marginRight: Short,
 
         /** The margin in pixels below the glyph bitmap. */
-        val marginBottom: Short,
+        public val marginBottom: Short,
     )
 
-    override val hasConstantValue: Boolean
+    public override val hasConstantValue: Boolean
         get() = true
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return creationState.document.addBitmapFont(
             Array<BitmapFontData.Glyph>(glyphs.size) { index ->
                 val glyph = glyphs[index]
@@ -93,7 +95,7 @@ class RemoteBitmapFont(val glyphs: List<Glyph>, val kerningTable: Map<String, Sh
      * @param text The [RemoteString] whose width needs to be measured.
      * @return A [RemoteFloat] representing the calculated width in pixels.
      */
-    fun measureWidth(text: RemoteString): RemoteFloat {
+    public fun measureWidth(text: RemoteString): RemoteFloat {
         return RemoteFloatExpression(text.hasConstantValue) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
@@ -112,7 +114,7 @@ class RemoteBitmapFont(val glyphs: List<Glyph>, val kerningTable: Map<String, Sh
      * @param text The [RemoteString] whose height needs to be measured.
      * @return A [RemoteFloat] representing the calculated height in pixels.
      */
-    fun measureHeight(text: RemoteString): RemoteFloat {
+    public fun measureHeight(text: RemoteString): RemoteFloat {
         return RemoteFloatExpression(text.hasConstantValue) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(

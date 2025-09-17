@@ -15,8 +15,11 @@
  */
 package androidx.compose.remote.core.documentation;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StringPair {
     final @NonNull String mName;
     final @NonNull String mValue;

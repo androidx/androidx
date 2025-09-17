@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.ParentCapturingModifierNodeElement
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -45,9 +46,7 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.layout.findRootCoordinates
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -172,13 +171,7 @@ class LazyListBeyondBoundsTest {
             lateinit var beyondBoundsLayoutRef: BeyondBoundsLayout
             setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
                 if (addItems) {
-                    item {
-                        Box(
-                            Modifier.modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
-                        )
-                    }
+                    item { Box(Modifier.capturingBeyondBoundsLayout()) }
                 }
             }
 
@@ -245,13 +238,7 @@ class LazyListBeyondBoundsTest {
             // Arrange.
             setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-                item {
-                    Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                    )
-                }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
 
@@ -290,13 +277,7 @@ class LazyListBeyondBoundsTest {
             // Arrange.
             setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-                item {
-                    Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                    )
-                }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
 
@@ -340,15 +321,7 @@ class LazyListBeyondBoundsTest {
             // Arrange.
             setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-                item {
-                    Box(
-                        Modifier.size(10.toDp())
-                            .modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
-                            .trackPlaced(5)
-                    )
-                }
+                item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
 
@@ -389,13 +362,7 @@ class LazyListBeyondBoundsTest {
             // Arrange.
             setLazyContentInPerpendicularDirection(size = 30.toDp(), firstVisibleItem = 5) {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-                item {
-                    Box(
-                        Modifier.size(10.toDp()).trackPlaced(5).modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                    )
-                }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
 
@@ -464,15 +431,7 @@ class LazyListBeyondBoundsTest {
             // Arrange.
             setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
-                item {
-                    Box(
-                        Modifier.size(10.toDp())
-                            .modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
-                            .trackPlaced(5)
-                    )
-                }
+                item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
                 items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
 
@@ -496,6 +455,10 @@ class LazyListBeyondBoundsTest {
                 resetTestCase(5)
             }
         }
+
+    private fun Modifier.capturingBeyondBoundsLayout(): Modifier {
+        return this then ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
+    }
 
     private fun ParameterizedComposeTestRule<Param>.setLazyContent(
         size: Dp,

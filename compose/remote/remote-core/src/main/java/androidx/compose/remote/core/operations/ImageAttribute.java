@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Operation to extract meta Attributes from image data objects */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImageAttribute extends PaintOperation {
     private static final int OP_CODE = Operations.ATTRIBUTE_IMAGE;
     private static final String CLASS_NAME = "ImageAttribute";

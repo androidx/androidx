@@ -21,12 +21,12 @@ package androidx.compose.runtime.snapshots
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot.Companion.openSnapshotCount
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -134,27 +134,26 @@ class DerivedSnapshotStateTests {
     }
 
     @Test
-    @Ignore // "b/169406779: Flaky test"
     fun multipleSnapshotsAreIsolatedAndCanBeApplied() {
         val count = 2
-        val state = MutableList(count) { mutableStateOf(0) }
-        val derived = state.map { derivedStateOf { it.value } }
+        val state = MutableList(count) { mutableIntStateOf(0) }
+        val derived = state.map { derivedStateOf { it.intValue } }
 
         // Create count snapshots
         val snapshots = MutableList(count) { Snapshot.takeMutableSnapshot() }
         try {
             repeat(count) {
-                assertEquals(0, state[it].value)
+                assertEquals(0, state[it].intValue)
                 assertEquals(0, derived[it].value)
             }
 
             snapshots.forEachIndexed { index, snapshot ->
-                snapshot.enter { state[index].value = index }
+                snapshot.enter { state[index].intValue = index }
             }
 
             // Ensure the modifications in snapshots are not visible to global
             repeat(count) {
-                assertEquals(0, state[it].value)
+                assertEquals(0, state[it].intValue)
                 assertEquals(0, derived[it].value)
             }
 
@@ -162,8 +161,8 @@ class DerivedSnapshotStateTests {
             repeat(count) { index ->
                 snapshots[index].enter {
                     repeat(count) {
-                        if (it != index) assertEquals(0, state[it].value)
-                        else assertEquals(it, state[it].value)
+                        if (it != index) assertEquals(0, state[it].intValue)
+                        else assertEquals(it, state[it].intValue)
                         if (it != index) assertEquals(0, derived[it].value)
                         else assertEquals(it, derived[it].value)
                     }
@@ -175,7 +174,7 @@ class DerivedSnapshotStateTests {
 
             // Global should now be able to see all changes
             repeat(count) {
-                assertEquals(it, state[it].value)
+                assertEquals(it, state[it].intValue)
                 assertEquals(it, derived[it].value)
             }
         } finally {

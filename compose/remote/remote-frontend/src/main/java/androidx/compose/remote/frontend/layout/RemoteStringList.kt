@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.LogTodo
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
@@ -28,15 +27,16 @@ import androidx.compose.remote.frontend.state.rememberRemoteIntValue
 import androidx.compose.runtime.Composable
 
 @Composable
-fun rememberRemoteStringList(vararg items: String): RemoteStringList {
+public fun rememberRemoteStringList(vararg items: String): RemoteStringList {
     val state = LocalRemoteComposeCreationState.current
     return RemoteStringList(state.document.addStringList(*items))
 }
 
-class RemoteStringList(var listId: Float) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteStringList(public var listId: Float) {
 
     @Composable
-    operator fun get(value: RemoteInt): RemoteIntReference {
+    public operator fun get(value: RemoteInt): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
         if (state is NoRemoteCompose) {
@@ -48,7 +48,7 @@ class RemoteStringList(var listId: Float) {
     }
 
     @Composable
-    operator fun get(value: Int): RemoteIntReference {
+    public operator fun get(value: Int): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
         if (state is NoRemoteCompose) {

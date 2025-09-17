@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE_ARRAY;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -33,6 +34,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to deal with transfer raw Font data */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FontData extends Operation implements SerializableToString, Serializable {
     private static final int OP_CODE = Operations.DATA_FONT;
     private static final String CLASS_NAME = "FontData";

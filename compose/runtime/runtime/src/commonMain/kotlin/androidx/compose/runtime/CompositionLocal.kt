@@ -346,7 +346,15 @@ public interface CompositionLocalAccessorScope {
  */
 @Stable
 public class CompositionLocalContext
-internal constructor(internal val compositionLocals: PersistentCompositionLocalMap)
+internal constructor(internal val compositionLocals: PersistentCompositionLocalMap) {
+    override fun equals(other: Any?): Boolean {
+        return other is CompositionLocalContext && other.compositionLocals == this.compositionLocals
+    }
+
+    override fun hashCode(): Int {
+        return compositionLocals.hashCode()
+    }
+}
 
 /**
  * [CompositionLocalProvider] binds values to [ProvidableCompositionLocal] keys. Reading the

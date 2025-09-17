@@ -120,14 +120,10 @@ private class CompositionDataTree<T, R>(
             mapTree(childInstance)
         }
 
-        val childrenToAdd = mutableMapOf<Any?, MutableList<R>>()
+        val childrenToAdd = mutableMapOf<CompositionGroup, MutableList<R>>()
         children
             .filter { it in processedNodes }
-            .groupByTo(
-                childrenToAdd,
-                { it.findContextGroup()!!.identity },
-                { processedNodes[it]!! },
-            )
+            .groupByTo(childrenToAdd, { it.findContextGroup()!! }, { processedNodes[it]!! })
 
         // Now, map the current tree, stitching the children's results.
         // The `mapTreeWithStitching` function is an assumed extension that handles the actual

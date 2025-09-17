@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -24,6 +26,7 @@ import org.jspecify.annotations.Nullable;
  * <p>The evaluation is based on int opMask, int[]exp exp[i] is an operator if (opMask*(1 << i) !=
  * 0)
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IntegerExpressionEvaluator {
     @NonNull static IntMap<String> sNames = new IntMap<>();
     public static final int OFFSET = 0x10000;

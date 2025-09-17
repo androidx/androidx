@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.animation;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -24,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ParticleAnimation {
     @NonNull HashMap<Integer, ArrayList<Particle>> mAllParticles = new HashMap<>();
 

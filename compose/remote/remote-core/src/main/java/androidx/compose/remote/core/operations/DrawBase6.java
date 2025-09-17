@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Base class for draw commands the take 6 floats */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DrawBase6 extends PaintOperation implements VariableSupport, Serializable {
     @NonNull protected String mName = "DrawRectBase";
     float mV1;
@@ -115,6 +117,7 @@ public abstract class DrawBase6 extends PaintOperation implements VariableSuppor
     }
 
     /** interface for the operation builder with 6 float parameters */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Maker {
         /**
          * creation function for operation with 6 float parameters

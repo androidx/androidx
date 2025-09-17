@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -24,6 +25,7 @@ import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import org.jspecify.annotations.NonNull;
 
 /** Base class for dimension modifiers */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DimensionModifierOperation extends Operation
         implements ModifierOperation, VariableSupport {
 

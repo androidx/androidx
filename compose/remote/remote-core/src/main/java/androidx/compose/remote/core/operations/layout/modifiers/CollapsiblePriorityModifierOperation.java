@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Set an optional priority on a component within a collapsible layout */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CollapsiblePriorityModifierOperation extends Operation
         implements ModifierOperation, Serializable {
     private static final int OP_CODE = Operations.MODIFIER_COLLAPSIBLE_PRIORITY;

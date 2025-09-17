@@ -18,19 +18,18 @@
 package androidx.compose.remote.frontend.capture
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.Platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
 
 @Composable
 @NonRestartableComposable
-fun RemoteLog(message: String, category: Platform.LogCategory = Platform.LogCategory.WARN) {
+public fun RemoteLog(message: String, category: Platform.LogCategory = Platform.LogCategory.WARN) {
     LocalRemoteComposeCreationState.current.platform.log(category, message)
 }
 
 @Composable
 @NonRestartableComposable
-fun LogTodo(message: String) {
+public fun LogTodo(message: String) {
     LocalRemoteComposeCreationState.current.platform.log(Platform.LogCategory.TODO, message)
 }

@@ -263,7 +263,7 @@ private class CacheDrawModifierNodeImpl(
         get() = requireLayoutDirection()
 
     override val size: Size
-        get() = requireCoordinator(Nodes.LayoutAware).size.toSize()
+        get() = requireCoordinator(Nodes.Draw).size.toSize()
 
     val graphicsContext: GraphicsContext
         get() {

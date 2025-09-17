@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
@@ -79,12 +80,12 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
 
     @Before
     fun setUp() {
-        Composer.setDiagnosticStackTraceEnabled(true)
+        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
     }
 
     @After
     fun tearDown() {
-        Composer.setDiagnosticStackTraceEnabled(false)
+        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
     }
 
     @Test

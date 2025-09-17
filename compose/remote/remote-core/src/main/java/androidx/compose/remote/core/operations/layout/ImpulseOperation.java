@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -37,6 +38,7 @@ import java.util.List;
  * context.getAnimationTime() Impluse Operation. This operation execute a list of actions once and
  * the impluseProcess is executed for a fixed duration
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImpulseOperation extends PaintOperation implements VariableSupport, Container {
     private static final int OP_CODE = Operations.IMPULSE_START;
     private static final String CLASS_NAME = "ImpulseOperation";

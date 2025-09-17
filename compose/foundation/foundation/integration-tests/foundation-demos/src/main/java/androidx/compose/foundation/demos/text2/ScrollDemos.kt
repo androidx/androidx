@@ -202,6 +202,7 @@ fun MultiLineVerticalScrollableTextField() {
     )
 }
 
+@Suppress("FrequentlyChangingValue")
 @Composable
 fun HoistedHorizontalScroll() {
     val layoutDirection = LocalLayoutDirection.current
@@ -227,6 +228,7 @@ fun HoistedHorizontalScroll() {
     }
 }
 
+@Suppress("FrequentlyChangingValue")
 @Composable
 fun SharedHoistedScroll() {
     val layoutDirection = LocalLayoutDirection.current

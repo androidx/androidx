@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
 import androidx.compose.remote.frontend.capture.RecordingCanvas
@@ -37,7 +36,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Utility modifier to record the layout information */
-class RemoteComposeBoxModifier(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeBoxModifier(
     private val modifier: RemoteModifier,
     private val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     private val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -66,7 +66,7 @@ class RemoteComposeBoxModifier(
  */
 @RemoteComposable
 @Composable
-fun RemoteBox(
+public fun RemoteBox(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
@@ -95,11 +95,11 @@ fun RemoteBox(
     }
 }
 
-inline fun <reified T : RemoteModifier.Element> RemoteModifier.find(): T? {
+public inline fun <reified T : RemoteModifier.Element> RemoteModifier.find(): T? {
     return this.foldIn<T?>(null) { result, element -> result ?: element as? T }
 }
 
-fun boxAlignment(
+public fun boxAlignment(
     horizontal: Alignment.Horizontal,
     vertical: Arrangement.Vertical,
 ): androidx.compose.ui.Alignment {
@@ -132,6 +132,6 @@ private class CombinedAlignment(
 /** Utility function to support RemoteBox with no provided content */
 @RemoteComposable
 @Composable
-fun RemoteBox(modifier: RemoteModifier = RemoteModifier) {
+public fun RemoteBox(modifier: RemoteModifier = RemoteModifier) {
     RemoteBox(modifier) {}
 }

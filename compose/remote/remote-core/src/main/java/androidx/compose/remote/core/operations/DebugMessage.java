@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import java.util.List;
 /**
  * This prints debugging message useful for debugging. It should not be use in production documents
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DebugMessage extends Operation implements VariableSupport {
     private static final int OP_CODE = Operations.DEBUG_MESSAGE;
     private static final String CLASS_NAME = "DebugMessage";

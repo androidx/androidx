@@ -88,7 +88,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      * - androidx.compose.ui.node.LayoutNode
      */
     private val ignoredPackagePrefixes =
-        listOf("android.", "java.", "javax.", "kotlinx.", "androidx.compose.ui.node.")
+        listOf("android.", "java.", "javax.", "kotlinx.", "androidx.compose.ui.node.", "dagger.")
 
     var density = Density(1.0f)
 

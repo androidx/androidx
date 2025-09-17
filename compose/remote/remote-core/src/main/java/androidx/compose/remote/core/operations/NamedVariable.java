@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to deal with Text data */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class NamedVariable extends Operation implements Serializable {
     private static final int OP_CODE = Operations.NAMED_VARIABLE;
     private static final String CLASS_NAME = "NamedVariable";

@@ -18,10 +18,9 @@
 package androidx.compose.remote.frontend.capture.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.paint.PaintBundle
 
-fun colorFilterModeToInt(mode: android.graphics.BlendMode): Int {
+public fun colorFilterModeToInt(mode: android.graphics.BlendMode): Int {
     return when (mode) {
         android.graphics.BlendMode.CLEAR -> PaintBundle.BLEND_MODE_CLEAR
         android.graphics.BlendMode.SRC -> PaintBundle.BLEND_MODE_SRC

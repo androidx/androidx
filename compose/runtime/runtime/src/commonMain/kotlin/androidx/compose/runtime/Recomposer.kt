@@ -50,6 +50,7 @@ import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
+import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionObserverHandle
 import androidx.compose.runtime.tooling.CompositionRegistrationObserver
@@ -79,9 +80,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
+internal const val recomposerKey = 1000
+
 // TODO: Can we use rootKey for this since all compositions will have an eventual Recomposer parent?
 private inline val RecomposerCompoundHashKey
-    get() = CompositeKeyHashCode(1000)
+    get() = CompositeKeyHashCode(recomposerKey)
 
 /**
  * Runs [block] with a new, active [Recomposer] applying changes in the calling [CoroutineContext].
@@ -804,6 +807,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             // composeInitial will throw because of corrupted composition while original exception
             // won't be recorded.
             synchronized(stateLock) {
+                logError("Error was captured in composition.", e)
                 val errorState = errorState
                 if (errorState == null) {
                     // Record exception if current error state is empty.
@@ -1646,7 +1650,10 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
         get() = false
 
     internal override val collectingSourceInformation: Boolean
-        get() = composeStackTraceEnabled
+        get() = composeStackTraceMode == ComposeStackTraceMode.SourceInformation
+
+    internal override val stackTraceEnabled: Boolean
+        get() = composeStackTraceMode != ComposeStackTraceMode.None
 
     internal override fun recordInspectionTable(table: MutableSet<CompositionData>) {
         // TODO: The root recomposer might be a better place to set up inspection
@@ -1721,7 +1728,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             movableContentStatesAvailable[reference] = data
             val extractions = movableContentNestedExtractionsPending[reference]
             if (extractions.isNotEmpty()) {
-                val states = data.slotStorage.extractNestedStates(applier, extractions)
+                val states = data.extractNestedStates(applier, extractions)
                 states.forEach { reference, state ->
                     movableContentStatesAvailable[reference] = state
                 }

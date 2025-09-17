@@ -19,6 +19,7 @@ import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_FONT_HEIGHT
 import static androidx.compose.remote.core.PaintContext.TEXT_MEASURE_MONOSPACE_WIDTH;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to Measure Text data */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextMeasure extends PaintOperation {
     private static final int OP_CODE = Operations.TEXT_MEASURE;
     private static final String CLASS_NAME = "TextMeasure";

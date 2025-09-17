@@ -31,7 +31,6 @@ import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -77,7 +76,8 @@ import androidx.compose.ui.graphics.asAndroidPath
  *   instead of serializing the deltas). On the flip side, this might not be as critical/useful in a
  *   compose perspective (are paint objecs reused this way?)
  */
-class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
 
     private var lastStyleOrdinal: Int = -1
     private var typeface: Int = -1
@@ -94,15 +94,15 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     private var lastColorFilterMode: Int = -1
     private var lastRemoteShader: RemoteShader? = null
     private var lastBlendMode: BlendMode? = null
-    lateinit var document: RemoteComposeWriter
-    lateinit var creationState: RemoteComposeCreationState
+    public lateinit var document: RemoteComposeWriter
+    public lateinit var creationState: RemoteComposeCreationState
 
     private var usingShaderMatrix: Boolean = false
 
     private var forceSendingPaint = false
 
-    val tempCanvas = Canvas()
-    var saveCounter = 0
+    public val tempCanvas: Canvas = Canvas()
+    public var saveCounter: Int = 0
 
     /**
      * Forces the next `usePaint` call to send all Paint attributes, regardless of changes. This is
@@ -110,7 +110,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *
      * @param value If `true`, the next `usePaint` call will send all Paint attributes.
      */
-    fun forceSendingPaint(value: Boolean) {
+    public fun forceSendingPaint(value: Boolean) {
         forceSendingPaint = value
     }
 
@@ -122,7 +122,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param creationState The current [RemoteComposeCreationState] holding document and other
      *   context.
      */
-    fun setRemoteComposeCreationState(creationState: RemoteComposeCreationState) {
+    public fun setRemoteComposeCreationState(creationState: RemoteComposeCreationState) {
         this.creationState = creationState
         this.document = creationState.document
     }
@@ -138,7 +138,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param paint The [Paint] object whose attributes need to be synchronized with the remote
      *   side.
      */
-    fun usePaint(paint: Paint) {
+    public fun usePaint(paint: Paint) {
         if (document.checkAndClearForceSendingNewPaint()) {
             forceSendingPaint = true
         }
@@ -414,7 +414,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         drawTextRun(text, 0, text.length, 0, text.length, x, y, false, paint)
     }
 
-    fun drawText(text: String, x: Number, y: Number, paint: Paint) {
+    public fun drawText(text: String, x: Number, y: Number, paint: Paint) {
         // println("NRO drawText $text")
         drawTextRun(
             text,
@@ -438,7 +438,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param y The Y coordinate of the text's origin.
      * @param paint The [Paint] object used for styling the text.
      */
-    fun drawText(text: RemoteString, length: Int, x: Number, y: Number, paint: Paint) {
+    public fun drawText(text: RemoteString, length: Int, x: Number, y: Number, paint: Paint) {
         // println("NRO drawText $text")
         usePaint(paint)
         document.drawTextRun(
@@ -459,7 +459,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawRect(left, top, right, bottom)
     }
 
-    fun drawRect(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
+    public fun drawRect(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
         // println("NRO drawRect $left $top $right $bottom")
         usePaint(paint)
         document.drawRect(
@@ -491,7 +491,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawOval(left, top, right, bottom)
     }
 
-    fun drawOval(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
+    public fun drawOval(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
         usePaint(paint)
         document.drawOval(
             left.getFloatIdForCreationState(creationState),
@@ -516,7 +516,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawRoundRect(left, top, right, bottom, rx, ry)
     }
 
-    fun drawRoundRect(
+    public fun drawRoundRect(
         left: Number,
         top: Number,
         right: Number,
@@ -543,7 +543,13 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawLine(startX, startY, stopX, stopY)
     }
 
-    fun drawLine(startX: Number, startY: Number, stopX: Number, stopY: Number, paint: Paint) {
+    public fun drawLine(
+        startX: Number,
+        startY: Number,
+        stopX: Number,
+        stopY: Number,
+        paint: Paint,
+    ) {
         //        println("NRO drawLine")
         usePaint(paint)
         document.drawLine(
@@ -561,7 +567,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         }
     }
 
-    fun translate(dx: Number, dy: Number) {
+    public fun translate(dx: Number, dy: Number) {
         // println("NRO translate $dx $dy")
         document.translate(
             dx.getFloatIdForCreationState(creationState),
@@ -576,7 +582,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.scale(sx, sy)
     }
 
-    fun scale(sx: Number, sy: Number) {
+    public fun scale(sx: Number, sy: Number) {
         document.scale(
             sx.getFloatIdForCreationState(creationState),
             sy.getFloatIdForCreationState(creationState),
@@ -597,7 +603,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    fun drawBitmap(bitmap: RemoteBitmap, left: Number, top: Number, paint: Paint?) {
+    public fun drawBitmap(bitmap: RemoteBitmap, left: Number, top: Number, paint: Paint?) {
         // println("NRO drawBitmap 2")
         usePaint(paint!!)
         document.drawBitmap(
@@ -622,7 +628,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    fun drawBitmap(bitmap: RemoteBitmap, src: Rect?, dst: Rect, paint: Paint?) {
+    public fun drawBitmap(bitmap: RemoteBitmap, src: Rect?, dst: Rect, paint: Paint?) {
         // println("NRO drawBitmap 3 ")
         usePaint(paint!!)
         document.drawBitmap(
@@ -646,7 +652,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param path The [RemotePath] to draw.
      * @param paint The [Paint] object to use for drawing the path.
      */
-    fun drawRPath(path: RemotePath, paint: Paint) {
+    public fun drawRPath(path: RemotePath, paint: Paint) {
         usePaint(paint)
         document.drawPath(path)
     }
@@ -702,7 +708,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         return super.clipRect(left, top, right, bottom, op)
     }
 
-    override fun clipRect(rect: Rect) =
+    override fun clipRect(rect: Rect): Boolean =
         clipRect(
             rect.left.toFloat(),
             rect.top.toFloat(),
@@ -710,7 +716,8 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             rect.bottom.toFloat(),
         )
 
-    override fun clipRect(rect: RectF) = clipRect(rect.left, rect.top, rect.right, rect.bottom)
+    override fun clipRect(rect: RectF): Boolean =
+        clipRect(rect.left, rect.top, rect.right, rect.bottom)
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float): Boolean {
         document.clipRect(left, top, right, bottom)
@@ -718,7 +725,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         return super.clipRect(left, top, right, bottom)
     }
 
-    fun clipRect(left: Number, top: Number, right: Number, bottom: Number): Boolean {
+    public fun clipRect(left: Number, top: Number, right: Number, bottom: Number): Boolean {
         val l = left.getFloatIdForCreationState(creationState)
         val t = top.getFloatIdForCreationState(creationState)
         val r = right.getFloatIdForCreationState(creationState)
@@ -757,7 +764,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param isRtl `true` if the text is right-to-left.
      * @param paint The [Paint] object used for styling.
      */
-    fun drawTextRun(
+    public fun drawTextRun(
         text: RemoteString,
         start: Int,
         end: Int,
@@ -794,7 +801,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param y The top y-coordinate to start rendering from
      * @param paint The [Paint] to render with
      */
-    fun drawBitmapFontTextRun(
+    public fun drawBitmapFontTextRun(
         text: RemoteString,
         bitmapFont: RemoteBitmapFont,
         start: Int,
@@ -826,7 +833,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param yAdj Adjustment away from the path along the normal at that point
      * @param paint The [Paint] to render with
      */
-    fun drawBitmapFontTextRunOnPath(
+    public fun drawBitmapFontTextRunOnPath(
         text: RemoteString,
         bitmapFont: RemoteBitmapFont,
         path: Path,
@@ -863,7 +870,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *   centered vertically, 1 = bottom aligned.
      * @param paint The [Paint] to render with
      */
-    fun drawAnchoredBitmapFontTextRun(
+    public fun drawAnchoredBitmapFontTextRun(
         text: RemoteString,
         bitmapFont: RemoteBitmapFont,
         start: Int,
@@ -904,7 +911,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *
      * @param degrees The angle of rotation in degrees.
      */
-    fun rotate(degrees: Number) {
+    public fun rotate(degrees: Number) {
         val id = degrees.getFloatIdForCreationState(creationState)
         document.rotate(id)
         super.rotate(id)
@@ -917,7 +924,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param px The X-coordinate of the pivot point.
      * @param py The Y-coordinate of the pivot point.
      */
-    fun rotate(degrees: Number, px: Number, py: Number) {
+    public fun rotate(degrees: Number, px: Number, py: Number) {
         document.rotate(
             degrees.getFloatIdForCreationState(creationState),
             px.getFloatIdForCreationState(creationState),
@@ -973,7 +980,13 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param vOffset The vertical offset from the path.
      * @param paint The [Paint] object for styling the text.
      */
-    fun drawTextOnPath(text: String, path: Path, hOffset: Number, vOffset: Number, paint: Paint) {
+    public fun drawTextOnPath(
+        text: String,
+        path: Path,
+        hOffset: Number,
+        vOffset: Number,
+        paint: Paint,
+    ) {
         // println("NRO drawTextOnPath 1")
         usePaint(paint)
         document.drawTextOnPath(
@@ -993,7 +1006,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param vOffset The vertical offset from the path.
      * @param paint The [Paint] object for styling the text.
      */
-    fun drawTextOnPath(
+    public fun drawTextOnPath(
         text: RemoteString,
         path: Path,
         hOffset: Number,
@@ -1030,7 +1043,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         }
     }
 
-    fun drawArc(
+    public fun drawArc(
         left: Number,
         top: Number,
         right: Number,
@@ -1082,7 +1095,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param flags Additional flags for text anchoring/alignment.
      * @param paint The [Paint] object for styling.
      */
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: String,
         anchorX: Number,
         anchorY: Number,
@@ -1113,7 +1126,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param flags Additional flags for text anchoring/alignment.
      * @param paint The [Paint] object for styling.
      */
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: RemoteString,
         anchorX: Number,
         anchorY: Number,
@@ -1147,7 +1160,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param stop The stop value for internal tween calculations (often 1.0).
      * @param paint The Compose UI [Paint] object for styling.
      */
-    fun drawTweenPath(
+    public fun drawTweenPath(
         path1: androidx.compose.ui.graphics.Path,
         path2: androidx.compose.ui.graphics.Path,
         tween: Number,
@@ -1176,7 +1189,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    fun paint(canvas: Canvas) {
+    public fun paint(canvas: Canvas) {
         canvas.restoreToCount(1)
     }
 
@@ -1196,7 +1209,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param scaleFactor A general scale factor.
      * @param contentDescription An optional content description for accessibility.
      */
-    fun drawScaledBitmap(
+    public fun drawScaledBitmap(
         image: Bitmap,
         srcLeft: Number,
         srcTop: Number,
@@ -1242,7 +1255,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param scaleFactor A general scale factor.
      * @param contentDescription An optional content description for accessibility.
      */
-    fun drawScaledBitmap(
+    public fun drawScaledBitmap(
         image: RemoteBitmap,
         srcLeft: Number,
         srcTop: Number,
@@ -1284,7 +1297,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param step The amount to increment each time
      * @param body Code that generates draw calls to run in a loop.
      */
-    fun loop(from: Number, until: Number, step: Number, body: (index: RemoteFloat) -> Unit) {
+    public fun loop(from: Number, until: Number, step: Number, body: (index: RemoteFloat) -> Unit) {
         val loopVariableId = document.createFloatId()
         val loopVariable = MutableRemoteFloat(mutableFloatStateOf(0f), loopVariableId)
         document.loop(
@@ -1307,7 +1320,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param until The loop will be executed until the index is >= this value
      * @param body Code that generates draw calls to run in a loop.
      */
-    fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
+    public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
         val loopVariableId = document.createFloatId()
         val loopVariable = MutableRemoteFloat(mutableFloatStateOf(0f), loopVariableId)
         document.loop(
@@ -1329,7 +1342,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *   the beginning.
      * @param tangentalOffset An offset in pixels from from the path along the tangent.
      */
-    fun setMatrixFromPath(path: Path, fraction: Number, tangentalOffset: Number) {
+    public fun setMatrixFromPath(path: Path, fraction: Number, tangentalOffset: Number) {
         document.matrixFromPath(
             document.addPathData(path),
             fraction.getFloatIdForCreationState(creationState),
@@ -1338,7 +1351,7 @@ class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    companion object {
+    public companion object {
         // TODO replace this with a dedicated color space for RemoteCompose.
         internal const val REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID = 5L
     }

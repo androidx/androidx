@@ -15,10 +15,13 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** high performance matrix processing engine */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixOperations {
 
     /** The START POINT in the float NaN space for operators */

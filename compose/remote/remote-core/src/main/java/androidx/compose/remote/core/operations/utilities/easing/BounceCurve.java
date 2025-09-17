@@ -15,7 +15,10 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 /** Provide a specific bouncing easing function */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BounceCurve extends Easing {
     private static final float N1 = 7.5625f;
     private static final float D1 = 2.75f;

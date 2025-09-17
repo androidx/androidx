@@ -15,7 +15,10 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import androidx.annotation.RestrictTo;
+
 /** Marker interface for a Component or Modifier that is relevant for Semantics. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AccessibilitySemantics {
 
     /**

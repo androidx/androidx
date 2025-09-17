@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.managers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -40,6 +41,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Simple Row layout implementation - also supports weight and horizontal/vertical positioning */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RowLayout extends LayoutManager {
     public static final int START = 1;
     public static final int CENTER = 2;

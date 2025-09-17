@@ -117,7 +117,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             // All text elements should be automatically be autofillable and of "Text" data type
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDataType))
             .assert(expectValue(SemanticsProperties.ContentDataType, ContentDataType.Text))
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnAutofillText))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnFillData))
 
         val textLayoutResults = mutableListOf<TextLayoutResult>()
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.GetTextLayoutResult) {

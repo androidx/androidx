@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.skydoves.pokedex.compose.core.PokedexFeatureFlags
 import com.skydoves.pokedex.compose.core.database.entitiy.mapper.getPokemonImageUrlByName
 import com.skydoves.pokedex.compose.core.model.Pokemon
 import com.skydoves.pokedex.compose.core.navigation.PokedexScreen
@@ -42,6 +43,17 @@ class PokedexActivity : ComponentActivity() {
                     " configuration. Please build it in release mode."
             )
         }
+        if (!intent.hasExtra("enableSharedTransitionScope")) {
+            throw IllegalStateException("enableSharedTransitionScope must be set")
+        }
+        PokedexFeatureFlags.EnableSharedTransitionScope =
+            intent.getBooleanExtra("enableSharedTransitionScope", false)
+
+        if (!intent.hasExtra("enableSharedElementTransitions")) {
+            throw IllegalStateException("enableSharedElementTransitions must be set")
+        }
+        PokedexFeatureFlags.EnableSharedElementTransitions =
+            intent.getBooleanExtra("enableSharedElementTransitions", false)
         val startDestination =
             when (intent.getStringExtra("startDestination")) {
                 "home" -> PokedexScreen.Home

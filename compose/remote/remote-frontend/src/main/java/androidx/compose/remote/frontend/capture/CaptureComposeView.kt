@@ -22,7 +22,6 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +32,19 @@ import androidx.core.graphics.createBitmap
  * Implements an AbstractComposeView to run Compose functions on a 1x1 backing surface, capturing
  * the canvas commands via RecordingCanvas.
  */
-class CaptureComposeView
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CaptureComposeView
 @JvmOverloads
-constructor(
+public constructor(
     context: Context,
-    var immediateCapture: Boolean,
-    var onPaint: (View, RemoteComposeWriter) -> Boolean,
-    val onCaptureReady: @Composable () -> Unit,
+    public var immediateCapture: Boolean,
+    public var onPaint: (View, RemoteComposeWriter) -> Boolean,
+    public val onCaptureReady: @Composable () -> Unit,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
-    val initialImmediateCapture = immediateCapture
-    val recordingCanvas = RecordingCanvas(createBitmap(1, 1))
+    public val initialImmediateCapture: Boolean = immediateCapture
+    public val recordingCanvas: RecordingCanvas = RecordingCanvas(createBitmap(1, 1))
     private val content = mutableStateOf<(@Composable () -> Unit)?>(null)
 
     @Suppress("RedundantVisibilityModifier")
@@ -56,7 +56,7 @@ constructor(
         content.value?.invoke()
     }
 
-    override fun getAccessibilityClassName(): CharSequence {
+    public override fun getAccessibilityClassName(): CharSequence {
         return javaClass.name
     }
 
@@ -65,7 +65,7 @@ constructor(
      * view becomes attached to a window or when [createComposition] is called, whichever comes
      * first.
      */
-    fun setContent(content: @Composable () -> Unit) {
+    public fun setContent(content: @Composable () -> Unit) {
         shouldCreateCompositionOnAttachedToWindow = true
         this.content.value = content
         if (isAttachedToWindow) {
@@ -82,9 +82,9 @@ constructor(
         }
     }
 
-    var contentDone = false
+    public var contentDone: Boolean = false
 
-    fun recordContent() {
+    public fun recordContent() {
         if (contentDone) {
             recordingCanvas.document.reset()
         } else {
@@ -97,7 +97,7 @@ constructor(
         }
     }
 
-    fun setRemoteComposeState(remoteComposeCreationState: RemoteComposeCreationState) {
+    public fun setRemoteComposeState(remoteComposeCreationState: RemoteComposeCreationState) {
         recordingCanvas.setRemoteComposeCreationState(remoteComposeCreationState)
     }
 }

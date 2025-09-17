@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
@@ -29,7 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 
-class DrawWithContentModifier(val content: (RemoteDrawWithContentScope).() -> Unit) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class DrawWithContentModifier(public val content: (RemoteDrawWithContentScope).() -> Unit) :
     RemoteLayoutModifier {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.DrawWithContentModifier()
@@ -52,7 +52,7 @@ class DrawWithContentModifier(val content: (RemoteDrawWithContentScope).() -> Un
 }
 
 @Composable
-fun RemoteModifier.drawWithContent(
+public fun RemoteModifier.drawWithContent(
     content: (RemoteDrawWithContentScope).() -> Unit
 ): RemoteModifier {
     return then(DrawWithContentModifier(content))

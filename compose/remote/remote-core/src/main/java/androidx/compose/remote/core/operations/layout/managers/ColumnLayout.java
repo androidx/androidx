@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout.managers;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -42,6 +43,7 @@ import java.util.List;
 /**
  * Simple Column layout implementation - also supports weight and horizontal/vertical positioning
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColumnLayout extends LayoutManager {
     public static final int START = 1;
     public static final int CENTER = 2;

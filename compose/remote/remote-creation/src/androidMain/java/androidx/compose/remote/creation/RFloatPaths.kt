@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation
 
+import androidx.annotation.RestrictTo
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan

@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** this is an in code comment block used in debugging and IDE support */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Rem extends Operation implements SerializableToString, Serializable {
     private static final int OP_CODE = Operations.REM;
     private static final String CLASS_NAME = "Rem";

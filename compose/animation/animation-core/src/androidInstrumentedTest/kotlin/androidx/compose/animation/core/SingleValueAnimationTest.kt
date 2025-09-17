@@ -31,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -322,6 +323,70 @@ class SingleValueAnimationTest {
         val specForFloat = FloatSpringSpec(visibilityThreshold = 0.01f)
         val specForOffset = FloatSpringSpec(visibilityThreshold = 0.5f)
 
+        val animationSpecForOffset = spring<Offset>(visibilityThreshold = Offset(0.5f, 0.5f))
+
+        var expectedFloat by mutableStateOf(0f)
+        var expectedOffset by mutableStateOf(Offset(0f, 0f))
+        var enabled by mutableStateOf(false)
+        rule.setContent {
+            Box {
+                val offsetValue by
+                    animateOffsetAsState(
+                        if (enabled) Offset(100f, 100f) else Offset(0f, 0f),
+                        animationSpecForOffset,
+                    )
+
+                val floatValue by animateFloatAsState(if (enabled) 100f else 0f, specForFloat)
+
+                val durationForFloat = specForFloat.getDurationNanos(0f, 100f, 0f)
+                val durationForOffset = specForOffset.getDurationNanos(0f, 100f, 0f)
+
+                if (enabled) {
+                    LaunchedEffect(Unit) {
+                        val startTime = withFrameNanos { it }
+                        var frameTime = startTime
+                        do {
+                            withFrameNanos {
+                                frameTime = it
+                                val playTime = frameTime - startTime
+                                expectedFloat =
+                                    if (playTime < durationForFloat) {
+                                        specForFloat.getValueFromNanos(playTime, 0f, 100f, 0f)
+                                    } else {
+                                        100f
+                                    }
+
+                                expectedOffset =
+                                    if (playTime < durationForOffset) {
+                                        val offset =
+                                            specForOffset.getValueFromNanos(playTime, 0f, 100f, 0f)
+                                        Offset(offset, offset)
+                                    } else {
+                                        Offset(100f, 100f)
+                                    }
+                            }
+                        } while (frameTime - startTime <= durationForFloat)
+                        expectedFloat = 100f
+                    }
+                }
+
+                assertEquals(expectedOffset, offsetValue)
+                assertEquals(expectedFloat, floatValue)
+            }
+        }
+
+        rule.runOnIdle { enabled = true }
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun defaultVisibilityThresholdTest() {
+
+        val specForFloat =
+            FloatSpringSpec(visibilityThreshold = Dp.Companion.VisibilityThreshold.value)
+        val specForOffset =
+            FloatSpringSpec(visibilityThreshold = Offset.Companion.VisibilityThreshold.x)
+
         var expectedFloat by mutableStateOf(0f)
         var expectedOffset by mutableStateOf(Offset(0f, 0f))
         var enabled by mutableStateOf(false)
@@ -364,8 +429,19 @@ class SingleValueAnimationTest {
                     }
                 }
 
-                assertEquals(expectedOffset, offsetValue)
-                assertEquals(expectedFloat, floatValue)
+                // The expected values and actual values should have a delta no larger than
+                // the visibility threshold
+                assertEquals(
+                    expectedOffset.x,
+                    offsetValue.x,
+                    Dp.Companion.VisibilityThreshold.value,
+                )
+                assertEquals(
+                    expectedOffset.y,
+                    offsetValue.y,
+                    Dp.Companion.VisibilityThreshold.value,
+                )
+                assertEquals(expectedFloat, floatValue, Offset.Companion.VisibilityThreshold.x)
             }
         }
 

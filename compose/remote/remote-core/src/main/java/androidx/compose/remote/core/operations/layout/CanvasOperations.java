@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a list of canvas operations. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CanvasOperations extends PaintOperation
         implements VariableSupport, Container, Serializable {
     private static final int OP_CODE = Operations.CANVAS_OPERATIONS;

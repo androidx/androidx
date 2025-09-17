@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -43,6 +44,7 @@ import java.util.Map;
  * <p>States are defined as child layouts. This layout handles interpolating between the different
  * state in order to provide an automatic transition.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StateLayout extends LayoutManager {
 
     public int measuredLayoutIndex = 0;

@@ -20,7 +20,6 @@ package androidx.compose.remote.frontend.capture.shaders
 import android.graphics.LinearGradient
 import android.os.Build
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.frontend.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
@@ -55,7 +54,7 @@ import kotlin.math.abs
  * @see androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.linearGradient(
+public fun RemoteBrush.Companion.linearGradient(
     vararg colorStops: Pair<Float, Color>,
     start: Offset = Offset.Zero,
     end: Offset = Offset.Infinite,
@@ -91,7 +90,7 @@ fun RemoteBrush.Companion.linearGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.linearGradient(
+public fun RemoteBrush.Companion.linearGradient(
     colors: List<Color>,
     start: Offset = Offset.Zero,
     end: Offset = Offset.Infinite,
@@ -127,7 +126,7 @@ fun RemoteBrush.Companion.linearGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.horizontalGradient(
+public fun RemoteBrush.Companion.horizontalGradient(
     colors: List<Color>,
     startX: Float = 0.0f,
     endX: Float = Float.POSITIVE_INFINITY,
@@ -160,7 +159,7 @@ fun RemoteBrush.Companion.horizontalGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.horizontalGradient(
+public fun RemoteBrush.Companion.horizontalGradient(
     vararg colorStops: Pair<Float, Color>,
     startX: Float = 0.0f,
     endX: Float = Float.POSITIVE_INFINITY,
@@ -194,7 +193,7 @@ fun RemoteBrush.Companion.horizontalGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.verticalGradient(
+public fun RemoteBrush.Companion.verticalGradient(
     colors: List<Color>,
     startY: Float = 0.0f,
     endY: Float = Float.POSITIVE_INFINITY,
@@ -227,7 +226,7 @@ fun RemoteBrush.Companion.verticalGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.verticalGradient(
+public fun RemoteBrush.Companion.verticalGradient(
     vararg colorStops: Pair<Float, Color>,
     startY: Float = 0f,
     endY: Float = Float.POSITIVE_INFINITY,
@@ -240,14 +239,15 @@ fun RemoteBrush.Companion.verticalGradient(
         tileMode = tileMode,
     )
 
-class RemoteLinearShader(
-    val x0: Float,
-    var y0: Float,
-    var x1: Float,
-    var y1: Float,
-    var colors: IntArray,
-    var positions: FloatArray?,
-    var tileMode: TileMode,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteLinearShader(
+    public val x0: Float,
+    public var y0: Float,
+    public var x1: Float,
+    public var y1: Float,
+    public var colors: IntArray,
+    public var positions: FloatArray?,
+    public var tileMode: TileMode,
 ) : LinearGradient(x0, y0, x1, y1, colors, positions, tileMode), RemoteShader {
     override fun apply(paintBundle: PaintBundle) {
         paintBundle.setLinearGradient(colors, 0, positions, x0, y0, x1, y1, tileMode.ordinal)
@@ -256,8 +256,9 @@ class RemoteLinearShader(
     override var remoteMatrix3x3: RemoteMatrix3x3? = null
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-data class RemoteLinearGradient(
+public data class RemoteLinearGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val start: Offset,

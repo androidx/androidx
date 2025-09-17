@@ -18,27 +18,27 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.ui.geometry.Offset
 
-class RemoteOffset {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteOffset {
 
-    val x: RemoteFloat
-    val y: RemoteFloat
+    public val x: RemoteFloat
+    public val y: RemoteFloat
 
-    constructor(x: RemoteFloat, y: RemoteFloat) {
+    public constructor(x: RemoteFloat, y: RemoteFloat) {
         this.x = x
         this.y = y
     }
 
-    constructor(x: Float, y: Float) : this(RemoteFloat(x), RemoteFloat(y))
+    public constructor(x: Float, y: Float) : this(RemoteFloat(x), RemoteFloat(y))
 
-    constructor(x: Float, y: RemoteFloat) : this(RemoteFloat(x), y)
+    public constructor(x: Float, y: RemoteFloat) : this(RemoteFloat(x), y)
 
-    constructor(x: RemoteFloat, y: Float) : this(x, RemoteFloat(y))
+    public constructor(x: RemoteFloat, y: Float) : this(x, RemoteFloat(y))
 
-    fun asOffset(): Offset {
+    public fun asOffset(): Offset {
         return Offset(x.internalAsFloat(), y.internalAsFloat())
     }
 }

@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +39,8 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasTextExactly
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.core.view.get
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.activityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,6 +48,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -191,12 +195,129 @@ class ActivityRetainTest {
         checkViewHierarchy(previouslyCreatedViews = 5)
     }
 
+    @Test
+    fun test_ambiguousViewRestoration() {
+        var retained1: Any? = null
+        var retained2: Any? = null
+
+        fun createActivityContentView(activity: ComponentActivity) =
+            FrameLayout(activity).apply {
+                addView(
+                    ComposeView(activity).apply {
+                        setViewTreeLifecycleOwner(
+                            object : LifecycleOwner {
+                                override val lifecycle = activity.lifecycle
+                            }
+                        )
+                        setContent { retained1 = retain { Any() } }
+                    }
+                )
+
+                addView(
+                    ComposeView(activity).apply {
+                        setViewTreeLifecycleOwner(
+                            object : LifecycleOwner {
+                                override val lifecycle = activity.lifecycle
+                            }
+                        )
+                        setContent { retained2 = retain { Any() } }
+                    }
+                )
+            }
+
+        activityScenario.onActivity { activity ->
+            activity.setContentView(createActivityContentView(activity))
+        }
+
+        waitForIdleSync()
+        val originalRetained1 = retained1
+        val originalRetained2 = retained2
+        retained1 = null
+        retained2 = null
+
+        assertNotNull(originalRetained1, "First view did not retain a value")
+        assertNotNull(originalRetained2, "Second view did not retain a value")
+
+        activityScenario.recreate()
+        activityScenario.onActivity { activity ->
+            activity.setContentView(createActivityContentView(activity))
+        }
+        waitForIdleSync()
+
+        assertSame(originalRetained1, retained1, "First view retained unexpected value")
+        assertSame(originalRetained2, retained2, "Second view retained unexpected value")
+    }
+
+    @Test
+    fun test_stableIdViewRestoration() {
+        var reverseViewOrder = false
+        val id1 = View.generateViewId()
+        val id2 = View.generateViewId()
+        val retained = mutableMapOf<Int, String>()
+        var retainsCalled = 0
+
+        fun createActivityContentView(activity: ComponentActivity) =
+            FrameLayout(activity).apply {
+                val content: @Composable () -> Unit = {
+                    val viewId = LocalView.current.findParentOrNull { it is ComposeView }!!.id
+                    retained[viewId] = retain { "Retained value ${retainsCalled++}" }
+                }
+
+                addView(
+                    ComposeView(activity).apply {
+                        id = if (reverseViewOrder) id2 else id1
+                        setViewTreeLifecycleOwner(
+                            object : LifecycleOwner {
+                                override val lifecycle = activity.lifecycle
+                            }
+                        )
+                        setContent(content)
+                    }
+                )
+
+                addView(
+                    ComposeView(activity).apply {
+                        id = if (reverseViewOrder) id1 else id2
+                        setViewTreeLifecycleOwner(
+                            object : LifecycleOwner {
+                                override val lifecycle = activity.lifecycle
+                            }
+                        )
+                        setContent(content)
+                    }
+                )
+            }
+
+        activityScenario.onActivity { activity ->
+            activity.setContentView(createActivityContentView(activity))
+        }
+
+        waitForIdleSync()
+
+        assertEquals(mapOf(id1 to "Retained value 0", id2 to "Retained value 1"), retained)
+        retained.clear()
+
+        activityScenario.recreate()
+        reverseViewOrder = true
+        activityScenario.onActivity { activity ->
+            activity.setContentView(createActivityContentView(activity))
+        }
+        waitForIdleSync()
+        assertEquals(mapOf(id1 to "Retained value 0", id2 to "Retained value 1"), retained)
+    }
+
     private fun waitForIdleSync() = InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
     private fun <T : ComponentActivity> ActivityScenario<T>.setContent(
         content: @Composable () -> Unit
     ) {
         onActivity { it.setContent(null, content) }
+    }
+
+    private fun View.findParentOrNull(predicate: (View) -> Boolean): View? {
+        var current = parent as? View
+        while (current != null && !predicate(current)) current = parent.parent as? View
+        return current
     }
 }
 

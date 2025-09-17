@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Represents a click modifier + actions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickModifierOperation extends PaintOperation
         implements Container,
                 ModifierOperation,

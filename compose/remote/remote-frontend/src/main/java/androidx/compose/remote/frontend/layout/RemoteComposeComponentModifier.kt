@@ -18,7 +18,7 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
+import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
@@ -35,13 +35,14 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.unit.IntSize
 
-fun Modifier.remoteComponent() = then(RemoteComposeComponentModifier())
+public fun Modifier.remoteComponent(): Modifier = then(RemoteComposeComponentModifier())
 
 /** Allows us to encapsulate a normal composable as an opaque component with a fixed size */
-class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPositionedModifier {
-    val modifier: RecordingModifier = RecordingModifier()
-    var origin = Offset(-1f, -1f)
-    var asize = IntSize(0, 0)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPositionedModifier {
+    public val modifier: RecordingModifier = RecordingModifier()
+    public var origin: Offset = Offset(-1f, -1f)
+    public var asize: IntSize = IntSize(0, 0)
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         this.asize = coordinates.size
@@ -63,11 +64,13 @@ class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPositionedModif
     }
 }
 
-fun Modifier.remoteDocument(content: (RemoteComposeWriter) -> Unit) =
+public fun Modifier.remoteDocument(content: (RemoteComposeWriter) -> Unit): Modifier =
     then(RemoteComposeDocumentModifier(content))
 
-class RemoteComposeDocumentModifier(val content: (RemoteComposeWriter) -> Unit) : DrawModifier {
-    val modifier: RecordingModifier = RecordingModifier()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeDocumentModifier(public val content: (RemoteComposeWriter) -> Unit) :
+    DrawModifier {
+    public val modifier: RecordingModifier = RecordingModifier()
 
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
@@ -82,9 +85,9 @@ class RemoteComposeDocumentModifier(val content: (RemoteComposeWriter) -> Unit) 
 
 @RemoteComposable
 @Composable
-fun Document(content: (RemoteComposeWriter) -> Unit) {
+public fun Document(content: (RemoteComposeWriter) -> Unit) {
     val captureMode = LocalRemoteComposeCreationState.current
     if (captureMode !is NoRemoteCompose) {
-        androidx.compose.foundation.layout.Box(modifier = Modifier.remoteDocument(content))
+        Box(modifier = Modifier.remoteDocument(content))
     }
 }

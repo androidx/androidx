@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.action
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.frontend.state.FallbackCreationState
@@ -28,9 +27,15 @@ import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.runtime.Composable
 
 /** Run the named host action when invoked. */
-class HostAction(val name: String, val type: Type = Type.INT, var id: Int = -1) : Action {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class HostAction(
+    public val name: String,
+    public val type: Type = Type.INT,
+    public var id: Int = -1,
+) : Action {
 
-    enum class Type(val value: Int) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public enum class Type(public val value: Int) {
         FLOAT(HostNamedActionOperation.FLOAT_TYPE),
         INT(HostNamedActionOperation.INT_TYPE),
         STRING(HostNamedActionOperation.STRING_TYPE),
@@ -39,18 +44,18 @@ class HostAction(val name: String, val type: Type = Type.INT, var id: Int = -1) 
     }
 
     // TODO: Add a RemoteFloatArray type and use it here!
-    constructor(
+    public constructor(
         name: String,
         value: RemoteFloat,
         type: Type = Type.FLOAT,
     ) : this(name, type, value.getIdForCreationState(FallbackCreationState.state))
 
-    constructor(
+    public constructor(
         name: String,
         value: MutableRemoteInt,
     ) : this(name, Type.INT, value.getIdForCreationState(FallbackCreationState.state))
 
-    constructor(
+    public constructor(
         name: String,
         value: MutableRemoteString,
     ) : this(name, Type.STRING, value.getIdForCreationState(FallbackCreationState.state))

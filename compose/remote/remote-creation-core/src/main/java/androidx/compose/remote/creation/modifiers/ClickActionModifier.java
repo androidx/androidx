@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.actions.Action;
 
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Encapsulate actions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickActionModifier implements RecordingModifier.Element {
     @NonNull
     ArrayList<Action> mList = new ArrayList<>();

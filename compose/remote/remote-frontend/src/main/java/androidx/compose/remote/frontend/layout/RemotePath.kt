@@ -18,25 +18,24 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
 
-fun Path.moveTo(x: Number, y: Number) {
+public fun Path.moveTo(x: Number, y: Number) {
     val ix: Float = if (x is RemoteFloat) x.internalAsFloat() else x.toFloat()
     val iy: Float = if (y is RemoteFloat) y.internalAsFloat() else y.toFloat()
     this.moveTo(ix, iy)
 }
 
-fun Path.lineTo(x: Number, y: Number) {
+public fun Path.lineTo(x: Number, y: Number) {
     val ix: Float = if (x is RemoteFloat) x.internalAsFloat() else x.toFloat()
     val iy: Float = if (y is RemoteFloat) y.internalAsFloat() else y.toFloat()
     this.lineTo(ix, iy)
 }
 
-fun Path.addArc(
+public fun Path.addArc(
     left: Number,
     top: Number,
     right: Number,
@@ -55,7 +54,7 @@ fun Path.addArc(
     this.addArc(Rect(iLeft, iTop, iRight, iBottom), iStartAngle, iSweepAngle)
 }
 
-fun Path.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
+public fun Path.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
     val ix1: Float = if (x1 is RemoteFloat) x1.internalAsFloat() else x1.toFloat()
     val iy1: Float = if (y1 is RemoteFloat) y1.internalAsFloat() else y1.toFloat()
     val ix2: Float = if (x2 is RemoteFloat) x2.internalAsFloat() else x2.toFloat()
@@ -63,7 +62,7 @@ fun Path.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
     this.quadraticTo(ix1, iy1, ix2, iy2)
 }
 
-fun Path.cubicTo(x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number) {
+public fun Path.cubicTo(x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number) {
     val ix1: Float = if (x1 is RemoteFloat) x1.internalAsFloat() else x1.toFloat()
     val iy1: Float = if (y1 is RemoteFloat) y1.internalAsFloat() else y1.toFloat()
     val ix2: Float = if (x2 is RemoteFloat) x2.internalAsFloat() else x2.toFloat()
@@ -73,19 +72,19 @@ fun Path.cubicTo(x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3:
     this.cubicTo(ix1, iy1, ix2, iy2, ix3, iy3)
 }
 
-fun RemotePath.moveTo(x: Number, y: Number) {
+public fun RemotePath.moveTo(x: Number, y: Number) {
     val ix: Float = if (x is RemoteFloat) x.internalAsFloat() else x.toFloat()
     val iy: Float = if (y is RemoteFloat) y.internalAsFloat() else y.toFloat()
     this.moveTo(ix, iy)
 }
 
-fun RemotePath.lineTo(x: Number, y: Number) {
+public fun RemotePath.lineTo(x: Number, y: Number) {
     val ix: Float = if (x is RemoteFloat) x.internalAsFloat() else x.toFloat()
     val iy: Float = if (y is RemoteFloat) y.internalAsFloat() else y.toFloat()
     this.lineTo(ix, iy)
 }
 
-fun RemotePath.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
+public fun RemotePath.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
     val ix1: Float = if (x1 is RemoteFloat) x1.internalAsFloat() else x1.toFloat()
     val iy1: Float = if (y1 is RemoteFloat) y1.internalAsFloat() else y1.toFloat()
     val ix2: Float = if (x2 is RemoteFloat) x2.internalAsFloat() else x2.toFloat()
@@ -93,7 +92,14 @@ fun RemotePath.quadraticTo(x1: Number, y1: Number, x2: Number, y2: Number) {
     this.quadraticTo(ix1, iy1, ix2, iy2)
 }
 
-fun RemotePath.cubicTo(x1: Number, y1: Number, x2: Number, y2: Number, x3: Number, y3: Number) {
+public fun RemotePath.cubicTo(
+    x1: Number,
+    y1: Number,
+    x2: Number,
+    y2: Number,
+    x3: Number,
+    y3: Number,
+) {
     val ix1: Float = if (x1 is RemoteFloat) x1.internalAsFloat() else x1.toFloat()
     val iy1: Float = if (y1 is RemoteFloat) y1.internalAsFloat() else y1.toFloat()
     val ix2: Float = if (x2 is RemoteFloat) x2.internalAsFloat() else x2.toFloat()

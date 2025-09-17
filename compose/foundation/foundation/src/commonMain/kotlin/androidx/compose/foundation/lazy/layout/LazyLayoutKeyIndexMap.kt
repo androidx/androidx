@@ -22,25 +22,28 @@ import androidx.collection.emptyObjectIntMap
 import androidx.compose.foundation.internal.checkPrecondition
 
 /**
- * A key-index mapping used inside the [LazyLayoutItemProvider]. It might not contain all items in
- * the lazy layout as optimization, but it must cover items the provider is requesting during layout
- * pass. See [NearestRangeKeyIndexMap] as sample implementation that samples items near current
- * viewport.
+ * A key-index mapping that can be used by the [LazyLayoutItemProvider] to keep track of indices and
+ * keys in [LazyLayout].
  */
-internal interface LazyLayoutKeyIndexMap {
+interface LazyLayoutKeyIndexMap {
     /** @return current index for given [key] or `-1` if not found. */
     fun getIndex(key: Any): Int
 
     /** @return key for a given [index] if it is known, or null otherwise. */
     fun getKey(index: Int): Any?
-
-    /** Empty map implementation, always returning `-1` for any key. */
-    companion object Empty : LazyLayoutKeyIndexMap {
-        @Suppress("AutoBoxing") override fun getIndex(key: Any): Int = -1
-
-        override fun getKey(index: Int) = null
-    }
 }
+
+/**
+ * A [LazyLayoutKeyIndexMap] that keeps a mapping over given [IntRange] of items. Items outside of
+ * given range are considered unknown, with null returned as the index.
+ *
+ * @param itemIndexRange Range of items to keep track of.
+ * @param intervalContent Source of item information in the form of [LazyLayoutIntervalContent].
+ */
+fun LazyLayoutKeyIndexMap(
+    itemIndexRange: IntRange,
+    intervalContent: LazyLayoutIntervalContent<*>,
+): LazyLayoutKeyIndexMap = NearestRangeKeyIndexMap(itemIndexRange, intervalContent)
 
 /**
  * Implementation of [LazyLayoutKeyIndexMap] indexing over given [IntRange] of items. Items outside

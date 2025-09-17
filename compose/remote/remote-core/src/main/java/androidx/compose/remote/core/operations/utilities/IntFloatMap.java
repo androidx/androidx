@@ -15,8 +15,11 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import java.util.Arrays;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IntFloatMap {
 
     private static final int DEFAULT_CAPACITY = 16;

@@ -74,7 +74,7 @@ internal class RemoteComposeImageModifier(
  */
 @Composable
 @RemoteComposable
-fun RemoteImage(
+public fun RemoteImage(
     bitmap: ImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
@@ -105,7 +105,7 @@ fun RemoteImage(
  */
 @Composable
 @RemoteComposable
-fun RemoteImage(
+public fun RemoteImage(
     remoteBitmap: RemoteBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,

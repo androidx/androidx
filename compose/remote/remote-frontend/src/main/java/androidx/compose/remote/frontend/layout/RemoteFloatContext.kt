@@ -18,34 +18,34 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.remote.frontend.state.RemoteFloatExpression
 import androidx.compose.remote.frontend.state.remoteFloat
 
-class RemoteFloatContext(val state: RemoteComposeCreationState) {
-    fun componentWidth(): RemoteFloat {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteFloatContext(public val state: RemoteComposeCreationState) {
+    public fun componentWidth(): RemoteFloat {
         val doc = state.document
         val value = doc.addComponentWidthValue()
         return RemoteFloatExpression(true, { _ -> floatArrayOf(value) })
     }
 
-    fun componentHeight(): RemoteFloat {
+    public fun componentHeight(): RemoteFloat {
         val doc = state.document
         val value = doc.addComponentHeightValue()
         return RemoteFloatExpression(true, { _ -> floatArrayOf(value) })
     }
 
-    fun componentCenterX(): RemoteFloat {
+    public fun componentCenterX(): RemoteFloat {
         val doc = state.document
         val componentWidthValue = doc.addComponentWidthValue()
         val value = doc.floatExpression(componentWidthValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloatExpression(true, { _ -> floatArrayOf(value) })
     }
 
-    fun componentCenterY(): RemoteFloat {
+    public fun componentCenterY(): RemoteFloat {
         val doc = state.document
         val componentHeightValue = doc.addComponentHeightValue()
         val value = doc.floatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
@@ -53,18 +53,18 @@ class RemoteFloatContext(val state: RemoteComposeCreationState) {
     }
 }
 
-fun remoteComponentWidth(state: RemoteComposeCreationState): RemoteFloat {
+public fun remoteComponentWidth(state: RemoteComposeCreationState): RemoteFloat {
     return remoteFloat(state) { componentWidth() }
 }
 
-fun remoteComponentHeight(state: RemoteComposeCreationState): RemoteFloat {
+public fun remoteComponentHeight(state: RemoteComposeCreationState): RemoteFloat {
     return remoteFloat(state) { componentHeight() }
 }
 
-fun remoteComponentCenterX(state: RemoteComposeCreationState): RemoteFloat {
+public fun remoteComponentCenterX(state: RemoteComposeCreationState): RemoteFloat {
     return remoteFloat(state) { componentCenterX() }
 }
 
-fun remoteComponentCenterY(state: RemoteComposeCreationState): RemoteFloat {
+public fun remoteComponentCenterY(state: RemoteComposeCreationState): RemoteFloat {
     return remoteFloat(state) { componentCenterY() }
 }

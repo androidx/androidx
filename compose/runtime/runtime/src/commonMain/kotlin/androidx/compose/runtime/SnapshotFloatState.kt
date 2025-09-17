@@ -20,7 +20,6 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
-import androidx.compose.runtime.internal.equalsWithNanFix
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.GlobalSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
@@ -144,7 +143,7 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
         get() = next.readable(this).value
         set(value) =
             next.withCurrent {
-                if (!it.value.equalsWithNanFix(value)) {
+                if (it.value != value) {
                     next.overwritable(this, it) { this.value = value }
                 }
             }
@@ -169,7 +168,7 @@ internal open class SnapshotMutableFloatStateImpl(value: Float) :
     ): StateRecord? {
         val currentRecord = current as FloatStateStateRecord
         val appliedRecord = applied as FloatStateStateRecord
-        return if (currentRecord.value.equalsWithNanFix(appliedRecord.value)) {
+        return if (currentRecord.value == appliedRecord.value) {
             current
         } else {
             null

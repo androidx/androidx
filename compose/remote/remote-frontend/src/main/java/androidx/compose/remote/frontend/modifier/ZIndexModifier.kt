@@ -18,14 +18,14 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 
-class ZIndexModifier(val value: RemoteFloat) : RemoteLayoutModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ZIndexModifier(public val value: RemoteFloat) : RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.ZIndexModifier(value.internalAsFloat())
@@ -37,4 +37,4 @@ class ZIndexModifier(val value: RemoteFloat) : RemoteLayoutModifier {
     }
 }
 
-fun RemoteModifier.zIndex(value: RemoteFloat): RemoteModifier = then(ZIndexModifier(value))
+public fun RemoteModifier.zIndex(value: RemoteFloat): RemoteModifier = then(ZIndexModifier(value))

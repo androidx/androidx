@@ -768,18 +768,20 @@ class RowColumnTest : LayoutTest() {
     fun testRow_withCustomVertical_alignment() {
         with(density) {
             val rowHeight = 200.dp
-            val centerAt = 50.dp.roundToPx()
             val boxSize = 20.dp
             var boxOffset = 0f
             val drawLatch = CountDownLatch(1)
-
+            var capturedSpace = 0
+            var capturedSize = 0
             show {
                 Row(
                     modifier = Modifier.size(width = 200.dp, height = rowHeight),
                     verticalAlignment =
                         object : Alignment.Vertical {
                             override fun align(size: Int, space: Int): Int {
-                                val offset = centerAt - size / 2
+                                capturedSpace = space
+                                capturedSize = size
+                                val offset = (space - size) / 2
                                 return offset.coerceIn(0, space - size)
                             }
                         },
@@ -798,8 +800,10 @@ class RowColumnTest : LayoutTest() {
 
             val root = findComposeView()
             waitForDraw(root)
-            val expectedOffset = (centerAt - boxSize.roundToPx() / 2).toFloat()
+            val expectedOffset = ((rowHeight.roundToPx() - boxSize.roundToPx()) / 2).toFloat()
             assertEquals(expectedOffset, boxOffset)
+            assertEquals(boxSize.roundToPx(), capturedSize)
+            assertEquals(rowHeight.roundToPx(), capturedSpace)
         }
     }
 
@@ -807,11 +811,11 @@ class RowColumnTest : LayoutTest() {
     fun testColumn_withCustomHorizontal_alignment() {
         with(density) {
             val columnWidth = 300.dp
-            val centerAt = 100
             val boxSize = 40.dp
             var boxOffset = 0f
             val drawLatch = CountDownLatch(1)
-
+            var capturedSpace = 0
+            var capturedSize = 0
             show {
                 Column(
                     modifier = Modifier.size(width = columnWidth, height = 200.dp),
@@ -822,7 +826,9 @@ class RowColumnTest : LayoutTest() {
                                 space: Int,
                                 layoutDirection: LayoutDirection,
                             ): Int {
-                                val offset = centerAt - size / 2
+                                capturedSpace = space
+                                capturedSize = size
+                                val offset = (space - size) / 2
                                 return offset.coerceIn(0, space - size)
                             }
                         },
@@ -841,8 +847,101 @@ class RowColumnTest : LayoutTest() {
 
             val root = findComposeView()
             waitForDraw(root)
-            val expectedOffset = (centerAt - boxSize.roundToPx() / 2).toFloat()
+            val expectedOffset = ((columnWidth.roundToPx() - boxSize.roundToPx()) / 2).toFloat()
             assertEquals(expectedOffset, boxOffset)
+            assertEquals(boxSize.roundToPx(), capturedSize)
+            assertEquals(columnWidth.roundToPx(), capturedSpace)
+        }
+    }
+
+    @Test
+    fun testColumn_withCustomHorizontalAlignModifier() {
+        with(density) {
+            val columnWidth = 300.dp
+            val boxSize = 40.dp
+            var boxOffset = 0f
+            val drawLatch = CountDownLatch(1)
+            var capturedSpace = 0
+            var capturedSize = 0
+            show {
+                Column(modifier = Modifier.size(width = columnWidth, height = 200.dp)) {
+                    Box(
+                        modifier =
+                            Modifier.size(boxSize)
+                                .align(
+                                    object : Alignment.Horizontal {
+                                        override fun align(
+                                            size: Int,
+                                            space: Int,
+                                            layoutDirection: LayoutDirection,
+                                        ): Int {
+                                            capturedSpace = space
+                                            capturedSize = size
+                                            val offset = (space - size) / 2
+                                            return offset.coerceIn(0, space - size)
+                                        }
+                                    }
+                                )
+                                .onGloballyPositioned { coordinates ->
+                                    boxOffset = coordinates.positionInRoot().x
+                                    drawLatch.countDown()
+                                }
+                    )
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val root = findComposeView()
+            waitForDraw(root)
+            val expectedOffset = ((columnWidth.roundToPx() - boxSize.roundToPx()) / 2).toFloat()
+            assertEquals(expectedOffset, boxOffset)
+            assertEquals(boxSize.roundToPx(), capturedSize)
+            assertEquals(columnWidth.roundToPx(), capturedSpace)
+        }
+    }
+
+    @Test
+    fun testRow_withCustomVerticalAlignModifier() {
+        with(density) {
+            val rowHeight = 200.dp
+            val centerAt = 50.dp.roundToPx()
+            val boxSize = 20.dp
+            var boxOffset = 0f
+            val drawLatch = CountDownLatch(1)
+            var capturedSpace = 0
+            var capturedSize = 0
+            show {
+                Row(modifier = Modifier.size(width = 200.dp, height = rowHeight)) {
+                    Box(
+                        modifier =
+                            Modifier.size(boxSize)
+                                .align(
+                                    object : Alignment.Vertical {
+                                        override fun align(size: Int, space: Int): Int {
+                                            capturedSpace = space
+                                            capturedSize = size
+                                            val offset = (space - size) / 2
+                                            return offset.coerceIn(0, space - size)
+                                        }
+                                    }
+                                )
+                                .onGloballyPositioned { coordinates ->
+                                    boxOffset = coordinates.positionInRoot().y
+                                    drawLatch.countDown()
+                                }
+                    )
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val root = findComposeView()
+            waitForDraw(root)
+            val expectedOffset = ((rowHeight.roundToPx() - boxSize.roundToPx()) / 2).toFloat()
+            assertEquals(expectedOffset, boxOffset)
+            assertEquals(boxSize.roundToPx(), capturedSize)
+            assertEquals(rowHeight.roundToPx(), capturedSpace)
         }
     }
 

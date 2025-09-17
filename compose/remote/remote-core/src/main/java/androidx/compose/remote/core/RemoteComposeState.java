@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
@@ -34,6 +35,7 @@ import java.util.HashMap;
  * Represents runtime state for a RemoteCompose document State includes things like the value of
  * variables
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeState implements CollectionsAccess {
     public static final int START_ID = 42;
     //    private static final int MAX_FLOATS = 500;

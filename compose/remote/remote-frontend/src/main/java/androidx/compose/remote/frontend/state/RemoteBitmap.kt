@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.state
 
 import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.view.state.RemoteDomains
@@ -37,15 +36,16 @@ import androidx.compose.runtime.remember
  * @property hasConstantValue A boolean indicating whether this [RemoteBitmap] will always evaluate
  *   to the same [value].
  */
-abstract class RemoteBitmap
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RemoteBitmap
 internal constructor(
-    val state: RemoteComposeCreationState?,
-    override val hasConstantValue: Boolean,
+    public val state: RemoteComposeCreationState?,
+    public override val hasConstantValue: Boolean,
 ) : RemoteState<Bitmap> {
 
     // @Deprecated("Use getIdForCreationState directly")
     // TODO: re-enable this asap
-    val id: Int
+    public val id: Int
         get() {
             // FallbackCreationState.state.platform.log(
             //     Platform.LogCategory.TODO,
@@ -54,7 +54,7 @@ internal constructor(
             return getIdForCreationState(FallbackCreationState.state)
         }
 
-    companion object {
+    public companion object {
         /**
          * Creates a [RemoteBitmap] instance from a [Bitmap] value. This factory method can be used
          * with or without an explicit [RemoteComposeCreationState].
@@ -65,7 +65,10 @@ internal constructor(
          * @return A [RemoteBitmap] representing the provided bitmap.
          */
         @JvmOverloads
-        operator fun invoke(v: Bitmap, state: RemoteComposeCreationState? = null): RemoteBitmap {
+        public operator fun invoke(
+            v: Bitmap,
+            state: RemoteComposeCreationState? = null,
+        ): RemoteBitmap {
             return MutableRemoteBitmap(state, mutableStateOf(v), false) { creationState ->
                 creationState.document.addBitmap(v)
             }
@@ -79,7 +82,7 @@ internal constructor(
          * @param initialValue The initial [Bitmap] value for the named remote bitmap.
          * @return A [RemoteBitmap] representing the named bitmap.
          */
-        fun createNamedRemoteBitmap(
+        public fun createNamedRemoteBitmap(
             name: String,
             initialValue: Bitmap,
             state: RemoteComposeCreationState,
@@ -100,17 +103,18 @@ internal constructor(
  * @property idProvider A lambda that provides the unique ID for this mutable bitmap within the
  *   [RemoteComposeCreationState]. This ID is used to identify the bitmap in the remote document.
  */
-class MutableRemoteBitmap(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MutableRemoteBitmap(
     state: RemoteComposeCreationState?,
     private val content: MutableState<Bitmap>,
     hasConstantValue: Boolean,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : RemoteBitmap(state, hasConstantValue), MutableRemoteState<Bitmap> {
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState) =
+    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
-    override var value: Bitmap
+    public override var value: Bitmap
         get() {
             return content.value
         }
@@ -118,9 +122,11 @@ class MutableRemoteBitmap(
             content.value = newValue
         }
 
-    override operator fun component1(): Bitmap = value
+    public override operator fun component1(): Bitmap = value
 
-    override operator fun component2(): (Bitmap) -> Unit = { newValue -> content.value = newValue }
+    public override operator fun component2(): (Bitmap) -> Unit = { newValue ->
+        content.value = newValue
+    }
 }
 
 /**
@@ -133,7 +139,7 @@ class MutableRemoteBitmap(
  * @return A [RemoteBitmap] instance, which initially evaluates to the return value of [value]
  */
 @Composable
-fun rememberRemoteBitmapValue(
+public fun rememberRemoteBitmapValue(
     name: String,
     domain: RemoteDomains = RemoteDomains.USER,
     value: () -> Bitmap,

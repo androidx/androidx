@@ -141,13 +141,6 @@ object ComposeUiFlags {
     @JvmField
     var isNoPinningInFocusRestorationEnabled: Boolean = false
 
-    /**
-     * With this flag on, SubcomposeLayout will deactivate not used content slots outside of the
-     * frame, not as part of a regular recomposition phase. It allows to not block the drawing
-     * phase, improving the scrolling performance for lazy layouts.
-     */
-    @Suppress("MutableBareField") @JvmField var isOutOfFrameDeactivationEnabled: Boolean = true
-
     /** Enable clearing focus when a focused item is removed from a lazyList. */
     @Deprecated("This flag is no longer needed.")
     @Suppress("MutableBareField", "unused")
@@ -158,15 +151,22 @@ object ComposeUiFlags {
     @Suppress("MutableBareField") @JvmField var isInitialFocusOnFocusableAvailable: Boolean = false
 
     /**
+     * With this flag on, requesting focus on a non-focusable focus target will request focus for
+     * one of its children, which makes
+     * [FocusTargetModifierNode.requestFocus][androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus]
+     * consistent with
+     * [FocusRequester.requestFocus][androidx.compose.ui.focus.FocusRequester.requestFocus] and
+     * [FocusRequesterModifierNode.requestFocus][androidx.compose.ui.focus.requestFocus]
+     */
+    @Suppress("MutableBareField")
+    @JvmField
+    var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
+
+    /**
      * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
      * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
      */
     @Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
-
-    /** Flag for enabling the fix for using the correct node for nested scroll operations. */
-    @Suppress("MutableBareField")
-    @JvmField
-    var isNestedScrollDispatcherNodeFixEnabled: Boolean = true
 
     /** Flag for enabling indirect touch event navigation gestures in Compose. */
     @Suppress("MutableBareField")
@@ -189,5 +189,18 @@ object ComposeUiFlags {
     var isNestedScrollInteropIntegerPropagationEnabled: Boolean = true
 
     /** This flag enables clearing focus on pointer down by default. */
-    @Suppress("MutableBareField") @JvmField var isClearFocusOnPointerDownEnabled: Boolean = false
+    @Suppress("MutableBareField") @JvmField var isClearFocusOnPointerDownEnabled: Boolean = true
+
+    /**
+     * Enable fix for `[ComposeView.canScrollHorizontally]` and `[ComposeView.canScrollVertically]`
+     * methods. Previously, these methods would sometimes use the last MOVE event's position to
+     * determine if scrolling was possible, even if the gesture started with a DOWN event at a
+     * different location. This could lead to incorrect scrollability checks, especially when a
+     * scrollable container was touched and then moved. With this flag enabled, the methods
+     * correctly use the position of the initial DOWN event to establish the pointer position for an
+     * event that started on a scrollable container, ensuring accurate scroll checks.
+     */
+    @Suppress("MutableBareField")
+    @JvmField
+    var isCanScrollUsingLastDownEventFixEnabled: Boolean = true
 }

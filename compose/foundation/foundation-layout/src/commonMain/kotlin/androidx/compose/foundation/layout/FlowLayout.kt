@@ -643,7 +643,7 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
         val childCrossAlignment =
             placeable.rowColumnParentData?.crossAxisAlignment ?: crossAxisAlignment
         return childCrossAlignment.align(
-            size = crossAxisLayoutSize - placeable.crossAxisSize(),
+            size = crossAxisLayoutSize,
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,

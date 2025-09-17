@@ -100,6 +100,42 @@ class RetainDetector : Detector(), SourceCodeScanner {
                 quickfixData = createReplaceWithRememberQuickFix(),
             )
         }
+
+        node.valueArguments.forEach { argument ->
+            val argumentExpressionType = argument.getExpressionType()
+
+            if (argumentExpressionType?.isKnownContextLeakOrWrapper() == true) {
+                context.report(
+                    issue = RetainContextLeak,
+                    scope = node,
+                    location = context.getNameLocation(node),
+                    message =
+                        "Retaining a key of type ${argumentExpressionType.canonicalText} " +
+                            "will leak a Context reference.",
+                    quickfixData = createReplaceWithRememberQuickFix(),
+                )
+            }
+
+            val doNotRetainAnnotation = argumentExpressionType?.findDoNotRetainAnnotation()
+            if (doNotRetainAnnotation != null) {
+                val doNotRetainReason =
+                    doNotRetainAnnotation.parameterList.attributes
+                        .firstOrNull { it.name == "explanation" }
+                        ?.literalValue
+                        .orEmpty()
+
+                context.report(
+                    issue = RetainMarkedType,
+                    scope = node,
+                    location = context.getNameLocation(node),
+                    message =
+                        "Key type ${argumentExpressionType.canonicalText} is annotated as " +
+                            "`@DoNotRetain`" +
+                            if (doNotRetainReason.isNotEmpty()) ": $doNotRetainReason" else "",
+                    quickfixData = createReplaceWithRememberQuickFix(),
+                )
+            }
+        }
     }
 
     private fun createReplaceWithRememberQuickFix(): LintFix {
@@ -292,10 +328,11 @@ class RetainDetector : Detector(), SourceCodeScanner {
                     "Using `retain { ... }` to store a value that extends from " +
                         "or references `Context` will cause a memory leak.",
                 explanation =
-                    "The lifespan of a retained object can extend beyond the lifecycle " +
-                        "of the host activity. Retaining a `Context` (or another type that holds a " +
-                        "strong reference to a `Context`) will leak the Context and prevent its " +
-                        "memory from being properly reclaimed." +
+                    "The lifespan of a retained object or one of its keys can extend beyond the " +
+                        "lifecycle of the host activity. Retaining a `Context` (or another type " +
+                        "that holds a strong reference to a `Context`) as either the return type " +
+                        "of `calculation` or as a key input to `retain` will leak the Context " +
+                        "and prevent its memory from being properly reclaimed." +
                         "\n\nIf caching is necessary, consider remembering offending values instead " +
                         "of retaining them.",
                 category = Category.CORRECTNESS,
@@ -322,8 +359,9 @@ class RetainDetector : Detector(), SourceCodeScanner {
                         "documentation may have more information about why it does not support " +
                         "retention." +
                         "\n\nThis inspection checks that marked types are never directly " +
-                        "returned by the `calculation` lambda of `retain`. Types marked with " +
-                        "`@DoNotRetain` ",
+                        "returned by the `calculation` lambda of `retain` or as a key input to " +
+                        "`retain`. Types marked with `@DoNotRetain` may optionally specify more " +
+                        "information about why they should not be retained.",
                 category = Category.CORRECTNESS,
                 priority = 3,
                 severity = Severity.ERROR,

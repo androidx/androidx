@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.serialize;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Represents a serializer for a map */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MapSerializer {
 
     /**

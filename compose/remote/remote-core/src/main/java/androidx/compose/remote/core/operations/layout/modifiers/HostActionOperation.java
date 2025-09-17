@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -36,6 +37,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Capture a host action information. This can be triggered on eg. a click. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostActionOperation extends Operation
         implements ActionOperation, SerializableToString, Serializable {
     private static final int OP_CODE = Operations.HOST_ACTION;

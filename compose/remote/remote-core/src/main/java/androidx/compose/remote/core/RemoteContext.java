@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Theme;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
  *
  * <p>We also contain a PaintContext, so that any operation can draw as needed.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteContext {
     private static final int MAX_OP_COUNT = 20_000; // Maximum cmds per frame
     private @NonNull Clock mClock;

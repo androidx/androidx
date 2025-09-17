@@ -18,7 +18,6 @@ package androidx.compose.ui.autofill
 
 import android.graphics.Rect
 import android.os.Build
-import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewStructure
@@ -40,8 +39,10 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.spatial.RectManager
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
+import androidx.core.util.size
 
 private const val logTag = "ComposeAutofillManager"
 
@@ -143,6 +144,57 @@ internal class AndroidAutofillManager(
             }
         }
 
+        // Check toggle value
+        val previousToggleValue = prevConfig?.getOrNull(SemanticsProperties.ToggleableState)
+        val newToggleValue = config?.getOrNull(SemanticsProperties.ToggleableState)
+        if (previousToggleValue != newToggleValue) {
+            when {
+                previousToggleValue == null ->
+                    platformAutofillManager.notifyViewVisibilityChanged(view, semanticsId, true)
+
+                newToggleValue == null ->
+                    platformAutofillManager.notifyViewVisibilityChanged(view, semanticsId, false)
+
+                else -> {
+                    val contentDataType = config.getOrNull(SemanticsProperties.ContentDataType)
+                    if (contentDataType == ContentDataType.Toggle) {
+                        val isToggled =
+                            when (newToggleValue) {
+                                ToggleableState.On -> true
+                                ToggleableState.Off -> false
+                                else -> null
+                            }
+                        if (isToggled != null) {
+                            platformAutofillManager.notifyValueChanged(
+                                view,
+                                semanticsId,
+                                AutofillApi26Helper.getAutofillToggleValue(isToggled),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check fillable data value
+        val previousFillableData = prevConfig?.getOrNull(SemanticsProperties.FillableData)
+        val newFillableData = config?.getOrNull(SemanticsProperties.FillableData)
+        if (previousFillableData != newFillableData) {
+            when {
+                previousFillableData == null ->
+                    platformAutofillManager.notifyViewVisibilityChanged(view, semanticsId, true)
+                newFillableData == null ->
+                    platformAutofillManager.notifyViewVisibilityChanged(view, semanticsId, false)
+                else -> {
+                    platformAutofillManager.notifyValueChanged(
+                        view,
+                        semanticsId,
+                        (newFillableData as AndroidFillableData).autofillValue,
+                    )
+                }
+            }
+        }
+
         // Update currentlyDisplayedIDs if relevance to Autocommit has changed.
         val prevRelatedToAutoCommit = prevConfig?.isRelatedToAutoCommit() == true
         val currRelatedToAutoCommit = config?.isRelatedToAutoCommit() == true
@@ -199,28 +251,20 @@ internal class AndroidAutofillManager(
 
     /** When the autofill service provides data, perform autofill using semantic actions. */
     fun performAutofill(values: SparseArray<AutofillValue>) {
-        for (index in 0 until values.size()) {
+        for (index in 0 until values.size) {
             val itemId = values.keyAt(index)
             val value = values[itemId]
-            when {
-                AutofillApi26Helper.isText(value) ->
-                    semanticsOwner[itemId]
-                        ?.semanticsConfiguration
-                        ?.getOrNull(SemanticsActions.OnAutofillText)
-                        ?.action
-                        ?.invoke(AnnotatedString(AutofillApi26Helper.textValue(value).toString()))
-
-                // TODO(b/138604541): Add Autofill support for date fields.
-                AutofillApi26Helper.isDate(value) ->
-                    Log.w(logTag, "Auto filling Date fields is not yet supported.")
-
-                // TODO(b/138604541): Add Autofill support for dropdown lists.
-                AutofillApi26Helper.isList(value) ->
-                    Log.w(logTag, "Auto filling dropdown lists is not yet supported.")
-
-                // TODO(b/138604541): Add Autofill support for toggle fields.
-                AutofillApi26Helper.isToggle(value) ->
-                    Log.w(logTag, "Auto filling toggle fields are not yet supported.")
+            semanticsOwner[itemId]?.semanticsConfiguration?.let { semanticsConfig ->
+                // Try to use the old and deprecated `onAutofillText`
+                semanticsConfig
+                    .getOrNull(SemanticsActions.OnAutofillText)
+                    ?.action
+                    ?.invoke(AnnotatedString(AutofillApi26Helper.textValue(value).toString()))
+                // Try to use the `onFillData` action
+                semanticsConfig
+                    .getOrNull(SemanticsActions.OnFillData)
+                    ?.action
+                    ?.invoke(AndroidFillableData(value))
             }
         }
     }
@@ -300,8 +344,8 @@ internal class AndroidAutofillManager(
 }
 
 private fun SemanticsConfiguration.isAutofillable(): Boolean {
-    // TODO add more actions once we add support for Toggle, List, Date etc.
-    return props.contains(SemanticsActions.OnAutofillText)
+    return props.contains(SemanticsActions.OnAutofillText) ||
+        props.contains(SemanticsActions.OnFillData)
 }
 
 private fun SemanticsConfiguration.isRelatedToAutoCommit(): Boolean {
@@ -310,6 +354,7 @@ private fun SemanticsConfiguration.isRelatedToAutoCommit(): Boolean {
 
 private fun SemanticsConfiguration.isRelatedToAutofill(): Boolean {
     return props.contains(SemanticsActions.OnAutofillText) ||
+        props.contains(SemanticsActions.OnFillData) ||
         props.contains(SemanticsProperties.ContentType) ||
         props.contains(SemanticsProperties.ContentDataType)
 }

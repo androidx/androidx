@@ -730,7 +730,13 @@ fun SemanticsNodeInteraction.performFirstLinkClick(
     val linkChildren = node.children.fastFilter { it.isLink() }
     val matchedLinkIndex = linksInTexts.indexOfFirst(predicate)
     if (matchedLinkIndex != -1) {
-        linkChildren[matchedLinkIndex].config.getOrNull(SemanticsActions.OnClick)?.action?.invoke()
+        testContext.testOwner.runOnUiThread {
+            linkChildren[matchedLinkIndex]
+                .config
+                .getOrNull(SemanticsActions.OnClick)
+                ?.action
+                ?.invoke()
+        }
     } else {
         throw AssertionError("$errorMessage\n Reason: No link found that matches the predicate.")
     }

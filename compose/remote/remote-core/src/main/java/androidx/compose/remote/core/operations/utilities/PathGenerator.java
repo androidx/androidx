@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.Utils;
 
 import org.jspecify.annotations.NonNull;
@@ -24,6 +25,7 @@ import org.jspecify.annotations.Nullable;
  * This is designed to algorithmically generate a path from a set of points or expressions that
  * describe the points
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathGenerator {
     private Linear mLinear;
     private Monotonic mMonotonic;

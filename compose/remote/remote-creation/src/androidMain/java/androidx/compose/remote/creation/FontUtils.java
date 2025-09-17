@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapFontData;
 
 import org.jspecify.annotations.NonNull;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FontUtils {
     private FontUtils() {}
 

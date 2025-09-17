@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -34,6 +35,7 @@ import java.util.List;
  * Represents a padding modifier. Padding modifiers can be chained and will impact following
  * modifiers.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaddingModifierOperation extends Operation implements ModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_PADDING;
     public static final String CLASS_NAME = "PaddingModifierOperation";

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Implementation of the most common semantics used in typical Android apps. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class CoreSemantics extends Operation implements AccessibilityModifier {
     public int mContentDescriptionId = 0;
     public @Nullable Role mRole = null;

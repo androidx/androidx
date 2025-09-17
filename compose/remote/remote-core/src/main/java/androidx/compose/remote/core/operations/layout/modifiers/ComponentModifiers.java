@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
@@ -39,6 +40,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 
 /** Maintain a list of modifiers */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentModifiers extends PaintOperation
         implements DecoratorComponent,
                 ClickHandler,

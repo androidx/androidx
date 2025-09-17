@@ -42,7 +42,7 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * placement based on where the parent is.
      *
      * If you only need to access the current [LayoutCoordinates] at a single point in time from
-     * outside this method, use [currentLayoutCoordinates].
+     * outside this method, use [requireLayoutCoordinates].
      */
     fun onPlaced(coordinates: LayoutCoordinates) {}
 

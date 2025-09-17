@@ -18,6 +18,7 @@ package androidx.compose.remote.creation;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Platform;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.Utils;
@@ -26,6 +27,7 @@ import androidx.compose.remote.creation.profile.Profile;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
     private final @NonNull Painter mPainter = new Painter(this);
 

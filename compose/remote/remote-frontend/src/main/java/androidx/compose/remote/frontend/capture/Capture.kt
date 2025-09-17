@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.capture
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Platform
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -28,30 +27,35 @@ import androidx.compose.remote.frontend.state.AnimatedRemoteFloat
 import androidx.compose.remote.frontend.state.BaseRemoteState
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.remote.frontend.state.RemoteInt
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 
-open class RemoteComposeCreationState {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public open class RemoteComposeCreationState {
 
-    val platform: Platform
-    var density: Float
-    val size: Size
-    val apiLevel: Int
-    val profiles: Int
+    public val platform: Platform
+    public var density: Float
+    public val size: Size
+    public val apiLevel: Int
+    public val profiles: Int
 
-    val animCache = HashMap<Int, AnimatedRemoteFloat>()
-    val expressionCache = HashMap<Int, RemoteFloat>()
-    val intExpressionCache = HashMap<Int, RemoteInt>()
-    var ready: Boolean = true
-    var document: RemoteComposeWriter
-    val remoteVariableToId = HashMap<BaseRemoteState, Int>()
-    val floatArrayCache = HashMap<BaseRemoteState, FloatArray>()
-    val longArrayCache = HashMap<BaseRemoteState, LongArray>()
+    public val animCache: HashMap<Int, AnimatedRemoteFloat> = HashMap<Int, AnimatedRemoteFloat>()
+    public val expressionCache: HashMap<Int, RemoteFloat> = HashMap<Int, RemoteFloat>()
+    public val intExpressionCache: HashMap<Int, RemoteInt> = HashMap<Int, RemoteInt>()
+    public var ready: Boolean = true
+    public var document: RemoteComposeWriter
+    public val remoteVariableToId: HashMap<BaseRemoteState, Int> = HashMap<BaseRemoteState, Int>()
+    public val floatArrayCache: HashMap<BaseRemoteState, FloatArray> =
+        HashMap<BaseRemoteState, FloatArray>()
+    public val longArrayCache: HashMap<BaseRemoteState, LongArray> =
+        HashMap<BaseRemoteState, LongArray>()
 
-    val time = mutableStateOf(0L)
+    public val time: MutableState<Long> = mutableStateOf(0L)
 
-    constructor(platform: Platform, density: Float, size: Size) {
+    public constructor(platform: Platform, density: Float, size: Size) {
         this.platform = platform
         this.density = density
         this.size = size
@@ -61,7 +65,13 @@ open class RemoteComposeCreationState {
             RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "default", platform)
     }
 
-    constructor(platform: Platform, density: Float, size: Size, apiLevel: Int, profiles: Int) {
+    public constructor(
+        platform: Platform,
+        density: Float,
+        size: Size,
+        apiLevel: Int,
+        profiles: Int,
+    ) {
         this.platform = platform
         this.density = density
         this.size = size
@@ -88,7 +98,7 @@ open class RemoteComposeCreationState {
         }
     }
 
-    constructor(density: Float, size: Size, profile: Profile) {
+    public constructor(density: Float, size: Size, profile: Profile) {
         this.platform = profile.platform
         this.density = density
         this.size = size
@@ -99,8 +109,9 @@ open class RemoteComposeCreationState {
 }
 
 // Density and Size should be taken from Compose in this mode
-class NoRemoteCompose :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class NoRemoteCompose :
     RemoteComposeCreationState(platform = Platform.None, density = 1f, Size(1000f, 1000f))
 
-val LocalRemoteComposeCreationState =
+public val LocalRemoteComposeCreationState: ProvidableCompositionLocal<RemoteComposeCreationState> =
     compositionLocalOf<RemoteComposeCreationState> { NoRemoteCompose() }

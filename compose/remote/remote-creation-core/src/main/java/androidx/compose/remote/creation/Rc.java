@@ -27,6 +27,7 @@ import static androidx.compose.remote.core.operations.PathExpression.LOOP;
 import static androidx.compose.remote.core.operations.PathExpression.MONOTONIC;
 import static androidx.compose.remote.core.operations.PathExpression.POLAR;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ConditionalOperations;
@@ -41,6 +42,7 @@ import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvalua
 import androidx.compose.remote.core.operations.utilities.easing.Easing;
 
 /** Constants use in RemoteCompose */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Rc {
     /** Used in FloatExpressions */
     public static class FloatExpression {

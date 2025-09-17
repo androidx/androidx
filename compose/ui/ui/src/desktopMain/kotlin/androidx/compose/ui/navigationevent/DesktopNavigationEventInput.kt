@@ -26,7 +26,7 @@ import androidx.navigationevent.NavigationEventInput
 internal class DesktopNavigationEventInput : NavigationEventInput() {
     fun onKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-            dispatchOnCompleted()
+            dispatchOnBackCompleted()
             return true
         } else {
             return false

@@ -17,12 +17,14 @@ package androidx.compose.remote.creation.modifiers;
 
 import android.graphics.Shader;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Background modifier, takes a color and a shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BackgroundModifier implements RecordingModifier.Element {
 
     @Nullable Shader mShader;

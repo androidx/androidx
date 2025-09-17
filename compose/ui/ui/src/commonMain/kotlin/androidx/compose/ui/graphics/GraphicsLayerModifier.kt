@@ -612,7 +612,7 @@ private data class GraphicsLayerElement(
  * cause the layer properties update without triggering recomposition and relayout.
  *
  * NOTE: [block] can be invoked multiple times, which is why it's important for performance to
- * minimize work done inside of it.
+ * minimize work done inside of it. [block] may also be invoked before effects.
  *
  * @sample androidx.compose.ui.samples.AnimateFadeIn
  * @param block block on [GraphicsLayerScope] where you define the layer properties.

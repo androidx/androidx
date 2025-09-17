@@ -18,12 +18,11 @@
 package androidx.compose.remote.frontend.capture
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.Platform
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
-val LocalPlatform: ProvidableCompositionLocal<Platform> = staticCompositionLocalOf {
+public val LocalPlatform: ProvidableCompositionLocal<Platform> = staticCompositionLocalOf {
     AndroidxPlatformServices()
 }
