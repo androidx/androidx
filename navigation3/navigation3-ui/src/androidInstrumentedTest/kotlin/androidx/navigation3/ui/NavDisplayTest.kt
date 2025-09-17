@@ -164,7 +164,7 @@ class NavDisplayTest {
     @Test
     fun testStateOfInactiveContentIsRestoredWhenWeGoBackToIt() {
         lateinit var numberOnScreen1: MutableState<Int>
-        lateinit var backStack: NavBackStack
+        lateinit var backStack: NavBackStack<NavKey>
         composeTestRule.setContent {
             backStack = rememberNavBackStack(First)
             NavDisplay(
@@ -202,7 +202,7 @@ class NavDisplayTest {
     fun testStateIsRemovedOnPop() {
         lateinit var numberOnScreen1: MutableState<Int>
         lateinit var numberOnScreen2: MutableState<Int>
-        lateinit var backStack: NavBackStack
+        lateinit var backStack: NavBackStack<NavKey>
         composeTestRule.setContent {
             backStack = rememberNavBackStack(First)
             NavDisplay(
@@ -563,7 +563,7 @@ class NavDisplayTest {
     @Test
     fun testDuplicateKeyStateIsShared() {
         lateinit var numberOnScreen1: MutableState<Int>
-        lateinit var backStack: NavBackStack
+        lateinit var backStack: NavBackStack<NavKey>
         composeTestRule.setContent {
             backStack = rememberNavBackStack(First)
             NavDisplay(
@@ -606,8 +606,8 @@ class NavDisplayTest {
     fun testDuplicateKeyStateNestedStateIsCorrect() {
         lateinit var numberOnScreen1: MutableState<Int>
         lateinit var nestedNumberOnScreen1: MutableState<Int>
-        lateinit var backStack: NavBackStack
-        lateinit var nestedBackStack: NavBackStack
+        lateinit var backStack: NavBackStack<NavKey>
+        lateinit var nestedBackStack: NavBackStack<NavKey>
         composeTestRule.setContent {
             backStack = rememberNavBackStack(First)
             nestedBackStack = rememberNavBackStack(First)

@@ -50,7 +50,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation(libs.kotlinSerializationCore)
-    implementation(project(":savedstate:savedstate-ktx"))
+    implementation("androidx.savedstate:savedstate-ktx:1.4.0-alpha03")
     implementation(project(":navigation3:navigation3-runtime"))
 
 }

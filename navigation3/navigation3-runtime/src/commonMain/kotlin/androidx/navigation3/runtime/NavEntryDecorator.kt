@@ -31,7 +31,7 @@ internal constructor(
 )
 
 /**
- * Function to decorate the [NavEntry] that are integrated with a [DecoratedNavEntryProvider].
+ * Function to decorate the [NavEntry] that are integrated with a [rememberDecoratedNavEntries].
  *
  * Primary usages include but are not limited to:
  * 1. provide information to entries with [androidx.compose.runtime.CompositionLocal], i.e.

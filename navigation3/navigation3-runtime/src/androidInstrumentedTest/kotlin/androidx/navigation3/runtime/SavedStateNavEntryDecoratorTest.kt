@@ -50,26 +50,28 @@ class SavedStateNavEntryDecoratorTest {
         lateinit var numberOnScreen1: MutableState<Int>
         val backStack = mutableStateListOf<Any>(data1)
         composeTestRule.setContent {
-            DecoratedNavEntryProvider(
-                backStack = backStack,
-                entryProvider = {
-                    when (it) {
-                        is Data1 ->
-                            NavEntry(data1) {
-                                numberOnScreen1 = rememberSaveable { mutableStateOf(0) }
-                                Text("numberOnScreen1: ${numberOnScreen1.value}")
-                            }
-                        is Data2 ->
-                            NavEntry(data2) {
-                                numberOnScreen1 = rememberSaveable { mutableStateOf(0) }
-                                Text("numberOnScreen1: ${numberOnScreen1.value}")
-                            }
-                        else -> error("Unknown key")
-                    }
-                },
-            ) { entries ->
-                entries.lastOrNull()?.Content()
-            }
+            val entries =
+                rememberDecoratedNavEntries(
+                    backStack = backStack,
+                    entryDecorators = listOf(rememberSavedStateNavEntryDecorator()),
+                    entryProvider = {
+                        when (it) {
+                            is Data1 ->
+                                NavEntry(data1) {
+                                    numberOnScreen1 = rememberSaveable { mutableStateOf(0) }
+                                    Text("numberOnScreen1: ${numberOnScreen1.value}")
+                                }
+                            is Data2 ->
+                                NavEntry(data2) {
+                                    numberOnScreen1 = rememberSaveable { mutableStateOf(0) }
+                                    Text("numberOnScreen1: ${numberOnScreen1.value}")
+                                }
+                            else -> error("Unknown key")
+                        }
+                    },
+                )
+
+            entries.lastOrNull()?.Content()
         }
 
         composeTestRule.runOnIdle {
