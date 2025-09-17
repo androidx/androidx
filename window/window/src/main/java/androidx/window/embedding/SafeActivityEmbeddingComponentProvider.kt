@@ -27,7 +27,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
-import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
@@ -210,7 +209,6 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [ActivityStack.Token]
      * - [WindowAttributes]
      * - [SplitInfo.Token]
-     * - [EmbeddingConfiguration.Builder.setDimAreaBehavior]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel5(): Boolean =
@@ -224,8 +222,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             isClassAnimationBackgroundValid() &&
             isClassActivityStackTokenValid() &&
             isClassWindowAttributesValid() &&
-            isClassSplitInfoTokenValid() &&
-            isClassEmbeddingConfigurationBuilderApi5Valid()
+            isClassSplitInfoTokenValid()
 
     /**
      * Vendor API level 6 includes the following methods:
@@ -862,20 +859,6 @@ internal class SafeActivityEmbeddingComponentProvider(
             createFromBinder.isPublic && createFromBinder.doesReturn(splitInfoTokenClass)
         }
 
-    private fun isClassEmbeddingConfigurationBuilderApi5Valid(): Boolean =
-        validateReflection("Class EmbeddingConfiguration.Builder is not valid") {
-            val EmbeddingConfigurationBuilderClass = EmbeddingConfiguration.Builder::class.java
-            val setAutoSaveEmbeddingStateMethod =
-                EmbeddingConfigurationBuilderClass.getMethod(
-                    "setDimAreaBehavior",
-                    DimAreaBehavior::class.java,
-                )
-            setAutoSaveEmbeddingStateMethod.isPublic &&
-                setAutoSaveEmbeddingStateMethod.doesReturn(
-                    EmbeddingConfiguration.Builder::class.java
-                )
-        }
-
     /** Vendor API level 6 validation methods */
     private fun isMethodGetEmbeddedActivityWindowInfoValid(): Boolean =
         validateReflection(
@@ -1088,21 +1071,6 @@ internal class SafeActivityEmbeddingComponentProvider(
                 setCloseAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java) &&
                 setChangeAnimationResIdMethod.isPublic &&
                 setChangeAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java)
-        }
-
-    /** Vendor API level 8 validation methods */
-    private fun isClassEmbeddingConfigurationBuilderApi8Valid(): Boolean =
-        validateReflection("Class EmbeddingConfiguration.Builder is not valid") {
-            val EmbeddingConfigurationBuilderClass = EmbeddingConfiguration.Builder::class.java
-            val setAutoSaveEmbeddingStateMethod =
-                EmbeddingConfigurationBuilderClass.getMethod(
-                    "setAutoSaveEmbeddingState",
-                    Boolean::class.java,
-                )
-            setAutoSaveEmbeddingStateMethod.isPublic &&
-                setAutoSaveEmbeddingStateMethod.doesReturn(
-                    EmbeddingConfiguration.Builder::class.java
-                )
         }
 
     /** Overlay features validation methods */
