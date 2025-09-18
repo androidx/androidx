@@ -248,6 +248,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             commonTest.dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
             }
 
@@ -300,12 +302,13 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation("androidx.activity:activity-compose:1.7.0-rc01")
             }
 
-            skikoTest.dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":compose:material:material"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
+            skikoTest {
+                dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":compose:material:material"))
+                    implementation(project(":compose:foundation:foundation"))
+                    implementation(project(":compose:ui:ui-test-junit4"))
+                }
             }
 
             desktopTest {

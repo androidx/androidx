@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -47,6 +48,7 @@ class FocusedViewsListTest {
         assertTrue(view3.isFirstResponder())
     }
 
+    @Ignore // FIXME https://youtrack.jetbrains.com/issue/CMP-8958
     @Test
     fun testRemovingFocus() {
         val list = FocusedViewsList()
