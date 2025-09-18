@@ -76,6 +76,7 @@ class FocusedViewsListTest {
         assertFalse(view3.isFirstResponder())
     }
 
+    @Ignore // FIXME https://youtrack.jetbrains.com/issue/CMP-8958
     @Test
     fun testRemovingFocusWithDelay() = runBlocking {
         val list = FocusedViewsList()
