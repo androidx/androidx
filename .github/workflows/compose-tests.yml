@@ -11,30 +11,11 @@ jobs:
     runs-on: ubuntu-24.04
     name: Compose Desktop Tests
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          # Only save Gradle User Home state for builds on the 'jb-main' branch.
-          # Builds on other branches will only read existing entries from the cache.
-          cache-read-only: false
-          # Replace with this before merging
-          # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
-
-          # Limit the size of the cache entry.
-          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: |
-            caches/jars-9
-            caches/transforms-3
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
 
       - name: Start X Server
         run: |
@@ -66,44 +47,41 @@ jobs:
     runs-on: macos-15
     name: Compose iOS Tests
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          # Only save Gradle User Home state for builds on the 'jb-main' branch.
-          # Builds on other branches will only read existing entries from the cache.
-          cache-read-only: false
-          # Replace with this before merging
-          # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
-
-          # Limit the size of the cache entry.
-          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: |
-            caches/jars-9
-            caches/transforms-3
-
-      - name: Run iOS UIKit Tests
+      - name: Run iOS Tests
         run: |
           ./gradlew testUIKit \
             --no-daemon --stacktrace
-
-      - name: Run iOS UIKit Instrumented Tests
-        run: |
-          .jb-ciscripts/PullRequests/UIKitInstrumentedTests.sh
 
       - name: Run CMPUIKitUtils Framework Tests
         working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
         run: |
           xcodebuild test -scheme CMPUIKitUtilsTests -project CMPUIKitUtils.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 16'
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-ios-instrumented-tests:
+    runs-on: macos-15
+    name: Compose iOS Instrumented Tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Run iOS Instrumented Tests
+        run: |
+          .jb-ciscripts/PullRequests/UIKitInstrumentedTests.sh
 
       - name: Test Summary
         uses: test-summary/action@v2
@@ -120,32 +98,14 @@ jobs:
         chrome: [ '118', 'stable' ]
         task: [ 'Js', 'Wasm' ]
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          # Only save Gradle User Home state for builds on the 'jb-main' branch.
-          # Builds on other branches will only read existing entries from the cache.
-          cache-read-only: false
-          # Replace with this before merging
-          # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
-
-          # Limit the size of the cache entry.
-          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: |
-            caches/jars-9
-            caches/transforms-3
-
-      - uses: browser-actions/setup-chrome@v2
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: ${{ matrix.chrome }}
           install-chromedriver: true
@@ -178,30 +138,11 @@ jobs:
         firefox: [ '119.0', 'latest' ]
         task: [ 'Js', 'Wasm' ]
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          # Only save Gradle User Home state for builds on the 'jb-main' branch.
-          # Builds on other branches will only read existing entries from the cache.
-          cache-read-only: false
-          # Replace with this before merging
-          # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
-
-          # Limit the size of the cache entry.
-          # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
-          gradle-home-cache-excludes: |
-            caches/jars-9
-            caches/transforms-3
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
 
       - name: Setup Missing Packages
         run: |
