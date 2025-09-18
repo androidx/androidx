@@ -153,6 +153,10 @@ jobs:
   compose-web-chrome-tests:
     runs-on: ubuntu-24.04
     name: Compose Web Chrome Tests
+    strategy:
+      matrix:
+        chrome: [ '118', 'stable' ]
+        task: [ ':mpp:testWebJs', ':mpp:testWebWasm' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -179,9 +183,11 @@ jobs:
             caches/jars-9
             caches/transforms-3
 
-      - name: Print Dependencies Versions
-        run: |
-          google-chrome-stable --version
+      - uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ matrix.chrome }}
+          install-chromedriver: true
+          install-dependencies: true
 
       - name: Start X Server
         run: |
@@ -190,8 +196,10 @@ jobs:
 
       - name: Run Web Chrome Tests
         run: |
-          ./gradlew :mpp:testWeb
-            --no-daemon --stacktrace --info --rerun-tasks --no-parallel
+          ./gradlew ${{ matrix.task }} \
+            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
+            -Pjetbrains.androidx.web.tests.enableFirefox=false \
+            -Pjetbrains.androidx.web.tests.enableChrome=true
 
       - name: Test Summary
         uses: test-summary/action@v2
@@ -205,6 +213,7 @@ jobs:
     strategy:
       matrix:
         firefox: [ '119.0', 'latest' ]
+        task: [ ':mpp:testWebJs', ':mpp:testWebWasm' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -246,19 +255,10 @@ jobs:
           sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
           echo "DISPLAY=:1.0" >> $GITHUB_ENV
 
-      - name: Run Web Firefox Tests - UI
+      - name: Run Web Firefox Tests
         run: |
-          ./gradlew :compose:ui:ui:wasmJsBrowserTest :compose:ui:ui-text:wasmJsBrowserTest \
+          ./gradlew ${{ matrix.task }} \
             --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
-            -Pandroidx.ignoreTestFailures \
-            -Pjetbrains.androidx.web.tests.enableFirefox=true \
-            -Pjetbrains.androidx.web.tests.enableChrome=false
-
-      - name: Run Web Firefox Tests - Foundation, Material3
-        run: |
-          ./gradlew :compose:foundation:foundation:wasmJsBrowserTest :compose:material3:material3:wasmJsBrowserTest \
-            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
-            -Pandroidx.ignoreTestFailures \
             -Pjetbrains.androidx.web.tests.enableFirefox=true \
             -Pjetbrains.androidx.web.tests.enableChrome=false
 
