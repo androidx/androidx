@@ -17,6 +17,9 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
       - name: Check Public API
         run: |
           ./gradlew jbApiCheck \

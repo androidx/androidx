@@ -53,10 +53,8 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
-      # List of available Xcode versions:
-      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
-      - name: Setup Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Run iOS Tests
         run: |
@@ -79,10 +77,8 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
-      # List of available Xcode versions:
-      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
-      - name: Setup Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Run iOS Utils Tests
         working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
@@ -109,10 +105,8 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
-      # List of available Xcode versions:
-      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
-      - name: Setup Xcode version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Building Framework with XCTests
         run: |

@@ -1,0 +1,20 @@
+name: 'Setup Xcode'
+runs:
+  using: "composite"
+  steps:
+    # List of available Xcode versions:
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+    - name: Setup Xcode version
+      shell: bash
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+    - name: Cache Xcode DerivedData
+      uses: irgaly/xcode-cache@v1
+      with:
+        key: xcode-cache-deriveddata-${{ github.sha }}
+        restore-keys: xcode-cache-deriveddata-
+        # Only save DerivedData state for builds on the 'jb-main' branch.
+        # Builds on other branches will only read existing entries from the cache.
+        cache-read-only: false
+        # Replace with this before merging
+        # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
