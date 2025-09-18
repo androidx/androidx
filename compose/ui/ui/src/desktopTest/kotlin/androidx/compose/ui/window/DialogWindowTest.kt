@@ -17,7 +17,6 @@
 package androidx.compose.ui.window
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -34,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.SwingDialog
+import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -56,11 +56,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.window.window.toSize
 import com.google.common.truth.Truth.assertThat
+import java.awt.Dialog
 import java.awt.Dimension
+import java.awt.Point
+import java.awt.Robot
+import java.awt.Window
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import kotlin.concurrent.thread
 import kotlin.test.assertEquals
+import kotlinx.coroutines.delay
 import org.junit.Test
 
 class DialogWindowTest {
@@ -710,6 +716,62 @@ class DialogWindowTest {
 
         awaitIdle()
         assertThat(isDisplayableInInit).isFalse()
+    }
+
+    @Test
+    fun `window does not flash background when closed`() = runApplicationTest {
+        lateinit var window: Window
+        lateinit var dialog: Dialog
+        var showDialog by mutableStateOf(false)
+        val windowSize = DpSize(800.dp, 800.dp)
+        launchTestWindowApplication(
+            state = WindowState(size = windowSize),
+        ) {
+            window = this.window
+            Box(Modifier.fillMaxSize().background(Color.Black))
+            if (showDialog) {
+                DialogWindow(
+                    onCloseRequest = {},
+                    state = rememberDialogState(size = windowSize)
+                ) {
+                    dialog = this.window
+                    Box(Modifier.fillMaxSize().background(Color.Black))
+                    LaunchedEffect(Unit) {
+                        dialog.location = window.location
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        showDialog = true
+        awaitIdle()
+        delay(1000)
+
+        var nonBlackPixelDetected: java.awt.Color? = null
+        val testLocation = dialog.bounds.let {
+            Point(it.x + it.width / 2, it.y + it.height / 2)
+        }
+        val stopThread = java.util.concurrent.atomic.AtomicBoolean(false)
+        val t = thread {
+            val robot = Robot()
+            while (!stopThread.get()) {
+                val pixel = robot.getPixelColor(testLocation.x, testLocation.y)
+                if (pixel != java.awt.Color.BLACK) {
+                    nonBlackPixelDetected = pixel
+                    return@thread
+                }
+            }
+        }
+
+        dialog.dispose()
+        awaitIdle()
+        delay(1000)
+
+        stopThread.getAndSet(true)
+        t.join()
+
+        assertThat(nonBlackPixelDetected).isNull()
     }
 }
 

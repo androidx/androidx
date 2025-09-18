@@ -55,15 +55,15 @@ internal class WindowComposeSceneLayer(
     compositionContext: CompositionContext,
     private val renderSettings: RenderSettings
 ) : DesktopComposeSceneLayer(composeContainer, density, layoutDirection) {
-    private val parentWindow get() = requireNotNull(composeContainer.window)
+    // WindowComposeSceneLayer is tied to the window it was created with
+    private val parentWindow = requireNotNull(composeContainer.window)
+
     private val windowContext = PlatformWindowContext().also {
         it.isWindowTransparent = true
         it.setContainerSize(windowContainer.sizeInPx)
     }
 
-    private val layerWindow = JDialog(
-        parentWindow,
-    ).also {
+    private val layerWindow = JDialog(parentWindow).also {
         it.isAlwaysOnTop = true
         it.focusableWindowState = focusable
         it.isUndecorated = true

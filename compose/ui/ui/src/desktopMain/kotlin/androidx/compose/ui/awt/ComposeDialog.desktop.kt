@@ -260,8 +260,8 @@ class ComposeDialog : JDialog {
     }
 
     override fun dispose() {
-        composePanel.dispose()
         super.dispose()
+        composePanel.dispose()
     }
 
     override fun setUndecorated(value: Boolean) {

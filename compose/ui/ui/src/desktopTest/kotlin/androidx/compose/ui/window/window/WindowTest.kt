@@ -17,7 +17,6 @@
 package androidx.compose.ui.window.window
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -36,6 +35,7 @@ import androidx.compose.ui.LeakDetector
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.awt.SwingWindow
+import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.isLinux
 import androidx.compose.ui.layout.Layout
@@ -48,9 +48,13 @@ import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
+import java.awt.Point
+import java.awt.Robot
 import java.awt.Toolkit
+import java.awt.Window
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancelAndJoin
@@ -765,5 +769,61 @@ class WindowTest {
 
         awaitIdle()
         assertThat(isDisplayableInInit).isFalse()
+    }
+
+    @Test
+    fun `window does not flash background when closed`() = runApplicationTest {
+        lateinit var outerWindow: Window
+        lateinit var innerWindow: Window
+        var showInnerWindow by mutableStateOf(false)
+        val windowSize = DpSize(800.dp, 800.dp)
+        launchTestWindowApplication(
+            state = WindowState(size = windowSize),
+        ) {
+            outerWindow = this.window
+            Box(Modifier.fillMaxSize().background(Color.Black))
+            if (showInnerWindow) {
+                Window(
+                    onCloseRequest = {},
+                    state = rememberWindowState(size = windowSize),
+                ) {
+                    innerWindow = this.window
+                    Box(Modifier.fillMaxSize().background(Color.Black))
+                    LaunchedEffect(Unit) {
+                        innerWindow.location = outerWindow.location
+                    }
+                }
+            }
+        }
+        awaitIdle()
+
+        showInnerWindow = true
+        awaitIdle()
+        delay(1000)
+
+        var nonBlackPixelDetected: java.awt.Color? = null
+        val testLocation = innerWindow.bounds.let {
+            Point(it.x + it.width / 2, it.y + it.height / 2)
+        }
+        val stopThread = java.util.concurrent.atomic.AtomicBoolean(false)
+        val t = thread {
+            val robot = Robot()
+            while (!stopThread.get()) {
+                val pixel = robot.getPixelColor(testLocation.x, testLocation.y)
+                if (pixel != java.awt.Color.BLACK) {
+                    nonBlackPixelDetected = pixel
+                    return@thread
+                }
+            }
+        }
+
+        innerWindow.dispose()
+        awaitIdle()
+        delay(1000)
+
+        stopThread.getAndSet(true)
+        t.join()
+
+        assertThat(nonBlackPixelDetected).isNull()
     }
 }

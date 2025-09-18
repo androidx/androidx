@@ -132,9 +132,10 @@ internal class WindowTestScope(
     }
 
     fun launchTestWindowApplication(
+        state: WindowState = WindowState(),
         content: @Composable FrameWindowScope.() -> Unit
     ) = launchTestApplication {
-       Window(onCloseRequest = ::exitApplication) {
+       Window(onCloseRequest = ::exitApplication, state = state) {
            this@WindowTestScope.window = window
            content()
        }
