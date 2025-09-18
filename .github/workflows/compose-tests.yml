@@ -44,7 +44,7 @@ jobs:
         if: always()
 
   compose-ios-tests:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     name: Compose iOS Tests
     steps:
       - name: Checkout Repository
@@ -68,7 +68,7 @@ jobs:
         if: always()
 
   compose-ios-utils-tests:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     name: Compose iOS Utils Tests
     steps:
       - name: Checkout Repository
@@ -90,7 +90,7 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16'
 
   compose-ios-instrumented-tests:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     name: Compose iOS Instrumented Tests
     steps:
       - name: Checkout Repository

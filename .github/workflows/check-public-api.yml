@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-public-api:
-    runs-on: macos-15
+    runs-on: macos-15-xlarge
     name: Check Public API
     steps:
       - name: Checkout Repository
