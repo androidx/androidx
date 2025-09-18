@@ -26,6 +26,8 @@ import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastJoinToString
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.browser.document
 import kotlinx.coroutines.CoroutineScope
@@ -169,7 +171,7 @@ internal class ComposeWebSemanticsListener(
 
             val children = node.replacedChildren.asReversed()
             dfsDeque.addAll(children)
-            children.forEach { it -> nodeToParent[it.id] = currentId }
+            children.fastForEach { it -> nodeToParent[it.id] = currentId }
 
             val htmlNode = if (nodes[currentId] != null) {
                 nodes[currentId] = node
@@ -226,12 +228,12 @@ internal class ComposeWebSemanticsListener(
 
         if (config.contains(SemanticsProperties.Text)) {
             val text = config[SemanticsProperties.Text]
-            htmlNode.innerText = text.joinToString("\n") { it.text }
+            htmlNode.innerText = text.fastJoinToString("\n") { it.text }
         }
 
         if (config.contains(SemanticsProperties.ContentDescription)) {
             val contentDescription = config[SemanticsProperties.ContentDescription]
-            htmlNode.setAttribute("aria-label", contentDescription.joinToString(", "))
+            htmlNode.setAttribute("aria-label", contentDescription.fastJoinToString(", "))
         }
 
         if (config.contains(SemanticsActions.OnClick) && justCreated) {
@@ -268,7 +270,7 @@ internal class ComposeWebSemanticsListener(
             val width = rect.width.div(density.density)
             val height = rect.height.div(density.density)
 
-            setSizeAndPosition(htmlNode, newPosition.x, newPosition.y, width , height)
+            setSizeAndPosition(htmlNode, newPosition.x, newPosition.y, width, height)
         }
     }
 }

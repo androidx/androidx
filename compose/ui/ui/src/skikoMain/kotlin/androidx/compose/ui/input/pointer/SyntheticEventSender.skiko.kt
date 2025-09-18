@@ -22,6 +22,7 @@ import androidx.compose.ui.scene.merging
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMapNotNull
 
 /**
  * Compose or user code can't work well if we miss some events.
@@ -123,7 +124,7 @@ internal class SyntheticEventSender(
     ): PointerEventResult {
         // issuesEnterExit means that the pointer can issues hover events (enter/exit), and so we
         // should generate a synthetic Move (see why we need to do that in the class description)
-        return if (currentEvent.pointers.any { it.activeHover } &&
+        return if (currentEvent.pointers.fastAny { it.activeHover } &&
             isMoveEventMissing(previousEvent, currentEvent)) {
             sendSyntheticMove(currentEvent)
         } else {
@@ -190,8 +191,9 @@ internal class SyntheticEventSender(
         return result
     }
 
-    private fun PointerInputEvent.pressedIds(): Sequence<PointerId> =
-        pointers.asSequence().filter { it.down }.map { it.id }
+    private fun PointerInputEvent.pressedIds(): List<PointerId> =
+        pointers.fastMapNotNull { if (it.down) it.id else null }
+
 
     private fun sendInternal(event: PointerInputEvent): PointerEventResult {
         val anyMovementConsumed = _send(event)

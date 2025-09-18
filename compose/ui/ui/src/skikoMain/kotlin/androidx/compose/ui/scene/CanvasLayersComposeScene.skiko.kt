@@ -160,7 +160,7 @@ private class CanvasLayersComposeSceneImpl(
     }
     private val _ownersCopyCache = CopiedList {
         it.add(mainOwner)
-        for (layer in layers) {
+        layers.fastForEach { layer ->
             it.add(layer.owner)
         }
     }
@@ -291,7 +291,7 @@ private class CanvasLayersComposeSceneImpl(
         if (owner == mainOwner) {
             return false
         }
-        for (layer in layers) {
+        layers.fastForEach { layer ->
             if (layer == focusedLayer) {
                 return true
             }

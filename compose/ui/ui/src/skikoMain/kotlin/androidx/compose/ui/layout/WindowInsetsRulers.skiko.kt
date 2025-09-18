@@ -36,6 +36,7 @@ import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.util.fastForEachIndexed
 
 internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope): List<RectRulers> {
     var node = placementScope.coordinates?.findRootCoordinates() as? NodeCoordinator
@@ -114,7 +115,7 @@ internal class RulerProviderModifierNode(
             }
         }
 
-        displayCutouts.forEachIndexed { index, rect ->
+        displayCutouts.fastForEachIndexed { index, rect ->
             val rulers = displayCutoutRulers[index]
             rulers.left provides rect.left
             rulers.top provides rect.top

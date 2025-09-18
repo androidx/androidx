@@ -23,6 +23,8 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 import org.w3c.dom.events.CompositionEvent
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.UIEvent
@@ -66,7 +68,7 @@ internal abstract class NativeInputEventsProcessor(
 
         collectedEvents.sortBy { it.timeStamp.toInt() }
 
-        val isInIMEComposition = collectedEvents.any {
+        val isInIMEComposition = collectedEvents.fastAny {
             it.type == "compositionstart"
                 || it.type == "compositionupdate"
                 || it.type == "compositionend"
@@ -74,15 +76,15 @@ internal abstract class NativeInputEventsProcessor(
                 || it.type == "beforeinput" && (it as InputEvent).isComposing
         }
 
-        collectedEvents.forEach { evt ->
+        collectedEvents.fastForEach { evt ->
             val timestamp = evt.timeStamp.toDouble()
 
             when (evt.type) {
                 "keydown" -> {
-                    if (isInIMEComposition) return@forEach
+                    if (isInIMEComposition) return@fastForEach
 
                     evt as KeyboardEvent
-                    if (isTypedEvent(evt)) return@forEach
+                    if (isTypedEvent(evt)) return@fastForEach
 
                     val isFromLastComposition = timestamp < lastCompositionEndTimestamp
 

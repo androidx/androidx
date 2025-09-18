@@ -37,6 +37,7 @@ import androidx.compose.ui.input.pointer.areAnyPressed
 import androidx.compose.ui.input.pointer.copy
 import androidx.compose.ui.node.RootNodeOwner
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.trace
 import org.jetbrains.skiko.currentNanoTime
 
@@ -151,7 +152,7 @@ internal class ComposeSceneInputHandler(
 
     private fun updatePointerPositions(event: PointerInputEvent) {
         // update positions for pointers that are down + mouse (if it is not Exit event)
-        for (pointer in event.pointers) {
+        event.pointers.fastForEach { pointer ->
             if ((pointer.type == PointerType.Mouse && event.eventType != PointerEventType.Exit) ||
                 pointer.down
             ) {

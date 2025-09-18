@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrDefault
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -96,12 +99,12 @@ internal fun OffsetToFocusedRect(
             // window insets changes.
             currentOffset = startOffset + (endOffset - startOffset) * offsetProgress
 
-            val placeables = measurables.map { it.measure(constraints) }
+            val placeables = measurables.fastMap { it.measure(constraints) }
             layout(
-                placeables.maxOfOrNull { it.width } ?: constraints.minWidth,
-                placeables.maxOfOrNull { it.height } ?: constraints.minHeight
+                placeables.fastMaxOfOrDefault(constraints.minWidth) { it.width },
+                placeables.fastMaxOfOrDefault(constraints.minHeight) { it.height }
             ) {
-                placeables.forEach {
+                placeables.fastForEach {
                     it.place(currentOffset)
                 }
             }

@@ -92,7 +92,7 @@ internal actual class PlatformDateFormat actual constructor(private val locale: 
     //
     // Legacy model returns short ('Mon') format while newer version returns narrow ('M') format
     actual val weekdayNames: List<Pair<String, String>> get() {
-        return DayOfWeek.values().map {
+        return DayOfWeek.entries.map {
             it.getDisplayName(
                 TextStyle.FULL,
                 locale

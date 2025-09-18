@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text.intl
 
+import androidx.compose.ui.util.fastMap
+
 internal actual val PlatformLocale.language: String
     get() = _language
 
@@ -31,7 +33,7 @@ internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
     object : PlatformLocaleDelegate {
         override val current: LocaleList
             get() = LocaleList(
-                userPreferredLanguages().map {
+                userPreferredLanguages().fastMap {
                     Locale(it.toIntlLocale())
                 }
             )
