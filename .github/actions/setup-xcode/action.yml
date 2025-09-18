@@ -6,7 +6,9 @@ runs:
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
     - name: Setup Xcode version
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: |
+        sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        /usr/bin/xcodebuild -version
 
     - name: Cache Xcode DerivedData
       uses: irgaly/xcode-cache@v1

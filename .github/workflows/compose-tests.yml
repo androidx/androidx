@@ -81,19 +81,13 @@ jobs:
         uses: ./.github/actions/setup-xcode
 
       - name: Run iOS Utils Tests
+        shell: bash
         working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
         run: |
           xcodebuild test \
-            -resultBundlePath TestResults.xcresult \
             -scheme CMPUIKitUtilsTests \
             -project CMPUIKitUtils.xcodeproj \
             -destination 'platform=iOS Simulator,name=iPhone 16'
-
-      - name: Test Summary
-        uses: kishikawakatsumi/xcresulttool@v1
-        with:
-          path: "compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils/TestResults.xcresult"
-        if: always()
 
   compose-ios-instrumented-tests:
     runs-on: macos-15
@@ -113,18 +107,19 @@ jobs:
           ./gradlew :compose:ui:ui:linkInstrumentedTestDebugFrameworkUikitSimArm64
 
       - name: Run iOS Instrumented Tests
+        shell: bash
         working-directory: compose/ui/ui/src/uikitInstrumentedTest/launcher
         run: |
           xcodebuild test \
-            -resultBundlePath TestResults.xcresult \
             -scheme Launcher-CI \
             -project Launcher.xcodeproj \
-            -destination 'platform=iOS Simulator,name=iPhone 16'
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            | xcpretty --report junit
 
       - name: Test Summary
-        uses: kishikawakatsumi/xcresulttool@v1
+        uses: test-summary/action@v2
         with:
-          path: "compose/ui/ui/src/uikitInstrumentedTest/launcher/TestResults.xcresult"
+          paths: "**/reports/junit.xml"
         if: always()
 
   compose-web-chrome-tests:
