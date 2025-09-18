@@ -1,0 +1,209 @@
+name: Compose Tests
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - jb-main
+
+jobs:
+  check-public-api:
+    runs-on: macos-15
+    name: Build Native & Check Public API
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Native
+        run: |
+          ./gradlew publishComposeJb -Pcompose.platforms=macos,uikit,linux,mingw \
+            --no-daemon --stacktrace --info --rerun-tasks
+
+      - name: Check Public API
+        run: |
+          ./gradlew jbApiCheck \
+            --no-daemon --stacktrace --info --rerun-tasks
+
+  compose-desktop-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Desktop Tests
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Desktop Tests
+        run: |
+          ./gradlew testDesktop \
+            --no-daemon --stacktrace --info --rerun-tasks \
+            -Pandroidx.ignoreTestFailures
+
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshot-tests
+          path: |
+            golden/**/*_actual.png
+            golden/**/*_diff.png
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-ios-tests:
+    runs-on: macos-15
+    name: Compose iOS Tests
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run iOS UIKit Tests
+        run: |
+          ./gradlew testUIKit \
+            --no-daemon --stacktrace --info --rerun-tasks
+
+      - name: Run iOS UIKit Instrumented Tests
+        run: |
+          .jb-ciscripts/PullRequests/UIKitInstrumentedTests.sh
+
+      - name: Run CMPUIKitUtils Framework Tests
+        working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
+        run: |
+          xcodebuild test -scheme CMPUIKitUtilsTests -project CMPUIKitUtils.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 16'
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-web-chrome-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Web Chrome Tests
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Print Dependencies Versions
+        run: |
+          google-chrome-stable --version
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Web Chrome Tests
+        run: |
+          ./gradlew :mpp:testWeb
+            --no-daemon --stacktrace --info --rerun-tasks --no-parallel
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-web-firefox-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Web Firefox Tests
+    strategy:
+      matrix:
+        firefox: [ '119.0', 'latest' ]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Missing Packages
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install libdbus-glib-1-2 -y
+
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: ${{ matrix.firefox }}
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Web Firefox Tests - UI
+        run: |
+          ./gradlew :compose:ui:ui:wasmJsBrowserTest :compose:ui:ui-text:wasmJsBrowserTest \
+            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
+            -Pandroidx.ignoreTestFailures \
+            -Pjetbrains.androidx.web.tests.enableFirefox=true \
+            -Pjetbrains.androidx.web.tests.enableChrome=false
+
+      - name: Run Web Firefox Tests - Foundation, Material3
+        run: |
+          ./gradlew :compose:foundation:foundation:wasmJsBrowserTest :compose:material3:material3:wasmJsBrowserTest \
+            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
+            -Pandroidx.ignoreTestFailures \
+            -Pjetbrains.androidx.web.tests.enableFirefox=true \
+            -Pjetbrains.androidx.web.tests.enableChrome=false
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
