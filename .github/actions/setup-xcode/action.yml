@@ -4,10 +4,13 @@ runs:
   steps:
     # List of available Xcode versions:
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+    # Note that explicit download is required due to updated support policy:
+    # https://github.com/actions/runner-images/issues/12758#issuecomment-3206748945
     - name: Setup Xcode version
       shell: bash
       run: |
         sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        xcodebuild -downloadPlatform iOS -buildVersion 18.2
         /usr/bin/xcodebuild -version
 
     - name: Cache Xcode DerivedData
