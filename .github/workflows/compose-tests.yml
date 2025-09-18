@@ -53,20 +53,50 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
+      # List of available Xcode versions:
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+      - name: Setup Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
       - name: Run iOS Tests
         run: |
           ./gradlew testUIKit \
             --no-daemon --stacktrace
 
-      - name: Run CMPUIKitUtils Framework Tests
-        working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
-        run: |
-          xcodebuild test -scheme CMPUIKitUtilsTests -project CMPUIKitUtils.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 16'
-
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-ios-utils-tests:
+    runs-on: macos-15
+    name: Compose iOS Utils Tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      # List of available Xcode versions:
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+      - name: Setup Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Run iOS Utils Tests
+        working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
+        run: |
+          xcodebuild test \
+            -resultBundlePath TestResults.xcresult \
+            -scheme CMPUIKitUtilsTests \
+            -project CMPUIKitUtils.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16'
+
+      - name: Test Summary
+        uses: kishikawakatsumi/xcresulttool@v1
+        with:
+          path: "compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils/TestResults.xcresult"
         if: always()
 
   compose-ios-instrumented-tests:
@@ -79,14 +109,28 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
-      - name: Run iOS Instrumented Tests
+      # List of available Xcode versions:
+      # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+      - name: Setup Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Building Framework with XCTests
         run: |
-          .jb-ciscripts/PullRequests/UIKitInstrumentedTests.sh
+          ./gradlew :compose:ui:ui:linkInstrumentedTestDebugFrameworkUikitSimArm64
+
+      - name: Run iOS Instrumented Tests
+        working-directory: compose/ui/ui/src/uikitInstrumentedTest/launcher
+        run: |
+          xcodebuild test \
+            -resultBundlePath TestResults.xcresult \
+            -scheme Launcher-CI \
+            -project Launcher.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16'
 
       - name: Test Summary
-        uses: test-summary/action@v2
+        uses: kishikawakatsumi/xcresulttool@v1
         with:
-          paths: "out/**/build/test-results/**/TEST-*.xml"
+          path: "compose/ui/ui/src/uikitInstrumentedTest/launcher/TestResults.xcresult"
         if: always()
 
   compose-web-chrome-tests:
