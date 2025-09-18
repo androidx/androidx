@@ -19,11 +19,19 @@ package androidx.compose.ui.keyboard
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextField
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.InterceptPlatformTextInput
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformTextInputSession
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.UIKitInstrumentedTest
+import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -38,6 +46,7 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.readValue
+import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIInputView
 import platform.UIKit.UIInputViewStyle
@@ -46,7 +55,6 @@ import platform.UIKit.UIKeyboardAppearanceDefault
 import platform.UIKit.UIKeyboardTypeDefault
 import platform.UIKit.UIKeyboardTypeEmailAddress
 import platform.UIKit.UIKeyboardTypeURL
-import platform.UIKit.UIResponder
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
@@ -54,6 +62,7 @@ import platform.UIKit.UITextContentTypeBirthdate
 import platform.UIKit.UITextContentTypeEmailAddress
 import platform.UIKit.UITextContentTypePassword
 import platform.UIKit.UITextContentTypeTelephoneNumber
+import platform.UIKit.UITextContentTypeUsername
 import platform.UIKit.UITextInputProtocol
 import platform.UIKit.UIView
 import platform.UIKit.inputAccessoryView
@@ -383,7 +392,60 @@ internal class ImeOptionsTest {
         assertSame(customInputAccessoryView, input.inputAccessoryView)
     }
 
-    private fun UIKitInstrumentedTest.setContentAndFindInputView(keyboardOptions: KeyboardOptions): UIView {
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testTextInputSessionDoesNotRestartWithChangedInput() = runUIKitInstrumentedTest {
+        val inputState = mutableStateOf("")
+        var startInputCount = 0
+
+        val testTextInputSession = object : PlatformTextInputSession {
+                override suspend fun startInputMethod(
+                    request: PlatformTextInputMethodRequest
+                ): Nothing {
+                    startInputCount++
+                    suspendCancellableCoroutine<Nothing> { }
+                }
+            }
+
+        setContent {
+            var input by rememberSaveable { inputState }
+
+            InterceptPlatformTextInput(
+                interceptor = { request, _ ->
+                    testTextInputSession.startInputMethod(request)
+                },
+                content = {
+                    TextField(
+                        modifier = Modifier.testTag("TextField"),
+                        value = input,
+                        onValueChange = { input = it },
+                        keyboardOptions = KeyboardOptions(platformImeOptions = PlatformImeOptions {
+                            keyboardType(UIKeyboardTypeEmailAddress)
+                            textContentType(UITextContentTypeUsername)
+                        })
+                    )
+                }
+            )
+        }
+
+        findNodeWithTag("TextField").tap()
+
+        waitForIdle()
+
+        assertEquals(1, startInputCount)
+
+        var input = ""
+        for (i in 1..4) {
+            input += "$i"
+            inputState.value = input
+            waitForIdle()
+            assertEquals(1, startInputCount)
+        }
+    }
+
+    private fun UIKitInstrumentedTest.setContentAndFindInputView(
+        keyboardOptions: KeyboardOptions
+    ): UIView {
         val focusRequester = FocusRequester()
 
         setContent {
