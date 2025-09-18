@@ -18,9 +18,9 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.ComposableTargetMarker
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.BINARY)
 @ComposableTargetMarker(description = "RemoteCompose Composable")
 @Target(
@@ -29,4 +29,4 @@ import androidx.compose.runtime.ComposableTargetMarker
     AnnotationTarget.TYPE,
     AnnotationTarget.TYPE_PARAMETER,
 )
-annotation class RemoteComposable
+public annotation class RemoteComposable

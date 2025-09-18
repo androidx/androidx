@@ -15,13 +15,19 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Background modifier, takes a color and a shape */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SolidBackgroundModifier implements RecordingModifier.Element {
     int mColor;
+
+    public int getColor() {
+        return mColor;
+    }
 
     public SolidBackgroundModifier(int color) {
         this.mColor = color;

@@ -20,6 +20,8 @@ import androidx.compose.remote.foundation.icons.RemoteImageVector
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.remote.frontend.modifier.size
 import androidx.compose.remote.frontend.state.rememberRemoteColor
+import androidx.compose.remote.test.screenshot.TargetPlayer
+import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -37,18 +39,23 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class RemoteIconTest {
-    @get:Rule val remoteComposeTestRule = RemoteComposeScreenshotTestRule()
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            targetPlayer = TargetPlayer.View,
+        )
 
     @Test
     fun volumeUpRemoteIcon() {
-        remoteComposeTestRule.runScreenshotTest(size = size) {
+        remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
             RemoteIcon(imageVector = VolumeUp, contentDescription = null)
         }
     }
 
     @Test
     fun volumeUpRemoteIcon_tintedRed() {
-        remoteComposeTestRule.runScreenshotTest(size = size) {
+        remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
             val color = rememberRemoteColor("testColor") { Color.Red }
             RemoteIcon(imageVector = VolumeUp, contentDescription = null, tint = color)
         }
@@ -56,7 +63,7 @@ class RemoteIconTest {
 
     @Test
     fun volumeUpRemoteIcon_rtl() {
-        remoteComposeTestRule.runScreenshotTest(size = size) {
+        remoteComposeTestRule.runScreenshotTest(size = size, backgroundColor = Color.Black) {
             val layoutDirection = LayoutDirection.Rtl
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 RemoteIcon(imageVector = VolumeUp, contentDescription = null)
@@ -66,7 +73,10 @@ class RemoteIconTest {
 
     @Test
     fun volumeUpRemoteIcon_scaledUp() {
-        remoteComposeTestRule.runScreenshotTest(size = Size(48.dp.value, 48.dp.value)) {
+        remoteComposeTestRule.runScreenshotTest(
+            size = Size(48.dp.value, 48.dp.value),
+            backgroundColor = Color.Black,
+        ) {
             RemoteIcon(
                 imageVector = VolumeUp,
                 contentDescription = null,

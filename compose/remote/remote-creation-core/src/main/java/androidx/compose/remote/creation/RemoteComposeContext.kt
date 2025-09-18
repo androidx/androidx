@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.Platform
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
@@ -28,6 +31,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 
 /** Kotlin API to create a new RemoteCompose byte array */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteComposeContext {
 
     public constructor(writer: RemoteComposeWriter) {

@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.matrix;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -38,6 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** This is a matrix that is formed by an expression */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixExpression extends Operation
         implements VariableSupport, MatrixAccess, Serializable {
     private static final int OP_CODE = Operations.MATRIX_EXPRESSION;

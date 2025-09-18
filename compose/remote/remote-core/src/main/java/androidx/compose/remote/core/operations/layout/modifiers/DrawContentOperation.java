@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -34,6 +35,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Represent a drawing of a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawContentOperation extends Operation
         implements ModifierOperation, VariableSupport, DecoratorComponent {
     private static final int OP_CODE = Operations.MODIFIER_DRAW_CONTENT;

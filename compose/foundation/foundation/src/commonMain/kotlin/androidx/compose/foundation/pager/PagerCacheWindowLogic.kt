@@ -31,7 +31,7 @@ internal class PagerCacheWindowLogic(
     val cacheWindow: LazyLayoutCacheWindow,
     val state: LazyLayoutPrefetchState,
     val itemCount: () -> Int,
-) : CacheWindowLogic(cacheWindow) {
+) : CacheWindowLogic(cacheWindow, enableInitialPrefetch = false) {
     private val cacheWindowScope = PagerCacheWindowScope(itemCount)
 
     fun onScroll(delta: Float, layoutInfo: PagerMeasureResult) {

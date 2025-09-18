@@ -31,7 +31,10 @@ import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -283,11 +286,15 @@ class WindowInfoCompositionLocalTest {
     fun windowInfo_containerSize() {
         // Arrange.
         var containerSize = IntSize.Zero
+        var containerDpSize = DpSize.Zero
         var recompositions = 0
+        var density = Density(1f)
         rule.setContent {
             BasicText("Main Window")
             val windowInfo = LocalWindowInfo.current
             containerSize = windowInfo.containerSize
+            containerDpSize = windowInfo.containerDpSize
+            density = LocalDensity.current
             recompositions++
         }
 
@@ -301,8 +308,11 @@ class WindowInfoCompositionLocalTest {
                 .toComposeIntRect()
                 .size
 
+        val expectedWindowDpSize = with(density) { expectedWindowSize.toSize().toDpSize() }
+
         // Assert.
         assertThat(containerSize).isEqualTo(expectedWindowSize)
+        assertThat(containerDpSize).isEqualTo(expectedWindowDpSize)
         assertThat(recompositions).isEqualTo(1)
     }
 

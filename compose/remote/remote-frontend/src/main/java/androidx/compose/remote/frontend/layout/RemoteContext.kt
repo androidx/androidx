@@ -18,44 +18,44 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
-val createIds = CreateIds()
+public val createIds: CreateIds = CreateIds()
 
-class CreateIds {
-    var IdIndices = 0
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CreateIds {
+    public var IdIndices: Int = 0
 
-    operator fun component1(): Int {
+    public operator fun component1(): Int {
         return IdIndices++
     }
 
-    operator fun component2(): Int {
+    public operator fun component2(): Int {
         return IdIndices++
     }
 
-    operator fun component3(): Int {
+    public operator fun component3(): Int {
         return IdIndices++
     }
 
-    operator fun component4(): Int {
+    public operator fun component4(): Int {
         return IdIndices++
     }
 
-    operator fun component5(): Int {
+    public operator fun component5(): Int {
         return IdIndices++
     }
 
-    operator fun component6(): Int {
+    public operator fun component6(): Int {
         return IdIndices++
     }
 
-    operator fun component7(): Int {
+    public operator fun component7(): Int {
         return IdIndices++
     }
 
-    operator fun component8(): Int {
+    public operator fun component8(): Int {
         return IdIndices++
     }
 }
@@ -64,14 +64,15 @@ class CreateIds {
  * Utility class to be able to call Remote layout functions with the same name as the foundation
  * ones, even if the current file has import of the foundation ones.
  */
-class RemoteContext {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteContext {
 
-    val Modifier: RemoteModifier
+    public val Modifier: RemoteModifier
         get() = RemoteModifier
 
     @RemoteComposable
     @Composable
-    fun Row(
+    public fun Row(
         modifier: RemoteModifier = RemoteModifier,
         horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
         verticalAlignment: Alignment.Vertical = Alignment.Top,
@@ -82,7 +83,7 @@ class RemoteContext {
 
     @RemoteComposable
     @Composable
-    fun Column(
+    public fun Column(
         modifier: RemoteModifier = RemoteModifier,
         horizontalAlignment: Alignment.Horizontal = Alignment.Start,
         verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -93,7 +94,7 @@ class RemoteContext {
 
     @RemoteComposable
     @Composable
-    fun Box(
+    public fun Box(
         modifier: RemoteModifier = RemoteModifier,
         horizontalAlignment: Alignment.Horizontal = Alignment.Start,
         verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -104,13 +105,13 @@ class RemoteContext {
 
     @RemoteComposable
     @Composable
-    fun Box(modifier: RemoteModifier = RemoteModifier) {
+    public fun Box(modifier: RemoteModifier = RemoteModifier) {
         RemoteBox(modifier)
     }
 
     @RemoteComposable
     @Composable
-    fun Canvas(
+    public fun Canvas(
         modifier: RemoteModifier = RemoteModifier,
         content: RemoteCanvasDrawScope.() -> Unit,
     ) {
@@ -123,6 +124,6 @@ class RemoteContext {
  * Row/Column/Box/Canvas/etc.
  */
 @Composable
-fun RemoteContext(content: @Composable RemoteContext.() -> Unit) {
+public fun RemoteContext(content: @Composable RemoteContext.() -> Unit) {
     RemoteContext().content()
 }

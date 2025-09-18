@@ -25,8 +25,18 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
-private const val DpVisibilityThreshold = 0.1f
-private const val PxVisibilityThreshold = 0.5f
+/**
+ * Default visibility threshold for [Dp]. Through our experiments with various threshold values,
+ * this value is optimal for stopping the animation without incurring any visual discontinuities.
+ */
+private const val DpVisibilityThreshold = 0.4f
+
+/**
+ * Default visibility threshold for Px. Through our experiments with various threshold values, this
+ * value is optimal for stopping the animation without incurring any visual discontinuities.
+ * However, different screens have varying densities, so thresholds should be adjusted accordingly.
+ */
+private const val PxVisibilityThreshold = 1.0f
 
 private val RectVisibilityThreshold =
     Rect(PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold)

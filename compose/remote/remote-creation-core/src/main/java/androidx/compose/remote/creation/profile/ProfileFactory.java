@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.profile;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Interface representing the constructor for a RemoteComposeWriter (used in {@link Profile}) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ProfileFactory {
     /**
      * Returns a valid RemoteComposeWriter

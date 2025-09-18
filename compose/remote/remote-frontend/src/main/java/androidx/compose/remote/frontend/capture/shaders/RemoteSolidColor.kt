@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.capture.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
@@ -28,10 +27,12 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.SolidColor
 
 @Stable
-fun RemoteBrush.Companion.solidColor(color: Color): RemoteSolidColor = RemoteSolidColor(color)
+public fun RemoteBrush.Companion.solidColor(color: Color): RemoteSolidColor =
+    RemoteSolidColor(color)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-data class RemoteSolidColor(val color: Color) : RemoteBrush() {
+public data class RemoteSolidColor(val color: Color) : RemoteBrush() {
 
     override fun createShader(size: Size): Shader {
         throw UnsupportedOperationException(

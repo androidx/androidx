@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
@@ -41,10 +40,11 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 
 /** Utility modifier to record the layout information */
-class RemoteComposeCollapsibleColumnModifier(
-    val modifier: RecordingModifier,
-    val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeCollapsibleColumnModifier(
+    public val modifier: RecordingModifier,
+    public val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    public val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
@@ -65,14 +65,15 @@ class RemoteComposeCollapsibleColumnModifier(
     }
 }
 
-class RemoteCollapsibleColumnScope {
-    fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteCollapsibleColumnScope {
+    public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
 
-    fun RemoteModifier.weight(weight: Float): RemoteModifier =
+    public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, RemoteFloat(weight)))
 
-    fun RemoteModifier.priority(priority: Float): RemoteModifier =
+    public fun RemoteModifier.priority(priority: Float): RemoteModifier =
         then(CollapsiblePriorityModifier(CollapsiblePriority.VERTICAL, RemoteFloat(priority)))
 }
 
@@ -83,7 +84,7 @@ class RemoteCollapsibleColumnScope {
  */
 @RemoteComposable
 @Composable
-fun RemoteCollapsibleColumn(
+public fun RemoteCollapsibleColumn(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,

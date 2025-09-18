@@ -38,8 +38,8 @@ import java.util.ArrayDeque
 
 /** Generator of a tree for the Layout Inspector. */
 @OptIn(UiToolingDataApi::class)
-class LayoutInspectorTree {
-    private val builderData = SharedBuilderDataImpl()
+class LayoutInspectorTree(anchorMap: AnchorMap) {
+    private val builderData = SharedBuilderDataImpl(anchorMap)
     private val resultByComposition = mutableMapOf<CompositionInstance, SubCompositionResult>()
     private val builder = CompositionBuilder(builderData, resultByComposition)
 
@@ -188,10 +188,9 @@ class LayoutInspectorTree {
         resultByComposition.clear()
     }
 
-    private class SharedBuilderDataImpl : SharedBuilderData {
+    private class SharedBuilderDataImpl(override val anchorMap: AnchorMap) : SharedBuilderData {
         override val cache = ArrayDeque<MutableInspectorNode>()
         override val contextCache = ContextCache()
-        override val anchorMap = AnchorMap()
         override val semanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
         override val unmergedSemanticsMap = mutableIntObjectMapOf<List<RawParameter>>()
         override val inlineClassConverter = InlineClassConverter()

@@ -22,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker
-import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.VelocityPathFinder
 import androidx.compose.ui.test.util.isAlmostBetween
@@ -75,116 +74,53 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() =
-            if (VelocityTrackerStrategyUseImpulse) {
-                mutableListOf(
-                    // An essential value in the VelocityPathFinder is `d`, calculated as
-                    // `d = 2 / velocity * (end - start)`, and represents the maximum time over
-                    // which
-                    // we can spread out a gesture going from start to end while still following a
-                    // polynomial that has v=velocity at the end. (Note that this necessarily has
-                    // v=0
-                    // at the start: if v<0 at the start, the path would go out of the range
-                    // [start, end], and if v>0 we would arrive at the end faster.)
-                    //
-                    // Without going into details as to why, there are basically 3 different ranges
-                    // of d to test for:
-                    //
-                    // 1. d < 40
-                    //    The requested velocity is so high that the "slowest" polynomial to reach
-                    // it
-                    //    still takes less than 40ms, which is the minimum duration. We expect the
-                    //    duration suggestion to throw an IllegalArgumentException, and suggest
-                    // changes
-                    //    to the input that would _just_ take us to that 40ms minimum.
-                    // 2. d >= 100
-                    //    We can make a valid path with any desired duration. The suggestion picks a
-                    //    default of 200ms.
-                    // 3. 40 <= d < 100
-                    //    The entire gesture must follow an exact polynomial, which is only possible
-                    // if
-                    //    the suggested duration < d. We expect the suggestion to be floor(d).
-                    //
-                    // A few other scenarios to test for are:
-                    // - start == end
-                    //   Gesture can't move at all, so velocity _must_ be 0. Expect an error
-                    // otherwise.
-                    // - velocity < 0
-                    //   Simply not possible. Expect an error always.
+            mutableListOf(
+                // An essential value in the VelocityPathFinder is `d`, calculated as
+                // `d = 2 / velocity * (end - start)`, and represents the maximum time over
+                // which
+                // we can spread out a gesture going from start to end while still following a
+                // polynomial that has v=velocity at the end. (Note that this necessarily has
+                // v=0 at the start: if v<0 at the start, the path would go out of the range
+                // [start, end], and if v>0 we would arrive at the end faster.)
+                //
+                // Without going into details as to why, there are basically 3 different ranges
+                // of
+                // d to test for:
+                //
+                // 1. d < 40
+                //    The requested velocity is so high that the "slowest" polynomial to reach
+                // it
+                //    still takes less than 40ms, which is the minimum duration. We expect the
+                //    duration suggestion to throw an IllegalArgumentException, and suggest
+                // changes
+                //    to the input that would _just_ take us to that 40ms minimum.
+                // 2. d >= 100
+                //    We can make a valid path with any desired duration. The suggestion picks a
+                //    default of 200ms.
+                // 3. 40 <= d < 100
+                //    The entire gesture must follow an exact polynomial, which is only possible
+                // if
+                //    the suggested duration < d. We expect the suggestion to be floor(d).
+                //
+                // A few other scenarios to test for are:
+                // - start == end
+                //   Gesture can't move at all, so velocity _must_ be 0. Expect an error
+                // otherwise.
+                // - velocity < 0
+                //   Simply not possible. Expect an error always.
 
-                    TestConfig(DistanceZero, -1f, expectedError = errorNegativeVelocity),
-                    TestConfig(DistanceZero, 0f, expectedDurationMillis = 200L),
-                    TestConfig(DistanceZero, 1f, expectedError = errorPositiveVelocity),
-                    TestConfig(Distance100, -1f, expectedError = errorNegativeVelocity),
-                    TestConfig(Distance100, 0f, expectedDurationMillis = 200L),
-                    TestConfig(Distance100, 1f, expectedDurationMillis = 200L),
-
-                    // d > 100
-                    TestConfig(Distance100, 1999f, expectedDurationMillis = 200L, tolerance = 1f),
-                    // d = 100
-                    TestConfig(Distance100, 2000f, expectedDurationMillis = 100L),
-                    TestConfig(
-                        Distance100,
-                        2480f,
-                        expectedDurationMillis = 80L,
-                        tolerance = 1f,
-                    ), // d ≈ 80.65
-
-                    /*
-                    (b/316099844) Readd this test case.
-                     TestConfig(Distance100, 5000f, expectedError = errorWithSuggestions), // d = 40
-                     */
-                    // d < 40
-                    TestConfig(Distance100, 5001f, expectedError = errorWithSuggestions),
-                )
-            } else {
-                mutableListOf(
-                    // An essential value in the VelocityPathFinder is `d`, calculated as
-                    // `d = 2 / velocity * (end - start)`, and represents the maximum time over
-                    // which
-                    // we can spread out a gesture going from start to end while still following a
-                    // polynomial that has v=velocity at the end. (Note that this necessarily has
-                    // v=0 at the start: if v<0 at the start, the path would go out of the range
-                    // [start, end], and if v>0 we would arrive at the end faster.)
-                    //
-                    // Without going into details as to why, there are basically 3 different ranges
-                    // of
-                    // d to test for:
-                    //
-                    // 1. d < 40
-                    //    The requested velocity is so high that the "slowest" polynomial to reach
-                    // it
-                    //    still takes less than 40ms, which is the minimum duration. We expect the
-                    //    duration suggestion to throw an IllegalArgumentException, and suggest
-                    // changes
-                    //    to the input that would _just_ take us to that 40ms minimum.
-                    // 2. d >= 100
-                    //    We can make a valid path with any desired duration. The suggestion picks a
-                    //    default of 200ms.
-                    // 3. 40 <= d < 100
-                    //    The entire gesture must follow an exact polynomial, which is only possible
-                    // if
-                    //    the suggested duration < d. We expect the suggestion to be floor(d).
-                    //
-                    // A few other scenarios to test for are:
-                    // - start == end
-                    //   Gesture can't move at all, so velocity _must_ be 0. Expect an error
-                    // otherwise.
-                    // - velocity < 0
-                    //   Simply not possible. Expect an error always.
-
-                    TestConfig(DistanceZero, -1f, expectedError = errorNegativeVelocity),
-                    TestConfig(DistanceZero, 0f, expectedDurationMillis = 200L),
-                    TestConfig(DistanceZero, 1f, expectedError = errorPositiveVelocity),
-                    TestConfig(Distance100, -1f, expectedError = errorNegativeVelocity),
-                    TestConfig(Distance100, 0f, expectedDurationMillis = 200L),
-                    TestConfig(Distance100, 1f, expectedDurationMillis = 200L),
-                    TestConfig(Distance100, 1999f, expectedDurationMillis = 200L), // d > 100
-                    TestConfig(Distance100, 2000f, expectedDurationMillis = 100L), // d = 100
-                    TestConfig(Distance100, 2480f, expectedDurationMillis = 80L), // d ≈ 80.65
-                    TestConfig(Distance100, 5000f, expectedDurationMillis = 40L), // d = 40
-                    TestConfig(Distance100, 5001f, expectSuggestions = true), // d < 40
-                )
-            }
+                TestConfig(DistanceZero, -1f, expectedError = errorNegativeVelocity),
+                TestConfig(DistanceZero, 0f, expectedDurationMillis = 200L),
+                TestConfig(DistanceZero, 1f, expectedError = errorPositiveVelocity),
+                TestConfig(Distance100, -1f, expectedError = errorNegativeVelocity),
+                TestConfig(Distance100, 0f, expectedDurationMillis = 200L),
+                TestConfig(Distance100, 1f, expectedDurationMillis = 200L),
+                TestConfig(Distance100, 1999f, expectedDurationMillis = 200L), // d > 100
+                TestConfig(Distance100, 2000f, expectedDurationMillis = 100L), // d = 100
+                TestConfig(Distance100, 2480f, expectedDurationMillis = 80L), // d ≈ 80.65
+                TestConfig(Distance100, 5000f, expectedDurationMillis = 40L), // d = 40
+                TestConfig(Distance100, 5001f, expectSuggestions = true), // d < 40
+            )
     }
 
     @Test
@@ -217,11 +153,7 @@ class VelocityPathFinderCalculateDurationTest(private val config: TestConfig) {
         val velocityTracker = simulateSwipe(f, actualDuration)
         val velocity = velocityTracker.calculateVelocity()
 
-        if (VelocityTrackerStrategyUseImpulse) {
-            assertThat(velocity.sum()).isWithin(config.tolerance).of(config.requestedVelocity)
-        } else {
-            assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
-        }
+        assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
         if (config.requestedVelocity > 0) {
             // Direction of velocity of 0 is undefined, so any direction is correct
             velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())

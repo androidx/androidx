@@ -15,12 +15,15 @@
  */
 package androidx.compose.remote.core.operations.layout.utils;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
 /** Internal utility debug class */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DebugLog {
 
     public static final boolean DEBUG_LAYOUT_ON = false;

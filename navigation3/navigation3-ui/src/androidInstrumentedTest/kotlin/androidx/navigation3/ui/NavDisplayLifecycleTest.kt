@@ -52,6 +52,7 @@ class NavDisplayLifecycleTest {
 
         assertThat(actualEvents)
             .containsExactly("A" to "ON_RESUME", "A" to "ON_PAUSE", "B" to "ON_RESUME")
+            .inOrder()
     }
 
     @Test
@@ -74,5 +75,63 @@ class NavDisplayLifecycleTest {
 
         assertThat(actualEvents)
             .containsExactly("B" to "ON_RESUME", "B" to "ON_PAUSE", "A" to "ON_RESUME")
+            .inOrder()
+    }
+
+    @Test
+    fun testTwoPaneForwardFiresLifecycleEventsInOrder() {
+        val backStack = mutableStateListOf("A")
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            NavDisplay(backStack = backStack, sceneStrategy = TestTwoPaneSceneStrategy()) { key ->
+                NavEntry(key) {
+                    LifecycleResumeEffect(key1 = Unit) {
+                        actualEvents += key to "ON_RESUME"
+                        onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle { backStack += "B" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly(
+                "A" to "ON_RESUME",
+                "A" to "ON_PAUSE",
+                "A" to "ON_RESUME",
+                "B" to "ON_RESUME",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testTwoPaneBackFiresLifecycleEventsInOrder() {
+        val backStack = mutableStateListOf("A", "B")
+
+        val actualEvents = mutableListOf<Pair<String, String>>()
+        rule.setContent {
+            NavDisplay(backStack = backStack, sceneStrategy = TestTwoPaneSceneStrategy()) { key ->
+                NavEntry(key) {
+                    LifecycleResumeEffect(key1 = Unit) {
+                        actualEvents += key to "ON_RESUME"
+                        onPauseOrDispose { actualEvents += key to "ON_PAUSE" }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle { backStack -= "B" }
+        rule.waitForIdle()
+
+        assertThat(actualEvents)
+            .containsExactly(
+                "A" to "ON_RESUME",
+                "B" to "ON_RESUME",
+                "B" to "ON_PAUSE",
+                "A" to "ON_PAUSE",
+                "A" to "ON_RESUME",
+            )
+            .inOrder()
     }
 }

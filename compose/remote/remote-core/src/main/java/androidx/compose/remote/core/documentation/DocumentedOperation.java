@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core.documentation;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DocumentedOperation {
     public static final int LAYOUT = 0;
     public static final int INT = 0;

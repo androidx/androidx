@@ -175,7 +175,7 @@ internal data class ColumnMeasurePolicy(
     ): Int {
         val childCrossAlignment = parentData?.crossAxisAlignment
         return childCrossAlignment?.align(
-            size = crossAxisLayoutSize - placeable.width,
+            size = crossAxisLayoutSize,
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,

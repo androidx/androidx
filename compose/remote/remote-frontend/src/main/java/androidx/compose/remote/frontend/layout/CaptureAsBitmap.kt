@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.graphics.Picture
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.Image
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.remote.frontend.modifier.height
@@ -41,7 +40,7 @@ import androidx.compose.ui.graphics.nativeCanvas
  * the bitmap is ready.
  */
 @Composable
-fun CaptureAsBitmap(
+public fun CaptureAsBitmap(
     onCapture: @Composable () -> Unit,
     contentDescription: String = "",
     content: @Composable () -> Unit,

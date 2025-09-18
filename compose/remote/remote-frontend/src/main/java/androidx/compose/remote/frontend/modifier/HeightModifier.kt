@@ -18,8 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -32,7 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
-class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteLayoutModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class HeightModifier(public val type: Type, public val value: RemoteFloat) :
+    RemoteLayoutModifier {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.HeightModifier(
             type,
@@ -48,11 +48,12 @@ class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteLayoutModif
             height(valueDp)
         } else if (type == Type.FILL) {
             fillMaxHeight(value.toFloat())
-        } else if (type == Type.WEIGHT) {
-            @Suppress("INVISIBLE_REFERENCE")
-            with(androidx.compose.foundation.layout.ColumnScopeInstance as ColumnScope) {
-                weight(value.toFloat(), true)
-            }
+            //        } else if (type == Type.WEIGHT) {
+            //            @Suppress("INVISIBLE_REFERENCE")
+            //            with(androidx.compose.foundation.layout.ColumnScopeInstance as
+            // ColumnScope) {
+            //                weight(value.toFloat(), true)
+            //            }
         } else if (type == Type.INTRINSIC_MIN) {
             height(IntrinsicSize.Min)
         } else if (type == Type.INTRINSIC_MAX) {
@@ -64,30 +65,30 @@ class HeightModifier(val type: Type, val value: RemoteFloat) : RemoteLayoutModif
     }
 }
 
-fun RemoteModifier.height(width: RemoteDp): RemoteModifier =
+public fun RemoteModifier.height(width: RemoteDp): RemoteModifier =
     then(HeightModifier(Type.EXACT_DP, width.value))
 
-fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
+public fun RemoteModifier.height(height: RemoteFloat): RemoteModifier =
     then(HeightModifier(Type.EXACT, height))
 
-fun RemoteModifier.fillMaxHeight(height: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
+public fun RemoteModifier.fillMaxHeight(height: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
     then(HeightModifier(Type.FILL, height))
 
-fun RemoteModifier.fillMaxHeight(height: Float): RemoteModifier =
+public fun RemoteModifier.fillMaxHeight(height: Float): RemoteModifier =
     then(HeightModifier(Type.FILL, RemoteFloat(height)))
 
 @Composable
-fun RemoteModifier.height(value: Dp): RemoteModifier {
+public fun RemoteModifier.height(value: Dp): RemoteModifier {
     val valuePx = with(LocalDensity.current) { value.toPx() }
     return then(HeightModifier(Type.EXACT, RemoteFloat(valuePx)))
 }
 
 @Composable
-fun RemoteModifier.height(value: Int): RemoteModifier =
+public fun RemoteModifier.height(value: Int): RemoteModifier =
     then(HeightModifier(Type.EXACT, RemoteFloat(value.toFloat())))
 
 @Composable
-fun RemoteModifier.height(value: IntrinsicSize): RemoteModifier {
+public fun RemoteModifier.height(value: IntrinsicSize): RemoteModifier {
     if (value == IntrinsicSize.Min) {
         return then(HeightModifier(Type.INTRINSIC_MIN, RemoteFloat(0f)))
     } else {

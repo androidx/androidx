@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteContext;
 
 import org.jspecify.annotations.NonNull;
 
 /** Interface to represent operations that can handle click events */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ClickHandler {
 
     /**

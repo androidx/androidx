@@ -207,12 +207,17 @@ abstract interface androidx.compose.ui.autofill/Autofill { // androidx.compose.u
 abstract interface androidx.compose.ui.autofill/FillableData { // androidx.compose.ui.autofill/FillableData|null[0]
     open val booleanValue // androidx.compose.ui.autofill/FillableData.booleanValue|{}booleanValue[0]
         open fun <get-booleanValue>(): kotlin/Boolean? // androidx.compose.ui.autofill/FillableData.booleanValue.<get-booleanValue>|<get-booleanValue>(){}[0]
+    open val dateMillisValue // androidx.compose.ui.autofill/FillableData.dateMillisValue|{}dateMillisValue[0]
+        open fun <get-dateMillisValue>(): kotlin/Long? // androidx.compose.ui.autofill/FillableData.dateMillisValue.<get-dateMillisValue>|<get-dateMillisValue>(){}[0]
     open val listIndexValue // androidx.compose.ui.autofill/FillableData.listIndexValue|{}listIndexValue[0]
         open fun <get-listIndexValue>(): kotlin/Int? // androidx.compose.ui.autofill/FillableData.listIndexValue.<get-listIndexValue>|<get-listIndexValue>(){}[0]
     open val textValue // androidx.compose.ui.autofill/FillableData.textValue|{}textValue[0]
         open fun <get-textValue>(): kotlin/CharSequence? // androidx.compose.ui.autofill/FillableData.textValue.<get-textValue>|<get-textValue>(){}[0]
 
+    open fun getDateMillisOrDefault(kotlin/Long): kotlin/Long // androidx.compose.ui.autofill/FillableData.getDateMillisOrDefault|getDateMillisOrDefault(kotlin.Long){}[0]
     open fun getListIndexOrDefault(kotlin/Int): kotlin/Int // androidx.compose.ui.autofill/FillableData.getListIndexOrDefault|getListIndexOrDefault(kotlin.Int){}[0]
+
+    final object Companion // androidx.compose.ui.autofill/FillableData.Companion|null[0]
 }
 
 abstract interface androidx.compose.ui.draganddrop/DragAndDropModifierNode : androidx.compose.ui.draganddrop/DragAndDropTarget, androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.draganddrop/DragAndDropModifierNode|null[0]
@@ -552,6 +557,11 @@ abstract interface androidx.compose.ui.layout/BeyondBoundsLayout { // androidx.c
                 final fun <get-Right>(): androidx.compose.ui.layout/BeyondBoundsLayout.LayoutDirection // androidx.compose.ui.layout/BeyondBoundsLayout.LayoutDirection.Companion.Right.<get-Right>|<get-Right>(){}[0]
         }
     }
+}
+
+abstract interface androidx.compose.ui.layout/BeyondBoundsLayoutProviderModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.layout/BeyondBoundsLayoutProviderModifierNode|null[0]
+    abstract val beyondBoundsLayout // androidx.compose.ui.layout/BeyondBoundsLayoutProviderModifierNode.beyondBoundsLayout|{}beyondBoundsLayout[0]
+        abstract fun <get-beyondBoundsLayout>(): androidx.compose.ui.layout/BeyondBoundsLayout // androidx.compose.ui.layout/BeyondBoundsLayoutProviderModifierNode.beyondBoundsLayout.<get-beyondBoundsLayout>|<get-beyondBoundsLayout>(){}[0]
 }
 
 abstract interface androidx.compose.ui.layout/ContentScale { // androidx.compose.ui.layout/ContentScale|null[0]
@@ -1061,6 +1071,8 @@ abstract interface androidx.compose.ui.platform/ViewConfiguration { // androidx.
 abstract interface androidx.compose.ui.platform/WindowInfo { // androidx.compose.ui.platform/WindowInfo|null[0]
     abstract val isWindowFocused // androidx.compose.ui.platform/WindowInfo.isWindowFocused|{}isWindowFocused[0]
         abstract fun <get-isWindowFocused>(): kotlin/Boolean // androidx.compose.ui.platform/WindowInfo.isWindowFocused.<get-isWindowFocused>|<get-isWindowFocused>(){}[0]
+    open val containerDpSize // androidx.compose.ui.platform/WindowInfo.containerDpSize|{}containerDpSize[0]
+        open fun <get-containerDpSize>(): androidx.compose.ui.unit/DpSize // androidx.compose.ui.platform/WindowInfo.containerDpSize.<get-containerDpSize>|<get-containerDpSize>(){}[0]
     open val containerSize // androidx.compose.ui.platform/WindowInfo.containerSize|{}containerSize[0]
         open fun <get-containerSize>(): androidx.compose.ui.unit/IntSize // androidx.compose.ui.platform/WindowInfo.containerSize.<get-containerSize>|<get-containerSize>(){}[0]
     open val keyboardModifiers // androidx.compose.ui.platform/WindowInfo.keyboardModifiers|{}keyboardModifiers[0]
@@ -3844,6 +3856,8 @@ final val androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadScopeIm
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_ModifierInfo$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_ModifierInfo$stableprop|#static{}androidx_compose_ui_layout_ModifierInfo$stableprop[0]
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop|#static{}androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop[0]
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop|#static{}androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop[0]
+final val androidx.compose.ui.layout/androidx_compose_ui_layout_OnPlacedNode$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_OnPlacedNode$stableprop|#static{}androidx_compose_ui_layout_OnPlacedNode$stableprop[0]
+final val androidx.compose.ui.layout/androidx_compose_ui_layout_OnSizeChangedNode$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_OnSizeChangedNode$stableprop|#static{}androidx_compose_ui_layout_OnSizeChangedNode$stableprop[0]
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop|#static{}androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop[0]
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable$stableprop|#static{}androidx_compose_ui_layout_Placeable$stableprop[0]
 final val androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable_PlacementScope$stableprop // androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable_PlacementScope$stableprop|#static{}androidx_compose_ui_layout_Placeable_PlacementScope$stableprop[0]
@@ -4146,6 +4160,10 @@ final var androidx.compose.ui.semantics/verticalScrollAxisRange // androidx.comp
 
 final fun (androidx.compose.runtime/Composer).androidx.compose.ui/materialize(androidx.compose.ui/Modifier): androidx.compose.ui/Modifier // androidx.compose.ui/materialize|materialize@androidx.compose.runtime.Composer(androidx.compose.ui.Modifier){}[0]
 final fun (androidx.compose.runtime/Composer).androidx.compose.ui/materializeWithCompositionLocalInjection(androidx.compose.ui/Modifier): androidx.compose.ui/Modifier // androidx.compose.ui/materializeWithCompositionLocalInjection|materializeWithCompositionLocalInjection@androidx.compose.runtime.Composer(androidx.compose.ui.Modifier){}[0]
+final fun (androidx.compose.ui.autofill/FillableData.Companion).androidx.compose.ui.autofill/createFrom(kotlin/Boolean): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/createFrom|createFrom@androidx.compose.ui.autofill.FillableData.Companion(kotlin.Boolean){}[0]
+final fun (androidx.compose.ui.autofill/FillableData.Companion).androidx.compose.ui.autofill/createFrom(kotlin/CharSequence): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/createFrom|createFrom@androidx.compose.ui.autofill.FillableData.Companion(kotlin.CharSequence){}[0]
+final fun (androidx.compose.ui.autofill/FillableData.Companion).androidx.compose.ui.autofill/createFrom(kotlin/Int): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/createFrom|createFrom@androidx.compose.ui.autofill.FillableData.Companion(kotlin.Int){}[0]
+final fun (androidx.compose.ui.autofill/FillableData.Companion).androidx.compose.ui.autofill/createFrom(kotlin/Long): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/createFrom|createFrom@androidx.compose.ui.autofill.FillableData.Companion(kotlin.Long){}[0]
 final fun (androidx.compose.ui.focus/FocusPropertiesModifierNode).androidx.compose.ui.focus/invalidateFocusProperties() // androidx.compose.ui.focus/invalidateFocusProperties|invalidateFocusProperties@androidx.compose.ui.focus.FocusPropertiesModifierNode(){}[0]
 final fun (androidx.compose.ui.focus/FocusRequesterModifierNode).androidx.compose.ui.focus/captureFocus(): kotlin/Boolean // androidx.compose.ui.focus/captureFocus|captureFocus@androidx.compose.ui.focus.FocusRequesterModifierNode(){}[0]
 final fun (androidx.compose.ui.focus/FocusRequesterModifierNode).androidx.compose.ui.focus/freeFocus(): kotlin/Boolean // androidx.compose.ui.focus/freeFocus|freeFocus@androidx.compose.ui.focus.FocusRequesterModifierNode(){}[0]
@@ -4195,8 +4213,9 @@ final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.layout/
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/dispatchDraw(androidx.compose.ui.graphics.drawscope/ContentDrawScope) // androidx.compose.ui.node/dispatchDraw|dispatchDraw@androidx.compose.ui.node.DelegatableNode(androidx.compose.ui.graphics.drawscope.ContentDrawScope){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/dispatchOnScrollChanged(androidx.compose.ui.geometry/Offset) // androidx.compose.ui.node/dispatchOnScrollChanged|dispatchOnScrollChanged@androidx.compose.ui.node.DelegatableNode(androidx.compose.ui.geometry.Offset){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/findNearestAncestor(kotlin/Any?): androidx.compose.ui.node/TraversableNode? // androidx.compose.ui.node/findNearestAncestor|findNearestAncestor@androidx.compose.ui.node.DelegatableNode(kotlin.Any?){}[0]
+final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/findNearestBeyondBoundsLayoutAncestor(): androidx.compose.ui.layout/BeyondBoundsLayout? // androidx.compose.ui.node/findNearestBeyondBoundsLayoutAncestor|findNearestBeyondBoundsLayoutAncestor@androidx.compose.ui.node.DelegatableNode(){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/invalidateDrawForSubtree() // androidx.compose.ui.node/invalidateDrawForSubtree|invalidateDrawForSubtree@androidx.compose.ui.node.DelegatableNode(){}[0]
-final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/invalidateLayoutForSubtree() // androidx.compose.ui.node/invalidateLayoutForSubtree|invalidateLayoutForSubtree@androidx.compose.ui.node.DelegatableNode(){}[0]
+final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/invalidateMeasurementForSubtree() // androidx.compose.ui.node/invalidateMeasurementForSubtree|invalidateMeasurementForSubtree@androidx.compose.ui.node.DelegatableNode(){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/invalidateSubtree() // androidx.compose.ui.node/invalidateSubtree|invalidateSubtree@androidx.compose.ui.node.DelegatableNode(){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/requestAutofill() // androidx.compose.ui.node/requestAutofill|requestAutofill@androidx.compose.ui.node.DelegatableNode(){}[0]
 final fun (androidx.compose.ui.node/DelegatableNode).androidx.compose.ui.node/requireDensity(): androidx.compose.ui.unit/Density // androidx.compose.ui.node/requireDensity|requireDensity@androidx.compose.ui.node.DelegatableNode(){}[0]
@@ -4345,9 +4364,6 @@ final fun <#A: kotlin/Any?> (androidx.compose.ui/Modifier).androidx.compose.ui.m
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalMapOf(androidx.compose.ui.modifier/ModifierLocal<#A>): androidx.compose.ui.modifier/ModifierLocalMap // androidx.compose.ui.modifier/modifierLocalMapOf|modifierLocalMapOf(androidx.compose.ui.modifier.ModifierLocal<0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalMapOf(kotlin/Pair<androidx.compose.ui.modifier/ModifierLocal<#A>, #A>): androidx.compose.ui.modifier/ModifierLocalMap // androidx.compose.ui.modifier/modifierLocalMapOf|modifierLocalMapOf(kotlin.Pair<androidx.compose.ui.modifier.ModifierLocal<0:0>,0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.compose.ui.modifier/modifierLocalOf(kotlin/Function0<#A>): androidx.compose.ui.modifier/ProvidableModifierLocal<#A> // androidx.compose.ui.modifier/modifierLocalOf|modifierLocalOf(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
-final fun androidx.compose.ui.autofill/FillableData(kotlin/Boolean): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/FillableData|FillableData(kotlin.Boolean){}[0]
-final fun androidx.compose.ui.autofill/FillableData(kotlin/CharSequence): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/FillableData|FillableData(kotlin.CharSequence){}[0]
-final fun androidx.compose.ui.autofill/FillableData(kotlin/Int): androidx.compose.ui.autofill/FillableData? // androidx.compose.ui.autofill/FillableData|FillableData(kotlin.Int){}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillManager$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillManager$stableprop_getter|androidx_compose_ui_autofill_AutofillManager$stableprop_getter(){}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillNode$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillNode$stableprop_getter|androidx_compose_ui_autofill_AutofillNode$stableprop_getter(){}[0]
 final fun androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillTree$stableprop_getter(): kotlin/Int // androidx.compose.ui.autofill/androidx_compose_ui_autofill_AutofillTree$stableprop_getter|androidx_compose_ui_autofill_AutofillTree$stableprop_getter(){}[0]
@@ -4496,6 +4512,8 @@ final fun androidx.compose.ui.layout/androidx_compose_ui_layout_LookaheadScopeIm
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_ModifierInfo$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_ModifierInfo$stableprop_getter|androidx_compose_ui_layout_ModifierInfo$stableprop_getter(){}[0]
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop_getter|androidx_compose_ui_layout_MultiContentMeasurePolicyImpl$stableprop_getter(){}[0]
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop_getter|androidx_compose_ui_layout_NoWindowInsetsAnimation$stableprop_getter(){}[0]
+final fun androidx.compose.ui.layout/androidx_compose_ui_layout_OnPlacedNode$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_OnPlacedNode$stableprop_getter|androidx_compose_ui_layout_OnPlacedNode$stableprop_getter(){}[0]
+final fun androidx.compose.ui.layout/androidx_compose_ui_layout_OnSizeChangedNode$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_OnSizeChangedNode$stableprop_getter|androidx_compose_ui_layout_OnSizeChangedNode$stableprop_getter(){}[0]
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop_getter|androidx_compose_ui_layout_OnVisibilityChangedNode$stableprop_getter(){}[0]
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable$stableprop_getter|androidx_compose_ui_layout_Placeable$stableprop_getter(){}[0]
 final fun androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable_PlacementScope$stableprop_getter(): kotlin/Int // androidx.compose.ui.layout/androidx_compose_ui_layout_Placeable_PlacementScope$stableprop_getter|androidx_compose_ui_layout_Placeable_PlacementScope$stableprop_getter(){}[0]

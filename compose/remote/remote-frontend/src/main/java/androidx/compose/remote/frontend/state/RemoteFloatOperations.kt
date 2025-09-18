@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.state
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import kotlin.math.abs
@@ -45,91 +44,105 @@ import kotlin.math.tan
 private const val FP_TO_RAD = 57.29578f // 180/PI
 private const val FP_TO_DEG = 0.017453292f // 180/PI
 
-fun toFloat(a: Number): Float {
+public fun toFloat(a: Number): Float {
     return when (a) {
         is RemoteFloat -> a.id
         else -> a.toFloat()
     }
 }
 
-fun max(a: RemoteFloat, b: Float) =
+public fun max(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MAX) { a, b -> max(a, b) }
 
-fun max(a: Float, b: RemoteFloat) =
+public fun max(a: Float, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MAX) { a, b -> max(a, b) }
 
-fun max(a: RemoteFloat, b: RemoteFloat) =
+public fun max(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MAX) { a, b -> max(a, b) }
 
-fun min(a: RemoteFloat, b: Float) =
+public fun min(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MIN) { a, b -> min(a, b) }
 
-fun min(a: Float, b: RemoteFloat) =
+public fun min(a: Float, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MIN) { a, b -> min(a, b) }
 
-fun min(a: RemoteFloat, b: RemoteFloat) =
+public fun min(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MIN) { a, b -> min(a, b) }
 
-fun pow(a: RemoteFloat, b: Float) = binaryOp(a, b, AnimatedFloatExpression.POW) { a, b -> a.pow(b) }
-
-fun pow(a: Float, b: RemoteFloat) = binaryOp(a, b, AnimatedFloatExpression.POW) { a, b -> a.pow(b) }
-
-fun pow(a: RemoteFloat, b: RemoteFloat) =
+public fun pow(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.POW) { a, b -> a.pow(b) }
 
-fun sqrt(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.SQRT) { a -> sqrt(a) }
+public fun pow(a: Float, b: RemoteFloat): RemoteFloat =
+    binaryOp(a, b, AnimatedFloatExpression.POW) { a, b -> a.pow(b) }
 
-fun abs(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.ABS) { a -> abs(a) }
+public fun pow(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
+    binaryOp(a, b, AnimatedFloatExpression.POW) { a, b -> a.pow(b) }
 
-fun sign(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.SIGN) { a -> sign(a) }
+public fun sqrt(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.SQRT) { a -> sqrt(a) }
 
-fun copySign(a: RemoteFloat, b: Float) =
+public fun abs(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.ABS) { a -> abs(a) }
+
+public fun sign(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.SIGN) { a -> sign(a) }
+
+public fun copySign(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.COPY_SIGN) { a, b -> Math.copySign(a, b) }
 
-fun copySign(a: Float, b: RemoteFloat) =
+public fun copySign(a: Float, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.COPY_SIGN) { a, b -> Math.copySign(a, b) }
 
-fun copySign(a: RemoteFloat, b: RemoteFloat) =
+public fun copySign(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.COPY_SIGN) { a, b -> Math.copySign(a, b) }
 
-fun exp(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.EXP) { a -> exp(a) }
+public fun exp(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.EXP) { a -> exp(a) }
 
-fun ceil(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.CEIL) { a -> ceil(a) }
+public fun ceil(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.CEIL) { a -> ceil(a) }
 
-fun floor(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.FLOOR) { a -> floor(a) }
+public fun floor(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.FLOOR) { a -> floor(a) }
 
-fun log(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.LOG) { a -> log10(a) }
+public fun log(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.LOG) { a -> log10(a) }
 
-fun ln(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.LN) { a -> ln(a) }
+public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.LN) { a -> ln(a) }
 
-fun round(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.ROUND) { a -> round(a) }
+public fun round(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.ROUND) { a -> round(a) }
 
-fun sin(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.SIN) { a -> sin(a) }
+public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.SIN) { a -> sin(a) }
 
-fun cos(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.COS) { a -> cos(a) }
+public fun cos(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.COS) { a -> cos(a) }
 
-fun tan(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.TAN) { a -> tan(a) }
+public fun tan(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.TAN) { a -> tan(a) }
 
-fun asin(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.ASIN) { a -> asin(a) }
+public fun asin(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.ASIN) { a -> asin(a) }
 
-fun acos(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.ACOS) { a -> acos(a) }
+public fun acos(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.ACOS) { a -> acos(a) }
 
-fun atan(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.ATAN) { a -> atan(a) }
+public fun atan(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.ATAN) { a -> atan(a) }
 
-fun atan2(a: RemoteFloat, b: Float) =
+public fun atan2(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.ATAN2) { a, b -> atan2(a, b) }
 
-fun atan2(a: Float, b: RemoteFloat) =
+public fun atan2(a: Float, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.ATAN2) { a, b -> atan2(a, b) }
 
-fun atan2(a: RemoteFloat, b: RemoteFloat) =
+public fun atan2(a: RemoteFloat, b: RemoteFloat): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.ATAN2) { a, b -> atan2(a, b) }
 
-fun cbrt(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.CBRT) { a -> cbrt(a) }
+public fun cbrt(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.CBRT) { a -> cbrt(a) }
 
-fun toDeg(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.DEG) { a -> a * FP_TO_RAD }
+public fun toDeg(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.DEG) { a -> a * FP_TO_RAD }
 
-fun toRad(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.RAD) { a -> a * FP_TO_DEG }
+public fun toRad(a: RemoteFloat): RemoteFloat =
+    a.unaryOp(AnimatedFloatExpression.RAD) { a -> a * FP_TO_DEG }
 
 /**
  * Computes [from] + ([to] - [from]) * [tween].
@@ -140,7 +153,7 @@ fun toRad(a: RemoteFloat) = a.unaryOp(AnimatedFloatExpression.RAD) { a -> a * FP
  *   to [to]
  * @param tween The ratio between [from] and [to] that controls the result.
  */
-fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteFloat {
+public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteFloat {
     return RemoteFloatExpression(
         from.hasConstantValue && to.hasConstantValue && tween.hasConstantValue,
         { creationState ->
@@ -163,7 +176,7 @@ private fun isConst(a: Number) =
 /**
  * parameters can be float or RemoteFloat. Coded this way to not require 8 versions returns a*b+c
  */
-fun mad(a: Number, b: Number, c: Number): RemoteFloat {
+public fun mad(a: Number, b: Number, c: Number): RemoteFloat {
     return RemoteFloatExpression(
         isConst(a) && isConst(b) && isConst(c),
         { creationState ->
@@ -172,7 +185,7 @@ fun mad(a: Number, b: Number, c: Number): RemoteFloat {
     )
 }
 
-fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): RemoteFloat {
+public fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): RemoteFloat {
     return RemoteFloatExpression(
         min.hasConstantValue && max.hasConstantValue && value.hasConstantValue,
         { creationState ->
@@ -186,7 +199,7 @@ fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): RemoteFloat {
     )
 }
 
-fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {
+public fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {
     return RemoteFloatExpression(
         value.hasConstantValue,
         { creationState ->
@@ -213,7 +226,7 @@ fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {
  *   to 5.
  * @return A [RemoteFloat] based on [rf] but with an animation applied to it
  */
-fun animateRemoteFloat(
+public fun animateRemoteFloat(
     rf: RemoteFloat,
     duration: Float = 1f,
     @AnimationType type: Int = CUBIC_STANDARD,
@@ -238,7 +251,7 @@ fun animateRemoteFloat(
  * @param content Callback that provides a [RemoteFloat] upon which the animation is based
  * @return A [RemoteFloat] based on the result of [content] but with an animation applied to it
  */
-fun animateRemoteFloat(
+public fun animateRemoteFloat(
     duration: Float = 1f,
     @AnimationType type: Int = CUBIC_STANDARD,
     spec: FloatArray? = null,

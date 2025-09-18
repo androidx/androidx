@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.capture.shaders
 
 import android.graphics.SweepGradient
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.frontend.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
@@ -32,11 +31,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
 
-class RemoteSweepShader(
-    var centerX: Float,
-    var centerY: Float,
-    var colors: IntArray,
-    var positions: FloatArray?,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteSweepShader(
+    public var centerX: Float,
+    public var centerY: Float,
+    public var colors: IntArray,
+    public var positions: FloatArray?,
 ) : SweepGradient(centerX, centerY, colors, positions), RemoteShader {
     override fun apply(paintBundle: PaintBundle) {
         paintBundle.setSweepGradient(colors, 0, positions, centerX, centerY)
@@ -68,7 +68,7 @@ class RemoteSweepShader(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.sweepGradient(
+public fun RemoteBrush.Companion.sweepGradient(
     vararg colorStops: Pair<Float, Color>,
     center: Offset = Offset.Unspecified,
 ): RemoteSweepGradient =
@@ -98,13 +98,14 @@ fun RemoteBrush.Companion.sweepGradient(
  * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
-fun RemoteBrush.Companion.sweepGradient(
+public fun RemoteBrush.Companion.sweepGradient(
     colors: List<Color>,
     center: Offset = Offset.Unspecified,
 ): RemoteSweepGradient = RemoteSweepGradient(colors = colors, stops = null, center = center)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-data class RemoteSweepGradient(
+public data class RemoteSweepGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val center: Offset,

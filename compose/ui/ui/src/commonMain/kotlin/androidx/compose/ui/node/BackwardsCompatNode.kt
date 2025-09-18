@@ -163,30 +163,28 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         if (element is RemeasurementModifier) {
             element.onRemeasurementAvailable(requireLayoutNode())
         }
-        if (isKind(Nodes.LayoutAware)) {
-            if (element is OnRemeasuredModifier) {
-                // if the modifier was added but layout has already happened and might not change,
-                // we want to call remeasured in case layout doesn't happen again
-                val isChainUpdate = isChainUpdate()
-                if (isChainUpdate) {
-                    requireLayoutNode().invalidateMeasurements()
-                }
+        if (isKind(Nodes.OnRemeasured) && element is OnRemeasuredModifier) {
+            // if the modifier was added but layout has already happened and might not change,
+            // we want to call remeasured in case layout doesn't happen again
+            val isChainUpdate = isChainUpdate()
+            if (isChainUpdate) {
+                requireLayoutNode().invalidateMeasurements()
             }
-            if (element is OnPlacedModifier) {
-                lastOnPlacedCoordinates = null
-                val isChainUpdate = isChainUpdate()
-                if (isChainUpdate) {
-                    requireOwner()
-                        .registerOnLayoutCompletedListener(
-                            object : Owner.OnLayoutCompletedListener {
-                                override fun onLayoutComplete() {
-                                    if (lastOnPlacedCoordinates == null) {
-                                        onPlaced(requireCoordinator(Nodes.LayoutAware))
-                                    }
+        }
+        if (isKind(Nodes.OnPlaced) && element is OnPlacedModifier) {
+            lastOnPlacedCoordinates = null
+            val isChainUpdate = isChainUpdate()
+            if (isChainUpdate) {
+                requireOwner()
+                    .registerOnLayoutCompletedListener(
+                        object : Owner.OnLayoutCompletedListener {
+                            override fun onLayoutComplete() {
+                                if (lastOnPlacedCoordinates == null) {
+                                    onPlaced(requireCoordinator(Nodes.OnPlaced))
                                 }
                             }
-                        )
-                }
+                        }
+                    )
             }
         }
         if (isKind(Nodes.GlobalPositionAware)) {
@@ -221,7 +219,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override val size: Size
         get() {
-            return requireCoordinator(Nodes.LayoutAware).size.toSize()
+            return requireCoordinator(Nodes.OnRemeasured).size.toSize()
         }
 
     // Flag to determine if the cache should be re-built

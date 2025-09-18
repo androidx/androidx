@@ -27,9 +27,9 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation3.runtime.DecoratedNavEntryProvider
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.samples.ListDetailNavDisplay.IS_SUPPORTING_PANE
 
 object ListDetailNavDisplay {
@@ -51,33 +51,32 @@ fun <T : Any> ListDetailNavDisplay(
 ) {
     val isSinglePaneLayout = (windowWidthSizeClass == WindowWidthSizeClass.Compact)
     BackHandler(isSinglePaneLayout && backstack.size > 1, onBack)
-    DecoratedNavEntryProvider(backstack, entryProvider, entryDecorators) { entries ->
-        val lastEntry = entries.last()
-        if (isSinglePaneLayout) {
-            Box(modifier = modifier) { lastEntry.Content() }
-        } else {
-            Row {
-                var rightEntry: NavEntry<T>? = null
-                val leftEntry: NavEntry<T>?
-                val isSupportingPane = lastEntry.metadata[IS_SUPPORTING_PANE]?.equals(true) ?: false
-                if (isSupportingPane) {
-                    // Display the penultimate entry in the left pane
-                    leftEntry = entries[entries.size - 2]
-                    // Display the last entry in the right pane
-                    rightEntry = lastEntry
+    val entries = rememberDecoratedNavEntries(backstack, entryDecorators, entryProvider)
+    val lastEntry = entries.last()
+    if (isSinglePaneLayout) {
+        Box(modifier = modifier) { lastEntry.Content() }
+    } else {
+        Row {
+            var rightEntry: NavEntry<T>? = null
+            val leftEntry: NavEntry<T>?
+            val isSupportingPane = lastEntry.metadata[IS_SUPPORTING_PANE]?.equals(true) ?: false
+            if (isSupportingPane) {
+                // Display the penultimate entry in the left pane
+                leftEntry = entries[entries.size - 2]
+                // Display the last entry in the right pane
+                rightEntry = lastEntry
+            } else {
+                // Display the last entry in the left pane
+                leftEntry = lastEntry
+            }
+            // Left pane
+            Box(modifier = modifier.fillMaxWidth(0.5F)) { leftEntry.Content() }
+            // Right pane
+            Box(modifier = modifier.fillMaxWidth()) {
+                if (rightEntry == null) {
+                    Text("Please select an item")
                 } else {
-                    // Display the last entry in the left pane
-                    leftEntry = lastEntry
-                }
-                // Left pane
-                Box(modifier = modifier.fillMaxWidth(0.5F)) { leftEntry.Content() }
-                // Right pane
-                Box(modifier = modifier.fillMaxWidth()) {
-                    if (rightEntry == null) {
-                        Text("Please select an item")
-                    } else {
-                        rightEntry.Content()
-                    }
+                    rightEntry.Content()
                 }
             }
         }

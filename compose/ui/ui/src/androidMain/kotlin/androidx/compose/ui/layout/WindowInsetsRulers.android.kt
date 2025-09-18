@@ -17,7 +17,6 @@
 
 package androidx.compose.ui.layout
 
-import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
@@ -27,7 +26,6 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectList
 import androidx.collection.MutableScatterMap
 import androidx.collection.ScatterMap
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -37,7 +35,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.CaptionBar
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.DisplayCutout
@@ -48,14 +45,9 @@ import androidx.compose.ui.layout.WindowInsetsRulers.Companion.StatusBars
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.SystemGestures
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.TappableElement
 import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Waterfall
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.Nodes
-import androidx.compose.ui.node.TraversableNode
-import androidx.compose.ui.node.requestRemeasure
 import androidx.compose.ui.platform.AndroidComposeView
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.core.view.OnApplyWindowInsetsListener
@@ -89,12 +81,39 @@ internal class WindowWindowInsetsAnimationValues(name: String) : PlatformWindowI
     var targetValueInsets = UnsetValueInsets
 }
 
+internal fun RulerScope.provideWindowInsetsRulers(rulerProvider: WindowInsetsRulerProvider) {
+    val size = coordinates.size
+    val insetsValues = rulerProvider.insetsListener.insetsValues
+    val (width, height) = size
+    AnimatableInsetsRulers.forEach { rulers ->
+        val values = insetsValues[rulers]!!
+        provideInsetsValues(rulers.current, values.current, width, height)
+        if (values.isAnimating) {
+            provideInsetsValues(values.source, values.sourceValueInsets, width, height)
+            provideInsetsValues(values.target, values.targetValueInsets, width, height)
+        }
+        provideInsetsValues(rulers.maximum, values.maximum, width, height)
+    }
+    val cutoutRects = rulerProvider.cutoutRects
+    if (cutoutRects.isNotEmpty()) {
+        val cutoutRulers = rulerProvider.cutoutRulers
+        cutoutRects.forEachIndexed { index, rectState ->
+            val rulers = cutoutRulers[index]
+            val rect = rectState.value
+            rulers.left provides rect.left.toFloat()
+            rulers.top provides rect.top.toFloat()
+            rulers.right provides rect.right.toFloat()
+            rulers.bottom provides rect.bottom.toFloat()
+        }
+    }
+}
+
 internal actual fun findDisplayCutouts(placementScope: Placeable.PlacementScope): List<RectRulers> {
     var node = placementScope.coordinates?.findRootCoordinates() as? NodeCoordinator
     while (node != null) {
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
-                return (traversableNode as RulerProviderModifierNode).cutoutRulers
+                return (traversableNode as WindowInsetsRulerProvider).cutoutRulers
             }
         }
         node = node.wrapped
@@ -110,7 +129,7 @@ internal actual fun findInsetsAnimationProperties(
     while (node != null) {
         node.visitNodes(Nodes.Traversable) { traversableNode ->
             if (traversableNode.traverseKey === RulerKey) {
-                return (traversableNode as RulerProviderModifierNode)
+                return (traversableNode as WindowInsetsRulerProvider)
                     .insetsValues[windowInsetsRulers] ?: NoWindowInsetsAnimation
             }
         }
@@ -119,102 +138,16 @@ internal actual fun findInsetsAnimationProperties(
     return NoWindowInsetsAnimation // nothing set
 }
 
-/** Applies the rulers for window insets. */
-internal fun Modifier.applyWindowInsetsRulers(insetsListener: InsetsListener) =
-    this.then(RulerProviderModifierElement(insetsListener))
+internal const val RulerKey = "androidx.compose.ui.layout.WindowInsetsRulers"
 
-/** [ModifierNodeElement] that provides all [RectRulers] except for [Ime]. */
-@SuppressLint("ModifierNodeInspectableProperties")
-private class RulerProviderModifierElement(val insetsListener: InsetsListener) :
-    ModifierNodeElement<RulerProviderModifierNode>() {
-    override fun create(): RulerProviderModifierNode = RulerProviderModifierNode(insetsListener)
-
-    override fun hashCode(): Int = insetsListener.hashCode()
-
-    override fun equals(other: Any?): Boolean {
-        if (other === this) {
-            return true
-        }
-        return (other as? RulerProviderModifierElement)?.insetsListener === insetsListener
-    }
-
-    override fun update(node: RulerProviderModifierNode) {
-        node.insetsListener = insetsListener
-    }
-}
-
-private const val RulerKey = "androidx.compose.ui.layout.WindowInsetsRulers"
-
-/**
- * [Modifier.Node] that provides all [RectRulers] except for [Ime] and other Rulers animated with
- * the IME. The private [WindowWindowInsetsAnimationValues] are provided as a [TraversableNode].
- */
-private class RulerProviderModifierNode(insetsListener: InsetsListener) :
-    Modifier.Node(), LayoutModifierNode, TraversableNode {
+internal interface WindowInsetsRulerProvider {
     val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>
-        get() = insetsListener.insetsValues
-
-    val generation: MutableIntState
-        get() = insetsListener.generation
-
-    var previousGeneration = -1
-
-    val cutoutRects: MutableObjectList<MutableState<Rect>>
-        get() = insetsListener.displayCutouts
 
     val cutoutRulers: List<RectRulers>
-        get() = insetsListener.displayCutoutRulers
 
-    var insetsListener: InsetsListener = insetsListener
-        set(value) {
-            if (field !== value) {
-                field = value
-                requestRemeasure()
-            }
-        }
+    val insetsListener: InsetsListener
 
-    val rulerLambda: RulerScope.() -> Unit = {
-        previousGeneration = generation.intValue // just read the value so it is observed
-        // When generation is 0, no updateInsets() has been called yet, so we don't need to
-        // provide any insets.
-        if (previousGeneration > 0) {
-            val size = coordinates.size
-            val insetsValues = insetsListener.insetsValues
-            val (width, height) = size
-            AnimatableInsetsRulers.forEach { rulers ->
-                val values = insetsValues[rulers]!!
-                provideInsetsValues(rulers.current, values.current, width, height)
-                if (values.isAnimating) {
-                    provideInsetsValues(values.source, values.sourceValueInsets, width, height)
-                    provideInsetsValues(values.target, values.targetValueInsets, width, height)
-                }
-                provideInsetsValues(rulers.maximum, values.maximum, width, height)
-            }
-            if (cutoutRects.isNotEmpty()) {
-                cutoutRects.forEachIndexed { index, rectState ->
-                    val rulers = cutoutRulers[index]
-                    val rect = rectState.value
-                    rulers.left provides rect.left.toFloat()
-                    rulers.top provides rect.top.toFloat()
-                    rulers.right provides rect.right.toFloat()
-                    rulers.bottom provides rect.bottom.toFloat()
-                }
-            }
-        }
-    }
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val placeable = measurable.measure(constraints)
-        val width = placeable.width
-        val height = placeable.height
-        return layout(width, height, rulers = rulerLambda) { placeable.place(0, 0) }
-    }
-
-    override val traverseKey: Any
-        get() = RulerKey
+    val cutoutRects: MutableObjectList<MutableState<Rect>>
 }
 
 /** Provide values for a [RectRulers]. */

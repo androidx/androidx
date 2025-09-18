@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** The standard interface to Easing functions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class Easing {
     int mType;
 

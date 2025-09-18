@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_CALENDAR_MONTH
@@ -38,6 +41,7 @@ public fun RemoteComposeWriter.rf(v: Number): RFloat {
     return RFloat(this, v.toFloat())
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RFloat : Number {
     public var array: FloatArray = floatArrayOf()
     public var id: Float = 0f // if 0 it has not been sent

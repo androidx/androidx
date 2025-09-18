@@ -424,16 +424,23 @@ public final class androidx/compose/ui/autofill/ContentType$Companion {
 }
 
 public abstract interface class androidx/compose/ui/autofill/FillableData {
+	public static final field Companion Landroidx/compose/ui/autofill/FillableData$Companion;
 	public fun getBooleanValue ()Ljava/lang/Boolean;
+	public fun getDateMillisOrDefault (J)J
+	public fun getDateMillisValue ()Ljava/lang/Long;
 	public fun getListIndexOrDefault (I)I
 	public fun getListIndexValue ()Ljava/lang/Integer;
 	public fun getTextValue ()Ljava/lang/CharSequence;
 }
 
+public final class androidx/compose/ui/autofill/FillableData$Companion {
+}
+
 public final class androidx/compose/ui/autofill/FillableDataKt {
-	public static final fun FillableData (I)Landroidx/compose/ui/autofill/FillableData;
-	public static final fun FillableData (Ljava/lang/CharSequence;)Landroidx/compose/ui/autofill/FillableData;
-	public static final fun FillableData (Z)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;I)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;J)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;Ljava/lang/CharSequence;)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;Z)Landroidx/compose/ui/autofill/FillableData;
 }
 
 public final class androidx/compose/ui/awt/AwtEvents_desktopKt {
@@ -2552,6 +2559,10 @@ public final class androidx/compose/ui/layout/BeyondBoundsLayoutKt {
 	public static final fun getModifierLocalBeyondBoundsLayout ()Landroidx/compose/ui/modifier/ProvidableModifierLocal;
 }
 
+public abstract interface class androidx/compose/ui/layout/BeyondBoundsLayoutProviderModifierNode : androidx/compose/ui/node/DelegatableNode {
+	public abstract fun getBeyondBoundsLayout ()Landroidx/compose/ui/layout/BeyondBoundsLayout;
+}
+
 public final class androidx/compose/ui/layout/ComposableSingletons$SubcomposeLayoutKt {
 	public static final field INSTANCE Landroidx/compose/ui/layout/ComposableSingletons$SubcomposeLayoutKt;
 	public fun <init> ()V
@@ -3312,8 +3323,9 @@ public abstract interface class androidx/compose/ui/node/DelegatableNode$Registr
 
 public final class androidx/compose/ui/node/DelegatableNodeKt {
 	public static final fun dispatchOnScrollChanged-Uv8p0NA (Landroidx/compose/ui/node/DelegatableNode;J)V
+	public static final fun findNearestBeyondBoundsLayoutAncestor (Landroidx/compose/ui/node/DelegatableNode;)Landroidx/compose/ui/layout/BeyondBoundsLayout;
 	public static final fun invalidateDrawForSubtree (Landroidx/compose/ui/node/DelegatableNode;)V
-	public static final fun invalidateLayoutForSubtree (Landroidx/compose/ui/node/DelegatableNode;)V
+	public static final fun invalidateMeasurementForSubtree (Landroidx/compose/ui/node/DelegatableNode;)V
 	public static final fun invalidateSubtree (Landroidx/compose/ui/node/DelegatableNode;)V
 	public static final fun requestAutofill (Landroidx/compose/ui/node/DelegatableNode;)V
 	public static final fun requireDensity (Landroidx/compose/ui/node/DelegatableNode;)Landroidx/compose/ui/unit/Density;
@@ -3808,6 +3820,7 @@ public final class androidx/compose/ui/platform/ViewConfiguration$DefaultImpls {
 }
 
 public abstract interface class androidx/compose/ui/platform/WindowInfo {
+	public fun getContainerDpSize-MYxV2XQ ()J
 	public fun getContainerSize-YbymL2g ()J
 	public fun getKeyboardModifiers-k7X9c1A ()I
 	public abstract fun isWindowFocused ()Z

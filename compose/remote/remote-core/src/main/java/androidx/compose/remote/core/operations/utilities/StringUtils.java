@@ -15,11 +15,14 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
 /** Utilities for string manipulation */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StringUtils {
 
     private StringUtils() {}

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw an Arc command the specified arc, will be scaled to fit inside the specified oval. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawArc extends DrawBase6 {
     private static final int OP_CODE = Operations.DRAW_ARC;
     private static final String CLASS_NAME = "DrawArc";

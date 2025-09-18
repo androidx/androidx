@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw bitmap font text on a path. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawBitmapFontTextOnPath extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH;
     private static final String CLASS_NAME = "DrawBitmapFontTextOnPath";

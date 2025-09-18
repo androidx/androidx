@@ -24,7 +24,6 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
@@ -48,7 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import java.io.ByteArrayInputStream
 
-data class Connection(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class Connection(
     val width: Int = Resources.getSystem().displayMetrics.widthPixels,
     val height: Int = Resources.getSystem().displayMetrics.heightPixels,
     val density: Int = Resources.getSystem().displayMetrics.densityDpi,
@@ -58,7 +58,7 @@ data class Connection(
 }
 
 @Composable
-fun rememberRemoteDocument(
+public fun rememberRemoteDocument(
     size: Size = displaySize(),
     onCreate: ((CoreDocument) -> Unit)? = null,
     content: @Composable () -> Unit,
@@ -67,7 +67,7 @@ fun rememberRemoteDocument(
 }
 
 @Composable
-fun rememberRemoteDocument(
+public fun rememberRemoteDocument(
     size: Size = displaySize(),
     onCreate: ((CoreDocument) -> Unit)? = null,
     apiLevel: Int,
@@ -107,7 +107,7 @@ fun rememberRemoteDocument(
 }
 
 @Composable
-fun rememberAsyncRemoteDocument(
+public fun rememberAsyncRemoteDocument(
     size: Size = displaySize(),
     content: @Composable (MutableState<Boolean>) -> Unit,
 ): MutableState<CoreDocument?> {
@@ -115,7 +115,7 @@ fun rememberAsyncRemoteDocument(
 }
 
 @Composable
-fun rememberAsyncRemoteDocument(
+public fun rememberAsyncRemoteDocument(
     size: Size = displaySize(),
     apiLevel: Int,
     profiles: Int,
@@ -153,7 +153,7 @@ fun rememberAsyncRemoteDocument(
 }
 
 @Composable
-fun displaySize(): Size {
+public fun displaySize(): Size {
     return with(LocalDensity.current) {
         DpSize(
                 LocalConfiguration.current.screenWidthDp.dp,
@@ -168,16 +168,19 @@ fun displaySize(): Size {
  * The remoteComposeExecution() function will run inside a CaptureComposeView, capturing its output
  * via a RecordingCanvas
  */
-class RemoteComposeCapture(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeCapture(
     context: Context,
     connection: Connection,
-    val immediateCapture: Boolean = true,
-    val onPaint: (View, RemoteComposeWriter) -> Boolean,
-    val onCaptureReady: @Composable () -> Unit,
-    val apiLevel: Int,
-    val profiles: Int,
-    val content: @Composable () -> Unit,
-    val remoteComposeExecution: @Composable (CaptureComposeView, @Composable () -> Unit) -> Unit =
+    public val immediateCapture: Boolean = true,
+    public val onPaint: (View, RemoteComposeWriter) -> Boolean,
+    public val onCaptureReady: @Composable () -> Unit,
+    public val apiLevel: Int,
+    public val profiles: Int,
+    public val content: @Composable () -> Unit,
+    public val remoteComposeExecution:
+        @Composable
+        (CaptureComposeView, @Composable () -> Unit) -> Unit =
         { captureComposeView, contentWrapper ->
             RemoteComposeExecution(
                 captureComposeView,
@@ -188,7 +191,7 @@ class RemoteComposeCapture(
             )
         },
 ) {
-    constructor(
+    public constructor(
         context: Context,
         connection: Connection,
         immediateCapture: Boolean = true,
@@ -211,7 +214,7 @@ class RemoteComposeCapture(
             },
     )
 
-    fun newSize(width: Int, height: Int) {
+    public fun newSize(width: Int, height: Int) {
         resizableLayout.layoutParams = FrameLayout.LayoutParams(width, height)
     }
 
@@ -242,7 +245,7 @@ class RemoteComposeCapture(
 }
 
 @Composable
-fun RemoteComposeExecution(
+public fun RemoteComposeExecution(
     captureComposeView: CaptureComposeView,
     size: Size,
     apiLevel: Int,
@@ -263,7 +266,7 @@ fun RemoteComposeExecution(
 }
 
 @Composable
-fun RemoteComposeExecution(
+public fun RemoteComposeExecution(
     captureComposeView: CaptureComposeView,
     size: Size,
     profile: Profile,
@@ -285,7 +288,7 @@ fun RemoteComposeExecution(
  * Record a RemoteComposeDocument from a composable function without creating a SecondaryDisplay.
  */
 @Composable
-fun RememberRemoteDocumentInline(
+public fun RememberRemoteDocumentInline(
     profile: Profile = PlatformProfile.ANDROIDX,
     onDocument: (CoreDocument) -> Unit,
     content: @RemoteComposable @Composable () -> Unit,

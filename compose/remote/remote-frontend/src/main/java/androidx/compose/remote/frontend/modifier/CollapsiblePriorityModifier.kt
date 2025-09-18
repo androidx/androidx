@@ -18,14 +18,16 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-class CollapsiblePriorityModifier(val orientation: Int, val priority: RemoteFloat) :
-    RemoteLayoutModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CollapsiblePriorityModifier(
+    public val orientation: Int,
+    public val priority: RemoteFloat,
+) : RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.CollapsiblePriorityModifier(

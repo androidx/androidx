@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
@@ -25,6 +26,7 @@ import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import org.jspecify.annotations.NonNull;
 
 /** Helper class to set the min / max dimension on a component */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class DimensionInModifierOperation extends Operation
         implements ModifierOperation, VariableSupport {
     int mOpCode = -1;

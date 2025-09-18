@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -333,6 +334,58 @@ class LayoutCoordinatesHelperTest {
         rule.setContent { Box(Modifier.fillMaxSize().then(modifier)) }
 
         rule.runOnIdle { assertThat(coords.size).isEqualTo(IntSize(50, 50)) }
+    }
+
+    @Test
+    fun addingOnPlacedModifierDoesntRequireRemeasure() {
+        with(rule.density) {
+            val size = 10
+            var actualSize: Int = Int.MAX_VALUE
+            var remeasureCount = 0
+            val layoutModifier =
+                Modifier.layout { measurable, constraints ->
+                    val placeable = measurable.measure(Constraints.fixed(size, size))
+                    remeasureCount++
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                }
+            var onPlacedModifier by mutableStateOf<Modifier>(Modifier)
+            rule.setContent { Box(layoutModifier.then(onPlacedModifier)) }
+
+            rule.runOnIdle {
+                remeasureCount = 0
+                onPlacedModifier = Modifier.onPlaced { actualSize = it.size.width }
+            }
+
+            rule.runOnIdle {
+                assertThat(actualSize).isEqualTo(size)
+                assertThat(remeasureCount).isEqualTo(0)
+            }
+        }
+    }
+
+    @Test
+    fun onPlacedIsReExecutedOnReuse() {
+        with(rule.density) {
+            val size = 10
+            var actualSize: Int = Int.MAX_VALUE
+            var reuseKey by mutableStateOf(0)
+            rule.setContent {
+                ReusableContent(reuseKey) {
+                    Box(
+                        Modifier.size(size.toDp(), size.toDp()).onPlaced {
+                            actualSize = it.size.width
+                        }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                actualSize = Int.MAX_VALUE
+                reuseKey++
+            }
+
+            rule.runOnIdle { assertThat(actualSize).isEqualTo(size) }
+        }
     }
 
     @Test

@@ -47,11 +47,13 @@ class PokedexTransitionBenchmark(
     val enableSharedTransitionScope: Boolean,
     val enableSharedElementTransitions: Boolean,
 ) {
-    val benchmarkRule = MacrobenchmarkRule()
+    private val benchmarkRule = MacrobenchmarkRule()
+
+    private val databaseCleanupRule = PokedexDatabaseCleanupRule()
 
     @get:Rule
     val pokedexBenchmarkRuleChain: RuleChain =
-        RuleChain.outerRule(PokedexDatabaseCleanupRule()).around(benchmarkRule)
+        RuleChain.outerRule(databaseCleanupRule).around(benchmarkRule)
 
     private val FirstPokemonToClickOn = "Ablazeon"
     private val SecondPokemonToClickOn = "Astrobat"
@@ -65,6 +67,10 @@ class PokedexTransitionBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
+                device.pressHome()
+                device.waitForIdle()
+                databaseCleanupRule.deleteDatabaseFiles()
+
                 val intent = Intent()
                 intent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY"
                 intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
@@ -107,6 +113,10 @@ class PokedexTransitionBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
+                device.pressHome()
+                device.waitForIdle()
+                databaseCleanupRule.deleteDatabaseFiles()
+
                 val intent = Intent()
                 intent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY"
                 intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
@@ -152,6 +162,7 @@ class PokedexTransitionBenchmark(
             device.waitForTransitionStatus(name = "details", active = true)
         }
         device.waitForTransitionStatus(name = "details", active = false)
+        device.waitForIdle()
 
         if (waitForProgressBarAnimation) {
             device.waitOrThrow(

@@ -10,7 +10,8 @@ public final class androidx/navigationevent/compose/NavigationEventDispatcherOwn
 }
 
 public final class androidx/navigationevent/compose/NavigationEventHandlerKt {
-	public static final fun NavigationEventHandler (Landroidx/navigationevent/NavigationEventInfo;Landroidx/navigationevent/NavigationEventInfo;ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
-	public static final fun NavigationEventHandler (ZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavigationBackHandler (Landroidx/navigationevent/NavigationEventInfo;Ljava/util/List;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavigationEventHandler (Landroidx/navigationevent/NavigationEventInfo;Ljava/util/List;Ljava/util/List;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavigationForwardHandler (Landroidx/navigationevent/NavigationEventInfo;Ljava/util/List;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 }
 

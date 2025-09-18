@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.clickable
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.action.Action
@@ -26,7 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 
-class ClickActionModifier(val actions: List<Action>) : RemoteModifier.Element {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ClickActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.ClickActionModifier(
             actions.map { it.toRemoteAction() }
@@ -42,11 +42,17 @@ class ClickActionModifier(val actions: List<Action>) : RemoteModifier.Element {
 }
 
 // TODO provide an onClickLabel
-fun RemoteModifier.onClick(vararg actions: Action, role: Role? = Role.Button): RemoteModifier =
+public fun RemoteModifier.onClick(
+    vararg actions: Action,
+    role: Role? = Role.Button,
+): RemoteModifier =
     then(ClickActionModifier(actions.toList()))
         .then(if (role != null) RemoteModifier.semantics { this.role = role } else RemoteModifier)
 
 // TODO provide an onClickLabel
-fun RemoteModifier.onClick(actions: List<Action>, role: Role? = Role.Button): RemoteModifier =
+public fun RemoteModifier.onClick(
+    actions: List<Action>,
+    role: Role? = Role.Button,
+): RemoteModifier =
     then(ClickActionModifier(actions))
         .then(if (role != null) RemoteModifier.semantics { this.role = role } else RemoteModifier)

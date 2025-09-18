@@ -47,11 +47,12 @@ class PokedexScrollBenchmark(
     val enableSharedTransitionScope: Boolean,
     val enableSharedElementTransitions: Boolean,
 ) {
-    val benchmarkRule = MacrobenchmarkRule()
+    private val benchmarkRule = MacrobenchmarkRule()
+    private val databaseCleanupRule = PokedexDatabaseCleanupRule()
 
     @get:Rule
     val pokedexBenchmarkRuleChain: RuleChain =
-        RuleChain.outerRule(PokedexDatabaseCleanupRule()).around(benchmarkRule)
+        RuleChain.outerRule(databaseCleanupRule).around(benchmarkRule)
 
     @Test
     fun scrollHomeCompose() =
@@ -100,6 +101,10 @@ class PokedexScrollBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
+                device.pressHome()
+                device.waitForIdle()
+                databaseCleanupRule.deleteDatabaseFiles()
+
                 val intent = Intent()
                 intent.action = action
                 intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)

@@ -611,6 +611,393 @@ Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 1
             )
     }
 
+    @Test
+    fun testRetainKeyContext() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import android.app.Activity
+                import android.content.Context
+                import android.content.ContextWrapper
+                import android.view.View
+                import android.view.TextView
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+
+                @Composable
+                fun Test(context: Context) {
+                    val foo = retain(context) { 42 }
+                }
+            """
+                ),
+                RetainStub,
+                Stubs.Composable,
+                *contextStubs.toTypedArray(),
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/test.kt:14: Error: Retaining a key of type android.content.Context will leak a Context reference. [RetainLeaksContext]
+                    val foo = retain(context) { 42 }
+                              ~~~~~~
+1 error
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/test.kt line 14: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -14 +15 @@
+-                    val foo = retain(context) { 42 }
++                    val foo = remember(context) { 42 }
+            """
+            )
+    }
+
+    @Test
+    fun testRetainKeyContextDescendant() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import android.app.Activity
+                import android.content.Context
+                import android.content.ContextWrapper
+                import android.view.View
+                import android.view.TextView
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+
+                @Composable
+                fun Test(context: Activity) {
+                    val foo = retain(context) { 42 }
+                }
+            """
+                ),
+                RetainStub,
+                Stubs.Composable,
+                *contextStubs.toTypedArray(),
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/test.kt:14: Error: Retaining a key of type android.app.Activity will leak a Context reference. [RetainLeaksContext]
+                    val foo = retain(context) { 42 }
+                              ~~~~~~
+1 error
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/test.kt line 14: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -14 +15 @@
+-                    val foo = retain(context) { 42 }
++                    val foo = remember(context) { 42 }
+            """
+            )
+    }
+
+    @Test
+    fun testRetainKeyView() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import android.app.Activity
+                import android.content.Context
+                import android.content.ContextWrapper
+                import android.view.View
+                import android.view.TextView
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+
+                @Composable
+                fun Test() {
+                    val retain: View? = null
+                    val foo = retain(retain) { 42 }
+                    val bar = retain(TextView()) { 42 }
+                }
+            """
+                ),
+                RetainStub,
+                Stubs.Composable,
+                *contextStubs.toTypedArray(),
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/test.kt:15: Error: Retaining a key of type android.view.View will leak a Context reference. [RetainLeaksContext]
+                    val foo = retain(retain) { 42 }
+                              ~~~~~~
+src/androidx/compose/runtime/foo/test.kt:16: Error: Retaining a key of type android.view.TextView will leak a Context reference. [RetainLeaksContext]
+                    val bar = retain(TextView()) { 42 }
+                              ~~~~~~
+2 errors
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/test.kt line 15: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -15 +16 @@
+-                    val foo = retain(retain) { 42 }
++                    val foo = remember(retain) { 42 }
+Autofix for src/androidx/compose/runtime/foo/test.kt line 16: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -16 +17 @@
+-                    val bar = retain(TextView()) { 42 }
++                    val bar = remember(TextView()) { 42 }
+            """
+            )
+    }
+
+    @Test
+    fun testRetainKeyCollectionOfContextLeaks() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import android.app.Activity
+                import android.content.Context
+                import android.content.ContextWrapper
+                import android.view.View
+                import android.view.TextView
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+
+                @Composable
+                fun Test() {
+                    val contextList = retain(listOf<Context>()) { 42 }
+                    val contextDerivedMap = retain(mapOf<String, ContextWrapper>()) { 42 }
+                    val viewSet = retain(setOf<View>()) { 42 }
+                }
+            """
+                ),
+                RetainStub,
+                Stubs.Composable,
+                *contextStubs.toTypedArray(),
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/test.kt:14: Error: Retaining a key of type java.util.List<? extends android.content.Context> will leak a Context reference. [RetainLeaksContext]
+                    val contextList = retain(listOf<Context>()) { 42 }
+                                      ~~~~~~
+src/androidx/compose/runtime/foo/test.kt:15: Error: Retaining a key of type java.util.Map<java.lang.String,? extends android.content.ContextWrapper> will leak a Context reference. [RetainLeaksContext]
+                    val contextDerivedMap = retain(mapOf<String, ContextWrapper>()) { 42 }
+                                            ~~~~~~
+src/androidx/compose/runtime/foo/test.kt:16: Error: Retaining a key of type java.util.Set<? extends android.view.View> will leak a Context reference. [RetainLeaksContext]
+                    val viewSet = retain(setOf<View>()) { 42 }
+                                  ~~~~~~
+3 errors
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/test.kt line 14: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -14 +15 @@
+-                    val contextList = retain(listOf<Context>()) { 42 }
++                    val contextList = remember(listOf<Context>()) { 42 }
+Autofix for src/androidx/compose/runtime/foo/test.kt line 15: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -15 +16 @@
+-                    val contextDerivedMap = retain(mapOf<String, ContextWrapper>()) { 42 }
++                    val contextDerivedMap = remember(mapOf<String, ContextWrapper>()) { 42 }
+Autofix for src/androidx/compose/runtime/foo/test.kt line 16: Replace with `remember`:
+@@ -10 +10,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -16 +17 @@
+-                    val viewSet = retain(setOf<View>()) { 42 }
++                    val viewSet = remember(setOf<View>()) { 42 }
+            """
+            )
+    }
+
+    @Test
+    fun testRetainKeyMarkedType() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+                import androidx.compose.runtime.annotation.DoNotRetain
+
+                @Composable
+                fun Test() {
+                    val foo = retain(UnretainableTypeWithCause()) { 42 }
+                    val bar = retain(UnretainableTypeWithoutCause()) { 42 }
+                    val baz = retain(SubclassOfUnretainableType()) { 42 }
+                }
+
+                @DoNotRetain("Unretainable for testing")
+                open class UnretainableTypeWithCause()
+
+                @DoNotRetain
+                class UnretainableTypeWithoutCause()
+
+                class SubclassOfUnretainableType() : UnretainableTypeWithCause()
+            """
+                ),
+                RetainStub,
+                DoNotRetainStub,
+                Stubs.Composable,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:10: Error: Key type androidx.compose.runtime.foo.UnretainableTypeWithCause is annotated as @DoNotRetain: Unretainable for testing [RetainingDoNotRetainType]
+                    val foo = retain(UnretainableTypeWithCause()) { 42 }
+                              ~~~~~~
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:11: Error: Key type androidx.compose.runtime.foo.UnretainableTypeWithoutCause is annotated as @DoNotRetain [RetainingDoNotRetainType]
+                    val bar = retain(UnretainableTypeWithoutCause()) { 42 }
+                              ~~~~~~
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:12: Error: Key type androidx.compose.runtime.foo.SubclassOfUnretainableType is annotated as @DoNotRetain: Unretainable for testing [RetainingDoNotRetainType]
+                    val baz = retain(SubclassOfUnretainableType()) { 42 }
+                              ~~~~~~
+3 errors
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 10: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -10 +11 @@
+-                    val foo = retain(UnretainableTypeWithCause()) { 42 }
++                    val foo = remember(UnretainableTypeWithCause()) { 42 }
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 11: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -11 +12 @@
+-                    val bar = retain(UnretainableTypeWithoutCause()) { 42 }
++                    val bar = remember(UnretainableTypeWithoutCause()) { 42 }
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 12: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -12 +13 @@
+-                    val baz = retain(SubclassOfUnretainableType()) { 42 }
++                    val baz = remember(SubclassOfUnretainableType()) { 42 }
+            """
+            )
+    }
+
+    @Test
+    fun testRetainKeyCollectionOfMarkedType() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.runtime.foo
+
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.retain
+                import androidx.compose.runtime.annotation.DoNotRetain
+
+                @Composable
+                fun Test() {
+                    val foo = retain(listOf(UnretainableTypeWithCause())) { 42 }
+                    val bar = retain(mapOf("Bar" to UnretainableTypeWithoutCause())) { 42 }
+                    val baz = retain(SubclassOfUnretainableType() to 20) { 42 }
+                }
+
+                @DoNotRetain("Unretainable for testing")
+                open class UnretainableTypeWithCause()
+
+                @DoNotRetain
+                class UnretainableTypeWithoutCause()
+
+                class SubclassOfUnretainableType() : UnretainableTypeWithCause()
+            """
+                ),
+                RetainStub,
+                DoNotRetainStub,
+                Stubs.Composable,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:10: Error: Key type java.util.List<? extends androidx.compose.runtime.foo.UnretainableTypeWithCause> is annotated as @DoNotRetain: Unretainable for testing [RetainingDoNotRetainType]
+                    val foo = retain(listOf(UnretainableTypeWithCause())) { 42 }
+                              ~~~~~~
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:11: Error: Key type java.util.Map<java.lang.String,? extends androidx.compose.runtime.foo.UnretainableTypeWithoutCause> is annotated as @DoNotRetain [RetainingDoNotRetainType]
+                    val bar = retain(mapOf("Bar" to UnretainableTypeWithoutCause())) { 42 }
+                              ~~~~~~
+src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt:12: Error: Key type kotlin.Pair<? extends androidx.compose.runtime.foo.SubclassOfUnretainableType,? extends java.lang.Integer> is annotated as @DoNotRetain: Unretainable for testing [RetainingDoNotRetainType]
+                    val baz = retain(SubclassOfUnretainableType() to 20) { 42 }
+                              ~~~~~~
+3 errors
+            """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 10: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -10 +11 @@
+-                    val foo = retain(listOf(UnretainableTypeWithCause())) { 42 }
++                    val foo = remember(listOf(UnretainableTypeWithCause())) { 42 }
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 11: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -11 +12 @@
+-                    val bar = retain(mapOf("Bar" to UnretainableTypeWithoutCause())) { 42 }
++                    val bar = remember(mapOf("Bar" to UnretainableTypeWithoutCause())) { 42 }
+Autofix for src/androidx/compose/runtime/foo/UnretainableTypeWithCause.kt line 12: Replace with `remember`:
+@@ -5 +5,2 @@
+-                import androidx.compose.runtime.retain
++                import androidx.compose.runtime.remember
++import androidx.compose.runtime.retain
+@@ -12 +13 @@
+-                    val baz = retain(SubclassOfUnretainableType() to 20) { 42 }
++                    val baz = remember(SubclassOfUnretainableType() to 20) { 42 }
+            """
+            )
+    }
+
     companion object {
         val RetainStub: TestFile =
             bytecodeStub(

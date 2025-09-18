@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -38,6 +39,7 @@ import java.util.List;
  * [command][textId][before,after][flags] before and after define number of digits before and after
  * the decimal point
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextFromFloat extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.TEXT_FROM_FLOAT;
     private static final String CLASS_NAME = "TextFromFloat";

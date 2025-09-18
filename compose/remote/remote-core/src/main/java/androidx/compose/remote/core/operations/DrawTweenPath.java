@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawTweenPath extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.DRAW_TWEEN_PATH;
     private static final String CLASS_NAME = "DrawTweenPath";

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package androidx.compose.remote.core;
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 
 /** Base interface for RemoteCompose operations */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OperationInterface {
 
     /** add the operation to the buffer */

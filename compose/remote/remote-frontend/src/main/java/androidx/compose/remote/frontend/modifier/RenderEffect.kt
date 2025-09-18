@@ -18,9 +18,9 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.ui.graphics.RenderEffect
 
-abstract class RenderEffect {
-    abstract fun toComposeRenderEffect(): RenderEffect
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RenderEffect {
+    public abstract fun toComposeRenderEffect(): RenderEffect
 }

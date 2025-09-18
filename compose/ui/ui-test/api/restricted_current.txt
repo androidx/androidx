@@ -219,7 +219,6 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsMatcher isFocused();
     method public static androidx.compose.ui.test.SemanticsMatcher isHeading();
     method public static androidx.compose.ui.test.SemanticsMatcher isHiddenFromAccessibility();
-    method public static androidx.compose.ui.test.SemanticsMatcher isInHiddenAccessibilitySubtree();
     method public static androidx.compose.ui.test.SemanticsMatcher isNotEnabled();
     method public static androidx.compose.ui.test.SemanticsMatcher isNotFocusable();
     method public static androidx.compose.ui.test.SemanticsMatcher isNotFocused();

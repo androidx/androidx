@@ -64,6 +64,19 @@ internal interface FocusOwner : FocusManager {
     ): Boolean?
 
     /**
+     * Moves focus in the specified [direction][FocusDirection].
+     *
+     * @param focusDirection the direction to search for the next focus target.
+     * @param wrapAroundForOneDimensionalFocus Whether we should wrap focus around while performing
+     *   a one-dimensional focus search.
+     * @return true if focus was moved successfully. false if the focused item is unchanged.
+     */
+    fun moveFocus(
+        focusDirection: FocusDirection,
+        wrapAroundForOneDimensionalFocus: Boolean,
+    ): Boolean
+
+    /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it gains focus. This
      * informs the [focus manager][FocusOwnerImpl] that the [Owner][androidx.compose.ui.node.Owner]
      * gained focus, and that it should propagate this focus to one of the focus modifiers in the

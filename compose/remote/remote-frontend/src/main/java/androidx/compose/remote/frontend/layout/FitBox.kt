@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
 import androidx.compose.remote.frontend.capture.RecordingCanvas
@@ -34,7 +33,8 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 
 /** Utility modifier to record the layout information */
-class RemoteComposeFitBoxModifier(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeFitBoxModifier(
     private val modifier: RemoteModifier,
     private val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     private val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -63,7 +63,7 @@ class RemoteComposeFitBoxModifier(
  */
 @RemoteComposable
 @Composable
-fun FitBox(
+public fun FitBox(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,

@@ -18,13 +18,13 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.ui.graphics.TileMode
 
-class BlurEffect(
-    val radiusX: Float,
-    val radiusY: Float = radiusX,
-    val edgeTreatment: TileMode = TileMode.Clamp,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BlurEffect(
+    public val radiusX: Float,
+    public val radiusY: Float = radiusX,
+    public val edgeTreatment: TileMode = TileMode.Clamp,
 ) : RenderEffect() {
     override fun toComposeRenderEffect(): androidx.compose.ui.graphics.RenderEffect {
         return androidx.compose.ui.graphics.BlurEffect(radiusX, radiusY, edgeTreatment)

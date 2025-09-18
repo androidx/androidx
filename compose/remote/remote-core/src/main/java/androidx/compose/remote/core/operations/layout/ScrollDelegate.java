@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 /**
  * Represent scroll delegates components.
  *
  * <p>Components have scroll X & Y properties. We can inject a scroll delegate as a modifier (e.g. a
  * scrollView, a marquee...) to control the value of those properties.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ScrollDelegate {
 
     /**

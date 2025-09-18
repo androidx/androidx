@@ -15,10 +15,12 @@
  */
 package androidx.compose.remote.creation.actions;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueStringChange implements Action {
 
     int mValueId = -1;

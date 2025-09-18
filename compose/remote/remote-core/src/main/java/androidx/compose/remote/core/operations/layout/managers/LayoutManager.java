@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.layout.Component;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Base class for layout managers -- resizable components. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class LayoutManager extends LayoutComponent implements Measurable {
 
     @NonNull Size mCachedWrapSize = new Size(0f, 0f);

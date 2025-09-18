@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.Vector;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ListActionsOperation extends PaintOperation
         implements Container, ModifierOperation, DecoratorComponent {
 

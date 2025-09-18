@@ -22,12 +22,14 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Support RemoteCompose Paint creation */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Painter {
     @NonNull PaintBundle mPaint = new PaintBundle();
     @NonNull RemoteComposeWriter mBuilder;

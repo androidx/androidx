@@ -35,10 +35,13 @@ import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
+import androidx.compose.ui.layout.BeyondBoundsLayoutProviderModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
+import androidx.compose.ui.layout.OnPlacedNode
 import androidx.compose.ui.layout.OnRemeasuredModifier
+import androidx.compose.ui.layout.OnSizeChangedNode
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
@@ -62,12 +65,12 @@ internal inline infix fun Int.or(other: NodeKind<*>): Int = this or other.mask
 @Suppress("NOTHING_TO_INLINE")
 internal inline operator fun Int.contains(value: NodeKind<*>): Boolean = this and value.mask != 0
 
-// For a given NodeCoordinator, the "LayoutAware" nodes that it is concerned with should include
-// its own measureNode if the measureNode happens to implement LayoutAware. If the measureNode
-// implements any other node interfaces, such as draw, those should be visited by the coordinator
-// below them.
+// For a given NodeCoordinator, the "OnRemeasured" or "OnPlaced" nodes that it is concerned with
+// should include its own measureNode if the measureNode happens to implement "OnRemeasured" or
+// "OnPlaced". If the measureNode implements any other node interfaces, such as draw, those
+// should be visited by the coordinator below them.
 internal val NodeKind<*>.includeSelfInTraversal: Boolean
-    get() = mask and Nodes.LayoutAware.mask != 0
+    get() = (mask and Nodes.OnRemeasured.mask != 0) or (mask and Nodes.OnPlaced.mask != 0)
 
 // Note that these don't inherit from Modifier.Node to allow for a single Modifier.Node
 // instance to implement multiple Node interfaces
@@ -102,7 +105,7 @@ internal object Nodes {
         get() = NodeKind<ParentDataModifierNode>(0b1 shl 6)
 
     @JvmStatic
-    inline val LayoutAware
+    inline val OnRemeasured
         get() = NodeKind<LayoutAwareModifierNode>(0b1 shl 7)
 
     @JvmStatic
@@ -157,6 +160,14 @@ internal object Nodes {
     @OptIn(ExperimentalIndirectTouchTypeApi::class)
     inline val IndirectTouchInput
         get() = NodeKind<IndirectTouchInputModifierNode>(0b1 shl 21)
+
+    @JvmStatic
+    inline val OnPlaced
+        get() = NodeKind<LayoutAwareModifierNode>(0b1 shl 22)
+
+    @JvmStatic
+    inline val BeyondBoundsLayout
+        get() = NodeKind<BeyondBoundsLayoutProviderModifierNode>(0b1 shl 23)
     // ...
 }
 
@@ -191,8 +202,11 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     if (element is ParentDataModifier) {
         mask = mask or Nodes.ParentData
     }
-    if (element is OnPlacedModifier || element is OnRemeasuredModifier) {
-        mask = mask or Nodes.LayoutAware
+    if (element is OnPlacedModifier) {
+        mask = mask or Nodes.OnPlaced
+    }
+    if (element is OnRemeasuredModifier) {
+        mask = mask or Nodes.OnRemeasured
     }
     if (element is BringIntoViewModifierNode) {
         mask = mask or Nodes.BringIntoView
@@ -227,8 +241,15 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is ParentDataModifierNode) {
             mask = mask or Nodes.ParentData
         }
-        if (node is LayoutAwareModifierNode) {
-            mask = mask or Nodes.LayoutAware
+        // OnSizeChangedNode and OnPlacedNode implement the combined LayoutAwareModifierNode,
+        // But we know they only use one part of the interface, so we want to invalidate smarter.
+        if (node is OnPlacedNode) {
+            mask = mask or Nodes.OnPlaced
+        } else if (node is OnSizeChangedNode) {
+            mask = mask or Nodes.OnRemeasured
+        } else if (node is LayoutAwareModifierNode) {
+            mask = mask or Nodes.OnRemeasured
+            mask = mask or Nodes.OnPlaced
         }
         if (node is GlobalPositionAwareModifierNode) {
             mask = mask or Nodes.GlobalPositionAware
@@ -270,6 +291,10 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is IndirectTouchInputModifierNode) {
             mask = mask or Nodes.IndirectTouchInput
         }
+        if (node is BeyondBoundsLayoutProviderModifierNode) {
+            mask = mask or Nodes.BeyondBoundsLayout
+        }
+        // ...
         mask
     }
 }
@@ -321,11 +346,18 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
             coordinator.onRelease()
         }
     }
-    if (Nodes.LayoutAware in selfKindSet && node is LayoutAwareModifierNode) {
+    if (Nodes.OnRemeasured in selfKindSet) {
+        // No need to invalidate measurement when removing a LayoutAwareModifierNode,
+        // as these won't be invoked anyway
+        if (phase != Removed) {
+            node.requireLayoutNode().invalidateMeasurements()
+        }
+    }
+    if (Nodes.OnPlaced in selfKindSet) {
         // No need to invalidate layout when removing a LayoutAwareModifierNode, as these won't be
         // invoked anyway
         if (phase != Removed) {
-            node.requireLayoutNode().invalidateMeasurements()
+            node.requireLayoutNode().requestRelayout()
         }
     }
     if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {

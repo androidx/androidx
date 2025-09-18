@@ -18,7 +18,7 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
+import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
 import androidx.compose.remote.frontend.capture.RecordingCanvas
@@ -34,60 +34,61 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 
-class StateMachineSpec(var currentState: RemoteInt, var states: IntArray) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class StateMachineSpec(public var currentState: RemoteInt, public var states: IntArray) {
 
-    val statesNames = HashMap<String, Int>()
-    val values = HashMap<String, RemoteInt>()
+    public val statesNames: HashMap<String, Int> = HashMap<String, Int>()
+    public val values: HashMap<String, RemoteInt> = HashMap<String, RemoteInt>()
 
-    operator fun component1(): Int {
+    public operator fun component1(): Int {
         return states[0]
     }
 
-    operator fun component2(): Int {
+    public operator fun component2(): Int {
         return states[1]
     }
 
-    operator fun component3(): Int {
+    public operator fun component3(): Int {
         return states[2]
     }
 
-    operator fun component4(): Int {
+    public operator fun component4(): Int {
         return states[3]
     }
 
-    operator fun component5(): Int {
+    public operator fun component5(): Int {
         return states[4]
     }
 
-    operator fun component6(): Int {
+    public operator fun component6(): Int {
         return states[5]
     }
 
-    operator fun component7(): Int {
+    public operator fun component7(): Int {
         return states[6]
     }
 
-    operator fun component8(): Int {
+    public operator fun component8(): Int {
         return states[7]
     }
 
-    operator fun component9(): Int {
+    public operator fun component9(): Int {
         return states[8]
     }
 
-    operator fun component10(): Int {
+    public operator fun component10(): Int {
         return states[9]
     }
 
-    operator fun component11(): Int {
+    public operator fun component11(): Int {
         return states[10]
     }
 
-    operator fun component12(): Int {
+    public operator fun component12(): Int {
         return states[11]
     }
 
-    fun size(): Int {
+    public fun size(): Int {
         return states.size
     }
 
@@ -99,7 +100,7 @@ class StateMachineSpec(var currentState: RemoteInt, var states: IntArray) {
     //    return Pair(transition, currentState)
     //  }
 
-    fun nameState(name: String, state: Int) {
+    public fun nameState(name: String, state: Int) {
         for (i in 0 until states.size) {
             if (states[i] == state) {
                 statesNames[name] = i
@@ -118,7 +119,7 @@ class StateMachineSpec(var currentState: RemoteInt, var states: IntArray) {
 
 @RemoteComposable
 @Composable
-fun rememberStateMachine(vararg states: Int): StateMachineSpec {
+public fun rememberStateMachine(vararg states: Int): StateMachineSpec {
     val currentState = rememberRemoteIntValue { 0 }
     val stateMachine = remember { StateMachineSpec(currentState, states.sortedArray()) }
     return stateMachine
@@ -126,17 +127,18 @@ fun rememberStateMachine(vararg states: Int): StateMachineSpec {
 
 @RemoteComposable
 @Composable
-fun rememberStateMachine(currentState: RemoteInt, vararg states: Int): StateMachineSpec {
+public fun rememberStateMachine(currentState: RemoteInt, vararg states: Int): StateMachineSpec {
     val stateMachine = remember { StateMachineSpec(currentState, states.sortedArray()) }
     return stateMachine
 }
 
 /** Utility modifier to record the layout information */
-class RemoteComposeStateLayoutModifier(
-    var modifier: RemoteModifier,
-    var horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    var verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    var currentState: RemoteInt,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeStateLayoutModifier(
+    public var modifier: RemoteModifier,
+    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    public var verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    public var currentState: RemoteInt,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
@@ -162,7 +164,7 @@ class RemoteComposeStateLayoutModifier(
 
 @RemoteComposable
 @Composable
-fun StateLayout(
+public fun StateLayout(
     modifier: RemoteModifier = RemoteModifier,
     stateMachine: StateMachineSpec,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
@@ -172,14 +174,14 @@ fun StateLayout(
     val captureMode = LocalRemoteComposeCreationState.current
     if (captureMode is NoRemoteCompose) {
         val currentState = stateMachine.currentState
-        androidx.compose.foundation.layout.Box(
+        Box(
             modifier.toComposeUi(),
             contentAlignment = boxAlignment(horizontalAlignment, verticalArrangement),
         ) {
             content(currentState.value)
         }
     } else {
-        androidx.compose.foundation.layout.Box(
+        Box(
             RemoteComposeStateLayoutModifier(
                     modifier,
                     horizontalAlignment,

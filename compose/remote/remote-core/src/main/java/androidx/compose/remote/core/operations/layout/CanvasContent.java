@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.WireBuffer;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** Represents the content of a CanvasLayout (i.e. contains the canvas commands) */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CanvasContent extends Component {
 
     public CanvasContent(

@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -38,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** This provides the command to call a floatfunction defined in floatfunction */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatFunctionCall extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.FUNCTION_CALL;
     private static final String CLASS_NAME = "FunctionCall";

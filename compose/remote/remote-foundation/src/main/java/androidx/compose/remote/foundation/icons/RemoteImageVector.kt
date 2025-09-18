@@ -58,21 +58,22 @@ import androidx.compose.ui.graphics.vector.DefaultStrokeLineWidth
  *   be before it is beveled. Used only when [paintingStyle] is [PaintingStyle.Stroke] and
  *   [strokeLineJoin] is [StrokeJoin.Miter].
  */
-abstract class RemoteImageVector
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RemoteImageVector
 internal constructor(
-    val intrinsicWidth: Float = DefaultIconSize,
-    val intrinsicHeight: Float = DefaultIconSize,
-    val tintBlendMode: BlendMode = BlendMode.SrcIn,
-    val autoMirror: Boolean = false,
-    val paintAlpha: Float = 1.0f,
-    val paintingStyle: PaintingStyle = PaintingStyle.Fill,
-    val pathFillType: PathFillType = DefaultFillType,
-    val strokeLineWidth: Float = DefaultStrokeLineWidth,
-    val strokeLineCap: StrokeCap = DefaultStrokeLineCap,
-    val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
-    val strokeLineMiter: Float = DefaultStrokeLineMiter,
+    internal val intrinsicWidth: Float = DefaultIconSize,
+    internal val intrinsicHeight: Float = DefaultIconSize,
+    internal val tintBlendMode: BlendMode = BlendMode.SrcIn,
+    internal val autoMirror: Boolean = false,
+    internal val paintAlpha: Float = 1.0f,
+    internal val paintingStyle: PaintingStyle = PaintingStyle.Fill,
+    internal val pathFillType: PathFillType = DefaultFillType,
+    internal val strokeLineWidth: Float = DefaultStrokeLineWidth,
+    internal val strokeLineCap: StrokeCap = DefaultStrokeLineCap,
+    internal val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+    internal val strokeLineMiter: Float = DefaultStrokeLineMiter,
 ) {
-    val path: RemotePath by lazy {
+    internal val path: RemotePath by lazy {
         // Reset state before building the path.
         lastWasCurve = false
         RemotePath().apply {
@@ -85,16 +86,23 @@ internal constructor(
     private var lastCX2: Float = 0f
     private var lastCY2: Float = 0f
 
-    abstract fun RemotePath.buildPath()
+    public abstract fun RemotePath.buildPath()
 
-    fun RemotePath.curveTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
+    public fun RemotePath.curveTo(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
+    ) {
         this.cubicTo(x1, y1, x2, y2, x3, y3)
         lastCX2 = x2
         lastCY2 = y2
         lastWasCurve = true
     }
 
-    fun RemotePath.curveToRelative(
+    public fun RemotePath.curveToRelative(
         x1: Float,
         y1: Float,
         x2: Float,
@@ -110,7 +118,12 @@ internal constructor(
         lastWasCurve = true
     }
 
-    fun RemotePath.reflectiveCurveToRelative(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+    public fun RemotePath.reflectiveCurveToRelative(
+        dx1: Float,
+        dy1: Float,
+        dx2: Float,
+        dy2: Float,
+    ) {
         val startX = currentX
         val startY = currentY
 
@@ -127,7 +140,7 @@ internal constructor(
         lastWasCurve = true
     }
 
-    fun RemotePath.reflectiveCurveTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+    public fun RemotePath.reflectiveCurveTo(x1: Float, y1: Float, x2: Float, y2: Float) {
         val startX = currentX
         val startY = currentY
 
@@ -144,32 +157,32 @@ internal constructor(
         lastWasCurve = true
     }
 
-    fun RemotePath.verticalLineToRelative(f: Float) {
+    public fun RemotePath.verticalLineToRelative(f: Float) {
         this.rLineTo(0f, f)
         lastWasCurve = false
     }
 
-    fun RemotePath.horizontalLineToRelative(f: Float) {
+    public fun RemotePath.horizontalLineToRelative(f: Float) {
         this.rLineTo(f, 0f)
         lastWasCurve = false
     }
 
-    fun RemotePath.verticalLineTo(f: Float) {
+    public fun RemotePath.verticalLineTo(f: Float) {
         this.lineTo(currentX, f)
         lastWasCurve = false
     }
 
-    fun RemotePath.horizontalLineTo(f: Float) {
+    public fun RemotePath.horizontalLineTo(f: Float) {
         this.lineTo(f, currentY)
         lastWasCurve = false
     }
 
-    fun RemotePath.lineToRelative(x: Float, y: Float) {
+    public fun RemotePath.lineToRelative(x: Float, y: Float) {
         this.rLineTo(x, y)
         lastWasCurve = false
     }
 
-    fun paint() =
+    internal fun paint() =
         Paint()
             .apply {
                 this.alpha = paintAlpha

@@ -23,7 +23,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.layout.BeyondBoundsLayout
+import androidx.compose.ui.layout.BeyondBoundsLayoutProviderModifierNode
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.semantics.SemanticsInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -392,7 +396,7 @@ fun DelegatableNode.invalidateSubtree() {
 }
 
 /**
- * Invalidates layout for the entire subtree of this node.
+ * Invalidates measurements for the entire subtree of this node.
  *
  * Note that [invalidateMeasurement] is preferable in most cases, however it is only guaranteed to
  * invalidate measurement for that specific node, and it is possible that layout nodes that are
@@ -406,9 +410,9 @@ fun DelegatableNode.invalidateSubtree() {
  * to relayout instead of just parts that are otherwise invalidated. [invalidateMeasurement] is
  * preferable in most cases, and this should only be used when absolutely necessary.
  */
-fun DelegatableNode.invalidateLayoutForSubtree() {
+fun DelegatableNode.invalidateMeasurementForSubtree() {
     if (node.isAttached) {
-        requireLayoutNode().invalidateLayoutForSubtree()
+        requireLayoutNode().invalidateMeasurementForSubtree()
     }
 }
 
@@ -443,6 +447,50 @@ fun DelegatableNode.invalidateDrawForSubtree() {
  */
 fun DelegatableNode.dispatchOnScrollChanged(delta: Offset) =
     requireOwner().dispatchOnScrollChanged(delta)
+
+/** Call this function to find the nearest [BeyondBoundsLayout] to the current node. */
+@Suppress("DEPRECATION")
+fun DelegatableNode.findNearestBeyondBoundsLayoutAncestor(): BeyondBoundsLayout? {
+    visitAncestors(Nodes.BeyondBoundsLayout or Nodes.Locals) {
+        if (it.isKind(Nodes.BeyondBoundsLayout)) {
+            var beyondBoundsNode: BeyondBoundsLayoutProviderModifierNode? = null
+            if (it is BeyondBoundsLayoutProviderModifierNode) {
+                beyondBoundsNode = it
+            } else if (it is DelegatingNode) {
+                it.forEachImmediateDelegate {
+                    if (it is BeyondBoundsLayoutProviderModifierNode) {
+                        beyondBoundsNode = it
+                        return@forEachImmediateDelegate
+                    }
+                }
+            }
+
+            return beyondBoundsNode?.beyondBoundsLayout
+        }
+
+        if (it.isKind(Nodes.Locals)) {
+            var modifierLocalNode: ModifierLocalModifierNode? = null
+            if (it is ModifierLocalModifierNode) {
+                modifierLocalNode = it
+            } else if (it is DelegatingNode) {
+                it.forEachImmediateDelegate {
+                    if (it is ModifierLocalModifierNode) {
+                        modifierLocalNode = it
+                        return@forEachImmediateDelegate
+                    }
+                }
+            }
+            val localNode = modifierLocalNode
+            if (
+                localNode != null &&
+                    localNode.providedValues.contains(ModifierLocalBeyondBoundsLayout)
+            )
+                return localNode.providedValues.get(ModifierLocalBeyondBoundsLayout)
+        }
+    }
+
+    return null
+}
 
 // It is safe to do this for LayoutModifierNode because we enforce only a single delegate is
 // a LayoutModifierNode, however for other NodeKinds that is not true. As a result, this function

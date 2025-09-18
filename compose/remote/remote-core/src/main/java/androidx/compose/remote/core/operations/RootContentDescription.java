@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Describe a content description for the document */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RootContentDescription extends Operation
         implements RemoteComposeOperation, AccessibleComponent, Serializable {
     private static final int OP_CODE = Operations.ROOT_CONTENT_DESCRIPTION;

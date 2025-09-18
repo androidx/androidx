@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.capture.NoRemoteCompose
 import androidx.compose.runtime.Composable
@@ -37,7 +36,7 @@ import androidx.compose.runtime.CompositionLocalProvider
  */
 @RemoteComposable
 @Composable
-fun CaptureAsDraw(content: @Composable () -> Unit) {
+public fun CaptureAsDraw(content: @Composable () -> Unit) {
     Box {
         CompositionLocalProvider(LocalRemoteComposeCreationState provides NoRemoteCompose()) {
             content.invoke()

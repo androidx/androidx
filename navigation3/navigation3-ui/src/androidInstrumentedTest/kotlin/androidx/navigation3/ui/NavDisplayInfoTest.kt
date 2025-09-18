@@ -63,7 +63,7 @@ internal class NavDisplayInfoTest {
         }
 
         // Simulate a predictive back gesture in progress.
-        input.progress(NavigationEvent(progress = 0.5F))
+        input.backProgressed(NavigationEvent(progress = 0.5F))
 
         // Wait for the UI to recompose and update the state.
         rule.waitForIdle()
@@ -82,7 +82,7 @@ internal class NavDisplayInfoTest {
 
             // The `previousInfo` should reflect the back stack after a pop,
             // as calculated by the SceneStrategy.
-            assertThat(currentState.previousInfo?.visibleEntries)
+            assertThat(currentState.backInfo.lastOrNull()?.visibleEntries)
                 .containsExactlyElementsIn(currentBackStack.dropLast(2))
         }
     }
@@ -94,7 +94,7 @@ private const val KEY_3 = "KEY_3"
 private const val KEY_4 = "KEY_4"
 private const val KEY_5 = "KEY_5"
 
-private class TestScene<T : Any>(
+private data class TestScene<T : Any>(
     override val key: Any = Any(),
     override val entries: List<NavEntry<T>> = emptyList(),
     override val previousEntries: List<NavEntry<T>> = emptyList(),

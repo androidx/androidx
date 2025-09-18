@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.creation.modifiers.CircleShape
@@ -37,22 +36,23 @@ import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Auto
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.ModulateAlpha
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscreen
 
-class GraphicsLayerModifier(
-    val scaleX: Float,
-    val scaleY: Float,
-    val rotationX: Float,
-    val rotationY: Float,
-    val rotationZ: Float,
-    val shadowElevation: Float,
-    val transformOriginX: Float,
-    val transformOriginY: Float,
-    val translationX: Float,
-    val translationY: Float,
-    val shape: Shape,
-    val compositingStrategy: Int,
-    val alpha: Float,
-    val cameraDistance: Float,
-    val renderEffect: RenderEffect?,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class GraphicsLayerModifier(
+    public val scaleX: Float,
+    public val scaleY: Float,
+    public val rotationX: Float,
+    public val rotationY: Float,
+    public val rotationZ: Float,
+    public val shadowElevation: Float,
+    public val transformOriginX: Float,
+    public val transformOriginY: Float,
+    public val translationX: Float,
+    public val translationY: Float,
+    public val shape: Shape,
+    public val compositingStrategy: Int,
+    public val alpha: Float,
+    public val cameraDistance: Float,
+    public val renderEffect: RenderEffect?,
 ) : RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
@@ -165,7 +165,7 @@ class GraphicsLayerModifier(
     }
 }
 
-fun RemoteModifier.graphicsLayer(
+public fun RemoteModifier.graphicsLayer(
     scaleX: Number = 1f,
     scaleY: Number = 1f,
     rotationX: Number = 0f,

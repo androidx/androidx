@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -660,12 +659,7 @@ internal class LayoutNodeSubcompositionsState(
     }
 
     private val outOfFrameExecutor: OutOfFrameExecutor?
-        get() =
-            if (ComposeUiFlags.isOutOfFrameDeactivationEnabled) {
-                root.requireOwner().outOfFrameExecutor
-            } else {
-                null
-            }
+        get() = root.requireOwner().outOfFrameExecutor
 
     private fun subcompose(node: LayoutNode, nodeState: NodeState, pausable: Boolean) {
         requirePrecondition(nodeState.pausedComposition == null) {

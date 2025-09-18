@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.compose.remote.core;
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 
@@ -24,6 +25,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 /** This generates the standard system variables for time. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TimeVariables {
     private @NonNull Clock mClock;
 

@@ -20,6 +20,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -46,6 +47,7 @@ import java.util.List;
  * touch behaviours. Including animating to Notched, positions. and tweaking the dynamics of the
  * animation.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchExpression extends Operation
         implements ComponentData, VariableSupport, TouchListener, Serializable {
     private static final int OP_CODE = Operations.TOUCH_EXPRESSION;

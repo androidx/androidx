@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /** This is a map of strings to type & Id */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DataMapIds extends Operation {
     private static final int OP_CODE = Operations.ID_MAP;
     private static final String CLASS_NAME = "DataMapIds";

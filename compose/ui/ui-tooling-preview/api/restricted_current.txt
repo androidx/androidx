@@ -163,6 +163,36 @@ package androidx.compose.ui.tooling.preview {
   @androidx.compose.ui.tooling.preview.Preview(name="Phone", device=androidx.compose.ui.tooling.preview.Devices.PHONE, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Phone - Landscape", device="spec:width=411dp,height=891dp,orientation=landscape,dpi=420", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Unfolded Foldable", device=androidx.compose.ui.tooling.preview.Devices.FOLDABLE, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Tablet", device="spec:width=1280dp,height=800dp,dpi=240,orientation=portrait", showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Tablet - Landscape", device=androidx.compose.ui.tooling.preview.Devices.TABLET, showSystemUi=true) @androidx.compose.ui.tooling.preview.Preview(name="Desktop", device=androidx.compose.ui.tooling.preview.Devices.DESKTOP, showSystemUi=true) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface PreviewScreenSizes {
   }
 
+  public final class UiModes {
+    property public static int UI_MODE_NIGHT_MASK;
+    property public static int UI_MODE_NIGHT_NO;
+    property public static int UI_MODE_NIGHT_UNDEFINED;
+    property public static int UI_MODE_NIGHT_YES;
+    property public static int UI_MODE_TYPE_APPLIANCE;
+    property public static int UI_MODE_TYPE_CAR;
+    property public static int UI_MODE_TYPE_DESK;
+    property public static int UI_MODE_TYPE_MASK;
+    property public static int UI_MODE_TYPE_NORMAL;
+    property public static int UI_MODE_TYPE_TELEVISION;
+    property public static int UI_MODE_TYPE_UNDEFINED;
+    property public static int UI_MODE_TYPE_VR_HEADSET;
+    property public static int UI_MODE_TYPE_WATCH;
+    field public static final androidx.compose.ui.tooling.preview.UiModes INSTANCE;
+    field public static final int UI_MODE_NIGHT_MASK = 48; // 0x30
+    field public static final int UI_MODE_NIGHT_NO = 16; // 0x10
+    field public static final int UI_MODE_NIGHT_UNDEFINED = 0; // 0x0
+    field public static final int UI_MODE_NIGHT_YES = 32; // 0x20
+    field public static final int UI_MODE_TYPE_APPLIANCE = 5; // 0x5
+    field public static final int UI_MODE_TYPE_CAR = 3; // 0x3
+    field public static final int UI_MODE_TYPE_DESK = 2; // 0x2
+    field public static final int UI_MODE_TYPE_MASK = 15; // 0xf
+    field public static final int UI_MODE_TYPE_NORMAL = 1; // 0x1
+    field public static final int UI_MODE_TYPE_TELEVISION = 4; // 0x4
+    field public static final int UI_MODE_TYPE_UNDEFINED = 0; // 0x0
+    field public static final int UI_MODE_TYPE_VR_HEADSET = 7; // 0x7
+    field public static final int UI_MODE_TYPE_WATCH = 6; // 0x6
+  }
+
   public final class Wallpapers {
     property public static int BLUE_DOMINATED_EXAMPLE;
     property public static int GREEN_DOMINATED_EXAMPLE;

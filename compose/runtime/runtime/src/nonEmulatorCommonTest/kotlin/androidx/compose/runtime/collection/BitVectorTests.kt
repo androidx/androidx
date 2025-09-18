@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.collection
 
+import androidx.compose.runtime.BitVector
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -155,7 +156,7 @@ class BitVectorTests {
             current = vector4.nextClear(current + 1)
         }
 
-        assertEquals(listOf(256, 257, 258, 259), received)
+        assertTrue(received.isEmpty())
 
         received.clear()
         val vector5 = BitVector()

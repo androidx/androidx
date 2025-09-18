@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline;
 
 import org.jspecify.annotations.NonNull;
@@ -23,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 /** high performance floating point expression evaluator used in animation */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimatedFloatExpression {
     @NonNull static IntMap<String> sNames = new IntMap<>();
 

@@ -20,6 +20,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.FLO
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -46,6 +47,7 @@ import java.util.Objects;
  * like injecting the width of the component int draw rect As well as supporting generalized
  * animation floats. The floats represent a RPN style calculator
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatExpression extends Operation
         implements ComponentData, VariableSupport, Serializable {
     private static final int OP_CODE = Operations.ANIMATED_FLOAT;

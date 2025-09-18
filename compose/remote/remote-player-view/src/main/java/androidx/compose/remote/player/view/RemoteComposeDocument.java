@@ -26,12 +26,16 @@ import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.Clock;
+import java.util.Map;
 
-/** Public API to create a new RemoteComposeDocument coming from an input stream */
+/**
+ * Public API to create a new RemoteComposeDocument coming from an input stream
+ */
 public class RemoteComposeDocument {
 
     private @NonNull CoreDocument mDocument;
@@ -69,17 +73,31 @@ public class RemoteComposeDocument {
      * them.
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void initializeContext(RemoteContext context) {
-        mDocument.initializeContext(context);
+    public void initializeContext(@NonNull RemoteContext context) {
+        mDocument.initializeContext(context, null);
     }
 
-    /** Returns the width of the document in pixels */
+    /**
+     * Called when an initialization is needed, allowing the document to eg load resources / cache
+     * them.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void initializeContext(@NonNull RemoteContext context,
+                                  @Nullable Map<Integer, Object> map) {
+        mDocument.initializeContext(context, map);
+    }
+
+    /**
+     * Returns the width of the document in pixels
+     */
     @RestrictTo(LIBRARY_GROUP)
     public int getWidth() {
         return mDocument.getWidth();
     }
 
-    /** Returns the height of the document in pixels */
+    /**
+     * Returns the height of the document in pixels
+     */
     @RestrictTo(LIBRARY_GROUP)
     public int getHeight() {
         return mDocument.getHeight();
@@ -93,7 +111,7 @@ public class RemoteComposeDocument {
      * Paint the document
      *
      * @param context the provided PaintContext
-     * @param theme the theme we want to use for this document.
+     * @param theme   the theme we want to use for this document.
      */
     @RestrictTo(LIBRARY_GROUP)
     public void paint(@NonNull RemoteContext context, int theme) {
@@ -159,7 +177,9 @@ public class RemoteComposeDocument {
         return mDocument.getComponent(id);
     }
 
-    /** Invalidate the document for layout measures. This will trigger a layout remeasure pass. */
+    /**
+     * Invalidate the document for layout measures. This will trigger a layout remeasure pass.
+     */
     @RestrictTo(LIBRARY_GROUP)
     public void invalidate() {
         mDocument.invalidateMeasure();
@@ -167,6 +187,7 @@ public class RemoteComposeDocument {
 
     /**
      * Returns a list of useful statistics for the runtime document
+     *
      * @return array of strings representing some useful statistics
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -179,6 +200,7 @@ public class RemoteComposeDocument {
 
     /**
      * Returns the number of sensor listeners
+     *
      * @param ids
      * @return
      */
@@ -189,6 +211,7 @@ public class RemoteComposeDocument {
 
     /**
      * Returns the current clock
+     *
      * @return
      */
     public @NonNull Clock getClock() {
@@ -197,6 +220,7 @@ public class RemoteComposeDocument {
 
     /**
      * Returns true if the current document is an update-only document
+     *
      * @return
      */
     @RestrictTo(LIBRARY_GROUP)
@@ -206,6 +230,7 @@ public class RemoteComposeDocument {
 
     /**
      * Serialize the document
+     *
      * @param serializer
      */
     @RestrictTo(LIBRARY_GROUP)

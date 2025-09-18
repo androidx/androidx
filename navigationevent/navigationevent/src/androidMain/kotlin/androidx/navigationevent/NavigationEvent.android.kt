@@ -26,7 +26,13 @@ internal fun NavigationEvent(backEvent: BackEvent): NavigationEvent {
         touchX = backEvent.touchX,
         touchY = backEvent.touchY,
         progress = backEvent.progress,
-        swipeEdge = backEvent.swipeEdge,
+        swipeEdge =
+            when (backEvent.swipeEdge) {
+                BackEvent.EDGE_LEFT -> NavigationEventSwipeEdge.Left
+                BackEvent.EDGE_RIGHT -> NavigationEventSwipeEdge.Right
+                BackEvent.EDGE_NONE -> NavigationEventSwipeEdge.None
+                else -> error("Unexpected 'swipeEdge' value: ${backEvent.swipeEdge}")
+            },
         frameTimeMillis = if (Build.VERSION.SDK_INT >= 36) backEvent.frameTimeMillis else 0,
     )
 }

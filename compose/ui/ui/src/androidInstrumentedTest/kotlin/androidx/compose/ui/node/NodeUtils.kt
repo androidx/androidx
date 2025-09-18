@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable
@@ -26,12 +25,10 @@ import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * Remove the root modifier nodes as they are not relevant from the perspective of the tests. There
- * are 6 nodes: FocusTargetNode, KeyInputNode, RotaryInputNode, SemanticsNode, DragAndDropNode and
- * BringIntoViewModifierNode
+ * are 3 nodes: RootModifierNode, FocusTargetNode, and DragAndDropNode.
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal fun <T> List<T>.trimRootModifierNodes(): List<T> =
-    dropLast(if (ComposeUiFlags.areWindowInsetsRulersEnabled) 7 else 6)
+internal fun <T> List<T>.trimRootModifierNodes(): List<T> = dropLast(3)
 
 internal fun Modifier.elementOf(node: Modifier.Node): Modifier {
     return this.then(ElementOf { node })

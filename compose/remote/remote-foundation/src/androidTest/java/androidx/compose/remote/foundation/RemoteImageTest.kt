@@ -24,6 +24,8 @@ import androidx.compose.remote.frontend.modifier.size
 import androidx.compose.remote.frontend.state.rememberRemoteBitmapValue
 import androidx.compose.remote.frontend.state.rememberRemoteFloatValue
 import androidx.compose.remote.frontend.state.rememberRemoteString
+import androidx.compose.remote.test.screenshot.TargetPlayer
+import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
@@ -37,12 +39,20 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
 class RemoteImageTest {
-    @get:Rule val remoteComposeTestRule = RemoteComposeScreenshotTestRule()
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            targetPlayer = TargetPlayer.View,
+        )
 
     @Test
     fun remoteImage() {
         val size = 48.dp
-        remoteComposeTestRule.runScreenshotTest(size = Size(size.value, size.value)) {
+        remoteComposeTestRule.runScreenshotTest(
+            size = Size(size.value, size.value),
+            backgroundColor = androidx.compose.ui.graphics.Color.Black,
+        ) {
             val avatarImage =
                 rememberRemoteBitmapValue(name = "avatarImage") {
                     createImage(size.value.toInt(), size.value.toInt())
@@ -58,7 +68,10 @@ class RemoteImageTest {
     @Test
     fun remoteImage_withAlpha() {
         val size = 227.dp
-        remoteComposeTestRule.runScreenshotTest(size = Size(size.value, size.value)) {
+        remoteComposeTestRule.runScreenshotTest(
+            size = Size(size.value, size.value),
+            backgroundColor = androidx.compose.ui.graphics.Color.Black,
+        ) {
             val backgroundImage =
                 rememberRemoteBitmapValue(name = "backgroundImage") {
                     createImage(size.value.toInt(), size.value.toInt())

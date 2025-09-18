@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -39,6 +40,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Represents a ripple effect */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RippleModifierOperation extends DecoratorModifierOperation implements TouchHandler {
     private static final int OP_CODE = Operations.MODIFIER_RIPPLE;
 

@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** looks up an id from and array of id's created using DataListIds */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IdLookup extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.ID_LOOKUP;
     private static final String CLASS_NAME = "IdLookup";

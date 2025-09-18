@@ -18,34 +18,38 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 
-interface Alignment {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface Alignment {
 
-    interface Horizontal {
-        fun toComposeUi(): androidx.compose.ui.Alignment.Horizontal
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Horizontal {
+        public fun toComposeUi(): androidx.compose.ui.Alignment.Horizontal
 
-        fun toRemoteCompose(): Int
+        public fun toRemoteCompose(): Int
     }
 
-    interface Vertical {
-        fun toComposeUi(): androidx.compose.ui.Alignment.Vertical
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface Vertical {
+        public fun toComposeUi(): androidx.compose.ui.Alignment.Vertical
 
-        fun toRemoteCompose(): Int
+        public fun toRemoteCompose(): Int
     }
 
-    companion object {
-        val Start: Alignment.Horizontal = HorizontalAlignment(0)
-        val CenterHorizontally: Alignment.Horizontal = HorizontalAlignment(1)
-        val End: Alignment.Horizontal = HorizontalAlignment(2)
-        val Top: Alignment.Vertical = VerticalAlignment(3)
-        val CenterVertically: Alignment.Vertical = VerticalAlignment(4)
-        val Bottom: Alignment.Vertical = VerticalAlignment(5)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        public val Start: Alignment.Horizontal = HorizontalAlignment(0)
+        public val CenterHorizontally: Alignment.Horizontal = HorizontalAlignment(1)
+        public val End: Alignment.Horizontal = HorizontalAlignment(2)
+        public val Top: Alignment.Vertical = VerticalAlignment(3)
+        public val CenterVertically: Alignment.Vertical = VerticalAlignment(4)
+        public val Bottom: Alignment.Vertical = VerticalAlignment(5)
     }
 }
 
-data class HorizontalAlignment(var type: Int) : Alignment.Horizontal {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class HorizontalAlignment(var type: Int) : Alignment.Horizontal {
     override fun toComposeUi(): androidx.compose.ui.Alignment.Horizontal {
         when (type) {
             0 -> return androidx.compose.ui.Alignment.Start
@@ -65,7 +69,8 @@ data class HorizontalAlignment(var type: Int) : Alignment.Horizontal {
     }
 }
 
-data class VerticalAlignment(var type: Int) : Alignment.Vertical {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class VerticalAlignment(var type: Int) : Alignment.Vertical {
     override fun toComposeUi(): androidx.compose.ui.Alignment.Vertical {
         when (type) {
             3 -> return androidx.compose.ui.Alignment.Top

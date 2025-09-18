@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.CLEAR_AND_SET
@@ -40,7 +39,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 
-data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
     RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.SemanticsModifier(
@@ -89,17 +89,19 @@ private fun fromRole(role: Role?): AccessibleComponent.Role? {
     }
 }
 
-data class AccessibilitySemantics(
-    var contentDescription: RemoteString? = null,
-    var role: Role? = null,
-    var text: RemoteString? = null,
-    var stateDescription: RemoteString? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class AccessibilitySemantics(
+    public var contentDescription: RemoteString? = null,
+    public var role: Role? = null,
+    public var text: RemoteString? = null,
+    public var stateDescription: RemoteString? = null,
 )
 
-fun RemoteModifier.clearAndSetSemantics(fn: AccessibilitySemantics.() -> Unit): RemoteModifier =
-    then(SemanticsModifier(CLEAR_AND_SET, AccessibilitySemantics().apply(fn)))
+public fun RemoteModifier.clearAndSetSemantics(
+    fn: AccessibilitySemantics.() -> Unit
+): RemoteModifier = then(SemanticsModifier(CLEAR_AND_SET, AccessibilitySemantics().apply(fn)))
 
-fun RemoteModifier.semantics(
+public fun RemoteModifier.semantics(
     mergeDescendants: Boolean = false,
     fn: AccessibilitySemantics.() -> Unit,
 ): RemoteModifier =

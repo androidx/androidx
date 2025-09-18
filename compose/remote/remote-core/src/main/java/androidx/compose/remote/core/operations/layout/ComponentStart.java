@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations.layout;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComponentStart extends Operation implements Container {
 
     int mType = DEFAULT;

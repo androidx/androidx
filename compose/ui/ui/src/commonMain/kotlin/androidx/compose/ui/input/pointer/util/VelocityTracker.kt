@@ -612,16 +612,6 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
 @ExperimentalComposeUiApi
 var VelocityTrackerAddPointsFix: Boolean = true
 
-/**
- * Selecting flag to enable impulse strategy for the velocity trackers. This is an experiment flag
- * and will be removed once the experiments with the fix a finished. The final goal is that we will
- * use the true path once the flag is removed. If you find any issues with the new fix, flip this
- * flag to false to confirm they are newly introduced then file a bug. Tracking bug: (b/318621681)
- */
-@Suppress("GetterSetterNames")
-@ExperimentalVelocityTrackerApi
-var VelocityTrackerStrategyUseImpulse = false
-
 @RequiresOptIn(
     "This an opt-in flag to test the Velocity Tracker strategy algorithm used " +
         "for calculating gesture velocities in Compose."

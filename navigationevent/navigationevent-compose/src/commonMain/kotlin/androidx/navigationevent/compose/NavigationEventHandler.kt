@@ -18,262 +18,178 @@ package androidx.navigationevent.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.navigationevent.NavigationEvent
-import androidx.navigationevent.NavigationEventCallback
+import androidx.navigationevent.NavigationEventHandler
 import androidx.navigationevent.NavigationEventInfo
-import androidx.navigationevent.NavigationEventInfo.NotProvided
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.launch
 
 /**
- * Handles predictive back navigation gestures.
- *
- * This effect registers a callback to receive updates on the progress of system back gestures as a
- * [Flow] of [NavigationEvent].
- *
- * The [onEvent] lambda should be structured to handle the start, progress, completion, and
- * cancellation of the gesture:
- * ```kotlin
- * NavigationEventHandler { progress: Flow<NavigationEvent> ->
- *   // This block is executed when the back gesture begins.
- *     try {
- *       progress.collect { backEvent ->
- *         // Handle gesture progress updates here.
- *       }
- *       // This block is executed if the gesture completes successfully.
- *     } catch (e: CancellationException) {
- *       // This block is executed if the gesture is cancelled.
- *       throw e
- *     } finally {
- *       // This block is executed either the gesture is completed or cancelled.
- *   }
- * }
- * ```
+ * A composable that handles navigation events using simple lambda handlers, providing contextual
+ * information about both back and forward navigation destinations.
  *
  * ## Precedence
  * When multiple [NavigationEventHandler] are present in the composition, the one that is composed
- * * **last** among all enabled handlers will be invoked.
+ * *last* among all enabled handlers will be invoked.
  *
  * ## Usage
- * It is important to call this composable **unconditionally**. Use the `enabled` parameter to
- * control whether the handler is active. This is preferable to conditionally calling
- * [NavigationEventHandler] (e.g., inside an `if` block), as conditional calls can change the order
- * of composition, leading to unpredictable behavior where different handlers are invoked after
- * recomposition.
+ * It is important to call this composable **unconditionally**. Use [isBackEnabled] and
+ * [isForwardEnabled] to control whether the handler is active. This is preferable to conditionally
+ * calling [NavigationEventHandler] (e.g., inside an `if` block), as conditional calls can change
+ * the order of composition, leading to unpredictable behavior where different handlers are invoked
+ * after recomposition.
  *
  * ## Timing Consideration
- * There are cases where a predictive back gesture may be dispatched within a rendering frame before
- * the [enabled] flag is updated, which can cause unexpected behavior (see b/375343407,
- * b/384186542). For example, if `enabled` is set to `false`, a gesture initiated in the same frame
- * may still trigger this handler because the system sees the stale `true` value.
- *
- * @param enabled Controls whether this handler is active. **Important**: Due to the timing issue
- *   described above, a gesture starting immediately after `enabled` is set to `false` may still
- *   trigger this handler.
- * @param onEvent The lambda that receives the flow of back gesture events when a gesture begins.
- *   You **must** `collect` the flow within this lambda.
- * @see NavigationEventHandler
- */
-@Composable
-public fun NavigationEventHandler(
-    enabled: Boolean = true,
-    onEvent: suspend (progress: Flow<NavigationEvent>) -> Unit,
-) {
-    NavigationEventHandler(currentInfo = NotProvided, previousInfo = null, enabled, onEvent)
-}
-
-/**
- * Handles predictive back navigation gestures.
- *
- * This overload allows associating specific [NavigationEventInfo] with the current state (from
- * which the user is navigating) and the previous state (to which the user may return). This is
- * useful for creating animations that are specific to the content being displayed.
- *
- * This effect registers a callback to receive updates on the progress of system back gestures as a
- * [Flow] of [NavigationEvent].
- *
- * The [onEvent] lambda should be structured to handle the start, progress, completion, and
- * cancellation of the gesture:
- * ```kotlin
- * NavigationEventHandler { progress: Flow<NavigationEvent> ->
- *   // This block is executed when the back gesture begins.
- *     try {
- *       progress.collect { backEvent ->
- *         // Handle gesture progress updates here.
- *       }
- *       // This block is executed if the gesture completes successfully.
- *     } catch (e: CancellationException) {
- *       // This block is executed if the gesture is cancelled.
- *       throw e
- *     } finally {
- *       // This block is executed either the gesture is completed or cancelled.
- *   }
- * }
- * ```
- *
- * ## Precedence
- * When multiple [NavigationEventHandler] are present in the composition, the one that is composed
- * * **last** among all enabled handlers will be invoked.
- *
- * ## Usage
- * It is important to call this composable **unconditionally**. Use the `enabled` parameter to
- * control whether the handler is active. This is preferable to conditionally calling
- * [NavigationEventHandler] (e.g., inside an `if` block), as conditional calls can change the order
- * of composition, leading to unpredictable behavior where different handlers are invoked after
- * recomposition.
- *
- * ## Timing Consideration
- * There are cases where a predictive back gesture may be dispatched within a rendering frame before
- * the [enabled] flag is updated, which can cause unexpected behavior (see b/375343407,
- * b/384186542). For example, if `enabled` is set to `false`, a gesture initiated in the same frame
- * may still trigger this handler because the system sees the stale `true` value.
+ * There are cases where a predictive back or forward gesture may be dispatched within a rendering
+ * frame before the corresponding `enabled` flag is updated, which can cause unexpected behavior
+ * (see b/375343407, b/384186542). For example, if [isBackEnabled] is set to `false`, a back gesture
+ * initiated in the same frame may still trigger this handler because the system sees the stale
+ * `true` value.
  *
  * @param T The type of the navigation information.
  * @param currentInfo An object containing information about the current destination.
- * @param previousInfo An object containing information about the destination the user is navigating
- *   back to. Can be `null` if the information is not available.
- * @param enabled Controls whether this handler is active. **Important**: Due to the timing issue
- *   described above, a gesture starting immediately after `enabled` is set to `false` may still
- *   trigger this handler.
- * @param onEvent The lambda that receives the flow of back gesture events when a gesture begins.
- *   You **must** `collect` the flow within this lambda.
- * @see NavigationEventHandler
+ * @param backInfo A list of destinations the user may navigate back to. Can be empty if not
+ *   available.
+ * @param forwardInfo A list of destinations the user may navigate forward to. Can be empty if not
+ *   available.
+ * @param isForwardEnabled Controls whether forward navigation gestures are handled.
+ * @param onForwardCancelled Called if a forward navigation gesture is cancelled.
+ * @param onForwardCompleted Called when a forward navigation gesture completes and navigation
+ *   occurs.
+ * @param isBackEnabled Controls whether back navigation gestures are handled.
+ * @param onBackCancelled Called if a back navigation gesture is cancelled.
+ * @param onBackCompleted Called when a back navigation gesture completes and navigation occurs.
  */
 @Composable
 public fun <T : NavigationEventInfo> NavigationEventHandler(
     currentInfo: T,
-    previousInfo: T?,
-    enabled: Boolean = true,
-    onEvent: suspend (progress: Flow<NavigationEvent>) -> Unit,
+    backInfo: List<T> = emptyList(),
+    forwardInfo: List<T> = emptyList(),
+    // ---- Forward Events ----
+    isForwardEnabled: Boolean = true,
+    onForwardCancelled: () -> Unit = {},
+    onForwardCompleted: () -> Unit = {},
+    // ---- Back Events ----
+    isBackEnabled: Boolean = true,
+    onBackCancelled: () -> Unit = {},
+    onBackCompleted: () -> Unit = {},
 ) {
-    // ensure we don't re-register callbacks when onBack changes
-    val currentOnBack by rememberUpdatedState(onEvent)
-    val navEventScope = rememberCoroutineScope()
-
-    val navEventCallBack = remember {
-        NavigationEventHandlerCallback<T>(enabled, navEventScope, currentOnBack)
-    }
-
-    // we want to use the same callback, but ensure we adjust the variable on recomposition
-    SideEffect {
-        navEventCallBack.currentOnBack = currentOnBack
-        navEventCallBack.onBackScope = navEventScope
-        navEventCallBack.setInfo(currentInfo, previousInfo)
-    }
-
-    LaunchedEffect(enabled) { navEventCallBack.setIsEnabled(enabled) }
-
-    val navEventDispatcher =
+    val dispatcher =
         checkNotNull(LocalNavigationEventDispatcherOwner.current) {
                 "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
             }
             .navigationEventDispatcher
 
-    DisposableEffect(navEventDispatcher) {
-        navEventDispatcher.addCallback(navEventCallBack)
+    val handler = remember { ComposeNavigationEventHandler<T>() }
 
-        onDispose { navEventCallBack.remove() }
+    SideEffect {
+        handler.isForwardEnabled = isForwardEnabled
+        handler.currentOnForwardCancelled = onForwardCancelled
+        handler.currentOnForwardCompleted = onForwardCompleted
+
+        handler.isBackEnabled = isBackEnabled
+        handler.currentOnBackCancelled = onBackCancelled
+        handler.currentOnBackCompleted = onBackCompleted
+
+        handler.setInfo(currentInfo, backInfo, forwardInfo)
+    }
+
+    DisposableEffect(dispatcher, handler) {
+        dispatcher.addHandler(handler)
+        onDispose { handler.remove() }
     }
 }
 
-private class OnBackInstance(
-    scope: CoroutineScope,
-    var isPredictiveBack: Boolean,
-    onBack: suspend (progress: Flow<NavigationEvent>) -> Unit,
-    callback: NavigationEventCallback<*>,
+/**
+ * A composable that handles only back navigation gestures.
+ *
+ * This is a convenience wrapper around [NavigationEventHandler] for cases where forward navigation
+ * is not relevant.
+ *
+ * @param T The type of the navigation information.
+ * @param currentInfo Information about the current destination.
+ * @param backInfo A list of destinations the user may navigate back to. Can be empty.
+ * @param isBackEnabled Controls whether back navigation gestures are handled.
+ * @param onBackCancelled Called if a back navigation gesture is cancelled.
+ * @param onBackCompleted Called when a back navigation gesture completes and navigation occurs.
+ */
+@Composable
+public fun <T : NavigationEventInfo> NavigationBackHandler(
+    currentInfo: T,
+    backInfo: List<T> = emptyList(),
+    isBackEnabled: Boolean = true,
+    onBackCancelled: () -> Unit = {},
+    onBackCompleted: () -> Unit,
 ) {
-    val channel =
-        Channel<NavigationEvent>(capacity = BUFFERED, onBufferOverflow = BufferOverflow.SUSPEND)
-    val job =
-        scope.launch {
-            if (callback.isEnabled) {
-                var completed = false
-                onBack(channel.consumeAsFlow().onCompletion { completed = true })
-                check(completed) { "You must collect the progress flow" }
-            }
-        }
-
-    fun send(backEvent: NavigationEvent) = channel.trySend(backEvent)
-
-    // idempotent if invoked more than once
-    fun close() = channel.close()
-
-    fun cancel() {
-        channel.cancel(CancellationException("navEvent cancelled"))
-        job.cancel()
-    }
+    NavigationEventHandler(
+        currentInfo = currentInfo,
+        backInfo = backInfo,
+        forwardInfo = emptyList(),
+        onForwardCancelled = {},
+        onForwardCompleted = {},
+        isForwardEnabled = false, // disable forward
+        onBackCancelled = onBackCancelled,
+        onBackCompleted = onBackCompleted,
+        isBackEnabled = isBackEnabled,
+    )
 }
 
-private class NavigationEventHandlerCallback<T : NavigationEventInfo>(
-    isEnabled: Boolean,
-    var onBackScope: CoroutineScope,
-    var currentOnBack: suspend (progress: Flow<NavigationEvent>) -> Unit,
-) : NavigationEventCallback<T>(isEnabled) {
-    private var onBackInstance: OnBackInstance? = null
-    private var isActive = false
+/**
+ * A composable that handles only forward navigation gestures.
+ *
+ * This is a convenience wrapper around [NavigationEventHandler] for cases where back navigation is
+ * not relevant.
+ *
+ * @param T The type of the navigation information.
+ * @param currentInfo Information about the current destination.
+ * @param forwardInfo A list of destinations the user may navigate forward to. Can be empty.
+ * @param isForwardEnabled Controls whether forward navigation gestures are handled.
+ * @param onForwardCancelled Called if a forward navigation gesture is cancelled.
+ * @param onForwardCompleted Called when a forward navigation gesture completes and navigation
+ *   occurs.
+ */
+@Composable
+public fun <T : NavigationEventInfo> NavigationForwardHandler(
+    currentInfo: T,
+    forwardInfo: List<T> = emptyList(),
+    isForwardEnabled: Boolean = true,
+    onForwardCancelled: () -> Unit = {},
+    onForwardCompleted: () -> Unit,
+) {
+    NavigationEventHandler(
+        currentInfo = currentInfo,
+        backInfo = emptyList(),
+        forwardInfo = forwardInfo,
+        onForwardCancelled = onForwardCancelled,
+        onForwardCompleted = onForwardCompleted,
+        isForwardEnabled = isForwardEnabled,
+        onBackCancelled = {},
+        onBackCompleted = {},
+        isBackEnabled = false, // disable back
+    )
+}
 
-    fun setIsEnabled(enabled: Boolean) {
-        // We are disabling a callback that was enabled.
-        if (!enabled && !isActive && isEnabled) {
-            onBackInstance?.cancel()
-        }
-        isEnabled = enabled
+/** A simple [NavigationEventHandler] that delegates its methods to lambda functions. */
+private class ComposeNavigationEventHandler<T : NavigationEventInfo> :
+    NavigationEventHandler<T>(isBackEnabled = false, isForwardEnabled = false) {
+
+    var currentOnForwardCancelled: () -> Unit = {}
+    var currentOnForwardCompleted: () -> Unit = {}
+    var currentOnBackCancelled: () -> Unit = {}
+    var currentOnBackCompleted: () -> Unit = {}
+
+    override fun onForwardCancelled() {
+        currentOnForwardCancelled.invoke()
     }
 
-    override fun onEventStarted(event: NavigationEvent) {
-        // in case the previous onBackInstance was started by a normal back gesture
-        // we want to make sure it's still cancelled before we start a predictive
-        // back gesture
-        onBackInstance?.cancel()
-        if (isEnabled) {
-            onBackInstance = OnBackInstance(onBackScope, true, currentOnBack, this)
-        }
-        isActive = true
+    override fun onForwardCompleted() {
+        currentOnForwardCompleted.invoke()
     }
 
-    override fun onEventProgressed(event: NavigationEvent) {
-        onBackInstance?.send(event)
+    override fun onBackCancelled() {
+        currentOnBackCancelled.invoke()
     }
 
-    override fun onEventCompleted() {
-        // handleOnBackPressed could be called by regular back to restart
-        // a new back instance. If this is the case (where current back instance
-        // was NOT started by handleOnBackStarted) then we need to reset the previous
-        // regular back.
-        onBackInstance?.apply {
-            if (!isPredictiveBack) {
-                cancel()
-                onBackInstance = null
-            }
-        }
-        if (onBackInstance == null) {
-            onBackInstance = OnBackInstance(onBackScope, false, currentOnBack, this)
-        }
-
-        // finally, we close the channel to ensure no more events can be sent
-        // but let the job complete normally
-        onBackInstance?.close()
-        onBackInstance?.isPredictiveBack = false
-        isActive = false
-    }
-
-    override fun onEventCancelled() {
-        // cancel will purge the channel of any sent events that are yet to be received
-        onBackInstance?.cancel()
-        onBackInstance?.isPredictiveBack = false
-        isActive = false
+    override fun onBackCompleted() {
+        currentOnBackCompleted.invoke()
     }
 }

@@ -30,32 +30,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.fastForEach
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalComposeRuntimeApi::class)
 class ErrorTraceTests {
-    @BeforeTest
-    fun setUp() {
-        Composer.setDiagnosticStackTraceEnabled(true)
-    }
-
-    @AfterTest
-    fun tearDown() {
-        Composer.setDiagnosticStackTraceEnabled(false)
-    }
-
     @Test
     fun setContent() =
-        exceptionTest("<lambda>(ErrorTraceTests.kt:<unknown line>)") {
+        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(1)) {
             compose { throwTestException() }
         }
 
     @Test
     fun recompose() =
-        exceptionTest("<lambda>(ErrorTraceTests.kt:<unknown line>)") {
+        exceptionTest(listOf("<lambda>(ErrorTraceTests.kt:<unknown line>)"), groupKeyTrace(1)) {
             var state by mutableStateOf(false)
             compose {
                 if (state) {
@@ -70,11 +59,14 @@ class ErrorTraceTests {
     @Test
     fun setContentLinear() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:77)",
-            "ReusableComposeNode(Composables.kt:<line number>)",
-            "Linear(ErrorTraceComposables.kt:73)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:77)",
+                "ReusableComposeNode(Composables.kt:<line number>)",
+                "Linear(ErrorTraceComposables.kt:73)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             compose { Linear { throwTestException() } }
         }
@@ -82,11 +74,14 @@ class ErrorTraceTests {
     @Test
     fun recomposeLinear() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:77)",
-            "ReusableComposeNode(Composables.kt:<line number>)",
-            "Linear(ErrorTraceComposables.kt:73)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:77)",
+                "ReusableComposeNode(Composables.kt:<line number>)",
+                "Linear(ErrorTraceComposables.kt:73)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -104,11 +99,14 @@ class ErrorTraceTests {
     @Test
     fun setContentInlineLinear() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:87)",
-            "ReusableComposeNode(Composables.kt:<line number>)",
-            "InlineLinear(ErrorTraceComposables.kt:83)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:87)",
+                "ReusableComposeNode(Composables.kt:<line number>)",
+                "InlineLinear(ErrorTraceComposables.kt:83)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(1), // All frames except from initial lambda are source markers
         ) {
             compose { InlineLinear { throwTestException() } }
         }
@@ -116,11 +114,14 @@ class ErrorTraceTests {
     @Test
     fun recomposeInlineLinear() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:87)",
-            "ReusableComposeNode(Composables.kt:<line number>)",
-            "InlineLinear(ErrorTraceComposables.kt:83)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:87)",
+                "ReusableComposeNode(Composables.kt:<line number>)",
+                "InlineLinear(ErrorTraceComposables.kt:83)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(1),
         ) {
             var state by mutableStateOf(false)
 
@@ -139,9 +140,12 @@ class ErrorTraceTests {
     @Test
     fun setContentAfterTextInLoopInlineWrapper() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "InlineWrapper(ErrorTraceComposables.kt:57)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "InlineWrapper(ErrorTraceComposables.kt:57)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(2),
         ) {
             compose {
                 InlineWrapper {
@@ -158,9 +162,12 @@ class ErrorTraceTests {
     @Test
     fun recomposeAfterTextInLoopInlineWrapper() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "InlineWrapper(ErrorTraceComposables.kt:57)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "InlineWrapper(ErrorTraceComposables.kt:57)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
 
@@ -182,9 +189,12 @@ class ErrorTraceTests {
     @Test
     fun setContentAfterTextInLoop() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "Repeated(ErrorTraceComposables.kt:94)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "Repeated(ErrorTraceComposables.kt:94)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             compose {
                 Repeated(List(10) { it }) {
@@ -197,9 +207,12 @@ class ErrorTraceTests {
     @Test
     fun recomposeAfterTextInLoop() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "Repeated(ErrorTraceComposables.kt:94)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "Repeated(ErrorTraceComposables.kt:94)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             var state by mutableStateOf(false)
 
@@ -219,10 +232,13 @@ class ErrorTraceTests {
     @Test
     fun setContentSubcomposition() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:66)",
-            "Subcompose(ErrorTraceComposables.kt:62)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:66)",
+                "Subcompose(ErrorTraceComposables.kt:62)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(4),
         ) {
             compose { Subcompose { throwTestException() } }
         }
@@ -230,13 +246,16 @@ class ErrorTraceTests {
     @Test
     fun setContentNestedSubcomposition() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:66)",
-            "Subcompose(ErrorTraceComposables.kt:62)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "<lambda>(ErrorTraceComposables.kt:66)",
-            "Subcompose(ErrorTraceComposables.kt:62)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:66)",
+                "Subcompose(ErrorTraceComposables.kt:62)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "<lambda>(ErrorTraceComposables.kt:66)",
+                "Subcompose(ErrorTraceComposables.kt:62)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(7),
         ) {
             compose { Subcompose { Subcompose { throwTestException() } } }
         }
@@ -244,10 +263,13 @@ class ErrorTraceTests {
     @Test
     fun recomposeSubcomposition() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceComposables.kt:66)",
-            "Subcompose(ErrorTraceComposables.kt:62)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceComposables.kt:66)",
+                "Subcompose(ErrorTraceComposables.kt:62)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(4),
         ) {
             var state by mutableStateOf(false)
 
@@ -266,9 +288,12 @@ class ErrorTraceTests {
     @Test
     fun setContentDefaults() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             compose { ComposableWithDefaults { throwTestException() } }
         }
@@ -276,9 +301,12 @@ class ErrorTraceTests {
     @Test
     fun recomposeDefaults() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "ComposableWithDefaults(ErrorTraceComposables.kt:109)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             var state by mutableStateOf(false)
 
@@ -297,8 +325,11 @@ class ErrorTraceTests {
     @Test
     fun setContentRemember() =
         exceptionTest(
-            "remember(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "remember(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(1),
         ) {
             compose { remember { throwTestException() } }
         }
@@ -306,9 +337,12 @@ class ErrorTraceTests {
     @Test
     fun setContentRememberObserver() =
         exceptionTest(
-            "remember(Effects.kt:<unknown line>)",
-            "DisposableEffect(Effects.kt:<line number>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "remember(Effects.kt:<unknown line>)",
+                "DisposableEffect(Effects.kt:<line number>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(1),
         ) {
             compose { DisposableEffect(Unit) { throwTestException() } }
         }
@@ -316,9 +350,12 @@ class ErrorTraceTests {
     @Test
     fun recomposeRememberObserver() =
         exceptionTest(
-            "remember(Effects.kt:<unknown line>)",
-            "DisposableEffect(Effects.kt:<line number>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "remember(Effects.kt:<unknown line>)",
+                "DisposableEffect(Effects.kt:<line number>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(1),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -337,12 +374,13 @@ class ErrorTraceTests {
     @Test
     fun nodeReuse() =
         exceptionTest(
-            // todo(b/409033128): Investigate why NodeWithCallbacks has unknown line
-            // missing ReusableComposeNode because writer is not set directly to the node group
-            "NodeWithCallbacks(ErrorTraceComposables.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "ReusableContent(Composables.kt:<line number>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "NodeWithCallbacks(ErrorTraceComposables.kt:121)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "ReusableContent(Composables.kt:<line number>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(2),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -356,11 +394,14 @@ class ErrorTraceTests {
     @Test
     fun nodeDeactivate() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "ReusableContentHost(Composables.kt:<line number>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "ReusableContentHost(Composables.kt:<line number>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             var active by mutableStateOf(true)
             compose {
@@ -376,11 +417,14 @@ class ErrorTraceTests {
     @Test
     fun setContentNodeAttach() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "InlineWrapper(ErrorTraceComposables.kt:57)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "InlineWrapper(ErrorTraceComposables.kt:57)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(2),
         ) {
             compose { InlineWrapper { NodeWithCallbacks(onAttach = { throwTestException() }) } }
         }
@@ -388,11 +432,14 @@ class ErrorTraceTests {
     @Test
     fun recomposeNodeAttach() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "Wrapper(ErrorTraceComposables.kt:149)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "Wrapper(ErrorTraceComposables.kt:149)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(5),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -411,12 +458,15 @@ class ErrorTraceTests {
     // todo(b/409033128): Investigate why NodeWithCallbacks has an incorrect line
     fun recomposeNodeAttachInlineWrapper() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            // (b/380272059): groupless source information is missing here after recomposition
-            //                "<lambda>(ErrorTraceTests.kt:<line number>)",
-            //                "InlineWrapper(ErrorTraceComposables.kt:148)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                // (b/380272059): groupless source information is missing here after recomposition
+                //                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                //                "InlineWrapper(ErrorTraceComposables.kt:148)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(3),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -434,12 +484,15 @@ class ErrorTraceTests {
     @Test
     fun emptySourceInformation() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "InlineWrapper(ErrorTraceComposables.kt:57)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "InlineWrapper(ErrorTraceComposables.kt:57)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(4),
         ) {
-            val list = listOf(1, 2, 3)
+            @Suppress("PrimitiveInCollection") val list = listOf(1, 2, 3)
             var content: (@Composable () -> Unit)? = null
             // some gymnastics to ensure that Kotlin generates a null check
             if (3 in list) {
@@ -452,11 +505,14 @@ class ErrorTraceTests {
     @Test
     fun setContentNodeUpdate() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "Wrapper(ErrorTraceComposables.kt:149)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "Wrapper(ErrorTraceComposables.kt:149)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(4),
         ) {
             compose { Wrapper { NodeWithCallbacks(onUpdate = { throwTestException() }) } }
         }
@@ -464,11 +520,14 @@ class ErrorTraceTests {
     @Test
     fun recomposeUpdate() =
         exceptionTest(
-            "ReusableComposeNode(Composables.kt:<unknown line>)",
-            "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "Wrapper(ErrorTraceComposables.kt:149)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "ReusableComposeNode(Composables.kt:<unknown line>)",
+                "NodeWithCallbacks(ErrorTraceComposables.kt:122)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "Wrapper(ErrorTraceComposables.kt:149)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(5),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -493,12 +552,15 @@ class ErrorTraceTests {
     @Test
     fun setContentMovableContent() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(MovableContent.kt:<line number>)",
-            "<lambda>(Composer.kt:<line number>)",
-            "<lambda>(MovableContent.kt:<unknown line>)",
-            "MovableWrapper(ErrorTraceComposables.kt:156)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(MovableContent.kt:<line number>)",
+                "<lambda>(ComposerImpl.kt:<line number>)",
+                "<lambda>(MovableContent.kt:<unknown line>)",
+                "MovableWrapper(ErrorTraceComposables.kt:156)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(6),
         ) {
             compose { MovableWrapper { throwTestException() } }
         }
@@ -506,12 +568,15 @@ class ErrorTraceTests {
     @Test
     fun recomposeMovableContent() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(MovableContent.kt:<line number>)",
-            "<lambda>(Composer.kt:<line number>)",
-            "<lambda>(MovableContent.kt:<unknown line>)",
-            "MovableWrapper(ErrorTraceComposables.kt:156)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(MovableContent.kt:<line number>)",
+                "<lambda>(ComposerImpl.kt:<line number>)",
+                "<lambda>(MovableContent.kt:<unknown line>)",
+                "MovableWrapper(ErrorTraceComposables.kt:156)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(6),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -529,12 +594,15 @@ class ErrorTraceTests {
     @Test
     fun moveMovableContentOf() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(Composer.kt:<line number>)",
-            "<lambda>(MovableContent.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "WrappedMovableContent(ErrorTraceComposables.kt:166)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ComposerImpl.kt:<line number>)",
+                "<lambda>(MovableContent.kt:<unknown line>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "WrappedMovableContent(ErrorTraceComposables.kt:166)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(7),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -560,12 +628,15 @@ class ErrorTraceTests {
     @Test
     fun moveMovableContentOfStateRead() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(Composer.kt:<line number>)",
-            "<lambda>(MovableContent.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "WrappedMovableContent(ErrorTraceComposables.kt:166)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ComposerImpl.kt:<line number>)",
+                "<lambda>(MovableContent.kt:<unknown line>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "WrappedMovableContent(ErrorTraceComposables.kt:166)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(7),
         ) {
             var state by mutableStateOf(false)
             compose {
@@ -591,14 +662,17 @@ class ErrorTraceTests {
     @Test
     fun moveMovableContentOfReverse() =
         exceptionTest(
-            "<lambda>(ErrorTraceTests.kt:<unknown line>)",
-            "<lambda>(Composer.kt:<line number>)",
-            "<lambda>(MovableContent.kt:<unknown line>)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "Wrapper(ErrorTraceComposables.kt:149)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
-            "WrappedMovableContent(ErrorTraceComposables.kt:166)",
-            "<lambda>(ErrorTraceTests.kt:<line number>)",
+            listOf(
+                "<lambda>(ErrorTraceTests.kt:<unknown line>)",
+                "<lambda>(ComposerImpl.kt:<line number>)",
+                "<lambda>(MovableContent.kt:<unknown line>)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "Wrapper(ErrorTraceComposables.kt:149)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+                "WrappedMovableContent(ErrorTraceComposables.kt:166)",
+                "<lambda>(ErrorTraceTests.kt:<line number>)",
+            ),
+            groupKeyTrace(9),
         ) {
             var state by mutableStateOf(true)
             compose {
@@ -629,8 +703,16 @@ private class TestComposeException : Exception("Test exception")
 private const val TestFile = "ErrorTraceComposables.kt"
 private const val DebugKeepLineNumbers = false
 
-private fun exceptionTest(vararg trace: String, block: suspend CompositionTestScope.() -> Unit) {
-    assertTrace(trace.toList()) { compositionTest(block) }
+private fun exceptionTest(
+    sourceTrace: List<String>,
+    groupKeyTrace: List<String>,
+    block: suspend CompositionTestScope.() -> Unit,
+) {
+    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
+    assertTrace(sourceTrace) { compositionTest(block) }
+    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.GroupKeys)
+    assertTrace(groupKeyTrace) { compositionTest(block) }
+    Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 }
 
 private fun assertTrace(expected: List<String>, block: () -> Unit) {
@@ -648,6 +730,7 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
         throw exception
     }
     val message = composeTrace.message.orEmpty()
+
     val frameString =
         message
             .substringAfter("Composition stack when thrown:\n")
@@ -658,16 +741,22 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
                 // Only keep the lines in the test file
                 if (trace.contains(TestFile)) {
                     trace
-                } else {
-                    // Ignore differences due to composer implementation change
-                    val effectiveTrace =
-                        trace.replace("GapComposer", "Composer").replace("LinkComposer", "Composer")
-                    val line = effectiveTrace.substringAfter(':').substringBefore(')')
-                    @Suppress("SimplifyBooleanWithConstants")
-                    if (line == "<unknown line>" || DebugKeepLineNumbers) {
-                        effectiveTrace
+                } else if (trace.startsWith("$\$compose")) {
+                    // Group key stack traces
+                    val groupKey = trace.substringBefore('(').takeLastWhile { it != '$' }
+                    assertNotNull(groupKey.toIntOrNull(), "Invalid group key: $groupKey")
+                    // Remove key values for test stability
+                    if (!DebugKeepLineNumbers) {
+                        trace.replace(groupKey, "<group-key>")
                     } else {
-                        effectiveTrace.replace(line, "<line number>")
+                        trace
+                    }
+                } else {
+                    val line = trace.substringAfter(':').substringBefore(')')
+                    if (line == "<unknown line>" || DebugKeepLineNumbers) {
+                        trace
+                    } else {
+                        trace.replace(line, "<line number>")
                     }
                 }
             }
@@ -676,3 +765,6 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
     val expectedString = expected.joinToString(",\n") { "\"$it\"" }
     assertEquals(expectedString, frameString)
 }
+
+private fun groupKeyTrace(stackFrameCount: Int): List<String> =
+    List(stackFrameCount) { "$\$compose.m$<group-key>(SourceFile:1)" }

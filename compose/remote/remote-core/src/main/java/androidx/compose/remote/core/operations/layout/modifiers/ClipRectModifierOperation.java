@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Support modifier clip with a rectangle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClipRectModifierOperation extends DecoratorModifierOperation {
     public static final String CLASS_NAME = "ClipRectModifierOperation";
     private static final int OP_CODE = Operations.MODIFIER_CLIP_RECT;

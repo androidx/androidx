@@ -106,6 +106,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@SdkSuppress(minSdkVersion = 26) // b/437958945
 @RunWith(AndroidJUnit4::class)
 class LayoutTest {
 

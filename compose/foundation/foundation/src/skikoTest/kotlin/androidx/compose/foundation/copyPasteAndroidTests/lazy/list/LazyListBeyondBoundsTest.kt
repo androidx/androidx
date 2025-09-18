@@ -20,6 +20,7 @@ import androidx.compose.foundation.assertThat
 import androidx.compose.foundation.containsExactly
 import androidx.compose.foundation.isEqualTo
 import androidx.compose.foundation.isFalse
+import androidx.compose.foundation.isInOrder
 import androidx.compose.foundation.isLessThan
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -27,13 +28,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.ParentCapturingModifierNodeElement
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
@@ -42,21 +46,22 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SkikoComposeUiTest
-import androidx.compose.ui.test.runSkikoComposeUiTest
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
 import kotlin.test.Test
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class LazyListBeyondBoundsTest {
@@ -68,34 +73,46 @@ class LazyListBeyondBoundsTest {
         val reverseLayout: Boolean,
         val layoutDirection: LayoutDirection,
     ) {
-        override fun toString() = "beyondBoundsLayoutDirection=$beyondBoundsLayoutDirection " +
-            "reverseLayout=$reverseLayout " +
-            "layoutDirection=$layoutDirection"
+        override fun toString() =
+            "beyondBoundsLayoutDirection=$beyondBoundsLayoutDirection " +
+                "reverseLayout=$reverseLayout " +
+                "layoutDirection=$layoutDirection"
+
+        internal fun placementComparator(): PlacementComparator {
+            return PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
+        }
     }
 
     private val density = Density(1f)
     private var param: Param? = null
-    
+
     private val beyondBoundsLayoutDirection
         get() = param!!.beyondBoundsLayoutDirection
     private val reverseLayout
         get() = param!!.reverseLayout
     private val layoutDirection
         get() = param!!.layoutDirection
-    private val placedItems = mutableSetOf<Int>()
+
+    private val placedItems = mutableMapOf<Int, Rect>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
     private lateinit var lazyListState: LazyListState
+    private lateinit var scope: CoroutineScope
 
-    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) {
-        initParameters().forEach { 
+    private fun runParametrizedTest(test: suspend ComposeUiTest.() -> Unit) {
+        ParamsToTest.forEach {
             param = it
-            runSkikoComposeUiTest { test() }
+            runComposeUiTest { test() }
             param = null
         }
     }
-    
+
+    private suspend fun forEachParameter(params: List<Param>, action: suspend (Param) -> Unit) {
+        // "forEach" is in runParametrizedTest
+        action(param!!)
+    }
+
     companion object {
-        fun initParameters() = buildList {
+        val ParamsToTest = buildList {
             for (beyondBoundsLayoutDirection in listOf(Left, Right, Above, Below, Before, After)) {
                 for (reverseLayout in listOf(false, true)) {
                     for (layoutDirection in listOf(Ltr, Rtl)) {
@@ -106,416 +123,356 @@ class LazyListBeyondBoundsTest {
         }
     }
 
-    @Test
-    fun onlyOneVisibleItemIsPlaced() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 10.toDp(), firstVisibleItem = 0) {
-            items(100) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
-            }
-        }
-
-        // Assert.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(0)
-            assertThat(visibleItems).containsExactly(0)
-        }
+    private suspend fun ComposeUiTest.resetTestCase(firstVisibleItem: Int = 0) {
+        awaitIdle()
+        lazyListState.scrollToItem(firstVisibleItem)
+        placedItems.clear()
+        beyondBoundsLayout = null
     }
 
     @Test
-    fun onlyTwoVisibleItemsArePlaced() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 20.toDp(), firstVisibleItem = 0) {
-            items(100) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
+    fun onlyOneVisibleItemIsPlaced() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 10.toDp(), firstVisibleItem = 0) {
+                items(100) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+            }
+
+            forEachParameter(ParamsToTest) { _ ->
+                // Assert.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(0)
+                    assertThat(visibleItems).containsExactly(0)
+                }
+                resetTestCase()
             }
         }
 
-        // Assert.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1)
-            assertThat(visibleItems).containsExactly(0, 1)
-        }
-    }
-
     @Test
-    fun onlyThreeVisibleItemsArePlaced() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
-            items(100) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
+    fun onlyTwoVisibleItemsArePlaced() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 20.toDp(), firstVisibleItem = 0) {
+                items(100) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+            }
+            forEachParameter(ParamsToTest) { _ ->
+                // Assert.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(0, 1)
+                    assertThat(visibleItems).containsExactly(0, 1)
+                }
+                resetTestCase()
             }
         }
 
-        // Assert.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1, 2)
-            assertThat(visibleItems).containsExactly(0, 1, 2)
+    @Test
+    fun onlyThreeVisibleItemsArePlaced() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
+                items(100) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+            }
+
+            forEachParameter(ParamsToTest) { _ ->
+                // Assert.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(0, 1, 2)
+                    assertThat(visibleItems).containsExactly(0, 1, 2)
+                }
+                resetTestCase()
+            }
         }
-    }
 
     @Test
-    fun emptyLazyList_doesNotCrash() = runParametrizedTest {
-        // Arrange.
-        var addItems by mutableStateOf(true)
-        lateinit var beyondBoundsLayoutRef: BeyondBoundsLayout
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
-            if (addItems) {
-                item {
-                    Box(
-                        Modifier.modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                    )
+    fun emptyLazyList_doesNotCrash() =
+        runParametrizedTest {
+            // Arrange.
+            var addItems by mutableStateOf(true)
+            lateinit var beyondBoundsLayoutRef: BeyondBoundsLayout
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
+                if (addItems) {
+                    item { Box(Modifier.capturingBeyondBoundsLayout()) }
                 }
             }
-        }
-        runOnIdle {
-            beyondBoundsLayoutRef = beyondBoundsLayout!!
-            addItems = false
-        }
 
-        // Act.
-        val hasMoreContent = runOnIdle {
-            beyondBoundsLayoutRef.layout(beyondBoundsLayoutDirection) {
-                hasMoreContent
-            }
-        }
-
-        // Assert.
-        runOnIdle {
-            assertThat(hasMoreContent).isFalse()
-        }
-    }
-
-    @Test
-    fun oneExtraItemBeyondVisibleBounds() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
-            }
-            item {
-                Box(Modifier
-                    .size(10.toDp())
-                    .trackPlaced(5)
-                    .modifierLocalConsumer {
-                        beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                    }
-                )
-            }
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index + 6)
-                )
-            }
-        }
-
-        // Act.
-        runOnUiThread {
-            beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
-                // Assert that the beyond bounds items are present.
-                if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsExactly(4, 5, 6, 7)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
-                } else {
-                    assertThat(placedItems).containsExactly(5, 6, 7, 8)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
+            forEachParameter(ParamsToTest) { param ->
+                runOnIdle {
+                    beyondBoundsLayoutRef = beyondBoundsLayout!!
+                    addItems = false
                 }
-                // Just return true so that we stop as soon as we run this once.
-                // This should result in one extra item being added.
-                true
-            }
-        }
 
-        // Assert that the beyond bounds items are removed.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
-            assertThat(visibleItems).containsExactly(5, 6, 7)
-        }
-    }
-
-    @Test
-    fun twoExtraItemsBeyondVisibleBounds() = runParametrizedTest {
-        // Arrange.
-        var extraItemCount = 2
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
-            }
-            item {
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(5)
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                )
-            }
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index + 6)
-                )
-            }
-        }
-
-        // Act.
-        runOnUiThread {
-            beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
-                if (--extraItemCount > 0) {
-                    // Return null to continue the search.
-                    null
-                } else {
-                    // Assert that the beyond bounds items are present.
-                    if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
-                    } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                // Act.
+                val hasMoreContent = runOnIdle {
+                    beyondBoundsLayoutRef.layout(param.beyondBoundsLayoutDirection) {
+                        hasMoreContent
                     }
-                    // Return true to stop the search.
-                    true
                 }
-            }
-        }
 
-        // Assert that the beyond bounds items are removed.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
-            assertThat(visibleItems).containsExactly(5, 6, 7)
-        }
-    }
-
-    @Test
-    fun allBeyondBoundsItemsInSpecifiedDirection() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
-            }
-            item {
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                        .trackPlaced(5)
-                )
-            }
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index + 6)
-                )
+                // Assert.
+                runOnIdle { assertThat(hasMoreContent).isFalse() }
+                resetTestCase()
+                addItems = true
             }
         }
-
-        // Act.
-        runOnUiThread {
-            beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
-                if (hasMoreContent) {
-                    // Just return null so that we keep adding more items till we reach the end.
-                    null
-                } else {
-                    // Assert that the beyond bounds items are present.
-                    if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
-                    } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
-                    }
-                    // Return true to end the search.
-                    true
-                }
-            }
-        }
-
-        // Assert that the beyond bounds items are removed.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
-        }
-    }
 
     @Test
-    fun beyondBoundsLayoutRequest_inDirectionPerpendicularToLazyListOrientation() = runParametrizedTest {
-        // Arrange.
-        var beyondBoundsLayoutCount = 0
-        setLazyContentInPerpendicularDirection(size = 30.toDp(), firstVisibleItem = 5) {
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
+    fun oneExtraItemBeyondVisibleBounds() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
-            item {
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(5)
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                        }
-                )
-            }
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index + 6)
-                )
-            }
-        }
-        runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
-            assertThat(visibleItems).containsExactly(5, 6, 7)
-        }
 
-        // Act.
-        runOnUiThread {
-            beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
-                beyondBoundsLayoutCount++
-                when (beyondBoundsLayoutDirection) {
-                    Left, Right, Above, Below -> {
-                        assertThat(placedItems).containsExactly(5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
-                    }
-                    Before, After -> {
-                        if (expectedExtraItemsBeforeVisibleBounds()) {
-                            assertThat(placedItems).containsExactly(4, 5, 6, 7)
-                            assertThat(visibleItems).containsExactly(5, 6, 7)
+            forEachParameter(ParamsToTest) { param ->
+                // Act.
+                runOnUiThread {
+                    beyondBoundsLayout!!.layout(param.beyondBoundsLayoutDirection) {
+                        // Assert that the beyond bounds items are present.
+                        if (param.expectedExtraItemsBeforeVisibleBounds()) {
+                            assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                         } else {
-                            assertThat(placedItems).containsExactly(5, 6, 7, 8)
+                            assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
+                        }
+                        assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                        assertThat(placedItems.entries.sortedBy { it.key }.map { it.value })
+                            .isInOrder(param.placementComparator())
+
+                        // Just return true so that we stop as soon as we run this once.
+                        // This should result in one extra item being added.
+                        true
+                    }
+                }
+
+                // Assert that the beyond bounds items are removed.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                }
+                resetTestCase(5)
+            }
+        }
+
+    @Test
+    fun twoExtraItemsBeyondVisibleBounds() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
+            }
+
+            forEachParameter(ParamsToTest) { param ->
+                var extraItemCount = 2
+                // Act.
+                runOnUiThread {
+                    beyondBoundsLayout!!.layout(param.beyondBoundsLayoutDirection) {
+                        if (--extraItemCount > 0) {
+                            // Return null to continue the search.
+                            null
+                        } else {
+                            // Assert that the beyond bounds items are present.
+                            if (param.expectedExtraItemsBeforeVisibleBounds()) {
+                                assertThat(placedItems.keys).containsExactly(3, 4, 5, 6, 7)
+                            } else {
+                                assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9)
+                            }
                             assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                            assertThat(placedItems.entries.sortedBy { it.key }.map { it.value })
+                                .isInOrder(param.placementComparator())
+
+                            // Return true to stop the search.
+                            true
                         }
                     }
                 }
-                // Just return true so that we stop as soon as we run this once.
-                // This should result in one extra item being added.
-                true
-            }
-        }
 
-        runOnIdle {
-            when (beyondBoundsLayoutDirection) {
-                Left, Right, Above, Below -> {
-                    assertThat(beyondBoundsLayoutCount).isEqualTo(0)
-                }
-                Before, After -> {
-                    assertThat(beyondBoundsLayoutCount).isEqualTo(1)
-
-                    // Assert that the beyond bounds items are removed.
-                    assertThat(placedItems).containsExactly(5, 6, 7)
+                // Assert that the beyond bounds items are removed.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
-                else -> error("Unsupported BeyondBoundsLayoutDirection")
+                resetTestCase(5)
             }
         }
-    }
 
     @Test
-    fun returningNullDoesNotCauseInfiniteLoop() = runParametrizedTest {
-        // Arrange.
-        setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index)
-                )
+    fun allBeyondBoundsItemsInSpecifiedDirection() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
             }
-            item {
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .modifierLocalConsumer {
-                            beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
+
+            forEachParameter(ParamsToTest) { param ->
+                // Act.
+                runOnUiThread {
+                    beyondBoundsLayout!!.layout(param.beyondBoundsLayoutDirection) {
+                        if (hasMoreContent) {
+                            // Just return null so that we keep adding more items till we reach the
+                            // end.
+                            null
+                        } else {
+                            // Assert that the beyond bounds items are present.
+                            if (param.expectedExtraItemsBeforeVisibleBounds()) {
+                                assertThat(placedItems.keys).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
+                            } else {
+                                assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9, 10)
+                            }
+                            assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                            assertThat(placedItems.entries.sortedBy { it.key }.map { it.value })
+                                .isInOrder(param.placementComparator())
+
+                            // Return true to end the search.
+                            true
                         }
-                        .trackPlaced(5)
-                )
-            }
-            items(5) { index ->
-                Box(
-                    Modifier
-                        .size(10.toDp())
-                        .trackPlaced(index + 6)
-                )
+                    }
+                }
+
+                // Assert that the beyond bounds items are removed.
+                runOnIdle { assertThat(placedItems.keys).containsExactly(5, 6, 7) }
+                resetTestCase(5)
             }
         }
 
-        // Act.
-        var count = 0
-        runOnUiThread {
-            beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
-                // Assert that we don't keep iterating when there is no ending condition.
-                assertThat(count++).isLessThan(lazyListState.layoutInfo.totalItemsCount)
-                // Always return null to continue the search.
-                null
+    @Test
+    fun beyondBoundsLayoutRequest_inDirectionPerpendicularToLazyListOrientation() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContentInPerpendicularDirection(size = 30.toDp(), firstVisibleItem = 5) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item { Box(Modifier.size(10.toDp()).trackPlaced(5).capturingBeyondBoundsLayout()) }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
+            }
+
+            forEachParameter(ParamsToTest) { param ->
+                var beyondBoundsLayoutCount = 0
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                }
+
+                // Act.
+                runOnUiThread {
+                    beyondBoundsLayout!!.layout(param.beyondBoundsLayoutDirection) {
+                        beyondBoundsLayoutCount++
+                        when (param.beyondBoundsLayoutDirection) {
+                            Left,
+                            Right,
+                            Above,
+                            Below -> {
+                                assertThat(placedItems.keys).containsExactly(5, 6, 7)
+                                assertThat(visibleItems).containsExactly(5, 6, 7)
+                            }
+                            Before,
+                            After -> {
+                                if (param.expectedExtraItemsBeforeVisibleBounds()) {
+                                    assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
+                                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                                } else {
+                                    assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
+                                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                                }
+                            }
+                        }
+                        // Just return true so that we stop as soon as we run this once.
+                        // This should result in one extra item being added.
+                        true
+                    }
+                }
+
+                runOnIdle {
+                    when (param.beyondBoundsLayoutDirection) {
+                        Left,
+                        Right,
+                        Above,
+                        Below -> {
+                            assertThat(beyondBoundsLayoutCount).isEqualTo(0)
+                        }
+                        Before,
+                        After -> {
+                            assertThat(beyondBoundsLayoutCount).isEqualTo(1)
+
+                            // Assert that the beyond bounds items are removed.
+                            assertThat(placedItems.keys).containsExactly(5, 6, 7)
+                            assertThat(visibleItems).containsExactly(5, 6, 7)
+                        }
+                        else -> error("Unsupported BeyondBoundsLayoutDirection")
+                    }
+                }
+                resetTestCase(5)
             }
         }
 
-        // Assert that the beyond bounds items are removed.
-        runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
-            assertThat(visibleItems).containsExactly(5, 6, 7)
+    @Test
+    fun returningNullDoesNotCauseInfiniteLoop() =
+        runParametrizedTest {
+            // Arrange.
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 5) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item { Box(Modifier.size(10.toDp()).capturingBeyondBoundsLayout().trackPlaced(5)) }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index + 6)) }
+            }
+
+            forEachParameter(ParamsToTest) { param ->
+                // Act.
+                var count = 0
+                runOnUiThread {
+                    beyondBoundsLayout!!.layout(param.beyondBoundsLayoutDirection) {
+                        // Assert that we don't keep iterating when there is no ending condition.
+                        assertThat(count++).isLessThan(lazyListState.layoutInfo.totalItemsCount)
+                        // Always return null to continue the search.
+                        null
+                    }
+                }
+
+                // Assert that the beyond bounds items are removed.
+                runOnIdle {
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                }
+                resetTestCase(5)
+            }
         }
+
+    private fun Modifier.capturingBeyondBoundsLayout(): Modifier {
+        return this then ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
     }
 
-    private fun SkikoComposeUiTest.setLazyContent(
+    private fun ComposeUiTest.setLazyContent(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 lazyListState = rememberLazyListState(firstVisibleItem)
+                scope = rememberCoroutineScope()
                 when (beyondBoundsLayoutDirection) {
-                    Left, Right, Before, After ->
+                    Left,
+                    Right,
+                    Before,
+                    After ->
                         LazyRow(
-                            modifier = Modifier.size(size),
+                            modifier = Modifier.size(size).testTag("list"),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
-                            content = content
+                            content = content,
                         )
-                    Above, Below ->
+                    Above,
+                    Below ->
                         LazyColumn(
-                            modifier = Modifier.size(size),
+                            modifier = Modifier.size(size).testTag("list"),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
-                            content = content
+                            content = content,
                         )
                     else -> unsupportedDirection()
                 }
@@ -523,28 +480,32 @@ class LazyListBeyondBoundsTest {
         }
     }
 
-    private fun SkikoComposeUiTest.setLazyContentInPerpendicularDirection(
+    private fun ComposeUiTest.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 lazyListState = rememberLazyListState(firstVisibleItem)
                 when (beyondBoundsLayoutDirection) {
-                    Left, Right, Before, After ->
+                    Left,
+                    Right,
+                    Before,
+                    After ->
                         LazyColumn(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
-                            content = content
+                            content = content,
                         )
-                    Above, Below ->
+                    Above,
+                    Below ->
                         LazyRow(
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = reverseLayout,
-                            content = content
+                            content = content,
                         )
                     else -> unsupportedDirection()
                 }
@@ -557,50 +518,73 @@ class LazyListBeyondBoundsTest {
     private val visibleItems: List<Int>
         get() = lazyListState.layoutInfo.visibleItemsInfo.map { it.index }
 
-    private fun expectedExtraItemsBeforeVisibleBounds() = when (beyondBoundsLayoutDirection) {
-        Right -> if (layoutDirection == Ltr) reverseLayout else !reverseLayout
-        Left -> if (layoutDirection == Ltr) !reverseLayout else reverseLayout
-        Above -> !reverseLayout
-        Below -> reverseLayout
-        After -> false
-        Before -> true
-        else -> error("Unsupported BeyondBoundsDirection")
-    }
+    private fun Param.expectedExtraItemsBeforeVisibleBounds() =
+        when (beyondBoundsLayoutDirection) {
+            Right -> if (layoutDirection == Ltr) reverseLayout else !reverseLayout
+            Left -> if (layoutDirection == Ltr) !reverseLayout else reverseLayout
+            Above -> !reverseLayout
+            Below -> reverseLayout
+            After -> false
+            Before -> true
+            else -> error("Unsupported BeyondBoundsDirection")
+        }
 
-    private fun unsupportedDirection(): Nothing = error(
-        "Lazy list does not support beyond bounds layout for the specified direction"
-    )
+    private fun unsupportedDirection(): Nothing =
+        error("Lazy list does not support beyond bounds layout for the specified direction")
 
     private fun Modifier.trackPlaced(index: Int): Modifier =
-        this then TrackPlacedElement(placedItems, index)
+        this then TrackPlacedElement(index, placedItems)
 }
 
-internal data class TrackPlacedElement(
-    var placedItems: MutableSet<Int>,
-    var index: Int
-) : ModifierNodeElement<TrackPlacedNode>() {
-    override fun create() = TrackPlacedNode(placedItems, index)
+internal data class TrackPlacedElement(var index: Int, var placedItems: MutableMap<Int, Rect>) :
+    ModifierNodeElement<TrackPlacedNode>() {
+    override fun create() = TrackPlacedNode(index, placedItems)
 
     override fun update(node: TrackPlacedNode) {
-        node.placedItems = placedItems
         node.index = index
+        node.placedItems = placedItems
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "trackPlaced"
         properties["index"] = index
+        properties["placedItems"] = placedItems
     }
 }
 
-internal class TrackPlacedNode(
-    var placedItems: MutableSet<Int>,
-    var index: Int
-) : LayoutAwareModifierNode, Modifier.Node() {
+internal class TrackPlacedNode(var index: Int, var placedItems: MutableMap<Int, Rect>) :
+    LayoutAwareModifierNode, Modifier.Node() {
     override fun onPlaced(coordinates: LayoutCoordinates) {
-        placedItems += index
+        placedItems[index] =
+            coordinates.findRootCoordinates().localBoundingBoxOf(coordinates, false)
     }
 
     override fun onDetach() {
-        placedItems -= index
+        placedItems.remove(index)
+    }
+}
+
+internal class PlacementComparator(
+    val beyondBoundsLayoutDirection: BeyondBoundsLayout.LayoutDirection,
+    val layoutDirection: LayoutDirection,
+    val reverseLayout: Boolean,
+) : Comparator<Rect> {
+    private fun itemsInReverseOrder() =
+        when (beyondBoundsLayoutDirection) {
+            Above,
+            Below -> reverseLayout
+            else -> if (layoutDirection == Ltr) reverseLayout else !reverseLayout
+        }
+
+    private fun compareOffset(o1: Float, o2: Float): Int {
+        return if (itemsInReverseOrder()) o2.compareTo(o1) else o1.compareTo(o2)
+    }
+
+    override fun compare(a: Rect, b: Rect): Int {
+        return when (beyondBoundsLayoutDirection) {
+            Above,
+            Below -> compareOffset(a.top, b.top)
+            else -> compareOffset(a.left, b.left)
+        }
     }
 }

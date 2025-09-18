@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package androidx.compose.runtime
 
-import androidx.annotation.CheckResult
-
 // TODO: It's not required anymore, but was declared as public previously.
 //  `metalava` won't detect removing this API because typealias doesn't
 //  introduce a new type in runtime.
@@ -25,4 +23,4 @@ import androidx.annotation.CheckResult
     message = "It was never intended to be public",
     replaceWith = ReplaceWith("androidx.annotation.CheckResult"),
 )
-public typealias CheckResult = CheckResult
+public typealias CheckResult = androidx.annotation.CheckResult

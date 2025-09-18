@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 
 /** Generates a path from expressions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PathExpression extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.PATH_EXPRESSION;
     private static final String CLASS_NAME = "PathExpression";

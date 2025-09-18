@@ -44,6 +44,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFrom
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusPropertiesModifierNode
@@ -85,12 +87,13 @@ import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.fillableData
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.inputText
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
-import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onFillData
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
@@ -551,10 +554,10 @@ internal class TextFieldDecoratorModifierNode(
         // The developer will set `contentType`. TF populates the other autofill-related
         // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
         this.contentDataType = ContentDataType.Text
-
-        onAutofillText { newText ->
-            if (!editable) return@onAutofillText false
-            textFieldState.replaceAll(newText)
+        FillableData.createFrom(text)?.let { this.fillableData = it }
+        onFillData { dataValue ->
+            if (!editable) return@onFillData false
+            dataValue.textValue?.let { textFieldState.replaceAll(it) }
             autofillHighlightOn = true
             coroutineScope.launch { observeUntransformedTextChanges() }
             true

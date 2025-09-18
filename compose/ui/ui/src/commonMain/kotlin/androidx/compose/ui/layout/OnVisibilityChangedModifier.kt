@@ -198,7 +198,16 @@ internal class OnVisibilityChangedNode(
         }
     }
 
+    fun fireExitIfNeeded() {
+        if (lastResult && firedOnce) {
+            job?.cancel()
+            lastResult = false
+            callback(false)
+        }
+    }
+
     override fun onReset() {
+        fireExitIfNeeded()
         job?.cancel()
         job = null
         lastResult = false
@@ -223,7 +232,7 @@ internal class OnVisibilityChangedNode(
 
     override fun onDetach() {
         handle?.unregister()
-        // TODO: should we dispatch in cases of detach?
+        fireExitIfNeeded()
     }
 
     override fun onObservedReadsChanged() {

@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.creation.Painter
@@ -47,7 +46,7 @@ private val RemoteComposeWriter.painter: Painter
     }
 
 @Composable
-fun measureTextWidth(
+public fun measureTextWidth(
     text: RemoteString,
     style: TextStyle = LocalTextStyle.current,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -70,7 +69,7 @@ fun measureTextWidth(
 }
 
 @Composable
-fun measureTextHeight(
+public fun measureTextHeight(
     text: RemoteString,
     style: TextStyle = LocalTextStyle.current,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -94,7 +93,7 @@ fun measureTextHeight(
 }
 
 @Composable
-fun measureTextLength(text: RemoteString): RemoteFloat {
+public fun measureTextLength(text: RemoteString): RemoteFloat {
     val creationState = LocalRemoteComposeCreationState.current
     val doc = creationState.document
     return rememberRemoteFloat {

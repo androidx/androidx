@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.player
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
@@ -38,8 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-fun RemoteDocumentPlayer(
+public fun RemoteDocumentPlayer(
     document: CoreDocument,
     documentWidth: Int,
     documentHeight: Int,
@@ -47,6 +47,7 @@ fun RemoteDocumentPlayer(
     modifier: Modifier = Modifier,
     init: (RemoteComposePlayer) -> Unit = {},
     update: (RemoteComposePlayer) -> Unit = {},
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
 ) {
     var inDarkTheme by remember { mutableStateOf(false) }
@@ -80,6 +81,9 @@ fun RemoteDocumentPlayer(
             remoteComposePlayer.setDocument(remoteDoc)
             remoteComposePlayer.setDebug(debugMode)
             remoteComposePlayer.document.document.clearActionCallbacks()
+            remoteComposePlayer.document.document.addIdActionListener { id, value ->
+                onAction.invoke(id, value)
+            }
             remoteComposePlayer.document.document.addActionCallback(
                 object :
                     StateUpdaterActionCallback(

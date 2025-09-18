@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
  */
 @RemoteComposable
 @Composable
-fun RemoteIcon(
+public fun RemoteIcon(
     imageVector: RemoteImageVector,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier.size(DefaultIconDimension),

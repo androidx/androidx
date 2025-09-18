@@ -1,3 +1,148 @@
 public abstract interface annotation class androidx/compose/desktop/ui/tooling/preview/Preview : java/lang/annotation/Annotation {
 }
 
+public final class androidx/compose/ui/tooling/preview/Devices {
+	public static final field $stable I
+	public static final field AUTOMOTIVE_1024p Ljava/lang/String;
+	public static final field DEFAULT Ljava/lang/String;
+	public static final field DESKTOP Ljava/lang/String;
+	public static final field FOLDABLE Ljava/lang/String;
+	public static final field INSTANCE Landroidx/compose/ui/tooling/preview/Devices;
+	public static final field NEXUS_10 Ljava/lang/String;
+	public static final field NEXUS_5 Ljava/lang/String;
+	public static final field NEXUS_5X Ljava/lang/String;
+	public static final field NEXUS_6 Ljava/lang/String;
+	public static final field NEXUS_6P Ljava/lang/String;
+	public static final field NEXUS_7 Ljava/lang/String;
+	public static final field NEXUS_7_2013 Ljava/lang/String;
+	public static final field NEXUS_9 Ljava/lang/String;
+	public static final field PHONE Ljava/lang/String;
+	public static final field PIXEL Ljava/lang/String;
+	public static final field PIXEL_2 Ljava/lang/String;
+	public static final field PIXEL_2_XL Ljava/lang/String;
+	public static final field PIXEL_3 Ljava/lang/String;
+	public static final field PIXEL_3A Ljava/lang/String;
+	public static final field PIXEL_3A_XL Ljava/lang/String;
+	public static final field PIXEL_3_XL Ljava/lang/String;
+	public static final field PIXEL_4 Ljava/lang/String;
+	public static final field PIXEL_4A Ljava/lang/String;
+	public static final field PIXEL_4_XL Ljava/lang/String;
+	public static final field PIXEL_5 Ljava/lang/String;
+	public static final field PIXEL_6 Ljava/lang/String;
+	public static final field PIXEL_6A Ljava/lang/String;
+	public static final field PIXEL_6_PRO Ljava/lang/String;
+	public static final field PIXEL_7 Ljava/lang/String;
+	public static final field PIXEL_7A Ljava/lang/String;
+	public static final field PIXEL_7_PRO Ljava/lang/String;
+	public static final field PIXEL_8 Ljava/lang/String;
+	public static final field PIXEL_8A Ljava/lang/String;
+	public static final field PIXEL_8_PRO Ljava/lang/String;
+	public static final field PIXEL_9 Ljava/lang/String;
+	public static final field PIXEL_9_PRO Ljava/lang/String;
+	public static final field PIXEL_9_PRO_FOLD Ljava/lang/String;
+	public static final field PIXEL_9_PRO_XL Ljava/lang/String;
+	public static final field PIXEL_C Ljava/lang/String;
+	public static final field PIXEL_FOLD Ljava/lang/String;
+	public static final field PIXEL_TABLET Ljava/lang/String;
+	public static final field PIXEL_XL Ljava/lang/String;
+	public static final field TABLET Ljava/lang/String;
+	public static final field TV_1080p Ljava/lang/String;
+	public static final field TV_720p Ljava/lang/String;
+	public static final field WEAR_OS_LARGE_ROUND Ljava/lang/String;
+	public static final field WEAR_OS_RECT Ljava/lang/String;
+	public static final field WEAR_OS_SMALL_ROUND Ljava/lang/String;
+	public static final field WEAR_OS_SQUARE Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/Preview : java/lang/annotation/Annotation {
+	public abstract fun apiLevel ()I
+	public abstract fun backgroundColor ()J
+	public abstract fun device ()Ljava/lang/String;
+	public abstract fun fontScale ()F
+	public abstract fun group ()Ljava/lang/String;
+	public abstract fun heightDp ()I
+	public abstract fun locale ()Ljava/lang/String;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun showBackground ()Z
+	public abstract fun showSystemUi ()Z
+	public abstract fun uiMode ()I
+	public abstract fun wallpaper ()I
+	public abstract fun widthDp ()I
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/Preview$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Landroidx/compose/ui/tooling/preview/Preview;
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewDynamicColors : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewFontScale : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewLightDark : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewParameter : java/lang/annotation/Annotation {
+	public abstract fun limit ()I
+	public abstract fun provider ()Ljava/lang/Class;
+}
+
+public abstract interface class androidx/compose/ui/tooling/preview/PreviewParameterProvider {
+	public fun getCount ()I
+	public fun getDisplayName (I)Ljava/lang/String;
+	public abstract fun getValues ()Lkotlin/sequences/Sequence;
+}
+
+public final class androidx/compose/ui/tooling/preview/PreviewParameterProvider$DefaultImpls {
+	public static fun getCount (Landroidx/compose/ui/tooling/preview/PreviewParameterProvider;)I
+	public static fun getDisplayName (Landroidx/compose/ui/tooling/preview/PreviewParameterProvider;I)Ljava/lang/String;
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewScreenSizes : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/UiMode : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/ui/tooling/preview/UiModes {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/ui/tooling/preview/UiModes;
+	public static final field UI_MODE_NIGHT_MASK I
+	public static final field UI_MODE_NIGHT_NO I
+	public static final field UI_MODE_NIGHT_UNDEFINED I
+	public static final field UI_MODE_NIGHT_YES I
+	public static final field UI_MODE_TYPE_APPLIANCE I
+	public static final field UI_MODE_TYPE_CAR I
+	public static final field UI_MODE_TYPE_DESK I
+	public static final field UI_MODE_TYPE_MASK I
+	public static final field UI_MODE_TYPE_NORMAL I
+	public static final field UI_MODE_TYPE_TELEVISION I
+	public static final field UI_MODE_TYPE_UNDEFINED I
+	public static final field UI_MODE_TYPE_VR_HEADSET I
+	public static final field UI_MODE_TYPE_WATCH I
+}
+
+public final class androidx/compose/ui/tooling/preview/Wallpapers {
+	public static final field $stable I
+	public static final field BLUE_DOMINATED_EXAMPLE I
+	public static final field GREEN_DOMINATED_EXAMPLE I
+	public static final field INSTANCE Landroidx/compose/ui/tooling/preview/Wallpapers;
+	public static final field NONE I
+	public static final field RED_DOMINATED_EXAMPLE I
+	public static final field YELLOW_DOMINATED_EXAMPLE I
+}
+
+public class androidx/compose/ui/tooling/preview/datasource/CollectionPreviewParameterProvider : androidx/compose/ui/tooling/preview/PreviewParameterProvider {
+	public static final field $stable I
+	public fun <init> (Ljava/util/Collection;)V
+	public fun getValues ()Lkotlin/sequences/Sequence;
+}
+
+public class androidx/compose/ui/tooling/preview/datasource/LoremIpsum : androidx/compose/ui/tooling/preview/PreviewParameterProvider {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (I)V
+	public fun getValues ()Lkotlin/sequences/Sequence;
+}
+

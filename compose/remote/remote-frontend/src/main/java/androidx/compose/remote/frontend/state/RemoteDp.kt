@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.state
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.frontend.layout.RemoteComposable
 import androidx.compose.remote.frontend.layout.RemoteFloatContext
@@ -31,7 +30,7 @@ import androidx.compose.ui.unit.Dp
  *
  * @property value The [RemoteFloat] that holds the actual Dp value.
  */
-class RemoteDp(var value: RemoteFloat)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class RemoteDp(public var value: RemoteFloat)
 
 /**
  * A Composable function to remember and provide a [RemoteDp] value.
@@ -42,7 +41,7 @@ class RemoteDp(var value: RemoteFloat)
  */
 @Composable
 @RemoteComposable
-fun rememberRemoteDpValue(content: RemoteFloatContext.() -> Dp): RemoteDp {
+public fun rememberRemoteDpValue(content: RemoteFloatContext.() -> Dp): RemoteDp {
     val state = LocalRemoteComposeCreationState.current
     val context = RemoteFloatContext(state)
     val valueId = state.document.addFloatConstant(content(context).value)

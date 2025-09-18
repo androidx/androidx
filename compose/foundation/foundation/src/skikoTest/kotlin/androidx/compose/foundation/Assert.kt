@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 // TODO: may be replace it with :kruth or with the published androidx.kruth:1.1.0-SNAPSHOT?
 //  So tests copied from androidx will work properly
@@ -68,6 +69,26 @@ internal fun AssertThat<Boolean>.isFalse() = assertTrue(t == false, message)
 internal fun <K, T : Iterable<K>> AssertThat<T>.containsExactlyInOrder(vararg any: K) {
     require(t != null)
     assertContentEquals(t, any.toList(), message)
+}
+
+private fun <T> Iterable<T>.isInOrder(comparator: Comparator<T>): Boolean {
+    val it = iterator()
+    if (it.hasNext()) {
+        var prev = it.next()
+        while (it.hasNext()) {
+            val next = it.next()
+            if (comparator.compare(prev, next) > 0) {
+                return false
+            }
+            prev = next
+        }
+    }
+    return true
+}
+
+internal fun <K, T : Iterable<K>> AssertThat<T>.isInOrder(comparator: Comparator<K>) {
+    require(t != null)
+    assertTrue(t.isInOrder(comparator), message)
 }
 
 internal fun <K : Comparable<K>, T : Iterable<K>> AssertThat<T>.containsExactly(vararg any: K) {

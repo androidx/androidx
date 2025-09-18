@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
@@ -53,7 +52,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 @RemoteComposable
-fun RemoteText(
+public fun RemoteText(
     text: String,
     modifier: RemoteModifier = RemoteModifier,
     color: Color = Color.Black,
@@ -84,7 +83,7 @@ fun RemoteText(
 
 @Composable
 @RemoteComposable
-fun RemoteText(
+public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
     color: Color = Color.Black,
@@ -127,17 +126,18 @@ fun RemoteText(
 }
 
 /** Utility modifier to record the layout information */
-class RemoteComposeTextComponentModifier(
-    var modifier: RecordingModifier,
-    var id: RemoteIntReference,
-    var color: Color,
-    var fontSize: Float,
-    var fontStyle: Int,
-    var fontWeight: Float,
-    var fontFamily: String?,
-    var textAlign: Int,
-    var overflow: Int,
-    var maxLines: Int,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeTextComponentModifier(
+    public var modifier: RecordingModifier,
+    public var id: RemoteIntReference,
+    public var color: Color,
+    public var fontSize: Float,
+    public var fontStyle: Int,
+    public var fontWeight: Float,
+    public var fontFamily: String?,
+    public var textAlign: Int,
+    public var overflow: Int,
+    public var maxLines: Int,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
@@ -166,7 +166,7 @@ class RemoteComposeTextComponentModifier(
 // TODO: b/373614081 - Add support for textAlign, overflow, and maxLines.
 @Composable
 @RemoteComposable
-fun RemoteText(
+public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
     color: Color = Color.Black,
@@ -258,7 +258,7 @@ fun RemoteText(
 
 @Composable
 @RemoteComposable
-fun RemoteText(
+public fun RemoteText(
     textId: RemoteIntReference,
     modifier: RemoteModifier = RemoteModifier,
     color: Color = Color.Black,

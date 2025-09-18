@@ -273,4 +273,90 @@ class OnVisibilityChangedTest {
             assertEquals(true, isVisible)
         }
     }
+
+    @Test
+    fun testVisibleCalledWhenRemovedFromComposition() {
+        var called = 0
+        val shouldCompose = mutableStateOf(true)
+        var isVisible = false
+        rule.setContent {
+            Column {
+                Column {
+                    if (shouldCompose.value) {
+                        Box(
+                            Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                                    called++
+                                    isVisible = visible
+                                }
+                                .size(100.dp)
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(1, called)
+            assertEquals(true, isVisible)
+
+            shouldCompose.value = false
+        }
+        rule.runOnIdle {
+            assertEquals(2, called)
+            assertEquals(false, isVisible)
+        }
+    }
+
+    @Test
+    fun testVisibleCalledWhenRemovedFromModifierChain() {
+        var called = 0
+        val shouldCompose = mutableStateOf(true)
+        var isVisible = false
+        rule.setContent {
+            val modifier =
+                if (shouldCompose.value)
+                    Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                        called++
+                        isVisible = visible
+                    }
+                else Modifier
+            Column { Column { Box(modifier.size(100.dp)) } }
+        }
+        rule.runOnIdle {
+            assertEquals(1, called)
+            assertEquals(true, isVisible)
+
+            shouldCompose.value = false
+        }
+        rule.runOnIdle {
+            assertEquals(2, called)
+            assertEquals(false, isVisible)
+        }
+    }
+
+    @Test
+    fun testVisibleCalledWhenAddedToModifierChain() {
+        var called = 0
+        val shouldCompose = mutableStateOf(false)
+        var isVisible = false
+        rule.setContent {
+            val modifier =
+                if (shouldCompose.value)
+                    Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                        called++
+                        isVisible = visible
+                    }
+                else Modifier
+            Column { Column { Box(modifier.size(100.dp)) } }
+        }
+        rule.runOnIdle {
+            assertEquals(0, called)
+            assertEquals(false, isVisible)
+
+            shouldCompose.value = true
+        }
+        rule.runOnIdle {
+            assertEquals(1, called)
+            assertEquals(true, isVisible)
+        }
+    }
 }

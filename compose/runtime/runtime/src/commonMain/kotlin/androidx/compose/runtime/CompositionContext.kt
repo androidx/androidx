@@ -41,6 +41,7 @@ public abstract class CompositionContext internal constructor() {
     internal abstract val collectingParameterInformation: Boolean
     internal abstract val collectingSourceInformation: Boolean
     internal abstract val collectingCallByInformation: Boolean
+    internal abstract val stackTraceEnabled: Boolean
     internal open val observerHolder: CompositionObserverHolder?
         get() = null
 

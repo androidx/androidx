@@ -3979,7 +3979,7 @@ class LookaheadScopeTest {
                             .onGloballyPositioned { coordinates ->
                                 untemperedPosition = coordinates.positionInRoot()
                             }
-                            .skipToLookaheadPosition(isEnabled = { isEnabled })
+                            .skipToLookaheadPosition(enabled = { isEnabled })
                             .onGloballyPositioned { coordinates ->
                                 actualPosition = coordinates.positionInRoot()
                                 expectedLookaheadPosition =

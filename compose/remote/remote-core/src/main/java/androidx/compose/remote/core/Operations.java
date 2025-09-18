@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -162,6 +163,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /** List of operations supported in a RemoteCompose document */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Operations {
 
     private Operations() {}

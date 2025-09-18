@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Represents an offset modifier. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OffsetModifierOperation extends DecoratorModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_OFFSET;
     public static final String CLASS_NAME = "OffsetModifierOperation";

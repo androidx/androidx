@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.serialize;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /** Implementation for any class that wants to serialize itself */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Serializable {
 
     /**

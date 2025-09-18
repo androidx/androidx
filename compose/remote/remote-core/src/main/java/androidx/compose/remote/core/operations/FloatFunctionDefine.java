@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -37,6 +38,7 @@ import java.util.List;
  * This defines a function Operator. It contains a collection of commands which are then executed by
  * the FloatFunctionCall command
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FloatFunctionDefine extends Operation implements VariableSupport, Container {
     private static final int OP_CODE = Operations.FUNCTION_DEFINE;
     private static final String CLASS_NAME = "FunctionDefine";

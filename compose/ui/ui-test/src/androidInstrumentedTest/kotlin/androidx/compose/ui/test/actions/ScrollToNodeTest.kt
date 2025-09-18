@@ -16,11 +16,17 @@
 
 package androidx.compose.ui.test.actions
 
+import android.os.Looper
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
@@ -34,6 +40,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.HorizontalRtl
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.Vertical
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.FullyAfter
@@ -43,6 +52,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
@@ -50,7 +60,10 @@ import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -214,6 +227,42 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 .that(targetBounds.rightOrBottom)
                 .isAtMost(viewportBounds.rightOrBottom)
         }
+    }
+
+    @Test
+    fun performScrollToNode_invokesActionOnOnUiThread() {
+        val wasActionOnUIThread = AtomicBoolean(false)
+        val testItems = List(100) { index -> "Item $index" }
+        val targetItemText = "Item 50"
+        val tag = "LazyColumnTag"
+
+        rule.setContent {
+            val lazyListState = rememberLazyListState()
+            LazyColumn(
+                state = lazyListState,
+                modifier =
+                    Modifier.height(200.dp).semantics {
+                        testTag = tag
+                        scrollBy { _, y ->
+                            val isOnUiThread =
+                                Thread.currentThread() == Looper.getMainLooper().thread
+                            wasActionOnUIThread.set(isOnUiThread)
+                            lazyListState.dispatchRawDelta(y)
+                            true
+                        }
+                    },
+            ) {
+                items(testItems) { itemText ->
+                    BasicText(text = itemText, modifier = Modifier.fillMaxWidth().height(20.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag).performScrollToNode(hasText(targetItemText))
+        assertTrue(
+            wasActionOnUIThread.get(),
+            "The scroll action, triggered by performScrollToNode, did not occur on the UI thread.",
+        )
     }
 
     private val Rect.leftOrTop: Float

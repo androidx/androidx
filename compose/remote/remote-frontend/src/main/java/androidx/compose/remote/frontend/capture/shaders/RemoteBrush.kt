@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.capture.shaders
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.frontend.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
@@ -32,25 +31,26 @@ import androidx.compose.ui.graphics.SolidColor
  * This is used to provide a way to intercept linear gradient brushes in Remote, so that
  * we can serialize them.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-abstract class RemoteBrush {
+public abstract class RemoteBrush {
 
     /**
      * Return the intrinsic size of the [Brush]. If the there is no intrinsic size (i.e. filling
      * bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic size in a
      * single dimension, return [Size] with [Float.NaN] in the desired dimension.
      */
-    open val intrinsicSize: Size = Size.Unspecified
+    public open val intrinsicSize: Size = Size.Unspecified
 
-    abstract fun toComposeUi(): Brush
+    public abstract fun toComposeUi(): Brush
 
-    abstract fun createShader(size: Size): Shader
+    public abstract fun createShader(size: Size): Shader
 
-    open val hasShader: Boolean
+    public open val hasShader: Boolean
         get() = true
 
-    companion object {
-        fun fromComposeUi(brush: Brush): RemoteBrush {
+    public companion object {
+        public fun fromComposeUi(brush: Brush): RemoteBrush {
             return when (brush) {
                 is SolidColor -> RemoteBrush.solidColor(Color.Red)
                 else -> {
@@ -62,13 +62,14 @@ abstract class RemoteBrush {
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("DEPRECATION")
-interface RemoteShader {
-    abstract fun apply(paintBundle: PaintBundle)
+public interface RemoteShader {
+    public abstract fun apply(paintBundle: PaintBundle)
 
     /**
      * The [RemoteMatrix3x3] if any to apply to the shader. Note not all profiles will support
      * shader rotation.
      */
-    abstract val remoteMatrix3x3: RemoteMatrix3x3?
+    public abstract val remoteMatrix3x3: RemoteMatrix3x3?
 }

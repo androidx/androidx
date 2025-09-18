@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.actions;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation;
@@ -23,6 +24,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostAction implements Action {
     int mActionId = -1;
     int mValueId = -1;

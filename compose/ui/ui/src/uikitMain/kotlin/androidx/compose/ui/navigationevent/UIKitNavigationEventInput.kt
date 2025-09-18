@@ -57,6 +57,13 @@ internal class UIKitNavigationEventInput(
     private val density: Density,
     private val getTopLeftOffsetInWindow: () -> IntOffset
 ) : NavigationEventInput() {
+    val isBackGestureActive: Boolean
+        get() = false
+    fun onDidMoveToWindow(window: UIWindow?, composeRootView: UIView) {}
+    fun onKeyEvent(event: KeyEvent): Boolean = false
+/*
+TODO: https://youtrack.jetbrains.com/issue/CMP-8937
+
     companion object {
         private const val BACK_GESTURE_SCREEN_SIZE = 0.3
         private const val BACK_GESTURE_VELOCITY = 100
@@ -226,6 +233,7 @@ internal class UIKitNavigationEventInput(
             }
         }
     }
+*/
 }
 
 /**

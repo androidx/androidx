@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to perform Color related calculation TODO support color update */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";

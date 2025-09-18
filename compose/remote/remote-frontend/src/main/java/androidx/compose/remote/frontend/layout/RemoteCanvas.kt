@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.capture.LocalRemoteComposeCreationState
@@ -75,7 +74,8 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.isActive
 
 /** Utility modifier to record the layout information */
-class RemoteComposeCanvasModifier(val modifier: RecordingModifier) : DrawModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
             if (it.nativeCanvas is RecordingCanvas) {
@@ -98,7 +98,7 @@ class RemoteComposeCanvasModifier(val modifier: RecordingModifier) : DrawModifie
  */
 @RemoteComposable
 @Composable
-fun RemoteCanvas(
+public fun RemoteCanvas(
     modifier: RemoteModifier = RemoteModifier,
     content: RemoteCanvasDrawScope.() -> Unit,
 ) {
@@ -127,7 +127,7 @@ fun RemoteCanvas(
     }
 }
 
-fun RemoteCanvasDrawScope.rotate(
+public fun RemoteCanvasDrawScope.rotate(
     angle: Number,
     pivotX: Number,
     pivotY: Number,
@@ -170,7 +170,7 @@ fun RemoteCanvasDrawScope.rotate(
     }
 }
 
-fun RemoteCanvasDrawScope.clipRect(
+public fun RemoteCanvasDrawScope.clipRect(
     left: Number,
     top: Number,
     right: Number,
@@ -194,7 +194,7 @@ fun RemoteCanvasDrawScope.clipRect(
     withTransform({ clipRect(iLeft, iTop, iRight, iBottom, clipOp) }) { this@clipRect.block() }
 }
 
-fun DrawTransform.translate(x: Number, y: Number) {
+public fun DrawTransform.translate(x: Number, y: Number) {
     val ix: Float =
         if (x is RemoteFloat) x.getFloatIdForCreationState(FallbackCreationState.state)
         else x.toFloat()
@@ -204,7 +204,7 @@ fun DrawTransform.translate(x: Number, y: Number) {
     this.translate(ix, iy)
 }
 
-fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
+public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: CharSequence,
     brush: RemoteBrush,
     anchor: Offset,
@@ -289,7 +289,7 @@ fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     }
 }
 
-fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
+public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: RemoteString,
     brush: RemoteBrush,
     anchor: Offset,
@@ -337,7 +337,7 @@ fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     }
 }
 
-fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
+public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: CharSequence,
     color: Color,
     anchor: Offset,
@@ -412,7 +412,7 @@ fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     }
 }
 
-fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
+public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: RemoteString,
     color: Color,
     anchor: Offset,
@@ -472,7 +472,7 @@ private fun getVerticalOffset(mOutPanY: Float, mBounds: FloatArray): Float {
     return ((boxHeight - textHeight) * (1 - mOutPanY) / 2 - (scale * mBounds.get(1)))
 }
 
-fun RemoteCanvasDrawScope.remoteDrawTweePath(
+public fun RemoteCanvasDrawScope.remoteDrawTweePath(
     path1: Path,
     path2: Path,
     tween: Number,
@@ -558,7 +558,7 @@ fun RemoteCanvasDrawScope.remoteDrawTweePath(
     }
 }
 
-fun tween(t: Float, a1: Float, a2: Float): Float {
+public fun tween(t: Float, a1: Float, a2: Float): Float {
     return a1 + t * (a2 - a1)
 }
 
@@ -624,7 +624,7 @@ private fun configurePaint(
     return paint
 }
 
-fun DrawScope.remoteDrawRect(
+public fun DrawScope.remoteDrawRect(
     color: Color,
     left: Float,
     top: Float,
@@ -660,7 +660,7 @@ fun DrawScope.remoteDrawRect(
     }
 }
 
-fun DrawScope.remoteDrawPath(
+public fun DrawScope.remoteDrawPath(
     path: Path,
     color: Color,
     alpha: Float,
@@ -687,7 +687,7 @@ fun DrawScope.remoteDrawPath(
     }
 }
 
-fun DrawScope.remoteDrawRect(
+public fun DrawScope.remoteDrawRect(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -716,7 +716,7 @@ fun DrawScope.remoteDrawRect(
     }
 }
 
-fun DrawScope.remoteDrawRoundRect(
+public fun DrawScope.remoteDrawRoundRect(
     color: Color,
     left: Float,
     top: Float,
@@ -741,7 +741,7 @@ fun DrawScope.remoteDrawRoundRect(
     }
 }
 
-fun DrawScope.remoteDrawRoundRect(
+public fun DrawScope.remoteDrawRoundRect(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -768,7 +768,7 @@ fun DrawScope.remoteDrawRoundRect(
     }
 }
 
-fun DrawScope.remoteDrawOval(
+public fun DrawScope.remoteDrawOval(
     color: Color,
     left: Float,
     top: Float,
@@ -790,7 +790,7 @@ fun DrawScope.remoteDrawOval(
     }
 }
 
-fun DrawScope.remoteDrawScaledBitmap(
+public fun DrawScope.remoteDrawScaledBitmap(
     image: Bitmap,
     srcLeft: Float,
     srcTop: Float,
@@ -866,7 +866,7 @@ fun DrawScope.remoteDrawScaledBitmap(
     }
 }
 
-fun DrawScope.remoteDrawOval(
+public fun DrawScope.remoteDrawOval(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -883,7 +883,7 @@ fun DrawScope.remoteDrawOval(
     }
 }
 
-fun DrawScope.remoteDrawArc(
+public fun DrawScope.remoteDrawArc(
     color: Color,
     startAngle: Float,
     sweepAngle: Float,
@@ -978,11 +978,11 @@ internal fun toPaint(
         if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
     }
 
-typealias ROffset = Offset
+internal typealias ROffset = Offset
 
-typealias RSize = Size
+internal typealias RSize = Size
 
-fun ROffset(x: Number, y: Number): ROffset {
+public fun ROffset(x: Number, y: Number): ROffset {
     val ix: Float =
         if (x is RemoteFloat) x.getFloatIdForCreationState(FallbackCreationState.state)
         else x.toFloat()
@@ -993,7 +993,7 @@ fun ROffset(x: Number, y: Number): ROffset {
     return Offset(ix, iy)
 }
 
-fun RSize(w: Number, h: Number): RSize {
+public fun RSize(w: Number, h: Number): RSize {
     val iw: Float =
         if (w is RemoteFloat) w.getFloatIdForCreationState(FallbackCreationState.state)
         else w.toFloat()

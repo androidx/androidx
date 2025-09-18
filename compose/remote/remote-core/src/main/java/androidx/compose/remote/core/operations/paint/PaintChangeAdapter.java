@@ -15,9 +15,12 @@
  */
 package androidx.compose.remote.core.operations.paint;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PaintChangeAdapter implements PaintChanges {
 
     @Override

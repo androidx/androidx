@@ -18,20 +18,21 @@
 package androidx.compose.remote.frontend.capture
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.Component
 
 /** Factory interface for providers of player/platform specific implementations of components */
-interface CustomComponentFactory {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface CustomComponentFactory {
     /**
      * Given a component that contains a Custom operation as the first in its list create an
      * appropriate CustomComponent for the player to use to draw the component.
      */
-    fun customComponentFor(component: Component): Component
+    public fun customComponentFor(component: Component): Component
 }
 
 /** An empty/null factory that simply returns the component unspecialized back to the caller. */
-class EmptyCustomComponentFactory : CustomComponentFactory {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class EmptyCustomComponentFactory : CustomComponentFactory {
     override fun customComponentFor(component: Component): Component {
         return component
     }

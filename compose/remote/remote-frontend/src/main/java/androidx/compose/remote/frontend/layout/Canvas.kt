@@ -18,13 +18,15 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
 /** Capture a Canvas as a RemoteCanvas */
 @RemoteComposable
 @Composable
-fun Canvas(modifier: RemoteModifier = RemoteModifier, content: RemoteCanvasDrawScope.() -> Unit) {
+public fun Canvas(
+    modifier: RemoteModifier = RemoteModifier,
+    content: RemoteCanvasDrawScope.() -> Unit,
+) {
     RemoteCanvas(modifier, content)
 }

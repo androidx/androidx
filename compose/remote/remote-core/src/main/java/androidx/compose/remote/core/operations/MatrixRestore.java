@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -29,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** The restore previous matrix command */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MatrixRestore extends PaintOperation implements Serializable {
     private static final int OP_CODE = Operations.MATRIX_RESTORE;
     private static final String CLASS_NAME = "MatrixRestore";

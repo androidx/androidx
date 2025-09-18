@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Clip modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClipModifier implements RecordingModifier.Element {
     @NonNull Shape mShape;
 

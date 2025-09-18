@@ -17,8 +17,8 @@
 
 package androidx.compose.remote.frontend.capture
 
+import android.graphics.Typeface
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.capture.shaders.RemoteBrush
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.remote.frontend.state.RemoteString
@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottom number of pixels to inset the bottom drawing bound
  * @param block lambda that is called to issue drawing commands within the inset coordinate space
  */
-inline fun RemoteDrawScope.inset(
+public inline fun RemoteDrawScope.inset(
     left: Float,
     top: Float,
     right: Float,
@@ -76,7 +76,7 @@ inline fun RemoteDrawScope.inset(
  * @param block lambda that is called to issue additional drawing commands within the modified
  *   coordinate space
  */
-inline fun RemoteDrawScope.inset(inset: Float, block: RemoteDrawScope.() -> Unit) {
+public inline fun RemoteDrawScope.inset(inset: Float, block: RemoteDrawScope.() -> Unit) {
     drawContext.transform.inset(inset, inset, inset, inset)
     block()
     drawContext.transform.inset(-inset, -inset, -inset, -inset)
@@ -92,11 +92,11 @@ inline fun RemoteDrawScope.inset(inset: Float, block: RemoteDrawScope.() -> Unit
  * @param block lambda that is called to issue additional drawing commands within the modified
  *   coordinate space
  */
-inline fun RemoteDrawScope.inset(
+public inline fun RemoteDrawScope.inset(
     horizontal: Float = 0.0f,
     vertical: Float = 0.0f,
     block: RemoteDrawScope.() -> Unit,
-) = inset(horizontal, vertical, horizontal, vertical, block)
+): Unit = inset(horizontal, vertical, horizontal, vertical, block)
 
 /**
  * Translate the coordinate space by the given delta in pixels in both the x and y coordinates
@@ -107,11 +107,11 @@ inline fun RemoteDrawScope.inset(
  * @param block lambda that is called to issue drawing commands within the translated coordinate
  *   space
  */
-inline fun RemoteDrawScope.translate(
+public inline fun RemoteDrawScope.translate(
     left: Float = 0.0f,
     top: Float = 0.0f,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ translate(left, top) }, block)
+): Unit = withTransform({ translate(left, top) }, block)
 
 /**
  * Add a rotation (in degrees clockwise) to the current transform at the given pivot point. The
@@ -122,11 +122,11 @@ inline fun RemoteDrawScope.translate(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda that is called to issue drawing commands within the rotated coordinate space
  */
-inline fun RemoteDrawScope.rotate(
+public inline fun RemoteDrawScope.rotate(
     degrees: Float,
     pivot: Offset = center,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ rotate(degrees, pivot) }, block)
+): Unit = withTransform({ rotate(degrees, pivot) }, block)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point. The
@@ -136,7 +136,7 @@ inline fun RemoteDrawScope.rotate(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda that is called to issue drawing commands within the rotated coordinate space
  */
-inline fun RemoteDrawScope.rotateRad(
+public inline fun RemoteDrawScope.rotateRad(
     radians: Float,
     pivot: Offset = center,
     block: RemoteDrawScope.() -> Unit,
@@ -155,12 +155,12 @@ inline fun RemoteDrawScope.rotateRad(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda used to issue drawing commands within the scaled coordinate space
  */
-inline fun RemoteDrawScope.scale(
+public inline fun RemoteDrawScope.scale(
     scaleX: Float,
     scaleY: Float,
     pivot: Offset = center,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ scale(scaleX, scaleY, pivot) }, block)
+): Unit = withTransform({ scale(scaleX, scaleY, pivot) }, block)
 
 /**
  * Add an axis-aligned scale to the current transform, scaling both the horizontal direction and the
@@ -172,11 +172,11 @@ inline fun RemoteDrawScope.scale(
  * @param pivot The coordinate for the pivot point, defaults to the center of the coordinate space
  * @param block lambda used to issue drawing commands within the scaled coordinate space
  */
-inline fun RemoteDrawScope.scale(
+public inline fun RemoteDrawScope.scale(
     scale: Float,
     pivot: Offset = center,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ scale(scale, scale, pivot) }, block)
+): Unit = withTransform({ scale(scale, scale, pivot) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given rectangle indicated
@@ -193,14 +193,14 @@ inline fun RemoteDrawScope.scale(
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  *   within the provided clip
  */
-inline fun RemoteDrawScope.clipRect(
+public inline fun RemoteDrawScope.clipRect(
     left: Float = 0.0f,
     top: Float = 0.0f,
     right: Float = size.width,
     bottom: Float = size.height,
     clipOp: ClipOp = ClipOp.Intersect,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
+): Unit = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given path. This method
@@ -212,11 +212,11 @@ inline fun RemoteDrawScope.clipRect(
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  *   within the provided clip
  */
-inline fun RemoteDrawScope.clipPath(
+public inline fun RemoteDrawScope.clipPath(
     path: Path,
     clipOp: ClipOp = ClipOp.Intersect,
     block: RemoteDrawScope.() -> Unit,
-) = withTransform({ clipPath(path, clipOp) }, block)
+): Unit = withTransform({ clipPath(path, clipOp) }, block)
 
 /**
  * Provides access to draw directly with the underlying [Canvas]. This is helpful for situations to
@@ -224,7 +224,8 @@ inline fun RemoteDrawScope.clipPath(
  *
  * @param block Lambda callback to issue drawing commands on the provided [Canvas]
  */
-inline fun RemoteDrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawContext.canvas)
+public inline fun RemoteDrawScope.drawIntoCanvas(block: (Canvas) -> Unit): Unit =
+    block(drawContext.canvas)
 
 /**
  * Perform 1 or more transformations and execute drawing commands with the specified transformations
@@ -236,10 +237,10 @@ inline fun RemoteDrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawC
  *   applied
  * @sample androidx.compose.ui.graphics.samples.MyDrawScopeBatchedTransformSample
  */
-inline fun RemoteDrawScope.withTransform(
+public inline fun RemoteDrawScope.withTransform(
     transformBlock: DrawTransform.() -> Unit,
     drawBlock: RemoteDrawScope.() -> Unit,
-) =
+): Unit =
     with(drawContext) {
         // Transformation can include inset calls which change the drawing area
         // so cache the previous size before the transformation is done
@@ -263,26 +264,27 @@ inline fun RemoteDrawScope.withTransform(
  *
  * @sample androidx.compose.ui.graphics.samples.DrawScopeSample
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @DrawScopeMarker
-// @JvmDefaultWithCompatibility
+public // @JvmDefaultWithCompatibility
 interface RemoteDrawScope : Density {
 
     /**
      * The current [DrawContext] that contains the dependencies needed to create the drawing
      * environment
      */
-    val drawContext: DrawContext
+    public val drawContext: DrawContext
 
     /** Center of the current bounds of the drawing environment */
-    val center: Offset
+    public val center: Offset
         get() = drawContext.size.center
 
     /** Provides the dimensions of the current drawing environment */
-    val size: Size
+    public val size: Size
         get() = drawContext.size
 
     /** The layout direction of the layout being drawn in. */
-    val layoutDirection: LayoutDirection
+    public val layoutDirection: LayoutDirection
 
     /**
      * Draws a line between the given points using the given paint. The line is stroked.
@@ -298,7 +300,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode the blending algorithm to apply to the [brush]
      */
-    fun drawLine(
+    public fun drawLine(
         brush: Brush,
         start: Offset,
         end: Offset,
@@ -325,7 +327,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode the blending algorithm to apply to the [color]
      */
-    fun drawLine(
+    public fun drawLine(
         color: Color,
         start: Offset,
         end: Offset,
@@ -352,7 +354,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawRect(
+    public fun drawRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -377,7 +379,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] source pixels
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawRect(
+    public fun drawRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -400,7 +402,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [image] when drawn into the destination
      * @param blendMode Blending algorithm to apply to destination
      */
-    fun drawImage(
+    public fun drawImage(
         image: ImageBitmap,
         topLeft: Offset = Offset.Zero,
         /*@FloatRange(from = 0.0, to = 1.0)*/
@@ -442,8 +444,9 @@ interface RemoteDrawScope : Density {
                 "androidx.compose.ui.graphics.MyDrawScope",
                 "androidx.compose.ui.graphics.FilterQuality",
             ),
-    ) // Binary API compatibility.
-    fun drawImage(
+    )
+    // Binary API compatibility.
+    public fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
@@ -481,7 +484,7 @@ interface RemoteDrawScope : Density {
      *   into the destination. The default is [FilterQuality.Low] which scales using a bilinear
      *   sampling algorithm
      */
-    fun drawImage(
+    public fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset = IntOffset.Zero,
         srcSize: IntSize = IntSize(image.width, image.height),
@@ -526,7 +529,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawRoundRect(
+    public fun drawRoundRect(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -553,7 +556,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the color
      */
-    fun drawRoundRect(
+    public fun drawRoundRect(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -578,7 +581,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawCircle(
+    public fun drawCircle(
         brush: Brush,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
@@ -602,7 +605,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawCircle(
+    public fun drawCircle(
         color: Color,
         radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
@@ -626,7 +629,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
      */
-    fun drawCircle(
+    public fun drawCircle(
         color: Color,
         radius: Number = size.minDimension / 2.0f,
         center: Offset = this.center,
@@ -665,7 +668,7 @@ interface RemoteDrawScope : Density {
      * @param blendMode Blending algorithm to be applied to the brush
      * @sample androidx.compose.ui.graphics.samples.MyDrawScopeOvalBrushSample
      */
-    fun drawOval(
+    public fun drawOval(
         brush: Brush,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -691,7 +694,7 @@ interface RemoteDrawScope : Density {
      * @param blendMode Blending algorithm to be applied to the brush
      * @sample androidx.compose.ui.graphics.samples.MyDrawScopeOvalColorSample
      */
-    fun drawOval(
+    public fun drawOval(
         color: Color,
         topLeft: Offset = Offset.Zero,
         size: Size = this.size.offsetSize(topLeft),
@@ -722,7 +725,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
-    fun drawArc(
+    public fun drawArc(
         brush: Brush,
         startAngle: Float,
         sweepAngle: Float,
@@ -756,7 +759,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the arc when it is drawn
      */
-    fun drawArc(
+    public fun drawArc(
         color: Color,
         startAngle: Float,
         sweepAngle: Float,
@@ -783,7 +786,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPath(
+    public fun drawPath(
         path: Path,
         color: Color,
         /*@FloatRange(from = 0.0, to = 1.0)*/
@@ -811,7 +814,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawTweenPath(
+    public fun drawTweenPath(
         path1: Path,
         path2: Path,
         tween: Number,
@@ -843,7 +846,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: CharSequence,
         brush: RemoteBrush,
         anchor: Offset = Offset.Zero,
@@ -854,7 +857,7 @@ interface RemoteDrawScope : Density {
         alpha: Number = 1f,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
-        typeface: android.graphics.Typeface? = null,
+        typeface: Typeface? = null,
         textSize: Number = 32f,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
@@ -877,7 +880,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: RemoteString,
         brush: RemoteBrush,
         anchor: Offset = Offset.Zero,
@@ -888,7 +891,7 @@ interface RemoteDrawScope : Density {
         alpha: Number = 1f,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
-        typeface: android.graphics.Typeface? = null,
+        typeface: Typeface? = null,
         textSize: Number = 32f,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
@@ -911,7 +914,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: CharSequence,
         color: Color = Color.Unspecified,
         anchor: Offset = Offset.Zero,
@@ -922,12 +925,12 @@ interface RemoteDrawScope : Density {
         alpha: Number = 1f,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
-        typeface: android.graphics.Typeface? = null,
+        typeface: Typeface? = null,
         textSize: Number = 32f,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 
-    fun drawAnchoredText(
+    public fun drawAnchoredText(
         text: RemoteString,
         color: Color = Color.Unspecified,
         anchor: Offset = Offset.Zero,
@@ -938,7 +941,7 @@ interface RemoteDrawScope : Density {
         alpha: Number = 1f,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
-        typeface: android.graphics.Typeface? = null,
+        typeface: Typeface? = null,
         textSize: Number = 32f,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
@@ -956,7 +959,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPath(
+    public fun drawPath(
         path: Path,
         brush: Brush,
         /*@FloatRange(from = 0.0, to = 1.0)*/
@@ -982,7 +985,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPoints(
+    public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         color: Color,
@@ -1011,7 +1014,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
-    fun drawPoints(
+    public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
         brush: Brush,
@@ -1042,7 +1045,7 @@ interface RemoteDrawScope : Density {
      * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
      * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
      */
-    fun drawText(
+    public fun drawText(
         textLayoutResult: TextLayoutResult,
         color: Color = Color.Unspecified,
         topLeft: Offset = Offset.Zero,
@@ -1069,7 +1072,7 @@ interface RemoteDrawScope : Density {
      * @param drawStyle Whether or not the text is stroked or filled in.
      * @param blendMode Blending algorithm to be applied to the text
      */
-    fun drawText(
+    public fun drawText(
         textLayoutResult: TextLayoutResult,
         brush: Brush,
         topLeft: Offset = Offset.Zero,
@@ -1113,7 +1116,7 @@ interface RemoteDrawScope : Density {
      * @sample androidx.compose.ui.text.samples.DrawTextSample
      * @sample androidx.compose.ui.text.samples.DrawTextStyledSample
      */
-    fun drawText(
+    public fun drawText(
         textMeasurer: TextMeasurer,
         text: String,
         topLeft: Offset = Offset.Zero,
@@ -1161,7 +1164,7 @@ interface RemoteDrawScope : Density {
      * @param blendMode Blending algorithm to be applied to the text
      * @sample androidx.compose.ui.text.samples.DrawTextAnnotatedStringSample
      */
-    fun drawText(
+    public fun drawText(
         textMeasurer: TextMeasurer,
         text: AnnotatedString,
         topLeft: Offset = Offset.Zero,
@@ -1178,18 +1181,18 @@ interface RemoteDrawScope : Density {
     private fun Size.offsetSize(offset: Offset): Size =
         Size(this.width - offset.x, this.height - offset.y)
 
-    companion object {
+    public companion object {
 
         /**
          * Default blending mode used for each drawing operation. This ensures that content is drawn
          * on top of the pixels in the destination
          */
-        val DefaultBlendMode: BlendMode = BlendMode.SrcOver
+        public val DefaultBlendMode: BlendMode = BlendMode.SrcOver
 
         /**
          * Default FilterQuality used for determining the filtering algorithm to apply when scaling
          * [ImageBitmap] objects. Maps to the default behavior of bilinear filtering
          */
-        val DefaultFilterQuality: FilterQuality = FilterQuality.Low
+        public val DefaultFilterQuality: FilterQuality = FilterQuality.Low
     }
 }

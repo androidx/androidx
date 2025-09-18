@@ -19,7 +19,9 @@ package androidx.compose.ui.node
 /**
  * Executes the scheduled work on the main thread after the frame completion. It allows to execute
  * some work which is not blocking the current frame drawing. The execution should have priority
- * over the work scheduled by PrefetchScheduler from the lazy layouts.
+ * over the work scheduled by PrefetchScheduler from the lazy layouts, and the execution should
+ * happen within the same frame even if our deadline calculation says we are out of time already, as
+ * the current contract is that this work is executed before the next frame starts.
  */
 internal interface OutOfFrameExecutor {
     /** Schedules the [block] execution out of frame. */

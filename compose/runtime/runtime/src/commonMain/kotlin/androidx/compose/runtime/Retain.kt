@@ -121,6 +121,11 @@ public inline fun <reified T> retain(noinline calculation: () -> T): T {
  * from [RememberObserver] are never invoked on objects retained this way. It is illegal to retain
  * an object that is a [RememberObserver] but not a [RetainObserver].
  *
+ * Keys passed to this composable will be kept in-memory while the computed value is retained for
+ * comparison against the old keys until the value is retired. Keys are allowed to implement
+ * [RememberObserver] arbitrarily, unlike the values returned by [calculation]. If a key implements
+ * [RetainObserver], it will **not** receive retention callbacks from this usage.
+ *
  * The lifecycle of a retained value is shown in the diagram below. This diagram tracks how a
  * retained value is held through its lifecycle and when it transitions between states.
  *

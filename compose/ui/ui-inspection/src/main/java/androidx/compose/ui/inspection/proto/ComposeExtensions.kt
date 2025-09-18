@@ -105,7 +105,7 @@ private fun InspectorNode.toFlatNode(context: ConversionContext): ComposableNode
 
         flags = flags()
         viewId = inspectorNode.viewId
-        context.recompositionHandler.getCounts(inspectorNode.key, inspectorNode.anchorId)?.let {
+        context.recompositionHandler.getCounts(inspectorNode.anchorId)?.let {
             recomposeCount = it.count
             recomposeSkips = it.skips
         }

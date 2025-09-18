@@ -20,6 +20,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.ParentCapturingModifierNodeElement
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -31,8 +32,6 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -72,9 +71,11 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index)) }
                     item {
                         Box(
-                            Modifier.size(10.dp).trackPlaced(5).modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
+                            Modifier.size(10.dp)
+                                .trackPlaced(5)
+                                .then(
+                                    ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
+                                )
                         )
                     }
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index + 6)) }
@@ -125,9 +126,11 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index)) }
                     item {
                         Box(
-                            Modifier.size(10.dp).trackPlaced(5).modifierLocalConsumer {
-                                beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
-                            }
+                            Modifier.size(10.dp)
+                                .trackPlaced(5)
+                                .then(
+                                    ParentCapturingModifierNodeElement { beyondBoundsLayout = it }
+                                )
                         )
                     }
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index + 6)) }

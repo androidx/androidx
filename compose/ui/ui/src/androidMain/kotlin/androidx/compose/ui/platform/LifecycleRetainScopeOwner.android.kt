@@ -16,79 +16,79 @@
 
 package androidx.compose.ui.platform
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.runtime.CancellationHandle
 import androidx.compose.runtime.ControlledRetainScope
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.RetainScope
-import androidx.compose.ui.internal.requirePrecondition
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import kotlin.coroutines.cancellation.CancellationException
 
-internal class LifecycleRetainScopeOwner : ViewModel(), DefaultLifecycleObserver {
+internal class LifecycleRetainScopeOwner : ViewModel() {
 
-    private val controlledRetainScope = ControlledRetainScope()
-    val retainScope: RetainScope
-        get() = controlledRetainScope
+    private val scopes = mutableIntObjectMapOf<MutableObjectList<RetainScopeEntry>>()
 
-    private var installedIn: LifecycleOwner? = null
-    private var recomposer: Recomposer? = null
+    fun getOrCreateRetainScopeEntry(viewId: Int): RetainScopeEntry {
+        val entries = scopes.getOrPut(viewId) { MutableObjectList(initialCapacity = 1) }
+        val entry =
+            entries.firstOrNull { !it.isInUse } ?: RetainScopeEntry().also { entries.add(it) }
 
-    private var endRetainCancellationHandle: CancellationHandle? = null
-        set(value) {
-            field?.cancel()
-            field = value
-        }
-
-    fun installIn(lifecycleOwner: LifecycleOwner, recomposer: Recomposer) {
-        if (installedIn === lifecycleOwner) return
-        requirePrecondition(installedIn == null) {
-            "Attempted to install a RetainScope into a different lifecycle before " +
-                "the previously used context was destroyed."
-        }
-
-        installedIn = lifecycleOwner
-        this.recomposer = recomposer
-        lifecycleOwner.lifecycle.addObserver(this)
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        if (controlledRetainScope.isKeepingExitedValues) {
-            val recomposer =
-                checkNotNull(recomposer) {
-                    "Received onResume() while not attached to a Recomposer."
-                }
-
-            if (recomposer.currentState.value <= Recomposer.State.ShuttingDown) {
-                // The Recomposer is shutting down, and we can't schedule work for the next frame.
-                // Stop keeping exited values now. This should only happen during tests where the
-                // Recomposer is explicitly cancelled by the testing framework before this lifecycle
-                // callback is dispatched by the testing framework.
-                controlledRetainScope.stopKeepingExitedValues()
-            } else {
-                endRetainCancellationHandle =
-                    recomposer.scheduleFrameEndCallback {
-                        controlledRetainScope.stopKeepingExitedValues()
-                    }
-            }
-        }
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        checkNotNull(installedIn) { "Received onStop() while not installed in a lifecycle." }
-        controlledRetainScope.startKeepingExitedValues()
-        endRetainCancellationHandle = null
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        owner.lifecycle.removeObserver(this)
-        endRetainCancellationHandle = null
-        installedIn = null
-        recomposer = null
+        entry.isInUse = true
+        return entry
     }
 
     override fun onCleared() {
-        if (controlledRetainScope.isKeepingExitedValues)
-            controlledRetainScope.stopKeepingExitedValues()
+        scopes.forEach { _, value -> value.forEach { it.onCleared() } }
+    }
+
+    class RetainScopeEntry {
+        private val controlledRetainScope = ControlledRetainScope()
+        val retainScope: RetainScope = controlledRetainScope
+
+        var isInUse = false
+
+        private var endRetainCancellationHandle: CancellationHandle? = null
+            set(value) {
+                field?.cancel()
+                field = value
+            }
+
+        fun startKeepingExitedValues() {
+            if (!controlledRetainScope.isKeepingExitedValues) {
+                controlledRetainScope.startKeepingExitedValues()
+            }
+        }
+
+        fun stopKeepingExitedValues(frameEndScheduler: FrameEndScheduler) {
+            if (controlledRetainScope.isKeepingExitedValues) {
+                endRetainCancellationHandle =
+                    try {
+                        frameEndScheduler.scheduleFrameEndCallback {
+                            controlledRetainScope.stopKeepingExitedValues()
+                        }
+                    } catch (_: CancellationException) {
+                        // The Recomposer is shutting down, and we can't schedule work for the next
+                        // frame. Stop keeping exited values now. This should only happen during
+                        // tests where the Recomposer is explicitly cancelled by the testing
+                        // framework before this callback can be dispatched.
+                        controlledRetainScope.stopKeepingExitedValues()
+                        null
+                    }
+            }
+        }
+
+        fun onCleared() {
+            if (controlledRetainScope.isKeepingExitedValues) {
+                controlledRetainScope.stopKeepingExitedValues()
+            }
+        }
+
+        fun release() {
+            isInUse = false
+        }
+    }
+
+    fun interface FrameEndScheduler {
+        fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle
     }
 }

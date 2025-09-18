@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.clickable
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
@@ -26,7 +25,8 @@ import androidx.compose.remote.frontend.action.Action
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-class TouchUpActionModifier(val actions: List<Action>) : RemoteModifier.Element {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class TouchUpActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.TouchActionModifier(
             TouchActionModifier.UP,
@@ -42,8 +42,8 @@ class TouchUpActionModifier(val actions: List<Action>) : RemoteModifier.Element 
     }
 }
 
-fun RemoteModifier.onTouchUp(vararg actions: Action): RemoteModifier =
+public fun RemoteModifier.onTouchUp(vararg actions: Action): RemoteModifier =
     then(TouchUpActionModifier(actions.toList()))
 
-fun RemoteModifier.onTouchUp(actions: List<Action>): RemoteModifier =
+public fun RemoteModifier.onTouchUp(actions: List<Action>): RemoteModifier =
     then(TouchUpActionModifier(actions))

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation to draw a given cached bitmap */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawBitmapInt extends PaintOperation implements AccessibleComponent {
     private static final int OP_CODE = Operations.DRAW_BITMAP_INT;
     private static final String CLASS_NAME = "DrawBitmapInt";

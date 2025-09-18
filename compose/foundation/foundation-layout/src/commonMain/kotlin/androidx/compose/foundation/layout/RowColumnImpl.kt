@@ -19,7 +19,6 @@ package androidx.compose.foundation.layout
 import androidx.compose.foundation.layout.LayoutOrientation.Horizontal
 import androidx.compose.foundation.layout.LayoutOrientation.Vertical
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
@@ -51,7 +50,7 @@ internal sealed class CrossAxisAlignment {
      * Aligns to [size]. If this is a vertical alignment, [layoutDirection] should be
      * [LayoutDirection.Ltr].
      *
-     * @param size The remaining space (total size - content size) in the container.
+     * @param size The total size of the container.
      * @param layoutDirection The layout direction of the content if horizontal or
      *   [LayoutDirection.Ltr] if vertical.
      * @param placeable The item being aligned.
@@ -76,20 +75,6 @@ internal sealed class CrossAxisAlignment {
     internal open fun calculateAlignmentLinePosition(placeable: Placeable): Int? = null
 
     companion object {
-        /** Place children such that their center is in the middle of the cross axis. */
-        @Stable val Center: CrossAxisAlignment = CenterCrossAxisAlignment
-
-        /**
-         * Place children such that their start edge is aligned to the start edge of the cross
-         * axis. TODO(popam): Consider rtl directionality.
-         */
-        @Stable val Start: CrossAxisAlignment = StartCrossAxisAlignment
-
-        /**
-         * Place children such that their end edge is aligned to the end edge of the cross
-         * axis. TODO(popam): Consider rtl directionality.
-         */
-        @Stable val End: CrossAxisAlignment = EndCrossAxisAlignment
 
         /** Align children by their baseline. */
         fun AlignmentLine(alignmentLine: AlignmentLine): CrossAxisAlignment =
@@ -109,39 +94,6 @@ internal sealed class CrossAxisAlignment {
         /** Align children with horizontal alignment. */
         internal fun horizontal(horizontal: Alignment.Horizontal): CrossAxisAlignment =
             HorizontalCrossAxisAlignment(horizontal)
-    }
-
-    private object CenterCrossAxisAlignment : CrossAxisAlignment() {
-        override fun align(
-            size: Int,
-            layoutDirection: LayoutDirection,
-            placeable: Placeable,
-            beforeCrossAxisAlignmentLine: Int,
-        ): Int {
-            return size / 2
-        }
-    }
-
-    private object StartCrossAxisAlignment : CrossAxisAlignment() {
-        override fun align(
-            size: Int,
-            layoutDirection: LayoutDirection,
-            placeable: Placeable,
-            beforeCrossAxisAlignmentLine: Int,
-        ): Int {
-            return if (layoutDirection == LayoutDirection.Ltr) 0 else size
-        }
-    }
-
-    private object EndCrossAxisAlignment : CrossAxisAlignment() {
-        override fun align(
-            size: Int,
-            layoutDirection: LayoutDirection,
-            placeable: Placeable,
-            beforeCrossAxisAlignmentLine: Int,
-        ): Int {
-            return if (layoutDirection == LayoutDirection.Ltr) size else 0
-        }
     }
 
     private class AlignmentLineCrossAxisAlignment(
@@ -165,7 +117,7 @@ internal sealed class CrossAxisAlignment {
             return if (alignmentLinePosition != AlignmentLine.Unspecified) {
                 val line = beforeCrossAxisAlignmentLine - alignmentLinePosition
                 if (layoutDirection == LayoutDirection.Rtl) {
-                    size - line
+                    size - placeable.width - line
                 } else {
                     line
                 }
@@ -183,7 +135,7 @@ internal sealed class CrossAxisAlignment {
             placeable: Placeable,
             beforeCrossAxisAlignmentLine: Int,
         ): Int {
-            return vertical.align(0, size)
+            return vertical.align(placeable.height, size)
         }
     }
 
@@ -195,7 +147,7 @@ internal sealed class CrossAxisAlignment {
             placeable: Placeable,
             beforeCrossAxisAlignmentLine: Int,
         ): Int {
-            return horizontal.align(0, size, layoutDirection)
+            return horizontal.align(placeable.width, size, layoutDirection)
         }
     }
 }

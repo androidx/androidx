@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation;
 import androidx.compose.remote.creation.RemoteComposeWriter;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** Represent a list of modifiers */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RecordingModifier {
 
     @NonNull List<Element> mList = new ArrayList<>();
@@ -498,6 +500,7 @@ public class RecordingModifier {
         return null;
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Element {
         /**
          * Write the element to the buffer

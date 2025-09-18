@@ -18,14 +18,13 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
 /** Capture a Row layout as a RemoteRow */
 @RemoteComposable
 @Composable
-fun Row(
+public fun Row(
     modifier: RemoteModifier = RemoteModifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,

@@ -318,7 +318,7 @@ private fun boundsOfLayoutNode(node: LayoutInfo): IntRect {
 private class CompositionCallStack<T, R>(
     private val createNode: (CompositionGroup, SourceContext, List<T>, List<R>) -> T?,
     private val contexts: MutableMap<String, Any?>,
-    private val childrenToAdd: MutableMap<Any?, MutableList<R>>? = null,
+    private val childrenToAdd: MutableMap<CompositionGroup, MutableList<R>>? = null,
 ) : SourceContext {
     private val stack = ArrayDeque<CompositionGroup>()
     private var currentCallIndex = 0
@@ -338,8 +338,7 @@ private class CompositionCallStack<T, R>(
         currentCallIndex = callIndex
         bounds = box
 
-        val childrenToStitchToGroup =
-            childrenToAdd?.takeIf { it.isNotEmpty() }?.remove(group.identity)
+        val childrenToStitchToGroup = childrenToAdd?.takeIf { it.isNotEmpty() }?.remove(group)
 
         createNode(group, this, children, childrenToStitchToGroup ?: emptyList())?.let {
             out.add(it)
@@ -500,7 +499,7 @@ fun <T> CompositionData.mapTree(
 internal fun <T, R> CompositionData.mapTreeWithStitching(
     createNode: (CompositionGroup, SourceContext, List<T>, List<R>) -> T?,
     cache: ContextCache = ContextCache(),
-    childrenToAdd: MutableMap<Any?, MutableList<R>> = mutableMapOf(),
+    childrenToAdd: MutableMap<CompositionGroup, MutableList<R>> = mutableMapOf(),
 ): T? {
     val group = compositionGroups.firstOrNull() ?: return null
     val callStack = CompositionCallStack(createNode, cache.contexts, childrenToAdd)

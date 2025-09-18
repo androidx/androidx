@@ -133,7 +133,7 @@ class FloatingPointEqualityTest {
             message =
                 "$first (${first.bitString}) == $second (${second.bitString}) " +
                     "returned true, expected false",
-            actual = first.equalsWithNanFix(second),
+            actual = first == second,
         )
 
     private fun assertEqualsWithNanFix(first: Float, second: Float) =
@@ -141,7 +141,7 @@ class FloatingPointEqualityTest {
             message =
                 "$first (${first.bitString}) == $second (${second.bitString}) " +
                     "returned false, expected true",
-            actual = first.equalsWithNanFix(second),
+            actual = first == second,
         )
 
     private fun assertNotEqualsWithNanFix(first: Double, second: Double) =
@@ -149,7 +149,7 @@ class FloatingPointEqualityTest {
             message =
                 "$first (${first.bitString}) == $second (${second.bitString}) " +
                     "returned true, expected false",
-            actual = first.equalsWithNanFix(second),
+            actual = first == second,
         )
 
     private fun assertEqualsWithNanFix(first: Double, second: Double) =
@@ -157,7 +157,7 @@ class FloatingPointEqualityTest {
             message =
                 "$first (${first.bitString}) == $second (${second.bitString}) " +
                     "returned false, expected true",
-            actual = first.equalsWithNanFix(second),
+            actual = first == second,
         )
 
     private val Float.bitString

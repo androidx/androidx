@@ -45,6 +45,8 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
     private lateinit var haptic: HapticFeedback
     private var varNameHashMap: HashMap<String, VarName?> = HashMap<String, VarName?>()
 
+    public var a11yAnimationEnabled = true
+
     override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {
         mRemoteComposeState.putPathData(instanceId, floatPath)
         mRemoteComposeState.putPathWinding(instanceId, winding)
@@ -374,6 +376,13 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
     fun setHaptic(haptic: HapticFeedback) {
         this@ComposeRemoteContext.haptic = haptic
     }
+
+    override fun isAnimationEnabled(): Boolean =
+        if (a11yAnimationEnabled) {
+            super.isAnimationEnabled()
+        } else {
+            false
+        }
 
     private fun decodePreferringAlpha8(data: ByteArray): Bitmap? {
         val options = BitmapFactory.Options()

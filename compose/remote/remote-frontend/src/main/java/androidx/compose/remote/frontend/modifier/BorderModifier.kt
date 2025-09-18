@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.border
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.frontend.state.RemoteFloat
@@ -29,7 +28,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class BorderModifier(val width: RemoteFloat, val color: Color) : RemoteModifier.Element {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class BorderModifier(public val width: RemoteFloat, public val color: Color) :
+    RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.BorderModifier(
             width.internalAsFloat(),
@@ -46,10 +47,12 @@ class BorderModifier(val width: RemoteFloat, val color: Color) : RemoteModifier.
     }
 }
 
-fun RemoteModifier.border(width: RemoteFloat, color: Color): RemoteModifier =
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.border(width: RemoteFloat, color: Color): RemoteModifier =
     then(BorderModifier(width, color))
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-fun RemoteModifier.border(value: Dp, color: Color): RemoteModifier {
+public fun RemoteModifier.border(value: Dp, color: Color): RemoteModifier {
     return border(RemoteFloat(value.value), color)
 }

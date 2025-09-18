@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.compose.remote.core;
+import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 
@@ -21,6 +22,7 @@ import org.jspecify.annotations.NonNull;
  * Interface for operators that interact with variables Through this they register to listen to
  * particular variables and are notified when they change
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface VariableSupport {
     /**
      * Call to allow an operator to register interest in variables. Typically they call

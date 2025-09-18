@@ -34,7 +34,7 @@ internal value class NavigationEventDirection private constructor(private val va
          * current screen, closing an overlay like a menu or dialog, or navigating to the previous
          * destination in the history stack.
          */
-        val Backward = NavigationEventDirection(0)
+        val Back = NavigationEventDirection(0)
 
         /**
          * Represents a forward navigation event.

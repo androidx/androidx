@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.measure;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.layout.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -25,6 +26,7 @@ import java.util.HashMap;
  * Represents the result of a measure pass on the entire hierarchy TODO: optimize to use a flat
  * array vs the current hashmap
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MeasurePass {
     @NonNull HashMap<Integer, ComponentMeasure> mList = new HashMap<>();
 

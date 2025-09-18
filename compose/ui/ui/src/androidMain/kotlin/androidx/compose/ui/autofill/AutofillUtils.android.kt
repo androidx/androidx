@@ -181,4 +181,9 @@ internal object AutofillApi26Helper {
     fun getAutofillTextValue(value: String): AutofillValue {
         return AutofillValue.forText(value)
     }
+
+    @RequiresApi(26)
+    fun getAutofillToggleValue(value: Boolean): AutofillValue {
+        return AutofillValue.forToggle(value)
+    }
 }

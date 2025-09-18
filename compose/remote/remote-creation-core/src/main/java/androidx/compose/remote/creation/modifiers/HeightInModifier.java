@@ -15,11 +15,13 @@
  */
 package androidx.compose.remote.creation.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
 
 /** Height modifier */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightInModifier implements RecordingModifier.Element {
 
     float mMin;

@@ -19,7 +19,6 @@ package androidx.compose.remote.frontend.capture
 
 import android.graphics.Path
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.ui.graphics.asComposePath
 
@@ -27,13 +26,16 @@ import androidx.compose.ui.graphics.asComposePath
  * This wraps a RemotePath in class that implements Compose.ui.graphicsPath This would allow passing
  * path through standard compose interfaces. But providing access to the RemotePath object
  */
-class RemoteComposePath(foo: androidx.compose.ui.graphics.Path, val remote: RemotePath) :
-    androidx.compose.ui.graphics.Path by foo {
-    fun asAndroidPath(): Path {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposePath(
+    foo: androidx.compose.ui.graphics.Path,
+    public val remote: RemotePath,
+) : androidx.compose.ui.graphics.Path by foo {
+    public fun asAndroidPath(): Path {
         return remote.path
     }
 }
 
-fun RemotePath.asComposePath(): RemoteComposePath {
+public fun RemotePath.asComposePath(): RemoteComposePath {
     return RemoteComposePath(this.path.asComposePath(), this)
 }

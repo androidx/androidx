@@ -19,18 +19,19 @@ package androidx.compose.foundation.text
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFrom
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.AccessibilityAction
-import androidx.compose.ui.semantics.SemanticsActions.OnAutofillText
+import androidx.compose.ui.semantics.SemanticsActions.OnFillData
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -51,7 +52,7 @@ class CoreTextFieldHighlightTest {
     @Test
     fun assertAutofillHighlightColor_whenPerformTextAction() {
         val value = TextFieldValue("initial text")
-        val textToAutofill = AnnotatedString("foo")
+        val textToAutofill = checkNotNull(FillableData.createFrom("foo"))
 
         val textFieldBackgroundColor = Color.White
         val expectedHighlightColor = blendColors(defaultHighlightColor, textFieldBackgroundColor)
@@ -64,8 +65,7 @@ class CoreTextFieldHighlightTest {
             )
         }
 
-        rule.onNodeWithTag(testFieldTag).performTextAction(OnAutofillText, text = textToAutofill)
-
+        rule.onNodeWithTag(testFieldTag).performTextAction(OnFillData, data = textToAutofill)
         rule.onNodeWithTag(testFieldTag).captureToImage().let { imageBitmap ->
             val pixelMap = imageBitmap.toPixelMap()
             val actualColor = pixelMap[imageBitmap.width / 2, imageBitmap.height / 2]
@@ -80,17 +80,17 @@ class CoreTextFieldHighlightTest {
 }
 
 /**
- * Performs a semantics action that requires an AnnotatedString argument, such as the internal
- * 'onAutofillText' action.
+ * Performs a semantics action that requires a FillableData argument, such as the internal
+ * 'onFillableData' action.
  *
  * @param key The SemanticsPropertyKey for the action.
- * @param text The AnnotatedString argument to pass to the action.
+ * @param data The FillableData argument to pass to the action.
  */
 internal fun SemanticsNodeInteraction.performTextAction(
-    key: SemanticsPropertyKey<AccessibilityAction<(AnnotatedString) -> Boolean>>,
-    text: AnnotatedString,
+    key: SemanticsPropertyKey<AccessibilityAction<(FillableData) -> Boolean>>,
+    data: FillableData,
 ): SemanticsNodeInteraction {
-    return performSemanticsAction(key) { it.invoke(text) }
+    return performSemanticsAction(key) { it.invoke(data) }
 }
 
 /** Blends a semi-transparent [source] color over an opaque [destination] color. */

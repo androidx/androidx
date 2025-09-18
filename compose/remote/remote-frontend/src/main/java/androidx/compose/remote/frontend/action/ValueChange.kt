@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.action
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action
 import androidx.compose.remote.creation.actions.ValueFloatChange
@@ -45,11 +44,12 @@ import androidx.compose.ui.unit.Dp
 
 // TODO fix up types after RemoteType refactor
 /** Update a value on click. */
-class ValueChangeAction<T>(
-    val remoteValue: MutableRemoteState<T>,
-    val updatedValue: RemoteState<T>,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ValueChangeAction<T>(
+    public val remoteValue: MutableRemoteState<T>,
+    public val updatedValue: RemoteState<T>,
 ) : androidx.compose.remote.frontend.action.Action {
-    override fun toRemoteAction(): Action {
+    public override fun toRemoteAction(): Action {
         return if (remoteValue is MutableRemoteInt) {
             updatedValue as RemoteInt
             val array = updatedValue.arrayForCreationState(FallbackCreationState.state)
@@ -84,7 +84,7 @@ class ValueChangeAction<T>(
     }
 
     @Composable
-    override fun toComposeUiAction(): () -> Unit {
+    public override fun toComposeUiAction(): () -> Unit {
         return {
             println("Updating $remoteValue to $updatedValue")
             remoteValue.value = updatedValue.value
@@ -92,69 +92,81 @@ class ValueChangeAction<T>(
     }
 }
 
-class ValueFloatChangeAction(val value: MutableState<RemoteFloat>, val updatedValue: Float) :
-    androidx.compose.remote.frontend.action.Action {
-    override fun toRemoteAction(): Action {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ValueFloatChangeAction(
+    public val value: MutableState<RemoteFloat>,
+    public val updatedValue: Float,
+) : androidx.compose.remote.frontend.action.Action {
+    public override fun toRemoteAction(): Action {
         val id = Utils.idFromNan(value.value.internalAsFloat())
         return ValueFloatChange(id, updatedValue)
     }
 
     @Composable
-    override fun toComposeUiAction(): () -> Unit {
+    public override fun toComposeUiAction(): () -> Unit {
         return { println("Updating RemoteFloat $value to $updatedValue") }
     }
 }
 
-class ValueFloatDpChangeAction(val value: RemoteDp, val updatedValue: Float) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ValueFloatDpChangeAction(public val value: RemoteDp, public val updatedValue: Float) :
     androidx.compose.remote.frontend.action.Action {
-    override fun toRemoteAction(): Action {
+    public override fun toRemoteAction(): Action {
         val id = Utils.idFromNan(value.value.internalAsFloat())
         return ValueFloatChange(id, updatedValue)
     }
 
     @Composable
-    override fun toComposeUiAction(): () -> Unit {
+    public override fun toComposeUiAction(): () -> Unit {
         return { println("Updating RemoteFloat $value to $updatedValue") }
     }
 }
 
-fun ValueChange(
+public fun ValueChange(
     value: MutableRemoteFloat,
     updatedValue: Float,
 ): androidx.compose.remote.frontend.action.Action {
     return ValueChangeAction<Float>(value, RemoteFloat(updatedValue))
 }
 
-fun ValueChange(
+public fun ValueChange(
     value: MutableRemoteFloat,
     updatedValue: RemoteFloat,
 ): androidx.compose.remote.frontend.action.Action {
     return ValueChangeAction<Float>(value, updatedValue)
 }
 
-fun ValueChange(
+public fun ValueChange(
     value: RemoteDp,
     updatedValue: Float,
 ): androidx.compose.remote.frontend.action.Action {
     return ValueFloatDpChangeAction(value, updatedValue)
 }
 
-fun ValueChange(
+public fun ValueChange(
     value: RemoteDp,
     updatedValue: Int,
 ): androidx.compose.remote.frontend.action.Action {
     return ValueFloatDpChangeAction(value, updatedValue.toFloat())
 }
 
-fun ValueChange(value: RemoteDp, updatedValue: Dp): androidx.compose.remote.frontend.action.Action {
+public fun ValueChange(
+    value: RemoteDp,
+    updatedValue: Dp,
+): androidx.compose.remote.frontend.action.Action {
     return ValueFloatDpChangeAction(value, updatedValue.value)
 }
 
-fun ValueChange(remoteState: MutableRemoteInt, updatedValue: Int): ValueChangeAction<Int> =
+public fun ValueChange(remoteState: MutableRemoteInt, updatedValue: Int): ValueChangeAction<Int> =
     ValueChangeAction<Int>(remoteState, MutableRemoteInt(mutableIntStateOf(updatedValue)))
 
-fun ValueChange(remoteState: MutableRemoteInt, updatedValue: RemoteInt): ValueChangeAction<Int> =
-    ValueChangeAction<Int>(remoteState, updatedValue)
+public fun ValueChange(
+    remoteState: MutableRemoteInt,
+    updatedValue: RemoteInt,
+): ValueChangeAction<Int> = ValueChangeAction<Int>(remoteState, updatedValue)
 
-fun ValueChange(remoteState: MutableRemoteString, updatedValue: String): ValueChangeAction<String> =
+public fun ValueChange(
+    remoteState: MutableRemoteString,
+    updatedValue: String,
+): ValueChangeAction<String> =
     ValueChangeAction<String>(remoteState, MutableRemoteString(mutableStateOf(updatedValue)))

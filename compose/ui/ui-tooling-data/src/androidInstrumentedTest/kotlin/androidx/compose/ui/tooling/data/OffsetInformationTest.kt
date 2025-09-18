@@ -19,7 +19,6 @@ package androidx.compose.ui.tooling.data
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import junit.framework.TestCase
-import kotlin.test.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(UiToolingDataApi::class)
 class OffsetInformationTest : ToolingTest() {
-    @Ignore // b/422764248
     @Test
     fun testOffset() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -50,16 +48,16 @@ class OffsetInformationTest : ToolingTest() {
                 "MyComposeTheme" to 1598,
                 "Column" to 1623,
                 "Text" to 1680,
-                "Greeting" to 1845,
-                "Text" to 2509,
-                "<get-shapes>" to 1927,
-                "Surface" to 1877,
-                "Button" to 1959,
-                "Text" to 1982,
-                "<get-shapes>" to 2070,
-                "Surface" to 2021,
-                "TextButton" to 2102,
-                "Row" to 2185,
+                "Greeting" to 1846,
+                "Text" to 2511,
+                "<get-shapes>" to 1928,
+                "Surface" to 1878,
+                "Button" to 1960,
+                "Text" to 1983,
+                "<get-shapes>" to 2071,
+                "Surface" to 2022,
+                "TextButton" to 2103,
+                "Row" to 2186,
             ),
             offsets,
         )

@@ -21,17 +21,18 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 
 /**
  * This allows us to more easily resize the layout hosting the compose view, allowing us to control
  * the captured dimension for the composable
  */
-class ResizableLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
-    FrameLayout(context, attrs) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ResizableLayout
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null) : FrameLayout(context, attrs) {
     private lateinit var remoteView: CaptureComposeView
 
-    fun use(remoteComposeView: CaptureComposeView) {
+    public fun use(remoteComposeView: CaptureComposeView) {
         addView(remoteComposeView)
         remoteView = remoteComposeView
     }

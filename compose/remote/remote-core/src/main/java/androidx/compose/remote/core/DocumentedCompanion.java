@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.documentation.DocumentedCompanionOperation;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DocumentedCompanion extends CompanionOperation, DocumentedCompanionOperation {}

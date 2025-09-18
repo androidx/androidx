@@ -21,6 +21,8 @@ import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.foundation.text.requestFocusAndShowKeyboardIfNeeded
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFrom
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -34,12 +36,13 @@ import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.fillableData
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.inputText
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
-import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.onFillData
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
@@ -129,10 +132,16 @@ internal class CoreTextFieldSemanticsModifierNode(
         // The developer will set `contentType`. CTF populates the other autofill-related
         // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
         this.contentDataType = ContentDataType.Text
-        onAutofillText { text ->
+        FillableData.createFrom(value.annotatedString)?.let { this.fillableData = it }
+        onFillData { fillableData ->
             state.justAutofilled = true
             state.autofillHighlightOn = true
-            handleTextUpdateFromSemantics(state, text.text, readOnly, enabled)
+            handleTextUpdateFromSemantics(
+                state,
+                fillableData.textValue as String,
+                readOnly,
+                enabled,
+            )
             true
         }
 

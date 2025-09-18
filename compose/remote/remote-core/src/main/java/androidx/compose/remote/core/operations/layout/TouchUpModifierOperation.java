@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Represents a touch up modifier + actions */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchUpModifierOperation extends ListActionsOperation implements TouchHandler {
 
     private static final int OP_CODE = Operations.MODIFIER_TOUCH_UP;

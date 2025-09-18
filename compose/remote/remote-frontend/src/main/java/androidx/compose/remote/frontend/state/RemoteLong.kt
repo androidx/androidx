@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.state
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.Platform
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
@@ -35,12 +34,14 @@ import androidx.compose.runtime.remember
  *   the same [value]. This is a conservative check; some expressions that are effectively constant
  *   might still return `false` due to the cost of tracking their dependencies.
  */
-abstract class RemoteLong internal constructor(override val hasConstantValue: Boolean) :
-    RemoteState<Long> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public abstract class RemoteLong
+internal constructor(public override val hasConstantValue: Boolean) : RemoteState<Long> {
 
-    abstract val id: Int
+    public abstract val id: Int
 
-    companion object {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
         /**
          * Creates a [RemoteLong] instance from a constant [Long] value. This value will be added as
          * a constant to the remote document.
@@ -48,7 +49,7 @@ abstract class RemoteLong internal constructor(override val hasConstantValue: Bo
          * @param v The constant [Long] value.
          * @return A [MutableRemoteLong] representing the constant value.
          */
-        operator fun invoke(v: Long): RemoteLong {
+        public operator fun invoke(v: Long): RemoteLong {
             return MutableRemoteLong(mutableLongStateOf(v), true) { creationState ->
                 creationState.document.addLong(v)
             }
@@ -63,7 +64,7 @@ abstract class RemoteLong internal constructor(override val hasConstantValue: Bo
          * @return A [RemoteLong] representing the named long.
          */
         @JvmStatic
-        fun createNamedRemoteLong(name: String, initialValue: Long): RemoteLong {
+        public fun createNamedRemoteLong(name: String, initialValue: Long): RemoteLong {
             return MutableRemoteLong(mutableLongStateOf(initialValue), false) { creationState ->
                 creationState.document.addNamedLong(name, initialValue)
             }
@@ -80,7 +81,8 @@ abstract class RemoteLong internal constructor(override val hasConstantValue: Bo
  * @property idProvider A lambda that provides the unique ID for this mutable long within the
  *   [RemoteComposeCreationState]. This ID is used to identify the long in the remote document.
  */
-class MutableRemoteLong(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class MutableRemoteLong(
     private val content: MutableLongState,
     hasConstantValue: Boolean,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
@@ -93,7 +95,7 @@ class MutableRemoteLong(
      * @param content The [MutableLongState] to hold the value.
      * @param id An optional explicit ID for this mutable long. If `null`, a new ID is reserved.
      */
-    constructor(
+    public constructor(
         content: MutableLongState,
         id: Int? = null,
     ) : this(
@@ -102,11 +104,11 @@ class MutableRemoteLong(
         { creationState -> id ?: Utils.idFromNan(creationState.document.reserveFloatVariable()) },
     )
 
-    override fun writeToDocument(creationState: RemoteComposeCreationState) =
+    public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
     @Deprecated("Use getIdForCreationState directly")
-    override val id: Int
+    public override val id: Int
         get() {
             FallbackCreationState.state.platform.log(
                 Platform.LogCategory.TODO,
@@ -115,7 +117,7 @@ class MutableRemoteLong(
             return getIdForCreationState(FallbackCreationState.state)
         }
 
-    override var value: Long
+    public override var value: Long
         get() {
             return content.longValue
         }
@@ -123,13 +125,13 @@ class MutableRemoteLong(
             content.longValue = newValue
         }
 
-    override operator fun component1(): Long = value
+    public override operator fun component1(): Long = value
 
-    override operator fun component2(): (Long) -> Unit = { newValue ->
+    public override operator fun component2(): (Long) -> Unit = { newValue ->
         content.longValue = newValue
     }
 
-    override fun toString(): String {
+    public override fun toString(): String {
         return "MutableRemoteLong@${this.hashCode()} =" + content.longValue
     }
 }
@@ -144,7 +146,7 @@ class MutableRemoteLong(
  * @return A [MutableRemoteLong] instance that will be remembered across recompositions.
  */
 @Composable
-fun rememberRemoteLongValue(
+public fun rememberRemoteLongValue(
     name: String,
     domain: RemoteDomains = RemoteDomains.USER,
     value: () -> Long,

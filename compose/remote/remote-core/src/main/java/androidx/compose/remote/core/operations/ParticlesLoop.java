@@ -18,6 +18,7 @@ package androidx.compose.remote.core.operations;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -42,6 +43,7 @@ import java.util.List;
  * This provides the mechanism to evolve the particles It consist of a restart equation and a list
  * of equations particle restarts if restart equation > 0
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ParticlesLoop extends PaintOperation implements VariableSupport, Container {
     private static final int OP_CODE = Operations.PARTICLE_LOOP;
     private static final String CLASS_NAME = "ParticlesLoop";

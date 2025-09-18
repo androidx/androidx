@@ -29,6 +29,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -87,6 +88,7 @@ fun rememberScrollState(initial: Int = 0): ScrollState {
 class ScrollState(initial: Int) : ScrollableState {
 
     /** current scroll position value in pixels */
+    @get:FrequentlyChangingValue
     var value: Int by mutableIntStateOf(initial)
         private set
 

@@ -128,14 +128,14 @@ class InvalidateSubtreeTest {
     }
 
     @Test
-    fun invalidateLayoutForSubtreeTest() {
+    fun invalidateMeasurementForSubtreeTest() {
         lateinit var invalidate: () -> Unit
         var layoutLatch = CountDownLatch(1)
         val counter1 = LayoutAndDrawCounter()
         val counter2 = LayoutAndDrawCounter()
         val counter3 = LayoutAndDrawCounter()
         val captureInvalidate = CaptureInvalidateCounterElement { node ->
-            invalidate = { node.invalidateLayoutForSubtree() }
+            invalidate = { node.invalidateMeasurementForSubtree() }
         }
         rule.setContent {
             Box(counter1) {

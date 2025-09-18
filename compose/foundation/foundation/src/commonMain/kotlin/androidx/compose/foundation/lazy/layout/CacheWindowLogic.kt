@@ -30,7 +30,10 @@ import kotlin.math.sign
 
 /** Implements the logic for [LazyLayoutCacheWindow] prefetching and item preservation. */
 @OptIn(ExperimentalFoundationApi::class)
-internal abstract class CacheWindowLogic(private val cacheWindow: LazyLayoutCacheWindow) {
+internal abstract class CacheWindowLogic(
+    private val cacheWindow: LazyLayoutCacheWindow,
+    private val enableInitialPrefetch: Boolean = true,
+) {
 
     /** Handles for prefetched items in the current forward window. */
     private val prefetchWindowHandles = mutableIntObjectMapOf<List<PrefetchHandle>>()
@@ -97,7 +100,7 @@ internal abstract class CacheWindowLogic(private val cacheWindow: LazyLayoutCach
 
     fun CacheWindowScope.onVisibleItemsUpdated() {
         debugLog { "hasUpdatedVisibleItemsOnce=$hasUpdatedVisibleItemsOnce" }
-        if (!hasUpdatedVisibleItemsOnce) {
+        if (!hasUpdatedVisibleItemsOnce && enableInitialPrefetch) {
             val prefetchForwardWindow =
                 with(cacheWindow) { density?.calculateAheadWindow(mainAxisViewportSize) ?: 0 }
             // we won't fill the window if we don't have a prefetch window

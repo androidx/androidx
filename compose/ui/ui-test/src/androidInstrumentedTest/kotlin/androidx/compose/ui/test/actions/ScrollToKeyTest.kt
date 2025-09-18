@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.test.actions
 
+import android.os.Looper
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.hasScrollToKeyAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -36,6 +39,8 @@ import androidx.compose.ui.test.performScrollToKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,6 +122,37 @@ class ScrollToKeyTest {
         ) {
             rule.onNodeWithTag("tag").performScrollToKey(1)
         }
+    }
+
+    @Test
+    fun performScrollToKey_invokesActionOnOnUiThread() {
+        val wasActionOnUIThread = AtomicBoolean(false)
+        val targetIndex = 50
+        val tag = "LazyColumnTag"
+        rule.setContent {
+            LazyColumn(
+                modifier =
+                    Modifier.height(200.dp).semantics {
+                        testTag = tag
+                        scrollToIndex {
+                            val isOnUiThread =
+                                Thread.currentThread() == Looper.getMainLooper().thread
+                            wasActionOnUIThread.set(isOnUiThread)
+                            true
+                        }
+                    }
+            ) {
+                items(count = 100, key = { key(it) }) {
+                    Spacer(Modifier.requiredHeight(20.dp).fillMaxWidth())
+                }
+            }
+        }
+
+        rule.onNodeWithTag(tag).performScrollToKey("key_$targetIndex")
+        assertTrue(
+            wasActionOnUIThread.get(),
+            "The scroll action, triggered by performScrollToKey, did not occur on the UI thread.",
+        )
     }
 
     @Composable

@@ -18,21 +18,21 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-class AnimateSpecModifier(
-    val animationId: Int,
-    val motionDuration: Float,
-    val motionEasingType: Int,
-    val visibilityDuration: Float,
-    val visibilityEasingType: Int,
-    val enterAnimation: ANIMATION,
-    val exitAnimation: ANIMATION,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class AnimateSpecModifier(
+    public val animationId: Int,
+    public val motionDuration: Float,
+    public val motionEasingType: Int,
+    public val visibilityDuration: Float,
+    public val visibilityEasingType: Int,
+    public val enterAnimation: ANIMATION,
+    public val exitAnimation: ANIMATION,
 ) : RemoteLayoutModifier {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.AnimateSpecModifier(
@@ -53,7 +53,7 @@ class AnimateSpecModifier(
 }
 
 @Composable
-fun RemoteModifier.animationSpec(
+public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
     motionDuration: Float,
     motionEasingType: Int,
@@ -78,7 +78,7 @@ fun RemoteModifier.animationSpec(
 }
 
 @Composable
-fun RemoteModifier.animationSpec(animationId: Int = -1, enabled: Boolean): RemoteModifier {
+public fun RemoteModifier.animationSpec(animationId: Int = -1, enabled: Boolean): RemoteModifier {
     val id = if (enabled) animationId else 0
     return then(
         AnimateSpecModifier(

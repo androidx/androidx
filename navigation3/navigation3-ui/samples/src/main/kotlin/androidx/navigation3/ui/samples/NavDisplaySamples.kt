@@ -62,7 +62,7 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.Scene
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
-import androidx.navigationevent.NavigationEvent.Companion.EDGE_RIGHT
+import androidx.navigationevent.NavigationEventSwipeEdge
 import kotlinx.serialization.Serializable
 
 @Sampled
@@ -98,7 +98,7 @@ fun SceneNav() {
                 entry<Dashboard>(
                     metadata =
                         NavDisplay.predictivePopTransitionSpec { swipeEdge ->
-                            if (swipeEdge == EDGE_RIGHT) {
+                            if (swipeEdge == NavigationEventSwipeEdge.Right) {
                                 slideInHorizontally(tween(700)) { it / 2 } togetherWith
                                     slideOutHorizontally(tween(700)) { -it / 2 }
                             } else {

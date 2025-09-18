@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.animation;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
@@ -33,6 +34,7 @@ import org.jspecify.annotations.NonNull;
  *
  * <p>Handles position, size and visibility
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimateMeasure {
     private final long mStartTime;
     private final @NonNull Component mComponent;

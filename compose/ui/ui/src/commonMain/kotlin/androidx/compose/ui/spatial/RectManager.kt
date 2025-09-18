@@ -24,7 +24,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.currentTimeMillis
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.geometry.MutableRect
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.node.DelegatableNode
@@ -275,7 +274,13 @@ internal class RectManager(
     }
 
     private fun recalculateOffsetFromRoot(layoutNode: LayoutNode) {
-        val position = layoutNode.outerCoordinator.position
+        val outer = layoutNode.outerCoordinator
+        var position = outer.applyLayerTransformation(IntOffset.Zero)
+        if (!position.isSet) {
+            layoutNode.offsetFromRoot = IntOffset.Max
+            return
+        }
+        position += outer.position
         val parent = layoutNode.parent
         layoutNode.offsetFromRoot =
             if (parent != null) {
@@ -384,37 +389,51 @@ internal class RectManager(
         var coordinator: NodeCoordinator? = this
         while (coordinator != null) {
             val layer = coordinator.layer
-            rect.translate(coordinator.position.toOffset())
-            coordinator = coordinator.wrappedBy
             if (layer != null) {
                 val matrix = layer.underlyingMatrix
                 if (!matrix.isIdentity()) {
                     matrix.map(rect)
                 }
             }
+            rect.translate(coordinator.position.toOffset())
+            coordinator = coordinator.wrappedBy
         }
     }
 
-    private fun LayoutNode.outerToInnerOffset(): IntOffset {
-        val terminator = outerCoordinator
-        var position = Offset.Zero
-        var coordinator: NodeCoordinator? = innerCoordinator
-        while (coordinator != null) {
-            if (coordinator === terminator) break
-            val layer = coordinator.layer
-            position += coordinator.position
-            coordinator = coordinator.wrappedBy
-            if (layer != null) {
-                val matrix = layer.underlyingMatrix
-                val analysis = matrix.analyzeComponents()
-                if (analysis.isIdentity) continue
+    private fun NodeCoordinator.applyLayerTransformation(position: IntOffset): IntOffset {
+        val layer = layer
+        if (layer != null) {
+            val matrix = layer.underlyingMatrix
+            val analysis = matrix.analyzeComponents()
+            if (!analysis.isIdentity) {
                 if (analysis.hasNonTranslationComponents) {
                     return IntOffset.Max
                 }
-                position = matrix.map(position)
+                return matrix.map(position.toOffset()).round()
             }
         }
-        return position.round()
+        return position
+    }
+
+    /**
+     * @return combined offset for all coordinators not including the outer one, the outer offset is
+     *   added into [LayoutNode.offsetFromRoot] instead. it can also return [IntOffset.Max], if the
+     *   layer transformation is too complex.
+     */
+    private fun LayoutNode.outerToInnerOffset(): IntOffset {
+        val terminator = outerCoordinator
+        var position = IntOffset.Zero
+        var coordinator: NodeCoordinator? = innerCoordinator
+        while (coordinator != null) {
+            if (coordinator === terminator) break
+            position = coordinator.applyLayerTransformation(position)
+            if (position == IntOffset.Max) {
+                return IntOffset.Max
+            }
+            position += coordinator.position
+            coordinator = coordinator.wrappedBy
+        }
+        return position
     }
 
     fun remove(layoutNode: LayoutNode) {

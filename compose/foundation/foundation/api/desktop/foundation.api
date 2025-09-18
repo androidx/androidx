@@ -1247,6 +1247,15 @@ public abstract interface class androidx/compose/foundation/lazy/layout/LazyLayo
 	public fun getKey (I)Ljava/lang/Object;
 }
 
+public abstract interface class androidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMap {
+	public abstract fun getIndex (Ljava/lang/Object;)I
+	public abstract fun getKey (I)Ljava/lang/Object;
+}
+
+public final class androidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMapKt {
+	public static final fun LazyLayoutKeyIndexMap (Lkotlin/ranges/IntRange;Landroidx/compose/foundation/lazy/layout/LazyLayoutIntervalContent;)Landroidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMap;
+}
+
 public final class androidx/compose/foundation/lazy/layout/LazyLayoutKt {
 	public static final fun LazyLayout (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/lazy/layout/LazyLayoutPrefetchState;Landroidx/compose/foundation/lazy/layout/LazyLayoutMeasurePolicy;Landroidx/compose/runtime/Composer;II)V
 }

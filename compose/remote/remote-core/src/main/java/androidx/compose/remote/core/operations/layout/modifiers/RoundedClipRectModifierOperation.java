@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -35,6 +36,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Support clip with a rounded rectangle */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RoundedClipRectModifierOperation extends DrawBase4
         implements ModifierOperation, DecoratorComponent {
     public static final int OP_CODE = Operations.MODIFIER_ROUNDED_CLIP_RECT;

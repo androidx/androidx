@@ -102,6 +102,7 @@ class AndroidAutoFillTest {
                         bounds = android.graphics.Rect(0, 0, 0, 0)
                         packageName = currentPackageName
                         virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                        dataIsSensitive = true
                     }
                     children.add(
                         FakeViewStructure().apply {

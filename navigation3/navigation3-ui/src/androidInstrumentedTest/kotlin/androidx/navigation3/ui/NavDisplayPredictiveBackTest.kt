@@ -34,6 +34,8 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventSwipeEdge
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
@@ -188,13 +190,27 @@ class NavDisplayPredictiveBackTest {
         assertThat(composeTestRule.onNodeWithText("numberOnScreen2: 4").isDisplayed()).isTrue()
 
         composeTestRule.runOnIdle {
-            input.start(NavigationEvent(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
-            input.progress(NavigationEvent(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT))
+            input.backStarted(
+                NavigationEvent(
+                    swipeEdge = NavigationEventSwipeEdge.Left,
+                    progress = 0.1F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
+            input.backProgressed(
+                NavigationEvent(
+                    swipeEdge = NavigationEventSwipeEdge.Left,
+                    progress = 0.5F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.runOnIdle { input.complete() }
+        composeTestRule.runOnIdle { input.backCompleted() }
 
         composeTestRule.runOnIdle {
             assertWithMessage("The number should be restored")

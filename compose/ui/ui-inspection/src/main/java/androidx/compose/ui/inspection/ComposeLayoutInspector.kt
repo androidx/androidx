@@ -38,6 +38,7 @@ import androidx.compose.ui.inspection.proto.ConversionContext
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
 import androidx.compose.ui.inspection.proto.toComposableRoot
+import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
 import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.inspection.util.groupByToLongObjectMap
@@ -122,8 +123,9 @@ class ComposeLayoutInspector(
     )
 
     private val rootsDetector = RootsDetector(environment)
-    private val layoutInspectorTree = LayoutInspectorTree()
-    private val recompositionHandler = RecompositionHandler(environment.artTooling())
+    private val anchorMap = AnchorMap()
+    private val layoutInspectorTree = LayoutInspectorTree(anchorMap)
+    private val recompositionHandler = RecompositionHandler(environment.artTooling(), anchorMap)
     private var delayParameterExtractions = false
     // Reduce the protobuf nesting of ComposableNode by storing nested nodes with only 1 child each
     // as children under the top node. This limits the stack used when computing the protobuf size.
@@ -151,6 +153,7 @@ class ComposeLayoutInspector(
 
     override fun onDispose() {
         disposed = true
+        recompositionHandler.dispose()
         cachedNodes.clear()
     }
 

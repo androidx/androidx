@@ -22,6 +22,7 @@ import static androidx.compose.remote.core.documentation.DocumentedOperation.INT
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -43,6 +44,7 @@ import java.util.List;
  * Operation to deal with bitmap data On getting an Image during a draw call the bitmap is
  * compressed and saved in playback the image is decompressed
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ShaderData extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.DATA_SHADER;
     private static final String CLASS_NAME = "ShaderData";

@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.InspectorInfo
 
 internal class RenderInTransitionOverlayNodeElement(
     var sharedTransitionScope: SharedTransitionScopeImpl,
-    var renderInOverlay: SharedTransitionScope.() -> Boolean,
+    var renderInOverlay: () -> Boolean,
     val zIndexInOverlay: Float,
 ) : ModifierNodeElement<RenderInTransitionOverlayNode>() {
     override fun create(): RenderInTransitionOverlayNode {
@@ -77,7 +77,7 @@ internal class RenderInTransitionOverlayNodeElement(
 
 internal class RenderInTransitionOverlayNode(
     var sharedScope: SharedTransitionScopeImpl,
-    var renderInOverlay: SharedTransitionScope.() -> Boolean,
+    var renderInOverlay: () -> Boolean,
     zIndexInOverlay: Float,
 ) : Modifier.Node(), DrawModifierNode, ModifierLocalModifierNode {
     var zIndexInOverlay by mutableFloatStateOf(zIndexInOverlay)
@@ -93,7 +93,7 @@ internal class RenderInTransitionOverlayNode(
             get() = this@RenderInTransitionOverlayNode.zIndexInOverlay
 
         override fun drawInOverlay(drawScope: DrawScope) {
-            if (sharedScope.renderInOverlay()) {
+            if (renderInOverlay()) {
                 with(drawScope) {
                     val (x, y) =
                         sharedScope.root.localPositionOf(
@@ -111,7 +111,7 @@ internal class RenderInTransitionOverlayNode(
     override fun ContentDrawScope.draw() {
         val layer = requireNotNull(layer) { "Error: layer never initialized" }
         layer.record { this@draw.drawContent() }
-        if (!sharedScope.renderInOverlay()) {
+        if (!renderInOverlay()) {
             drawLayer(layer)
         }
     }

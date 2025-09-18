@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.input.pointer.PointerType
@@ -340,9 +341,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     }
 
     fun onMeasured() {
-        if (hasNode(Nodes.LayoutAware)) {
+        if (hasNode(Nodes.OnRemeasured)) {
             Snapshot.withoutReadObservation {
-                visitNodes(Nodes.LayoutAware) { it.onRemeasured(measuredSize) }
+                visitNodes(Nodes.OnRemeasured) { it.onRemeasured(measuredSize) }
             }
         }
     }
@@ -424,7 +425,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             } else {
                 wrappedBy?.invalidateLayer()
             }
-            layoutNode.forEachChild { it.invalidateOffsetFromRoot() }
+            layoutNode.onCoordinatorPositionChanged()
             invalidateAlignmentLinesFromPositionChange()
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
@@ -492,7 +493,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     }
 
     fun onPlaced() {
-        visitNodes(Nodes.LayoutAware) { it.onPlaced(this) }
+        visitNodes(Nodes.OnPlaced) { it.onPlaced(this) }
     }
 
     private var drawBlockParentLayer: GraphicsLayer? = null
@@ -561,6 +562,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             } else if (updateParameters) {
                 val positionalPropertiesChanged = updateLayerParameters()
                 if (positionalPropertiesChanged) {
+                    layoutNode.onCoordinatorPositionChanged()
                     layoutNode
                         .requireOwner()
                         .rectManager
@@ -570,6 +572,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         } else {
             this.layerBlock = null
             layer?.let {
+                if (!it.underlyingMatrix.isIdentity()) {
+                    layoutNode.onCoordinatorPositionChanged()
+                }
                 it.destroy()
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
@@ -1232,6 +1237,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         // removed at least one layer is invalidated.
         invalidateParentLayer()
         releaseLayer()
+        if (position != IntOffset.Zero) {
+            layoutNode.onCoordinatorPositionChanged()
+        }
     }
 
     /**
@@ -1493,9 +1501,19 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                             layoutDelegate.measurePassDelegate
                                 .notifyChildrenUsingCoordinatesWhilePlacing()
                         }
-                        layoutNode.invalidateOffsetFromRoot()
+                        layoutNode.onCoordinatorPositionChanged()
                         val owner = layoutNode.requireOwner()
-                        owner.rectManager.onLayoutLayerPositionalPropertiesChanged(layoutNode)
+                        val rectManager = owner.rectManager
+                        if (coordinator === layoutNode.outerCoordinator) {
+                            // transformations on the outer coordinator define the layout position
+                            rectManager.onLayoutPositionChanged(layoutNode, firstPlacement = false)
+                            // we need to manually trigger the callbacks as the state based layer
+                            // invalidations are processed outside of the measure pass.
+                            rectManager.invalidateCallbacksFor(layoutNode)
+                        } else {
+                            // transformations on other coordinators invalidate outerToInnerOffset
+                            rectManager.onLayoutLayerPositionalPropertiesChanged(layoutNode)
+                        }
                         if (layoutNode.globallyPositionedObservers > 0) {
                             owner.requestOnPositionedCallback(layoutNode)
                         }

@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Draw to a bitmap. This command redirects drawing to a bitmap. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawToBitmap extends PaintOperation implements Serializable {
     private static final int OP_CODE = Operations.DRAW_TO_BITMAP;
     private static final String CLASS_NAME = "DrawToBitmap";

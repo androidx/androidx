@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
@@ -32,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 
 /** Operation convert int index of a list to text */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TextLookupInt extends Operation implements VariableSupport, Serializable {
     private static final int OP_CODE = Operations.TEXT_LOOKUP_INT;
     private static final String CLASS_NAME = "TextFromINT";

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewTreeNavigationEventDispatcherOwner")
+
 package androidx.navigationevent
 
 import android.view.View

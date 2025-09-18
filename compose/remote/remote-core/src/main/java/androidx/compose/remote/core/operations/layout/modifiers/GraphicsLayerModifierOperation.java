@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /** Represents a graphics layer modifier. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     private static final int OP_CODE = Operations.MODIFIER_GRAPHICS_LAYER;
     public static final String CLASS_NAME = "GraphicsLayerModifierOperation";

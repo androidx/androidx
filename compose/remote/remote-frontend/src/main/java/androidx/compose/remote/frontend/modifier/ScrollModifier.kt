@@ -18,7 +18,6 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
@@ -31,15 +30,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
-class RemoteScrollState(val position: Float, val notches: Int) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteScrollState(public val position: Float, public val notches: Int) {
 
-    fun toComposeUi(): ScrollState {
+    public fun toComposeUi(): ScrollState {
         return ScrollState(0)
     }
 }
 
 @Composable
-fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
+public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
     val state = LocalRemoteComposeCreationState.current
     val scrollState = remember {
         var positionId = 0f
@@ -51,7 +51,8 @@ fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
     return scrollState
 }
 
-data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return CoreScrollModifier(direction, state.position, state.notches)
@@ -68,9 +69,9 @@ data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
 }
 
 @Composable
-fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
+public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
 }
 
-fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier =
+public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier =
     this.then(ScrollModifier(CoreScrollModifier.HORIZONTAL, state))

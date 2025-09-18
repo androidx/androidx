@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package androidx.compose.remote.creation;
+import androidx.annotation.RestrictTo;
 
 /** Provides an interface to a remote compose writer */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemoteComposeWriterInterface {
     /** A lambda to execute */
     void run();

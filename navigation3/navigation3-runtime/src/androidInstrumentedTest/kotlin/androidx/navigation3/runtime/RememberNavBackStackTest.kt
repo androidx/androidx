@@ -37,10 +37,10 @@ class RememberNavBackStackTest {
 
     @Test
     fun simpleObjectRestore() {
-        var backStack: NavBackStack? = null
+        var backStack: NavBackStack<NavKey>? = null
         restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
 
-        assertThat(backStack).isEqualTo(NavBackStack())
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
         rule.runOnUiThread {
             backStack?.add(TestObject)
@@ -55,10 +55,10 @@ class RememberNavBackStackTest {
 
     @Test
     fun simpleClassRestore() {
-        var backStack: NavBackStack? = null
+        var backStack: NavBackStack<NavKey>? = null
         restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
 
-        assertThat(backStack).isEqualTo(NavBackStack())
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
         val testClass = TestClass()
 
@@ -75,10 +75,10 @@ class RememberNavBackStackTest {
 
     @Test
     fun simpleDataClassRestore() {
-        var backStack: NavBackStack? = null
+        var backStack: NavBackStack<NavKey>? = null
         restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
 
-        assertThat(backStack).isEqualTo(NavBackStack())
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
         val testDataClass = TestDataClass(1)
 
@@ -99,10 +99,10 @@ class RememberNavBackStackTest {
 
     @Test
     fun noSerializerFail() {
-        var backStack: NavBackStack? = null
+        var backStack: NavBackStack<NavKey>? = null
         restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
 
-        assertThat(backStack).isEqualTo(NavBackStack())
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
         rule.runOnUiThread {
             backStack?.add(TestNoSerializer)

@@ -71,7 +71,7 @@ private class OnSizeChangedModifier(private val onSizeChanged: (IntSize) -> Unit
     }
 }
 
-private class OnSizeChangedNode(private var onSizeChanged: (IntSize) -> Unit) :
+internal class OnSizeChangedNode(private var onSizeChanged: (IntSize) -> Unit) :
     Modifier.Node(), LayoutAwareModifierNode {
     // When onSizeChanged changes, we want to invalidate so onRemeasured is called again
     override val shouldAutoInvalidate: Boolean = true

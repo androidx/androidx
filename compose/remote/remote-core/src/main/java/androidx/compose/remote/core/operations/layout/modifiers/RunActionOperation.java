@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Contains actions and immediately runs them */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RunActionOperation extends PaintOperation implements Container {
     private static final int OP_CODE = Operations.RUN_ACTION;
     private static final String CLASS_NAME = "RunActionOperation";

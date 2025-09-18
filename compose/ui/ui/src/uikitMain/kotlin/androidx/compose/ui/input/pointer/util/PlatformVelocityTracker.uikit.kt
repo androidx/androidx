@@ -31,11 +31,7 @@ private const val MinimumGestureDurationMilliseconds: Int = 50
 private class UIKitVelocityTracker: PlatformVelocityTracker {
     @OptIn(ExperimentalVelocityTrackerApi::class)
     private val strategy =
-        if (VelocityTrackerStrategyUseImpulse) {
-            VelocityTracker1D.Strategy.Impulse
-        } else {
-            VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
-        }
+        VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
     private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
     private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
     private var lastMoveEventTimeStamp = 0L

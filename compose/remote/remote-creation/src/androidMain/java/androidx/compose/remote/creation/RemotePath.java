@@ -23,6 +23,7 @@ import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
@@ -31,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemotePath {
     private static final int DEFAULT_BUFFER_SIZE = 1024;
     int mMaxSize = DEFAULT_BUFFER_SIZE;

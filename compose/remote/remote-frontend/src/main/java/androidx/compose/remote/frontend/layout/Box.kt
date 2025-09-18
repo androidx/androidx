@@ -18,14 +18,13 @@
 package androidx.compose.remote.frontend.layout
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.frontend.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
 /** Capture a Box layout as a RemoteBox */
 @RemoteComposable
 @Composable
-fun Box(
+public fun Box(
     modifier: RemoteModifier = RemoteModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -37,6 +36,6 @@ fun Box(
 /** Utility function to support Box with no provided content */
 @RemoteComposable
 @Composable
-fun Box(modifier: RemoteModifier = RemoteModifier) {
+public fun Box(modifier: RemoteModifier = RemoteModifier) {
     RemoteBox(modifier)
 }

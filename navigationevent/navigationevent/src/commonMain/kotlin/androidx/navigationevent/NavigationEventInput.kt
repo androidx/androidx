@@ -18,7 +18,8 @@ package androidx.navigationevent
 
 import androidx.annotation.EmptySuper
 import androidx.annotation.MainThread
-import androidx.navigationevent.NavigationEventDirection.Companion.Backward
+import androidx.navigationevent.NavigationEventDirection.Companion.Back
+import androidx.navigationevent.NavigationEventDirection.Companion.Forward
 
 /** A class that can send events to a [NavigationEventDispatcher]. */
 public abstract class NavigationEventInput() {
@@ -53,56 +54,88 @@ public abstract class NavigationEventInput() {
     @MainThread @EmptySuper protected open fun onRemoved() {}
 
     @MainThread
-    internal fun doOnHasEnabledCallbacksChanged(hasEnabledCallbacks: Boolean) {
-        onHasEnabledCallbacksChanged(hasEnabledCallbacks)
+    internal fun doOnHasEnabledHandlerChanged(hasEnabledHandler: Boolean) {
+        onHasEnabledHandlerChanged(hasEnabledHandler)
     }
 
     /**
-     * Callback that will be notified when the connected dispatcher's `hasEnabledCallbacks` changes.
+     * Handler that will be notified when the connected dispatcher's `hasEnabledHandlers` changes.
      *
-     * @param hasEnabledCallbacks Whether the connected dispatcher has any enabled callbacks.
+     * @param hasEnabledHandler Whether the connected dispatcher has any enabled handlers.
      */
     @MainThread
     @EmptySuper
-    protected open fun onHasEnabledCallbacksChanged(hasEnabledCallbacks: Boolean) {}
+    protected open fun onHasEnabledHandlerChanged(hasEnabledHandler: Boolean) {}
 
     /**
-     * Call `dispatchOnStarted` on the connected dispatcher.
+     * Dispatch a back started event with the connected dispatcher.
      *
-     * @param event The event to dispatch.
+     * @param event The [NavigationEvent] to dispatch.
      */
     @MainThread
-    protected fun dispatchOnStarted(event: NavigationEvent) {
-        // TODO(kuanyingchou): Accept a direction parameter instead of hardcoding `Backward`.
-        dispatcher?.dispatchOnStarted(input = this, direction = Backward, event)
+    protected fun dispatchOnBackStarted(event: NavigationEvent) {
+        dispatcher?.dispatchOnStarted(input = this, direction = Back, event)
             ?: error("This input is not added to any dispatcher.")
     }
 
     /**
-     * Call `dispatchOnProgressed` on the connected dispatcher.
+     * Dispatch a back progressed event with the connected dispatcher.
      *
-     * @param event The event to dispatch.
+     * @param event The [NavigationEvent] to dispatch.
      */
     @MainThread
-    protected fun dispatchOnProgressed(event: NavigationEvent) {
-        // TODO(kuanyingchou): Accept a direction parameter instead of hardcoding `Backward`.
-        dispatcher?.dispatchOnProgressed(input = this, direction = Backward, event)
+    protected fun dispatchOnBackProgressed(event: NavigationEvent) {
+        dispatcher?.dispatchOnProgressed(input = this, direction = Back, event)
             ?: error("This input is not added to any dispatcher.")
     }
 
-    /** Call `dispatchOnCancelled` on the connected dispatcher. */
+    /** Dispatch a back cancelled event with the connected dispatcher. */
     @MainThread
-    protected fun dispatchOnCancelled() {
-        // TODO(kuanyingchou): Accept a direction parameter instead of hardcoding `Backward`.
-        dispatcher?.dispatchOnCancelled(input = this, direction = Backward)
+    protected fun dispatchOnBackCancelled() {
+        dispatcher?.dispatchOnCancelled(input = this, direction = Back)
             ?: error("This input is not added to any dispatcher.")
     }
 
-    /** Call `dispatchOnCompleted` on the connected dispatcher. */
+    /** Dispatch a back completed event with the connected dispatcher. */
     @MainThread
-    protected fun dispatchOnCompleted() {
-        // TODO(kuanyingchou): Accept a direction parameter instead of hardcoding `Backward`.
-        dispatcher?.dispatchOnCompleted(input = this, direction = Backward)
+    protected fun dispatchOnBackCompleted() {
+        dispatcher?.dispatchOnCompleted(input = this, direction = Back)
+            ?: error("This input is not added to any dispatcher.")
+    }
+
+    /**
+     * Dispatch a forward started event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
+    @MainThread
+    protected fun dispatchOnForwardStarted(event: NavigationEvent) {
+        dispatcher?.dispatchOnStarted(input = this, direction = Forward, event)
+            ?: error("This input is not added to any dispatcher.")
+    }
+
+    /**
+     * Dispatch a forward progressed event with the connected dispatcher.
+     *
+     * @param event The [NavigationEvent] to dispatch.
+     */
+    @MainThread
+    protected fun dispatchOnForwardProgressed(event: NavigationEvent) {
+        dispatcher?.dispatchOnProgressed(input = this, direction = Forward, event)
+            ?: error("This input is not added to any dispatcher.")
+    }
+
+    /** Dispatch a forward cancelled event with the connected dispatcher. */
+    @MainThread
+    protected fun dispatchOnForwardCancelled() {
+        dispatcher?.dispatchOnCancelled(input = this, direction = Forward)
+            ?: error("This input is not added to any dispatcher.")
+    }
+
+    /** Dispatch a forward completed event with the connected dispatcher. */
+    @MainThread
+    protected fun dispatchOnForwardCompleted() {
+        dispatcher?.dispatchOnCompleted(input = this, direction = Forward)
             ?: error("This input is not added to any dispatcher.")
     }
 }

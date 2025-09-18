@@ -15,12 +15,15 @@
  */
 package androidx.compose.remote.core.operations.utilities;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.Nullable;
 
 /**
  * interface to allow expressions to access collections TODO: define a convention for when access is
  * unavailable
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CollectionsAccess {
 
     /**

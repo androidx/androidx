@@ -18,12 +18,12 @@
 package androidx.compose.remote.frontend.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
-class RippleModifier() : RemoteLayoutModifier {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RippleModifier() : RemoteLayoutModifier {
 
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.RippleModifier()
@@ -35,4 +35,4 @@ class RippleModifier() : RemoteLayoutModifier {
     }
 }
 
-fun RemoteModifier.rippleEffect(): RemoteModifier = then(RippleModifier())
+public fun RemoteModifier.rippleEffect(): RemoteModifier = then(RippleModifier())

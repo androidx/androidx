@@ -17,6 +17,7 @@ package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
+import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteComposeOperation;
@@ -33,6 +34,7 @@ import java.util.List;
  * "tag" the subsequent operations to a given theme. On playback, we can then filter operations
  * depending on the chosen theme.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Theme extends Operation implements RemoteComposeOperation {
     private static final int OP_CODE = Operations.THEME;
     private static final String CLASS_NAME = "Theme";
