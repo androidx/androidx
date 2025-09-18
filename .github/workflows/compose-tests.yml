@@ -154,9 +154,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: Compose Web Chrome Tests
     strategy:
+      fail-fast: false
       matrix:
         chrome: [ '118', 'stable' ]
-        task: [ ':mpp:testWebJs', ':mpp:testWebWasm' ]
+        task: [ 'Js', 'Wasm' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -196,7 +197,7 @@ jobs:
 
       - name: Run Web Chrome Tests
         run: |
-          ./gradlew ${{ matrix.task }} \
+          ./gradlew :mpp:testWeb${{ matrix.task }} \
             --no-daemon --stacktrace --no-parallel \
             -Pjetbrains.androidx.web.tests.enableFirefox=false \
             -Pjetbrains.androidx.web.tests.enableChrome=true
@@ -211,9 +212,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: Compose Web Firefox Tests
     strategy:
+      fail-fast: false
       matrix:
         firefox: [ '119.0', 'latest' ]
-        task: [ ':mpp:testWebJs', ':mpp:testWebWasm' ]
+        task: [ 'Js', 'Wasm' ]
     steps:
       - uses: actions/checkout@v5
 
@@ -257,7 +259,7 @@ jobs:
 
       - name: Run Web Firefox Tests
         run: |
-          ./gradlew ${{ matrix.task }} \
+          ./gradlew :mpp:testWeb${{ matrix.task }} \
             --no-daemon --stacktrace --no-parallel \
             -Pjetbrains.androidx.web.tests.enableFirefox=true \
             -Pjetbrains.androidx.web.tests.enableChrome=false
