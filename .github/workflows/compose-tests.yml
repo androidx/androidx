@@ -39,12 +39,12 @@ jobs:
       - name: Build Native
         run: |
           ./gradlew publishComposeJb -Pcompose.platforms=macos,uikit,linux,mingw \
-            --no-daemon --stacktrace --info --rerun-tasks
+            --no-daemon --stacktrace
 
       - name: Check Public API
         run: |
           ./gradlew jbApiCheck \
-            --no-daemon --stacktrace --info --rerun-tasks
+            --no-daemon --stacktrace
 
   compose-desktop-tests:
     runs-on: ubuntu-24.04
@@ -83,7 +83,7 @@ jobs:
       - name: Run Desktop Tests
         run: |
           ./gradlew testDesktop \
-            --no-daemon --stacktrace --info --rerun-tasks \
+            --no-daemon --stacktrace \
             -Pandroidx.ignoreTestFailures
 
       - name: Upload Screenshots
@@ -133,7 +133,7 @@ jobs:
       - name: Run iOS UIKit Tests
         run: |
           ./gradlew testUIKit \
-            --no-daemon --stacktrace --info --rerun-tasks
+            --no-daemon --stacktrace
 
       - name: Run iOS UIKit Instrumented Tests
         run: |
@@ -197,7 +197,7 @@ jobs:
       - name: Run Web Chrome Tests
         run: |
           ./gradlew ${{ matrix.task }} \
-            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
+            --no-daemon --stacktrace --no-parallel \
             -Pjetbrains.androidx.web.tests.enableFirefox=false \
             -Pjetbrains.androidx.web.tests.enableChrome=true
 
@@ -258,7 +258,7 @@ jobs:
       - name: Run Web Firefox Tests
         run: |
           ./gradlew ${{ matrix.task }} \
-            --no-daemon --stacktrace --info --rerun-tasks --no-parallel \
+            --no-daemon --stacktrace --no-parallel \
             -Pjetbrains.androidx.web.tests.enableFirefox=true \
             -Pjetbrains.androidx.web.tests.enableChrome=false
 
