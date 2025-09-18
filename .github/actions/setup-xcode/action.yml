@@ -20,6 +20,4 @@ runs:
         restore-keys: xcode-cache-deriveddata-
         # Only save DerivedData state for builds on the 'jb-main' branch.
         # Builds on other branches will only read existing entries from the cache.
-        cache-read-only: false
-        # Replace with this before merging
-        # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
+        cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}

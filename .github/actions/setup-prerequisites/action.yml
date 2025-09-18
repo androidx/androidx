@@ -16,9 +16,7 @@ runs:
       with:
         # Only save Gradle User Home state for builds on the 'jb-main' branch.
         # Builds on other branches will only read existing entries from the cache.
-        cache-read-only: false
-        # Replace with this before merging
-        # cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
+        cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}
 
         # Limit the size of the cache entry.
         # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
