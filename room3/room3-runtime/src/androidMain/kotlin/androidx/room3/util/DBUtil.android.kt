@@ -21,7 +21,6 @@ package androidx.room3.util
 
 import android.database.AbstractWindowedCursor
 import android.database.Cursor
-import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room3.RoomDatabase
@@ -189,7 +188,7 @@ public fun query(
             } else {
                 rowsInCursor
             }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || rowsInWindow < rowsInCursor) {
+        if (rowsInWindow < rowsInCursor) {
             return copyAndClose(cursor)
         }
     }

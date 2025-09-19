@@ -46,13 +46,4 @@
             file="src/androidMain/kotlin/androidx/room3/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M || rowsInWindow &lt; rowsInCursor) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/room3/util/DBUtil.android.kt"/>
-    </issue>
-
 </issues>
