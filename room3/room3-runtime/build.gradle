@@ -220,7 +220,6 @@ androidXMultiplatform {
 }
 
 dependencies {
-    lintChecks(project(":room3:room3-runtime-lint"))
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
     add("kspAndroidInstrumentedTest", project(":room3:room3-compiler"))
 }
