@@ -20,9 +20,7 @@ import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
-import android.os.Build
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.util.ProcessLock
@@ -44,10 +42,8 @@ constructor(
         // OpenHelper initialization code
         val openHelper: OpenHelper
 
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && name != null && useNoBackupDirectory
-        ) {
-            val file = File(SupportSQLiteCompat.Api21Impl.getNoBackupFilesDir(context), name)
+        if (name != null && useNoBackupDirectory) {
+            val file = File(context.noBackupFilesDir, name)
             openHelper =
                 OpenHelper(
                     context = context,

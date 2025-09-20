@@ -91,6 +91,9 @@ public class SupportSQLiteCompat private constructor() {
     }
 
     /** Helper for accessing functions that require SDK version 21 and higher. */
+    @Deprecated(
+        "Kept for ABI compatibility reasons due to b/402796648 even though minSdk is greater than 21."
+    )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public object Api21Impl {
         /**
@@ -107,8 +110,10 @@ public class SupportSQLiteCompat private constructor() {
     }
 
     /** Helper for accessing functions that require SDK version 23 and higher. */
+    @Deprecated(
+        "Kept for ABI compatibility reasons due to b/402796648 even though minSdk is greater than 23."
+    )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(23)
     public object Api23Impl {
         /**
          * Sets a [Bundle] that will be returned by [Cursor.getExtras].
