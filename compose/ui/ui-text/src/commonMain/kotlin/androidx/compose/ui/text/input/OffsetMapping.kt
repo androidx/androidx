@@ -34,7 +34,7 @@ interface OffsetMapping {
      * Convert offset in transformed text into the offset in original text.
      *
      * This function must be a monotonically non-decreasing function. In other words, if a cursor
-     * advances in the transformed text, the cusrsor in the original text must advance or stay
+     * advances in the transformed text, the cursor in the original text must advance or stay
      * there.
      *
      * @param offset offset in transformed text
