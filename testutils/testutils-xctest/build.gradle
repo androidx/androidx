@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.Architecture
@@ -23,7 +22,7 @@ import org.jetbrains.kotlin.konan.target.Architecture
 plugins {
     id("AndroidXPlugin")
     id("kotlin-multiplatform")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 kotlin {

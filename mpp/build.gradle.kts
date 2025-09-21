@@ -1,5 +1,9 @@
-import androidx.build.jetbrains.ArtifactRedirection
-import androidx.build.jetbrains.artifactRedirection
+import org.jetbrains.androidx.build.AbstractComposePublishingTask
+import org.jetbrains.androidx.build.ArtifactRedirection
+import org.jetbrains.androidx.build.ComposeComponent
+import org.jetbrains.androidx.build.ComposePlatforms
+import org.jetbrains.androidx.build.artifactRedirection
+import org.jetbrains.androidx.build.hasRedirection
 
 buildscript {
     repositories {

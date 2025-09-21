@@ -22,9 +22,9 @@
  * modifying its settings.
  */
 
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.AndroidXComposePlugin
 import androidx.build.Publish
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -32,11 +32,11 @@ plugins {
     id("com.android.library")
     id("AndroidXComposePlugin")
     alias(libs.plugins.kotlinSerialization)
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXComposeMultiplatform {
     android()

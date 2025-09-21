@@ -16,7 +16,7 @@
 
 @file:Suppress("unused")
 
-package androidx.build.jetbrains
+package org.jetbrains.androidx.build
 
 import androidx.build.AndroidXExtension
 import androidx.build.multiplatformExtension
@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinSoftwareComponentWithCoordinatesAndPublication
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
-open class JetbrainsExtensions(
+open class JetBrainsExtensions(
     val project: Project,
     val multiplatformExtension: KotlinMultiplatformExtension
 ) {
@@ -160,7 +160,7 @@ class JetBrainsAndroidXImplPlugin : Plugin<Project> {
         val multiplatformExtension =
             project.extensions.getByType(KotlinMultiplatformExtension::class.java)
 
-        val extension = project.extensions.create<JetbrainsExtensions>(
+        val extension = project.extensions.create<JetBrainsExtensions>(
             "jetbrainsExtension",
             project,
             multiplatformExtension

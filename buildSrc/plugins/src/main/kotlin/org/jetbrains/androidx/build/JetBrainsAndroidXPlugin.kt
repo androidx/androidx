@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
+package org.jetbrains.androidx.build
 
-package androidx.build
-
+import androidx.build.getSupportRootFolder
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-// TODO: Rename to JetBrainsAndroidXPlugin
-class JetbrainsAndroidXPlugin : Plugin<Project> {
+class JetBrainsAndroidXPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val supportRoot = project.getSupportRootFolder()
         project.apply(

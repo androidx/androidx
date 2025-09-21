@@ -15,9 +15,9 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
 import androidx.build.Publish
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -25,11 +25,11 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXComposeMultiplatform {
     android()

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jetbrains.androidx.build
 
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.collections.iterator
 import kotlin.concurrent.thread
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty

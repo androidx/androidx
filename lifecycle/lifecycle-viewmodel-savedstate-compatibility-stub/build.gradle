@@ -28,7 +28,7 @@ import androidx.build.PlatformIdentifier
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {

@@ -23,19 +23,20 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.androidx.build.UpdateTranslationsTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXComposeMultiplatform {
     android()

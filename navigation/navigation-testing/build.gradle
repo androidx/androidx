@@ -22,20 +22,19 @@
  * modifying its settings.
  */
 
-
-import androidx.build.JetbrainsAndroidXPlugin
-import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXMultiplatform {
     android()

@@ -1,4 +1,4 @@
-import androidx.build.jetbrains.JetBrainsAndroidXImplPlugin
+import org.jetbrains.androidx.build.JetBrainsAndroidXImplPlugin
 
 buildscript {
     dependencies {

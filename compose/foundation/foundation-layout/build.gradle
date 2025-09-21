@@ -15,19 +15,18 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 dependencies {
 

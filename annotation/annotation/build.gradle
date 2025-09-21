@@ -1,19 +1,18 @@
 import androidx.build.AndroidXComposePlugin
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
 
     //  TODO move all functionality to Compose-independent plugin (`collection` shouldn't depend on Compose concepts)
     id("AndroidXComposePlugin")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXComposeMultiplatform {
     js()

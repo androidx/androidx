@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.build.jetbrains
+package org.jetbrains.androidx.build
 
 import androidx.build.getProjectsMap
 import com.android.utils.mapValuesNotNull

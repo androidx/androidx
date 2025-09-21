@@ -31,7 +31,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {

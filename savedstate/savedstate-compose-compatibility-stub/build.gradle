@@ -22,20 +22,19 @@
  * modifying its settings.
  */
 
-import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.AndroidXComposePlugin
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("JetbrainsAndroidXPlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetbrainsAndroidXPlugin.applyAndConfigure(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 androidXComposeMultiplatform {
     android()
