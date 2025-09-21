@@ -30,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -64,23 +63,13 @@ public class BatteryChargingTrackerTest {
 
     private Intent createBatteryChangedIntent(boolean charging) {
         Intent intent = new Intent(Intent.ACTION_BATTERY_CHANGED);
-        if (Build.VERSION.SDK_INT >= 23) {
-            int status = charging ? BatteryManager.BATTERY_STATUS_CHARGING
-                    : BatteryManager.BATTERY_STATUS_DISCHARGING;
-            intent.putExtra(BatteryManager.EXTRA_STATUS, status);
-        } else {
-            int plugged = charging ? 1 : 0;
-            intent.putExtra(BatteryManager.EXTRA_PLUGGED, plugged);
-        }
+        int status = charging ? BatteryManager.BATTERY_STATUS_CHARGING
+                : BatteryManager.BATTERY_STATUS_DISCHARGING;
+        intent.putExtra(BatteryManager.EXTRA_STATUS, status);
         return intent;
     }
 
     private Intent createChargingIntent(boolean charging) {
-        return new Intent(
-                charging ? Intent.ACTION_POWER_CONNECTED : Intent.ACTION_POWER_DISCONNECTED);
-    }
-
-    private Intent createChargingIntent_afterApi23(boolean charging) {
         return new Intent(
                 charging ? BatteryManager.ACTION_CHARGING : BatteryManager.ACTION_DISCHARGING);
     }
@@ -133,9 +122,9 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(true));
+        mTracker.onBroadcastReceive(createChargingIntent(true));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(false));
+        mTracker.onBroadcastReceive(createChargingIntent(false));
         // onConstraintChanged was called once more, in total, twice
         verify(mListener, times(2)).onConstraintChanged(false);
     }
