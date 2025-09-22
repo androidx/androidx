@@ -51,7 +51,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.named
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
@@ -183,12 +182,6 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             variant: VariantPublishPlan,
             shaProvider: Provider<String>
         ): TaskProvider<CreateLibraryBuildInfoFileTask> {
-            // We don't really use these tasks in our fork, and we may disable this completely.
-            // The reason for a duplicate is that we have a custom 'KotlinMultiplatformDecoration' publication,
-            // which leads to a task duplicate here.
-            val existingTask = project.tasks.findByName(TASK_NAME + variant.taskSuffix)
-            if (existingTask != null)
-                return project.tasks.named<CreateLibraryBuildInfoFileTask>(TASK_NAME + variant.taskSuffix)
             return project.tasks.register(
                 TASK_NAME + variant.taskSuffix,
                 CreateLibraryBuildInfoFileTask::class.java

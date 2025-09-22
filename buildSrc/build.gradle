@@ -56,7 +56,6 @@ allprojects {
 
 dependencies {
     api(project("plugins"))
-    implementation project(':public')
 }
 
 // use jvmTarget 17 for buildSrc .kts scripts. Keep during merge

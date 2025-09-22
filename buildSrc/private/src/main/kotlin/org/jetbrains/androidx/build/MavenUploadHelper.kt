@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.build
+package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXExtension
+import androidx.build.AndroidXMultiplatformExtension
+import androidx.build.LibraryGroup
+import androidx.build.Release
+import androidx.build.getAlternativeProjectUrl
+import androidx.build.getBuildId
+import androidx.build.getProjectsMap
+import androidx.build.getRepositoryDirectory
+import androidx.build.isSnapshotBuild
+import androidx.build.multiplatformExtension
+import androidx.build.version
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
@@ -27,6 +38,10 @@ import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.util.StringTokenizer
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.find
+import kotlin.collections.iterator
 import org.apache.xerces.jaxp.SAXParserImpl.JAXPSAXParser
 import org.dom4j.Document
 import org.dom4j.DocumentException

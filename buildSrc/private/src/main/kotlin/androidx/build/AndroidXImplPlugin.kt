@@ -140,7 +140,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         }
 
         project.configureTaskTimeouts()
-        project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory)
+//        project.configureMavenArtifactUpload(extension, kmpExtension, componentFactory)
         project.configureExternalDependencyLicenseCheck()
 //        project.configureProjectStructureValidation(extension)
         // TODO: [1.4 Update] check that it is not needed
@@ -152,7 +152,7 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
         project.registerAndroidxArtifact(extension)
 
         project.registerProjectOrArtifact()
-        project.addCreateLibraryBuildInfoFileTasks(extension)
+       // project.addCreateLibraryBuildInfoFileTasks(extension)
 
         project.configurations.create("samples")
 //        project.validateMultiplatformPluginHasNotBeenApplied()
@@ -178,7 +178,6 @@ class AndroidXImplPlugin @Inject constructor(val componentFactory: SoftwareCompo
                 }
             }
         }
-
     }
 
     /**

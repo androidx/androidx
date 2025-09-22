@@ -16,6 +16,7 @@
 
 import androidx.build.AndroidXRootPlugin
 import androidx.build.SdkHelperKt
+import org.jetbrains.androidx.build.JetBrainsAndroidXRootPlugin
 
 buildscript {
     SdkHelperKt.setSupportRootFolder(project, project.projectDir)
@@ -34,16 +35,10 @@ buildscript {
 apply from: "buildSrc/dependencies.gradle"
 
 apply plugin: AndroidXRootPlugin
+apply plugin: JetBrainsAndroidXRootPlugin
 
 // workaround for https://github.com/gradle/gradle/issues/24822
 if (project.hasProperty("androidx.update.signatures")) {
     apply plugin: "java-library"
     apply from: "buildSrc/shared-dependencies.gradle"
-}
-
-allprojects {
-    this.tasks.configureEach {
-        if (it.name == "kotlinStoreYarnLock") it.enabled = false
-        if (it.name == "kotlinWasmStoreYarnLock") it.enabled = false
-    }
 }

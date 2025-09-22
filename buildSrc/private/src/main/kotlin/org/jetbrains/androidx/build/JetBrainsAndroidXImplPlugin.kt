@@ -19,11 +19,14 @@
 package org.jetbrains.androidx.build
 
 import androidx.build.AndroidXExtension
+import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.multiplatformExtension
+import javax.inject.Inject
 import kotlinx.validation.ApiValidationExtension
 import kotlinx.validation.ExperimentalBCVApi
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
@@ -143,10 +146,20 @@ open class JetBrainsExtensions(
     }
 
 }
-class JetBrainsAndroidXImplPlugin : Plugin<Project> {
+
+class JetBrainsAndroidXImplPlugin @Inject constructor(
+    val componentFactory: SoftwareComponentFactory
+) : Plugin<Project> {
 
     @Suppress("UNREACHABLE_CODE", "UNUSED_VARIABLE")
     override fun apply(project: Project) {
+        val androidxExtension =
+            project.extensions.getByType(AndroidXExtension::class.java)
+        val androidxMultiplatformExtension =
+            project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
+        project.configureMavenArtifactUpload(
+            androidxExtension, androidxMultiplatformExtension, componentFactory)
+
         project.plugins.all { plugin ->
             if (plugin is KotlinMultiplatformPluginWrapper) {
                 onKotlinMultiplatformPluginApplied(project)
