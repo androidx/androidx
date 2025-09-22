@@ -209,10 +209,10 @@ public fun <VM : ViewModel> Fragment.createViewModelLazy(
 
 /**
  * Helper method for creation of [ViewModelLazy], that resolves `null` passed as [factoryProducer]
- * to default factory.
+ * to the default factory.
  *
- * This method also takes an [CreationExtras] produces that provides default extras to the created
- * view model.
+ * This method also takes a [CreationExtras] producer that provides default extras to the created
+ * [ViewModel].
  */
 @MainThread
 public fun <VM : ViewModel> Fragment.createViewModelLazy(
