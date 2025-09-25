@@ -18,6 +18,7 @@ package androidx.compose.ui.events
 
 import org.w3c.dom.events.CompositionEvent
 import org.w3c.dom.events.CompositionEventInit
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.KeyboardEventInit
 import org.w3c.dom.events.MouseEvent
@@ -28,11 +29,25 @@ internal external interface KeyboardEventInitExtended : KeyboardEventInit {
 
 private fun KeyboardEventInit.keyEvent(type: String) = KeyboardEvent(type, this)
 
+
+internal fun String.eventKeyCode(): String {
+    return when {
+        length == 1 && this[0] in '0'..'9' -> "Digit${this}"
+        else -> "Key${this[0].uppercase()}"
+    }
+}
+
 @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
 internal fun keyEvent(
     key: String,
-    code: String = "Key${key.uppercase()}",
-    keyCode: Int = key.uppercase().first().code,
+    code: String = key.eventKeyCode(),
+    keyCode: Int = when(key) {
+        // Happens in Firefox, all browsers on Windows
+        "Process" -> 229
+        // Chrome in Android with virtual keyboard
+        "Unidentified" -> 229
+        else -> key.uppercase().first().code
+    },
     type: String = "keydown",
     ctrlKey: Boolean = false,
     metaKey: Boolean = false,
@@ -66,11 +81,8 @@ internal fun compositionStart(data: String = "") =
 internal fun compositionEnd(data: String) =
     CompositionEvent("compositionend", CompositionEventInit(data = data))
 
-internal fun beforeInput(inputType: String, data: String?) =
-    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data))
-
-internal fun mobileKeyDown() = keyEvent(type = "keydown", key = "Unidentified", code = "")
-internal fun mobileKeyUp() = keyEvent(type = "keydown", key = "Unidentified", code = "")
+internal fun beforeInput(inputType: String, data: String?, isComposing: Boolean = false) =
+    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data, isComposing = isComposing))
 
 private fun DummyTouchEventInit(): TouchEventInit = js("({ changedTouches: [new Touch({identifier: 0, target: document})] })")
 
@@ -81,4 +93,27 @@ internal fun createTouchEvent(type: String): TouchEvent {
 internal fun createMouseEvent(type: String): MouseEvent {
     return MouseEvent(type)
 }
+
+
+internal interface EventsSequence {
+    fun add(event: Event): EventsSequence
+    fun toList(): List<Event>
+    fun addAll(vararg events: Event): EventsSequence
+}
+private class EventSequenceImplementation(events: List<Event>) : EventsSequence {
+    private val events: MutableList<Event> = events.toMutableList()
+    override fun add(event: Event): EventsSequence {
+        events.add(event)
+        return this
+    }
+
+    override fun addAll(vararg events: Event): EventsSequence {
+        this.events.addAll(events.toList())
+        return this
+    }
+
+    override fun toList(): List<Event> = this@EventSequenceImplementation.events
+}
+
+internal fun eventsSequence(vararg events: Event): EventsSequence = EventSequenceImplementation(events.toList())
 
