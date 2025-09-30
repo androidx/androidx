@@ -30,11 +30,12 @@ import androidx.compose.ui.window.ComposeViewport
 import androidx.navigation.ExperimentalBrowserHistoryApi
 import androidx.navigation.bindToBrowserNavigation
 import androidx.navigation.compose.rememberNavController
+import kotlin.js.ExperimentalJsReflectionCreateInstance
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-
-private const val notoColorEmoji = "./NotoColorEmoji.ttf"
-private const val notoSansSC = "./NotoSansSC-Regular.ttf"
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalBrowserHistoryApi
@@ -63,21 +64,15 @@ fun main() {
         }
 
         LaunchedEffect(Unit) {
-            val load1 = async {
-                loadResource(notoColorEmoji) ?: ByteArray(0)
-            }
-            val load2 = async {
-                loadResource(notoSansSC) ?: ByteArray(0)
-            }
-            val fontsDeferred = awaitAll(load1, load2).zip(listOf(
-                "NotoColorEmoji",
-                "NotoSansSC"
-            ))
+            val manifestString = async { loadResource("./fonts-manifest.json") !! }.await().decodeToString()
 
-            fontsDeferred.forEach { (font, name) ->
-                val fontFamily = FontFamily(listOf(Font(name, font)))
-                fontFamilyResolver.preload(fontFamily)
-            }
+            val manifest = Json.decodeFromString<FontsManifest>(manifestString)
+
+            awaitAll(*manifest.fonts.map { async { loadResource("./$it.ttf")!! } }.toTypedArray())
+                .forEachIndexed { index, font ->
+                    val fontFamily = FontFamily(listOf(Font(manifest.fonts[index], font)))
+                    fontFamilyResolver.preload(fontFamily)
+                }
 
             fontsLoaded.value = true
         }
@@ -87,3 +82,7 @@ fun main() {
         }
     }
 }
+
+
+@Serializable
+private data class FontsManifest(val fonts: List<String>)
