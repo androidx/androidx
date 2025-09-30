@@ -71,6 +71,20 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
     }
 
     /**
+     * Intercepts invalid text operations.
+     */
+    @Override
+    public void startTextComponent(@NonNull RecordingModifier modifier, int textId, int color,
+            float fontSize, int fontStyle, float fontWeight, @Nullable String fontFamily,
+            int textAlign, int overflow, int maxLines) {
+        if (Float.isNaN(fontSize)) {
+            throw new IllegalArgumentException("Invalid fontSize in V6");
+        }
+        super.startTextComponent(modifier, textId, color, fontSize, fontStyle, fontWeight,
+                fontFamily, textAlign, overflow, maxLines);
+    }
+
+    /**
      * Example of validating parameters on the writer Create an animated float based on a
      * reverse-Polish notation expression
      *

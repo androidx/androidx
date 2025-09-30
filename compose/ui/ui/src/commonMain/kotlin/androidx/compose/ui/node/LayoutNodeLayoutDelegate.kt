@@ -413,8 +413,8 @@ internal const val MeasuredTwiceErrorMessage: String =
  * measure/layout pass.
  */
 internal interface AlignmentLinesOwner : Measurable {
-    /** Whether the AlignmentLinesOwner has been placed. */
-    val isPlaced: Boolean
+
+    val placeOrder: Int
 
     /** InnerNodeCoordinator of the LayoutNode that the AlignmentLinesOwner operates on. */
     val innerCoordinator: NodeCoordinator

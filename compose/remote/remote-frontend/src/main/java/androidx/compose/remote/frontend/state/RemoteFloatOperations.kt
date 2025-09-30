@@ -167,6 +167,29 @@ public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteF
     )
 }
 
+/**
+ * Computes [from] + ([to] - [from]) * [tween].
+ *
+ * @param from The [RemoteFloat] we're interpolating from, i.e. when [tween] is 0, lerp evaluates to
+ *   [from]
+ * @param to The [RemoteFloat] we're interpolating towards, i.e. when [tween] is 1, lerp evaluates
+ *   to [to]
+ * @param tween The ratio between [from] and [to] that controls the result.
+ */
+public fun lerp(from: Float, to: Float, tween: RemoteFloat): RemoteFloat {
+    return RemoteFloatExpression(
+        tween.hasConstantValue,
+        { creationState ->
+            floatArrayOf(
+                from,
+                to,
+                *tween.arrayProvider(creationState),
+                AnimatedFloatExpression.LERP,
+            )
+        },
+    )
+}
+
 private fun isConst(a: Number) =
     when (a) {
         is RemoteFloat -> a.hasConstantValue

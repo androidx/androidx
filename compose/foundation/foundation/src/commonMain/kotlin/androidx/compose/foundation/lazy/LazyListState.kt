@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -354,6 +355,23 @@ constructor(
             }
         }
 
+    private val _scrollIndicatorState =
+        object : ScrollIndicatorState {
+            override val scrollOffset: Int
+                get() = calculateScrollOffset()
+
+            override val contentSize: Int
+                get() = layoutInfo.calculateContentSize()
+
+            override val viewportSize: Int
+                get() = layoutInfo.singleAxisViewportSize
+        }
+
+    private fun calculateScrollOffset(): Int {
+        return (layoutInfo.visibleItemsAverageSize() * firstVisibleItemIndex) +
+            firstVisibleItemScrollOffset
+    }
+
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
@@ -462,6 +480,9 @@ constructor(
     @get:Suppress("GetterSetterNames")
     override val lastScrolledBackward: Boolean
         get() = scrollableState.lastScrolledBackward
+
+    override val scrollIndicatorState: ScrollIndicatorState?
+        get() = _scrollIndicatorState
 
     internal val placementScopeInvalidator = ObservableScopeInvalidator()
 

@@ -192,6 +192,19 @@ internal constructor(
     }
 
     /**
+     * If this [RemoteInt] represents a constant value, then this method evaluates it and returns
+     * it, otherwise it returns null.
+     */
+    public fun evaluateIfConstant(creationState: RemoteComposeCreationState): Int? {
+        val a = arrayForCreationState(creationState)
+        return if (a.isLiteral()) {
+            a[0].toInt()
+        } else {
+            null
+        }
+    }
+
+    /**
      * Returns a [RemoteInt] that is a reference of this RemoteInt.
      *
      * This is temporarily useful because the floatArray has a maximum size.

@@ -18,6 +18,7 @@ package androidx.compose.ui.inspection
 
 import android.util.Log
 import android.view.View
+import androidx.collection.IntObjectMap
 import androidx.collection.LongList
 import androidx.collection.LongObjectMap
 import androidx.collection.MutableLongObjectMap
@@ -38,6 +39,8 @@ import androidx.compose.ui.inspection.proto.ConversionContext
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
 import androidx.compose.ui.inspection.proto.toComposableRoot
+import androidx.compose.ui.inspection.recompositions.ObservedStateReads
+import androidx.compose.ui.inspection.recompositions.StateReadHandler
 import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.NO_ANCHOR_ID
 import androidx.compose.ui.inspection.util.ThreadUtils
@@ -53,6 +56,7 @@ import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlin.collections.removeLast as removeLastKt
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Event
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesCommand
@@ -61,8 +65,12 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetPara
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParameterDetailsResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersResponse
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadCommand
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterGroup
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.RecompositionStateReadEvent
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Response
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadSettings
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UnknownCommandResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsResponse
@@ -88,7 +96,7 @@ class ComposeLayoutInspectorFactory :
 }
 
 class ComposeLayoutInspector(
-    connection: Connection,
+    private val connection: Connection,
     // Keep this instance for easy access through reflection:
     private val environment: InspectorEnvironment,
 ) : Inspector(connection) {
@@ -125,7 +133,8 @@ class ComposeLayoutInspector(
     private val rootsDetector = RootsDetector(environment)
     private val anchorMap = AnchorMap()
     private val layoutInspectorTree = LayoutInspectorTree(anchorMap)
-    private val recompositionHandler = RecompositionHandler(environment.artTooling(), anchorMap)
+    private val recompositionHandler =
+        StateReadHandler(environment.artTooling(), anchorMap, ::sendStateReadEvent)
     private var delayParameterExtractions = false
     // Reduce the protobuf nesting of ComposableNode by storing nested nodes with only 1 child each
     // as children under the top node. This limits the stack used when computing the protobuf size.
@@ -161,7 +170,7 @@ class ComposeLayoutInspector(
         val command =
             try {
                 Command.parseFrom(data)
-            } catch (ignored: InvalidProtocolBufferException) {
+            } catch (_: InvalidProtocolBufferException) {
                 handleUnknownCommand(data, callback)
                 return
             }
@@ -181,6 +190,12 @@ class ComposeLayoutInspector(
             }
             Command.SpecializedCase.UPDATE_SETTINGS_COMMAND -> {
                 handleUpdateSettingsCommand(command.updateSettingsCommand, callback)
+            }
+            Command.SpecializedCase.GET_RECOMPOSITION_STATE_READ_COMMAND -> {
+                handleGetRecompositionStateReadCommand(
+                    command.getRecompositionStateReadCommand,
+                    callback,
+                )
             }
             else -> handleUnknownCommand(data, callback)
         }
@@ -393,15 +408,70 @@ class ComposeLayoutInspector(
         recompositionHandler.changeCollectionMode(
             updateSettingsCommand.includeRecomposeCounts,
             updateSettingsCommand.keepRecomposeCounts,
+            updateSettingsCommand.stateReadSettings,
         )
         delayParameterExtractions = updateSettingsCommand.delayParameterExtractions
         reduceChildNesting = updateSettingsCommand.reduceChildNesting
         callback.reply {
             updateSettingsResponse =
                 UpdateSettingsResponse.newBuilder()
-                    .apply { canDelayParameterExtractions = true }
+                    .apply {
+                        canDelayParameterExtractions = true
+                        addSupportedStateReadKind(StateReadSettings.Kind.ALL)
+                        addSupportedStateReadKind(StateReadSettings.Kind.BY_ID)
+                    }
                     .build()
         }
+    }
+
+    private fun handleGetRecompositionStateReadCommand(
+        getRecompositionStateReadCommand: GetRecompositionStateReadCommand,
+        callback: CommandCallback,
+    ) {
+        val result =
+            recompositionHandler.getReads(
+                getRecompositionStateReadCommand.anchorHash,
+                getRecompositionStateReadCommand.recompositionNumber,
+            )
+
+        val stringTable = StringTable()
+        callback.reply {
+            getRecompositionStateReadResponse =
+                GetRecompositionStateReadResponse.newBuilder()
+                    .apply {
+                        anchorHash = getRecompositionStateReadCommand.anchorHash
+                        firstRecomposition = result.firstObservedRecomposition
+                        read =
+                            result.reads.convert(
+                                result.recomposition,
+                                stringTable,
+                                layoutInspectorTree,
+                            )
+                        addAllStrings(stringTable.toStringEntries())
+                    }
+                    .build()
+        }
+    }
+
+    private fun sendStateReadEvent(
+        anchorId: Int,
+        stateReadsPerRecomposition: IntObjectMap<ObservedStateReads>,
+    ) {
+        val stringTable = StringTable()
+        val stateRead =
+            RecompositionStateReadEvent.newBuilder()
+                .apply {
+                    anchorHash = anchorId
+                    stateReadsPerRecomposition.forEach { recomposition, observation ->
+                        addRead(
+                            observation.convert(recomposition, stringTable, layoutInspectorTree)
+                        )
+                    }
+                    addAllStrings(stringTable.toStringEntries())
+                }
+                .build()
+        val event = Event.newBuilder().apply { stateReadEvent = stateRead }.build()
+        connection.sendEvent(event.toByteArray())
     }
 
     /**

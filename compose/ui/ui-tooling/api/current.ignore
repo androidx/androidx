@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.ui.tooling.InspectableKt#InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.ui.tooling.InspectableKt.InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.compose.ui.tooling.animation.ToolingState#getValue():
+    Source breaking change: method androidx.compose.ui.tooling.animation.ToolingState.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.animation.ToolingState#setValue(T):
+    Source breaking change: method androidx.compose.ui.tooling.animation.ToolingState.setValue(T) can no longer be resolved from Kotlin source

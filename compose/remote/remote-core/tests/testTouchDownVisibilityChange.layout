@@ -1,0 +1,193 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - {type: TextData, textId: 42, text: Layout}
+    - {type: RootContentDescription, contentDescriptionId: 42}
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 43, value: 0}
+      - type: ROW
+        id: 1
+        x: 0.0
+        y: 0.0
+        width: 116.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 116.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+        - type: BOX
+          id: 2
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: GONE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: ComponentVisibilityOperation, visibilityId: 43, visibility: GONE}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: 3
+          x: 0.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - type: TouchDownModifierOperation
+              actions: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: CENTER
+        spacedBy: 0.0
+- description: Test Visibility
+  command: {visibility: 0}
+  result: {result: 0}
+- description: Apply TouchDown
+  command: {x: 50.0, y: 50.0}
+  result: {}
+- description: Test Visibility
+  command: {visibility: 1}
+  result: {result: 1}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - {type: TextData, textId: 42, text: Layout}
+    - {type: RootContentDescription, contentDescriptionId: 42}
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: IntegerConstant, id: 43, value: 0}
+      - type: ROW
+        id: 1
+        x: 0.0
+        y: 0.0
+        width: 316.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 316.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 8.0, top: 8.0, right: 8.0, bottom: 8.0}
+        - type: BOX
+          id: 2
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: ComponentVisibilityOperation, visibilityId: 43, visibility: VISIBLE}
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff00ff00', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: BOX
+          id: 3
+          x: 200.0
+          y: 0.0
+          width: 100.0
+          height: 100.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 100.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 100.0, height: 100.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - type: TouchDownModifierOperation
+              actions: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 8.0
+        paddingRight: 8.0
+        paddingTop: 8.0
+        paddingBottom: 8.0
+        verticalPositioning: TOP
+        horizontalPositioning: CENTER
+        spacedBy: 0.0

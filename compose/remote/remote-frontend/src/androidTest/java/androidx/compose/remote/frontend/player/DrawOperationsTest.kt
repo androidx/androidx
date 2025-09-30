@@ -88,6 +88,7 @@ class DrawOperationsTest {
                 drawBitmapTextAnchoredWithTextId(),
                 drawTweenPath(),
                 drawTweenPathWithPath(),
+                drawOutsideBounds(),
             )
 
         val columns = 5
@@ -375,4 +376,7 @@ class DrawOperationsTest {
 
         drawTweenPath(path1, path2, 0.5f, 0f, 1f)
     }
+
+    // TODO(b/444668781): it should not render outside the bounds
+    fun drawOutsideBounds() = getCoreDocument { drawCircle(50f, 50f, 60f) }
 }

@@ -1025,7 +1025,7 @@ internal class ComposerImpl(
     internal fun updateCachedValue(value: Any?) {
         val toStore =
             if (value is RememberObserver) {
-                val holder = RememberObserverHolder(value, rememberObserverAnchor())
+                val holder = RememberObserverHolder(value, rememberObserverGroupIndex())
                 if (inserting) {
                     changeListWriter.remember(holder)
                 }
@@ -1035,28 +1035,7 @@ internal class ComposerImpl(
         updateValue(toStore)
     }
 
-    private fun rememberObserverAnchor(): Anchor? =
-        if (inserting) {
-            if (writer.isAfterFirstChild) {
-                var group = writer.currentGroup - 1
-                var parent = writer.parent(group)
-                while (parent != writer.parent && parent >= 0) {
-                    group = parent
-                    parent = writer.parent(group)
-                }
-                writer.anchor(group)
-            } else null
-        } else {
-            if (reader.isAfterFirstChild) {
-                var group = reader.currentGroup - 1
-                var parent = reader.parent(group)
-                while (parent != reader.parent && parent >= 0) {
-                    group = parent
-                    parent = reader.parent(group)
-                }
-                reader.anchor(group)
-            } else null
-        }
+    private fun rememberObserverGroupIndex() = rGroupIndex - 1
 
     private var _compositionData: CompositionData? = null
 
@@ -1273,10 +1252,10 @@ internal class ComposerImpl(
                             this@ComposerImpl.compositeKeyHashCode,
                             forceRecomposeScopes,
                             sourceMarkersEnabled,
-                            (composition as? CompositionImpl)?.observerHolder,
+                            composition.observerHolder,
                         )
                     ),
-                    after = null,
+                    afterGroupIndex = -1,
                 )
             updateValue(observerHolder)
         }

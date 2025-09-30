@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.toSize
 internal class SharedElementEntry(
     sharedElement: SharedElement,
     boundsAnimation: BoundsAnimation,
-    placeHolderSize: SharedTransitionScope.PlaceHolderSize,
+    placeholderSize: SharedTransitionScope.PlaceholderSize,
     renderOnlyWhenVisible: Boolean,
     overlayClip: SharedTransitionScope.OverlayClip,
     renderInOverlayDuringTransition: Boolean,
@@ -49,7 +49,7 @@ internal class SharedElementEntry(
     var renderInOverlayDuringTransition: Boolean by mutableStateOf(renderInOverlayDuringTransition)
     var sharedElement: SharedElement by mutableStateOf(sharedElement)
     var boundsAnimation: BoundsAnimation by mutableStateOf(boundsAnimation)
-    var placeHolderSize: SharedTransitionScope.PlaceHolderSize by mutableStateOf(placeHolderSize)
+    var placeholderSize: SharedTransitionScope.PlaceholderSize by mutableStateOf(placeholderSize)
     var renderOnlyWhenVisible: Boolean by mutableStateOf(renderOnlyWhenVisible)
     var overlayClip: SharedTransitionScope.OverlayClip by mutableStateOf(overlayClip)
     var userState: SharedTransitionScope.SharedContentState by mutableStateOf(userState)

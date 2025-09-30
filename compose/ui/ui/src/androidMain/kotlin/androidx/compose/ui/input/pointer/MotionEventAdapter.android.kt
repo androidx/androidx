@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
@@ -37,7 +38,14 @@ import android.view.MotionEvent.TOOL_TYPE_STYLUS
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.LongSparseArray
+import androidx.collection.set
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectPointerInputChange
+import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.indirect.convertActionToIndirectTouchEventType
+import androidx.compose.ui.input.indirect.indirectPrimaryDirectionalScrollAxis
 import androidx.compose.ui.util.fastIsFinite
 
 /** Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s. */
@@ -54,6 +62,53 @@ internal class MotionEventAdapter {
     private val activeHoverIds = SparseBooleanArray()
 
     private val pointers = mutableListOf<PointerInputEventData>()
+
+    private val previousIndirectTouchEventData: LongSparseArray<IndirectTouchEventData> =
+        LongSparseArray()
+
+    @JvmInline
+    private value class IndirectTouchEventData(val packedValue: Long) {
+        constructor(
+            uptime: Long,
+            position: Offset,
+            down: Boolean,
+        ) : this(
+            (if (down) 1L else 0L) or // Bit 0 for 'down'
+                ((uptime and 0x7FFF_FFFFL) shl 1) or // Bits 1-31 for 'uptime'
+                (packShorts(position.x.toInt().toShort(), position.y.toInt().toShort()).toLong() shl
+                    32) // Bits 32-63 for 'position'
+        )
+
+        val down: Boolean
+            get() = (packedValue and 1L) != 0L
+
+        val uptime: Long
+            get() = (packedValue shr 1) and 0x7FFF_FFFFL
+
+        val position: Offset
+            get() {
+                val packedShorts = (packedValue ushr 32).toInt()
+                return Offset(
+                    unpackShort1(packedShorts).toFloat(),
+                    unpackShort2(packedShorts).toFloat(),
+                )
+            }
+
+        companion object {
+            // Helper functions to pack/unpack two Shorts into/from an Int.
+            private fun packShorts(val1: Short, val2: Short): Int {
+                return (val1.toInt() shl 16) or (val2.toInt() and 0xFFFF)
+            }
+
+            private fun unpackShort1(value: Int): Short {
+                return (value ushr 16).toShort()
+            }
+
+            private fun unpackShort2(value: Int): Short {
+                return (value and 0xFFFF).toShort()
+            }
+        }
+    }
 
     /**
      * The previous event's tool type. This is used in combination with [previousSource] to
@@ -132,6 +187,95 @@ internal class MotionEventAdapter {
         removeStaleIds(motionEvent)
 
         return PointerInputEvent(motionEvent.eventTime, pointers, motionEvent)
+    }
+
+    /*
+     * Converts a single [MotionEvent] from an Android event stream into an
+     * [AndroidIndirectTouchEvent].
+     * @param motionEvent The MotionEvent to process.
+     * @param primaryDirectionalMotionAxisOverride The primary directional motion axis override. The
+     * primaryDirectionalMotionAxisOverride is used for testing, because there is no way to
+     * override the primary directional motion axis from the MotionEvent's device properly with
+     * mockito (MotionEvent and Mockito don't work together). The override allows tests to inject a
+     * custom value (null means use the actual MotionEvent device's value).
+     * @return The AndroidIndirectTouchEvent or null if the event action was ACTION_CANCEL.
+     */
+    internal fun convertToIndirectTouchEvent(
+        motionEvent: MotionEvent,
+        primaryDirectionalMotionAxisOverride: IndirectTouchEventPrimaryDirectionalMotionAxis? = null,
+    ): AndroidIndirectTouchEvent? {
+        val action = motionEvent.actionMasked
+
+        clearOnDeviceChange(motionEvent)
+
+        if (action == ACTION_CANCEL) {
+            motionEventToComposePointerIdMap.clear()
+            activeHoverIds.clear()
+            return null
+        }
+
+        addFreshIds(motionEvent)
+
+        val upIndex =
+            when (action) {
+                ACTION_UP -> 0
+                ACTION_POINTER_UP -> motionEvent.actionIndex
+                else -> -1
+            }
+
+        val downOrMove =
+            when (action) {
+                ACTION_DOWN,
+                ACTION_POINTER_DOWN,
+                ACTION_MOVE -> true
+                else -> false
+            }
+
+        val changes =
+            List(motionEvent.pointerCount) { index ->
+                val motionEventPointerId = motionEvent.getPointerId(index)
+                val pointerId = getComposePointerId(motionEventPointerId)
+                val currentLocation =
+                    Offset(x = motionEvent.getX(index), y = motionEvent.getY(index))
+                val isPressed = index != upIndex
+
+                val previousData = previousIndirectTouchEventData[pointerId.value]
+
+                if (index == upIndex) {
+                    previousIndirectTouchEventData.remove(pointerId.value)
+                } else if (downOrMove) {
+                    previousIndirectTouchEventData[pointerId.value] =
+                        IndirectTouchEventData(
+                            uptime = motionEvent.eventTime,
+                            position = currentLocation,
+                            down = true,
+                        )
+                }
+
+                IndirectPointerInputChange(
+                    id = pointerId,
+                    uptimeMillis = motionEvent.eventTime,
+                    position = currentLocation,
+                    pressed = isPressed,
+                    pressure = motionEvent.getPressure(index),
+                    previousUptimeMillis = previousData?.uptime ?: motionEvent.eventTime,
+                    previousPosition = previousData?.position ?: currentLocation,
+                    previousPressed = previousData?.down ?: false,
+                )
+            }
+
+        removeStaleIds(motionEvent)
+
+        val primaryDirectionalMotionAxis =
+            primaryDirectionalMotionAxisOverride
+                ?: indirectPrimaryDirectionalScrollAxis(motionEvent)
+
+        return AndroidIndirectTouchEvent(
+            changes = changes,
+            type = convertActionToIndirectTouchEventType(action),
+            primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
+            nativeEvent = motionEvent,
+        )
     }
 
     /**

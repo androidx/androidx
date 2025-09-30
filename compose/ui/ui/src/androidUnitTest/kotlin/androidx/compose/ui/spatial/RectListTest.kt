@@ -595,6 +595,34 @@ class RectListTest {
         assertEquals(0, unpackMetaUpdated(meta))
         assertEquals(0, unpackMetaFocusable(meta))
         assertEquals(0, unpackMetaGesturable(meta))
+
+        // Check too large child offset
+        meta = metaWithLastChildOffset(meta, Int.MAX_VALUE)
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(0, unpackMetaUpdated(meta))
+        assertEquals(0, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
+    }
+
+    @Test
+    fun testMetaPackingWithTooLargeChildOffset() {
+        val meta =
+            packMeta(
+                itemId = 1,
+                parentId = 2,
+                lastChildOffset = Int.MAX_VALUE,
+                updated = true,
+                focusable = true,
+                gesturable = false,
+            )
+        assertEquals(1, unpackMetaValue(meta))
+        assertEquals(2, unpackMetaParentId(meta))
+        assertEquals(MaxSupportedLastChildOffset, unpackMetaLastChildOffset(meta))
+        assertEquals(1, unpackMetaUpdated(meta))
+        assertEquals(1, unpackMetaFocusable(meta))
+        assertEquals(0, unpackMetaGesturable(meta))
     }
 
     @Test

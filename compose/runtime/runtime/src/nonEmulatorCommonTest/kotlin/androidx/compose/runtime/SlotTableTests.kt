@@ -5433,21 +5433,32 @@ private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit 
 private fun SlotWriter.rememberValue(value: Any) {
     val valueToSave =
         if (value is RememberObserver) {
-            val anchor =
-                if (isAfterFirstChild) {
-                    var group = currentGroup - 1
-                    var groupParent = parent(group)
-                    while (groupParent != parent && groupParent >= 0) {
-                        group = groupParent
-                        groupParent = parent(group)
-                    }
-                    anchor(group)
-                } else null
-
-            RememberObserverHolder(value, anchor)
+            RememberObserverHolder(value, rememberIndexOfCurrent())
         } else value
     update(valueToSave)
 }
+
+private fun SlotWriter.rememberIndexOfCurrent() =
+    if (isAfterFirstChild) {
+        var group = currentGroup - 1
+        var groupParent = parent(group)
+        while (groupParent != parent && groupParent >= 0) {
+            group = groupParent
+            groupParent = parent(group)
+        }
+        var currentChild = groupParent + 1
+        val end = parent + groupSize(groupParent)
+        var index = 0
+        while (currentChild != group && currentChild < end) {
+            if (groupObjectKey(currentChild) == null) {
+                index++
+            }
+            currentChild += groupSize(currentChild)
+        }
+        index
+    } else {
+        -1
+    }
 
 private const val treeRoot = -1
 private const val elementKey = 100

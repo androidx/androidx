@@ -165,7 +165,9 @@ internal class RememberEventDispatcher() : RememberManager {
             ?: mutableScatterMapOf<RecomposeScopeImpl, PausedCompositionRemembers>().also {
                 pausedPlaceholders = it
             })[scope] = pausedPlaceholder
-        this.currentRememberingList.add(RememberObserverHolder(pausedPlaceholder, after = null))
+        this.currentRememberingList.add(
+            RememberObserverHolder(pausedPlaceholder, afterGroupIndex = -1)
+        )
     }
 
     override fun startResumingScope(scope: RecomposeScopeImpl) {

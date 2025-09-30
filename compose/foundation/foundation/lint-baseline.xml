@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
 
     <issue
         id="CheckResult"
@@ -107,6 +107,771 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot;>Autofill&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Outovul&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-af/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ራስ-ሙላ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-am/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;الملء التلقائي&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ar/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;স্বয়ংক্রিয়ভাৱে পূৰ হোৱাৰ সুবিধা&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-as/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Avto-doldurma&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-az/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatsko popunjavanje&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-b+sr+Latn/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Аўтазапаўненне&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-be/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автоматично попълване&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-bg/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;অটোফিল&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-bn/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatsko popunjavanje&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-bs/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Emplena automàticament&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ca/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatické vyplňování&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-cs/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofyld&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-da/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatisch ausfüllen&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-de/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Αυτόματη συμπλήρωση&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-el/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofill&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-en-rAU/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofill&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-en-rCA/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofill&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-en-rGB/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofill&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-en-rIN/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autocompletar&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-es-rUS/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autocompletar&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-es/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automaattäide&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-et/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Betetze automatikoa&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-eu/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;تکمیل خودکار&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-fa/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automaattinen täyttö&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-fi/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Remplissage automatique&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-fr-rCA/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Saisie automatique&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-fr/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autocompletar&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-gl/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ઑટોમૅટિક રીતે ભરવાની સુવિધા&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-gu/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ऑटोमैटिक तरीके से भरें&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-hi/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatsko popunjavanje&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-hr/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatikus kitöltés&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-hu/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Ինքնալրացում&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-hy/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Isi otomatis&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-in/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Sjálfvirk útfylling&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-is/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Compilazione automatica&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-it/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;מילוי אוטומטי&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-iw/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;自動入力&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ja/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ავტომატური შევსება&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ka/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автотолтыру&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-kk/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;បំពេញ​ស្វ័យ​ប្រវត្តិ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-km/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ಆಟೋಫಿಲ್&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-kn/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;자동 완성&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ko/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автотолтуруу функиясы&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ky/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ຕື່ມຂໍ້ມູນອັດຕະໂນມັດ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-lo/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatinis pildymas&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-lt/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automātiskā aizpilde&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-lv/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автоматско пополнување&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-mk/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;സ്വയമേവ പൂരിപ്പിക്കൽ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ml/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автоматаар бөглөх&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-mn/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ऑटोफिल&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-mr/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autolengkap&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ms/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;အော်တိုဖြည့်&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-my/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofyll&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-nb/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;अटोफिल&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ne/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatisch invullen&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-nl/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ଅଟୋଫିଲ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-or/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ਆਟੋਫਿਲ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-pa/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autouzupełnianie&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-pl/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Preenchimento automático&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-pt-rBR/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Preencher automaticamente&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-pt-rPT/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Preenchimento automático&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-pt/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Completare automată&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ro/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Заполнить автоматически&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ru/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ස්වයං පිරවුම&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-si/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Automatické dopĺňanie&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sk/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Samodejno izpolnjevanje&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sl/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Plotësimi automatik&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sq/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Аутоматско попуњавање&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sr/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofyll&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sv/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Jaza kiotomatiki&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-sw/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;தன்னிரப்பி&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ta/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ఆటోఫిల్&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-te/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;ป้อนข้อความอัตโนมัติ&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-th/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Autofill&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-tl/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Otomatik doldurma&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-tr/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Автозаповнення&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-uk/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;آٹو فل&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-ur/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Avtomatik kiritish&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-uz/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Tự động điền&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-vi/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;自动填充&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-zh-rCN/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;自動填入&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-zh-rHK/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;自動填入&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-zh-rTW/strings.xml"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@string/autofill` which is marked as private in androidx.compose.ui:ui:1.10.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;string name=&quot;autofill&quot; msgid=&quot;389117264260014992&quot;>&quot;Ukugcwalisa okuzenzakalelayo&quot;&lt;/string>"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/androidMain/res/values-zu/strings.xml"/>
     </issue>
 
     <issue

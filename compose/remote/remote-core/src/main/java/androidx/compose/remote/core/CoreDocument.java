@@ -970,6 +970,9 @@ public class CoreDocument implements Serializable {
     @NonNull
     private final HashMap<Integer, Component> mComponentMap = new HashMap<Integer, Component>();
 
+    @NonNull
+    private final HashSet<LayoutCompute> mLayoutComputeOperations = new HashSet<>();
+
     /**
      * Register all the operations recursively
      *
@@ -979,6 +982,9 @@ public class CoreDocument implements Serializable {
     private void registerVariables(
             @NonNull RemoteContext context, @NonNull ArrayList<Operation> list) {
         for (Operation op : list) {
+            if (op instanceof LayoutCompute) {
+                registerLayoutCompute((LayoutCompute) op);
+            }
             if (op instanceof VariableSupport) {
                 ((VariableSupport) op).registerListening(context);
             }
@@ -1003,9 +1009,16 @@ public class CoreDocument implements Serializable {
                     if (modifier instanceof VariableSupport) {
                         ((VariableSupport) modifier).registerListening(context);
                     }
+                    if (modifier instanceof LayoutCompute) {
+                        registerLayoutCompute((LayoutCompute) modifier);
+                    }
                 }
             }
         }
+    }
+
+    private void registerLayoutCompute(@NonNull LayoutCompute operation) {
+        mLayoutComputeOperations.add(operation);
     }
 
     /**
@@ -1477,6 +1490,20 @@ public class CoreDocument implements Serializable {
             if (context.mWidth != mRootLayoutComponent.getWidth()
                     || context.mHeight != mRootLayoutComponent.getHeight()) {
                 mRootLayoutComponent.invalidateMeasure();
+            }
+            if (!mLayoutComputeOperations.isEmpty()) {
+                int nbEvaluations = 0;
+                int maxEvaluations = 2;
+                boolean needsEvaluate = true;
+                while (needsEvaluate && nbEvaluations < maxEvaluations) {
+                    needsEvaluate = false;
+                    for (LayoutCompute operation : mLayoutComputeOperations) {
+                        if (operation.evaluateInLayout(context)) {
+                            needsEvaluate = true;
+                        }
+                    }
+                    nbEvaluations++;
+                }
             }
             if (mRootLayoutComponent.needsMeasure()) {
                 mRootLayoutComponent.layout(context);

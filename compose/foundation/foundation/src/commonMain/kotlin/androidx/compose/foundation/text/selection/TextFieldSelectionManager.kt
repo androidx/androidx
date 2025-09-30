@@ -21,7 +21,6 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.contextmenu.ContextMenuScope
 import androidx.compose.foundation.contextmenu.ContextMenuState
-import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.internal.isAutofillAvailable
 import androidx.compose.foundation.internal.isReadSupported
 import androidx.compose.foundation.internal.isWriteSupported
@@ -247,9 +246,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         },
                         onHide = { textToolbarShownViaProvider = false },
                         computeContentBounds = { destinationCoordinates ->
+                            // We have to compute the root bounds first even if layoutCoordinates is
+                            // null, so that the Snapshot reads can be correctly recorded.
                             val rootBounds = getContentRect()
                             val localCoordinates =
-                                checkPreconditionNotNull(state?.layoutCoordinates)
+                                state?.layoutCoordinates
+                                    ?: return@textContextMenuToolbarHandler null
                             translateRootToDestination(
                                 rootContentBounds = rootBounds,
                                 localCoordinates = localCoordinates,
@@ -794,8 +796,23 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     private val hasSelection: Boolean
         get() = !value.selection.collapsed
 
-    internal fun canCopy(): Boolean =
-        hasSelection && !isPassword && clipboard?.isWriteSupported() == true
+    /**
+     * Whether it makes sense to show the "Copy" menu item. It makes sense when:
+     * - copying is allowed in the current state
+     * - Clipboard API supports writing
+     */
+    internal fun canShowCopyMenuItem(): Boolean =
+        isCopyAllowed() && clipboard?.isWriteSupported() == true
+
+    /**
+     * Whether the copying is allowed in the current state. It checks the essential conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     *
+     * Also, see [copyWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCopyAllowed(): Boolean = hasSelection && !isPassword
 
     internal suspend fun updateClipboardEntry() {
         if (clipboard?.isReadSupported() == true) {
@@ -817,15 +834,38 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     }
 
     /** Only fully accurate if [updateClipboardEntry] has been called. */
-    internal fun canPaste(): Boolean =
-        editable && hasAvailableTextToPaste && clipboard?.isReadSupported() == true
+    internal fun canShowPasteMenuItem(): Boolean =
+        isPasteAllowed() && hasAvailableTextToPaste && clipboard?.isReadSupported() == true
 
-    internal fun canCut(): Boolean =
-        hasSelection && editable && !isPassword && clipboard?.isWriteSupported() == true
+    /**
+     * Whether 'paste' is allowed. It's allowed when the text field is editable.
+     *
+     * Also, see [paste]
+     */
+    @Suppress("NOTHING_TO_INLINE") internal inline fun isPasteAllowed(): Boolean = editable
 
-    internal fun canSelectAll(): Boolean = value.selection.length != value.text.length
+    /**
+     * Whether it makes sense to show the "Cut" menu item. It makes sense when:
+     * - cut operation is allowed in the current state
+     * - Clipboard API supports writing
+     */
+    internal fun canShowCutMenuItem(): Boolean =
+        isCutAllowed() && clipboard?.isWriteSupported() == true
 
-    internal fun canAutofill(): Boolean = editable && value.selection.collapsed
+    /**
+     * Whether the "cut" action is allowed in the current state. It checks the essential conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     * - the text field is editable
+     *
+     * Also, see [cutWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCutAllowed(): Boolean = hasSelection && editable && !isPassword
+
+    internal fun canShowSelectAllMenuItem(): Boolean = value.selection.length != value.text.length
+
+    internal fun canShowAutofillMenuItem(): Boolean = editable && value.selection.collapsed
 
     /**
      * The method for copying text.
@@ -837,35 +877,31 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     internal fun copy(cancelSelection: Boolean = true) =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
-            if (value.selection.collapsed) return@launch
+            val valueToCopy = copyWithResult(cancelSelection) ?: return@launch
 
             // TODO(b/171947959) check if original or transformed should be copied
-            clipboard?.setClipEntry(value.getSelectedText().toClipEntry())
-
-            if (!cancelSelection) return@launch
-
-            val newCursorOffset = value.selection.max
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = value.annotatedString,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
+            clipboard?.setClipEntry(valueToCopy.toClipEntry())
         }
 
-    internal fun onCopyWithResult(cancelSelection: Boolean = true): String? {
-        if (value.selection.collapsed) return null
-        val selectedText = value.getSelectedText().text
+    /**
+     * The method for copying text.
+     *
+     * It returns the text that is expected to be copied (stored in a Clipboard). This method
+     * doesn't interact with the Clipboard directly, it covers the case when handling a 'copy'
+     * ClipboardEvent.
+     */
+    internal fun copyWithResult(cancelSelection: Boolean = true): AnnotatedString? {
+        if (!isCopyAllowed()) return null
+        val selectedText = value.getSelectedText()
 
         if (!cancelSelection) return selectedText
 
         val newCursorOffset = value.selection.max
-        val newValue = createTextFieldValue(
-            annotatedString = value.annotatedString,
-            selection = TextRange(newCursorOffset, newCursorOffset)
-        )
+        val newValue =
+            createTextFieldValue(
+                annotatedString = value.annotatedString,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
         onValueChange(newValue)
         setHandleState(HandleState.None)
         return selectedText
@@ -882,34 +918,31 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
     internal fun paste() =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
             val text = clipboard?.getClipEntry()?.readAnnotatedString() ?: return@launch
-
-            val newText =
-                value.getTextBeforeSelection(value.text.length) +
-                    text +
-                    value.getTextAfterSelection(value.text.length)
-            val newCursorOffset = value.selection.min + text.length
-
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = newText,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
-            undoManager?.forceNextSnapshot()
+            paste(text)
         }
 
+    /**
+     * The method for pasting text.
+     *
+     * @param text - the text to paste. It can be provided externally, for example from a platform's
+     *   ClipboardEvent.
+     *
+     * This overload doesn't interact with the Clipboard directly. It covers the case when handling
+     * a 'paste' ClipboardEvent.
+     */
     internal fun paste(text: AnnotatedString) {
-        val newText = value.getTextBeforeSelection(value.text.length) +
-            text +
-            value.getTextAfterSelection(value.text.length)
+        if (!isPasteAllowed()) return
+        val newText =
+            value.getTextBeforeSelection(value.text.length) +
+                text +
+                value.getTextAfterSelection(value.text.length)
         val newCursorOffset = value.selection.min + text.length
 
-        val newValue = createTextFieldValue(
-            annotatedString = newText,
-            selection = TextRange(newCursorOffset, newCursorOffset)
-        )
+        val newValue =
+            createTextFieldValue(
+                annotatedString = newText,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
         onValueChange(newValue)
         setHandleState(HandleState.None)
         undoManager?.forceNextSnapshot()
@@ -924,39 +957,32 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      */
     internal fun cut() =
         coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) {
-            if (value.selection.collapsed) return@launch
+            val valueToCut = cutWithResult() ?: return@launch
 
             // TODO(b/171947959) check if original or transformed should be cut
-            clipboard?.setClipEntry(value.getSelectedText().toClipEntry())
-
-            val newText =
-                value.getTextBeforeSelection(value.text.length) +
-                    value.getTextAfterSelection(value.text.length)
-            val newCursorOffset = value.selection.min
-
-            val newValue =
-                createTextFieldValue(
-                    annotatedString = newText,
-                    selection = TextRange(newCursorOffset, newCursorOffset),
-                )
-            onValueChange(newValue)
-            latestSelection = newValue.selection
-            setHandleState(None)
-            undoManager?.forceNextSnapshot()
+            clipboard?.setClipEntry(valueToCut.toClipEntry())
         }
 
-    internal fun onCutWithResult(): String? {
-        if (value.selection.collapsed) return null
-        val selectedText = value.getSelectedText().text
+    /**
+     * The method for cutting text.
+     *
+     * It returns the text that was cut and it is expected to be copied (stored in a Clipboard).
+     * This overload covers the case when handling a 'cut' ClipboardEvent.
+     */
+    internal fun cutWithResult(): AnnotatedString? {
+        if (!isCutAllowed()) return null
+        val selectedText = value.getSelectedText()
 
-        val newText = value.getTextBeforeSelection(value.text.length) +
-            value.getTextAfterSelection(value.text.length)
+        val newText =
+            value.getTextBeforeSelection(value.text.length) +
+                value.getTextAfterSelection(value.text.length)
         val newCursorOffset = value.selection.min
 
-        val newValue = createTextFieldValue(
-            annotatedString = newText,
-            selection = TextRange(newCursorOffset, newCursorOffset)
-        )
+        val newValue =
+            createTextFieldValue(
+                annotatedString = newText,
+                selection = TextRange(newCursorOffset, newCursorOffset),
+            )
         onValueChange(newValue)
         setHandleState(HandleState.None)
         undoManager?.forceNextSnapshot()
@@ -1053,7 +1079,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             // in a composition loop.
             Snapshot.withoutReadObservation {
                 val copy: (() -> Unit)? =
-                    if (canCopy()) {
+                    if (canShowCopyMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { copy() }
                             hideSelectionToolbar()
@@ -1061,7 +1087,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val cut: (() -> Unit)? =
-                    if (canCut()) {
+                    if (canShowCutMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { cut() }
                             hideSelectionToolbar()
@@ -1069,7 +1095,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val paste: (() -> Unit)? =
-                    if (canPaste()) {
+                    if (canShowPasteMenuItem()) {
                         {
                             coroutineScope?.launch(start = CoroutineStart.UNDISPATCHED) { paste() }
                             hideSelectionToolbar()
@@ -1077,12 +1103,12 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     } else null
 
                 val selectAll: (() -> Unit)? =
-                    if (canSelectAll()) {
+                    if (canShowSelectAllMenuItem()) {
                         { selectAll() }
                     } else null
 
                 val autofill: (() -> Unit)? =
-                    if (canAutofill()) {
+                    if (canShowAutofillMenuItem()) {
                         { autofill() }
                     } else null
 

@@ -25,7 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.OnUnplacedModifierNode
+import androidx.compose.ui.node.UnplacedStateAwareModifierNode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -166,7 +166,7 @@ private data class TrackInteropPlacementModifierElement(
 private class TrackInteropPlacementModifierNode(
     var onAddedToPlatformHierarchy: () -> Unit,
     var onRemovedFromPlatformHierarchy: () -> Unit,
-) : Modifier.Node(), LayoutAwareModifierNode, OnUnplacedModifierNode {
+) : Modifier.Node(), LayoutAwareModifierNode, UnplacedStateAwareModifierNode {
     private var isPlaced = false
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
@@ -177,14 +177,5 @@ private class TrackInteropPlacementModifierNode(
     override fun onUnplaced() {
         onRemovedFromPlatformHierarchy()
         isPlaced = false
-    }
-
-    override fun onDetach() {
-        // TODO(b/309776096): Remove workaround for missing [onUnplaced]
-        //  once it will be reliable implemented
-        if (isPlaced) {
-            onUnplaced()
-        }
-        super.onDetach()
     }
 }

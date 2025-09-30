@@ -1268,7 +1268,8 @@ public value class Updater<T> constructor(@PublishedApi internal val composer: C
      *
      * @see update
      */
-    @Suppress("NOTHING_TO_INLINE") // Inlining the compare has noticeable impact
+    @Deprecated("Boxes more than than the generic overload", level = DeprecationLevel.HIDDEN)
+    @Suppress("NOTHING_TO_INLINE")
     public inline fun set(value: Int, noinline block: T.(value: Int) -> Unit): Unit =
         with(composer) {
             if (inserting || rememberedValue() != value) {
@@ -1304,7 +1305,8 @@ public value class Updater<T> constructor(@PublishedApi internal val composer: C
      *
      * @see set
      */
-    @Suppress("NOTHING_TO_INLINE") // Inlining the compare has noticeable impact
+    @Deprecated("Boxes more than the generic overload", level = DeprecationLevel.HIDDEN)
+    @Suppress("NOTHING_TO_INLINE")
     public inline fun update(value: Int, noinline block: T.(value: Int) -> Unit): Unit =
         with(composer) {
             val inserting = inserting
@@ -1346,6 +1348,21 @@ public value class Updater<T> constructor(@PublishedApi internal val composer: C
      */
     public fun init(block: T.() -> Unit) {
         if (composer.inserting) composer.apply<Unit, T>(Unit) { block() }
+    }
+
+    /**
+     * Initialize emitted node.
+     *
+     * Schedule [block] to be executed after the node is created.
+     *
+     * This is only executed once. The can be used to call a method or set a value on a node
+     * instance that is required to be set after one or more other properties have been set.
+     *
+     * This is different from the other [init] overload in that it does not force creating a lambda
+     * to capture [value].
+     */
+    public fun <V> init(value: V, block: T.(V) -> Unit) {
+        if (composer.inserting) composer.apply(value, block)
     }
 
     /**
@@ -1419,10 +1436,10 @@ internal val SlotReader.isAfterFirstChild
  * Remember observer which is not removed during reuse/deactivate of the group.
  * It is used to preserve composition locals between group deactivation.
  */
-internal class ReusableRememberObserverHolder(wrapped: RememberObserver, after: Anchor?) :
-    RememberObserverHolder(wrapped, after)
+internal class ReusableRememberObserverHolder(wrapped: RememberObserver, afterGroupIndex: Int) :
+    RememberObserverHolder(wrapped, afterGroupIndex)
 
-internal open class RememberObserverHolder(var wrapped: RememberObserver, var after: Anchor?)
+internal open class RememberObserverHolder(var wrapped: RememberObserver, var afterGroupIndex: Int)
 
 // An arbitrary key value that marks the default parameter group
 internal const val defaultsKey = -127

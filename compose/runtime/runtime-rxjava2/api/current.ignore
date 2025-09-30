@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.runtime.rxjava2.RxJava2AdapterKt#subscribeAsState(io.reactivex.Completable):
+    Binary breaking change: method androidx.compose.runtime.rxjava2.RxJava2AdapterKt.subscribeAsState(io.reactivex.Completable) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.rxjava2.RxJava2AdapterKt#subscribeAsState(io.reactivex.Flowable<T>, R):
+    Binary breaking change: method androidx.compose.runtime.rxjava2.RxJava2AdapterKt.subscribeAsState(io.reactivex.Flowable<T>,R) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.rxjava2.RxJava2AdapterKt#subscribeAsState(io.reactivex.Maybe<T>, R):
+    Binary breaking change: method androidx.compose.runtime.rxjava2.RxJava2AdapterKt.subscribeAsState(io.reactivex.Maybe<T>,R) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.rxjava2.RxJava2AdapterKt#subscribeAsState(io.reactivex.Observable<T>, R):
+    Binary breaking change: method androidx.compose.runtime.rxjava2.RxJava2AdapterKt.subscribeAsState(io.reactivex.Observable<T>,R) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.rxjava2.RxJava2AdapterKt#subscribeAsState(io.reactivex.Single<T>, R):
+    Binary breaking change: method androidx.compose.runtime.rxjava2.RxJava2AdapterKt.subscribeAsState(io.reactivex.Single<T>,R) has been removed from bytecode

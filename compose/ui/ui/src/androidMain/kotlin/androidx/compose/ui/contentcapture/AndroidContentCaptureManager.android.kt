@@ -68,7 +68,6 @@ import kotlinx.coroutines.delay
 //  would be the AndroidImplementation. When we create a LocalContentCaptureManager in the future,
 //  we would expose the interface but not this implementation.
 @OptIn(ExperimentalComposeUiApi::class)
-@Suppress("NullAnnotationGroup")
 internal class AndroidContentCaptureManager(
     val view: AndroidComposeView,
     var onContentCaptureSession: () -> ContentCaptureSessionWrapper?,

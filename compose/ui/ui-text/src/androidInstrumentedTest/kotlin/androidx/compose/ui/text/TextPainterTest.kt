@@ -640,4 +640,39 @@ class TextPainterTest {
         )
         return bitmap
     }
+
+    @Test // regression test b/274849941
+    fun drawTextString_sizeUnspecified_topLeftOutsideCanvas_shouldNotCrash() {
+        val measurer = textMeasurer()
+        draw(100f, 100f, 100f, 100f) {
+            drawText(
+                measurer,
+                text = "Hello",
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                topLeft = Offset(200f, 50f), // x is outside
+                size = Size.Unspecified,
+            )
+        }
+
+        draw(100f, 100f, 100f, 100f) {
+            drawText(
+                measurer,
+                text = "Hello",
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                topLeft = Offset(50f, 200f), // y is outside
+                size = Size.Unspecified,
+            )
+        }
+
+        draw(100f, 100f, 100f, 100f) {
+            drawText(
+                measurer,
+                text = "Hello",
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                topLeft = Offset(200f, 200f), // x and y are outside
+                size = Size.Unspecified,
+            )
+        }
+        // No assertion needed, the test pass if no exception is thrown.
+    }
 }

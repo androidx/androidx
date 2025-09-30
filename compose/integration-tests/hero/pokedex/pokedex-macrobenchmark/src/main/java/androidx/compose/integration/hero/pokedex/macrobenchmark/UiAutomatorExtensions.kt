@@ -16,10 +16,12 @@
 
 package androidx.compose.integration.hero.pokedex.macrobenchmark
 
+import androidx.test.uiautomator.By.res
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.SearchCondition
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import java.util.regex.Pattern
 
 /**
  * Wait for the [condition] to become true for [timeoutMillis] ms or throw an exception and dump the
@@ -67,3 +69,14 @@ internal fun UiDevice.findObjectOrThrow(
     requireNotNull(findObjectResult, lazyMessage)
     return findObjectResult
 }
+
+/**
+ * Match the [resourceId] (case-sensitive) as a substring of the resource name.
+ *
+ * This is useful when matching an element that can be present in either a View hierarchy or a
+ * Compose hierarchy, where the resource name might or might not contain the package name.
+ *
+ * @return A [BySelector] that matches the resource name as a substring.
+ */
+internal fun byResContains(resourceId: String): BySelector =
+    res(Pattern.compile(String.format("^.*%s.*$", Pattern.quote(resourceId)), Pattern.DOTALL))

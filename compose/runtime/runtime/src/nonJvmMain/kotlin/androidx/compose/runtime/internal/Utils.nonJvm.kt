@@ -26,5 +26,5 @@ internal actual fun invokeComposable(composer: Composer, composable: @Composable
 
 internal actual fun logError(message: String, e: Throwable) {
     println(message)
-    e.printStackTrace()
+    println(e.stackTraceToString())
 }

@@ -102,6 +102,14 @@ class DebugCreationContext : RemoteContext() {
         TODO("Not yet implemented")
     }
 
+    override fun setNamedBooleanOverride(booleanName: String, value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun clearNamedBooleanOverride(booleanName: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun setNamedIntegerOverride(integerName: String, value: Int) {
         TODO("Not yet implemented")
     }

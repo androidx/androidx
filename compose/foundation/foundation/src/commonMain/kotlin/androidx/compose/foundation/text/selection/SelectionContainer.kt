@@ -120,10 +120,9 @@ internal fun SelectionContainer(
         manager.coroutineScope = coroutineScope
     }
 
-    // TODO: upstreaming https://youtrack.jetbrains.com/issue/CMP-7517/Upstream-rememberClipboardEventsHandler
     rememberClipboardEventsHandler(
-        onCopy = { manager.getSelectedText()?.text },
-        isEnabled = manager.isNonEmptySelection()
+        onCopy = { manager.getSelectedText() },
+        isEnabled = manager.isNonEmptySelection(),
     )
 
     /*

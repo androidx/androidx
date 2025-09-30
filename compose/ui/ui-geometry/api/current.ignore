@@ -81,6 +81,64 @@ RemovedFromBytecode: androidx.compose.ui.geometry.Size#times(float):
     Binary breaking change: method androidx.compose.ui.geometry.Size.times(float) has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.ui.geometry.CornerRadius#getPackedValue():
+    Source breaking change: method androidx.compose.ui.geometry.CornerRadius.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getBottom():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getHeight():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getLeft():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getMaxDimension():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getMaxDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getMinDimension():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getMinDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getRight():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getTop():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getWidth():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#isEmpty():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#isFinite():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.isFinite() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#isInfinite():
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.isInfinite() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#setBottom(float):
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.setBottom(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#setLeft(float):
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.setLeft(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#setRight(float):
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.setRight(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#setTop(float):
+    Source breaking change: method androidx.compose.ui.geometry.MutableRect.setTop(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Offset#getPackedValue():
+    Source breaking change: method androidx.compose.ui.geometry.Offset.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getBottom():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getHeight():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getLeft():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getMaxDimension():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getMaxDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getMinDimension():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getMinDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getRight():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getTop():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getWidth():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#isEmpty():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#isFinite():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.isFinite() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect#isInfinite():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.isInfinite() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Rect.Companion#getZero():
+    Source breaking change: method androidx.compose.ui.geometry.Rect.Companion.getZero() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component5-kKHJgLs():
     Source breaking change: method androidx.compose.ui.geometry.RoundRect.component5-kKHJgLs() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component6-kKHJgLs():
@@ -91,8 +149,46 @@ RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#component8-kKHJgLs():
     Source breaking change: method androidx.compose.ui.geometry.RoundRect.component8-kKHJgLs() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#copy-MDFrsts(float, float, float, float, long, long, long, long):
     Source breaking change: method androidx.compose.ui.geometry.RoundRect.copy-MDFrsts(float,float,float,float,long,long,long,long) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getBottom():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getHeight():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getLeft():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getRight():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getTop():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getWidth():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect#getZero():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.getZero() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRect.Companion#getZero():
+    Source breaking change: method androidx.compose.ui.geometry.RoundRect.Companion.getZero() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getBoundingRect(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getBoundingRect(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getCenter(androidx.compose.ui.geometry.RoundRect):
     Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getCenter(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getMaxDimension(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getMaxDimension(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getMinDimension(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getMinDimension(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#getSafeInnerRect(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.getSafeInnerRect(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isCircle(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isCircle(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isEllipse(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isEllipse(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isEmpty(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isEmpty(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isFinite(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isFinite(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isRect(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isRect(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isSimple(androidx.compose.ui.geometry.RoundRect):
+    Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isSimple(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.Size#getPackedValue():
+    Source breaking change: method androidx.compose.ui.geometry.Size.getPackedValue() can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.compose.ui.geometry.CornerRadius#minus(long):

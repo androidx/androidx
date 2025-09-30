@@ -32,68 +32,68 @@ import kotlinx.coroutines.test.TestResult
 class CompositionTestWeb {
 
     @Test // https://youtrack.jetbrains.com/issue/CMP-7453
-    fun testRememberObserver_Abandon_Recompose() = wrapTestWithCoroutine {
-        val abandonedObjects = mutableListOf<RememberObserver>()
-        val observed =
-            object : RememberObserver {
-                override fun onAbandoned() {
-                    abandonedObjects.add(this)
-                }
-
-                override fun onForgotten() {
-                    error("Unexpected call to onForgotten")
-                }
-
-                override fun onRemembered() {
-                    error("Unexpected call to onRemembered")
-                }
-            }
-
-        var promiseStarted = false
-        var promiseCompleted = false
-
-        assertFailsWith(IllegalStateException::class, message = "Throw") {
-            promiseStarted = true
-            compositionTest {
-                    val rememberObject = mutableStateOf(false)
-
-                    compose {
-                        if (rememberObject.value) {
-                            @Suppress("UNUSED_EXPRESSION") remember { observed }
-                            error("Throw")
-                        }
+    fun testRememberObserver_Abandon_Recompose() =
+        kotlinx.coroutines.test.runTest {
+            val abandonedObjects = mutableListOf<RememberObserver>()
+            val observed =
+                object : RememberObserver {
+                    override fun onAbandoned() {
+                        abandonedObjects.add(this)
                     }
 
-                    assertTrue(abandonedObjects.isEmpty())
+                    override fun onForgotten() {
+                        error("Unexpected call to onForgotten")
+                    }
 
-                    rememberObject.value = true
-
-                    advance(ignorePendingWork = true)
+                    override fun onRemembered() {
+                        error("Unexpected call to onRemembered")
+                    }
                 }
-                .awaitCompletion()
 
-            promiseCompleted = true
+            var promiseStarted = false
+            var promiseCompleted = false
+
+            assertFailsWith(IllegalStateException::class, message = "Throw") {
+                promiseStarted = true
+                compositionTest {
+                        val rememberObject = mutableStateOf(false)
+
+                        compose {
+                            if (rememberObject.value) {
+                                @Suppress("UNUSED_EXPRESSION") remember { observed }
+                                error("Throw")
+                            }
+                        }
+
+                        assertTrue(abandonedObjects.isEmpty())
+
+                        rememberObject.value = true
+
+                        advance(ignorePendingWork = true)
+                    }
+                    .awaitCompletion()
+
+                promiseCompleted = true
+            }
+
+            assertTrue(promiseStarted)
+            assertFalse(promiseCompleted)
+            assertArrayEquals(listOf(observed), abandonedObjects)
         }
-
-        assertTrue(promiseStarted)
-        assertFalse(promiseCompleted)
-        assertArrayEquals(listOf(observed), abandonedObjects)
-    }
 }
 
 internal expect suspend fun TestResult.awaitCompletion()
 
-internal expect fun wrapTestWithCoroutine(block: suspend () -> Unit): TestResult
-
 class TestWrapTest {
 
     @Test
-    fun t() = wrapTestWithCoroutine {
-        var result = false
+    fun t() =
+        kotlinx.coroutines.test.runTest {
+            var result = false
 
-        kotlinx.coroutines.test.runTest { result = true }.awaitCompletion()
+            kotlinx.coroutines.test.runTest { result = true }.awaitCompletion()
 
-        assertTrue(result)
-        println("Completed\n")
-    }
+            assertTrue(result)
+            println("Completed\n")
+        }
 }

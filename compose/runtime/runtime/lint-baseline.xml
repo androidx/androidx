@@ -2,15 +2,6 @@
 <issues format="6" by="lint 9.0.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha01)" variant="all" version="9.0.0-alpha01">
 
     <issue
-        id="NullAnnotationGroup"
-        message="Could not find associated group for annotation androidx.compose.runtime.InternalComposeApi, which is used in androidx.compose.runtime."
-        errorLine1="@InternalComposeApi"
-        errorLine2="~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/desktopMain/kotlin/androidx/compose/runtime/OldIdentityHashCode.desktop.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="return type ImmutableList&lt;Character> of toImmutableList: replace with IntList"
         errorLine1="internal fun CharSequence.toImmutableList(): ImmutableList&lt;Char> = toPersistentList()"

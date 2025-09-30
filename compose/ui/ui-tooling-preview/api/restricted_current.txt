@@ -103,19 +103,19 @@ package androidx.compose.ui.tooling.preview {
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Preview {
     ctor @KotlinOnly public Preview(optional String name, optional String group, optional @IntRange(from=1L) int apiLevel, optional int widthDp, optional int heightDp, optional String locale, optional @FloatRange(from=0.01) float fontScale, optional boolean showSystemUi, optional boolean showBackground, optional long backgroundColor, optional int uiMode, optional String device, optional int wallpaper);
-    method public abstract int apiLevel() default -1;
-    method public abstract long backgroundColor() default 0;
-    method public abstract String device() default androidx.compose.ui.tooling.preview.Devices.DEFAULT;
-    method public abstract float fontScale() default 1.0;
-    method public abstract String group() default "";
-    method public abstract int heightDp() default -1;
-    method public abstract String locale() default "";
-    method public abstract String name() default "";
-    method public abstract boolean showBackground() default false;
-    method public abstract boolean showSystemUi() default false;
-    method public abstract int uiMode() default 0;
-    method public abstract int wallpaper() default androidx.compose.ui.tooling.preview.Wallpapers.NONE;
-    method public abstract int widthDp() default -1;
+    method @InaccessibleFromKotlin public abstract int apiLevel() default -1;
+    method @InaccessibleFromKotlin public abstract long backgroundColor() default 0;
+    method @InaccessibleFromKotlin public abstract String device() default androidx.compose.ui.tooling.preview.Devices.DEFAULT;
+    method @InaccessibleFromKotlin public abstract float fontScale() default 1.0;
+    method @InaccessibleFromKotlin public abstract String group() default "";
+    method @InaccessibleFromKotlin public abstract int heightDp() default -1;
+    method @InaccessibleFromKotlin public abstract String locale() default "";
+    method @InaccessibleFromKotlin public abstract String name() default "";
+    method @InaccessibleFromKotlin public abstract boolean showBackground() default false;
+    method @InaccessibleFromKotlin public abstract boolean showSystemUi() default false;
+    method @InaccessibleFromKotlin public abstract int uiMode() default 0;
+    method @InaccessibleFromKotlin public abstract int wallpaper() default androidx.compose.ui.tooling.preview.Wallpapers.NONE;
+    method @InaccessibleFromKotlin public abstract int widthDp() default -1;
     property public abstract int apiLevel;
     property public abstract long backgroundColor;
     property public abstract String device;
@@ -146,16 +146,16 @@ package androidx.compose.ui.tooling.preview {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface PreviewParameter {
     ctor @KotlinOnly public PreviewParameter(kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider, optional int limit);
-    method public abstract int limit() default kotlin.jvm.internal.IntCompanionObject.MAX_VALUE;
-    method public abstract Class<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider();
+    method @InaccessibleFromKotlin public abstract int limit() default kotlin.jvm.internal.IntCompanionObject.MAX_VALUE;
+    method @InaccessibleFromKotlin public abstract Class<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider();
     property public abstract int limit;
     property public abstract kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object?>> provider;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PreviewParameterProvider<T> {
-    method public default int getCount();
+    method @InaccessibleFromKotlin public default int getCount();
     method public default String? getDisplayName(int index);
-    method public kotlin.sequences.Sequence<T> getValues();
+    method @InaccessibleFromKotlin public kotlin.sequences.Sequence<T> getValues();
     property public default int count;
     property public abstract kotlin.sequences.Sequence<T> values;
   }
@@ -213,14 +213,14 @@ package androidx.compose.ui.tooling.preview.datasource {
 
   public class CollectionPreviewParameterProvider<T> implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<T> {
     ctor public CollectionPreviewParameterProvider(java.util.Collection<? extends T> collection);
-    method public kotlin.sequences.Sequence<T> getValues();
+    method @InaccessibleFromKotlin public kotlin.sequences.Sequence<T> getValues();
     property public kotlin.sequences.Sequence<T> values;
   }
 
   public class LoremIpsum implements androidx.compose.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
     ctor public LoremIpsum();
     ctor public LoremIpsum(int words);
-    method public kotlin.sequences.Sequence<java.lang.String> getValues();
+    method @InaccessibleFromKotlin public kotlin.sequences.Sequence<java.lang.String> getValues();
     property public kotlin.sequences.Sequence<java.lang.String> values;
   }
 

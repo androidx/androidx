@@ -1,0 +1,209 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.runtime.retain"
+
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                api(libs.kotlinCoroutinesCore)
+                api(project(":compose:runtime:runtime"))
+                implementation("androidx.collection:collection:1.5.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinReflect)
+                implementation(project(":compose:runtime:runtime-test-utils"))
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
+        nonJvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(commonTest)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testExtJunit)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        jsTest {
+            dependsOn(webTest)
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinXw3c)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+        }
+
+        unixMain {
+            dependsOn(nativeMain)
+        }
+
+        unixTest {
+            dependsOn(nativeTest)
+        }
+
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
+        darwinTest {
+            dependsOn(unixTest)
+        }
+
+        linuxMain {
+            dependsOn(unixMain)
+        }
+
+        linuxTest {
+            dependsOn(unixTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+                } else if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:runtime:runtime-retain-lint"))
+    lintPublish(project(":compose:runtime:runtime-retain-lint"))
+}
+
+androidx {
+    name = "Compose Runtime Retain"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2025"
+    description = "Preserve state in composable methods across configuration changes and other transient content destruction scenarios"
+    samples(project(":compose:runtime:runtime-retain:runtime-retain-samples"))
+    enableRobolectric()
+}

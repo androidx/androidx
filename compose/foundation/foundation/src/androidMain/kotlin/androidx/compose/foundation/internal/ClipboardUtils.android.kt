@@ -568,6 +568,3 @@ private const val BASELINE_SHIFT_SIZE = FLOAT_SIZE
 private const val TEXT_GEOMETRIC_TRANSFORM_SIZE = FLOAT_SIZE * 2
 private const val TEXT_DECORATION_SIZE = INT_SIZE
 private const val SHADOW_SIZE = COLOR_SIZE + FLOAT_SIZE * 3
-
-internal actual fun Clipboard.isReadSupported(): Boolean = true
-internal actual fun Clipboard.isWriteSupported(): Boolean = true

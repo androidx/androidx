@@ -29,7 +29,6 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.overscroll
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.contextmenu.modifier.ToolbarRequesterImpl
 import androidx.compose.foundation.text.handwriting.stylusHandwriting
@@ -336,29 +335,31 @@ internal fun BasicTextField(
                         currentTextToolbar.showMenu(
                             rect = rect,
                             onCopyRequested =
-                                menuItem(canCopy(), TextToolbarState.None) {
+                                menuItem(canShowCopyMenuItem(), TextToolbarState.None) {
                                     coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                                         copy()
                                     }
                                 },
                             onPasteRequested =
-                                menuItem(canPaste(), TextToolbarState.None) {
+                                menuItem(canShowPasteMenuItem(), TextToolbarState.None) {
                                     coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                                         paste()
                                     }
                                 },
                             onCutRequested =
-                                menuItem(canCut(), TextToolbarState.None) {
+                                menuItem(canShowCutMenuItem(), TextToolbarState.None) {
                                     coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
                                         cut()
                                     }
                                 },
                             onSelectAllRequested =
-                                menuItem(canSelectAll(), TextToolbarState.Selection) {
+                                menuItem(canShowSelectAllMenuItem(), TextToolbarState.Selection) {
                                     selectAll()
                                 },
                             onAutofillRequested =
-                                menuItem(canAutofill(), TextToolbarState.None) { autofill() },
+                                menuItem(canShowAutofillMenuItem(), TextToolbarState.None) {
+                                    autofill()
+                                },
                         )
                     }
 
@@ -370,12 +371,11 @@ internal fun BasicTextField(
             }
         }
 
-    // TODO: upstreaming https://youtrack.jetbrains.com/issue/CMP-7517/Upstream-rememberClipboardEventsHandler
     rememberClipboardEventsHandler(
         isEnabled = isFocused,
-        onPaste = { textFieldSelectionState.pasteAsPlainText(it) },
+        onPaste = { textFieldSelectionState.onPasteEvent(it) },
         onCopy = { textFieldSelectionState.copyWithResult() },
-        onCut = { textFieldSelectionState.cutWithResult() }
+        onCut = { textFieldSelectionState.cutWithResult() },
     )
 
     SideEffect {

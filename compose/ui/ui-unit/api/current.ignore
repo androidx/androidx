@@ -193,6 +193,10 @@ RemovedFromBytecode: androidx.compose.ui.unit.Velocity#unaryMinus():
     Binary breaking change: method androidx.compose.ui.unit.Velocity.unaryMinus() has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.ui.unit.Density#getDensity():
+    Source breaking change: method androidx.compose.ui.unit.Density.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.Dp#getValue():
+    Source breaking change: method androidx.compose.ui.unit.Dp.getValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(double):
     Source breaking change: method androidx.compose.ui.unit.DpKt.getDp(double) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(float):
@@ -205,6 +209,8 @@ RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getSize(androidx.compose.ui.uni
     Source breaking change: method androidx.compose.ui.unit.DpKt.getSize(androidx.compose.ui.unit.DpRect) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getWidth(androidx.compose.ui.unit.DpRect):
     Source breaking change: method androidx.compose.ui.unit.DpKt.getWidth(androidx.compose.ui.unit.DpRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpOffset#getPackedValue():
+    Source breaking change: method androidx.compose.ui.unit.DpOffset.getPackedValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component1-D9Ej5fM():
     Source breaking change: method androidx.compose.ui.unit.DpRect.component1-D9Ej5fM() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component2-D9Ej5fM():
@@ -215,6 +221,32 @@ RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component4-D9Ej5fM():
     Source breaking change: method androidx.compose.ui.unit.DpRect.component4-D9Ej5fM() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.DpRect#copy-a9UjIt4(float, float, float, float):
     Source breaking change: method androidx.compose.ui.unit.DpRect.copy-a9UjIt4(float,float,float,float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.FontScaling#getFontScale():
+    Source breaking change: method androidx.compose.ui.unit.FontScaling.getFontScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntOffset#getPackedValue():
+    Source breaking change: method androidx.compose.ui.unit.IntOffset.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getBottom():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getHeight():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getLeft():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getMaxDimension():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getMaxDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getMinDimension():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getMinDimension() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getRight():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getTop():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#getWidth():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect#isEmpty():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntRect.Companion#getZero():
+    Source breaking change: method androidx.compose.ui.unit.IntRect.Companion.getZero() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.IntSize#getPackedValue():
+    Source breaking change: method androidx.compose.ui.unit.IntSize.getPackedValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getEm(double):
     Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getEm(double) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getEm(float):

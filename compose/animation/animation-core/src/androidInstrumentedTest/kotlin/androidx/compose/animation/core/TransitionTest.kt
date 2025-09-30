@@ -52,6 +52,7 @@ import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +62,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class TransitionTest {
-    private val rule = createComposeRule()
+    private val rule = createComposeRule(StandardTestDispatcher())
 
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule

@@ -21,8 +21,9 @@ import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.foundation.text.requestFocusAndShowKeyboardIfNeeded
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.autofill.FillableData
-import androidx.compose.ui.autofill.createFrom
+import androidx.compose.ui.autofill.createFromText
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -32,6 +33,7 @@ import androidx.compose.ui.node.requestAutofill
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDataType
+import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
@@ -55,6 +57,7 @@ import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteAllCommand
 import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
@@ -132,7 +135,7 @@ internal class CoreTextFieldSemanticsModifierNode(
         // The developer will set `contentType`. CTF populates the other autofill-related
         // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
         this.contentDataType = ContentDataType.Text
-        FillableData.createFrom(value.annotatedString)?.let { this.fillableData = it }
+        FillableData.createFromText(value.annotatedString)?.let { this.fillableData = it }
         onFillData { fillableData ->
             state.justAutofilled = true
             state.autofillHighlightOn = true
@@ -143,6 +146,19 @@ internal class CoreTextFieldSemanticsModifierNode(
                 enabled,
             )
             true
+        }
+
+        when (imeOptions.keyboardType) {
+            KeyboardType.Email -> {
+                contentType = ContentType.EmailAddress
+            }
+            KeyboardType.Password,
+            KeyboardType.NumberPassword -> {
+                contentType = ContentType.Password
+            }
+            KeyboardType.Phone -> {
+                contentType = ContentType.PhoneNumber
+            }
         }
 
         if (!enabled) this.disabled()

@@ -20,19 +20,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.window.LocalActiveClipEventsTarget
 import org.w3c.dom.clipboard.ClipboardEvent
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener as EventListenerInterface
 
 @OptIn(InternalComposeUiApi::class)
+@Suppress("ComposableNaming")
 @Composable
 @NonRestartableComposable
 internal actual inline fun rememberClipboardEventsHandler(
-    crossinline onPaste: (String) -> Unit,
-    crossinline onCopy: () -> String?,
-    crossinline onCut: () -> String?,
-    isEnabled: Boolean
+    crossinline onPaste: (AnnotatedString) -> Unit,
+    crossinline onCopy: () -> AnnotatedString?,
+    crossinline onCut: () -> AnnotatedString?,
+    isEnabled: Boolean,
 ) {
     if (isEnabled) {
         val clipEventsTargetProvider = LocalActiveClipEventsTarget.current
@@ -40,7 +42,7 @@ internal actual inline fun rememberClipboardEventsHandler(
             val copyListener = EventListener { event ->
                 val textToCopy = onCopy()
                 if (textToCopy != null && event is ClipboardEvent) {
-                    event.clipboardData?.setData("text/plain", textToCopy)
+                    event.clipboardData?.setData("text/plain", textToCopy.text)
                     event.preventDefault()
                 }
             }
@@ -48,7 +50,7 @@ internal actual inline fun rememberClipboardEventsHandler(
             val pasteListener = EventListener { event ->
                 if (event is ClipboardEvent) {
                     val textToPaste = event.clipboardData?.getData("text/plain") ?: ""
-                    onPaste(textToPaste)
+                    onPaste(AnnotatedString(textToPaste))
                     event.preventDefault()
                 }
             }
@@ -56,7 +58,7 @@ internal actual inline fun rememberClipboardEventsHandler(
             val cutListener = EventListener { event ->
                 val cutText = onCut()
                 if (cutText != null && event is ClipboardEvent) {
-                    event.clipboardData?.setData("text/plain", cutText)
+                    event.clipboardData?.setData("text/plain", cutText.text)
                     event.preventDefault()
                 }
             }

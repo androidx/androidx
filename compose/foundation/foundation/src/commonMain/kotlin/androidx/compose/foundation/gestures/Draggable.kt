@@ -31,18 +31,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
-import androidx.compose.ui.input.indirect.IndirectTouchEventType
 import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -59,17 +57,12 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalViewConfiguration
-import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.compose.ui.util.fastMap
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.abs
-import kotlin.math.absoluteValue
-import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
@@ -297,13 +290,13 @@ internal class DraggableElement(
     }
 
     companion object {
-        val CanDrag: (PointerInputChange) -> Boolean = { true }
+        val CanDrag: (PointerType) -> Boolean = { true }
     }
 }
 
 internal class DraggableNode(
     private var state: DraggableState,
-    canDrag: (PointerInputChange) -> Boolean,
+    canDrag: (PointerType) -> Boolean,
     private var orientation: Orientation,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
@@ -348,7 +341,7 @@ internal class DraggableNode(
 
     fun update(
         state: DraggableState,
-        canDrag: (PointerInputChange) -> Boolean,
+        canDrag: (PointerType) -> Boolean,
         orientation: Orientation,
         enabled: Boolean,
         interactionSource: MutableInteractionSource?,
@@ -383,21 +376,20 @@ internal class DraggableNode(
     private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
-// TODO(levima) Remove once ExperimentalIndirectTouchTypeApi stable b/426155641
 /** A node that performs drag gesture recognition and event propagation. */
-@OptIn(ExperimentalIndirectTouchTypeApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 internal abstract class DragGestureNode(
-    canDrag: (PointerInputChange) -> Boolean,
+    canDrag: (PointerType) -> Boolean,
     enabled: Boolean,
     interactionSource: MutableInteractionSource?,
-    private var orientationLock: Orientation?,
+    var orientationLock: Orientation?,
 ) :
     DelegatingNode(),
     PointerInputModifierNode,
     IndirectTouchInputModifierNode,
     CompositionLocalConsumerModifierNode {
 
-    protected var canDrag = canDrag
+    var canDrag = canDrag
         private set
 
     protected var enabled = enabled
@@ -409,11 +401,10 @@ internal abstract class DragGestureNode(
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
     // we point to the new reference when we invoke them. startDragImmediately is a lambda since we
     // need the most recent value passed to it from Scrollable.
-    private val _canDrag: (PointerInputChange) -> Boolean = { this.canDrag(it) }
+    private val _canDrag: (PointerType) -> Boolean = { this.canDrag(it) }
     private var channel: Channel<DragEvent>? = null
     private var dragInteraction: DragInteraction.Start? = null
-    private var isListeningForEvents = false
-    private var indirectTouchEventProcessor: IndirectTouchEventProcessor? = null
+    internal var isListeningForEvents = false
 
     /** Store non-initialized states for re-use */
     private var _awaitDownState: DragDetectionState.AwaitDown? = null
@@ -440,6 +431,7 @@ internal abstract class DragGestureNode(
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
     private var touchSlopDetector: TouchSlopDetector? = null
+    private var indirectTouchInputDragCycleDetector: IndirectTouchInputDragCycleDetector? = null
 
     /**
      * Accumulated position offset of this [Modifier.Node] that happened during a drag cycle. This
@@ -553,32 +545,18 @@ internal abstract class DragGestureNode(
         }
     }
 
-    override fun onIndirectTouchEvent(event: IndirectTouchEvent): Boolean {
-        if (!enabled) return false
-        val orientation = orientationLock
-        if (orientation == null) return false
-
-        if (indirectTouchEventProcessor == null) {
-            indirectTouchEventProcessor =
-                IndirectTouchEventProcessor(
-                    startGestureTrigger = { if (!isListeningForEvents) startListeningForEvents() },
-                    onDragEvent = { channel?.trySend(it) },
-                )
+    override fun onIndirectTouchEvent(event: IndirectTouchEvent, pass: PointerEventPass) {
+        if (enabled) {
+            if (indirectTouchInputDragCycleDetector == null) {
+                indirectTouchInputDragCycleDetector = IndirectTouchInputDragCycleDetector(this)
+            }
+            indirectTouchInputDragCycleDetector?.processIndirectPointerInputEvent(event, pass)
         }
-
-        /**
-         * TODO(levima) Get the touchslop from device aware ViewConfiguration once it lands
-         *   b/370720522
-         */
-        return indirectTouchEventProcessor!!.processIndirectTouchEvent(
-            event,
-            orientation,
-            currentValueOf(LocalViewConfiguration),
-        )
     }
 
-    /** Draggable will consume during the main pass. */
-    override fun onPreIndirectTouchEvent(event: IndirectTouchEvent): Boolean = false
+    override fun onCancelIndirectTouchInput() {
+        indirectTouchInputDragCycleDetector?.resetDragDetectionState()
+    }
 
     @OptIn(ExperimentalFoundationApi::class)
     private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
@@ -595,7 +573,7 @@ internal abstract class DragGestureNode(
                 ) -> Unit =
                 { down, slopTriggerChange, postSlopOffset ->
                     nodeOffset = Offset.Zero // restart node offset
-                    if (canDrag.invoke(down)) {
+                    if (canDrag.invoke(down.type)) {
                         if (!isListeningForEvents) startListeningForEvents()
                         suspendingPointerInputVelocityTracker.addPointerInputChange(down)
                         val dragStartedOffset = slopTriggerChange.position - postSlopOffset
@@ -658,7 +636,6 @@ internal abstract class DragGestureNode(
     }
 
     override fun onCancelPointerInput() {
-        indirectTouchEventProcessor?.resetProcessor()
         pointerInputNode?.onCancelPointerInput()
         if (isNonSuspendingPointerInputInDraggableEnabled) resetDragDetectionState()
     }
@@ -697,7 +674,7 @@ internal abstract class DragGestureNode(
     }
 
     fun update(
-        canDrag: (PointerInputChange) -> Boolean = this.canDrag,
+        canDrag: (PointerType) -> Boolean = this.canDrag,
         enabled: Boolean = this.enabled,
         interactionSource: MutableInteractionSource? = this.interactionSource,
         orientationLock: Orientation? = this.orientationLock,
@@ -712,6 +689,7 @@ internal abstract class DragGestureNode(
                 disposeInteractionSource()
                 pointerInputNode?.let { undelegate(it) }
                 pointerInputNode = null
+                indirectTouchInputDragCycleDetector = null
             }
             resetPointerInputHandling = true
         }
@@ -727,7 +705,7 @@ internal abstract class DragGestureNode(
 
         if (resetPointerInputHandling) {
             if (isNonSuspendingPointerInputInDraggableEnabled) resetDragDetectionState()
-            indirectTouchEventProcessor?.resetProcessor()
+            indirectTouchInputDragCycleDetector?.resetDragDetectionState()
             pointerInputNode?.resetPointerInputHandler()
         }
     }
@@ -854,7 +832,28 @@ internal abstract class DragGestureNode(
     ) {
         /** Slop detection only cares about the main and final passes */
         if (pass == PointerEventPass.Initial) return
-        val dragEvent = pointerEvent.changes.fastFirstOrNull { it.id == state.pointerId } ?: return
+        val eventFromPointerId = pointerEvent.changes.fastFirstOrNull { it.id == state.pointerId }
+
+        /**
+         * We lost this pointer, try to replace it. This is to cover the case where multiple
+         * pointers were down, but the original one we tracked (state.pointerId) is no longer down,
+         * try to move tracking to a different pointer
+         */
+        val dragEvent =
+            if (eventFromPointerId == null) {
+                val otherDown = pointerEvent.changes.fastFirstOrNull { it.pressed }
+                if (otherDown == null) {
+                    // There are no other pointers down, reset the state
+                    moveToAwaitDownState()
+                    return
+                } else {
+                    // a new pointer was found, update the current state.
+                    state.pointerId = otherDown.id
+                }
+                otherDown
+            } else {
+                eventFromPointerId
+            }
 
         /**
          * Slop detection routines happens during the Main pass. Do we have unconsumed events for
@@ -879,7 +878,8 @@ internal abstract class DragGestureNode(
 
                     // add data to the slop detector
                     val postSlopOffset =
-                        requireTouchSlopDetector().addPointerInputChange(dragEvent, touchSlop)
+                        requireTouchSlopDetector()
+                            .addPositions(dragEvent.position, dragEvent.previousPosition, touchSlop)
 
                     // slop was crossed, dispatch the drag start event and change to dragging state
                     if (postSlopOffset.isSpecified) {
@@ -1020,7 +1020,7 @@ internal abstract class DragGestureNode(
         // or in this case the event that triggered the touch slop minus
         // the post slop offset
         nodeOffset = Offset.Zero // restart node offset
-        if (canDrag(down)) {
+        if (canDrag(down.type)) {
             if (!isListeningForEvents) {
                 if (channel == null) {
                     channel = Channel(capacity = Channel.UNLIMITED)
@@ -1059,6 +1059,14 @@ internal abstract class DragGestureNode(
     private fun sendDragCancelled() {
         requireChannel().trySend(DragCancelled)
     }
+
+    fun onDragEvent(event: DragEvent) {
+        if (event is DragStarted && !isListeningForEvents) {
+            isListeningForEvents = true
+            startListeningForEvents()
+        }
+        requireChannel().trySend(event)
+    }
 }
 
 private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableState {
@@ -1090,13 +1098,13 @@ internal sealed class DragEvent {
     class DragDelta(val delta: Offset, val isIndirectTouchEvent: Boolean) : DragEvent()
 }
 
-private fun Offset.toFloat(orientation: Orientation) =
+internal fun Offset.toFloat(orientation: Orientation) =
     if (orientation == Orientation.Vertical) this.y else this.x
 
 private fun Velocity.toFloat(orientation: Orientation) =
     if (orientation == Orientation.Vertical) this.y else this.x
 
-private fun Velocity.toValidVelocity() =
+internal fun Velocity.toValidVelocity() =
     Velocity(if (this.x.isNaN()) 0f else this.x, if (this.y.isNaN()) 0f else this.y)
 
 private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
@@ -1146,192 +1154,4 @@ private sealed class DragDetectionState {
 
     /** State where dragging is happening. */
     class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
-}
-
-// TODO(levima) Remove once ExperimentalIndirectTouchTypeApi stable b/426155641
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
-private class IndirectTouchEventProcessor(
-    val startGestureTrigger: () -> Unit,
-    val onDragEvent: (DragEvent) -> Unit,
-) {
-    private var velocityTracker: VelocityTracker? = null
-    private var hasCrossedTouchSlop = false
-    private var previousIndirectTouchPosition = Offset.Zero
-    private var positionAccumulator = Offset.Zero
-    private var startEventPosition = Offset.Zero
-    private var touchInputEventSmoother = TouchInputEventSmoother()
-
-    private fun requireVelocityTracker() =
-        requireNotNull(velocityTracker) { "VelocityTracker was not initialized." }
-
-    fun processIndirectTouchEvent(
-        event: IndirectTouchEvent,
-        orientation: Orientation,
-        viewConfiguration: ViewConfiguration,
-    ): Boolean {
-        if (velocityTracker == null) velocityTracker = VelocityTracker()
-        // Reduce noise and account for primary axis
-        val smoothedEventPosition = touchInputEventSmoother.smoothEventPosition(event, orientation)
-
-        return when (event.type) {
-            IndirectTouchEventType.Press -> {
-                resetProcessor()
-                requireVelocityTracker().addPosition(event.uptimeMillis, smoothedEventPosition)
-                previousIndirectTouchPosition = smoothedEventPosition
-                startEventPosition = smoothedEventPosition
-                false // just saved the press, but didn't consume.
-            }
-
-            IndirectTouchEventType.Move -> {
-                var delta = smoothedEventPosition - previousIndirectTouchPosition
-                var consumed = false
-                positionAccumulator += delta
-
-                /** Haven't crossed the slop yet but just crossed it. */
-                if (
-                    !hasCrossedTouchSlop &&
-                        abs(positionAccumulator.toFloat(orientation)) > viewConfiguration.touchSlop
-                ) {
-                    hasCrossedTouchSlop = true
-                    startGestureTrigger.invoke() // signals the start of a drag cycle
-                    val postSlopDelta =
-                        (abs(positionAccumulator.toFloat(orientation)) -
-                            viewConfiguration.touchSlop) *
-                            positionAccumulator.toFloat(orientation).sign
-                    delta =
-                        if (orientation == Orientation.Horizontal) Offset(x = postSlopDelta, y = 0f)
-                        else Offset(x = 0f, y = postSlopDelta)
-                    onDragEvent(DragStarted(startEventPosition))
-                    consumed = true
-                }
-
-                /** Have crossed the slop and the delta is large enough to trigger a drag event. */
-                if (
-                    hasCrossedTouchSlop &&
-                        delta.toFloat(orientation).absoluteValue > PixelSensitivity
-                ) {
-                    requireVelocityTracker().addPosition(event.uptimeMillis, smoothedEventPosition)
-                    consumed = true // regular move, consume it
-                    onDragEvent(DragDelta(delta, isIndirectTouchEvent = true))
-                }
-                previousIndirectTouchPosition = smoothedEventPosition
-                consumed
-            }
-            IndirectTouchEventType.Release -> {
-                val consumed =
-                    if (hasCrossedTouchSlop) {
-                        val maxVelocity = viewConfiguration.maximumFlingVelocity
-                        val event =
-                            DragStopped(
-                                requireVelocityTracker()
-                                    .calculateVelocity(Velocity(maxVelocity, maxVelocity)),
-                                isIndirectTouchEvent = true,
-                            )
-                        onDragEvent(event)
-                        true // gesture finished, consume it
-                    } else {
-                        false
-                    }
-                resetProcessor()
-                consumed
-            }
-            else -> {
-                onDragEvent(DragCancelled)
-                resetProcessor()
-                false
-            }
-        }
-    }
-
-    fun resetProcessor() {
-        velocityTracker?.resetTracking()
-        hasCrossedTouchSlop = false
-        previousIndirectTouchPosition = Offset.Zero
-        positionAccumulator = Offset.Zero
-        startEventPosition = Offset.Zero
-    }
-
-    /**
-     * TODO(levima): Remove this once b/413645371 lands and events are dispatched less frequently.
-     */
-    companion object {
-        private const val PixelSensitivity = 2
-    }
-}
-
-// TODO(levima) Remove once ExperimentalIndirectTouchTypeApi stable b/426155641
-/**
- * Smoothes touch input events that are too frequent and noisy
- *
- * TODO(levima): Remove this once b/413645371 lands and events are dispatched less frequently.
- */
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
-internal class TouchInputEventSmoother() {
-    private var rotatingIndex = 0
-    private var rotatingArray = mutableListOf<IndirectTouchEvent>()
-
-    /**
-     * Smooths [event]'s position and additionally locks it to the provided [orientation] if a
-     * [IndirectTouchEventPrimaryDirectionalMotionAxis] is defined.
-     */
-    fun smoothEventPosition(event: IndirectTouchEvent, orientation: Orientation?): Offset {
-        val primaryAxisPosition = event.primaryAxisPosition(orientation)
-
-        var xPosition = primaryAxisPosition.x
-        var yPosition = primaryAxisPosition.y
-
-        if (event.type == IndirectTouchEventType.Press) {
-            rotatingIndex = 0
-            rotatingArray.clear()
-        }
-
-        if (event.type == IndirectTouchEventType.Move) {
-            if (rotatingArray.size == SmoothingFactor) {
-                rotatingArray[rotatingIndex] = event
-            } else {
-                rotatingArray.add(event)
-            }
-
-            if (rotatingIndex == SmoothingFactor) {
-                rotatingIndex = 0
-            }
-            xPosition =
-                rotatingArray.fastMap { it.primaryAxisPosition(orientation).x }.average().toFloat()
-            yPosition =
-                rotatingArray.fastMap { it.primaryAxisPosition(orientation).y }.average().toFloat()
-        }
-
-        return Offset(xPosition, yPosition)
-    }
-
-    /**
-     * Returns a modified position for this [IndirectTouchEvent] accounting for
-     * [IndirectTouchEvent.primaryDirectionalMotionAxis]. When we no longer need to smooth
-     * positions, we should instead only use the primary axis to resolve delta changes, as changing
-     * the entire event in this way will affect the start position we report to onDragStarted. Until
-     * we can remove smoothing logic, it's complicated to manage primary axis as well as smoothed
-     * positions, so we just make the change here for simplicity.
-     */
-    private fun IndirectTouchEvent.primaryAxisPosition(orientation: Orientation?): Offset {
-        if (orientation == null) return position
-        val delta =
-            when (primaryDirectionalMotionAxis) {
-                IndirectTouchEventPrimaryDirectionalMotionAxis.X -> position.x
-                IndirectTouchEventPrimaryDirectionalMotionAxis.Y -> position.y
-                // No primary axis, so don't change the offset
-                else -> return position
-            }
-        return if (orientation == Orientation.Horizontal) {
-            Offset(x = delta, y = 0f)
-        } else {
-            Offset(x = 0f, y = delta)
-        }
-    }
-
-    /**
-     * TODO(levima): Remove this once b/413645371 lands and events are dispatched less frequently.
-     */
-    companion object {
-        private const val SmoothingFactor = 3
-    }
 }

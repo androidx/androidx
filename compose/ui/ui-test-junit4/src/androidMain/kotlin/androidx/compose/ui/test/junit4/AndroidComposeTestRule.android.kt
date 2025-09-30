@@ -45,7 +45,6 @@ import org.junit.runners.model.Statement
 actual fun createComposeRule(): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>()
 
-@ExperimentalTestApi
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -93,7 +92,6 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
@@ -148,7 +146,6 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
@@ -199,7 +196,6 @@ fun createEmptyComposeRule(): ComposeTestRule =
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@ExperimentalTestApi
 fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeTestRule =
@@ -271,7 +267,6 @@ private constructor(
      *   used for composition and the [MainTestClock].
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
-    @ExperimentalTestApi
     constructor(
         activityRule: R,
         effectContext: CoroutineContext = EmptyCoroutineContext,

@@ -133,6 +133,26 @@ RemovedDeprecatedMethod: androidx.compose.foundation.layout.WindowInsets_android
     Binary breaking change: Removed deprecated method androidx.compose.foundation.layout.WindowInsets_androidKt.setConsumeWindowInsets(boolean)
 
 
+RemovedFromBytecode: androidx.compose.foundation.layout.BoxKt#Box(androidx.compose.ui.Modifier):
+    Binary breaking change: method androidx.compose.foundation.layout.BoxKt.Box(androidx.compose.ui.Modifier) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.BoxKt#Box(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment, boolean, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.BoxKt.Box(androidx.compose.ui.Modifier,androidx.compose.ui.Alignment,boolean,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.BoxKt#rememberBoxMeasurePolicy(androidx.compose.ui.Alignment, boolean):
+    Binary breaking change: method androidx.compose.foundation.layout.BoxKt.rememberBoxMeasurePolicy(androidx.compose.ui.Alignment,boolean) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.BoxWithConstraintsKt#BoxWithConstraints(androidx.compose.ui.Modifier, androidx.compose.ui.Alignment, boolean, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxWithConstraintsScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.BoxWithConstraintsKt.BoxWithConstraints(androidx.compose.ui.Modifier,androidx.compose.ui.Alignment,boolean,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxWithConstraintsScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.ColumnKt#Column(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.ui.Alignment.Horizontal, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.ColumnKt.Column(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.ColumnKt#columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.ui.Alignment.Horizontal):
+    Binary breaking change: method androidx.compose.foundation.layout.ColumnKt.columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Horizontal) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.FlowLayoutKt#FlowColumn(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.ui.Alignment.Horizontal, int, int, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowColumnScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.FlowLayoutKt.FlowColumn(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Horizontal,int,int,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.FlowColumnScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.FlowLayoutKt#FlowRow(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.ui.Alignment.Vertical, int, int, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.FlowLayoutKt.FlowRow(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.ui.Alignment.Vertical,int,int,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.FlowRowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.FlowLayoutKt#columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.foundation.layout.Arrangement.Horizontal, int):
+    Binary breaking change: method androidx.compose.foundation.layout.FlowLayoutKt.columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical,androidx.compose.foundation.layout.Arrangement.Horizontal,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.FlowLayoutKt#rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.foundation.layout.Arrangement.Vertical, int):
+    Binary breaking change: method androidx.compose.foundation.layout.FlowLayoutKt.rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.foundation.layout.Arrangement.Vertical,int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.foundation.layout.PaddingValues#calculateBottomPadding():
     Binary breaking change: method androidx.compose.foundation.layout.PaddingValues.calculateBottomPadding() has been removed from bytecode
 RemovedFromBytecode: androidx.compose.foundation.layout.PaddingValues#calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection):
@@ -149,6 +169,50 @@ RemovedFromBytecode: androidx.compose.foundation.layout.PaddingValues.Absolute#c
     Binary breaking change: method androidx.compose.foundation.layout.PaddingValues.Absolute.calculateRightPadding(androidx.compose.ui.unit.LayoutDirection) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.foundation.layout.PaddingValues.Absolute#calculateTopPadding():
     Binary breaking change: method androidx.compose.foundation.layout.PaddingValues.Absolute.calculateTopPadding() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.RowKt#Row(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.ui.Alignment.Vertical, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>):
+    Binary breaking change: method androidx.compose.foundation.layout.RowKt.Row(androidx.compose.ui.Modifier,androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical,kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.RowKt#rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.ui.Alignment.Vertical):
+    Binary breaking change: method androidx.compose.foundation.layout.RowKt.rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal,androidx.compose.ui.Alignment.Vertical) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.SpacerKt#Spacer(androidx.compose.ui.Modifier):
+    Binary breaking change: method androidx.compose.foundation.layout.SpacerKt.Spacer(androidx.compose.ui.Modifier) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.foundation.layout.WindowInsetsKt#asPaddingValues(androidx.compose.foundation.layout.WindowInsets):
+    Binary breaking change: method androidx.compose.foundation.layout.WindowInsetsKt.asPaddingValues(androidx.compose.foundation.layout.WindowInsets) has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getBottom():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getCenter():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getCenter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getEnd():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getSpaceAround():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getSpaceAround() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getSpaceBetween():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getSpaceBetween() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getSpaceEvenly():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getSpaceEvenly() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getStart():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement#getTop():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getCenter():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getCenter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getLeft():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getRight():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getSpaceAround():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getSpaceAround() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getSpaceBetween():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getSpaceBetween() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getSpaceEvenly():
+    Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getSpaceEvenly() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.PaddingValues.Companion#getZero():
+    Source breaking change: method androidx.compose.foundation.layout.PaddingValues.Companion.getZero() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.WindowInsets_androidKt#getConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView):
+    Source breaking change: method androidx.compose.foundation.layout.WindowInsets_androidKt.getConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.WindowInsets_androidKt#setConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView, boolean):
+    Source breaking change: method androidx.compose.foundation.layout.WindowInsets_androidKt.setConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView,boolean) can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.compose.foundation.layout.AlignmentLineKt#paddingFrom(androidx.compose.ui.Modifier, androidx.compose.ui.layout.AlignmentLine, float, float):
@@ -259,3 +323,29 @@ RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#ge
     Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getTop()
 RemovedMethod: androidx.compose.foundation.layout.WindowInsetsSides.Companion#getVertical():
     Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsetsSides.Companion.getVertical()
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getCaptionBar(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getCaptionBar(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getDisplayCutout(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getDisplayCutout(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getIme(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getIme(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getMandatorySystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getMandatorySystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getNavigationBars(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getNavigationBars(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getSafeContent(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSafeContent(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getSafeDrawing(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSafeDrawing(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getSafeGestures(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSafeGestures(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getStatusBars(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getStatusBars(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemBars(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemBars(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getSystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getSystemGestures(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getTappableElement(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getTappableElement(androidx.compose.foundation.layout.WindowInsets.Companion)
+RemovedMethod: androidx.compose.foundation.layout.WindowInsets_androidKt#getWaterfall(androidx.compose.foundation.layout.WindowInsets.Companion):
+    Binary breaking change: Removed method androidx.compose.foundation.layout.WindowInsets_androidKt.getWaterfall(androidx.compose.foundation.layout.WindowInsets.Companion)

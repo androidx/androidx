@@ -20,7 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.FillableData
-import androidx.compose.ui.autofill.createFrom
+import androidx.compose.ui.autofill.createFromText
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
@@ -52,7 +52,7 @@ class CoreTextFieldHighlightTest {
     @Test
     fun assertAutofillHighlightColor_whenPerformTextAction() {
         val value = TextFieldValue("initial text")
-        val textToAutofill = checkNotNull(FillableData.createFrom("foo"))
+        val textToAutofill = checkNotNull(FillableData.createFromText("foo"))
 
         val textFieldBackgroundColor = Color.White
         val expectedHighlightColor = blendColors(defaultHighlightColor, textFieldBackgroundColor)

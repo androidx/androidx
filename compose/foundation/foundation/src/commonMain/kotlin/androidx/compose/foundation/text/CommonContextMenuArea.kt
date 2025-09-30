@@ -199,11 +199,11 @@ internal suspend fun TextFieldSelectionState.getContextMenuItemsAvailability():
     MenuItemsAvailability {
     updateClipboardEntry()
     return MenuItemsAvailability(
-        canCopy = canCopy(),
-        canPaste = canPaste(),
-        canCut = canCut(),
-        canSelectAll = canSelectAll(),
-        canAutofill = canAutofill(),
+        canCopy = canShowCopyMenuItem(),
+        canPaste = canShowPasteMenuItem(),
+        canCut = canShowCutMenuItem(),
+        canSelectAll = canShowSelectAllMenuItem(),
+        canAutofill = canShowAutofillMenuItem(),
     )
 }
 
@@ -211,11 +211,11 @@ internal suspend fun TextFieldSelectionManager.getContextMenuItemsAvailability()
     MenuItemsAvailability {
     updateClipboardEntry()
     return MenuItemsAvailability(
-        canCopy = canCopy(),
-        canPaste = canPaste(),
-        canCut = canCut(),
-        canSelectAll = canSelectAll(),
-        canAutofill = canAutofill(),
+        canCopy = canShowCopyMenuItem(),
+        canPaste = canShowPasteMenuItem(),
+        canCut = canShowCutMenuItem(),
+        canSelectAll = canShowSelectAllMenuItem(),
+        canAutofill = canShowAutofillMenuItem(),
     )
 }
 

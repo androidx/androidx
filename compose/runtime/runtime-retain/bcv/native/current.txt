@@ -1,0 +1,138 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.runtime:runtime-retain>
+abstract interface androidx.compose.runtime.retain/RetainObserver { // androidx.compose.runtime.retain/RetainObserver|null[0]
+    abstract fun onEnteredComposition() // androidx.compose.runtime.retain/RetainObserver.onEnteredComposition|onEnteredComposition(){}[0]
+    abstract fun onExitedComposition() // androidx.compose.runtime.retain/RetainObserver.onExitedComposition|onExitedComposition(){}[0]
+    abstract fun onRetained() // androidx.compose.runtime.retain/RetainObserver.onRetained|onRetained(){}[0]
+    abstract fun onRetired() // androidx.compose.runtime.retain/RetainObserver.onRetired|onRetired(){}[0]
+    abstract fun onUnused() // androidx.compose.runtime.retain/RetainObserver.onUnused|onUnused(){}[0]
+}
+
+abstract interface androidx.compose.runtime.retain/RetainStateProvider { // androidx.compose.runtime.retain/RetainStateProvider|null[0]
+    abstract val isKeepingExitedValues // androidx.compose.runtime.retain/RetainStateProvider.isKeepingExitedValues|{}isKeepingExitedValues[0]
+        abstract fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime.retain/RetainStateProvider.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+    abstract fun addRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+    abstract fun removeRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+
+    abstract interface RetainStateObserver { // androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver|null[0]
+        abstract fun onStartKeepingExitedValues() // androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver.onStartKeepingExitedValues|onStartKeepingExitedValues(){}[0]
+        abstract fun onStopKeepingExitedValues() // androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver.onStopKeepingExitedValues|onStopKeepingExitedValues(){}[0]
+    }
+
+    final object AlwaysKeepExitedValues : androidx.compose.runtime.retain/RetainStateProvider { // androidx.compose.runtime.retain/RetainStateProvider.AlwaysKeepExitedValues|null[0]
+        final val isKeepingExitedValues // androidx.compose.runtime.retain/RetainStateProvider.AlwaysKeepExitedValues.isKeepingExitedValues|{}isKeepingExitedValues[0]
+            final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime.retain/RetainStateProvider.AlwaysKeepExitedValues.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+        final fun addRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.AlwaysKeepExitedValues.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+        final fun removeRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.AlwaysKeepExitedValues.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+    }
+
+    final object NeverKeepExitedValues : androidx.compose.runtime.retain/RetainStateProvider { // androidx.compose.runtime.retain/RetainStateProvider.NeverKeepExitedValues|null[0]
+        final val isKeepingExitedValues // androidx.compose.runtime.retain/RetainStateProvider.NeverKeepExitedValues.isKeepingExitedValues|{}isKeepingExitedValues[0]
+            final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime.retain/RetainStateProvider.NeverKeepExitedValues.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+        final fun addRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.NeverKeepExitedValues.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+        final fun removeRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainStateProvider.NeverKeepExitedValues.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+    }
+}
+
+abstract interface androidx.compose.runtime.retain/RetainedEffectResult { // androidx.compose.runtime.retain/RetainedEffectResult|null[0]
+    abstract fun retire() // androidx.compose.runtime.retain/RetainedEffectResult.retire|retire(){}[0]
+}
+
+abstract class androidx.compose.runtime.retain/RetainScope : androidx.compose.runtime.retain/RetainStateProvider { // androidx.compose.runtime.retain/RetainScope|null[0]
+    constructor <init>() // androidx.compose.runtime.retain/RetainScope.<init>|<init>(){}[0]
+
+    final val isKeepingExitedValues // androidx.compose.runtime.retain/RetainScope.isKeepingExitedValues|{}isKeepingExitedValues[0]
+        final fun <get-isKeepingExitedValues>(): kotlin/Boolean // androidx.compose.runtime.retain/RetainScope.isKeepingExitedValues.<get-isKeepingExitedValues>|<get-isKeepingExitedValues>(){}[0]
+
+    final var keepExitedValuesRequests // androidx.compose.runtime.retain/RetainScope.keepExitedValuesRequests|{}keepExitedValuesRequests[0]
+        final fun <get-keepExitedValuesRequests>(): kotlin/Int // androidx.compose.runtime.retain/RetainScope.keepExitedValuesRequests.<get-keepExitedValuesRequests>|<get-keepExitedValuesRequests>(){}[0]
+
+    abstract fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/RetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+    abstract fun onStartKeepingExitedValues() // androidx.compose.runtime.retain/RetainScope.onStartKeepingExitedValues|onStartKeepingExitedValues(){}[0]
+    abstract fun onStopKeepingExitedValues() // androidx.compose.runtime.retain/RetainScope.onStopKeepingExitedValues|onStopKeepingExitedValues(){}[0]
+    abstract fun saveExitingValue(kotlin/Any, kotlin/Any?) // androidx.compose.runtime.retain/RetainScope.saveExitingValue|saveExitingValue(kotlin.Any;kotlin.Any?){}[0]
+    final fun addRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainScope.addRetainStateObserver|addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+    final fun removeRetainStateObserver(androidx.compose.runtime.retain/RetainStateProvider.RetainStateObserver) // androidx.compose.runtime.retain/RetainScope.removeRetainStateObserver|removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver){}[0]
+    final fun requestKeepExitedValues() // androidx.compose.runtime.retain/RetainScope.requestKeepExitedValues|requestKeepExitedValues(){}[0]
+    final fun unRequestKeepExitedValues() // androidx.compose.runtime.retain/RetainScope.unRequestKeepExitedValues|unRequestKeepExitedValues(){}[0]
+}
+
+final class androidx.compose.runtime.retain/ControlledRetainScope : androidx.compose.runtime.retain/RetainScope { // androidx.compose.runtime.retain/ControlledRetainScope|null[0]
+    constructor <init>() // androidx.compose.runtime.retain/ControlledRetainScope.<init>|<init>(){}[0]
+
+    final val keepExitedValuesRequestsFromSelf // androidx.compose.runtime.retain/ControlledRetainScope.keepExitedValuesRequestsFromSelf|{}keepExitedValuesRequestsFromSelf[0]
+        final fun <get-keepExitedValuesRequestsFromSelf>(): kotlin/Int // androidx.compose.runtime.retain/ControlledRetainScope.keepExitedValuesRequestsFromSelf.<get-keepExitedValuesRequestsFromSelf>|<get-keepExitedValuesRequestsFromSelf>(){}[0]
+
+    final fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ControlledRetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+    final fun setParentRetainStateProvider(androidx.compose.runtime.retain/RetainStateProvider) // androidx.compose.runtime.retain/ControlledRetainScope.setParentRetainStateProvider|setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider){}[0]
+    final fun startKeepingExitedValues() // androidx.compose.runtime.retain/ControlledRetainScope.startKeepingExitedValues|startKeepingExitedValues(){}[0]
+    final fun stopKeepingExitedValues() // androidx.compose.runtime.retain/ControlledRetainScope.stopKeepingExitedValues|stopKeepingExitedValues(){}[0]
+}
+
+final class androidx.compose.runtime.retain/RetainScopeHolder { // androidx.compose.runtime.retain/RetainScopeHolder|null[0]
+    constructor <init>() // androidx.compose.runtime.retain/RetainScopeHolder.<init>|<init>(){}[0]
+
+    final fun RetainScopeProvider(kotlin/Any?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainScopeHolder.RetainScopeProvider|RetainScopeProvider(kotlin.Any?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    final fun clearChild(kotlin/Any?) // androidx.compose.runtime.retain/RetainScopeHolder.clearChild|clearChild(kotlin.Any?){}[0]
+    final fun clearChildren(kotlin/Function1<kotlin/Any?, kotlin/Boolean>) // androidx.compose.runtime.retain/RetainScopeHolder.clearChildren|clearChildren(kotlin.Function1<kotlin.Any?,kotlin.Boolean>){}[0]
+    final fun dispose() // androidx.compose.runtime.retain/RetainScopeHolder.dispose|dispose(){}[0]
+    final fun getOrCreateRetainScopeForChild(kotlin/Any?): androidx.compose.runtime.retain/RetainScope // androidx.compose.runtime.retain/RetainScopeHolder.getOrCreateRetainScopeForChild|getOrCreateRetainScopeForChild(kotlin.Any?){}[0]
+    final fun keepExitedValuesRequestsFor(kotlin/Any?): kotlin/Int // androidx.compose.runtime.retain/RetainScopeHolder.keepExitedValuesRequestsFor|keepExitedValuesRequestsFor(kotlin.Any?){}[0]
+    final fun setParentRetainStateProvider(androidx.compose.runtime.retain/RetainStateProvider) // androidx.compose.runtime.retain/RetainScopeHolder.setParentRetainStateProvider|setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider){}[0]
+    final fun startKeepingExitedValues(kotlin/Any?) // androidx.compose.runtime.retain/RetainScopeHolder.startKeepingExitedValues|startKeepingExitedValues(kotlin.Any?){}[0]
+    final fun stopKeepingExitedValues(kotlin/Any?) // androidx.compose.runtime.retain/RetainScopeHolder.stopKeepingExitedValues|stopKeepingExitedValues(kotlin.Any?){}[0]
+}
+
+final class androidx.compose.runtime.retain/RetainedEffectScope { // androidx.compose.runtime.retain/RetainedEffectScope|null[0]
+    constructor <init>() // androidx.compose.runtime.retain/RetainedEffectScope.<init>|<init>(){}[0]
+
+    final inline fun onRetire(crossinline kotlin/Function0<kotlin/Unit>): androidx.compose.runtime.retain/RetainedEffectResult // androidx.compose.runtime.retain/RetainedEffectScope.onRetire|onRetire(kotlin.Function0<kotlin.Unit>){}[0]
+}
+
+final object androidx.compose.runtime.retain/ForgetfulRetainScope : androidx.compose.runtime.retain/RetainScope { // androidx.compose.runtime.retain/ForgetfulRetainScope|null[0]
+    final fun getExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ForgetfulRetainScope.getExitedValueOrDefault|getExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
+}
+
+final val androidx.compose.runtime.retain/LocalRetainScope // androidx.compose.runtime.retain/LocalRetainScope|{}LocalRetainScope[0]
+    final fun <get-LocalRetainScope>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.runtime.retain/RetainScope> // androidx.compose.runtime.retain/LocalRetainScope.<get-LocalRetainScope>|<get-LocalRetainScope>(){}[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_ControlledRetainScope$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_ControlledRetainScope$stableprop|#static{}androidx_compose_runtime_retain_ControlledRetainScope$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop|#static{}androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope$stableprop|#static{}androidx_compose_runtime_retain_RetainScope$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScopeHolder$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScopeHolder$stableprop|#static{}androidx_compose_runtime_retain_RetainScopeHolder$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop|#static{}androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop|#static{}androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop|#static{}androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainedEffectScope$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainedEffectScope$stableprop|#static{}androidx_compose_runtime_retain_RetainedEffectScope$stableprop[0]
+final val androidx.compose.runtime.retain/androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop // androidx.compose.runtime.retain/androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop|#static{}androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop[0]
+
+final fun <#A: kotlin/Any?> androidx.compose.runtime.retain/retain(kotlin/Int, kotlin/Array<out kotlin/Any?>..., kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime.retain/retain|retain(kotlin.Int;kotlin.Array<out|kotlin.Any?>...;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.compose.runtime.retain/retain(kotlin/Int, kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime.retain/retain|retain(kotlin.Int;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun androidx.compose.runtime.retain/RetainedContentHost(kotlin/Boolean, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedContentHost|RetainedContentHost(kotlin.Boolean;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/RetainedEffect(kotlin/Any?, kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.runtime.retain/RetainedEffectScope, androidx.compose.runtime.retain/RetainedEffectResult>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedEffect|RetainedEffect(kotlin.Any?;kotlin.Any?;kotlin.Any?;kotlin.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/RetainedEffect(kotlin/Any?, kotlin/Any?, kotlin/Function1<androidx.compose.runtime.retain/RetainedEffectScope, androidx.compose.runtime.retain/RetainedEffectResult>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedEffect|RetainedEffect(kotlin.Any?;kotlin.Any?;kotlin.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/RetainedEffect(kotlin/Any?, kotlin/Function1<androidx.compose.runtime.retain/RetainedEffectScope, androidx.compose.runtime.retain/RetainedEffectResult>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedEffect|RetainedEffect(kotlin.Any?;kotlin.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/RetainedEffect(kotlin/Array<out kotlin/Any?>..., kotlin/Function1<androidx.compose.runtime.retain/RetainedEffectScope, androidx.compose.runtime.retain/RetainedEffectResult>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedEffect|RetainedEffect(kotlin.Array<out|kotlin.Any?>...;kotlin.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/RetainedEffect(kotlin/Function1<androidx.compose.runtime.retain/RetainedEffectScope, androidx.compose.runtime.retain/RetainedEffectResult>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.runtime.retain/RetainedEffect|RetainedEffect(kotlin.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_ControlledRetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_ControlledRetainScope$stableprop_getter|androidx_compose_runtime_retain_ControlledRetainScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop_getter|androidx_compose_runtime_retain_ForgetfulRetainScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope$stableprop_getter|androidx_compose_runtime_retain_RetainScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScopeHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScopeHolder$stableprop_getter|androidx_compose_runtime_retain_RetainScopeHolder$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop_getter|androidx_compose_runtime_retain_RetainScope_RetainedValueHolder$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter|androidx_compose_runtime_retain_RetainStateProvider_AlwaysKeepExitedValues$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop_getter|androidx_compose_runtime_retain_RetainStateProvider_NeverKeepExitedValues$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainedEffectScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_RetainedEffectScope$stableprop_getter|androidx_compose_runtime_retain_RetainedEffectScope$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter(): kotlin/Int // androidx.compose.runtime.retain/androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter|androidx_compose_runtime_retain_SafeMultiValueMap_ValueSafetyWrapper$stableprop_getter(){}[0]
+final fun androidx.compose.runtime.retain/retainControlledRetainScope(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime.retain/ControlledRetainScope // androidx.compose.runtime.retain/retainControlledRetainScope|retainControlledRetainScope(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.runtime.retain/retainRetainScopeHolder(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.runtime.retain/RetainScopeHolder // androidx.compose.runtime.retain/retainRetainScopeHolder|retainRetainScopeHolder(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.retain/classHash(): kotlin/Int // androidx.compose.runtime.retain/classHash|classHash(){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.retain/retain(kotlin/Array<out kotlin/Any?>..., noinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime.retain/retain|retain(kotlin.Array<out|kotlin.Any?>...;kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> androidx.compose.runtime.retain/retain(noinline kotlin/Function0<#A>, androidx.compose.runtime/Composer?, kotlin/Int): #A // androidx.compose.runtime.retain/retain|retain(kotlin.Function0<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]

@@ -1,3 +1,11 @@
 // Baseline format: 1.0
 NullableCollectionElement: androidx.compose.runtime.saveable.SaveableStateRegistry#performSave():
     Collection java.util.List<java.lang.Object> should not have a nullable element type (java.lang.Object) in method androidx.compose.runtime.saveable.SaveableStateRegistry.performSave()
+
+
+TypeParameterName: androidx.compose.runtime.saveable.ListSaverKt#listSaver(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.saveable.SaverScope,? super Original,? extends java.util.List<? extends Saveable>>, kotlin.jvm.functions.Function1<? super java.util.List<? extends Saveable>,? extends Original>):
+    Invalid type parameter name "Original". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.saveable.Saver:
+    Invalid type parameter name "Original". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.saveable.SaverKt#Saver(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.saveable.SaverScope,? super Original,? extends Saveable>, kotlin.jvm.functions.Function1<? super Saveable,? extends Original>):
+    Invalid type parameter name "Original". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

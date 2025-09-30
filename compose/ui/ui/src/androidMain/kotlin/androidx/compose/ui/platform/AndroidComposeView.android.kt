@@ -73,14 +73,14 @@ import androidx.collection.MutableObjectList
 import androidx.collection.ScatterMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
-import androidx.compose.runtime.ForgetfulRetainScope
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.RetainScope
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
+import androidx.compose.runtime.retain.ForgetfulRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
@@ -140,11 +140,8 @@ import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
-import androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent
 import androidx.compose.ui.input.indirect.IndirectTouchEvent
 import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
-import androidx.compose.ui.input.indirect.convertActionToIndirectTouchEventType
-import androidx.compose.ui.input.indirect.indirectPrimaryDirectionalScrollAxis
 import androidx.compose.ui.input.indirect.nativeEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
@@ -257,7 +254,7 @@ internal var platformTextInputServiceInterceptor:
 
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
-@Suppress("ViewConstructor", "VisibleForTests", "NullAnnotationGroup")
+@Suppress("ViewConstructor", "VisibleForTests")
 @OptIn(InternalComposeUiApi::class)
 internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context),
@@ -290,7 +287,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     // Allows tests to override the calculated primaryDirectionalMotionAxis from a MotionEvent (see
     // [IndirectTouchEventNavigationSystemTests] for more details).
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
     @VisibleForTesting
     internal var primaryDirectionalMotionAxisOverride:
         IndirectTouchEventPrimaryDirectionalMotionAxis? =
@@ -1295,6 +1291,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
+        // TODO (jjw): Add logic for indirect cancel for active streams
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         if (!gainFocus && !hasFocus()) {
             focusOwner.releaseFocus()
@@ -1332,8 +1329,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             focusOwner.dispatchKeyEvent(keyEvent)
 
     /** This function is used by the testing framework to send indirect touch events. */
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
+    @ExperimentalIndirectTouchTypeApi
     override fun sendIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
+        if (indirectTouchEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
+            focusOwner.dispatchIndirectTouchCancel()
+            return true
+        }
         return handleIndirectTouchEvent(indirectTouchEvent)
     }
 
@@ -1397,10 +1398,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         layoutNodes.remove(node.semanticsId)
         measureAndLayoutDelegate.onNodeDetached(node)
         requestClearInvalidObservations()
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.remove(node)
-        }
+        rectManager.remove(node)
         @OptIn(ExperimentalComposeUiApi::class)
         if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
             _autofillManager?.onDetach(node)
@@ -1735,10 +1733,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                 dispatchPendingInteropLayoutCallbacks()
             }
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (ComposeUiFlags.isRectTrackingEnabled) {
-                rectManager.dispatchCallbacks()
-            }
+            rectManager.dispatchCallbacks()
             scheduleSendPendingContentCaptureEvents()
         }
     }
@@ -1918,10 +1913,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             rootView.height,
         )
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = positionChanged)
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.dispatchCallbacks()
-        }
+        rectManager.dispatchCallbacks()
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {}
@@ -2016,10 +2008,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
         @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.remove(layoutNode)
-        }
-        @OptIn(ExperimentalComposeUiApi::class)
         if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
             _autofillManager?.onLayoutNodeDeactivated(layoutNode)
         }
@@ -2036,10 +2024,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
             _autofillManager?.onPostLayoutNodeReused(layoutNode, oldSemanticsId)
         }
-        // Sometimes, while scrolling with reuse, a child LayoutNode, might not
-        // require measure or layout at all, but at a minimum we need to update RectManager with
-        // the correct information.
-        rectManager.onLayoutPositionChanged(layoutNode, true)
     }
 
     override fun onInteropViewLayoutChange(view: InteropView) {
@@ -2118,9 +2102,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             currentFrameRate = Float.NaN
             currentFrameRateCategory = Float.NaN
         }
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            rectManager.dispatchCallbacks()
-        }
+        rectManager.dispatchCallbacks()
     }
 
     internal fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean) {
@@ -2395,21 +2377,18 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     handleMotionEvent(motionEvent).dispatchedToAPointerInputModifier
                 }
             else -> {
-                @OptIn(ExperimentalIndirectTouchTypeApi::class)
                 if (motionEvent.isFromSource(SOURCE_TOUCH_NAVIGATION)) {
-                    val primaryDirectionalMotionAxis =
-                        primaryDirectionalMotionAxisOverride
-                            ?: indirectPrimaryDirectionalScrollAxis(motionEvent)
                     val indirectTouchEvent =
-                        AndroidIndirectTouchEvent(
-                            position = Offset(motionEvent.x, motionEvent.y),
-                            uptimeMillis = motionEvent.eventTime,
-                            type = convertActionToIndirectTouchEventType(motionEvent.actionMasked),
-                            primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
-                            nativeEvent = motionEvent,
+                        motionEventAdapter.convertToIndirectTouchEvent(
+                            motionEvent,
+                            primaryDirectionalMotionAxisOverride,
                         )
-
-                    if (handleIndirectTouchEvent(indirectTouchEvent)) {
+                    if (indirectTouchEvent != null) {
+                        if (handleIndirectTouchEvent(indirectTouchEvent)) {
+                            return true
+                        }
+                    } else {
+                        focusOwner.dispatchIndirectTouchCancel()
                         return true
                     }
                 }
@@ -2420,14 +2399,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
     private fun handleIndirectTouchEvent(indirectTouchEvent: IndirectTouchEvent): Boolean {
         val motionEvent = indirectTouchEvent.nativeEvent
 
-        val handled =
-            focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent) {
-                super.dispatchGenericMotionEvent(motionEvent)
-            }
+        val handled = focusOwner.dispatchIndirectTouchEvent(indirectTouchEvent)
 
         if (handled) {
             // Turns off all navigation gestures for this event stream since an app is
@@ -2501,7 +2476,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             motionEvent.isFromSource(InputDevice.SOURCE_MOUSE) ||
                 motionEvent.isFromSource(InputDevice.SOURCE_TOUCHPAD)
         if (isDown && isFromMouseOrTouchpad) {
-            if ((parent as? AbstractComposeView)?.isClearFocusOnPointerDownEnabled == true) {
+            if (
+                (parent as? AbstractComposeView)?.autoClearFocusBehavior ==
+                    AutoClearFocusBehavior.CursorBased
+            ) {
                 val activeFocusTargetNode = focusOwner.activeFocusTargetNode
                 if (activeFocusTargetNode != null) {
                     val focusedNodeBounds =
@@ -3795,7 +3773,6 @@ internal class IndirectTouchNavigationGestureDetector(
     context: Context,
     private val onMoveFocus: (FocusDirection) -> Unit,
 ) {
-    @OptIn(ExperimentalIndirectTouchTypeApi::class)
     var primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None
 
     private val gestureDetector: GestureDetector =
@@ -3817,7 +3794,6 @@ internal class IndirectTouchNavigationGestureDetector(
 
                 override fun onLongPress(e: MotionEvent) {}
 
-                @OptIn(ExperimentalIndirectTouchTypeApi::class)
                 override fun onFling(
                     e1: MotionEvent?,
                     e2: MotionEvent,

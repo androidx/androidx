@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,6 +65,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 
@@ -82,6 +84,7 @@ val LongScreenshotsDemos =
         ComposableDemo("Single giant text field") { SingleGiantTextFieldDemo() },
         ComposableDemo("Lazy list with sticky headers") { LazyListWithStickiesDemo() },
         ComposableDemo("Reverse layout") { ReverseScrollingCaptureDemo() },
+        ComposableDemo("Floating content") { FloatingContentDemo() },
     )
 
 @Composable
@@ -418,5 +421,29 @@ private fun ReverseScrollingCaptureDemo() {
             Modifier.fillMaxSize().verticalScroll(rememberScrollState(), reverseScrolling = true),
     ) {
         repeat(50) { index -> Text("Row $index", Modifier.heightIn(min = 40.dp).padding(8.dp)) }
+    }
+}
+
+@Composable
+private fun FloatingContentDemo() {
+
+    LazyColumn(Modifier.border(1.dp, Color.Black).fillMaxWidth(fraction = 0.75f).height(200.dp)) {
+        items(50) { index ->
+            Button(onClick = {}, Modifier.padding(8.dp).fillMaxWidth()) { Text("Button $index") }
+        }
+    }
+
+    Column {
+        Text(
+            "Floating content top",
+            modifier = Modifier.background(Color.Red).height(50.dp),
+            fontSize = 20.sp,
+        )
+        Spacer(Modifier.fillMaxWidth().weight(1f))
+        Text(
+            "Floating content bottom",
+            modifier = Modifier.background(Color.Blue).height(50.dp),
+            fontSize = 20.sp,
+        )
     }
 }

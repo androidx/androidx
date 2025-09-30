@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/220884136
-
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
@@ -29,53 +27,38 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class FontFamilyResolverImplPreloadTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
-    private lateinit var scope: TestCoroutineScope
-    private lateinit var dispatcher: TestCoroutineDispatcher
     private lateinit var asyncTypefaceCache: AsyncTypefaceCache
     private lateinit var typefaceCache: TypefaceRequestCache
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     private val fontLoader = AndroidFontLoader(context)
-    private lateinit var subject: FontFamilyResolverImpl
 
     @Before
     fun setup() {
         asyncTypefaceCache = AsyncTypefaceCache()
         typefaceCache = TypefaceRequestCache()
-        dispatcher = TestCoroutineDispatcher()
-        scope = TestCoroutineScope(dispatcher)
-        val injectedContext = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
-        subject =
-            FontFamilyResolverImpl(
-                fontLoader,
-                typefaceRequestCache = typefaceCache,
-                fontListFontFamilyTypefaceAdapter =
-                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext),
-            )
         typefaceLoader = AsyncTestTypefaceLoader()
     }
 
     @Test
-    fun preload_insertsTypefaceIntoCache() {
+    fun preload_insertsTypefaceIntoCache() = runTest {
         val fontFamily = FontTestData.FONT_100_REGULAR.toFontFamily()
-        scope.runBlockingTest { subject.preload(fontFamily) }
+        subject().preload(fontFamily)
         assertThat(typefaceCache.size).isEqualTo(1)
         val cacheResult =
             typefaceCache.getImmutableResultFor(
@@ -87,9 +70,9 @@ class FontFamilyResolverImplPreloadTest {
     }
 
     @Test
-    fun preload_insertsTypefaceIntoCache_onlyForFontWeightAndStyle() {
+    fun preload_insertsTypefaceIntoCache_onlyForFontWeightAndStyle() = runTest {
         val fontFamily = FontTestData.FONT_100_REGULAR.toFontFamily()
-        scope.runBlockingTest { subject.preload(fontFamily) }
+        subject().preload(fontFamily)
         assertThat(typefaceCache.size).isEqualTo(1)
         val cacheResult =
             typefaceCache.getImmutableResultFor(
@@ -101,7 +84,7 @@ class FontFamilyResolverImplPreloadTest {
     }
 
     @Test
-    fun preload_insertsAllTypefaces_intoCache() {
+    fun preload_insertsAllTypefaces_intoCache() = runTest {
         val fontFamily =
             FontFamily(
                 FontTestData.FONT_100_REGULAR,
@@ -110,7 +93,7 @@ class FontFamilyResolverImplPreloadTest {
                 FontTestData.FONT_400_REGULAR,
                 FontTestData.FONT_500_REGULAR,
             )
-        scope.runBlockingTest { subject.preload(fontFamily) }
+        subject().preload(fontFamily)
         assertThat(typefaceCache.size).isEqualTo(5)
         for (weight in 100..500 step 100) {
             val cacheResult =
@@ -123,13 +106,12 @@ class FontFamilyResolverImplPreloadTest {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun preload_resolvesAsyncFonts() {
+    fun preload_resolvesAsyncFonts() = runTest {
         val font = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
 
         val fontFamily = font.toFontFamily()
-        val preloadResult = scope.async { subject.preload(fontFamily) }
+        val preloadResult = asyncAndRunCurrent { subject().preload(fontFamily) }
 
         assertThat(typefaceLoader.pendingRequestsFor(font)).hasSize(1)
         // at this point, the request is out but font cache hasn't started
@@ -139,7 +121,7 @@ class FontFamilyResolverImplPreloadTest {
 
         typefaceLoader.completeOne(font, Typeface.MONOSPACE)
 
-        scope.runBlockingTest { preloadResult.await() }
+        preloadResult.await()
 
         // at this point, result is back, and preload() has returned, so the main typeface
         // cache contains the result
@@ -150,55 +132,46 @@ class FontFamilyResolverImplPreloadTest {
         assertThat(typefaceResult).isNotNull()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun preload_onlyLoadsFirstAsyncFontInChain() {
+    fun preload_onlyLoadsFirstAsyncFontInChain() = runTest {
         val font = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
 
         val fontFamily = FontFamily(font, fallbackFont)
-        val preloadResult = scope.async { subject.preload(fontFamily) }
+        val preloadResult = asyncAndRunCurrent { subject().preload(fontFamily) }
 
         typefaceLoader.completeOne(font, Typeface.MONOSPACE)
 
-        scope.runBlockingTest { preloadResult.await() }
+        preloadResult.await()
 
         assertThat(typefaceLoader.pendingRequestsFor(fallbackFont)).hasSize(0)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test(expected = IllegalStateException::class)
-    fun preload_errorsOnTimeout() {
+    fun preload_errorsOnTimeout() = runTest {
         val font = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
-        val dispatcher = StandardTestDispatcher()
-        val testScope = TestCoroutineScope(dispatcher)
 
         val fontFamily = FontFamily(font, fallbackFont)
-        val deferred = testScope.async { subject.preload(fontFamily) }
-        testScope.testScheduler.apply {
-            advanceTimeBy(Font.MaximumAsyncTimeoutMillis)
+        val deferred = asyncAndRunCurrent { subject().preload(fontFamily) }
+        testScheduler.apply {
+            advanceTimeBy(Font.MaximumAsyncTimeoutMillis.milliseconds)
             runCurrent()
         }
         assertThat(deferred.isCompleted).isTrue()
-        testScope.runBlockingTest {
-            deferred.await() // actually throw here
-        }
+        deferred.await() // actually throw here
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenOptionalFontFound_preload_doesNotResolveAsyncFont() {
+    fun whenOptionalFontFound_preload_doesNotResolveAsyncFont() = runTest {
         val optionalFont =
             OptionalFauxFont(typefaceLoader, Typeface.DEFAULT, FontWeight.Normal, FontStyle.Normal)
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
-        val dispatcher = TestCoroutineDispatcher()
-        val testScope = TestCoroutineScope(dispatcher)
 
         val fontFamily = FontFamily(optionalFont, fallbackFont)
-        val preloadResult = testScope.async { subject.preload(fontFamily) }
+        val preloadResult = asyncAndRunCurrent { subject().preload(fontFamily) }
 
-        scope.runBlockingTest { preloadResult.await() }
+        preloadResult.await()
 
         assertThat(typefaceLoader.pendingRequestsFor(fallbackFont)).hasSize(0)
         val typefaceResult =
@@ -206,20 +179,17 @@ class FontFamilyResolverImplPreloadTest {
         assertThat(typefaceResult).isSameInstanceAs(Typeface.DEFAULT)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenOptionalFontNotFound_preload_doesResolveAsyncFont() {
+    fun whenOptionalFontNotFound_preload_doesResolveAsyncFont() = runTest {
         val optionalFont =
             OptionalFauxFont(typefaceLoader, null, FontWeight.Normal, FontStyle.Normal)
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Normal, FontStyle.Normal)
-        val dispatcher = TestCoroutineDispatcher()
-        val testScope = TestCoroutineScope(dispatcher)
         val fontFamily = FontFamily(optionalFont, fallbackFont)
-        val preloadResult = testScope.async { subject.preload(fontFamily) }
-        testScope.runCurrent() // past yield on optionalFont
+        val preloadResult = asyncAndRunCurrent { subject().preload(fontFamily) }
+        testScheduler.runCurrent() // past yield on optionalFont
         typefaceLoader.completeOne(fallbackFont, Typeface.MONOSPACE)
 
-        scope.runBlockingTest { preloadResult.await() }
+        preloadResult.await()
 
         assertThat(typefaceLoader.pendingRequestsFor(fallbackFont)).hasSize(0)
         val typefaceResult =
@@ -227,9 +197,8 @@ class FontFamilyResolverImplPreloadTest {
         assertThat(typefaceResult).isSameInstanceAs(Typeface.MONOSPACE)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun whenBlockingFont_neverResolvesAsync() {
+    fun whenBlockingFont_neverResolvesAsync() = runTest {
         val blockingFont =
             BlockingFauxFont(
                 typefaceLoader,
@@ -238,13 +207,11 @@ class FontFamilyResolverImplPreloadTest {
                 FontStyle.Normal,
             )
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Bold, FontStyle.Normal)
-        val dispatcher = TestCoroutineDispatcher()
-        val testScope = TestCoroutineScope(dispatcher)
 
         val fontFamily = FontFamily(blockingFont, fallbackFont)
-        val preloadResult = testScope.async { subject.preload(fontFamily) }
+        val preloadResult = asyncAndRunCurrent { subject().preload(fontFamily) }
 
-        scope.runBlockingTest { preloadResult.await() }
+        preloadResult.await()
 
         assertThat(typefaceLoader.pendingRequestsFor(fallbackFont)).hasSize(0)
         val typefaceResult =
@@ -258,4 +225,19 @@ class FontFamilyResolverImplPreloadTest {
 
     // other font chain semantics are tested directly, preload is just checking that we don't
     // trigger async work when it's not necessary
+
+    private fun TestScope.subject() =
+        FontFamilyResolverImpl(
+            fontLoader,
+            typefaceRequestCache = typefaceCache,
+            fontListFontFamilyTypefaceAdapter =
+                FontListFontFamilyTypefaceAdapter(
+                    asyncTypefaceCache,
+                    backgroundScope.coroutineContext.minusKey(CoroutineExceptionHandler),
+                ),
+        )
+
+    private fun <T> TestScope.asyncAndRunCurrent(
+        block: suspend CoroutineScope.() -> T
+    ): Deferred<T> = async(block = block).also { testScheduler.runCurrent() }
 }

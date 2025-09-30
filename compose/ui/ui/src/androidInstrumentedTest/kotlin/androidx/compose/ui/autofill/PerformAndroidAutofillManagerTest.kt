@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +75,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
@@ -1424,6 +1426,202 @@ class PerformAndroidAutofillManagerTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 26)
+    fun populateViewStructure_email_asKeyboardType() {
+        // Arrange.
+        lateinit var view: View
+        val viewStructure = FakeViewStructure()
+        rule.setContent {
+            view = LocalView.current
+            Column {
+                BasicTextField(
+                    state = remember { TextFieldState("test@email.com") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.size(height, width).testTag(contentTag),
+                )
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
+            view.onProvideAutofillVirtualStructure(viewStructure, 0)
+        }
+
+        // Assert.
+        assertThat(viewStructure)
+            .isEqualTo(
+                ViewStructure(view) {
+                    children.add(
+                        ViewStructure(view) {
+                            autofillHints = mutableListOf(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
+                            autofillType = AUTOFILL_TYPE_TEXT
+                            autofillValue = AutofillValue.forText("test@email.com")
+                            className = "android.widget.EditText"
+                            dataIsSensitive = true
+                            isClickable = true
+                            isFocusable = true
+                            isLongClickable = true
+                            text = ""
+                            virtualId = rule.onNodeWithTag(contentTag).semanticsId()
+                            visibility = View.VISIBLE
+                        }
+                    )
+                    virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                }
+            )
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun populateViewStructure_password_asKeyboardType() {
+        // Arrange.
+        lateinit var view: View
+        val viewStructure = FakeViewStructure()
+        rule.setContent {
+            view = LocalView.current
+            Column {
+                BasicTextField(
+                    state = remember { TextFieldState("testPassword") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.size(height, width).testTag(contentTag),
+                )
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
+            view.onProvideAutofillVirtualStructure(viewStructure, 0)
+        }
+
+        // Assert.
+        assertThat(viewStructure)
+            .isEqualTo(
+                ViewStructure(view) {
+                    children.add(
+                        ViewStructure(view) {
+                            autofillHints = mutableListOf(HintConstants.AUTOFILL_HINT_PASSWORD)
+                            autofillType = AUTOFILL_TYPE_TEXT
+                            autofillValue = AutofillValue.forText("testPassword")
+                            className = "android.widget.EditText"
+                            dataIsSensitive = true
+                            inputType =
+                                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                            isClickable = true
+                            isFocusable = true
+                            isLongClickable = true
+                            text = ""
+                            virtualId = rule.onNodeWithTag(contentTag).semanticsId()
+                            visibility = View.VISIBLE
+                        }
+                    )
+                    virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                }
+            )
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun populateViewStructure_numberPassword_asKeyboardType() {
+        // Arrange.
+        lateinit var view: View
+        val viewStructure = FakeViewStructure()
+        rule.setContent {
+            view = LocalView.current
+            Column {
+                BasicTextField(
+                    state = remember { TextFieldState("123456") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    modifier = Modifier.size(height, width).testTag(contentTag),
+                )
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
+            view.onProvideAutofillVirtualStructure(viewStructure, 0)
+        }
+
+        // Assert.
+        assertThat(viewStructure)
+            .isEqualTo(
+                ViewStructure(view) {
+                    children.add(
+                        ViewStructure(view) {
+                            autofillHints = mutableListOf(HintConstants.AUTOFILL_HINT_PASSWORD)
+                            autofillType = AUTOFILL_TYPE_TEXT
+                            autofillValue = AutofillValue.forText("123456")
+                            className = "android.widget.EditText"
+                            dataIsSensitive = true
+                            inputType =
+                                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                            isClickable = true
+                            isFocusable = true
+                            isLongClickable = true
+                            text = ""
+                            virtualId = rule.onNodeWithTag(contentTag).semanticsId()
+                            visibility = View.VISIBLE
+                        }
+                    )
+                    virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                }
+            )
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun populateViewStructure_phone_asKeyboardType() {
+        // Arrange.
+        lateinit var view: View
+        val viewStructure = FakeViewStructure()
+        rule.setContent {
+            view = LocalView.current
+            Column {
+                BasicTextField(
+                    state = remember { TextFieldState("1234567890") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    modifier = Modifier.size(height, width).testTag(contentTag),
+                )
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
+            view.onProvideAutofillVirtualStructure(viewStructure, 0)
+        }
+
+        // Assert.
+        assertThat(viewStructure)
+            .isEqualTo(
+                ViewStructure(view) {
+                    children.add(
+                        ViewStructure(view) {
+                            autofillHints = mutableListOf(HintConstants.AUTOFILL_HINT_PHONE_NUMBER)
+                            autofillType = AUTOFILL_TYPE_TEXT
+                            autofillValue = AutofillValue.forText("1234567890")
+                            className = "android.widget.EditText"
+                            dataIsSensitive = true
+                            isClickable = true
+                            isFocusable = true
+                            isLongClickable = true
+                            text = ""
+                            virtualId = rule.onNodeWithTag(contentTag).semanticsId()
+                            visibility = View.VISIBLE
+                        }
+                    )
+                    virtualId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                }
+            )
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
     fun populateViewStructure_password_asSemanticProperty() {
         // Arrange.
         lateinit var view: View
@@ -1509,7 +1707,7 @@ class PerformAndroidAutofillManagerTest {
         // Arrange.
         lateinit var view: View
         val viewStructure: ViewStructure = FakeViewStructure()
-        val fillableDataText = checkNotNull(FillableData.createFrom("fillableData-test"))
+        val fillableDataText = checkNotNull(FillableData.createFromText("fillableData-test"))
         rule.setContent {
             view = LocalView.current
             Box(
@@ -1738,7 +1936,9 @@ class PerformAndroidAutofillManagerTest {
                     Modifier.testTag(toggleTag)
                         .clickable { isChecked = !isChecked }
                         .semantics {
-                            FillableData.createFrom(isChecked)?.let { this.fillableData = it }
+                            FillableData.createFromBoolean(isChecked)?.let {
+                                this.fillableData = it
+                            }
                             onFillData(label = "CustomToggle") { fillableData ->
                                 fillableData.booleanValue?.let { isChecked = it }
                                 true

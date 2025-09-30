@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos.autofill
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -49,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.collections.set
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun MixedOldNewAutofillDemo() {

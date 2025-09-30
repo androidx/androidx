@@ -2109,12 +2109,11 @@ internal class SlotWriter(
                     val address = dataIndexToDataAddress(slotIndex)
                     val value = slots[address]
                     if (value is RememberObserverHolder) {
-                        val after = value.after
-                        if (after != null && after.valid) {
+                        val after = value.afterGroupIndex
+                        if (after >= 0) {
                             // If the data is a remember holder that has an anchor, it must be
-                            // emitted
-                            // after the group it is anchored so defer it now.
-                            val index = anchorIndex(after)
+                            // emitted after the group it is anchored so defer it now.
+                            val index = childGroupAtIndex(child, after)
                             val afters =
                                 deferredAfters ?: mutableIntSetOf().also { deferredAfters = it }
                             val slots =
@@ -2159,6 +2158,18 @@ internal class SlotWriter(
                 }
             },
         )
+    }
+
+    private fun childGroupAtIndex(parent: Int, index: Int): Int {
+        val end = parent + groupSize(parent)
+        var childGroup = parent + 1
+        var current = 0
+        while (childGroup < end && current < index) {
+            val childAddress = groupIndexToAddress(childGroup)
+            childGroup += groups.groupSize(childAddress)
+            if (childGroup < end && !groups.hasObjectKey(childAddress)) current++
+        }
+        return childGroup
     }
 
     /**

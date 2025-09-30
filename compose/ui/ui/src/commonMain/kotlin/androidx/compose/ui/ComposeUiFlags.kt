@@ -55,16 +55,6 @@ import kotlin.jvm.JvmName
 @ExperimentalComposeUiApi
 object ComposeUiFlags {
     /**
-     * With this flag on, during layout we will do some additional work to store the minimum
-     * bounding rectangles for all Layout Nodes. This introduces some additional maintenance burden,
-     * but will be used in the future to enable certain features that are not possible to do
-     * efficiently at this point, as well as speed up some other areas of the system such as
-     * semantics, focus, pointer input, etc. If significant performance overhead is noticed during
-     * layout phases, it is possible that the addition of this tracking is the culprit.
-     */
-    @Suppress("MutableBareField") @JvmField var isRectTrackingEnabled: Boolean = true
-
-    /**
      * With this flag on, the new semantic version of Autofill APIs will be enabled. Turning this
      * flag off will disable the new Semantic Autofill APIs, and the new refactored semantics.
      */
@@ -188,9 +178,6 @@ object ComposeUiFlags {
     @JvmField
     var isNestedScrollInteropIntegerPropagationEnabled: Boolean = true
 
-    /** This flag enables clearing focus on pointer down by default. */
-    @Suppress("MutableBareField") @JvmField var isClearFocusOnPointerDownEnabled: Boolean = true
-
     /**
      * Enable fix for `[ComposeView.canScrollHorizontally]` and `[ComposeView.canScrollVertically]`
      * methods. Previously, these methods would sometimes use the last MOVE event's position to
@@ -203,4 +190,10 @@ object ComposeUiFlags {
     @Suppress("MutableBareField")
     @JvmField
     var isCanScrollUsingLastDownEventFixEnabled: Boolean = true
+
+    /**
+     * Enable fix to scroll target rect to the center when performing scroll capture, thus generally
+     * avoiding floating content at the top and bottom of the UI.
+     */
+    @Suppress("MutableBareField") @JvmField var isScrollCaptureCenteringEnabled: Boolean = true
 }

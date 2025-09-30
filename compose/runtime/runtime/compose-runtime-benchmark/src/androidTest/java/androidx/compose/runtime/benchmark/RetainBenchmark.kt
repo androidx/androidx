@@ -17,14 +17,14 @@
 package androidx.compose.runtime.benchmark
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ControlledRetainScope
-import androidx.compose.runtime.LocalRetainScope
 import androidx.compose.runtime.RememberObserver
-import androidx.compose.runtime.RetainObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain
+import androidx.compose.runtime.retain.ControlledRetainScope
+import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.RetainObserver
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -161,6 +161,8 @@ class RetainBenchmark : ComposeBenchmarkBase() {
         override fun onExitedComposition() {}
 
         override fun onRetired() {}
+
+        override fun onUnused() {}
 
         override fun onRemembered() {}
 

@@ -81,10 +81,13 @@ import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -92,6 +95,7 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -6974,6 +6978,93 @@ class AndroidPointerInputTest {
         rule.waitForFutureFrame()
         // Gut check that the pointer events are correctly dispatched.
         rule.runOnUiThread { assertThat(eventLog).hasSize(2) }
+    }
+
+    /* Meant as a contrast to [IndirectTouchEventTest]'s test
+     * (delegated_multiple_androidTouchNavigationEvent_triggersIndirectTouchEvent()). This shows
+     * what happens when using a Pointer Input Modifier (vs. Indirect) with two Delegating Nodes.
+     * Pointer Input will pass the event to BOTH delegates whereas Indirect (because it uses a
+     * focused item vs. hit testing) will only choose the first matching delegate to receive the
+     * event.
+     */
+    @Test
+    fun delegated_multiple_androidPointerInputEvents_triggersTouchEvent() {
+        var pointerInputCancellations = false
+        var event1: PointerEvent? = null
+        var event2: PointerEvent? = null
+        val node =
+            object : DelegatingNode() {
+                val unused =
+                    delegate(
+                        object : PointerInputModifierNode, Modifier.Node() {
+                            override fun onPointerEvent(
+                                pointerEvent: PointerEvent,
+                                pass: PointerEventPass,
+                                bounds: IntSize,
+                            ) {
+                                if (pass == PointerEventPass.Main) {
+                                    event1 = pointerEvent
+                                }
+                            }
+
+                            override fun onCancelPointerInput() {
+                                pointerInputCancellations = true
+                            }
+                        }
+                    )
+                val unused2 =
+                    delegate(
+                        object : PointerInputModifierNode, Modifier.Node() {
+                            override fun onPointerEvent(
+                                pointerEvent: PointerEvent,
+                                pass: PointerEventPass,
+                                bounds: IntSize,
+                            ) {
+                                if (pass == PointerEventPass.Main) {
+                                    event2 = pointerEvent
+                                }
+                            }
+
+                            override fun onCancelPointerInput() {
+                                pointerInputCancellations = true
+                            }
+                        }
+                    )
+            }
+
+        countDown { latch ->
+            rule.runOnUiThread {
+                container.setContent {
+                    Box(
+                        modifier =
+                            Modifier.size(100.dp).elementFor(node).onGloballyPositioned {
+                                latch.countDown()
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            val androidComposeView = findAndroidComposeView(container)!!
+
+            val actual =
+                androidComposeView.dispatchTouchEvent(
+                    MotionEventBuilder.newBuilder()
+                        .setEventTime(0L)
+                        .setAction(ACTION_DOWN)
+                        .setPointer(5f, 5f)
+                        .build()
+                )
+            assertThat(actual).isTrue()
+        }
+
+        rule.runOnUiThread {
+            // Both delegates receive the event for pointer input.
+            assertThat(event1).isNotNull()
+            assertThat(event2).isNotNull()
+            assertThat(pointerInputCancellations).isFalse()
+        }
     }
 
     private fun createPointerEventAt(eventTime: Int, action: Int, locationInWindow: IntArray) =

@@ -64,7 +64,6 @@ import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.FocusDirection
@@ -152,7 +151,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ScrollableTest {
@@ -241,7 +239,7 @@ class ScrollableTest {
         setScrollableContent(enableInitialFocus = true) {
             Modifier.scrollable(state = controller, orientation = Orientation.Horizontal)
         }
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
         rule.runOnIdle {
             assertThat(total).isNonZero()
             // Swipe forward has a negative sign because indirect touch events are inverted in
@@ -249,7 +247,7 @@ class ScrollableTest {
             assertThat(total.sign).isEqualTo(-1f)
         }
 
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward(rule)
         rule.runOnIdle { assertThat(total).isWithin(0.5f).of(0.0f) }
     }
 
@@ -532,7 +530,7 @@ class ScrollableTest {
                 orientation = Orientation.Horizontal,
             )
         }
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
 
         rule.runOnIdle {
             assertThat(total).isNonZero()
@@ -542,7 +540,7 @@ class ScrollableTest {
             assertThat(total.sign).isEqualTo(1f)
         }
 
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward(rule)
         rule.runOnIdle { assertThat(total).isWithin(0.5f).of(0.0f) }
     }
 
@@ -1334,7 +1332,7 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
 
         // make the swipe really slow so it won't generate velocities
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(delayTimeMills = 64L)
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(rule, delayTimeMills = 64L)
         val lastEqualDrag =
             rule.runOnIdle {
                 assertThat(innerDrag).isNonZero()
@@ -1638,7 +1636,7 @@ class ScrollableTest {
         }
         rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
 
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(delayTimeMills = 64L)
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(rule, delayTimeMills = 64L)
 
         rule.runOnIdle {
             assertThat(innerDrag).isNonZero()
@@ -1791,7 +1789,7 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
 
         // swipe again with velocity
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
 
         assertThat(innerDrag).isNonZero()
         assertThat(outerDrag).isNonZero()
@@ -1922,7 +1920,7 @@ class ScrollableTest {
 
         rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
 
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(delayTimeMills = 300)
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeEvent(rule, delayTimeMills = 300)
 
         val preFlingValue = rule.runOnIdle { value }
         rule.runOnIdle {
@@ -2790,7 +2788,7 @@ class ScrollableTest {
                 orientation = Orientation.Horizontal,
             )
         }
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
         // Swipe forward has a negative sign because indirect touch events are inverted in
@@ -2800,7 +2798,7 @@ class ScrollableTest {
         flingCalled = 0
         flingVelocity = 0.0f
 
-        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward()
+        rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward(rule)
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
         // Swipe backwards has a positive sign because indirect touch events are inverted in
@@ -3419,7 +3417,7 @@ class ScrollableTest {
 
         rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
 
-        rule.onRoot().sendIndirectSwipeForward()
+        rule.onRoot().sendIndirectSwipeForward(rule)
 
         rule.runOnIdle {
             assertThat(consumedOuter).isEqualTo(consumedInner)

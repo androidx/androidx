@@ -53,7 +53,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireLayoutDirection
@@ -536,7 +536,7 @@ private class AnchoredDraggableNode<T>(
     private fun Offset.reverseIfNeeded() = if (isReverseDirection) this * -1f else this * 1f
 }
 
-private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
+private val AlwaysDrag: (PointerType) -> Boolean = { true }
 
 /**
  * Structure that represents the anchors of a [AnchoredDraggableState].

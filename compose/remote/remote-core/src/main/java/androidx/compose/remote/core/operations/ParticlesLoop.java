@@ -223,7 +223,7 @@ public class ParticlesLoop extends PaintOperation implements VariableSupport, Co
             int equLen = buffer.readInt();
             if (equLen > MAX_EQU_LENGTH) {
                 throw new RuntimeException(
-                        equLen + " map entries more than max = " + MAX_FLOAT_ARRAY);
+                        equLen + " map entries more than max = " + MAX_EQU_LENGTH);
             }
             equations[i] = new float[equLen];
             for (int j = 0; j < equations[i].length; j++) {

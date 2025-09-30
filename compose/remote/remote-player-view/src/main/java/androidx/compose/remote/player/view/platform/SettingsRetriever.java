@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.remote.player.view.player.platform;
+package androidx.compose.remote.player.view.platform;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 

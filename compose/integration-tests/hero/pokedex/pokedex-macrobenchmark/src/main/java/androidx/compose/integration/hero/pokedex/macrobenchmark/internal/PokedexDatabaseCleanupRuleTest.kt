@@ -40,7 +40,7 @@ class PokedexDatabaseCleanupRuleTest {
             )
         @SuppressLint("SdCardPath")
         val dbDirectory = "/data/data/$POKEDEX_TARGET_PACKAGE_NAME/databases"
-        Shell.executeScriptSilent("mkdir $dbDirectory")
+        Shell.executeScriptSilent("mkdir -p $dbDirectory")
         Shell.executeScriptSilent("touch $dbDirectory/$POKEDEX_DATABASE_NAME")
         val databaseFiles = Shell.executeScriptCaptureStdout("ls -1 $dbDirectory").split("\n")
         assert(databaseFiles.isNotEmpty()) {

@@ -349,6 +349,20 @@ class RemoteIntTest {
     }
 
     @Test
+    fun evaluateIfConstant() {
+        assertThat(
+                ((RemoteInt(10) - RemoteInt(5)) * RemoteInt(3)).evaluateIfConstant(creationState)
+            )
+            .isEqualTo(15)
+
+        assertThat(
+                (RemoteInt(10) - RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).toRemoteInt())
+                    .evaluateIfConstant(creationState)
+            )
+            .isNull()
+    }
+
+    @Test
     fun hasConstantValue_true() {
         assertThat(RemoteInt(10).hasConstantValue).isTrue()
         assertThat(RemoteInt(10).plus(RemoteInt(2)).hasConstantValue).isTrue()

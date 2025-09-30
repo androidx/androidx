@@ -3,8 +3,8 @@ package androidx.compose.ui.text.googlefonts {
 
   public final class GoogleFont {
     ctor public GoogleFont(String name, optional boolean bestEffort);
-    method public boolean getBestEffort();
-    method public String getName();
+    method @InaccessibleFromKotlin public boolean getBestEffort();
+    method @InaccessibleFromKotlin public String getName();
     property public boolean bestEffort;
     property public String name;
   }

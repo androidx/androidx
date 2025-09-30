@@ -21,7 +21,6 @@ import androidx.compose.ui.inspection.inspector.InspectorNode
 import androidx.compose.ui.inspection.inspector.MutableInspectorNode
 import androidx.compose.ui.unit.IntRect
 import java.util.NoSuchElementException
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersCommand
@@ -30,13 +29,14 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComp
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParameterDetailsCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersResponse
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadSettings
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StringEntry
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsCommand
 
-internal fun List<LayoutInspectorComposeProtocol.StringEntry>.toMap() = associate {
-    it.id to it.str
-}
+internal fun List<StringEntry>.toMap() = associate { it.id to it.str }
 
 internal fun GetParametersCommand(
     rootViewId: Long,
@@ -246,6 +246,9 @@ internal fun GetUpdateSettingsCommand(
     keepRecomposeCounts: Boolean = false,
     delayParameterExtractions: Boolean = false,
     reduceChildNesting: Boolean = false,
+    stateReadKind: StateReadSettings.Kind = StateReadSettings.Kind.NONE,
+    composableToObserve: List<Int> = emptyList(),
+    maxRecompositions: Int = 0,
 ): Command =
     Command.newBuilder()
         .apply {
@@ -256,6 +259,44 @@ internal fun GetUpdateSettingsCommand(
                         this.keepRecomposeCounts = keepRecomposeCounts
                         this.delayParameterExtractions = delayParameterExtractions
                         this.reduceChildNesting = reduceChildNesting
+                        this.stateReadSettings =
+                            StateReadSettings.newBuilder()
+                                .apply {
+                                    when (stateReadKind) {
+                                        StateReadSettings.Kind.ALL ->
+                                            all =
+                                                StateReadSettings.All.newBuilder()
+                                                    .apply {
+                                                        this.maxRecompositions = maxRecompositions
+                                                    }
+                                                    .build()
+                                        StateReadSettings.Kind.BY_ID ->
+                                            byId =
+                                                StateReadSettings.ById.newBuilder()
+                                                    .apply {
+                                                        addAllComposableToObserve(
+                                                            composableToObserve
+                                                        )
+                                                        this.maxRecompositions = maxRecompositions
+                                                    }
+                                                    .build()
+                                        else -> none = StateReadSettings.None.getDefaultInstance()
+                                    }
+                                }
+                                .build()
+                    }
+                    .build()
+        }
+        .build()
+
+internal fun GetRecompositionStateReadCommand(anchorHash: Int, recomposition: Int = 0): Command =
+    Command.newBuilder()
+        .apply {
+            getRecompositionStateReadCommand =
+                GetRecompositionStateReadCommand.newBuilder()
+                    .apply {
+                        this.anchorHash = anchorHash
+                        this.recompositionNumber = recomposition
                     }
                     .build()
         }

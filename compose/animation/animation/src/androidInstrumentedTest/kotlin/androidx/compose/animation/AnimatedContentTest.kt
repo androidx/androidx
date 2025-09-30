@@ -79,6 +79,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -94,7 +95,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class AnimatedContentTest {
-    val rule = createComposeRule()
+    val rule = createComposeRule(StandardTestDispatcher())
 
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule

@@ -21,6 +21,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -29,6 +30,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.lazy.grid.singleAxisViewportSize
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
@@ -153,6 +155,25 @@ internal constructor(
     private val layoutInfoState =
         mutableStateOf(EmptyLazyStaggeredGridLayoutInfo, neverEqualPolicy())
 
+    private val _scrollIndicatorState =
+        object : ScrollIndicatorState {
+            override val scrollOffset: Int
+                get() = calculateScrollOffset()
+
+            override val contentSize: Int
+                get() = layoutInfo.calculateContentSize(laneCount)
+
+            override val viewportSize: Int
+                get() = layoutInfo.singleAxisViewportSize
+        }
+
+    private fun calculateScrollOffset(): Int {
+        val info = layoutInfo
+        if (info.totalItemsCount == 0) return 0
+        return ((info.visibleItemsAverageSize() * firstVisibleItemIndex) / laneCount) +
+            firstVisibleItemScrollOffset
+    }
+
     /** storage for lane assignments for each item for consistent scrolling in both directions */
     internal val laneInfo = LazyStaggeredGridLaneInfo()
 
@@ -169,6 +190,9 @@ internal constructor(
     @get:Suppress("GetterSetterNames")
     override val lastScrolledBackward: Boolean
         get() = scrollableState.lastScrolledBackward
+
+    override val scrollIndicatorState: ScrollIndicatorState?
+        get() = _scrollIndicatorState
 
     internal var remeasurement: Remeasurement? = null
         private set

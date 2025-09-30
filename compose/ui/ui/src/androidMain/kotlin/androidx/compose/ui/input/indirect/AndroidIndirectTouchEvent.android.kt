@@ -21,57 +21,133 @@ import android.view.InputDevice.SOURCE_TOUCH_NAVIGATION
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_POINTER_DOWN
+import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerId
 
-internal class AndroidIndirectTouchEvent
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
-constructor(
-    override val position: Offset,
-    override val uptimeMillis: Long,
+internal class AndroidIndirectTouchEvent(
+    override val changes: List<IndirectPointerInputChange>,
     override val type: IndirectTouchEventType,
     override val primaryDirectionalMotionAxis: IndirectTouchEventPrimaryDirectionalMotionAxis,
     internal val nativeEvent: MotionEvent,
-) : PlatformIndirectTouchEvent
+) : PlatformIndirectTouchEvent {
+    init {
+        require(changes.isNotEmpty()) { "changes cannot be empty" }
+    }
+}
 
-@ExperimentalIndirectTouchTypeApi
+/** Returns the underlying [MotionEvent] for additional information and cross module testing. */
 val IndirectTouchEvent.nativeEvent: MotionEvent
     get() = (this as AndroidIndirectTouchEvent).nativeEvent
 
 /**
  * Allows creation of a [IndirectTouchEvent] from a [MotionEvent] for cross module testing.
- * IMPORTANT NOTE: Primary axis is determined by properties of the [InputDevice] contained within
+ * IMPORTANT NOTE 1: Primary axis is determined by properties of the [InputDevice] contained within
  * the [MotionEvent]. However, when manually creating a [MotionEvent], there is no way to set the
  * [InputDevice]. Therefore, this function allows you to manually set the primary axis for testing.
- * If you have a system created [MotionEvent], you can call indirectScrollAxis() on your
- * [MotionEvent] to get the primary axis.
+ * If you have a system created [MotionEvent], you can call indirectPrimaryDirectionalScrollAxis()
+ * on your [MotionEvent] to get the primary axis. IMPORTANT NOTE 2: Since this is just a test
+ * function that doesn't maintain state for previous [MotionEvent]s (like the Android Compose system
+ * does), you will need to pass a separate [MotionEvent] to populate IndirectPointerInputChange's
+ * "previous" parameters (time, position, and pressed).
+ *
+ * @param motionEvent The [MotionEvent] to convert to an [IndirectTouchEvent].
+ * @param primaryDirectionalMotionAxis Primary directional motion axis for testing.
+ * @param previousMotionEvent The [MotionEvent] for previous values (time, position, and pressed).
  */
 @ExperimentalIndirectTouchTypeApi
 fun IndirectTouchEvent(
     motionEvent: MotionEvent,
     primaryDirectionalMotionAxis: IndirectTouchEventPrimaryDirectionalMotionAxis =
         IndirectTouchEventPrimaryDirectionalMotionAxis.None,
-): IndirectTouchEvent =
-    AndroidIndirectTouchEvent(
-        position = Offset(motionEvent.x, motionEvent.y),
-        uptimeMillis = motionEvent.eventTime,
-        type = convertActionToIndirectTouchEventType(motionEvent.actionMasked),
+    previousMotionEvent: MotionEvent? = null,
+): IndirectTouchEvent {
+    val action = motionEvent.actionMasked
+    val upIndex =
+        when (action) {
+            ACTION_UP -> 0
+            ACTION_POINTER_UP -> motionEvent.actionIndex
+            else -> -1
+        }
+
+    val previousAction = previousMotionEvent?.actionMasked
+    val previousMotionEventWasPressed =
+        when (previousAction) {
+            ACTION_DOWN,
+            ACTION_POINTER_DOWN,
+            ACTION_MOVE -> true
+            else -> false
+        }
+
+    val uptimeMillis = motionEvent.eventTime
+    val changes =
+        List(motionEvent.pointerCount) { index ->
+            // For tests, we directly use the motion event's pointer ID vs. the production approach
+            // of translate MotionEvent ids to separate Compose PointerIds.
+            val motionEventPointerId = motionEvent.getPointerId(index)
+            val pointerId = PointerId(motionEventPointerId.toLong())
+            val position = Offset(motionEvent.getX(index), motionEvent.getY(index))
+
+            val pressed = index != upIndex
+
+            val matchedPointerIdInPreviousMotionEventIndex =
+                previousMotionEvent?.findPointerIndex(motionEventPointerId) ?: -1
+
+            val previousUptimeMillis: Long
+            val previousPosition: Offset
+            val previousPressed: Boolean
+
+            if (matchedPointerIdInPreviousMotionEventIndex >= 0) {
+                // Found existing id in previous event
+                previousUptimeMillis = previousMotionEvent!!.eventTime
+                previousPosition =
+                    Offset(
+                        previousMotionEvent.getX(matchedPointerIdInPreviousMotionEventIndex),
+                        previousMotionEvent.getY(matchedPointerIdInPreviousMotionEventIndex),
+                    )
+                previousPressed = previousMotionEventWasPressed
+            } else {
+                // Existing id NOT in previous event, so we match the current event values minus
+                // pressed, that should always be false.
+                previousUptimeMillis = uptimeMillis
+                previousPosition = position
+                previousPressed = false
+            }
+
+            IndirectPointerInputChange(
+                id = pointerId,
+                uptimeMillis = uptimeMillis,
+                position = position,
+                pressed = pressed,
+                pressure = motionEvent.getPressure(index),
+                previousUptimeMillis = previousUptimeMillis,
+                previousPosition = previousPosition,
+                previousPressed = previousPressed,
+            )
+        }
+
+    return AndroidIndirectTouchEvent(
+        changes = changes,
+        type = convertActionToIndirectTouchEventType(action),
         primaryDirectionalMotionAxis = primaryDirectionalMotionAxis,
         nativeEvent = motionEvent,
     )
+}
 
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 internal fun convertActionToIndirectTouchEventType(actionMasked: Int): IndirectTouchEventType {
     return when (actionMasked) {
-        ACTION_UP -> IndirectTouchEventType.Release
-        ACTION_DOWN -> IndirectTouchEventType.Press
+        ACTION_UP,
+        ACTION_POINTER_UP -> IndirectTouchEventType.Release
+        ACTION_DOWN,
+        ACTION_POINTER_DOWN -> IndirectTouchEventType.Press
         ACTION_MOVE -> IndirectTouchEventType.Move
         else -> IndirectTouchEventType.Unknown
     }
 }
 
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 internal fun indirectPrimaryDirectionalScrollAxis(
     motionEvent: MotionEvent
 ): IndirectTouchEventPrimaryDirectionalMotionAxis {

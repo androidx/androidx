@@ -265,7 +265,7 @@ internal class Scrollable2DNode(
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
-        if (pointerEvent.changes.fastAny { canDrag.invoke(it) }) {
+        if (pointerEvent.changes.fastAny { canDrag.invoke(it.type) }) {
             super.onPointerEvent(pointerEvent, pass, bounds)
         }
     }

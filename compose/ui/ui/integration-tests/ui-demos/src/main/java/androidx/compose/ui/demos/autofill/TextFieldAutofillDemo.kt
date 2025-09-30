@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos.autofill
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -57,7 +56,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun BTFResetCredentialsDemo() {
@@ -91,7 +89,6 @@ fun BTFResetCredentialsDemo() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun BasicTextFieldAutofill() {
@@ -126,7 +123,6 @@ fun BasicTextFieldAutofill() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun BasicSecureTextFieldAutofillDemo() {
@@ -179,7 +175,6 @@ fun BasicSecureTextFieldAutofillDemo() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun LegacyTextFieldAutofillDemo() {
@@ -211,7 +206,6 @@ fun LegacyTextFieldAutofillDemo() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun OutlinedTextFieldAutofillDemo() {
@@ -243,7 +237,6 @@ fun OutlinedTextFieldAutofillDemo() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("NullAnnotationGroup")
 @Preview
 @Composable
 fun OutlinedTextFieldVisualTransformationAutofillDemo() {

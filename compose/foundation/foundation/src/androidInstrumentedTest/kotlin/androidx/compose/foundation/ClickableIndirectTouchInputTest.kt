@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -55,7 +54,6 @@ import org.junit.runner.RunWith
  * [ClickableParameterizedKeyInputTest], for interactions not shared with pointer input. Common
  * tests that apply to both pointer input and indirect input are in [ClickableTest].
  */
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ClickableIndirectTouchInputTest() {
@@ -82,11 +80,13 @@ class ClickableIndirectTouchInputTest() {
             focusRequester.requestFocus()
         }
 
-        rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent()
+        val downEvent = rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle { assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent()
+        rule
+            .onNodeWithTag("myClickable")
+            .sendIndirectTouchReleaseEvent(rule, previousEvent = downEvent)
 
         rule.runOnIdle { assertThat(counter).isEqualTo(1) }
     }
@@ -114,7 +114,7 @@ class ClickableIndirectTouchInputTest() {
             clickableFocusRequester.requestFocus()
         }
 
-        rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent()
+        rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(counter).isEqualTo(0)
@@ -123,7 +123,7 @@ class ClickableIndirectTouchInputTest() {
         }
 
         // (clickable won't see this event as it is no longer focused, but emit for clarity)
-        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent()
+        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent(rule)
 
         // The clickable should never see the up event, so it should never invoke onClick
         rule.runOnIdle { assertThat(counter).isEqualTo(0) }
@@ -158,7 +158,7 @@ class ClickableIndirectTouchInputTest() {
         }
 
         // Press down on the outer box
-        rule.onNodeWithTag("outerBox").sendIndirectTouchPressEvent()
+        rule.onNodeWithTag("outerBox").sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(counter).isEqualTo(0)
@@ -167,7 +167,7 @@ class ClickableIndirectTouchInputTest() {
         }
 
         // Release
-        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent()
+        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent(rule)
 
         // The clickable should not invoke onClick because it only saw the up event, not the
         // corresponding down, and hence should not be considered pressed
@@ -201,14 +201,16 @@ class ClickableIndirectTouchInputTest() {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("clickable").sendIndirectTouchPressEvent()
+        val downEvent = rule.onNodeWithTag("clickable").sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        rule.onNodeWithTag("clickable").sendIndirectTouchReleaseEvent()
+        rule
+            .onNodeWithTag("clickable")
+            .sendIndirectTouchReleaseEvent(rule, previousEvent = downEvent)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(2)
@@ -245,7 +247,7 @@ class ClickableIndirectTouchInputTest() {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("clickable").sendIndirectTouchPressEvent()
+        rule.onNodeWithTag("clickable").sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
@@ -294,7 +296,7 @@ class ClickableIndirectTouchInputTest() {
 
         val clickableNode = rule.onNodeWithTag("clickable")
 
-        clickableNode.sendIndirectPressReleaseEvent()
+        clickableNode.sendIndirectPressReleaseEvent(rule)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(2)
@@ -302,7 +304,7 @@ class ClickableIndirectTouchInputTest() {
             assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
         }
 
-        clickableNode.sendIndirectTouchPressEvent()
+        val downEvent = clickableNode.sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(3)
@@ -311,7 +313,7 @@ class ClickableIndirectTouchInputTest() {
             assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
         }
 
-        clickableNode.sendIndirectTouchReleaseEvent()
+        clickableNode.sendIndirectTouchReleaseEvent(rule, previousEvent = downEvent)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(4)
@@ -354,7 +356,7 @@ class ClickableIndirectTouchInputTest() {
 
         val clickableNode = rule.onNodeWithTag("clickable")
 
-        clickableNode.sendIndirectTouchPressEvent()
+        clickableNode.sendIndirectTouchPressEvent(rule)
 
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
@@ -374,7 +376,7 @@ class ClickableIndirectTouchInputTest() {
         }
 
         // Release should not result in interactions.
-        clickableNode.sendIndirectTouchReleaseEvent()
+        clickableNode.sendIndirectTouchReleaseEvent(rule)
 
         // Make sure nothing has changed.
         rule.runOnIdle {
@@ -408,10 +410,10 @@ class ClickableIndirectTouchInputTest() {
             focusRequester.requestFocus()
         }
 
-        rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent()
+        rule.onNodeWithTag("myClickable").sendIndirectTouchPressEvent(rule)
         rule.runOnIdle { reuseKey = 1 }
         rule.waitForIdle()
-        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent()
+        rule.onNodeWithTag("myClickable").sendIndirectTouchReleaseEvent(rule)
 
         rule.runOnIdle { assertThat(counter).isEqualTo(0) }
     }

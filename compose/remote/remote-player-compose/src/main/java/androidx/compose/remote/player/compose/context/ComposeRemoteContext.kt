@@ -104,9 +104,17 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
         varNameHashMap[stringName] = null
     }
 
-    override fun setNamedIntegerOverride(stringName: String, value: Int) {
-        if (varNameHashMap[stringName] != null) {
-            val id = varNameHashMap[stringName]!!.id
+    override fun setNamedBooleanOverride(booleanName: String, value: Boolean) {
+        setNamedIntegerOverride(booleanName, if (value) 1 else 0)
+    }
+
+    override fun clearNamedBooleanOverride(booleanName: String) {
+        clearNamedIntegerOverride(booleanName)
+    }
+
+    override fun setNamedIntegerOverride(integerName: String, value: Int) {
+        if (varNameHashMap[integerName] != null) {
+            val id = varNameHashMap[integerName]!!.id
             overrideInt(id, value)
         }
     }

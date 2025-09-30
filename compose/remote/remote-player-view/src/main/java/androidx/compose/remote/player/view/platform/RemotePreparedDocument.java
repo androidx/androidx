@@ -78,6 +78,14 @@ public class RemotePreparedDocument implements RemoteComposePlayer.PreparedDocum
         }
 
         @Override
+        public void setNamedBooleanOverride(@NonNull String booleanName, boolean value) {
+        }
+
+        @Override
+        public void clearNamedBooleanOverride(@NonNull String booleanName) {
+        }
+
+        @Override
         public void setNamedIntegerOverride(@NonNull String integerName, int value) {
         }
 

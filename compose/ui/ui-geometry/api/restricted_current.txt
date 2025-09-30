@@ -13,7 +13,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static long copy-OHQCggk(long, float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.CornerRadius div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-Bz7bX_o(long, float);
-    method public long getPackedValue();
+    method @InaccessibleFromKotlin public long getPackedValue();
     method @BytecodeOnly public static float getX-impl(long);
     method @BytecodeOnly public static float getY-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public inline boolean isCircular();
@@ -72,36 +72,36 @@ package androidx.compose.ui.geometry {
     method @KotlinOnly public operator boolean contains(androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly public boolean contains-k-4lQ0M(long);
     method public void deflate(float delta);
-    method public float getBottom();
+    method @InaccessibleFromKotlin public float getBottom();
     method @BytecodeOnly public long getBottomCenter-F1C5BW0();
     method @BytecodeOnly public long getBottomLeft-F1C5BW0();
     method @BytecodeOnly public long getBottomRight-F1C5BW0();
     method @BytecodeOnly public long getCenter-F1C5BW0();
     method @BytecodeOnly public long getCenterLeft-F1C5BW0();
     method @BytecodeOnly public long getCenterRight-F1C5BW0();
-    method public inline float getHeight();
-    method public float getLeft();
-    method public float getMaxDimension();
-    method public float getMinDimension();
-    method public float getRight();
+    method @InaccessibleFromKotlin public inline float getHeight();
+    method @InaccessibleFromKotlin public float getLeft();
+    method @InaccessibleFromKotlin public float getMaxDimension();
+    method @InaccessibleFromKotlin public float getMinDimension();
+    method @InaccessibleFromKotlin public float getRight();
     method @BytecodeOnly public long getSize-NH-jbRc();
-    method public float getTop();
+    method @InaccessibleFromKotlin public float getTop();
     method @BytecodeOnly public long getTopCenter-F1C5BW0();
     method @BytecodeOnly public long getTopLeft-F1C5BW0();
     method @BytecodeOnly public long getTopRight-F1C5BW0();
-    method public inline float getWidth();
+    method @InaccessibleFromKotlin public inline float getWidth();
     method public void inflate(float delta);
     method public void intersect(float left, float top, float right, float bottom);
-    method public boolean isEmpty();
-    method public boolean isFinite();
-    method public boolean isInfinite();
+    method @InaccessibleFromKotlin public boolean isEmpty();
+    method @InaccessibleFromKotlin public boolean isFinite();
+    method @InaccessibleFromKotlin public boolean isInfinite();
     method public boolean overlaps(androidx.compose.ui.geometry.MutableRect other);
     method public boolean overlaps(androidx.compose.ui.geometry.Rect other);
     method public void set(float left, float top, float right, float bottom);
-    method public void setBottom(float);
-    method public void setLeft(float);
-    method public void setRight(float);
-    method public void setTop(float);
+    method @InaccessibleFromKotlin public void setBottom(float);
+    method @InaccessibleFromKotlin public void setLeft(float);
+    method @InaccessibleFromKotlin public void setRight(float);
+    method @InaccessibleFromKotlin public void setTop(float);
     method @KotlinOnly public void translate(androidx.compose.ui.geometry.Offset offset);
     method public void translate(float translateX, float translateY);
     method @BytecodeOnly public void translate-k-4lQ0M(long);
@@ -154,7 +154,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float getDistance-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public float getDistanceSquared();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float getDistanceSquared-impl(long);
-    method public long getPackedValue();
+    method @InaccessibleFromKotlin public long getPackedValue();
     method @BytecodeOnly public static float getX-impl(long);
     method @BytecodeOnly public static float getY-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public inline boolean isValid();
@@ -209,30 +209,30 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public boolean contains-k-4lQ0M(long);
     method public androidx.compose.ui.geometry.Rect copy(optional float left, optional float top, optional float right, optional float bottom);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect deflate(float delta);
-    method public float getBottom();
+    method @InaccessibleFromKotlin public float getBottom();
     method @BytecodeOnly public long getBottomCenter-F1C5BW0();
     method @BytecodeOnly public long getBottomLeft-F1C5BW0();
     method @BytecodeOnly public long getBottomRight-F1C5BW0();
     method @BytecodeOnly public long getCenter-F1C5BW0();
     method @BytecodeOnly public long getCenterLeft-F1C5BW0();
     method @BytecodeOnly public long getCenterRight-F1C5BW0();
-    method public inline float getHeight();
-    method public float getLeft();
-    method public float getMaxDimension();
-    method public float getMinDimension();
-    method public float getRight();
+    method @InaccessibleFromKotlin public inline float getHeight();
+    method @InaccessibleFromKotlin public float getLeft();
+    method @InaccessibleFromKotlin public float getMaxDimension();
+    method @InaccessibleFromKotlin public float getMinDimension();
+    method @InaccessibleFromKotlin public float getRight();
     method @BytecodeOnly public long getSize-NH-jbRc();
-    method public float getTop();
+    method @InaccessibleFromKotlin public float getTop();
     method @BytecodeOnly public long getTopCenter-F1C5BW0();
     method @BytecodeOnly public long getTopLeft-F1C5BW0();
     method @BytecodeOnly public long getTopRight-F1C5BW0();
-    method public inline float getWidth();
+    method @InaccessibleFromKotlin public inline float getWidth();
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect inflate(float delta);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect intersect(androidx.compose.ui.geometry.Rect other);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect intersect(float otherLeft, float otherTop, float otherRight, float otherBottom);
-    method public boolean isEmpty();
-    method public boolean isFinite();
-    method public boolean isInfinite();
+    method @InaccessibleFromKotlin public boolean isEmpty();
+    method @InaccessibleFromKotlin public boolean isFinite();
+    method @InaccessibleFromKotlin public boolean isInfinite();
     method public boolean overlaps(androidx.compose.ui.geometry.Rect other);
     method @KotlinOnly @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(androidx.compose.ui.geometry.Offset offset);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(float translateX, float translateY);
@@ -262,7 +262,7 @@ package androidx.compose.ui.geometry {
   }
 
   public static final class Rect.Companion {
-    method public androidx.compose.ui.geometry.Rect getZero();
+    method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getZero();
     property @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect Zero;
   }
 
@@ -295,17 +295,17 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public boolean contains-k-4lQ0M(long);
     method @KotlinOnly public androidx.compose.ui.geometry.RoundRect copy(optional float left, optional float top, optional float right, optional float bottom, optional androidx.compose.ui.geometry.CornerRadius topLeftCornerRadius, optional androidx.compose.ui.geometry.CornerRadius topRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomLeftCornerRadius);
     method @BytecodeOnly public androidx.compose.ui.geometry.RoundRect copy-MDFrsts(float, float, float, float, long, long, long, long);
-    method public float getBottom();
+    method @InaccessibleFromKotlin public float getBottom();
     method @BytecodeOnly public long getBottomLeftCornerRadius-kKHJgLs();
     method @BytecodeOnly public long getBottomRightCornerRadius-kKHJgLs();
-    method public float getHeight();
-    method public float getLeft();
-    method public float getRight();
-    method public float getTop();
+    method @InaccessibleFromKotlin public float getHeight();
+    method @InaccessibleFromKotlin public float getLeft();
+    method @InaccessibleFromKotlin public float getRight();
+    method @InaccessibleFromKotlin public float getTop();
     method @BytecodeOnly public long getTopLeftCornerRadius-kKHJgLs();
     method @BytecodeOnly public long getTopRightCornerRadius-kKHJgLs();
-    method public float getWidth();
-    method public static androidx.compose.ui.geometry.RoundRect getZero();
+    method @InaccessibleFromKotlin public float getWidth();
+    method @InaccessibleFromKotlin public static androidx.compose.ui.geometry.RoundRect getZero();
     property public float bottom;
     property public androidx.compose.ui.geometry.CornerRadius bottomLeftCornerRadius;
     property public androidx.compose.ui.geometry.CornerRadius bottomRightCornerRadius;
@@ -320,7 +320,7 @@ package androidx.compose.ui.geometry {
   }
 
   public static final class RoundRect.Companion {
-    method public androidx.compose.ui.geometry.RoundRect getZero();
+    method @InaccessibleFromKotlin public androidx.compose.ui.geometry.RoundRect getZero();
     property public static androidx.compose.ui.geometry.RoundRect Zero;
   }
 
@@ -333,17 +333,17 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-ZAM2FJo(androidx.compose.ui.geometry.Rect, long, long, long, long);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-gG7oq9Y(float, float, float, float, long);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-sniSvfs(androidx.compose.ui.geometry.Rect, long);
-    method public static androidx.compose.ui.geometry.Rect getBoundingRect(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static androidx.compose.ui.geometry.Rect getBoundingRect(androidx.compose.ui.geometry.RoundRect);
     method @BytecodeOnly public static long getCenter(androidx.compose.ui.geometry.RoundRect);
-    method public static float getMaxDimension(androidx.compose.ui.geometry.RoundRect);
-    method public static float getMinDimension(androidx.compose.ui.geometry.RoundRect);
-    method public static androidx.compose.ui.geometry.Rect getSafeInnerRect(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isCircle(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isEllipse(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isEmpty(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isFinite(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isRect(androidx.compose.ui.geometry.RoundRect);
-    method public static boolean isSimple(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static float getMaxDimension(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static float getMinDimension(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static androidx.compose.ui.geometry.Rect getSafeInnerRect(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isCircle(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isEllipse(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isEmpty(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isFinite(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isRect(androidx.compose.ui.geometry.RoundRect);
+    method @InaccessibleFromKotlin public static boolean isSimple(androidx.compose.ui.geometry.RoundRect);
     method public static androidx.compose.ui.geometry.RoundRect lerp(androidx.compose.ui.geometry.RoundRect start, androidx.compose.ui.geometry.RoundRect stop, float fraction);
     method @KotlinOnly public static androidx.compose.ui.geometry.RoundRect translate(androidx.compose.ui.geometry.RoundRect, androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect translate-Uv8p0NA(androidx.compose.ui.geometry.RoundRect, long);
@@ -375,7 +375,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static float getHeight-impl(long);
     method @BytecodeOnly public static float getMaxDimension-impl(long);
     method @BytecodeOnly public static float getMinDimension-impl(long);
-    method public long getPackedValue();
+    method @InaccessibleFromKotlin public long getPackedValue();
     method @BytecodeOnly public static float getWidth-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public boolean isEmpty();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static boolean isEmpty-impl(long);

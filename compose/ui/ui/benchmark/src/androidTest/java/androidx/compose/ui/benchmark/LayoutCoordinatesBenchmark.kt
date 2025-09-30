@@ -30,8 +30,6 @@ import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -118,14 +116,6 @@ class LayoutCoordinatesBenchmark {
     @Test
     fun grandParentMoves_noCoordinatesUsage() {
         benchmarkRule.toggleStateBenchmark(MovingGrandParentTestCase(Modifier))
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    @Test
-    fun grandParentMoves_noCoordinatesUsage_noRectTracking() {
-        ComposeUiFlags.isRectTrackingEnabled = false
-        benchmarkRule.toggleStateBenchmark(MovingGrandParentTestCase(Modifier))
-        ComposeUiFlags.isRectTrackingEnabled = true
     }
 
     private class LayoutCoordinatesTestCase(val useLayer: Boolean) : ComposeTestCase {

@@ -49,7 +49,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 import kotlin.random.Random
 import kotlin.reflect.KProperty
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -1941,7 +1940,6 @@ class CompositionTests {
     }
 
     @Test
-    @Ignore // b/346821372
     fun testRemember_RememberForgetNestedOrder_Incremental() = compositionTest {
         var order = 0
         val objects = mutableListOf<Any>()
@@ -2039,7 +2037,7 @@ class CompositionTests {
         // be called in the same order as if it came in all at once.
         assertArrayEquals(
             "Expected exit order",
-            arrayOf("L0A", "L1A", "L2A", "L3A", "Leaf", "L3B", "L2B", "L1B", "L0A"),
+            arrayOf("L0A", "L1A", "L2A", "L3A", "Leaf", "L3B", "L2B", "L1B", "L0B"),
             forgetOrder.map { (it as Named).name }.toTypedArray(),
         )
     }

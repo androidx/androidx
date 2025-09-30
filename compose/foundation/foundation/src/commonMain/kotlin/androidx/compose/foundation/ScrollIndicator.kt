@@ -18,6 +18,7 @@ package androidx.compose.foundation
 
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
 
 /**
  * Represents the state required to draw a scroll indicator (e.g., a scrollbar), which is typically
@@ -37,7 +38,7 @@ interface ScrollIndicatorState {
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
-    @get:IntRange(from = 0) val scrollOffset: Int
+    @get:FrequentlyChangingValue @get:IntRange(from = 0) val scrollOffset: Int
 
     /**
      * The total size of the scrollable content, in pixels.

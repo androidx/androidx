@@ -19,10 +19,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.view.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,6 +42,7 @@ private val referenceHsvColor =
     RemoteColor.fromHSV(RemoteFloat(0.75f), RemoteFloat(0.5f), RemoteFloat(0.25f))
 
 @RunWith(RobolectricTestRunner::class)
+@SdkSuppress(minSdkVersion = 26)
 class RemoteColorTest {
     val context =
         AndroidRemoteContext().apply {
@@ -58,7 +61,13 @@ class RemoteColorTest {
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(resultId)).isEqualTo(Color.argb(255, 48, 32, 64))
+        val expectedColorInt = Color.argb(255, 48, 32, 64)
+        val expectedColor = Color.valueOf(expectedColorInt)
+        assertThat(context.getColor(resultId)).isEqualTo(expectedColorInt)
+        assertThat(result.alpha.evaluateIfConstant(creationState)).isEqualTo(expectedColor.alpha())
+        assertThat(result.red.evaluateIfConstant(creationState)).isEqualTo(expectedColor.red())
+        assertThat(result.green.evaluateIfConstant(creationState)).isEqualTo(expectedColor.green())
+        assertThat(result.blue.evaluateIfConstant(creationState)).isEqualTo(expectedColor.blue())
     }
 
     @Test
@@ -70,7 +79,13 @@ class RemoteColorTest {
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
-        assertThat(context.getColor(resultId)).isEqualTo(Color.argb(127, 48, 32, 64))
+        val expectedColorInt = Color.argb(127, 48, 32, 64)
+        val expectedColor = Color.valueOf(expectedColorInt)
+        assertThat(context.getColor(resultId)).isEqualTo(expectedColorInt)
+        assertThat(result.alpha.evaluateIfConstant(creationState)).isEqualTo(expectedColor.alpha())
+        assertThat(result.red.evaluateIfConstant(creationState)).isEqualTo(expectedColor.red())
+        assertThat(result.green.evaluateIfConstant(creationState)).isEqualTo(expectedColor.green())
+        assertThat(result.blue.evaluateIfConstant(creationState)).isEqualTo(expectedColor.blue())
     }
 
     @Test
@@ -84,6 +99,10 @@ class RemoteColorTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(Color.argb(255, 191, 128, 64))
+        assertThat(result.alpha.evaluateIfConstant(creationState)).isEqualTo(1f)
+        assertThat(result.red.evaluateIfConstant(creationState)).isEqualTo(0.75f)
+        assertThat(result.green.evaluateIfConstant(creationState)).isEqualTo(0.5f)
+        assertThat(result.blue.evaluateIfConstant(creationState)).isEqualTo(0.25f)
     }
 
     @Test
@@ -167,6 +186,76 @@ class RemoteColorTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getColor(resultId)).isEqualTo(Color.argb(255, 223, 135, 0))
+    }
+
+    @Test
+    fun multiply() {
+        val a =
+            RemoteColor.fromARGB(
+                RemoteFloat(1f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.5f),
+            )
+        val b =
+            RemoteColor.fromARGB(
+                RemoteFloat(0.8f),
+                RemoteFloat(0.75f),
+                RemoteFloat(0.5f),
+                RemoteFloat(0.4f),
+            )
+        val result = a * b
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getColor(resultId)).isEqualTo(Color.argb(204, 153, 102, 51))
+        assertThat(result.alpha.evaluateIfConstant(creationState)).isEqualTo(0.8f)
+        assertThat(result.red.evaluateIfConstant(creationState)).isEqualTo(0.6f)
+        assertThat(result.green.evaluateIfConstant(creationState)).isEqualTo(0.4f)
+        assertThat(result.blue.evaluateIfConstant(creationState)).isEqualTo(0.2f)
+    }
+
+    @Test
+    fun evaluateIfConstant_constant() {
+        val a =
+            RemoteColor.fromARGB(
+                RemoteFloat(1f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.5f),
+            )
+        val b =
+            RemoteColor.fromARGB(
+                RemoteFloat(0.8f),
+                RemoteFloat(0.75f),
+                RemoteFloat(0.5f),
+                RemoteFloat(0.4f),
+            )
+        val result = a * b
+
+        assertThat(result.evaluateIfConstant(creationState))
+            .isEqualTo(Color.argb(204, 153, 102, 51))
+    }
+
+    @Test
+    fun evaluateIfConstant_notConstant() {
+        val a =
+            RemoteColor.fromARGB(
+                RemoteFloat(1f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.8f),
+                RemoteFloat(0.5f),
+            )
+        val b =
+            RemoteColor.fromARGB(
+                RemoteFloat(0.8f),
+                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
+                RemoteFloat(0.5f),
+                RemoteFloat(0.4f),
+            )
+        val result = a * b
+
+        assertThat(result.evaluateIfConstant(creationState)).isNull()
     }
 
     private fun makeAndPaintCoreDocument() =

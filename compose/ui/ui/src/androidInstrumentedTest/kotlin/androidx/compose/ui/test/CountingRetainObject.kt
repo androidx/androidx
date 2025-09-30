@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.test
 
-import androidx.compose.runtime.RetainObserver
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.retain.RetainObserver
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -33,6 +33,9 @@ class CountingRetainObject : RetainObserver {
         private set
 
     var retired = 0
+        private set
+
+    var unused = 0
         private set
 
     override fun onRetained() {
@@ -54,16 +57,23 @@ class CountingRetainObject : RetainObserver {
         assertValidCounts()
     }
 
+    override fun onUnused() {
+        unused++
+        assertValidCounts()
+    }
+
     fun assertCounts(
         retained: Int = this.retained,
         entered: Int = this.entered,
         exited: Int = this.exited,
         retired: Int = this.retired,
+        notRetained: Int = this.unused,
     ) {
         assertEquals(
-            "[Retained: $retained, Entered: $entered, Exited: $exited, Retired: $retired]",
+            "[Retained: $retained, Entered: $entered, Exited: $exited, Retired: $retired, " +
+                "Unused: $notRetained]",
             "[Retained: ${this.retained}, Entered: ${this.entered}, Exited: ${this.exited}, " +
-                "Retired: ${this.retired}]",
+                "Retired: ${this.retired}, Unused: ${this.unused}]",
             "Received an unexpected number of callback invocations",
         )
     }

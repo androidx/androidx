@@ -2,7 +2,7 @@
 package androidx.compose.animation {
 
   public final class AndroidActualDefaultDecayAnimationSpec_androidKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> defaultDecayAnimationSpec();
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> defaultDecayAnimationSpec();
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!> defaultDecayAnimationSpec(androidx.compose.runtime.Composer?, int);
   }
 
@@ -11,10 +11,10 @@ package androidx.compose.animation {
   }
 
   public final class AnimatedContentKt {
-    method @androidx.compose.runtime.Composable public static <S> void AnimatedContent(androidx.compose.animation.core.Transition<S>, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super S,? extends java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentScope,? super S,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S> void AnimatedContent(androidx.compose.animation.core.Transition<S!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S!>!,androidx.compose.animation.ContentTransform!>?, androidx.compose.ui.Alignment?, kotlin.jvm.functions.Function1<? super S!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.compose.animation.AnimatedContentScope!,? super S!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static <S> void AnimatedContent(S targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional String label, optional kotlin.jvm.functions.Function1<? super S,? extends java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentScope,? super S,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <S> void AnimatedContent(androidx.compose.animation.core.Transition<S>, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<S,java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentScope,S,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S> void AnimatedContent(S!, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S!>!,androidx.compose.animation.ContentTransform!>?, androidx.compose.ui.Alignment?, String?, kotlin.jvm.functions.Function1<? super S!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.compose.animation.AnimatedContentScope!,? super S!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <S> void AnimatedContent(S targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional String label, optional kotlin.jvm.functions.Function1<S,java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentScope,S,kotlin.Unit> content);
     method public static androidx.compose.animation.SizeTransform SizeTransform(optional boolean clip, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.IntSize,? super androidx.compose.ui.unit.IntSize,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize>> sizeAnimationSpec);
     method public static infix androidx.compose.animation.ContentTransform togetherWith(androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition exit);
     method @Deprecated @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi public static infix androidx.compose.animation.ContentTransform with(androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition exit);
@@ -24,8 +24,8 @@ package androidx.compose.animation {
   }
 
   public sealed interface AnimatedContentTransitionScope<S> extends androidx.compose.animation.core.Transition.Segment<S> {
-    method public androidx.compose.ui.Alignment getContentAlignment();
-    method public default androidx.compose.animation.ExitTransition getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion);
+    method @InaccessibleFromKotlin public androidx.compose.ui.Alignment getContentAlignment();
+    method @InaccessibleFromKotlin public default androidx.compose.animation.ExitTransition getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion);
     method @KotlinOnly public androidx.compose.animation.EnterTransition slideIntoContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer> initialOffset);
     method @BytecodeOnly public androidx.compose.animation.EnterTransition slideIntoContainer-mOhB8PU(int, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset!>, kotlin.jvm.functions.Function1<? super java.lang.Integer!,java.lang.Integer!>);
     method @KotlinOnly public androidx.compose.animation.ExitTransition slideOutOfContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer> targetOffset);
@@ -57,25 +57,25 @@ package androidx.compose.animation {
   }
 
   public final class AnimatedVisibilityKt {
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean!>, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static <T> void AnimatedVisibility(androidx.compose.animation.core.Transition<T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void AnimatedVisibility(androidx.compose.animation.core.Transition<T!>, kotlin.jvm.functions.Function1<? super T!,java.lang.Boolean!>, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void AnimatedVisibility(androidx.compose.animation.core.Transition<T>, kotlin.jvm.functions.Function1<T,java.lang.Boolean> visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean!>, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.ColumnScope, boolean, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean!>, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(androidx.compose.foundation.layout.RowScope, boolean, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @androidx.compose.runtime.Composable public static void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(boolean visible, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedVisibilityScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AnimatedVisibility(boolean, androidx.compose.ui.Modifier?, androidx.compose.animation.EnterTransition?, androidx.compose.animation.ExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.AnimatedVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface AnimatedVisibilityScope {
     method public default androidx.compose.ui.Modifier animateEnterExit(androidx.compose.ui.Modifier, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional String label);
-    method public androidx.compose.animation.core.Transition<androidx.compose.animation.EnterExitState> getTransition();
+    method @InaccessibleFromKotlin public androidx.compose.animation.core.Transition<androidx.compose.animation.EnterExitState> getTransition();
     property public abstract androidx.compose.animation.core.Transition<androidx.compose.animation.EnterExitState> transition;
   }
 
@@ -89,17 +89,17 @@ package androidx.compose.animation {
   }
 
   public final class ColorVectorConverterKt {
-    method public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getVectorConverter(androidx.compose.ui.graphics.Color.Companion);
+    method @InaccessibleFromKotlin public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> getVectorConverter(androidx.compose.ui.graphics.Color.Companion);
     property public static kotlin.jvm.functions.Function1<androidx.compose.ui.graphics.colorspace.ColorSpace,androidx.compose.animation.core.TwoWayConverter<androidx.compose.ui.graphics.Color,androidx.compose.animation.core.AnimationVector4D>> androidx.compose.ui.graphics.Color.Companion.VectorConverter;
   }
 
   public final class ContentTransform {
     ctor public ContentTransform(androidx.compose.animation.EnterTransition targetContentEnter, androidx.compose.animation.ExitTransition initialContentExit, optional float targetContentZIndex, optional androidx.compose.animation.SizeTransform? sizeTransform);
-    method public androidx.compose.animation.ExitTransition getInitialContentExit();
-    method public androidx.compose.animation.SizeTransform? getSizeTransform();
-    method public androidx.compose.animation.EnterTransition getTargetContentEnter();
-    method public float getTargetContentZIndex();
-    method public void setTargetContentZIndex(float);
+    method @InaccessibleFromKotlin public androidx.compose.animation.ExitTransition getInitialContentExit();
+    method @InaccessibleFromKotlin public androidx.compose.animation.SizeTransform? getSizeTransform();
+    method @InaccessibleFromKotlin public androidx.compose.animation.EnterTransition getTargetContentEnter();
+    method @InaccessibleFromKotlin public float getTargetContentZIndex();
+    method @InaccessibleFromKotlin public void setTargetContentZIndex(float);
     property public androidx.compose.animation.ExitTransition initialContentExit;
     property public androidx.compose.animation.SizeTransform? sizeTransform;
     property public androidx.compose.animation.EnterTransition targetContentEnter;
@@ -107,10 +107,10 @@ package androidx.compose.animation {
   }
 
   public final class CrossfadeKt {
-    method @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public static <T> void Crossfade(androidx.compose.animation.core.Transition<T>, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentKey, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public static <T> void Crossfade(androidx.compose.animation.core.Transition<T!>, androidx.compose.ui.Modifier?, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function3<? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Composable public static <T> void Crossfade(androidx.compose.animation.core.Transition<T>, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<T,java.lang.Object?> contentKey, kotlin.jvm.functions.Function1<T,kotlin.Unit> content);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void Crossfade(Object!, androidx.compose.ui.Modifier!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function3!, androidx.compose.runtime.Composer!, int, int);
-    method @androidx.compose.runtime.Composable public static <T> void Crossfade(T targetState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional String label, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void Crossfade(T targetState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional String label, kotlin.jvm.functions.Function1<T,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void Crossfade(T!, androidx.compose.ui.Modifier?, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float!>?, String?, kotlin.jvm.functions.Function3<? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
@@ -147,7 +147,7 @@ package androidx.compose.animation {
   }
 
   public static final class EnterTransition.Companion {
-    method public androidx.compose.animation.EnterTransition getNone();
+    method @InaccessibleFromKotlin public androidx.compose.animation.EnterTransition getNone();
     property public androidx.compose.animation.EnterTransition None;
   }
 
@@ -157,7 +157,7 @@ package androidx.compose.animation {
   }
 
   public static final class ExitTransition.Companion {
-    method public androidx.compose.animation.ExitTransition getNone();
+    method @InaccessibleFromKotlin public androidx.compose.animation.ExitTransition getNone();
     property public androidx.compose.animation.ExitTransition None;
   }
 
@@ -168,7 +168,7 @@ package androidx.compose.animation {
   }
 
   @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi public final class SharedTransitionDefaults {
-    method public androidx.compose.animation.BoundsTransform getBoundsTransform();
+    method @InaccessibleFromKotlin public androidx.compose.animation.BoundsTransform getBoundsTransform();
     property public androidx.compose.animation.BoundsTransform BoundsTransform;
     field public static final androidx.compose.animation.SharedTransitionDefaults INSTANCE;
   }
@@ -181,14 +181,14 @@ package androidx.compose.animation {
     method public androidx.compose.animation.SharedTransitionScope.OverlayClip OverlayClip(androidx.compose.ui.graphics.Shape clipShape);
     method public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig();
     method public default androidx.compose.animation.SharedTransitionScope.SharedContentConfig SharedContentConfig(kotlin.jvm.functions.Function1<? super androidx.compose.animation.SharedTransitionScope.SharedContentState,java.lang.Boolean> isEnabled);
-    method public boolean isTransitionActive();
-    method @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key, optional androidx.compose.animation.SharedTransitionScope.SharedContentConfig config);
+    method @InaccessibleFromKotlin public boolean isTransitionActive();
+    method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object key, optional androidx.compose.animation.SharedTransitionScope.SharedContentConfig config);
     method @BytecodeOnly @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState rememberSharedContentState(Object, androidx.compose.animation.SharedTransitionScope.SharedContentConfig, androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public default androidx.compose.animation.SharedTransitionScope.SharedContentState! rememberSharedContentState(Object!, androidx.compose.animation.SharedTransitionScope.SharedContentConfig!, androidx.compose.runtime.Composer!, int, int);
     method public androidx.compose.ui.Modifier renderInSharedTransitionScopeOverlay(androidx.compose.ui.Modifier, optional float zIndexInOverlay, optional kotlin.jvm.functions.Function0<java.lang.Boolean> renderInOverlay);
-    method public androidx.compose.ui.Modifier sharedBounds(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, androidx.compose.animation.AnimatedVisibilityScope animatedVisibilityScope, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.ResizeMode resizeMode, optional androidx.compose.animation.SharedTransitionScope.PlaceHolderSize placeHolderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
-    method public androidx.compose.ui.Modifier sharedElement(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, androidx.compose.animation.AnimatedVisibilityScope animatedVisibilityScope, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.PlaceHolderSize placeHolderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
-    method public androidx.compose.ui.Modifier sharedElementWithCallerManagedVisibility(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, boolean visible, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.PlaceHolderSize placeHolderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
+    method public androidx.compose.ui.Modifier sharedBounds(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, androidx.compose.animation.AnimatedVisibilityScope animatedVisibilityScope, optional androidx.compose.animation.EnterTransition enter, optional androidx.compose.animation.ExitTransition exit, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.ResizeMode resizeMode, optional androidx.compose.animation.SharedTransitionScope.PlaceholderSize placeholderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
+    method public androidx.compose.ui.Modifier sharedElement(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, androidx.compose.animation.AnimatedVisibilityScope animatedVisibilityScope, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.PlaceholderSize placeholderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
+    method public androidx.compose.ui.Modifier sharedElementWithCallerManagedVisibility(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, boolean visible, optional androidx.compose.animation.BoundsTransform boundsTransform, optional androidx.compose.animation.SharedTransitionScope.PlaceholderSize placeholderSize, optional boolean renderInOverlayDuringTransition, optional float zIndexInOverlay, optional androidx.compose.animation.SharedTransitionScope.OverlayClip clipInOverlayDuringTransition);
     method public default androidx.compose.ui.Modifier skipToLookaheadPosition(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled);
     method public androidx.compose.ui.Modifier skipToLookaheadSize(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled);
     property public abstract boolean isTransitionActive;
@@ -198,17 +198,17 @@ package androidx.compose.animation {
     method public androidx.compose.ui.graphics.Path? getClipPath(androidx.compose.animation.SharedTransitionScope.SharedContentState sharedContentState, androidx.compose.ui.geometry.Rect bounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.Density density);
   }
 
-  public static fun interface SharedTransitionScope.PlaceHolderSize {
+  public static fun interface SharedTransitionScope.PlaceholderSize {
     method @KotlinOnly public androidx.compose.ui.unit.IntSize calculateSize(androidx.compose.ui.unit.IntSize contentSize, androidx.compose.ui.unit.IntSize animatedSize);
     method @BytecodeOnly public long calculateSize-JyjRU_E(long, long);
-    field public static final androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion Companion;
+    field public static final androidx.compose.animation.SharedTransitionScope.PlaceholderSize.Companion Companion;
   }
 
-  public static final class SharedTransitionScope.PlaceHolderSize.Companion {
-    method public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize getAnimatedSize();
-    method public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize getContentSize();
-    property public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize animatedSize;
-    property public androidx.compose.animation.SharedTransitionScope.PlaceHolderSize contentSize;
+  public static final class SharedTransitionScope.PlaceholderSize.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.animation.SharedTransitionScope.PlaceholderSize getAnimatedSize();
+    method @InaccessibleFromKotlin public androidx.compose.animation.SharedTransitionScope.PlaceholderSize getContentSize();
+    property public androidx.compose.animation.SharedTransitionScope.PlaceholderSize AnimatedSize;
+    property public androidx.compose.animation.SharedTransitionScope.PlaceholderSize ContentSize;
   }
 
   public static sealed interface SharedTransitionScope.ResizeMode {
@@ -217,7 +217,7 @@ package androidx.compose.animation {
 
   public static final class SharedTransitionScope.ResizeMode.Companion {
     method @Deprecated public androidx.compose.animation.SharedTransitionScope.ResizeMode ScaleToBounds(optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.ui.Alignment alignment);
-    method public androidx.compose.animation.SharedTransitionScope.ResizeMode getRemeasureToBounds();
+    method @InaccessibleFromKotlin public androidx.compose.animation.SharedTransitionScope.ResizeMode getRemeasureToBounds();
     method public androidx.compose.animation.SharedTransitionScope.ResizeMode scaleToBounds(optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.ui.Alignment alignment);
     property public androidx.compose.animation.SharedTransitionScope.ResizeMode RemeasureToBounds;
   }
@@ -225,17 +225,19 @@ package androidx.compose.animation {
   public static interface SharedTransitionScope.SharedContentConfig {
     method @KotlinOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect targetBoundsBeforeRemoval, androidx.compose.ui.geometry.Size sharedTransitionLayoutSize);
     method @BytecodeOnly public default androidx.compose.ui.geometry.Rect? alternativeTargetBoundsInTransitionScopeAfterRemoval-cSwnlzA(androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.ui.geometry.Rect, long);
-    method public default boolean getShouldKeepEnabledForOngoingAnimation();
-    method public default boolean isEnabled(androidx.compose.animation.SharedTransitionScope.SharedContentState);
+    method @InaccessibleFromKotlin public default boolean getShouldKeepEnabledForOngoingAnimation();
+    method @InaccessibleFromKotlin public default boolean isEnabled(androidx.compose.animation.SharedTransitionScope.SharedContentState);
     property public default boolean androidx.compose.animation.SharedTransitionScope.SharedContentState.isEnabled;
     property public default boolean shouldKeepEnabledForOngoingAnimation;
   }
 
   public static final class SharedTransitionScope.SharedContentState {
-    method public androidx.compose.ui.graphics.Path? getClipPathInOverlay();
-    method public Object getKey();
-    method public androidx.compose.animation.SharedTransitionScope.SharedContentState? getParentSharedContentState();
-    method public boolean isMatchFound();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Path? getClipPathInOverlay();
+    method @InaccessibleFromKotlin public Object getKey();
+    method @InaccessibleFromKotlin public androidx.compose.animation.SharedTransitionScope.SharedContentState? getParentSharedContentState();
+    method @InaccessibleFromKotlin public boolean isMatchFound();
+    method @KotlinOnly public void prepareTransitionWithInitialVelocity(androidx.compose.ui.unit.Velocity initialVelocity);
+    method @BytecodeOnly public void prepareTransitionWithInitialVelocity-TH1AsA0(long);
     property public androidx.compose.ui.graphics.Path? clipPathInOverlay;
     property public boolean isMatchFound;
     property public Object key;
@@ -243,9 +245,9 @@ package androidx.compose.animation {
   }
 
   public final class SharedTransitionScopeKt {
-    method @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionLayout(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.animation.SharedTransitionScope,kotlin.Unit> content);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionLayout(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<androidx.compose.animation.SharedTransitionScope,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionLayout(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function3<? super androidx.compose.animation.SharedTransitionScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionScope(kotlin.jvm.functions.Function2<? super androidx.compose.animation.SharedTransitionScope,? super androidx.compose.ui.Modifier,kotlin.Unit> content);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionScope(kotlin.jvm.functions.Function2<androidx.compose.animation.SharedTransitionScope,androidx.compose.ui.Modifier,kotlin.Unit> content);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi @androidx.compose.runtime.Composable public static void SharedTransitionScope(kotlin.jvm.functions.Function4<? super androidx.compose.animation.SharedTransitionScope!,? super androidx.compose.ui.Modifier!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
   }
 
@@ -260,7 +262,7 @@ package androidx.compose.animation {
   public interface SizeTransform {
     method @KotlinOnly public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> createAnimationSpec(androidx.compose.ui.unit.IntSize initialSize, androidx.compose.ui.unit.IntSize targetSize);
     method @BytecodeOnly public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize!> createAnimationSpec-TemP2vQ(long, long);
-    method public boolean getClip();
+    method @InaccessibleFromKotlin public boolean getClip();
     property public abstract boolean clip;
   }
 
@@ -270,7 +272,7 @@ package androidx.compose.animation {
 
   public final class SplineBasedFloatDecayAnimationSpec implements androidx.compose.animation.core.FloatDecayAnimationSpec {
     ctor public SplineBasedFloatDecayAnimationSpec(androidx.compose.ui.unit.Density density);
-    method public float getAbsVelocityThreshold();
+    method @InaccessibleFromKotlin public float getAbsVelocityThreshold();
     method public long getDurationNanos(float initialValue, float initialVelocity);
     method public float getTargetValue(float initialValue, float initialVelocity);
     method public float getValueFromNanos(long playTimeNanos, float initialValue, float initialVelocity);
@@ -279,14 +281,14 @@ package androidx.compose.animation {
   }
 
   public final class SplineBasedFloatDecayAnimationSpec_androidKt {
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> rememberSplineBasedDecay();
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.DecayAnimationSpec<T> rememberSplineBasedDecay();
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.DecayAnimationSpec<T!> rememberSplineBasedDecay(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @Deprecated public static androidx.compose.animation.core.DecayAnimationSpec! splineBasedDecay(androidx.compose.ui.unit.Density!);
   }
 
   public final class TransitionKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.InfiniteTransition, androidx.compose.ui.graphics.Color initialValue, androidx.compose.ui.graphics.Color targetValue, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color> animationSpec, optional String label);
-    method @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.Transition.Segment<S>,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<? super S,androidx.compose.ui.graphics.Color> targetValueByState);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color> animateColor(androidx.compose.animation.core.Transition<S>, optional kotlin.jvm.functions.Function1<androidx.compose.animation.core.Transition.Segment<S>,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color>> transitionSpec, optional String label, kotlin.jvm.functions.Function1<S,androidx.compose.ui.graphics.Color> targetValueByState);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <S> androidx.compose.runtime.State<androidx.compose.ui.graphics.Color!> animateColor(androidx.compose.animation.core.Transition<S!>, kotlin.jvm.functions.Function3<? super androidx.compose.animation.core.Transition.Segment<S!>!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color!>!>?, String?, kotlin.jvm.functions.Function3<? super S!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,androidx.compose.ui.graphics.Color!>, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.compose.ui.graphics.Color!> animateColor-DTcfvLk(androidx.compose.animation.core.InfiniteTransition, long, long, androidx.compose.animation.core.InfiniteRepeatableSpec<androidx.compose.ui.graphics.Color!>, String?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.runtime.State! animateColor-RIQooxk(androidx.compose.animation.core.InfiniteTransition!, long, long, androidx.compose.animation.core.InfiniteRepeatableSpec!, androidx.compose.runtime.Composer!, int);

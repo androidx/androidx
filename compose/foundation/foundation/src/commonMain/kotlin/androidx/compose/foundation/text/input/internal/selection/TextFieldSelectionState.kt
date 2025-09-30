@@ -1422,11 +1422,20 @@ internal class TextFieldSelectionState(
      * requires the selection to not be collapsed, the text field to be editable, and for it to NOT
      * be a password.
      */
-    fun canCut(): Boolean =
-        !textFieldState.visualText.selection.collapsed &&
-            editable &&
-            !isPassword &&
-            clipboard.isWriteSupported()
+    fun canShowCutMenuItem(): Boolean = isCutAllowed() && clipboard.isWriteSupported()
+
+    /**
+     * Whether the cut operation is allowed in the current state. It checks the essential
+     * conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     * - the text field is editable
+     *
+     * Also, see [cutWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun isCutAllowed(): Boolean =
+        !textFieldState.visualText.selection.collapsed && editable && !isPassword
 
     /**
      * The method for cutting text.
@@ -1436,30 +1445,38 @@ internal class TextFieldSelectionState(
      * offset should be between the text before the selection, and the text after the selection.
      */
     suspend fun cut() {
-        val text = textFieldState.visualText
-        if (text.selection.collapsed) return
-
-        val textToCut = AnnotatedString(text.getSelectedText().toString())
-        clipboard.setClipEntry(textToCut.toClipEntry())
-
-        textFieldState.deleteSelectedText()
+        val cutValue = cutWithResult() ?: return
+        clipboard.setClipEntry(cutValue.toClipEntry())
     }
 
-    fun cutWithResult(): String? {
-        val text = textFieldState.visualText
-        if (text.selection.collapsed) return null
-        textFieldState.deleteSelectedText()
-        return text.getSelectedText().toString()
+    /**
+     * The method for cutting text.
+     *
+     * It returns the text that was cut and it is expected to be copied (stored in a Clipboard).
+     * This overload covers the case when handling a 'cut' ClipboardEvent.
+     */
+    fun cutWithResult(): AnnotatedString? {
+        if (!isCutAllowed()) return null
+        val selectedText = textFieldState.visualText.getSelectedText()
+        return AnnotatedString(selectedText.toString()).also { textFieldState.deleteSelectedText() }
     }
 
     /**
      * Whether a copy operation can execute now and modify the clipboard. The copy operation
      * requires the selection to not be collapsed, and the text field to NOT be a password.
      */
-    fun canCopy(): Boolean =
-        !textFieldState.visualText.selection.collapsed &&
-            !isPassword &&
-            clipboard.isWriteSupported()
+    fun canShowCopyMenuItem(): Boolean = isCopyAllowed() && clipboard.isWriteSupported()
+
+    /**
+     * Whether the copying is allowed in the current state. It checks the essential conditions:
+     * - the selection must be not collapsed
+     * - the text field type is not password
+     *
+     * Also, see [copyWithResult]
+     */
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun isCopyAllowed(): Boolean =
+        !textFieldState.visualText.selection.collapsed && !isPassword
 
     /**
      * The method for copying text.
@@ -1470,23 +1487,23 @@ internal class TextFieldSelectionState(
      * selected text.
      */
     suspend fun copy(cancelSelection: Boolean = true) {
-        val text = textFieldState.visualText
-        if (text.selection.collapsed) return
-
-        val textToCopy = AnnotatedString(text.getSelectedText().toString())
-        clipboard.setClipEntry(textToCopy.toClipEntry())
-
-        if (!cancelSelection) return
-
-        textFieldState.collapseSelectionToMax()
+        val valueToCopy = copyWithResult(cancelSelection) ?: return
+        clipboard.setClipEntry(valueToCopy.toClipEntry())
     }
 
-    fun copyWithResult(cancelSelection: Boolean = true): String? {
-        val text = textFieldState.visualText
-        if (text.selection.collapsed) return null
-
-        if (cancelSelection) textFieldState.collapseSelectionToMax()
-        return text.getSelectedText().toString()
+    /**
+     * The method for copying text.
+     *
+     * It returns the text that is expected to be copied (stored in a Clipboard). This method
+     * doesn't interact with the Clipboard directly, it covers the case when handling a 'copy'
+     * ClipboardEvent.
+     */
+    internal fun copyWithResult(cancelSelection: Boolean = true): AnnotatedString? {
+        if (!isCopyAllowed()) return null
+        val selectedText = textFieldState.visualText.getSelectedText()
+        return AnnotatedString(selectedText.toString()).also {
+            if (cancelSelection) textFieldState.collapseSelectionToMax()
+        }
     }
 
     // TODO(grantapher) android ClipboardManager has a way to notify primary clip changes.
@@ -1502,13 +1519,20 @@ internal class TextFieldSelectionState(
      * This method relies on the clip entry in this [TextFieldSelectionState] to be up to date via
      * calling [updateClipboardEntry].
      */
-    fun canPaste(): Boolean {
-        if (!editable || !clipboard.isReadSupported()) return false
+    fun canShowPasteMenuItem(): Boolean {
+        if (!isPasteAllowed() || !clipboard.isReadSupported()) return false
         // if receive content is not configured, we expect at least a text item to be present
         if (clipboardPasteState.hasText) return true
         // if receive content is configured, hasClip should be enough to show the paste option
         return receiveContentConfiguration?.invoke() != null && clipboardPasteState.hasClip
     }
+
+    /**
+     * Whether 'paste' is allowed. It's allowed when the text field is editable.
+     *
+     * Also, see [onPasteEvent]
+     */
+    @Suppress("NOTHING_TO_INLINE") inline fun isPasteAllowed(): Boolean = editable
 
     suspend fun paste() {
         val receiveContentConfiguration =
@@ -1553,10 +1577,20 @@ internal class TextFieldSelectionState(
         )
     }
 
-    fun pasteAsPlainText(text: String) {
+    /**
+     * The method for pasting text.
+     *
+     * @param value - the text value to paste. It can be provided externally, for example from a
+     *   platform's ClipboardEvent.
+     *
+     * This overload doesn't interact with the Clipboard directly. It covers the case when handling
+     * a 'paste' ClipboardEvent.
+     */
+    internal fun onPasteEvent(value: AnnotatedString) {
+        if (!isPasteAllowed()) return
         textFieldState.replaceSelectedText(
-            text,
-            undoBehavior = TextFieldEditUndoBehavior.NeverMerge
+            value.text,
+            undoBehavior = TextFieldEditUndoBehavior.NeverMerge,
         )
     }
 
@@ -1564,7 +1598,7 @@ internal class TextFieldSelectionState(
      * Whether a select all operation can execute now and have a meaningful effect. The select all
      * operation requires the selection to not already be selecting the entire text field.
      */
-    fun canSelectAll(): Boolean =
+    fun canShowSelectAllMenuItem(): Boolean =
         textFieldState.visualText.selection.length != textFieldState.visualText.length
 
     /**
@@ -1580,7 +1614,8 @@ internal class TextFieldSelectionState(
      * Whether autofill can execute upon this text field. The autofill action only appears when the
      * text field is editable and no text is currently selected.
      */
-    fun canAutofill(): Boolean = editable && textFieldState.visualText.selection.collapsed
+    fun canShowAutofillMenuItem(): Boolean =
+        editable && textFieldState.visualText.selection.collapsed
 
     /**
      * The method for autofilling.

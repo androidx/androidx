@@ -1,3 +1,17 @@
 // Baseline format: 1.0
 RemovedFromBytecode: androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt#createAndroidComposeRule():
     Binary breaking change: method androidx.compose.ui.test.junit4.AndroidComposeTestRule_androidKt.createAndroidComposeRule() has been removed from bytecode
+
+
+RemovedFromKotlin: androidx.compose.ui.test.junit4.AndroidComposeTestRule#getActivity():
+    Source breaking change: method androidx.compose.ui.test.junit4.AndroidComposeTestRule.getActivity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.junit4.AndroidComposeTestRule#getActivityRule():
+    Source breaking change: method androidx.compose.ui.test.junit4.AndroidComposeTestRule.getActivityRule() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.junit4.AndroidComposeTestRule#getDensity():
+    Source breaking change: method androidx.compose.ui.test.junit4.AndroidComposeTestRule.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.junit4.AndroidComposeTestRule#getMainClock():
+    Source breaking change: method androidx.compose.ui.test.junit4.AndroidComposeTestRule.getMainClock() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.junit4.ComposeTestRule#getDensity():
+    Source breaking change: method androidx.compose.ui.test.junit4.ComposeTestRule.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.junit4.ComposeTestRule#getMainClock():
+    Source breaking change: method androidx.compose.ui.test.junit4.ComposeTestRule.getMainClock() can no longer be resolved from Kotlin source

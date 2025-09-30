@@ -608,7 +608,7 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
  * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
  * Tracking bug: (b/318621681)
  */
-@Suppress("GetterSetterNames", "NullAnnotationGroup")
+@Suppress("GetterSetterNames")
 @ExperimentalComposeUiApi
 var VelocityTrackerAddPointsFix: Boolean = true
 

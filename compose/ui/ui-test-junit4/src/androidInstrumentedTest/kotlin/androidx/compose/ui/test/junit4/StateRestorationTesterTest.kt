@@ -64,7 +64,9 @@ class StateRestorationTesterTest {
     fun emulateSavedInstanceStateRestore_encodesParcelable() {
         with(StateRestorationTester(rule)) {
             // Bundle is a Parcelable.
-            val expectedState = bundleOf("KEY" to Int.MIN_VALUE)
+            val expectedState =
+                @Suppress("DEPRECATION") // bundleOf is deprecated
+                bundleOf("KEY" to Int.MIN_VALUE)
             var actualState: Bundle? = null
             setContent { actualState = rememberSaveable { expectedState } }
 

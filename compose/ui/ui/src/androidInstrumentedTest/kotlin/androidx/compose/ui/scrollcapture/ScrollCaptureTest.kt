@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -308,12 +310,17 @@ class ScrollCaptureTest {
             }
         }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun callbackOnImageCapture_scrollsBackwardsThenForwards() =
         captureTester.runTest {
             expectingScrolls(rule) {
-                val size = 10
-                val captureHeight = size / 2
+                val size = 12
+                val halfSize = size / 2
+                // Vertical offset for captures for centering. Half the difference between the full
+                // size and the capture height.
+                val centeringOffset =
+                    if (ComposeUiFlags.isScrollCaptureCenteringEnabled) halfSize / 2 else 0
                 captureTester.setContent {
                     TestVerticalScrollable(
                         size = size,
@@ -323,46 +330,58 @@ class ScrollCaptureTest {
                 }
 
                 val target = captureTester.findCaptureTargets().single()
-                captureTester.capture(target, captureHeight) {
+                captureTester.capture(target, captureWindowHeight = halfSize) {
                     // First request is at origin, no scrolling required.
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, 0, size, halfSize))
                     assertNoPendingScrollRequests()
 
-                    // Back one half-page, but only respond to part of it.
-                    expectScrollRequest(Offset(0f, -5f), consume = Offset(0f, -4f))
-                    shiftWindowBy(-5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, 10, 0))
+                    // Back one half-page, but only respond to part of it
+                    expectScrollRequest(
+                        Offset(0f, -halfSize.toFloat() - centeringOffset),
+                        consume = Offset(0f, -4f),
+                    )
+                    shiftWindowBy(-halfSize)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, size, 0))
 
                     // Forward one half-page – already in viewport, no scrolling required.
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    shiftWindowBy(halfSize)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, 0, size, halfSize))
                     assertNoPendingScrollRequests()
 
                     // Forward another half-page. This time we need to scroll.
-                    expectScrollRequest(Offset(0f, 4f))
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 5, 10, 10))
+                    expectScrollRequest(Offset(0f, 4f + centeringOffset))
+                    shiftWindowBy(halfSize)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, halfSize, size, size))
 
                     // Forward another half-page, scroll again so now we're past the original
                     // viewport.
-                    expectScrollRequest(Offset(0f, 5f))
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 10, 10, 15))
+                    expectScrollRequest(Offset(0f, halfSize.toFloat()))
+                    shiftWindowBy(size / 2)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, size, size, size + halfSize))
 
                     // When capture ends expect one last scroll request to reset to original offset.
                     // Note that this request will be made _after_ this capture{} lambda returns.
-                    expectScrollRequest(Offset(0f, -5f))
+                    expectScrollRequest(Offset(0f, -halfSize.toFloat() - centeringOffset))
                 }
                 assertNoPendingScrollRequests()
             }
         }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun callbackOnImageCapture_scrollsBackwardsThenForwards_reverseScrolling() =
         captureTester.runTest {
             expectingScrolls(rule) {
-                val size = 10
-                val captureHeight = size / 2
+                val size = 12
+                val halfSize = size / 2
+                // Vertical offset for captures for centering. Half the difference between the full
+                // size and the capture height.
+                val centeringOffset =
+                    if (ComposeUiFlags.isScrollCaptureCenteringEnabled) halfSize / 2 else 0
                 captureTester.setContent {
                     TestVerticalScrollable(
                         reverseScrolling = true,
@@ -373,35 +392,42 @@ class ScrollCaptureTest {
                 }
 
                 val target = captureTester.findCaptureTargets().single()
-                captureTester.capture(target, captureHeight) {
+                captureTester.capture(target, captureWindowHeight = halfSize) {
                     // First request is at origin, no scrolling required.
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, 0, size, halfSize))
                     assertNoPendingScrollRequests()
 
-                    // Back one half-page, but only respond to part of it.
-                    expectScrollRequest(Offset(0f, 5f), consume = Offset(0f, 4f))
-                    shiftWindowBy(-5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, 10, 0))
+                    // Back one half-page, but only respond to part of it
+                    expectScrollRequest(
+                        Offset(0f, halfSize.toFloat() + centeringOffset),
+                        consume = Offset(0f, 4f),
+                    )
+                    shiftWindowBy(-halfSize)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, size, 0))
 
                     // Forward one half-page – already in viewport, no scrolling required.
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    shiftWindowBy(halfSize)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, 0, size, halfSize))
                     assertNoPendingScrollRequests()
 
                     // Forward another half-page. This time we need to scroll.
-                    expectScrollRequest(Offset(0f, -4f))
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 5, 10, 10))
+                    expectScrollRequest(Offset(0f, -4f - centeringOffset))
+                    shiftWindowBy(halfSize)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, halfSize, size, size))
 
                     // Forward another half-page, scroll again so now we're past the original
                     // viewport.
-                    expectScrollRequest(Offset(0f, -5f))
-                    shiftWindowBy(5)
-                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 10, 10, 15))
+                    expectScrollRequest(Offset(0f, -halfSize.toFloat()))
+                    shiftWindowBy(halfSize)
+                    assertThat(performCaptureDiscardingBitmap())
+                        .isEqualTo(Rect(0, size, size, size + halfSize))
 
                     // When capture ends expect one last scroll request to reset to original offset.
                     // Note that this request will be made _after_ this capture{} lambda returns.
-                    expectScrollRequest(Offset(0f, 5f))
+                    expectScrollRequest(Offset(0f, halfSize.toFloat() + centeringOffset))
                 }
                 assertNoPendingScrollRequests()
             }

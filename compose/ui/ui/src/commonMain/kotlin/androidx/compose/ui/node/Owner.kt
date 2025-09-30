@@ -19,7 +19,7 @@ package androidx.compose.ui.node
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.RetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.draganddrop.DragAndDropManager

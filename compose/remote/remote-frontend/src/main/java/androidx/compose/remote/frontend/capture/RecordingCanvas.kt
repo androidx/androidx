@@ -31,6 +31,7 @@ import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -41,8 +42,12 @@ import androidx.compose.remote.frontend.capture.shaders.colorFilterModeToInt
 import androidx.compose.remote.frontend.state.MutableRemoteFloat
 import androidx.compose.remote.frontend.state.RemoteBitmap
 import androidx.compose.remote.frontend.state.RemoteBitmapFont
+import androidx.compose.remote.frontend.state.RemoteBlendModeColorFilter
+import androidx.compose.remote.frontend.state.RemoteBoolean
+import androidx.compose.remote.frontend.state.RemoteColorFilter
 import androidx.compose.remote.frontend.state.RemoteFloat
 import androidx.compose.remote.frontend.state.RemoteInt
+import androidx.compose.remote.frontend.state.RemotePaint
 import androidx.compose.remote.frontend.state.RemoteString
 import androidx.compose.remote.frontend.state.getFloatIdForCreationState
 import androidx.compose.runtime.mutableFloatStateOf
@@ -94,6 +99,7 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     private var lastColorFilterMode: Int = -1
     private var lastRemoteShader: RemoteShader? = null
     private var lastBlendMode: BlendMode? = null
+    private var lastRemoteColorFilter: RemoteColorFilter? = null
     public lateinit var document: RemoteComposeWriter
     public lateinit var creationState: RemoteComposeCreationState
 
@@ -143,7 +149,13 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             forceSendingPaint = true
         }
         val paintBundle = PaintBundle()
-        val tmpLastColorLong = paint.colorLong
+        val tmpLastColorLong =
+            if (Build.VERSION.SDK_INT >= 29) {
+                Api29ColorLongHelper.getColorLong(paint, creationState)
+            } else {
+                // Can't use ColorLong prior to API 29.
+                0L
+            }
         val tmpLastStrokeWidth = paint.strokeWidth
         val tmpLastTextSize = paint.textSize
         val tmpLastStrokeCapOrdinal = paint.strokeCap.ordinal
@@ -190,6 +202,12 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             } else {
                 -1
             }
+        val tmpLastRemoteColorFilter =
+            if (paint is RemotePaint) {
+                paint.remoteColorFilter
+            } else {
+                null
+            }
         var send = forceSendingPaint
 
         if (forceSendingPaint || lastColor != tmpLastColorLong) {
@@ -199,7 +217,7 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             } else {
                 // We don't handle long colors in PaintBundle.
                 // TODO: add color long support / color space
-                paintBundle.setColor(paint.color)
+                paintBundle.setColor((tmpLastColorLong shr 32).toInt())
             }
             lastColor = tmpLastColorLong
             send = true
@@ -248,12 +266,38 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             forceSendingPaint ||
                 lastColorFilter != tmpLastColorFilter ||
                 lastColorFilterMode != tmpLastColorFilterMode ||
-                lastColorFilterColor != tmpLastColorFilterColor
+                lastColorFilterColor != tmpLastColorFilterColor ||
+                lastRemoteColorFilter != tmpLastRemoteColorFilter
         ) {
-            if (tmpLastColorFilter is BlendModeColorFilter) {
+            if (tmpLastRemoteColorFilter != null) {
+                lastColorFilterColor = tmpLastColorFilterColor
+                lastColorFilterMode = tmpLastColorFilterMode
+                lastRemoteColorFilter = tmpLastRemoteColorFilter
+                when (tmpLastRemoteColorFilter) {
+                    is RemoteBlendModeColorFilter -> {
+                        val constantColor =
+                            tmpLastRemoteColorFilter.color.evaluateIfConstant(creationState)
+
+                        if (constantColor != null) {
+                            // Where possible use a constant instead of an expression.
+                            paintBundle.setColorFilter(
+                                constantColor,
+                                colorFilterModeToInt(tmpLastRemoteColorFilter.blendMode),
+                            )
+                        } else {
+                            paintBundle.setColorFilterId(
+                                tmpLastRemoteColorFilter.color.getIdForCreationState(creationState),
+                                colorFilterModeToInt(tmpLastRemoteColorFilter.blendMode),
+                            )
+                        }
+                    }
+                }
+                send = true
+            } else if (tmpLastColorFilter is BlendModeColorFilter) {
                 lastColorFilter = tmpLastColorFilter
                 lastColorFilterColor = tmpLastColorFilterColor
                 lastColorFilterMode = tmpLastColorFilterMode
+                lastRemoteColorFilter = tmpLastRemoteColorFilter
                 paintBundle.setColorFilter(
                     tmpLastColorFilter.color,
                     colorFilterModeToInt(tmpLastColorFilter.mode),
@@ -1351,8 +1395,37 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
+    /**
+     * Instructs the player to conditionally execute [drawCommands] if [condition] evaluates to
+     * true.
+     *
+     * @param condition The condition that controls whether or not the player executes
+     *   [drawCommands].
+     * @param drawCommands The commands the player will execute if [condition] evaluate to true.
+     */
+    public fun drawConditionally(condition: RemoteBoolean, drawCommands: () -> Unit) {
+        document.conditionalOperations(
+            ConditionalOperations.TYPE_NEQ,
+            condition.toRemoteInt().toRemoteFloat().getFloatIdForCreationState(creationState),
+            0f,
+        )
+        forceSendingPaint(true)
+        drawCommands()
+        document.endConditionalOperations()
+    }
+
     public companion object {
         // TODO replace this with a dedicated color space for RemoteCompose.
         internal const val REMOTE_COMPOSE_EXPRESSION_COLOR_SPACE_ID = 5L
     }
+}
+
+@RequiresApi(29)
+private object Api29ColorLongHelper {
+    fun getColorLong(paint: Paint, creationState: RemoteComposeCreationState) =
+        if (paint is RemotePaint) {
+            paint.getColorLong(creationState) ?: paint.colorLong
+        } else {
+            paint.colorLong
+        }
 }

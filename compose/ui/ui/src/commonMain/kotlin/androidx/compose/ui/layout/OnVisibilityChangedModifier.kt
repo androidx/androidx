@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.UnplacedStateAwareModifierNode
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.spatial.RelativeLayoutBounds
@@ -71,6 +72,49 @@ fun Modifier.onVisibilityChanged(
 ) =
     this then
         OnVisibilityChangedElement(minDurationMs, minFractionVisible, viewportBounds, callback)
+
+/**
+ * Creates a [DelegatableNode] for a modifier node, implementing the contract of
+ * [onVisibilityChanged] Modifier. Such a node could be delegated to as part of a custom modifier
+ * node via [androidx.compose.ui.node.DelegatingNode.delegate]. In most of the cases users should
+ * just use [onVisibilityChanged] Modifier directly.
+ *
+ * Note that if you need to update some of the params, it is recommended to
+ * [androidx.compose.ui.node.DelegatingNode.undelegate] the previous node, and delegate again to a
+ * new one with the correct values.
+ *
+ * Registers a callback to monitor whether or not the node is inside of the viewport of the window
+ * or not. Example use cases for this include, auto-playing videos in a feed, logging how long an
+ * item was visible, and starting/stopping animations.
+ *
+ * @param minDurationMs the amount of time in milliseconds that this node should be considered
+ *   visible before invoking the callback with (true). Depending on your use case, it might be
+ *   useful to provide a non-zero number here if it is desirable to avoid triggering the callback on
+ *   elements during really fast scrolls where they went from visible to invisible in a really short
+ *   amount of time.
+ * @param minFractionVisible the fraction of the node which should be inside the viewport for the
+ *   callback to get called with a value of true. A value of 1f means that the entire bounds of the
+ *   rect need to be inside of the viewport, or that the rect fills 100% of the viewport. A value of
+ *   0f means that this will get triggered as soon as a non-zero amount of pixels are inside of the
+ *   viewport.
+ * @param viewportBounds a reference to the bounds to use as a "viewport" with which to calculate
+ *   the amount of visibility this element has *inside* of that viewport. This is most commonly used
+ *   to account for UI elements such as navigation bars which are drawn on top of the content that
+ *   this modifier is applied to. It is required that this be passed in to a [layoutBounds]
+ *   somewhere else in order for this parameter to get used properly. If null is provided, the
+ *   window of the application will be used as the viewport.
+ * @param callback lambda that is invoked when the fraction of this node inside of the specified
+ *   viewport crosses the [minFractionVisible]. The boolean argument passed into this lambda will be
+ *   true in cases where the fraction visible is greater, and false when it is not.
+ * @see onVisibilityChanged
+ */
+fun onVisibilityChangedNode(
+    @IntRange(from = 0) minDurationMs: Long = 0,
+    @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,
+    viewportBounds: LayoutBoundsHolder? = null,
+    callback: (Boolean) -> Unit,
+): DelegatableNode =
+    OnVisibilityChangedNode(minDurationMs, minFractionVisible, viewportBounds, callback)
 
 private class OnVisibilityChangedElement(
     val minDurationMs: Long,
@@ -125,7 +169,7 @@ internal class OnVisibilityChangedNode(
     var minFractionVisible: Float,
     viewportBounds: LayoutBoundsHolder?,
     var callback: (Boolean) -> Unit,
-) : Modifier.Node(), ObserverModifierNode {
+) : Modifier.Node(), ObserverModifierNode, UnplacedStateAwareModifierNode {
     var viewportBounds: LayoutBoundsHolder? = viewportBounds
         set(value) {
             field = value
@@ -237,5 +281,9 @@ internal class OnVisibilityChangedNode(
 
     override fun onObservedReadsChanged() {
         updateViewport()
+    }
+
+    override fun onUnplaced() {
+        fireExitIfNeeded()
     }
 }

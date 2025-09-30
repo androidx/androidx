@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.layout
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
@@ -23,19 +25,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
-class OnVisibilityChangedTest {
+@RunWith(Parameterized::class)
+class OnVisibilityChangedTest(private val useDelegation: Boolean) {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
@@ -43,15 +47,19 @@ class OnVisibilityChangedTest {
         var top by mutableStateOf(-1000)
         var called = 0
         var isVisible = false
+        val callback = { visible: Boolean ->
+            called++
+            isVisible = visible
+        }
         rule.setContent {
             Column {
                 Column {
                     Box(
                         Modifier.offset(y = top.dp)
-                            .onVisibilityChanged(minFractionVisible = 1.0f) { visible ->
-                                called++
-                                isVisible = visible
-                            }
+                            .onVisibilityChangedTestImpl(
+                                minFractionVisible = 1.0f,
+                                callback = callback,
+                            )
                             .size(100.dp)
                     )
                 }
@@ -93,15 +101,19 @@ class OnVisibilityChangedTest {
         var top by mutableStateOf(-1000)
         var called = 0
         var isVisible = false
+        val callback = { visible: Boolean ->
+            called++
+            isVisible = visible
+        }
         rule.setContent {
             Column {
                 Column {
                     Box(
                         Modifier.offset(y = top.dp)
-                            .onVisibilityChanged(minFractionVisible = 0f) { visible ->
-                                called++
-                                isVisible = visible
-                            }
+                            .onVisibilityChangedTestImpl(
+                                minFractionVisible = 0f,
+                                callback = callback,
+                            )
                             .size(100.dp)
                     )
                 }
@@ -149,15 +161,19 @@ class OnVisibilityChangedTest {
         var top by mutableStateOf(-1000)
         var called = 0
         var isVisible = false
+        val callback = { visible: Boolean ->
+            called++
+            isVisible = visible
+        }
         rule.setContent {
             Column {
                 Column {
                     Box(
                         Modifier.offset(y = top.dp)
-                            .onVisibilityChanged(minFractionVisible = 0.5f) { visible ->
-                                called++
-                                isVisible = visible
-                            }
+                            .onVisibilityChangedTestImpl(
+                                minFractionVisible = 0.5f,
+                                callback = callback,
+                            )
                             .size(100.dp)
                     )
                 }
@@ -213,7 +229,7 @@ class OnVisibilityChangedTest {
             Column {
                 Column {
                     Box(
-                        Modifier.onVisibilityChanged(minFractionVisible = 0f) { visible ->
+                        Modifier.onVisibilityChangedTestImpl(minFractionVisible = 0f) { visible ->
                                 called++
                                 isVisible = visible
                             }
@@ -236,7 +252,7 @@ class OnVisibilityChangedTest {
             Column {
                 Column {
                     Box(
-                        Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                        Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible ->
                                 called++
                                 isVisible = visible
                             }
@@ -259,7 +275,7 @@ class OnVisibilityChangedTest {
             Column {
                 Column {
                     Box(
-                        Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                        Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible ->
                                 called++
                                 isVisible = visible
                             }
@@ -284,7 +300,8 @@ class OnVisibilityChangedTest {
                 Column {
                     if (shouldCompose.value) {
                         Box(
-                            Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                            Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible
+                                    ->
                                     called++
                                     isVisible = visible
                                 }
@@ -314,7 +331,7 @@ class OnVisibilityChangedTest {
         rule.setContent {
             val modifier =
                 if (shouldCompose.value)
-                    Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                    Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible ->
                         called++
                         isVisible = visible
                     }
@@ -341,7 +358,7 @@ class OnVisibilityChangedTest {
         rule.setContent {
             val modifier =
                 if (shouldCompose.value)
-                    Modifier.onVisibilityChanged(minFractionVisible = 1f) { visible ->
+                    Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible ->
                         called++
                         isVisible = visible
                     }
@@ -359,4 +376,91 @@ class OnVisibilityChangedTest {
             assertEquals(true, isVisible)
         }
     }
+
+    @Test
+    fun testVisibleCalledWhenUnplacedAndThenPlacedAgain() {
+        var called = 0
+        val shouldPlace = mutableStateOf(true)
+        var isVisible = false
+        rule.setContent {
+            Layout(
+                content = {
+                    Box(
+                        Modifier.onVisibilityChangedTestImpl(minFractionVisible = 1f) { visible ->
+                                called++
+                                isVisible = visible
+                            }
+                            .size(100.dp)
+                    )
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    if (shouldPlace.value) {
+                        placeable.place(0, 0)
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            assertEquals(1, called)
+            assertEquals(true, isVisible)
+
+            shouldPlace.value = false
+        }
+        rule.runOnIdle {
+            assertEquals(2, called)
+            assertEquals(false, isVisible)
+            shouldPlace.value = true
+            shouldPlace.value = true
+        }
+        rule.runOnIdle {
+            assertEquals(3, called)
+            assertEquals(true, isVisible)
+        }
+    }
+
+    fun Modifier.onVisibilityChangedTestImpl(
+        @IntRange(from = 0) minDurationMs: Long = 0,
+        @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,
+        viewportBounds: LayoutBoundsHolder? = null,
+        callback: (Boolean) -> Unit,
+    ): Modifier =
+        if (useDelegation) {
+            then(DelegatingImplElement(minDurationMs, minFractionVisible, viewportBounds, callback))
+        } else {
+            onVisibilityChanged(minDurationMs, minFractionVisible, viewportBounds, callback)
+        }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useDelegation={0}")
+        fun params() = arrayOf(false, true)
+    }
+}
+
+private data class DelegatingImplElement(
+    val minDurationMs: Long,
+    val minFractionVisible: Float,
+    val viewportBounds: LayoutBoundsHolder?,
+    val callback: (Boolean) -> Unit,
+) : ModifierNodeElement<DelegatingImplNode>() {
+    override fun create() =
+        DelegatingImplNode(minDurationMs, minFractionVisible, viewportBounds, callback)
+
+    override fun update(node: DelegatingImplNode) {
+        throw IllegalStateException("this delegating impl doesn't support updating params")
+    }
+}
+
+private class DelegatingImplNode(
+    minDurationMs: Long,
+    minFractionVisible: Float,
+    viewportBounds: LayoutBoundsHolder?,
+    callback: (Boolean) -> Unit,
+) : DelegatingNode() {
+    private val onVisibilityNode =
+        delegate(
+            onVisibilityChangedNode(minDurationMs, minFractionVisible, viewportBounds, callback)
+        )
 }

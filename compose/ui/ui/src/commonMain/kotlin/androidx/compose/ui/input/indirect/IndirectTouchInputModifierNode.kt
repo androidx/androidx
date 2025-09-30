@@ -13,39 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.input.indirect
 
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.node.DelegatableNode
 
 /**
- * Implement this interface to create a [Modifier.Node] that can intercept indirect touch input
- * events.
- *
- * The event is routed to the focused item. Before reaching the focused item,
- * [onPreIndirectTouchEvent] is called for parents of the focused item. If the parents don't consume
- * the event, [onPreIndirectTouchEvent] is called for the focused item. If the event is still not
- * consumed, [onIndirectTouchEvent] is called on the focused item's parents.
+ * A [androidx.compose.ui.Modifier.Node] that receives [IndirectTouchEvent]s. This modifier node
+ * only receives events if it is focused, or if a child is focused. If you are implementing this
+ * node, make sure to use this node with a focus modifier (such as focusTarget or focusable), or
+ * make this node also delegate to a [androidx.compose.ui.focus.FocusTargetModifierNode].
  */
-@ExperimentalIndirectTouchTypeApi
 interface IndirectTouchInputModifierNode : DelegatableNode {
 
     /**
-     * This function is called when an [IndirectTouchEvent] is received by this node during the
-     * upward pass. While implementing this callback, return true to stop propagation of this event.
-     * If you return false, the generic motion event will be sent to this
-     * [IndirectTouchInputModifierNode]'s parent.
+     * Handles [IndirectTouchEvent]s that are dispatched to the node. A node can only receive
+     * [IndirectTouchEvent]s if it is focused, or if a child is focused.
+     *
+     * @param event The [IndirectTouchEvent] that has been dispatched.
+     * @param pass The [PointerEventPass] in which this function is being called.
      */
-    fun onIndirectTouchEvent(event: IndirectTouchEvent): Boolean
+    fun onIndirectTouchEvent(event: IndirectTouchEvent, pass: PointerEventPass)
 
     /**
-     * This function is called when an [IndirectTouchEvent] is received by this node during the
-     * downward pass. It gives ancestors of a focused component the chance to intercept an event.
-     * Return true to stop propagation of this event. If you return false, the event will be sent to
-     * this [IndirectTouchInputModifierNode]'s child. If none of the children consume the event, it
-     * will be sent back up to the root using the [onIndirectTouchEvent] function.
+     * Invoked to notify the handler that no more calls to [IndirectTouchInputModifierNode] will be
+     * made, until at least new pointers exist. This can occur for a few reasons:
+     * 1. Android dispatches ACTION_CANCEL to Compose.
      */
-    fun onPreIndirectTouchEvent(event: IndirectTouchEvent): Boolean
+    // TODO (jjw): Add support for focus cancel.
+    fun onCancelIndirectTouchInput()
 }

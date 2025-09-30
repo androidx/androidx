@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.runtime.livedata.LiveDataAdapterKt#observeAsState(androidx.lifecycle.LiveData<T>):
+    Binary breaking change: method androidx.compose.runtime.livedata.LiveDataAdapterKt.observeAsState(androidx.lifecycle.LiveData<T>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.runtime.livedata.LiveDataAdapterKt#observeAsState(androidx.lifecycle.LiveData<T>, R):
+    Binary breaking change: method androidx.compose.runtime.livedata.LiveDataAdapterKt.observeAsState(androidx.lifecycle.LiveData<T>,R) has been removed from bytecode

@@ -434,10 +434,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             captureRulersIfNeeded(measureResult)
         }
         if (this === layoutNode.outerCoordinator) {
-            layoutNode
-                .requireOwner()
-                .rectManager
-                .onLayoutPositionChanged(layoutNode, !layoutNode.measurePassDelegate.placedOnce)
+            layoutNode.requireOwner().rectManager.onLayoutPositionChanged(layoutNode)
         }
     }
 
@@ -1221,6 +1218,9 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     fun onLayoutNodeDetach() {
         // we release the layer as the node might be moved to another owner
         releaseLayer()
+        if (layoutNode.isPlaced) {
+            onUnplaced()
+        }
     }
 
     /**
@@ -1506,7 +1506,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                         val rectManager = owner.rectManager
                         if (coordinator === layoutNode.outerCoordinator) {
                             // transformations on the outer coordinator define the layout position
-                            rectManager.onLayoutPositionChanged(layoutNode, firstPlacement = false)
+                            rectManager.onLayoutPositionChanged(layoutNode)
                             // we need to manually trigger the callbacks as the state based layer
                             // invalidations are processed outside of the measure pass.
                             rectManager.invalidateCallbacksFor(layoutNode)

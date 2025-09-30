@@ -365,7 +365,7 @@ private fun DrawScope.textLayoutConstraints(size: Size, topLeft: Offset): Constr
     val isWidthNaN = size.isUnspecified || size.width.isNaN()
     if (isWidthNaN) {
         minWidth = 0
-        maxWidth = ceil(this.size.width - topLeft.x).fastRoundToInt()
+        maxWidth = ceil(this.size.width - topLeft.x).fastRoundToInt().coerceAtLeast(minWidth)
     } else {
         val fixedWidth = ceil(size.width).fastRoundToInt()
         minWidth = fixedWidth
@@ -377,7 +377,7 @@ private fun DrawScope.textLayoutConstraints(size: Size, topLeft: Offset): Constr
     val isHeightNaN = size.isUnspecified || size.height.isNaN()
     if (isHeightNaN) {
         minHeight = 0
-        maxHeight = ceil(this.size.height - topLeft.y).fastRoundToInt()
+        maxHeight = ceil(this.size.height - topLeft.y).fastRoundToInt().coerceAtLeast(minHeight)
     } else {
         val fixedHeight = ceil(size.height).fastRoundToInt()
         minHeight = fixedHeight
