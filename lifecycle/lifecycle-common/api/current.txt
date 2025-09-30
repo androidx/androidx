@@ -13,8 +13,8 @@ package androidx.lifecycle {
   public abstract class Lifecycle {
     ctor public Lifecycle();
     method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver observer);
-    method @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
-    method public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> getCurrentStateFlow();
+    method @InaccessibleFromKotlin @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> getCurrentStateFlow();
     method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver observer);
     property @MainThread public abstract androidx.lifecycle.Lifecycle.State currentState;
     property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
@@ -23,7 +23,7 @@ package androidx.lifecycle {
   public enum Lifecycle.Event {
     method public static androidx.lifecycle.Lifecycle.Event? downFrom(androidx.lifecycle.Lifecycle.State state);
     method public static androidx.lifecycle.Lifecycle.Event? downTo(androidx.lifecycle.Lifecycle.State state);
-    method public androidx.lifecycle.Lifecycle.State getTargetState();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getTargetState();
     method public static androidx.lifecycle.Lifecycle.Event? upFrom(androidx.lifecycle.Lifecycle.State state);
     method public static androidx.lifecycle.Lifecycle.Event? upTo(androidx.lifecycle.Lifecycle.State state);
     property public androidx.lifecycle.Lifecycle.State targetState;
@@ -64,8 +64,8 @@ package androidx.lifecycle {
   }
 
   public final class LifecycleKt {
-    method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
-    method public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
+    method @InaccessibleFromKotlin public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
     property public static androidx.lifecycle.LifecycleCoroutineScope androidx.lifecycle.Lifecycle.coroutineScope;
     property public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> androidx.lifecycle.Lifecycle.eventFlow;
   }
@@ -74,12 +74,12 @@ package androidx.lifecycle {
   }
 
   public interface LifecycleOwner {
-    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle getLifecycle();
     property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
   public final class LifecycleOwnerKt {
-    method public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
     property public static androidx.lifecycle.LifecycleCoroutineScope androidx.lifecycle.LifecycleOwner.lifecycleScope;
   }
 

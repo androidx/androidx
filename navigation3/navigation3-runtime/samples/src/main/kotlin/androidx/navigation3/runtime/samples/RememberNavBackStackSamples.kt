@@ -59,5 +59,5 @@ fun rememberNavBackStack_withSerializersModule() {
     }
 
     // Pass the configuration so encoding/decoding works consistently.
-    rememberNavBackStack(Home("start"), configuration = config)
+    rememberNavBackStack<Screen>(config, Home("start"))
 }

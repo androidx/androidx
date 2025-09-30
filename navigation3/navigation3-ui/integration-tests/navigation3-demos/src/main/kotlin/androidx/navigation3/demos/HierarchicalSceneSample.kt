@@ -45,11 +45,11 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.Scene
-import androidx.navigation3.ui.SceneStrategy
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
 import kotlin.collections.forEach
 import kotlin.math.max
@@ -83,7 +83,7 @@ fun HierarchicalSceneSample() {
      * [Scene].
      */
     val sharedEntryInSceneNavEntryDecorator =
-        navEntryDecorator<Any> { entry ->
+        navEntryDecorator<ColorEntry> { entry ->
             with(LocalNavSharedTransitionScope.current) {
                 Box(
                     Modifier.sharedElement(

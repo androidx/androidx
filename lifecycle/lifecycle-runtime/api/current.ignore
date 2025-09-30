@@ -3,5 +3,11 @@ RemovedFromJava: androidx.lifecycle.ViewKt#findViewTreeLifecycleOwner(android.vi
     Source breaking change: method androidx.lifecycle.ViewKt.findViewTreeLifecycleOwner(android.view.View) can no longer be resolved from Java source
 
 
+RemovedFromKotlin: androidx.lifecycle.LifecycleRegistry#getCurrentState():
+    Source breaking change: method androidx.lifecycle.LifecycleRegistry.getCurrentState() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleRegistry#getObserverCount():
+    Source breaking change: method androidx.lifecycle.LifecycleRegistry.getObserverCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LifecycleRegistry#setCurrentState(androidx.lifecycle.Lifecycle.State):
+    Source breaking change: method androidx.lifecycle.LifecycleRegistry.setCurrentState(androidx.lifecycle.Lifecycle.State) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.ViewKt#findViewTreeLifecycleOwner(android.view.View):
     Source breaking change: method androidx.lifecycle.ViewKt.findViewTreeLifecycleOwner(android.view.View) can no longer be resolved from Kotlin source

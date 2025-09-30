@@ -34,7 +34,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
-import androidx.navigationevent.NavigationEventSwipeEdge
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -192,7 +191,7 @@ class NavDisplayPredictiveBackTest {
         composeTestRule.runOnIdle {
             input.backStarted(
                 NavigationEvent(
-                    swipeEdge = NavigationEventSwipeEdge.Left,
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
                     progress = 0.1F,
                     touchX = 0.1F,
                     touchY = 0.1F,
@@ -200,7 +199,7 @@ class NavDisplayPredictiveBackTest {
             )
             input.backProgressed(
                 NavigationEvent(
-                    swipeEdge = NavigationEventSwipeEdge.Left,
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
                     progress = 0.5F,
                     touchX = 0.1F,
                     touchY = 0.1F,

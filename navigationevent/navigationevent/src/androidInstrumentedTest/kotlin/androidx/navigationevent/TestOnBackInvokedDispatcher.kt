@@ -30,15 +30,15 @@ internal class TestOnBackInvokedDispatcher : OnBackInvokedDispatcher {
     public var unregisterCount: Int = 0
         private set
 
+    public var priority: Int? = null
+
     private var callback: OnBackInvokedCallback? = null
 
     @Suppress("ExecutorRegistration") // Single thread only.
-    override fun registerOnBackInvokedCallback(
-        priority: Int, // Ignored for now.
-        callback: OnBackInvokedCallback,
-    ) {
+    override fun registerOnBackInvokedCallback(priority: Int, callback: OnBackInvokedCallback) {
         registerCount++
         this.callback = callback
+        this.priority = priority
     }
 
     @Suppress("ExecutorRegistration") // Single thread only.
@@ -48,6 +48,7 @@ internal class TestOnBackInvokedDispatcher : OnBackInvokedDispatcher {
             error("Unregistering incorrect callback")
         }
         this.callback = null
+        this.priority = null
     }
 
     @RequiresApi(34)

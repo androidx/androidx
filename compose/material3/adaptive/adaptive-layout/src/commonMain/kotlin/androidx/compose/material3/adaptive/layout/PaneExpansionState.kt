@@ -531,7 +531,7 @@ internal constructor(
         Snapshot.withoutReadObservation {
             measuredAnchorPositions = anchors.toPositions(measuredWidth, density)
             // Changes will always apply to the ongoing measurement, no need to trigger remeasuring
-            if (currentAnchor != null) {
+            if (!isDragging && currentAnchor != null) {
                 currentDraggingOffset = currentAnchor!!.positionIn(measuredWidth, density)
             } else if (currentDraggingOffset != Unspecified) {
                 // To re-coerce the value

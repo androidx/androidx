@@ -27,12 +27,16 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    androidTarget()
+    androidLibrary {
+        compileSdk = 36
+        namespace = "androidx.compose.material3.adaptive.navigation3"
+    }
+    jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -42,6 +46,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive-navigation"))
                 api(project(":navigation3:navigation3-ui"))
+                implementation(project(":navigationevent:navigationevent-compose"))
             }
         }
 
@@ -69,6 +74,18 @@ androidXMultiplatform {
                 implementation(libs.truth)
             }
         }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        jvmStubsMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(nonAndroidMain)
+        }
     }
 }
 
@@ -78,10 +95,4 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Compose Material Design Adaptive Library"
-    doNotDocumentReason = "Not published to maven"
-}
-
-android {
-    compileSdk = 36
-    namespace = "androidx.compose.material3.adaptive.navigation3"
 }

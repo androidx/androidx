@@ -51,7 +51,9 @@ fun CreationExtrasViewModel() {
             ?: CreationExtras.Empty
     // Custom extras should always be added on top of the default extras
     val extras = MutableCreationExtras(defaultExtras)
-    extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "my_value")
+    extras[DEFAULT_ARGS_KEY] =
+        @Suppress("DEPRECATION") // bundleOf is deprecated
+        bundleOf("test" to "my_value")
     // This factory is normally created separately and passed in
     val customFactory = remember {
         object : ViewModelProvider.Factory {

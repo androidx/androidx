@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material3:material3-window-size-class"))
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))

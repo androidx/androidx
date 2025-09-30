@@ -21,9 +21,21 @@ RemovedFromJava: androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt#init
     Source breaking change: method androidx.lifecycle.viewmodel.InitializerViewModelFactoryKt.initializer(androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM>) can no longer be resolved from Java source
 
 
+RemovedFromKotlin: androidx.lifecycle.AndroidViewModel_androidKt#getApplication(androidx.lifecycle.AndroidViewModel):
+    Source breaking change: method androidx.lifecycle.AndroidViewModel_androidKt.getApplication(androidx.lifecycle.AndroidViewModel) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.HasDefaultViewModelProviderFactory#getDefaultViewModelCreationExtras():
+    Source breaking change: method androidx.lifecycle.HasDefaultViewModelProviderFactory.getDefaultViewModelCreationExtras() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.HasDefaultViewModelProviderFactory#getDefaultViewModelProviderFactory():
+    Source breaking change: method androidx.lifecycle.HasDefaultViewModelProviderFactory.getDefaultViewModelProviderFactory() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.ViewModel#ViewModel(java.io.Closeable...):
     Source breaking change: constructor androidx.lifecycle.ViewModel(java.io.Closeable...) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.ViewModel#addCloseable(java.io.Closeable):
     Source breaking change: method androidx.lifecycle.ViewModel.addCloseable(java.io.Closeable) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelKt#getViewModelScope(androidx.lifecycle.ViewModel):
+    Source breaking change: method androidx.lifecycle.ViewModelKt.getViewModelScope(androidx.lifecycle.ViewModel) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelLazy#getValue():
+    Source breaking change: method androidx.lifecycle.ViewModelLazy.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewModelStoreOwner#getViewModelStore():
+    Source breaking change: method androidx.lifecycle.ViewModelStoreOwner.getViewModelStore() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelKt#findViewTreeViewModelStoreOwner(android.view.View):
     Source breaking change: method androidx.lifecycle.ViewTreeViewModelKt.findViewTreeViewModelStoreOwner(android.view.View) can no longer be resolved from Kotlin source

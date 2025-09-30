@@ -34,6 +34,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertCountEquals
@@ -47,7 +48,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.navEntryDecorator
-import androidx.navigation3.ui.NavDisplay.DEFAULT_TRANSITION_DURATION_MILLISECOND
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import kotlin.test.Test
@@ -115,6 +115,230 @@ class AnimatedTest {
         composeTestRule.onNodeWithText(first).assertDoesNotExist()
         composeTestRule.onNodeWithText(second).assertExists()
         assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testNavigateInterruptedAnimations() {
+        lateinit var backStack: MutableList<Any>
+        lateinit var firstLifecycle: Lifecycle
+        lateinit var secondLifecycle: Lifecycle
+        lateinit var thirdLifecycle: Lifecycle
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first) }
+            NavDisplay(backStack) {
+                when (it) {
+                    first ->
+                        NavEntry(first) {
+                            firstLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(first) }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            secondLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(second) }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            thirdLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(third) }
+                        }
+
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.runOnIdle { backStack.add(second) }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertExists()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        // interrupt current navigation by navigating to third
+        composeTestRule.runOnIdle { backStack.add(third) }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertExists()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertDoesNotExist()
+        composeTestRule.onNodeWithText(second).assertDoesNotExist()
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testPopInterruptedAnimations() {
+        lateinit var backStack: MutableList<Any>
+        lateinit var firstLifecycle: Lifecycle
+        lateinit var secondLifecycle: Lifecycle
+        lateinit var thirdLifecycle: Lifecycle
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second, third) }
+            NavDisplay(backStack) {
+                when (it) {
+                    first ->
+                        NavEntry(first) {
+                            firstLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(first) }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            secondLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(second) }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            thirdLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(third) }
+                        }
+
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        // pop third
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        // interrupt pop third by pop second as well
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertExists()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertExists()
+        composeTestRule.onNodeWithText(second).assertDoesNotExist()
+        composeTestRule.onNodeWithText(third).assertDoesNotExist()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testPopNavigateInterruptedAnimations() {
+        lateinit var backStack: MutableList<Any>
+        lateinit var firstLifecycle: Lifecycle
+        lateinit var secondLifecycle: Lifecycle
+        lateinit var thirdLifecycle: Lifecycle
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second) }
+            NavDisplay(backStack) {
+                when (it) {
+                    first ->
+                        NavEntry(first) {
+                            firstLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(first) }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            secondLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(second) }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            thirdLifecycle = LocalLifecycleOwner.current.lifecycle
+                            Box(contentAlignment = Alignment.Center) { Text(third) }
+                        }
+
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        // pop second
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        composeTestRule.onNodeWithText(first).assertExists()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        // interrupt pop by navigating to third
+        composeTestRule.runOnIdle { backStack.add(third) }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(
+            DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong() / 3
+        )
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertExists()
+        assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        composeTestRule.onNodeWithText(second).assertExists()
+        assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertDoesNotExist()
+        composeTestRule.onNodeWithText(second).assertDoesNotExist()
+        composeTestRule.onNodeWithText(third).assertExists()
+        assertThat(thirdLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test

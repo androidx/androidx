@@ -28,6 +28,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -48,7 +49,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigationevent.NavigationEventSwipeEdge
+import androidx.navigation3.ui.NavDisplay.popTransitionSpec
+import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -88,10 +90,25 @@ class NavDisplayScreenshotTest {
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
-                    first -> NavEntry(first) { Text(first) }
+                    first ->
+                        NavEntry(first) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(width = 10.dp, color = Color.Red),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(first)
+                            }
+                        }
                     second ->
                         NavEntry(second) {
-                            Box(Modifier.fillMaxSize().background(Color.Blue)) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(width = 10.dp, color = Color.Blue),
+                                contentAlignment = Alignment.Center,
+                            ) {
                                 Text(second, Modifier.size(50.dp))
                             }
                         }
@@ -143,7 +160,7 @@ class NavDisplayScreenshotTest {
                     slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
                 },
                 predictivePopTransitionSpec = { swipeEdge ->
-                    if (swipeEdge == NavigationEventSwipeEdge.Left) {
+                    if (swipeEdge == NavigationEvent.EDGE_LEFT) {
                         EnterTransition.None togetherWith slideOutHorizontally { it / 2 }
                     } else {
                         EnterTransition.None togetherWith slideOutHorizontally { -it / 2 }
@@ -211,7 +228,7 @@ class NavDisplayScreenshotTest {
                     slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
                 },
                 predictivePopTransitionSpec = { swipeEdge ->
-                    if (swipeEdge == NavigationEventSwipeEdge.Left) {
+                    if (swipeEdge == NavigationEvent.EDGE_LEFT) {
                         EnterTransition.None togetherWith slideOutHorizontally { it / 2 }
                     } else {
                         EnterTransition.None togetherWith slideOutHorizontally { -it / 2 }
@@ -318,6 +335,184 @@ class NavDisplayScreenshotTest {
             .assertAgainstGolden(screenshotRule, "testNavigateZIndex")
     }
 
+    @Test
+    fun testNavigateInterruptedZIndex() {
+        lateinit var backStack: MutableList<Any>
+        val duration = 500
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first) }
+            NavDisplay(
+                backStack,
+                modifier = Modifier.testTag(navHostTag),
+                transitionSpec = {
+                    slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
+                },
+            ) {
+                when (it) {
+                    first ->
+                        NavEntry(first) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(first, Modifier.size(50.dp))
+                            }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(second, Modifier.size(50.dp))
+                            }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_GREEN)
+                                    .border(10.dp, Color.Green),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(third, Modifier.size(50.dp))
+                            }
+                        }
+
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.runOnIdle { backStack.add(second) }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(duration.toLong() / 3)
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavigateInterruptedZIndex1")
+
+        // interrupt current navigation by navigating to third
+        composeTestRule.runOnIdle { backStack.add(third) }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(duration.toLong() / 3)
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavigateInterruptedZIndex2")
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavigateInterruptedZIndex3")
+    }
+
+    @Test
+    fun testPopInterruptedZIndex() {
+        lateinit var backStack: MutableList<Any>
+        val duration = 500
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second, third) }
+            NavDisplay(
+                backStack,
+                modifier = Modifier.testTag(navHostTag),
+                popTransitionSpec = {
+                    slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
+                },
+            ) {
+                when (it) {
+                    first ->
+                        NavEntry(first) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(first, Modifier.size(50.dp))
+                            }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(second, Modifier.size(50.dp))
+                            }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_GREEN)
+                                    .border(10.dp, Color.Green),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(third, Modifier.size(50.dp))
+                            }
+                        }
+
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(duration.toLong() / 3)
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testPopInterruptedZIndex1")
+
+        // interrupt current pop by popping again
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        // advance a third between animations
+        composeTestRule.mainClock.advanceTimeBy(duration.toLong() / 3)
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testPopInterruptedZIndex2")
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testPopInterruptedZIndex3")
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun testPopZIndex() {
@@ -330,7 +525,9 @@ class NavDisplayScreenshotTest {
                     first ->
                         NavEntry(first) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Blue),
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
                                 contentAlignment = Alignment.TopEnd,
                             ) {
                                 BasicText(first, Modifier.size(50.dp))
@@ -347,7 +544,9 @@ class NavDisplayScreenshotTest {
                                 },
                         ) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Red),
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
                                 contentAlignment = Alignment.TopEnd,
                             ) {
                                 BasicText(second, Modifier.size(50.dp))
@@ -375,16 +574,101 @@ class NavDisplayScreenshotTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun testPopNavigateDuplicateZIndex() {
+    fun testTwoPanePopZIndex() {
         lateinit var backStack: MutableList<Any>
-
+        val duration = 500
         composeTestRule.setContent {
             backStack = remember { mutableStateListOf(first, second, third) }
             NavDisplay(
                 backStack,
-                // both screens slide left to right, entering screen should be on top
+                popTransitionSpec = {
+                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                },
+                sceneStrategy = TestTwoPaneSceneStrategy(),
+                modifier = Modifier.testTag(navHostTag),
+            ) { key ->
+                when (key) {
+                    first ->
+                        NavEntry(first) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(first, Modifier.size(50.dp))
+                            }
+                        }
+                    second ->
+                        NavEntry(second) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(second, Modifier.size(50.dp))
+                            }
+                        }
+                    third ->
+                        NavEntry(third) {
+                            Box(
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_GREEN)
+                                    .border(10.dp, Color.Green),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                BasicText(third, Modifier.size(50.dp))
+                            }
+                        }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(composeTestRule.onNodeWithText(second).isDisplayed()).isTrue()
+        assertThat(composeTestRule.onNodeWithText(third).isDisplayed()).isTrue()
+
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+
+        composeTestRule.mainClock.advanceTimeBy((duration / 2).toLong())
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testTwoPanePopZIndex1")
+
+        composeTestRule.mainClock.autoAdvance = true
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testTwoPanePopZIndex2")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun testPopNavigateDuplicateZIndex() {
+        lateinit var backStack: MutableList<Any>
+        val duration = 500
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second, third) }
+            NavDisplay(
+                backStack,
                 transitionSpec = {
-                    slideInHorizontally { -it / 2 } togetherWith slideOutHorizontally { it }
+                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                },
+                popTransitionSpec = {
+                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                        slideOutHorizontally(tween(duration)) { -it / 2 }
                 },
                 modifier = Modifier.testTag(navHostTag),
             ) {
@@ -394,8 +678,10 @@ class NavDisplayScreenshotTest {
                     third ->
                         NavEntry(third) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Red),
-                                contentAlignment = Alignment.TopEnd,
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
+                                contentAlignment = Alignment.Center,
                             ) {
                                 BasicText(third, Modifier.size(50.dp))
                             }
@@ -403,8 +689,10 @@ class NavDisplayScreenshotTest {
                     forth ->
                         NavEntry(forth) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Green),
-                                contentAlignment = Alignment.TopEnd,
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
+                                contentAlignment = Alignment.Center,
                             ) {
                                 BasicText(forth, Modifier.size(50.dp))
                             }
@@ -430,8 +718,7 @@ class NavDisplayScreenshotTest {
             // resulting in (first, third)
         }
 
-        composeTestRule.mainClock.advanceTimeByFrame()
-        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeBy((duration / 2).toLong())
 
         // should be a navigate to third screen, with "third" text visible and on top
         composeTestRule
@@ -587,8 +874,10 @@ class NavDisplayScreenshotTest {
                     first ->
                         NavEntry(first) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Blue),
-                                contentAlignment = Alignment.TopEnd,
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_BLUE)
+                                    .border(10.dp, Color.Blue),
+                                contentAlignment = Alignment.Center,
                             ) {
                                 BasicText(first, Modifier.size(50.dp))
                             }
@@ -604,8 +893,10 @@ class NavDisplayScreenshotTest {
                                 },
                         ) {
                             Box(
-                                Modifier.fillMaxSize().background(Color.Red),
-                                contentAlignment = Alignment.TopEnd,
+                                Modifier.fillMaxSize()
+                                    .background(BACKGROUND_RED)
+                                    .border(10.dp, Color.Red),
+                                contentAlignment = Alignment.Center,
                             ) {
                                 BasicText(second, Modifier.size(50.dp))
                             }
@@ -614,7 +905,7 @@ class NavDisplayScreenshotTest {
                         NavEntry(third) {
                             Box(
                                 Modifier.fillMaxSize().background(Color.Green),
-                                contentAlignment = Alignment.TopEnd,
+                                contentAlignment = Alignment.Center,
                             ) {
                                 BasicText(third, Modifier.size(50.dp))
                             }
@@ -651,7 +942,7 @@ class NavDisplayScreenshotTest {
         composeTestRule
             .onNodeWithTag(navHostTag)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "testPopDuplicateZIndex2")
+            .assertAgainstGolden(screenshotRule, "testPopDuplicateZIndex")
     }
 }
 
@@ -659,3 +950,8 @@ private const val first = "first"
 private const val second = "second"
 private const val third = "third"
 private const val forth = "forth"
+
+private val BACKGROUND_RED = Color(1.0f, 0.3f, 0.3f, 1.0f)
+private val BACKGROUND_BLUE = Color(0.2f, 0.2f, 1.0f, 1.0f)
+
+private val BACKGROUND_GREEN = Color(0.2f, 0.9f, 0.7f, 1.0f)

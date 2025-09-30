@@ -13,12 +13,12 @@ package androidx.lifecycle {
     ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner provider);
     method @MainThread public void addObserver(androidx.lifecycle.LifecycleObserver observer);
     method @VisibleForTesting public static final androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
-    method public androidx.lifecycle.Lifecycle.State getCurrentState();
-    method public int getObserverCount();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getCurrentState();
+    method @InaccessibleFromKotlin public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
     method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State state);
     method @MainThread public void removeObserver(androidx.lifecycle.LifecycleObserver observer);
-    method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    method @InaccessibleFromKotlin public void setCurrentState(androidx.lifecycle.Lifecycle.State);
     property public androidx.lifecycle.Lifecycle.State currentState;
     property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
     property public int observerCount;

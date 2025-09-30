@@ -27,22 +27,36 @@ import androidx.lifecycle.Lifecycle.Event.ON_RESUME
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.Lifecycle.State.DESTROYED
 import androidx.lifecycle.Lifecycle.State.RESUMED
-import androidx.lifecycle.Lifecycle.State.STARTED
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 
 /**
- * Creates a new [LifecycleOwner] with a lifecycle that is a child of the parent composition's
+ * Remembers a new [LifecycleOwner] with a lifecycle that is a child of the parent composition's
  * lifecycle.
  *
  * This is useful for creating components (e.g., a map view) that need a lifecycle shorter than the
  * host screen. The child lifecycle will never be in a state greater than its parent, and it can be
- * further restricted by the [maxLifecycle] parameter. For example, you can ensure a component's
- * lifecycle never goes beyond [STARTED], even if the parent Fragment is [RESUMED].
+ * further restricted by the [maxLifecycle] parameter.
+ *
+ * The [Lifecycle] states are ordered: [Lifecycle.State.INITIALIZED] < [Lifecycle.State.CREATED] <
+ * [Lifecycle.State.STARTED] < [Lifecycle.State.RESUMED]. [Lifecycle.State.DESTROYED] is a terminal
+ * state. Setting a [maxLifecycle] of [Lifecycle.State.STARTED], for example, ensures the child's
+ * lifecycle will never enter the [Lifecycle.State.RESUMED] state, even if the parent is [RESUMED].
  *
  * When the composable leaves the composition, the child lifecycle will be moved to [DESTROYED].
  * This ensures the child is properly cleaned up even if it is referenced outside the composition.
+ *
+ * To provide the new [LifecycleOwner] to a sub-composition, use [CompositionLocalProvider]:
+ * ```
+ * // Limit a component's lifecycle to STARTED
+ * val startedLifecycleOwner = rememberLifecycleOwner(maxLifecycle = Lifecycle.State.STARTED)
+ * CompositionLocalProvider(LocalLifecycleOwner provides startedLifecycleOwner) {
+ *   // This component and its children will never be RESUMED,
+ *   // even if the parent is.
+ *   MyComposableThatObservesLifecycle()
+ * }
+ * ```
  *
  * **Null parent:** If [parent] is **EXPLICITLY** `null`, this creates a root lifecycle that runs
  * independently and manages its own state.
@@ -51,14 +65,13 @@ import androidx.lifecycle.LifecycleRegistry
  *   Defaults to [RESUMED].
  * @param parent The [LifecycleOwner] to use as the parent, or null if it is a root. Defaults to the
  *   [LocalLifecycleOwner].
- * @param content The composable content that will be scoped to the new child lifecycle.
+ * @return A new [LifecycleOwner] that is remembered across compositions.
  */
 @Composable
-public fun LifecycleOwner(
+public fun rememberLifecycleOwner(
     maxLifecycle: State = RESUMED,
     parent: LifecycleOwner? = LocalLifecycleOwner.current,
-    content: @Composable () -> Unit,
-) {
+): LifecycleOwner {
     val localLifecycleOwner = remember(parent) { ComposeLifecycleOwner() }
 
     // Pass LifecycleEvents from the parent down to the child.
@@ -91,8 +104,7 @@ public fun LifecycleOwner(
         localLifecycleOwner.maxLifecycleState = maxLifecycle
     }
 
-    // Now install the LifecycleOwner as a composition local.
-    CompositionLocalProvider(LocalLifecycleOwner provides localLifecycleOwner, content = content)
+    return localLifecycleOwner
 }
 
 /**

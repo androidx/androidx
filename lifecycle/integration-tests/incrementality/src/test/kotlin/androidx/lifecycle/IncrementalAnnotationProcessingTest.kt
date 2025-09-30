@@ -207,12 +207,12 @@ class IncrementalAnnotationProcessingTest {
             apply plugin: 'com.android.application'
 
             android {
-                namespace "androidx.lifecycle.incap"
-                compileSdk ${projectSetup.props.compileSdk}
-                buildToolsVersion "${projectSetup.props.buildToolsVersion}"
+                namespace = "androidx.lifecycle.incap"
+                compileSdk = ${projectSetup.props.compileSdk}
+                buildToolsVersion = "${projectSetup.props.buildToolsVersion}"
 
                 defaultConfig {
-                    minSdkVersion ${projectSetup.props.minSdkVersion}
+                    minSdk = ${projectSetup.props.minSdkVersion}
                 }
 
                 signingConfigs {

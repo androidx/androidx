@@ -43,7 +43,7 @@ object ListDetailNavDisplay {
 fun <T : Any> ListDetailNavDisplay(
     backstack: List<T>,
     modifier: Modifier = Modifier,
-    entryDecorators: List<NavEntryDecorator<*>> = emptyList(),
+    entryDecorators: List<NavEntryDecorator<T>> = emptyList(),
     onBack: () -> Unit = { if (backstack is MutableList) backstack.removeAt(backstack.size - 1) },
     windowWidthSizeClass: WindowWidthSizeClass =
         calculateWindowSizeClass(LocalActivity.current!!).widthSizeClass,

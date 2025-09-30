@@ -80,7 +80,7 @@ fun <T : Any> CommonUiNavDisplay(
     topLevelRoutes: List<TopLevelRoute>,
     onItemClick: (TopLevelRoute) -> Unit,
     modifier: Modifier = Modifier,
-    entryDecorators: List<NavEntryDecorator<*>> = emptyList(),
+    entryDecorators: List<NavEntryDecorator<T>> = emptyList(),
     contentAlignment: Alignment = Alignment.TopStart,
     sizeTransform: SizeTransform? = null,
     transitionSpec: ContentTransform =
@@ -91,7 +91,7 @@ fun <T : Any> CommonUiNavDisplay(
         ),
     popTransitionSpec: ContentTransform = transitionSpec,
     onBack: () -> Unit = { if (backstack is MutableList) backstack.removeAt(backstack.size - 1) },
-    entryProvider: (key: T) -> NavEntry<out T>,
+    entryProvider: (key: T) -> NavEntry<T>,
 ) {
     BackHandler(backstack.size > 1, onBack)
     val entries = rememberDecoratedNavEntries(backstack, entryDecorators, entryProvider)

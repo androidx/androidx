@@ -18,30 +18,50 @@ package androidx.navigationevent.testing
 
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.NavigationEventHandler
 
 /**
  * A test implementation of [NavigationEventDispatcherOwner] for verifying
  * [NavigationEventDispatcher] interactions.
  *
- * Use this class in tests to confirm that back-press fallbacks and callback status changes are
- * invoked as expected. It tracks the number of times these events occur via public counters.
+ * Use this class in tests to confirm that the `fallbackOnBackPressed` action is invoked as
+ * expected. It tracks the number of times this event occurs.
  *
- * @param fallbackOnBackPressed A lambda invoked by the [NavigationEventDispatcher] when a back
- *   press occurs and no other callbacks handle it.
+ * @param onBackCompletedFallback An optional lambda to execute when the [NavigationEventDispatcher]
+ *   back fallback is triggered. This is invoked *after* the internal invocation counter is
+ *   incremented.
  */
 public class TestNavigationEventDispatcherOwner(
-    fallbackOnBackPressed: TestNavigationEventDispatcherOwner.() -> Unit = {}
+    /**
+     * The number of times the dispatcher's `fallbackOnBackPressed` lambda has been invoked.
+     *
+     * This counter is incremented when a back navigation event completes and no
+     * [NavigationEventHandler] handles it.
+     */
+    onBackCompletedFallback: TestNavigationEventDispatcherOwner.() -> Unit = {}
 ) : NavigationEventDispatcherOwner {
 
-    /** The number of times [NavigationEventDispatcher.fallbackOnBackPressed] has been invoked. */
-    public var fallbackOnBackPressedInvocations: Int = 0
+    /**
+     * The number of times the dispatcher's `fallbackOnBackPressed` lambda has been invoked.
+     *
+     * This counter is incremented when a back navigation event completes and no
+     * [NavigationEventHandler] handles it.
+     */
+    public var onBackCompletedFallbackInvocations: Int = 0
         private set
 
+    /**
+     * The [NavigationEventDispatcher] instance managed by this owner.
+     *
+     * This dispatcher is created with the `fallbackOnBackPressed` lambda provided to the
+     * [TestNavigationEventDispatcherOwner]'s constructor, which increments
+     * [onBackCompletedFallback].
+     */
     override val navigationEventDispatcher: NavigationEventDispatcher =
         NavigationEventDispatcher(
-            fallbackOnBackPressed = {
-                fallbackOnBackPressedInvocations++
-                fallbackOnBackPressed.invoke(this)
+            onBackCompletedFallback = {
+                onBackCompletedFallbackInvocations++
+                onBackCompletedFallback.invoke(this)
             }
         )
 }

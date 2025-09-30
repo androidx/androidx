@@ -16,9 +16,10 @@
 
 package androidx.navigation3.runtime
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.navigation3.runtime.serialization.NavBackStackSerializer
+import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
@@ -36,10 +37,10 @@ internal class NavBackStackSerializerTest {
 
     @Test
     fun encodeDecode_withDefaultConfigAndMixedSubtypes_preservesValues() {
-        val backStack = mutableStateListOf(Home("root"), Details(42L), Settings(dark = true))
+        val backStack =
+            NavBackStack<SerializableScreen>(Home("root"), Details(42L), Settings(dark = true))
 
-        val serializer =
-            NavBackStackSerializer<Screen>(configuration = SavedStateConfiguration.DEFAULT)
+        val serializer = NavBackStackSerializer<SerializableScreen>()
 
         val encoded = encodeToSavedState(serializer, backStack)
         val decoded = decodeFromSavedState(serializer, encoded)
@@ -51,16 +52,16 @@ internal class NavBackStackSerializerTest {
     fun encodeDecode_withCustomModuleAndRegisteredSubtypes_preservesValues() {
         val configuration = SavedStateConfiguration {
             serializersModule = SerializersModule {
-                polymorphic(Screen::class) {
+                polymorphic(NotSerializableScreen::class) {
                     subclass(Home.serializer())
                     subclass(Details.serializer())
                 }
             }
         }
 
-        val backStack = mutableStateListOf(Home("root"), Details(7L))
+        val backStack = NavBackStack<NotSerializableScreen>(Home("root"), Details(7L))
 
-        val serializer = NavBackStackSerializer<Screen>(configuration = configuration)
+        val serializer = NavBackStackSerializer<NotSerializableScreen>()
         val encoded = encodeToSavedState(serializer, backStack, configuration)
         val decoded = decodeFromSavedState(serializer, encoded, configuration)
 
@@ -71,26 +72,27 @@ internal class NavBackStackSerializerTest {
     fun encode_withCustomModuleAndMissingSubtype_throwsSerializationException() {
         val configuration = SavedStateConfiguration {
             serializersModule = SerializersModule {
-                polymorphic(Screen::class) { subclass(Home.serializer()) }
+                polymorphic(NotSerializableScreen::class) { subclass(Home.serializer()) }
             }
         }
 
         val backStack =
-            mutableStateListOf(
+            NavBackStack<NotSerializableScreen>(
                 Home("root"),
                 Details(7L), // not registered
             )
 
-        val serializer = NavBackStackSerializer<Screen>(configuration = configuration)
+        val serializer = NavBackStackSerializer<NotSerializableScreen>()
 
-        assertThrows<SerializationException> { encodeToSavedState(serializer, backStack) }
+        assertThrows<SerializationException> {
+            encodeToSavedState(serializer, backStack, configuration)
+        }
     }
 
     @Test
     fun encodeDecode_withEmptyBackStack_returnsEmptyList() {
-        val backStack = mutableStateListOf<Screen>()
-        val serializer =
-            NavBackStackSerializer<Screen>(configuration = SavedStateConfiguration.DEFAULT)
+        val backStack = NavBackStack<SerializableScreen>()
+        val serializer = NavBackStackSerializer<SerializableScreen>()
 
         val encoded = encodeToSavedState(serializer, backStack)
         val decoded = decodeFromSavedState(serializer, encoded)
@@ -100,10 +102,9 @@ internal class NavBackStackSerializerTest {
 
     @Test
     fun encodeDecode_withDefaultConfig_preservesOrder() {
-        val backStack = mutableStateListOf(Home("a"), Details(1L), Home("b"), Details(2L))
-
-        val serializer =
-            NavBackStackSerializer<Screen>(configuration = SavedStateConfiguration.DEFAULT)
+        val backStack =
+            NavBackStack<SerializableScreen>(Home("a"), Details(1L), Home("b"), Details(2L))
+        val serializer = NavBackStackSerializer<SerializableScreen>()
 
         val encoded = encodeToSavedState(serializer, backStack)
         val decoded = decodeFromSavedState(serializer, encoded)
@@ -112,10 +113,17 @@ internal class NavBackStackSerializerTest {
     }
 }
 
-private interface Screen
+@Serializable(with = SerializableScreenSerializer::class)
+private interface SerializableScreen : NavKey
 
-@Serializable private data class Home(val id: String) : Screen
+private object SerializableScreenSerializer : NavKeySerializer<SerializableScreen>()
 
-@Serializable private data class Details(val itemId: Long) : Screen
+private interface NotSerializableScreen : NavKey
 
-@Serializable private data class Settings(val dark: Boolean) : Screen
+@Serializable private data class Home(val id: String) : SerializableScreen, NotSerializableScreen
+
+@Serializable
+private data class Details(val itemId: Long) : SerializableScreen, NotSerializableScreen
+
+@Serializable
+private data class Settings(val dark: Boolean) : SerializableScreen, NotSerializableScreen

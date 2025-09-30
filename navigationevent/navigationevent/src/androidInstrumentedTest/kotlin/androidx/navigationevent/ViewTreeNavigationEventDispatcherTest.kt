@@ -47,6 +47,30 @@ class ViewTreeNavigationEventDispatcherTest {
             .isSameInstanceAs(fakeOwner)
     }
 
+    @Test
+    fun canSetTheOwnerToNull() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val parent: ViewGroup = FrameLayout(context)
+        val child = View(context)
+        parent.addView(child)
+
+        val parentOwner: NavigationEventDispatcherOwner = FakeNavigationEventDispatcherOwner()
+        parent.setViewTreeNavigationEventDispatcherOwner(parentOwner)
+
+        val childOwner: NavigationEventDispatcherOwner = FakeNavigationEventDispatcherOwner()
+        child.setViewTreeNavigationEventDispatcherOwner(childOwner)
+
+        assertWithMessage("Get on child returns childOwner")
+            .that(child.findViewTreeNavigationEventDispatcherOwner())
+            .isSameInstanceAs(childOwner)
+
+        child.setViewTreeNavigationEventDispatcherOwner(null)
+
+        assertWithMessage("Get on child returns parentOwner")
+            .that(child.findViewTreeNavigationEventDispatcherOwner())
+            .isSameInstanceAs(parentOwner)
+    }
+
     /**
      * Tests that the owner set on a root of a subhierarchy is seen by both direct children and
      * other descendants

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.lifecycle.LifecycleService#getLifecycle():
+    Source breaking change: method androidx.lifecycle.LifecycleService.getLifecycle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ServiceLifecycleDispatcher#getLifecycle():
+    Source breaking change: method androidx.lifecycle.ServiceLifecycleDispatcher.getLifecycle() can no longer be resolved from Kotlin source

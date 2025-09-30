@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneExpansionAnchor#getDescription():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.getDescription()
+RemovedMethod: androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Proportion#getDescription():
+    Binary breaking change: Removed method androidx.compose.material3.adaptive.layout.PaneExpansionAnchor.Proportion.getDescription()

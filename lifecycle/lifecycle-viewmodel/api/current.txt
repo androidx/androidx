@@ -7,13 +7,13 @@ package androidx.lifecycle {
   }
 
   public final class AndroidViewModel_androidKt {
-    method public static inline android.app.Application getApplication(androidx.lifecycle.AndroidViewModel);
+    method @InaccessibleFromKotlin public static inline android.app.Application getApplication(androidx.lifecycle.AndroidViewModel);
     property public static inline android.app.Application androidx.lifecycle.AndroidViewModel.application;
   }
 
   public interface HasDefaultViewModelProviderFactory {
-    method public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
-    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method @InaccessibleFromKotlin public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
+    method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     property public default androidx.lifecycle.viewmodel.CreationExtras defaultViewModelCreationExtras;
     property public abstract androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
   }
@@ -32,14 +32,14 @@ package androidx.lifecycle {
   }
 
   public final class ViewModelKt {
-    method public static kotlinx.coroutines.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
+    method @InaccessibleFromKotlin public static kotlinx.coroutines.CoroutineScope getViewModelScope(androidx.lifecycle.ViewModel);
     property public static kotlinx.coroutines.CoroutineScope androidx.lifecycle.ViewModel.viewModelScope;
   }
 
   public final class ViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
     ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer);
     ctor public ViewModelLazy(kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore> storeProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory> factoryProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras> extrasProducer);
-    method public VM getValue();
+    method @InaccessibleFromKotlin public VM getValue();
     method public boolean isInitialized();
     property public VM value;
   }
@@ -110,7 +110,7 @@ package androidx.lifecycle {
   }
 
   public interface ViewModelStoreOwner {
-    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelStore getViewModelStore();
     property public abstract androidx.lifecycle.ViewModelStore viewModelStore;
   }
 

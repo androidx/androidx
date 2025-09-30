@@ -41,7 +41,9 @@ internal class AndroidViewModelScenarioTest : RobolectricTest() {
     fun recreate_bundle() {
         val expectedParcelable = TestParcelable(value = 1)
         val scenario = viewModelScenario { TestViewModel(handle = createSavedStateHandle()) }
-        scenario.viewModel.handle["key"] = bundleOf("key" to expectedParcelable)
+        scenario.viewModel.handle["key"] =
+            @Suppress("DEPRECATION") // bundleOf is deprecated
+            bundleOf("key" to expectedParcelable)
 
         scenario.recreate()
 
