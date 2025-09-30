@@ -307,6 +307,7 @@ public final class androidx/compose/foundation/ScrollState : androidx/compose/fo
 	public fun getLastScrolledBackward ()Z
 	public fun getLastScrolledForward ()Z
 	public final fun getMaxValue ()I
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public final fun getValue ()I
 	public final fun getViewportSize ()I
 	public fun isScrollInProgress ()Z
@@ -316,6 +317,13 @@ public final class androidx/compose/foundation/ScrollState : androidx/compose/fo
 
 public final class androidx/compose/foundation/ScrollState$Companion {
 	public final fun getSaver ()Landroidx/compose/runtime/saveable/Saver;
+}
+
+public final class androidx/compose/foundation/ScrollableAreaKt {
+	public static final fun scrollableArea (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/gestures/Orientation;Landroidx/compose/foundation/OverscrollEffect;ZZLandroidx/compose/foundation/gestures/FlingBehavior;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/foundation/gestures/BringIntoViewSpec;)Landroidx/compose/ui/Modifier;
+	public static final fun scrollableArea (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/gestures/Orientation;ZZLandroidx/compose/foundation/gestures/FlingBehavior;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/foundation/gestures/BringIntoViewSpec;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun scrollableArea$default (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/gestures/Orientation;Landroidx/compose/foundation/OverscrollEffect;ZZLandroidx/compose/foundation/gestures/FlingBehavior;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/foundation/gestures/BringIntoViewSpec;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun scrollableArea$default (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/gestures/Orientation;ZZLandroidx/compose/foundation/gestures/FlingBehavior;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/foundation/gestures/BringIntoViewSpec;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
 public abstract interface class androidx/compose/foundation/ScrollbarAdapter {
@@ -673,6 +681,7 @@ public abstract interface class androidx/compose/foundation/gestures/ScrollableS
 	public fun getCanScrollForward ()Z
 	public fun getLastScrolledBackward ()Z
 	public fun getLastScrolledForward ()Z
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public abstract fun isScrollInProgress ()Z
 	public abstract fun scroll (Landroidx/compose/foundation/MutatePriority;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun scroll$default (Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/MutatePriority;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
@@ -683,6 +692,7 @@ public final class androidx/compose/foundation/gestures/ScrollableState$DefaultI
 	public static fun getCanScrollForward (Landroidx/compose/foundation/gestures/ScrollableState;)Z
 	public static fun getLastScrolledBackward (Landroidx/compose/foundation/gestures/ScrollableState;)Z
 	public static fun getLastScrolledForward (Landroidx/compose/foundation/gestures/ScrollableState;)Z
+	public static fun getScrollIndicatorState (Landroidx/compose/foundation/gestures/ScrollableState;)Landroidx/compose/foundation/ScrollIndicatorState;
 	public static synthetic fun scroll$default (Landroidx/compose/foundation/gestures/ScrollableState;Landroidx/compose/foundation/MutatePriority;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -1040,6 +1050,7 @@ public final class androidx/compose/foundation/lazy/LazyListState : androidx/com
 	public fun getLastScrolledBackward ()Z
 	public fun getLastScrolledForward ()Z
 	public final fun getLayoutInfo ()Landroidx/compose/foundation/lazy/LazyListLayoutInfo;
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public fun isScrollInProgress ()Z
 	public final fun requestScrollToItem (II)V
 	public static synthetic fun requestScrollToItem$default (Landroidx/compose/foundation/lazy/LazyListState;IIILjava/lang/Object;)V
@@ -1194,6 +1205,7 @@ public final class androidx/compose/foundation/lazy/grid/LazyGridState : android
 	public fun getLastScrolledBackward ()Z
 	public fun getLastScrolledForward ()Z
 	public final fun getLayoutInfo ()Landroidx/compose/foundation/lazy/grid/LazyGridLayoutInfo;
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public fun isScrollInProgress ()Z
 	public final fun requestScrollToItem (II)V
 	public static synthetic fun requestScrollToItem$default (Landroidx/compose/foundation/lazy/grid/LazyGridState;IIILjava/lang/Object;)V
@@ -1431,6 +1443,7 @@ public final class androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredG
 	public fun getLastScrolledBackward ()Z
 	public fun getLastScrolledForward ()Z
 	public final fun getLayoutInfo ()Landroidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridLayoutInfo;
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public fun isScrollInProgress ()Z
 	public final fun requestScrollToItem (II)V
 	public static synthetic fun requestScrollToItem$default (Landroidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridState;IIILjava/lang/Object;)V
@@ -1574,6 +1587,7 @@ public abstract class androidx/compose/foundation/pager/PagerState : androidx/co
 	public final fun getLayoutInfo ()Landroidx/compose/foundation/pager/PagerLayoutInfo;
 	public final fun getOffsetDistanceInPages (I)F
 	public abstract fun getPageCount ()I
+	public fun getScrollIndicatorState ()Landroidx/compose/foundation/ScrollIndicatorState;
 	public final fun getSettledPage ()I
 	public final fun getTargetPage ()I
 	public fun isScrollInProgress ()Z

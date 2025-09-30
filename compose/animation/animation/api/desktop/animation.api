@@ -182,14 +182,14 @@ public abstract interface class androidx/compose/animation/SharedTransitionScope
 	public abstract fun getClipPath (Landroidx/compose/animation/SharedTransitionScope$SharedContentState;Landroidx/compose/ui/geometry/Rect;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;)Landroidx/compose/ui/graphics/Path;
 }
 
-public abstract interface class androidx/compose/animation/SharedTransitionScope$PlaceHolderSize {
-	public static final field Companion Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize$Companion;
+public abstract interface class androidx/compose/animation/SharedTransitionScope$PlaceholderSize {
+	public static final field Companion Landroidx/compose/animation/SharedTransitionScope$PlaceholderSize$Companion;
 	public abstract fun calculateSize-JyjRU_E (JJ)J
 }
 
-public final class androidx/compose/animation/SharedTransitionScope$PlaceHolderSize$Companion {
-	public final fun getAnimatedSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;
-	public final fun getContentSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceHolderSize;
+public final class androidx/compose/animation/SharedTransitionScope$PlaceholderSize$Companion {
+	public final fun getAnimatedSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceholderSize;
+	public final fun getContentSize ()Landroidx/compose/animation/SharedTransitionScope$PlaceholderSize;
 }
 
 public abstract interface class androidx/compose/animation/SharedTransitionScope$ResizeMode {
@@ -216,6 +216,7 @@ public final class androidx/compose/animation/SharedTransitionScope$SharedConten
 	public final fun getKey ()Ljava/lang/Object;
 	public final fun getParentSharedContentState ()Landroidx/compose/animation/SharedTransitionScope$SharedContentState;
 	public final fun isMatchFound ()Z
+	public final fun prepareTransitionWithInitialVelocity-TH1AsA0 (J)V
 }
 
 public final class androidx/compose/animation/SingleValueAnimationKt {

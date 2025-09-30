@@ -232,10 +232,6 @@ public final class androidx/compose/ui/test/IdlingResource$DefaultImpls {
 	public static fun getDiagnosticMessageIfBusy (Landroidx/compose/ui/test/IdlingResource;)Ljava/lang/String;
 }
 
-public final class androidx/compose/ui/test/IndirectTouchInputHelpersKt {
-	public static final fun performIndirectTouchEvent (Landroidx/compose/ui/test/SemanticsNodeInteraction;Landroidx/compose/ui/input/indirect/IndirectTouchEvent;)Z
-}
-
 public abstract interface class androidx/compose/ui/test/InjectionScope : androidx/compose/ui/unit/Density {
 	public abstract fun advanceEventTime (J)V
 	public static synthetic fun advanceEventTime$default (Landroidx/compose/ui/test/InjectionScope;JILjava/lang/Object;)V
