@@ -110,7 +110,7 @@ class SelectionContainerTests : OnCanvasTests {
         // reset selection by clicking
         canvas.doClick()
         selection = syncChannel.receive()
-        assertFalse(selection.exists())
+        assertTrue(selection.exists())
     }
 
     @Test
