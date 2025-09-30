@@ -91,7 +91,7 @@ class FocusedViewsListTest {
 
         list.remove(view3, delayMillis = 50)
         performRunLoopCycle()
-        assertTrue(view3.isFirstResponder())
+        assertFalse(view3.isFirstResponder())
 
         performRunLoopCycle(delayMills = 100)
         assertTrue(view2.isFirstResponder())
