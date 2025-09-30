@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+TypeParameterName: androidx.compose.material3.adaptive.layout.AnimatedPaneOverride#AnimatedPane(androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope<Role,ScaffoldValue>):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldPaneScope:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldScope:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneKt#AnimatedPane(androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldPaneScope<Role,ScaffoldValue>, androidx.compose.ui.Modifier, androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntRect>, kotlin.jvm.functions.Function1<androidx.compose.material3.adaptive.layout.AnimatedPaneScope,kotlin.Unit>):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneMotionKt#calculateDefaultEnterTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionDataProvider<Role>, Role):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneMotionKt#calculateDefaultExitTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionDataProvider<Role>, Role):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneMotionKt#forEach(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionDataProvider<Role>, kotlin.jvm.functions.Function2<? super Role,? super androidx.compose.material3.adaptive.layout.PaneMotionData,kotlin.Unit>):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneMotionKt#forEachReversed(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionDataProvider<Role>, kotlin.jvm.functions.Function2<? super Role,? super androidx.compose.material3.adaptive.layout.PaneMotionData,kotlin.Unit>):
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneScaffoldHorizontalOrder:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneScaffoldMotionDataProvider:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneScaffoldPaneScope:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneScaffoldTransitionScope:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.material3.adaptive.layout.PaneScaffoldValue:
+    Invalid type parameter name "Role". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

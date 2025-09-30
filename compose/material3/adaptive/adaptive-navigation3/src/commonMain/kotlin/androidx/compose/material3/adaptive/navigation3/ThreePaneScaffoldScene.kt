@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive.navigation3
 
-import androidx.activity.compose.PredictiveBackHandler
 import androidx.collection.IntList
 import androidx.collection.buildIntSet
 import androidx.compose.animation.core.CubicBezierEasing
@@ -42,8 +41,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.ui.Scene
-import kotlinx.coroutines.CancellationException
+import androidx.navigation3.scene.Scene
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.NavigationEventTransitionState
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal sealed interface ThreePaneScaffoldType {
@@ -201,20 +204,35 @@ internal class ThreePaneScaffoldScene<T : Any>(
         LaunchedEffect(scaffoldValue) { scaffoldState.animateTo(scaffoldValue) }
 
         val previousScaffoldValue = onBackResult.previousScaffoldValue
-        PredictiveBackHandler(enabled = previousScaffoldValue != null) { progress ->
-            try {
-                progress.collect { backEvent ->
-                    scaffoldState.seekTo(
-                        fraction =
-                            backProgressToStateProgress(
-                                progress = backEvent.progress,
-                                scaffoldValue = scaffoldValue,
-                            ),
-                        targetState = previousScaffoldValue!!,
-                    )
+
+        val gestureState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
+        NavigationBackHandler(
+            state = gestureState,
+            isBackEnabled = previousScaffoldValue != null,
+            onBackCompleted = { onBack(allEntries.size - onBackResult.previousEntries.size) },
+        )
+
+        val dispatcher =
+            checkNotNull(LocalNavigationEventDispatcherOwner.current) {
+                    "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
                 }
-                onBack(allEntries.size - onBackResult.previousEntries.size)
-            } catch (_: CancellationException) {
+                .navigationEventDispatcher
+
+        val transitionState = gestureState.transitionState
+        LaunchedEffect(transitionState) {
+            // Update the scaffold based on the gesture's state:
+            if (transitionState is NavigationEventTransitionState.InProgress) {
+                // InProgress: Scrub the scaffold's position in real-time.
+                scaffoldState.seekTo(
+                    fraction =
+                        backProgressToStateProgress(
+                            progress = transitionState.latestEvent.progress,
+                            scaffoldValue = scaffoldValue,
+                        ),
+                    targetState = previousScaffoldValue!!,
+                )
+            } else {
+                // Completed/Cancelled: Animate back to the stable state.
                 scaffoldState.animateTo(targetState = scaffoldValue)
             }
         }
@@ -259,6 +277,42 @@ internal class ThreePaneScaffoldScene<T : Any>(
             supportingPane = lastSupporting?.let { { AnimatedPane { it.Content() } } } ?: {},
             extraPane = lastExtra?.let { { AnimatedPane { it.Content() } } },
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ThreePaneScaffoldScene<*>
+
+        return key == other.key &&
+            backNavBehavior == other.backNavBehavior &&
+            directive == other.directive &&
+            adaptStrategies == other.adaptStrategies &&
+            allEntries == other.allEntries &&
+            previousEntries == other.previousEntries &&
+            scaffoldEntries == other.scaffoldEntries &&
+            scaffoldEntryIndices == scaffoldEntryIndices &&
+            entriesAsNavItems == other.entriesAsNavItems
+    }
+
+    override fun hashCode(): Int {
+        return key.hashCode() * 31 +
+            backNavBehavior.hashCode() * 31 +
+            directive.hashCode() * 31 +
+            adaptStrategies.hashCode() * 31 +
+            allEntries.hashCode() * 31 +
+            previousEntries.hashCode() * 31 +
+            scaffoldEntries.hashCode() * 31 +
+            scaffoldEntryIndices.hashCode() * 31 +
+            entriesAsNavItems.hashCode() * 31
+    }
+
+    override fun toString(): String {
+        return "ThreePaneScaffoldScene(key=$key, backNavBehavior=$backNavBehavior" +
+            ", directive=$directive, adaptStrategies=$adaptStrategies, allEntries=$allEntries, " +
+            "previousEntries=$previousEntries, scaffoldEntries=$scaffoldEntries, " +
+            "scaffoldEntryIndices=$scaffoldEntryIndices, entriesAsNavItems=$entriesAsNavItems)"
     }
 }
 
