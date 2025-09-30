@@ -49,12 +49,12 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
  * SkiaLayer is underlying class used internally to draw Compose content.
  * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
- * @param savedState The saved state to restore the UI state from a previous instance.
+ * @param savedState2 The saved state to restore the UI state from a previous instance.
  */
 class ComposeWindow @ExperimentalComposeUiApi constructor(
     graphicsConfiguration: GraphicsConfiguration? = null,
     skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-    savedState: SavedState? = null,
+    savedState2: SavedState? = null,
 ) : JFrame(graphicsConfiguration) {
     /**
      * ComposeWindow is a window for building UI using Compose for Desktop.
@@ -71,7 +71,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         window = this,
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
-        savedState = savedState,
+        savedState = savedState2,
     )
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
@@ -184,7 +184,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     /**
      * Saves the current UI state into a [SavedState] object. The returned state can be used
-     * to restore the UI state later by passing it to the constructor's [savedState] parameter.
+     * to restore the UI state later by passing it to the constructor's [savedState2] parameter.
      *
      * @return A [SavedState] object containing the current UI state.
      */

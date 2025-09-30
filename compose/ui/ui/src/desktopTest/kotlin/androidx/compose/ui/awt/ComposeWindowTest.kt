@@ -314,7 +314,7 @@ class ComposeWindowTest {
         }
 
         suspend fun testWindow(savedState: SavedState? = null, verify: (ComposeWindow) -> Unit) {
-            val window = ComposeWindow(savedState = savedState)
+            val window = ComposeWindow(savedState2 = savedState)
             try {
                 window.setContent { testContent() }
                 window.isVisible = true

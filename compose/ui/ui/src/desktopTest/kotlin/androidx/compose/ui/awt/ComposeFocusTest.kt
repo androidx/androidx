@@ -76,7 +76,7 @@ class ComposeFocusTest {
         window.isVisible = true
 
         testRandomFocus(
-            composeButton1, composeButton2, composeButton3, composeButton4
+            composeButton1, composeButton3, composeButton2, composeButton4
         )
     }
 
