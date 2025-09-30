@@ -100,6 +100,7 @@ actual fun Modifier.mandatorySystemGesturesPadding(): Modifier =
     }
 
 // FIXME: Should be replaced with non-composed InsetsPaddingModifierElement
+//  https://youtrack.jetbrains.com/issue/CMP-8998
 @Suppress("NOTHING_TO_INLINE")
 @Stable
 private inline fun Modifier.windowInsetsPadding(
