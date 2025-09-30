@@ -23,10 +23,43 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresApi
 
-/** Provides input from OnBackInvokedCallback to the given [NavigationEventDispatcher]. */
+/**
+ * Provides input to a [NavigationEventDispatcher] by registering an [OnBackInvokedCallback] with
+ * the [OnBackInvokedDispatcher.PRIORITY_DEFAULT] priority to [onBackInvokedDispatcher]. The input
+ * will unregister this callback when there's no enabled [NavigationEventHandler] with
+ * [NavigationEventDispatcher.PRIORITY_DEFAULT] priority.
+ *
+ * @param onBackInvokedDispatcher the [OnBackInvokedDispatcher] to use.
+ */
 @RequiresApi(33)
-public class OnBackInvokedInput(private val onBackInvokedDispatcher: OnBackInvokedDispatcher) :
-    NavigationEventInput() {
+public class OnBackInvokedDefaultInput(onBackInvokedDispatcher: OnBackInvokedDispatcher) :
+    OnBackInvokedInput(onBackInvokedDispatcher, OnBackInvokedDispatcher.PRIORITY_DEFAULT)
+
+/**
+ * Provides input to a [NavigationEventDispatcher] by registering an [OnBackInvokedCallback] with
+ * the [OnBackInvokedDispatcher.PRIORITY_OVERLAY] priority to [onBackInvokedDispatcher]. The input
+ * will unregister this callback when there's no enabled [NavigationEventHandler] with
+ * [NavigationEventDispatcher.PRIORITY_OVERLAY] priority.
+ *
+ * @param onBackInvokedDispatcher the [OnBackInvokedDispatcher] to use.
+ */
+@RequiresApi(33)
+public class OnBackInvokedOverlayInput(onBackInvokedDispatcher: OnBackInvokedDispatcher) :
+    OnBackInvokedInput(onBackInvokedDispatcher, OnBackInvokedDispatcher.PRIORITY_OVERLAY)
+
+/**
+ * Provides input to a [NavigationEventDispatcher] by registering an [OnBackInvokedCallback] to the
+ * passed in [onBackInvokedDispatcher].
+ *
+ * @param onBackInvokedDispatcher the [OnBackInvokedDispatcher] to use.
+ * @param onBackInvokedCallbackPriority the priority to use.
+ */
+@RequiresApi(33)
+public sealed class OnBackInvokedInput(
+    private val onBackInvokedDispatcher: OnBackInvokedDispatcher,
+    private val onBackInvokedCallbackPriority: Int,
+) : NavigationEventInput() {
+
     private val onBackInvokedCallback: OnBackInvokedCallback =
         if (Build.VERSION.SDK_INT == 33) {
             OnBackInvokedCallback { dispatchOnBackCompleted() }
@@ -36,22 +69,18 @@ public class OnBackInvokedInput(private val onBackInvokedDispatcher: OnBackInvok
 
     private var backInvokedCallbackRegistered = false
 
-    override fun onAdded(dispatcher: NavigationEventDispatcher) {
-        updateBackInvokedCallbackState(dispatcher.hasEnabledHandler())
-    }
-
     override fun onRemoved() {
         updateBackInvokedCallbackState(false)
     }
 
-    override fun onHasEnabledHandlerChanged(hasEnabledHandler: Boolean) {
-        updateBackInvokedCallbackState(hasEnabledHandler)
+    override fun onHasEnabledHandlersChanged(hasEnabledHandlers: Boolean) {
+        updateBackInvokedCallbackState(hasEnabledHandlers)
     }
 
     private fun updateBackInvokedCallbackState(shouldBeRegistered: Boolean) {
         if (shouldBeRegistered && !backInvokedCallbackRegistered) {
             onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                onBackInvokedCallbackPriority,
                 onBackInvokedCallback,
             )
             backInvokedCallbackRegistered = true

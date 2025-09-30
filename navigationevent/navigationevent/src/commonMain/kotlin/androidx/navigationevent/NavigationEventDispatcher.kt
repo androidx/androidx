@@ -16,19 +16,16 @@
 
 package androidx.navigationevent
 
+import androidx.annotation.IntDef
 import androidx.annotation.MainThread
-import androidx.navigationevent.NavigationEventPriority.Companion.Default
-import androidx.navigationevent.NavigationEventPriority.Companion.Overlay
-import androidx.navigationevent.NavigationEventState.Idle
-import androidx.navigationevent.NavigationEventState.InProgress
-import kotlin.jvm.JvmName
+import androidx.annotation.RestrictTo
+import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_DEFAULT
+import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_OVERLAY
+import androidx.navigationevent.NavigationEventTransitionState.Direction
+import androidx.navigationevent.NavigationEventTransitionState.Idle
+import androidx.navigationevent.NavigationEventTransitionState.InProgress
 import kotlin.jvm.JvmOverloads
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * A dispatcher for navigation events that can be organized hierarchically.
@@ -51,16 +48,16 @@ public class NavigationEventDispatcher
  *
  * All public constructors delegate to this one to perform the actual initialization.
  *
- * @param parentDispatcher An optional reference to a parent [NavigationEventDispatcher]. Providing
- *   a parent allows this dispatcher to participate in a hierarchical event system, sharing the same
+ * @param parent An optional reference to a parent [NavigationEventDispatcher]. Providing a parent
+ *   allows this dispatcher to participate in a hierarchical event system, sharing the same
  *   underlying [NavigationEventProcessor] as its parent. If `null`, this dispatcher acts as the
  *   root of its own event handling hierarchy.
- * @param fallbackOnBackPressed An optional lambda to be invoked if a navigation event completes and
- *   no registered [NavigationEventHandler] handles it. This provides a default "back" action.
+ * @param onBackCompletedFallback An optional lambda to be invoked if a back event completes and no
+ *   registered [NavigationEventHandler] handles it. This provides a default "back" action.
  */
 private constructor(
-    private var parentDispatcher: NavigationEventDispatcher?,
-    private val fallbackOnBackPressed: (() -> Unit)?,
+    private var parent: NavigationEventDispatcher?,
+    private val onBackCompletedFallback: OnBackCompletedFallback?,
 ) {
 
     /**
@@ -72,7 +69,7 @@ private constructor(
      * If a navigation event completes without being handled by any registered
      * [NavigationEventHandler], nothing further will happen.
      */
-    public constructor() : this(parentDispatcher = null, fallbackOnBackPressed = null)
+    public constructor() : this(parent = null, onBackCompletedFallback = null)
 
     /**
      * Creates a **root** `NavigationEventDispatcher` with a fallback action.
@@ -80,13 +77,13 @@ private constructor(
      * Establishes the top-level dispatcher for a new navigation hierarchy, typically within an
      * `Activity` or a top-level composable. It creates its own internal [NavigationEventProcessor].
      *
-     * @param fallbackOnBackPressed A lambda to be invoked if a navigation event **completes** and
+     * @param onBackCompletedFallback A lambda to be invoked if a navigation event **completes** and
      *   no registered [NavigationEventHandler] handles it. This provides a default "back" action
      *   for the entire hierarchy. **It will not be invoked if the event is cancelled.**
      */
     public constructor(
-        fallbackOnBackPressed: () -> Unit
-    ) : this(parentDispatcher = null, fallbackOnBackPressed = fallbackOnBackPressed)
+        onBackCompletedFallback: OnBackCompletedFallback
+    ) : this(parent = null, onBackCompletedFallback = onBackCompletedFallback)
 
     /**
      * Creates a **child** `NavigationEventDispatcher` linked to a parent.
@@ -95,23 +92,22 @@ private constructor(
      * same underlying [NavigationEventProcessor] as its parent, allowing it to participate in the
      * same event stream.
      *
-     * @param parentDispatcher The parent `NavigationEventDispatcher` to which this dispatcher will
-     *   be attached.
+     * @param parent The parent `NavigationEventDispatcher` to which this dispatcher will be
+     *   attached.
      */
     public constructor(
-        parentDispatcher: NavigationEventDispatcher
-    ) : this(parentDispatcher = parentDispatcher, fallbackOnBackPressed = null)
+        parent: NavigationEventDispatcher
+    ) : this(parent = parent, onBackCompletedFallback = null)
 
     /**
      * Returns `true` if this dispatcher is in a terminal state and can no longer be used.
      *
-     * A dispatcher is considered disposed if it has been explicitly disposed or if its
-     * [parentDispatcher] has been disposed. This state is checked by [checkInvariants] to prevent
-     * use-after-dispose errors.
+     * A dispatcher is considered disposed if it has been explicitly disposed or if its [parent] has
+     * been disposed. This state is checked by [checkInvariants] to prevent use-after-dispose
+     * errors.
      */
-    internal var isDisposed: Boolean = false
-        get() = if (parentDispatcher?.isDisposed == true) true else field
-        private set // The setter is private and should only be modified by the dispose() method.
+    private var isDisposed: Boolean = false
+        get() = if (parent?.isDisposed == true) true else field
 
     /**
      * Controls whether this dispatcher is active and will process navigation events.
@@ -134,7 +130,7 @@ private constructor(
      * the `isEnabled` properties of all its ancestors must also be `true`.
      */
     public var isEnabled: Boolean = true
-        get() = if (parentDispatcher?.isEnabled == false) false else field
+        get() = if (parent?.isEnabled == false) false else field
         set(value) {
             checkInvariants()
 
@@ -142,7 +138,7 @@ private constructor(
             if (field == value) return
 
             field = value
-            updateEnabledHandlers()
+            sharedProcessor.refreshEnabledHandlers()
         }
 
     /**
@@ -151,15 +147,15 @@ private constructor(
      *
      * This processor ensures consistent ordering and state for all navigation events across the
      * application's hierarchy. It is initialized in one of two ways:
-     * - If a [parentDispatcher] is provided, this dispatcher will share its parent's processor,
-     *   allowing for a hierarchical event handling structure where child dispatchers defer to their
-     *   parents for core event management.
-     * - If no [parentDispatcher] is provided (i.e., this is a root dispatcher), a new
+     * - If a [parent] is provided, this dispatcher will share its parent's processor, allowing for
+     *   a hierarchical event handling structure where child dispatchers defer to their parents for
+     *   core event management.
+     * - If no [parent] is provided (i.e., this is a root dispatcher), a new
      *   [NavigationEventProcessor] instance is created, becoming the root of its own event handling
      *   tree.
      */
     internal val sharedProcessor: NavigationEventProcessor =
-        parentDispatcher?.sharedProcessor ?: NavigationEventProcessor()
+        parent?.sharedProcessor ?: NavigationEventProcessor()
 
     /**
      * A collection of child [NavigationEventDispatcher] instances that have registered with this
@@ -195,109 +191,88 @@ private constructor(
     private val inputs = mutableSetOf<NavigationEventInput>()
 
     /**
-     * The [StateFlow] from the highest-priority, enabled navigation handler.
+     * The globally observable, read-only state of the physical navigation gesture.
      *
-     * This represents the navigation state of the currently active component.
+     * This flow represents *only* the gesture's progress (e.g., [Idle] or [InProgress]) and is
+     * separate from the navigation history state.
+     *
+     * System-level components or UI animations can subscribe to this flow to react to the start,
+     * progress, and end of a gesture without needing to know about the specific, generic
+     * [NavigationEventInfo] types involved in the history.
+     *
+     * This state is derived from the [NavigationEventTransitionState] of the currently active
+     * [NavigationEventHandler].
      */
-    public val state: StateFlow<NavigationEventState<NavigationEventInfo>> = sharedProcessor.state
+    public val transitionState: StateFlow<NavigationEventTransitionState>
+        get() = sharedProcessor.transitionState
 
     /**
-     * Creates a [StateFlow] that only emits states for a specific [NavigationEventInfo] type.
+     * The globally observable, read-only state of the navigation history stack.
      *
-     * @param T The [NavigationEventInfo] type to filter for.
-     * @param scope The [CoroutineScope] in which the new [StateFlow] is created.
-     * @param initialInfo The initial [NavigationEventInfo] of type [T] to be used when the
-     *   [StateFlow] starts.
-     * @return A [StateFlow] that emits values only when the state's destination is of type [T].
+     * This flow represents *only* the navigation stack (the [NavigationEventHistory.mergedHistory]
+     * and [NavigationEventHistory.currentIndex]) and is the counterpart to transition state.
+     *
+     * A key contract of this state is that it remains **stable** during a navigation gesture. It
+     * only updates when the navigation stack itself changes (e.g., when a new handler becomes
+     * active, or the active handler's info is updated), which typically occurs *after* a gesture
+     * completes or *before* one begins.
+     *
+     * This allows UI components to subscribe only to changes in the history stack without being
+     * notified of rapid gesture progress updates from transition state.
      */
-    public inline fun <reified T : NavigationEventInfo> getState(
-        scope: CoroutineScope,
-        initialInfo: T,
-    ): StateFlow<NavigationEventState<T>> {
-        // We can't use filterIsInstance<NavigationEventState<T>> because the type argument `T`
-        // is erased at runtime — so the JVM only sees NavigationEventState<*>. Instead, we filter
-        // by checking whether the state's contained `currentInfo` is of type `T`.
-        return state
-            .filter { state ->
-                when (state) {
-                    is Idle -> state.currentInfo is T
-                    is InProgress -> state.currentInfo is T
-                }
-            }
-            .mapNotNull { state ->
-                @Suppress("UNCHECKED_CAST")
-                state as? NavigationEventState<T>
-            }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = Idle(currentInfo = initialInfo),
-            )
-    }
+    public val history: StateFlow<NavigationEventHistory>
+        get() = sharedProcessor.history
 
     init {
         // If a parent dispatcher is provided, register this dispatcher as its child.
         // This establishes the hierarchical relationship and ensures the parent is aware
         // of its direct descendants for proper event propagation and cleanup.
-        parentDispatcher?.childDispatchers += this
-    }
-
-    /**
-     * Returns `true` if there is at least one [NavigationEventHandler.isBackEnabled] handler
-     * registered globally within this dispatcher hierarchy.
-     *
-     * @return `true` if any handler is enabled, `false` otherwise.
-     */
-    public fun hasEnabledHandler(): Boolean = sharedProcessor.hasEnabledHandler()
-
-    /**
-     * Recomputes and updates the current [hasEnabledHandler] state based on the enabled status of
-     * all registered handlers. This method should be called whenever a handler's enabled state or
-     * its registration status (added/removed) changes.
-     */
-    internal fun updateEnabledHandlers() {
-        sharedProcessor.updateEnabledHandlers()
+        parent?.childDispatchers += this
     }
 
     /**
      * Adds a new [NavigationEventHandler] to receive navigation events.
      *
-     * **Handlers are invoked based on [priority], and then by recency.** All [Overlay] handlers are
-     * called before any [Default] handlers. Within each priority group, handlers are invoked in a
-     * Last-In, First-Out (LIFO) order—the most recently added handler is called first.
+     * **Handlers are invoked based on [priority], and then by recency.** All [PRIORITY_OVERLAY]
+     * handlers are called before any [PRIORITY_DEFAULT] handlers. Within each priority group,
+     * handlers are invoked in a Last-In, First-Out (LIFO) order—the most recently added handler is
+     * called first.
      *
      * All handlers are invoked on the main thread. To stop receiving events, a handler must be
      * removed via [NavigationEventHandler.remove].
      *
      * @param handler The handler instance to be added.
      * @param priority The priority of the handler, determining its invocation order relative to
-     *   others. See [NavigationEventPriority].
+     *   others. See [NavigationEventDispatcher.Priority].
      * @throws IllegalArgumentException if the given handler is already registered with a different
      *   dispatcher.
+     * @throws IllegalArgumentException if [priority] is not one of the supported constants.
      * @throws IllegalStateException if the dispatcher has already been disposed.
      */
     @Suppress("PairedRegistration") // handler is removed via `NavigationEventHandler.remove()`
-    @JvmName("addHandler") // Disable name mangling for Java
     @MainThread
     @JvmOverloads
     public fun addHandler(
         handler: NavigationEventHandler<*>,
-        priority: NavigationEventPriority = Default,
+        @Priority priority: Int = PRIORITY_DEFAULT,
     ) {
         checkInvariants()
 
-        sharedProcessor.addHandler(dispatcher = this, handler, priority)
-        handlers += handler
+        if (handlers.add(handler)) {
+            sharedProcessor.addHandler(dispatcher = this, handler, priority)
+        }
     }
 
+    /** [NavigationEventHandler.remove] */
     internal fun removeHandler(handler: NavigationEventHandler<*>) {
-        sharedProcessor.removeHandler(handler)
-        handlers -= handler
+        if (handlers.remove(handler)) {
+            sharedProcessor.removeHandler(handler)
+        }
     }
 
     /**
-     * Adds an input, registering it with the shared processor and binding it to this dispatcher's
-     * lifecycle.
+     * Adds an input with an unspecified priority, registering it with the shared processor and
+     * binding it to this dispatcher's lifecycle.
      *
      * The input is registered globally with the [sharedProcessor] to receive system-wide state
      * updates (e.g., whether any handlers are enabled). It is also tracked locally by this
@@ -307,8 +282,8 @@ private constructor(
      * will be automatically detached when this dispatcher [dispose] is called.
      *
      * @param input The input to add.
-     * @throws IllegalStateException if the dispatcher has already been disposed or if [input] is
-     *   already added to a dispatcher.
+     * @throws IllegalStateException if the dispatcher has already been disposed.
+     * @throws IllegalArgumentException if [input] is already added to a dispatcher.
      * @see removeInput
      * @see NavigationEventInput.onRemoved
      */
@@ -317,12 +292,41 @@ private constructor(
         checkInvariants()
 
         if (inputs.add(input)) {
-            check(input.dispatcher == null) {
-                "This input is already added to dispatcher ${input.dispatcher}."
-            }
-            sharedProcessor.inputs += input
-            input.dispatcher = this
-            input.doOnAdded(this)
+            sharedProcessor.addInput(dispatcher = this, input, priority = -1)
+        }
+    }
+
+    /**
+     * Adds an input with a specific priority, registering it with the shared processor and binding
+     * it to this dispatcher's lifecycle.
+     *
+     * The input is registered globally with the [sharedProcessor] to receive system-wide state
+     * updates (e.g., whether any handlers are enabled). It is also tracked locally by this
+     * dispatcher for lifecycle management.
+     *
+     * The input's [NavigationEventInput.onAdded] method is invoked immediately upon addition. It
+     * will be automatically detached when this dispatcher [dispose] is called.
+     *
+     * @param input The input to add.
+     * @param priority The priority to associate with this input. Must be one of the supported
+     *   constants: [PRIORITY_OVERLAY], [PRIORITY_DEFAULT].
+     * @throws IllegalStateException if the dispatcher has already been disposed.
+     * @throws IllegalArgumentException if [input] is already added to a dispatcher.
+     * @throws IllegalArgumentException if [priority] is not one of the supported constants.
+     * @see removeInput
+     * @see NavigationEventInput.onRemoved
+     */
+    @MainThread
+    public fun addInput(input: NavigationEventInput, @Priority priority: Int) {
+        checkInvariants()
+        require(priority == PRIORITY_DEFAULT || priority == PRIORITY_OVERLAY) {
+            // Since this method may be called from other targets (e.g., Swift),
+            // IntDef lint checks may not be available. We must validate at runtime.
+            "Unsupported priority value: $priority"
+        }
+
+        if (inputs.add(input)) {
+            sharedProcessor.addInput(dispatcher = this, input, priority)
         }
     }
 
@@ -343,26 +347,15 @@ private constructor(
         checkInvariants()
 
         if (inputs.remove(input)) {
-            sharedProcessor.inputs -= input
-            input.dispatcher = null
-            input.doOnRemoved()
+            sharedProcessor.removeInput(dispatcher = this, input)
         }
     }
 
-    /**
-     * Dispatch an [NavigationEventHandler.onBackStarted] event with the given event. This call is
-     * delegated to the shared [NavigationEventProcessor].
-     *
-     * @param input The [NavigationEventInput] that sourced this event.
-     * @param direction The direction of the navigation event being started.
-     * @param event [NavigationEvent] to dispatch to the handlers.
-     * @throws IllegalStateException if the dispatcher has already been disposed.
-     */
-    @MainThread
+    /** @see [NavigationEventProcessor.dispatchOnStarted] */
     internal fun dispatchOnStarted(
         input: NavigationEventInput,
-        direction: NavigationEventDirection,
-        event: NavigationEvent,
+        direction: @Direction Int,
+        event: NavigationEvent?,
     ) {
         checkInvariants()
 
@@ -370,19 +363,10 @@ private constructor(
         sharedProcessor.dispatchOnStarted(input, direction, event)
     }
 
-    /**
-     * Dispatch an [NavigationEventHandler.onBackProgressed] event with the given event. This call
-     * is delegated to the shared [NavigationEventProcessor].
-     *
-     * @param input The [NavigationEventInput] that sourced this event.
-     * @param direction The direction of the navigation event being started.
-     * @param event [NavigationEvent] to dispatch to the handlers.
-     * @throws IllegalStateException if the dispatcher has already been disposed.
-     */
-    @MainThread
+    /** @see [NavigationEventProcessor.dispatchOnProgressed] */
     internal fun dispatchOnProgressed(
         input: NavigationEventInput,
-        direction: NavigationEventDirection,
+        direction: @Direction Int,
         event: NavigationEvent,
     ) {
         checkInvariants()
@@ -391,38 +375,16 @@ private constructor(
         sharedProcessor.dispatchOnProgressed(input, direction, event)
     }
 
-    /**
-     * Dispatch an [NavigationEventHandler.onBackCompleted] event. This call is delegated to the
-     * shared [NavigationEventProcessor], passing the fallback action.
-     *
-     * @param input The [NavigationEventInput] that sourced this event.
-     * @param direction The direction of the navigation event being started.
-     * @throws IllegalStateException if the dispatcher has already been disposed.
-     */
-    @MainThread
-    internal fun dispatchOnCompleted(
-        input: NavigationEventInput,
-        direction: NavigationEventDirection,
-    ) {
+    /** @see [NavigationEventProcessor.dispatchOnCompleted] */
+    internal fun dispatchOnCompleted(input: NavigationEventInput, direction: @Direction Int) {
         checkInvariants()
 
         if (!isEnabled) return
-        sharedProcessor.dispatchOnCompleted(input, direction, fallbackOnBackPressed)
+        sharedProcessor.dispatchOnCompleted(input, direction, onBackCompletedFallback)
     }
 
-    /**
-     * Dispatch an [NavigationEventHandler.onBackCancelled] event. This call is delegated to the
-     * shared [NavigationEventProcessor].
-     *
-     * @param input The [NavigationEventInput] that sourced this event.
-     * @param direction The direction of the navigation event being started.
-     * @throws IllegalStateException if the dispatcher has already been disposed.
-     */
-    @MainThread
-    internal fun dispatchOnCancelled(
-        input: NavigationEventInput,
-        direction: NavigationEventDirection,
-    ) {
+    /** @see [NavigationEventProcessor.dispatchOnCancelled] */
+    internal fun dispatchOnCancelled(input: NavigationEventInput, direction: @Direction Int) {
         checkInvariants()
 
         if (!isEnabled) return
@@ -474,11 +436,9 @@ private constructor(
             // This gives them a chance to clean up their own state, severing the lifecycle link
             // and preventing them from interacting with a disposed object.
             for (input in currentDispatcher.inputs) {
-                sharedProcessor.inputs -= input
-                input.dispatcher = null
-                input.doOnRemoved()
+                sharedProcessor.removeInput(currentDispatcher, input)
             }
-            inputs.clear()
+            currentDispatcher.inputs.clear()
 
             // Remove handlers directly owned by the currentDispatcher from the shared processor.
             for (handler in currentDispatcher.handlers) {
@@ -494,8 +454,8 @@ private constructor(
 
             // Remove the currentDispatcher from its parent's list of children.
             // This step breaks upward references in the hierarchy.
-            currentDispatcher.parentDispatcher?.childDispatchers?.remove(currentDispatcher)
-            currentDispatcher.parentDispatcher = null // Clear local parent reference
+            currentDispatcher.parent?.childDispatchers?.remove(currentDispatcher)
+            currentDispatcher.parent = null // Clear local parent reference
         }
     }
 
@@ -509,5 +469,34 @@ private constructor(
         check(!isDisposed) {
             "This NavigationEventDispatcher has already been disposed and cannot be used."
         }
+    }
+
+    /**
+     * Defines priority levels for registering components like [NavigationEventHandler] or
+     * [NavigationEventInput] with a [NavigationEventDispatcher].
+     *
+     * Priority determines the order of event processing.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(PRIORITY_OVERLAY, PRIORITY_DEFAULT)
+    public annotation class Priority
+
+    public companion object {
+        /**
+         * Highest priority level, intended for overlay UI components.
+         *
+         * Components at this level (e.g., dialogs, bottom sheets, navigation drawers) will receive
+         * navigation events before components at [PRIORITY_DEFAULT].
+         */
+        public const val PRIORITY_OVERLAY: Int = 0
+
+        /**
+         * Default priority level for primary UI content.
+         *
+         * Components at this level will receive navigation events after [PRIORITY_OVERLAY]
+         * components have been given a chance to handle them.
+         */
+        public const val PRIORITY_DEFAULT: Int = 1
     }
 }

@@ -42,7 +42,7 @@ public fun TestNavigationEventHandler(
     onBackCompleted: TestNavigationEventHandler<*>.() -> Unit = {},
 ): TestNavigationEventHandler<*> {
     return TestNavigationEventHandler(
-        currentInfo = NavigationEventInfo.NotProvided,
+        currentInfo = NavigationEventInfo.None,
         backInfo = emptyList(),
         forwardInfo = emptyList(),
         // ---- Back Events ----
@@ -104,7 +104,7 @@ public class TestNavigationEventHandler<T : NavigationEventInfo>(
         {},
     private val onBackCancelled: TestNavigationEventHandler<T>.() -> Unit = {},
     private val onBackCompleted: TestNavigationEventHandler<T>.() -> Unit = {},
-) : NavigationEventHandler<T>(isBackEnabled, isForwardEnabled) {
+) : NavigationEventHandler<T>(initialInfo = currentInfo, isBackEnabled, isForwardEnabled) {
 
     init {
         setInfo(currentInfo = currentInfo, backInfo = backInfo, forwardInfo = forwardInfo)

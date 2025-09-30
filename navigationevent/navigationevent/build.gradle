@@ -59,6 +59,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.9.1")
+                api("androidx.compose.runtime:runtime-annotation:1.9.0")
             }
         }
 
