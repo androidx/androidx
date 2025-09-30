@@ -1,19 +1,68 @@
-public final class androidx/navigation3/ui/ComposableSingletons$SceneSetupNavEntryDecoratorKt {
-	public static final field INSTANCE Landroidx/navigation3/ui/ComposableSingletons$SceneSetupNavEntryDecoratorKt;
+public final class androidx/navigation3/scene/ComposableSingletons$SceneSetupNavEntryDecoratorKt {
+	public static final field INSTANCE Landroidx/navigation3/scene/ComposableSingletons$SceneSetupNavEntryDecoratorKt;
 	public fun <init> ()V
-	public final fun getLambda$-1183995461$navigation3_ui ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$432914433$navigation3_ui ()Lkotlin/jvm/functions/Function3;
 }
 
-public final class androidx/navigation3/ui/DialogSceneStrategy : androidx/navigation3/ui/SceneStrategy {
+public final class androidx/navigation3/scene/DialogSceneStrategy : androidx/navigation3/scene/SceneStrategy {
 	public static final field $stable I
-	public static final field Companion Landroidx/navigation3/ui/DialogSceneStrategy$Companion;
+	public static final field Companion Landroidx/navigation3/scene/DialogSceneStrategy$Companion;
 	public fun <init> ()V
-	public fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/ui/Scene;
+	public fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/Scene;
 }
 
-public final class androidx/navigation3/ui/DialogSceneStrategy$Companion {
+public final class androidx/navigation3/scene/DialogSceneStrategy$Companion {
 	public final fun dialog (Landroidx/compose/ui/window/DialogProperties;)Ljava/util/Map;
-	public static synthetic fun dialog$default (Landroidx/navigation3/ui/DialogSceneStrategy$Companion;Landroidx/compose/ui/window/DialogProperties;ILjava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun dialog$default (Landroidx/navigation3/scene/DialogSceneStrategy$Companion;Landroidx/compose/ui/window/DialogProperties;ILjava/lang/Object;)Ljava/util/Map;
+}
+
+public abstract interface class androidx/navigation3/scene/OverlayScene : androidx/navigation3/scene/Scene {
+	public abstract fun getOverlaidEntries ()Ljava/util/List;
+}
+
+public abstract interface class androidx/navigation3/scene/Scene {
+	public abstract fun getContent ()Lkotlin/jvm/functions/Function2;
+	public abstract fun getEntries ()Ljava/util/List;
+	public abstract fun getKey ()Ljava/lang/Object;
+	public abstract fun getPreviousEntries ()Ljava/util/List;
+}
+
+public final class androidx/navigation3/scene/SceneInfo : androidx/navigationevent/NavigationEventInfo {
+	public static final field $stable I
+	public fun <init> (Landroidx/navigation3/scene/Scene;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScene ()Landroidx/navigation3/scene/Scene;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/navigation3/scene/SceneSetupNavEntryDecoratorKt {
+	public static final fun SceneSetupNavEntryDecorator ()Landroidx/navigation3/runtime/NavEntryDecorator;
+	public static final fun getLocalEntriesToRenderInCurrentScene ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun rememberSceneSetupNavEntryDecorator (Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/runtime/NavEntryDecorator;
+}
+
+public final class androidx/navigation3/scene/SceneState {
+	public static final field $stable I
+	public final fun getCurrentScene ()Landroidx/navigation3/scene/Scene;
+	public final fun getEntries ()Ljava/util/List;
+	public final fun getOverlayScenes ()Ljava/util/List;
+	public final fun getPreviousScenes ()Ljava/util/List;
+}
+
+public final class androidx/navigation3/scene/SceneStateKt {
+	public static final fun rememberSceneState (Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/SceneState;
+}
+
+public abstract interface class androidx/navigation3/scene/SceneStrategy {
+	public abstract fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/Scene;
+	public fun then (Landroidx/navigation3/scene/SceneStrategy;)Landroidx/navigation3/scene/SceneStrategy;
+}
+
+public final class androidx/navigation3/scene/SinglePaneSceneStrategy : androidx/navigation3/scene/SceneStrategy {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/Scene;
 }
 
 public final class androidx/navigation3/ui/LocalNavAnimatedContentScopeKt {
@@ -23,49 +72,20 @@ public final class androidx/navigation3/ui/LocalNavAnimatedContentScopeKt {
 public final class androidx/navigation3/ui/NavDisplay {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/navigation3/ui/NavDisplay;
-	public final fun getDefaultPredictivePopTransitionSpec ()Lkotlin/jvm/functions/Function2;
 	public final fun popTransitionSpec (Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
 	public final fun predictivePopTransitionSpec (Lkotlin/jvm/functions/Function2;)Ljava/util/Map;
 	public final fun transitionSpec (Lkotlin/jvm/functions/Function1;)Ljava/util/Map;
 }
 
-public final class androidx/navigation3/ui/NavDisplayInfo : androidx/navigationevent/NavigationEventInfo {
-	public static final field $stable I
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getVisibleEntries ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
 public final class androidx/navigation3/ui/NavDisplayKt {
-	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Ljava/util/List;Landroidx/navigation3/ui/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final fun NavDisplay (Landroidx/navigation3/scene/SceneState;Landroidx/navigationevent/compose/NavigationEventState;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function1;Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 }
 
-public abstract interface class androidx/navigation3/ui/OverlayScene : androidx/navigation3/ui/Scene {
-	public abstract fun getOverlaidEntries ()Ljava/util/List;
-}
-
-public abstract interface class androidx/navigation3/ui/Scene {
-	public abstract fun getContent ()Lkotlin/jvm/functions/Function2;
-	public abstract fun getEntries ()Ljava/util/List;
-	public abstract fun getKey ()Ljava/lang/Object;
-	public abstract fun getPreviousEntries ()Ljava/util/List;
-}
-
-public final class androidx/navigation3/ui/SceneSetupNavEntryDecoratorKt {
-	public static final fun SceneSetupNavEntryDecorator ()Landroidx/navigation3/runtime/NavEntryDecorator;
-	public static final fun getLocalEntriesToRenderInCurrentScene ()Landroidx/compose/runtime/ProvidableCompositionLocal;
-	public static final fun rememberSceneSetupNavEntryDecorator (Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/runtime/NavEntryDecorator;
-}
-
-public abstract interface class androidx/navigation3/ui/SceneStrategy {
-	public abstract fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/ui/Scene;
-	public fun then (Landroidx/navigation3/ui/SceneStrategy;)Landroidx/navigation3/ui/SceneStrategy;
-}
-
-public final class androidx/navigation3/ui/SinglePaneSceneStrategy : androidx/navigation3/ui/SceneStrategy {
-	public static final field $stable I
-	public fun <init> ()V
-	public fun calculateScene (Ljava/util/List;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/ui/Scene;
+public final class androidx/navigation3/ui/NavDisplay_nonAndroidKt {
+	public static final fun defaultPopTransitionSpec ()Lkotlin/jvm/functions/Function1;
+	public static final fun defaultPredictivePopTransitionSpec ()Lkotlin/jvm/functions/Function2;
+	public static final fun defaultTransitionSpec ()Lkotlin/jvm/functions/Function1;
 }
 
