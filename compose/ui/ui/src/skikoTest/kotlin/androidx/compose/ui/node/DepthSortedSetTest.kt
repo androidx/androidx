@@ -17,14 +17,10 @@
 package androidx.compose.ui.node
 
 import androidx.collection.IntObjectMap
-import androidx.compose.runtime.RetainScope
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillManager
-import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -32,12 +28,10 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
@@ -196,15 +190,16 @@ class DepthSortedSetTest {
         override val rootForTest: RootForTest get() = throw IllegalStateException()
         override val hapticFeedBack: HapticFeedback get() = throw IllegalStateException()
         override val inputModeManager: InputModeManager get() = throw IllegalStateException()
-        override val clipboardManager: ClipboardManager get() = throw IllegalStateException()
+        @Suppress("DEPRECATION")
+        override val clipboardManager: androidx.compose.ui.platform.ClipboardManager get() = throw IllegalStateException()
         override val clipboard: Clipboard get() = throw IllegalStateException()
         override val accessibilityManager: AccessibilityManager get() = throw IllegalStateException()
         override val graphicsContext: GraphicsContext get() = throw IllegalStateException()
         override val textToolbar: TextToolbar get() = throw IllegalStateException()
-        @ExperimentalComposeUiApi
-        override val autofillTree: AutofillTree get() = throw IllegalStateException()
-        @ExperimentalComposeUiApi
-        override val autofill: Autofill? get() = throw IllegalStateException()
+        @Suppress("DEPRECATION")
+        override val autofillTree: androidx.compose.ui.autofill.AutofillTree get() = throw IllegalStateException()
+        @Suppress("DEPRECATION")
+        override val autofill: androidx.compose.ui.autofill.Autofill? get() = throw IllegalStateException()
         override val autofillManager: AutofillManager? get() = throw IllegalStateException()
         override val density: Density get() = throw IllegalStateException()
         override val textInputService: TextInputService get() = throw IllegalStateException()
