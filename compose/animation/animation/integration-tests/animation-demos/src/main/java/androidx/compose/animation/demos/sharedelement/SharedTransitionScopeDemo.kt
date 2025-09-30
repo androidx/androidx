@@ -66,6 +66,7 @@ fun SharedElementDemos() {
             "Container Transform" to { ContainerTransformDemo() },
             "Dynamically Enabled Shared Elements" to { DynamicallyEnableSharedElementsDemo() },
             "Shared Element\n Caller Managed Vis" to { SharedElementWithCallerManagedVisibility() },
+            "Fling Shared Elements" to { SharedElementWithFlingDemo() },
             "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
             "AnimatedContent" to { SharedElementInAnimatedContentSample() },
             "Text transform" to { TextSharedBoundsExperiments() },

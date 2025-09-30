@@ -840,7 +840,7 @@ class AndroidAutofillManagerTest {
             Box(
                 Modifier.semantics {
                         testTag = "username"
-                        onAutofillText { true }
+                        @Suppress("DEPRECATION") onAutofillText { true }
                     }
                     .size(height, width)
                     .focusable()
@@ -922,7 +922,7 @@ class AndroidAutofillManagerTest {
                 modifier =
                     Modifier.semantics {
                             testTag = "username"
-                            onAutofillText { true }
+                            @Suppress("DEPRECATION") onAutofillText { true }
                         }
                         .size(height, width)
                         .focusable()
@@ -997,7 +997,7 @@ class AndroidAutofillManagerTest {
             Box(
                 Modifier.semantics {
                         testTag = "username"
-                        onAutofillText { true }
+                        @Suppress("DEPRECATION") onAutofillText { true }
                     }
                     .size(height, width)
                     .focusable()
@@ -1336,7 +1336,7 @@ class AndroidAutofillManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun autofillManager_performAutofill_callsOnFillDataAndOnAutofillText_separateSemantics() {
+    fun autofillManager_performAutofill_onFillDataTakesPrecedence_separateSemantics() {
         // Arrange
         var autoFilledValueNewApi: FillableData? = null
         var autoFilledValueOldApi: String? = null
@@ -1352,6 +1352,7 @@ class AndroidAutofillManagerTest {
                         }
                     }
                     .semantics {
+                        @Suppress("DEPRECATION")
                         onAutofillText {
                             autoFilledValueOldApi = it.text
                             true
@@ -1371,45 +1372,6 @@ class AndroidAutofillManagerTest {
         rule.runOnIdle {
             assertNotNull(autoFilledValueNewApi)
             assertEquals("autofill text", autoFilledValueNewApi?.toAutofillValue()?.textValue)
-            assertEquals("autofill text", autoFilledValueOldApi)
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 26)
-    fun autofillManager_performAutofill_callsOnFillDataAndOnAutofillText() {
-        // Arrange
-        var autoFilledValueNewApi: FillableData? = null
-        var autoFilledValueOldApi: String? = null
-        var autofillManager: AndroidAutofillManager? = null
-
-        rule.setTestContent {
-            autofillManager = LocalAutofillManager.current as AndroidAutofillManager
-            Box(
-                Modifier.semantics {
-                    testTag = "autofill_node"
-                    onFillData {
-                        autoFilledValueNewApi = it
-                        true
-                    }
-                    onAutofillText {
-                        autoFilledValueOldApi = it.text
-                        true
-                    }
-                }
-            )
-        }
-        val semanticsId = rule.onNodeWithTag("autofill_node").semanticsId()
-        val autofillValue = AutofillValue.forText("autofill text")
-        val values = SparseArray<AutofillValue>().apply { put(semanticsId, autofillValue) }
-
-        // Act
-        rule.runOnIdle { autofillManager?.performAutofill(values) }
-
-        // Assert
-        rule.runOnIdle {
-            assertNotNull(autoFilledValueNewApi)
-            assertEquals(autofillValue, autoFilledValueNewApi?.toAutofillValue())
             assertEquals("autofill text", autoFilledValueOldApi)
         }
     }
@@ -1459,6 +1421,7 @@ class AndroidAutofillManagerTest {
             Box(
                 Modifier.semantics {
                     testTag = "autofill_node"
+                    @Suppress("DEPRECATION")
                     onAutofillText {
                         autoFilledValue = it.text
                         true
@@ -1475,6 +1438,45 @@ class AndroidAutofillManagerTest {
 
         // Assert
         rule.runOnIdle { assertEquals("autofill text", autoFilledValue) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_performAutofill_onAutofillTextWorksWithOnFillData() {
+        // Arrange
+        var autoFilledValueOldApi: String? = null
+        var autoFilledValueNewApi: FillableData? = null
+        var autofillManager: AndroidAutofillManager? = null
+
+        rule.setTestContent {
+            autofillManager = LocalAutofillManager.current as AndroidAutofillManager
+            Box(
+                Modifier.semantics {
+                    testTag = "autofill_node"
+                    onFillData {
+                        autoFilledValueNewApi = it
+                        true
+                    }
+                    @Suppress("DEPRECATION")
+                    onAutofillText {
+                        autoFilledValueOldApi = it.text
+                        true
+                    }
+                }
+            )
+        }
+        val semanticsId = rule.onNodeWithTag("autofill_node").semanticsId()
+        val autofillValue = AutofillValue.forText("autofill text")
+        val values = SparseArray<AutofillValue>().apply { put(semanticsId, autofillValue) }
+
+        // Act
+        rule.runOnIdle { autofillManager?.performAutofill(values) }
+
+        // Assert
+        rule.runOnIdle {
+            assertEquals("autofill text", autoFilledValueOldApi)
+            assertEquals("autofill text", autoFilledValueNewApi?.toAutofillValue()?.textValue)
+        }
     }
 
     private fun ComposeContentTestRule.setTestContent(composable: @Composable () -> Unit) {

@@ -22,8 +22,8 @@ import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import androidx.collection.IntObjectMap
-import androidx.compose.runtime.ForgetfulRetainScope
-import androidx.compose.runtime.RetainScope
+import androidx.compose.runtime.retain.ForgetfulRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill

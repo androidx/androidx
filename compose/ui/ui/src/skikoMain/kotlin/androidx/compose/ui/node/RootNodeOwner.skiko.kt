@@ -18,8 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.runtime.ForgetfulRetainScope
-import androidx.compose.runtime.RetainScope
+import androidx.compose.runtime.retain.ForgetfulRetainScope
+import androidx.compose.runtime.retain.RetainScope
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -258,9 +258,7 @@ internal class RootNodeOwner(
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(
             forceDispatch = hasPositionOnScreenChanged || hasPositionInWindowChanged
         )
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            owner.rectManager.dispatchCallbacks()
-        }
+        owner.rectManager.dispatchCallbacks()
         if (hasPositionInWindowChanged || hasContainerSizeChanged) {
             graphicsContext.setLightingInfo(
                 canvasOffset = positionInWindow,
@@ -281,9 +279,7 @@ internal class RootNodeOwner(
     fun draw(canvas: Canvas) = trace("RootNodeOwner:draw") {
         ownedLayerManager.draw(canvas)
         clearInvalidObservations()
-        if (ComposeUiFlags.isRectTrackingEnabled) {
-            owner.rectManager.dispatchCallbacks()
-        }
+        owner.rectManager.dispatchCallbacks()
     }
 
     fun setRootModifier(modifier: Modifier) {
@@ -531,10 +527,7 @@ internal class RootNodeOwner(
             measureAndLayoutDelegate.onNodeDetached(node)
             snapshotObserver.clear(node)
             needClearObservations = true
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (ComposeUiFlags.isRectTrackingEnabled) {
-                rectManager.remove(node)
-            }
+            rectManager.remove(node)
         }
 
         override fun measureAndLayout(sendPointerUpdate: Boolean) {
@@ -549,9 +542,7 @@ internal class RootNodeOwner(
                         snapshotInvalidationTracker.requestDraw()
                     }
                     measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
-                    if (ComposeUiFlags.isRectTrackingEnabled) {
-                       rectManager.dispatchCallbacks()
-                    }
+                    rectManager.dispatchCallbacks()
                 }
             }
         }
@@ -566,9 +557,7 @@ internal class RootNodeOwner(
                 if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                     measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                 }
-                if (ComposeUiFlags.isRectTrackingEnabled) {
-                    rectManager.dispatchCallbacks()
-                }
+                rectManager.dispatchCallbacks()
             }
         }
 
@@ -638,10 +627,7 @@ internal class RootNodeOwner(
         }
 
         override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
-            @OptIn(ExperimentalComposeUiApi::class)
-            if (ComposeUiFlags.isRectTrackingEnabled) {
-                rectManager.remove(layoutNode)
-            }
+            rectManager.remove(layoutNode)
         }
 
         override fun onPreLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {

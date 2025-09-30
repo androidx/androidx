@@ -270,15 +270,7 @@ internal class LaunchedEffectImpl(
     private val parentCoroutineContext: CoroutineContext,
     private val task: suspend CoroutineScope.() -> Unit,
 ) : RememberObserver, CoroutineExceptionHandler {
-    private val scope =
-        CoroutineScope(
-            parentCoroutineContext +
-                if (parentCoroutineContext[CompositionErrorContextImpl] != null) {
-                    this
-                } else {
-                    EmptyCoroutineContext
-                }
-        )
+    private val scope = CoroutineScope(parentCoroutineContext + this)
     private var job: Job? = null
 
     override fun onRemembered() {

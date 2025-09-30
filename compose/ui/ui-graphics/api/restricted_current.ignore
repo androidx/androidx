@@ -143,12 +143,122 @@ RemovedFromBytecode: androidx.compose.ui.graphics.PixelMap#get(int, int):
     Binary breaking change: method androidx.compose.ui.graphics.PixelMap.get(int,int) has been removed from bytecode
 
 
-RemovedFromKotlin: androidx.compose.ui.graphics.Path#addOval(androidx.compose.ui.geometry.Rect):
-    Source breaking change: method androidx.compose.ui.graphics.Path.addOval(androidx.compose.ui.geometry.Rect) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.graphics.Path#addRect(androidx.compose.ui.geometry.Rect):
-    Source breaking change: method androidx.compose.ui.graphics.Path.addRect(androidx.compose.ui.geometry.Rect) can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.graphics.Path#addRoundRect(androidx.compose.ui.geometry.RoundRect):
-    Source breaking change: method androidx.compose.ui.graphics.Path.addRoundRect(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidCanvas_androidKt#getNativeCanvas(androidx.compose.ui.graphics.Canvas):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidCanvas_androidKt.getNativeCanvas(androidx.compose.ui.graphics.Canvas) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getAlpha():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getColorFilter():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getColorFilter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getPathEffect():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getPathEffect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getShader():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getShader() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getStrokeMiterLimit():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getStrokeMiterLimit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getStrokeWidth():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getStrokeWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#isAntiAlias():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.isAntiAlias() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setAlpha(float):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setAlpha(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setAntiAlias(boolean):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setAntiAlias(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setColorFilter(androidx.compose.ui.graphics.ColorFilter):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setColorFilter(androidx.compose.ui.graphics.ColorFilter) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setPathEffect(androidx.compose.ui.graphics.PathEffect):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setPathEffect(androidx.compose.ui.graphics.PathEffect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setShader(android.graphics.Shader):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setShader(android.graphics.Shader) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setStrokeMiterLimit(float):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setStrokeMiterLimit(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#setStrokeWidth(float):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.setStrokeWidth(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPath#getInternalPath():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPath.getInternalPath() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPath#isConvex():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPath.isConvex() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPath#isEmpty():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPath.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPathMeasure#getLength():
+    Source breaking change: method androidx.compose.ui.graphics.AndroidPathMeasure.getLength() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ColorMatrix#getValues():
+    Source breaking change: method androidx.compose.ui.graphics.ColorMatrix.getValues() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.FilterQuality#getValue():
+    Source breaking change: method androidx.compose.ui.graphics.FilterQuality.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.GraphicsContext#getShadowContext():
+    Source breaking change: method androidx.compose.ui.graphics.GraphicsContext.getShadowContext() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ImageBitmap#getColorSpace():
+    Source breaking change: method androidx.compose.ui.graphics.ImageBitmap.getColorSpace() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ImageBitmap#getHasAlpha():
+    Source breaking change: method androidx.compose.ui.graphics.ImageBitmap.getHasAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ImageBitmap#getHeight():
+    Source breaking change: method androidx.compose.ui.graphics.ImageBitmap.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ImageBitmap#getWidth():
+    Source breaking change: method androidx.compose.ui.graphics.ImageBitmap.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ImageBitmapConfig#getValue():
+    Source breaking change: method androidx.compose.ui.graphics.ImageBitmapConfig.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Interval#getData():
+    Source breaking change: method androidx.compose.ui.graphics.Interval.getData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Interval#getEnd():
+    Source breaking change: method androidx.compose.ui.graphics.Interval.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Interval#getStart():
+    Source breaking change: method androidx.compose.ui.graphics.Interval.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Matrix#getValues():
+    Source breaking change: method androidx.compose.ui.graphics.Matrix.getValues() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline#getBounds():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Generic#getBounds():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Generic.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Generic#getPath():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Generic.getPath() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Rectangle#getBounds():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Rectangle.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Rectangle#getRect():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Rectangle.getRect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Rounded#getBounds():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Rounded.getBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Outline.Rounded#getRoundRect():
+    Source breaking change: method androidx.compose.ui.graphics.Outline.Rounded.getRoundRect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getAlpha():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getColorFilter():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getColorFilter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getPathEffect():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getPathEffect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getShader():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getShader() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getStrokeMiterLimit():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getStrokeMiterLimit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#getStrokeWidth():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.getStrokeWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#isAntiAlias():
+    Source breaking change: method androidx.compose.ui.graphics.Paint.isAntiAlias() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setAlpha(float):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setAlpha(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setAntiAlias(boolean):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setAntiAlias(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setColorFilter(androidx.compose.ui.graphics.ColorFilter):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setColorFilter(androidx.compose.ui.graphics.ColorFilter) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setPathEffect(androidx.compose.ui.graphics.PathEffect):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setPathEffect(androidx.compose.ui.graphics.PathEffect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setShader(android.graphics.Shader):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setShader(android.graphics.Shader) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setStrokeMiterLimit(float):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setStrokeMiterLimit(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Paint#setStrokeWidth(float):
+    Source breaking change: method androidx.compose.ui.graphics.Paint.setStrokeWidth(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Path#isConvex():
+    Source breaking change: method androidx.compose.ui.graphics.Path.isConvex() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Path#isEmpty():
+    Source breaking change: method androidx.compose.ui.graphics.Path.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathIterator#getConicEvaluation():
+    Source breaking change: method androidx.compose.ui.graphics.PathIterator.getConicEvaluation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathIterator#getPath():
+    Source breaking change: method androidx.compose.ui.graphics.PathIterator.getPath() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathIterator#getTolerance():
+    Source breaking change: method androidx.compose.ui.graphics.PathIterator.getTolerance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathMeasure#getLength():
+    Source breaking change: method androidx.compose.ui.graphics.PathMeasure.getLength() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getDifference(androidx.compose.ui.graphics.PathOperation.Companion):
     Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getDifference(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getIntersect(androidx.compose.ui.graphics.PathOperation.Companion):
@@ -159,8 +269,380 @@ RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getUnion(android
     Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getUnion(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.PathOperationKt#getXor(androidx.compose.ui.graphics.PathOperation.Companion):
     Source breaking change: method androidx.compose.ui.graphics.PathOperationKt.getXor(androidx.compose.ui.graphics.PathOperation.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathSegment#getPoints():
+    Source breaking change: method androidx.compose.ui.graphics.PathSegment.getPoints() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathSegment#getType():
+    Source breaking change: method androidx.compose.ui.graphics.PathSegment.getType() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathSegment#getWeight():
+    Source breaking change: method androidx.compose.ui.graphics.PathSegment.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathSegmentKt#getCloseSegment():
+    Source breaking change: method androidx.compose.ui.graphics.PathSegmentKt.getCloseSegment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PathSegmentKt#getDoneSegment():
+    Source breaking change: method androidx.compose.ui.graphics.PathSegmentKt.getDoneSegment() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PixelMap#getBuffer():
+    Source breaking change: method androidx.compose.ui.graphics.PixelMap.getBuffer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PixelMap#getBufferOffset():
+    Source breaking change: method androidx.compose.ui.graphics.PixelMap.getBufferOffset() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PixelMap#getHeight():
+    Source breaking change: method androidx.compose.ui.graphics.PixelMap.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PixelMap#getStride():
+    Source breaking change: method androidx.compose.ui.graphics.PixelMap.getStride() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.PixelMap#getWidth():
+    Source breaking change: method androidx.compose.ui.graphics.PixelMap.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.RectangleShapeKt#getRectangleShape():
+    Source breaking change: method androidx.compose.ui.graphics.RectangleShapeKt.getRectangleShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Shadow#getBlurRadius():
+    Source breaking change: method androidx.compose.ui.graphics.Shadow.getBlurRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Shadow.Companion#getNone():
+    Source breaking change: method androidx.compose.ui.graphics.Shadow.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Vertices#getColors():
+    Source breaking change: method androidx.compose.ui.graphics.Vertices.getColors() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Vertices#getIndices():
+    Source breaking change: method androidx.compose.ui.graphics.Vertices.getIndices() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Vertices#getPositions():
+    Source breaking change: method androidx.compose.ui.graphics.Vertices.getPositions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.Vertices#getTextureCoordinates():
+    Source breaking change: method androidx.compose.ui.graphics.Vertices.getTextureCoordinates() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Adaptation.Companion#getBradford():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Adaptation.Companion.getBradford() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Adaptation.Companion#getCiecat02():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Adaptation.Companion.getCiecat02() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Adaptation.Companion#getVonKries():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Adaptation.Companion.getVonKries() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpace#getComponentCount():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpace.getComponentCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpace#getName():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpace.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpace#isSrgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpace.isSrgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpace#isWideGamut():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpace.isWideGamut() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getAces():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getAces() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getAcescg():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getAcescg() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getAdobeRgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getAdobeRgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getBt2020():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getBt2020() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getBt2020Hlg():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getBt2020Hlg() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getBt2020Pq():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getBt2020Pq() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getBt709():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getBt709() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getCieLab():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getCieLab() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getCieXyz():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getCieXyz() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getDciP3():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getDciP3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getDisplayP3():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getDisplayP3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getExtendedSrgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getExtendedSrgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getLinearExtendedSrgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getLinearExtendedSrgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getLinearSrgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getLinearSrgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getNtsc1953():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getNtsc1953() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getOklab():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getOklab() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getProPhotoRgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getProPhotoRgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getSmpteC():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getSmpteC() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.ColorSpaces#getSrgb():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.ColorSpaces.getSrgb() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Connector#getDestination():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Connector.getDestination() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Connector#getSource():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Connector.getSource() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getA():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getA() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getB():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getB() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getC():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getC() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getD50():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getD50() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getD55():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getD55() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getD60():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getD60() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getD65():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getD65() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getD75():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getD75() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Illuminant#getE():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Illuminant.getE() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Rgb#getEotf():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Rgb.getEotf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Rgb#getOetf():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Rgb.getOetf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Rgb#getTransferParameters():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Rgb.getTransferParameters() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Rgb#getWhitePoint():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Rgb.getWhitePoint() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.Rgb#isWideGamut():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.Rgb.isWideGamut() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getA():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getA() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getB():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getB() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getC():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getC() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getD():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getD() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getE():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getE() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getF():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getF() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.TransferParameters#getGamma():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.TransferParameters.getGamma() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.WhitePoint#getX():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.WhitePoint.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.WhitePoint#getY():
+    Source breaking change: method androidx.compose.ui.graphics.colorspace.WhitePoint.getY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getDensity():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getDrawContext():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getDrawContext() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getFontScale():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getFontScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getLayoutDirection():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getLayoutDirection() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#component4-NH-jbRc():
     Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.component4-NH-jbRc() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#getCanvas():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.getCanvas() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#getDensity():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#getLayoutDirection():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#setCanvas(androidx.compose.ui.graphics.Canvas):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.setCanvas(androidx.compose.ui.graphics.Canvas) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#setDensity(androidx.compose.ui.unit.Density):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.setDensity(androidx.compose.ui.unit.Density) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#setLayoutDirection(androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams.setLayoutDirection(androidx.compose.ui.unit.LayoutDirection) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#getCanvas():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.getCanvas() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#getDensity():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#getGraphicsLayer():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.getGraphicsLayer() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#getLayoutDirection():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#getTransform():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.getTransform() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#setCanvas(androidx.compose.ui.graphics.Canvas):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.setCanvas(androidx.compose.ui.graphics.Canvas) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#setDensity(androidx.compose.ui.unit.Density):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.setDensity(androidx.compose.ui.unit.Density) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#setGraphicsLayer(androidx.compose.ui.graphics.layer.GraphicsLayer):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.setGraphicsLayer(androidx.compose.ui.graphics.layer.GraphicsLayer) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawContext#setLayoutDirection(androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawContext.setLayoutDirection(androidx.compose.ui.unit.LayoutDirection) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawScope#getDrawContext():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawScope.getDrawContext() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.DrawScope#getLayoutDirection():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.DrawScope.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.Stroke#getMiter():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.Stroke.getMiter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.Stroke#getPathEffect():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.Stroke.getPathEffect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.Stroke#getWidth():
+    Source breaking change: method androidx.compose.ui.graphics.drawscope.Stroke.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getAlpha():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getCameraDistance():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getCameraDistance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getClip():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getClip() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getColorFilter():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getColorFilter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getLayerId():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getLayerId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getOutline():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getOutline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getOwnerViewId():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getOwnerViewId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getRenderEffect():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getRenderEffect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getRotationX():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getRotationX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getRotationY():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getRotationY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getRotationZ():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getRotationZ() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getScaleX():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getScaleX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getScaleY():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getScaleY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getShadowElevation():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getShadowElevation() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getTranslationX():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getTranslationX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#getTranslationY():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.getTranslationY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#isReleased():
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.isReleased() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setAlpha(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setAlpha(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setCameraDistance(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setCameraDistance(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setClip(boolean):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setClip(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setColorFilter(androidx.compose.ui.graphics.ColorFilter):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setColorFilter(androidx.compose.ui.graphics.ColorFilter) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setRenderEffect(androidx.compose.ui.graphics.RenderEffect):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setRenderEffect(androidx.compose.ui.graphics.RenderEffect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setRotationX(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setRotationX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setRotationY(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setRotationY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setRotationZ(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setRotationZ(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setScaleX(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setScaleX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setScaleY(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setScaleY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setShadowElevation(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setShadowElevation(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setTranslationX(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setTranslationX(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.layer.GraphicsLayer#setTranslationY(float):
+    Source breaking change: method androidx.compose.ui.graphics.layer.GraphicsLayer.setTranslationY(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.painter.BrushPainter#getBrush():
+    Source breaking change: method androidx.compose.ui.graphics.painter.BrushPainter.getBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.shadow.Shadow#getAlpha():
+    Source breaking change: method androidx.compose.ui.graphics.shadow.Shadow.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.shadow.Shadow#getBrush():
+    Source breaking change: method androidx.compose.ui.graphics.shadow.Shadow.getBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathBuilder#getNodes():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathBuilder.getNodes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode#isCurve():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.isCurve() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode#isQuad():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.isQuad() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#getArcStartX():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.getArcStartX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#getArcStartY():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.getArcStartY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#getHorizontalEllipseRadius():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.getHorizontalEllipseRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#getTheta():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.getTheta() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#getVerticalEllipseRadius():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.getVerticalEllipseRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#isMoreThanHalf():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.isMoreThanHalf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ArcTo#isPositiveArc():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ArcTo.isPositiveArc() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getX1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getX1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getX2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getX2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getX3():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getX3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getY1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getY1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getY2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getY2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.CurveTo#getY3():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.CurveTo.getY3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.HorizontalTo#getX():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.HorizontalTo.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.LineTo#getX():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.LineTo.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.LineTo#getY():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.LineTo.getY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.MoveTo#getX():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.MoveTo.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.MoveTo#getY():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.MoveTo.getY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.QuadTo#getX1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.QuadTo.getX1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.QuadTo#getX2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.QuadTo.getX2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.QuadTo#getY1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.QuadTo.getY1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.QuadTo#getY2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.QuadTo.getY2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo#getX1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo.getX1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo#getX2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo.getX2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo#getY1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo.getY1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo#getY2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveCurveTo.getY2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo#getX():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo.getX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo#getY():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.ReflectiveQuadTo.getY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#getArcStartDx():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.getArcStartDx() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#getArcStartDy():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.getArcStartDy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#getHorizontalEllipseRadius():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.getHorizontalEllipseRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#getTheta():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.getTheta() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#getVerticalEllipseRadius():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.getVerticalEllipseRadius() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#isMoreThanHalf():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.isMoreThanHalf() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo#isPositiveArc():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeArcTo.isPositiveArc() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDx1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDx1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDx2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDx2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDx3():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDx3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDy1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDy1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDy2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDy2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo#getDy3():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeCurveTo.getDy3() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeHorizontalTo#getDx():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeHorizontalTo.getDx() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo#getDx():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo.getDx() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo#getDy():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeLineTo.getDy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo#getDx():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo.getDx() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo#getDy():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeMoveTo.getDy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo#getDx1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo.getDx1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo#getDx2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo.getDx2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo#getDy1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo.getDy1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo#getDy2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeQuadTo.getDy2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo#getDx1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo.getDx1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo#getDx2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo.getDx2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo#getDy1():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo.getDy1() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo#getDy2():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveCurveTo.getDy2() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo#getDx():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo.getDx() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo#getDy():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeReflectiveQuadTo.getDy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo#getDy():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.RelativeVerticalTo.getDy() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.vector.PathNode.VerticalTo#getY():
+    Source breaking change: method androidx.compose.ui.graphics.vector.PathNode.VerticalTo.getY() can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.compose.ui.graphics.AndroidBlendMode_androidKt#isSupported(int):

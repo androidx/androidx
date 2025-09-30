@@ -40,7 +40,7 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.scrollingContainer
+import androidx.compose.foundation.scrollableArea
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -176,7 +176,7 @@ internal fun Pager(
                     userScrollEnabled,
                 )
                 .then(beyondBoundsModifier)
-                .scrollingContainer(
+                .scrollableArea(
                     state = state,
                     orientation = orientation,
                     enabled = userScrollEnabled,
@@ -184,7 +184,6 @@ internal fun Pager(
                     flingBehavior = resolvedFlingBehavior,
                     interactionSource = state.internalInteractionSource,
                     overscrollEffect = overscrollEffect,
-                    useLocalOverscrollFactory = false,
                     bringIntoViewSpec = pagerBringIntoViewSpec,
                 )
                 .dragDirectionDetector(state)

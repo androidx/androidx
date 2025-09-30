@@ -360,6 +360,7 @@ class MixedAutofillTest {
                 Modifier.semantics {
                         testTag = "newApi"
                         contentType = ContentType.Username
+                        @Suppress("DEPRECATION")
                         onAutofillText {
                             autoFilledValueNewApi = it.toString()
                             true
@@ -478,6 +479,7 @@ class MixedAutofillTest {
                 Box(
                     Modifier.semantics {
                             contentType = ContentType.Username
+                            @Suppress("DEPRECATION")
                             onAutofillText {
                                 autoFilledValueNewApi = it.toString()
                                 true

@@ -217,6 +217,23 @@ public abstract class RemoteContext {
     public abstract void clearNamedStringOverride(@NonNull String stringName);
 
     /**
+     * Set the value of a named Boolean. This overrides the boolean in the document
+     *
+     * @param booleanName the name of the boolean to override
+     * @param value Override the default boolean
+     */
+    public abstract void setNamedBooleanOverride(@NonNull String booleanName, boolean value);
+
+    /**
+     * Allows to clear a named Boolean.
+     *
+     * <p>If an override exists, we revert back to the default value in the document.
+     *
+     * @param booleanName the name of the boolean to override
+     */
+    public abstract void clearNamedBooleanOverride(@NonNull String booleanName);
+
+    /**
      * Set the value of a named Integer. This overrides the integer in the document
      *
      * @param integerName the name of the integer to override
@@ -686,6 +703,7 @@ public abstract class RemoteContext {
 
     /**
      * Notify commands with variables have changed
+     *
      *
      * @return the number of ms to next update
      */

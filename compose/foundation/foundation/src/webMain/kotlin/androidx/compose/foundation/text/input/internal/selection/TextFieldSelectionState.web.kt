@@ -81,10 +81,10 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
 
     with(state) {
         separator()
-        textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
-        textFieldSuspendItem(Copy, enabled = canCopy()) { copy(cancelSelection = false) }
-        textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
-        textFieldItem(SelectAll, enabled = canSelectAll()) { selectAll() }
+        textFieldSuspendItem(Cut, enabled = canShowCutMenuItem()) { cut() }
+        textFieldSuspendItem(Copy, enabled = canShowCopyMenuItem()) { copy(cancelSelection = false) }
+        textFieldSuspendItem(Paste, enabled = canShowPasteMenuItem()) { paste() }
+        textFieldItem(SelectAll, enabled = canShowSelectAllMenuItem()) { selectAll() }
         separator()
     }
 }

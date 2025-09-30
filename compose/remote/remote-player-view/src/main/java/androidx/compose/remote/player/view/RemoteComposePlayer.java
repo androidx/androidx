@@ -45,8 +45,8 @@ import androidx.compose.remote.player.view.platform.HapticSupport;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.platform.RemotePreparedDocument;
 import androidx.compose.remote.player.view.platform.SensorSupport;
+import androidx.compose.remote.player.view.platform.SettingsRetriever;
 import androidx.compose.remote.player.view.platform.ThemeSupport;
-import androidx.compose.remote.player.view.player.platform.SettingsRetriever;
 import androidx.compose.remote.player.view.state.StateUpdater;
 import androidx.compose.remote.player.view.state.StateUpdaterImpl;
 

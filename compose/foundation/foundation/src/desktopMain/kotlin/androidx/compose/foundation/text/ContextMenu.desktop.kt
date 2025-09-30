@@ -199,19 +199,19 @@ private fun TextFieldSelectionState.textManager(coroutineScope: CoroutineScope):
         private fun pasteImpl() = launchUndispatched { paste() }
 
         override val cut: (() -> Unit)?
-            get() = if (canCut()) ::cutImpl else null
+            get() = if (canShowCutMenuItem()) ::cutImpl else null
 
         override val copy: (() -> Unit)?
-            get() = if (canCopy()) ::copyImpl else null
+            get() = if (canShowCopyMenuItem()) ::copyImpl else null
 
         override val paste: (() -> Unit)?
             get() {
                 launchUndispatched { updateClipboardEntry() }
-                return if (canPaste()) ::pasteImpl else null
+                return if (canShowPasteMenuItem()) ::pasteImpl else null
             }
 
         override val selectAll: (() -> Unit)?
-            get() = if (canSelectAll()) ::selectAll else null
+            get() = if (canShowSelectAllMenuItem()) ::selectAll else null
 
         override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) {
             if (!textLayoutState.isPositionOnText(offset)) return

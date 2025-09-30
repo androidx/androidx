@@ -17,14 +17,18 @@
 package androidx.compose.ui.inspection.proto
 
 import android.view.inspector.WindowInspector
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.inspection.ComposeLayoutInspector.CacheTree
 import androidx.compose.ui.inspection.LambdaLocation
 import androidx.compose.ui.inspection.inspector.InspectorNode
+import androidx.compose.ui.inspection.inspector.LayoutInspectorTree
 import androidx.compose.ui.inspection.inspector.NodeParameter
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.inspector.ParameterKind
 import androidx.compose.ui.inspection.inspector.ParameterType
 import androidx.compose.ui.inspection.inspector.systemPackages
+import androidx.compose.ui.inspection.recompositions.ObservedStateReads
+import androidx.compose.ui.inspection.recompositions.StateReadRecord
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Bounds
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableRoot
@@ -32,7 +36,10 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.LambdaV
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Quad
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.RecompositionStateRead
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StackTraceLine
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRead
 
 internal fun InspectorNode.toComposableNode(context: ConversionContext): ComposableNode {
     return toNodeBuilder(context).build()
@@ -274,4 +281,54 @@ internal fun CacheTree.toComposableRoot(context: ConversionContext): ComposableR
 
 fun Iterable<NodeParameter>.convertAll(stringTable: StringTable): List<Parameter> {
     return this.map { it.convert(stringTable) }
+}
+
+// Omit stacktrace lines from these classes.
+// This helps with filtering out stacktraces with very similar nature.
+private val ignoreStackTraceFromClasses =
+    listOf(
+        SnapshotStateList::class.java.name,
+        "androidx.compose.runtime.snapshots.StateListIterator",
+    )
+
+private fun StateReadRecord.convert(
+    stringTable: StringTable,
+    layoutInspectorTree: LayoutInspectorTree,
+): StateRead {
+    val value = layoutInspectorTree.convertStateValue(this.value)
+    val elements = this.trace.stackTrace
+    val builder = StateRead.newBuilder()
+    builder.value = value?.convert(stringTable) ?: Parameter.getDefaultInstance()
+    builder.valueInstanceHash = this.valueInstanceHash
+    builder.invalidated = this.invalidated
+    for (index in 1 until elements.size) {
+        val element = elements[index]
+        if (element.className in ignoreStackTraceFromClasses) {
+            continue
+        }
+        builder.addStackTraceLine(
+            StackTraceLine.newBuilder().apply {
+                declaringClass = stringTable.put(element.className.orEmpty())
+                methodName = stringTable.put(element.methodName.orEmpty())
+                fileName = stringTable.put(element.fileName.orEmpty())
+                lineNumber = element.lineNumber
+            }
+        )
+    }
+    return builder.build()
+}
+
+fun ObservedStateReads.convert(
+    recomposition: Int,
+    stringTable: StringTable,
+    layoutInspectorTree: LayoutInspectorTree,
+): RecompositionStateRead {
+    val builder = RecompositionStateRead.newBuilder()
+    builder.recompositionNumber = recomposition
+
+    // Collapse state reads that are identical:
+    val convertedReads = mutableSetOf<StateRead>()
+    reads.mapTo(convertedReads) { it.convert(stringTable, layoutInspectorTree) }
+    builder.addAllRead(convertedReads)
+    return builder.build()
 }

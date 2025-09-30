@@ -16,30 +16,19 @@
 
 package androidx.compose.ui.input.focus
 
-import android.os.SystemClock
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.KEYCODE_A
-import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.setFocusableContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.IndirectTouchInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.InterruptedSoftKeyboardInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.KeyInput
 import androidx.compose.ui.input.focus.FocusAwareEventPropagationTest.NodeType.RotaryInput
-import androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
-import androidx.compose.ui.input.indirect.IndirectTouchEventType
-import androidx.compose.ui.input.indirect.onIndirectTouchEvent
-import androidx.compose.ui.input.indirect.onPreIndirectTouchEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onInterceptKeyBeforeSoftKeyboard
 import androidx.compose.ui.input.key.onKeyEvent
@@ -54,7 +43,6 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performIndirectTouchEvent
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.test.filters.MediumTest
@@ -66,7 +54,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /** Focus-aware event propagation test. */
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
@@ -77,22 +64,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
             KeyInput,
             InterruptedSoftKeyboardInput -> KeyEvent(AndroidKeyEvent(ACTION_DOWN, KEYCODE_A))
             RotaryInput -> RotaryScrollEvent(1f, 1f, 0L, findRotaryInputDevice())
-            IndirectTouchInput ->
-                AndroidIndirectTouchEvent(
-                    position = Offset.Zero,
-                    uptimeMillis = 0L,
-                    type = IndirectTouchEventType.Press,
-                    primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
-                    nativeEvent =
-                        MotionEvent.obtain(
-                            SystemClock.uptimeMillis(), // downTime,
-                            SystemClock.uptimeMillis(), // eventTime,
-                            MotionEvent.ACTION_DOWN,
-                            Offset.Zero.x,
-                            Offset.Zero.y,
-                            0, // metaState
-                        ),
-                )
         }
     private var receivedEvent: Any? = null
     private val initialFocus = FocusRequester()
@@ -100,8 +71,7 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "node = {0}")
-        fun initParameters() =
-            arrayOf(KeyInput, InterruptedSoftKeyboardInput, RotaryInput, IndirectTouchInput)
+        fun initParameters() = arrayOf(KeyInput, InterruptedSoftKeyboardInput, RotaryInput)
     }
 
     @Before
@@ -172,7 +142,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
             KeyInput -> assertThat(receivedEvent).isEqualTo(sentEvent)
             InterruptedSoftKeyboardInput,
             RotaryInput -> assertThat(receivedEvent).isNull()
-            IndirectTouchInput -> assertThat(receivedEvent).isNull()
         }
     }
 
@@ -197,7 +166,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
             KeyInput -> assertThat(receivedEvent).isEqualTo(sentEvent)
             InterruptedSoftKeyboardInput,
             RotaryInput -> assertThat(receivedEvent).isNull()
-            IndirectTouchInput -> assertThat(receivedEvent).isNull()
         }
     }
 
@@ -527,10 +495,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
                     rotateToScrollVertically(sentEvent.verticalScrollPixels)
                 }
             }
-            IndirectTouchInput -> {
-                check(sentEvent is IndirectTouchEvent)
-                performIndirectTouchEvent(sentEvent)
-            }
         }
     }
 
@@ -541,24 +505,21 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
 
     private fun Modifier.onFocusAwareEvent(onEvent: (Any) -> Boolean): Modifier =
         when (nodeType) {
-            KeyInput -> onKeyEvent(onEvent)
-            InterruptedSoftKeyboardInput -> onInterceptKeyBeforeSoftKeyboard(onEvent)
-            RotaryInput -> onRotaryScrollEvent(onEvent)
-            IndirectTouchInput -> onIndirectTouchEvent(onEvent)
+            KeyInput -> onKeyEvent { onEvent(it) }
+            InterruptedSoftKeyboardInput -> onInterceptKeyBeforeSoftKeyboard { onEvent(it) }
+            RotaryInput -> onRotaryScrollEvent { onEvent(it) }
         }
 
-    private fun Modifier.onPreFocusAwareEvent(onPreEvent: (Any) -> Boolean) =
+    private fun Modifier.onPreFocusAwareEvent(onPreEvent: (Any) -> Boolean): Modifier =
         when (nodeType) {
-            KeyInput -> onPreviewKeyEvent(onPreEvent)
-            InterruptedSoftKeyboardInput -> onPreInterceptKeyBeforeSoftKeyboard(onPreEvent)
-            RotaryInput -> onPreRotaryScrollEvent(onPreEvent)
-            IndirectTouchInput -> onPreIndirectTouchEvent(onPreEvent)
+            KeyInput -> onPreviewKeyEvent { onPreEvent(it) }
+            InterruptedSoftKeyboardInput -> onPreInterceptKeyBeforeSoftKeyboard { onPreEvent(it) }
+            RotaryInput -> onPreRotaryScrollEvent { onPreEvent(it) }
         }
 
     enum class NodeType {
         KeyInput,
         InterruptedSoftKeyboardInput,
         RotaryInput,
-        IndirectTouchInput,
     }
 }

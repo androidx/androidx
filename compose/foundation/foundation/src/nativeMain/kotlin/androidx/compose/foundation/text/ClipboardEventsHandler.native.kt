@@ -17,13 +17,15 @@
 package androidx.compose.foundation.text
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.AnnotatedString
 
+@Suppress("ComposableNaming")
 @Composable
 internal actual inline fun rememberClipboardEventsHandler(
-    crossinline onPaste: (String) -> Unit,
-    crossinline onCopy: () -> String?,
-    crossinline onCut: () -> String?,
-    isEnabled: Boolean
+    crossinline onPaste: (AnnotatedString) -> Unit,
+    crossinline onCopy: () -> AnnotatedString?,
+    crossinline onCut: () -> AnnotatedString?,
+    isEnabled: Boolean,
 ) {
     // nothing to do
 }

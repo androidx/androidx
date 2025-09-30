@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
 
     <issue
         id="BanThreadSleep"
@@ -125,6 +125,87 @@
         errorLine2="    ~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/material/AndroidMenu.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/default_popup_window_title` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="            title = composeView.context.resources.getString(R.string.default_popup_window_title)"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/internal/ExposedDropdownMenuPopup.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/default_popup_window_title` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="            title = composeView.context.resources.getString(R.string.default_popup_window_title)"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/internal/ExposedDropdownMenuPopup.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/navigation_menu` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.NavigationMenu -> resources.getString(R.string.navigation_menu)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/close_drawer` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.CloseDrawer -> resources.getString(R.string.close_drawer)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/close_sheet` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.CloseSheet -> resources.getString(R.string.close_sheet)"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/default_error_message` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.DefaultErrorMessage -> resources.getString(R.string.default_error_message)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/dropdown_menu` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.ExposedDropdownMenu -> resources.getString(R.string.dropdown_menu)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/range_start` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.SliderRangeStart -> resources.getString(R.string.range_start)"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrivateResource"
+        message="The resource `@string/range_end` is marked as private in androidx.compose.ui:ui-android:1.8.2"
+        errorLine1="        Strings.SliderRangeEnd -> resources.getString(R.string.range_end)"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
     </issue>
 
     <issue

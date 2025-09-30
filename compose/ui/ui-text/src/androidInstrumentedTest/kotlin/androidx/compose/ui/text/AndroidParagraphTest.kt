@@ -27,6 +27,7 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LocaleSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -2072,6 +2073,148 @@ class AndroidParagraphTest {
         assertThat(paragraph.textPaint.flags and TextPaint.SUBPIXEL_TEXT_FLAG)
             .isEqualTo(TextPaint.SUBPIXEL_TEXT_FLAG)
         assertThat(paragraph.textPaint.hinting).isEqualTo(TextPaint.HINTING_OFF)
+    }
+
+    @Test
+    fun placeholder_onEllipsizedLastLine_isNotNull() {
+        with(defaultDensity) {
+            val fontSize = 10.sp
+            val text = "Hello World Hello World Hello World"
+            val inlineContentId = "inline"
+            val annotatedString = buildAnnotatedString {
+                append(text)
+                appendInlineContent(inlineContentId)
+            }
+            val placeholder =
+                Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.AboveBaseline)
+
+            val placeholderRange =
+                AnnotatedString.Range(placeholder, start = text.length, end = text.length + 1)
+
+            val paragraph =
+                AndroidParagraph(
+                    text = annotatedString.text,
+                    style = TextStyle(fontSize = fontSize, fontFamily = basicFontFamily),
+                    annotations = annotatedString.spanStyles,
+                    placeholders = listOf(placeholderRange),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    density = defaultDensity,
+                )
+
+            assertThat(paragraph.placeholderRects).hasSize(1)
+            assertThat(paragraph.placeholderRects[0]).isNotNull()
+        }
+    }
+
+    @Test
+    fun placeholder_fullyEllipsizedAway_isNull() {
+        with(defaultDensity) {
+            val fontSize = 10.sp
+            val text = "Hello World Hello World Hello World"
+            val inlineContentId = "inline"
+            val annotatedString = buildAnnotatedString {
+                append(text)
+                appendInlineContent(inlineContentId)
+            }
+            val placeholder =
+                Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.AboveBaseline)
+
+            val placeholderRange =
+                AnnotatedString.Range(placeholder, start = text.length, end = text.length + 1)
+
+            val paragraph =
+                AndroidParagraph(
+                    text = annotatedString.text,
+                    style = TextStyle(fontSize = fontSize, fontFamily = basicFontFamily),
+                    annotations = annotatedString.spanStyles,
+                    placeholders = listOf(placeholderRange),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    density = defaultDensity,
+                )
+
+            assertThat(paragraph.placeholderRects).hasSize(1)
+            assertThat(paragraph.placeholderRects[0]).isNull()
+        }
+    }
+
+    @Test
+    fun placeholder_onLastLine_withOverflowClip_isNotNull() {
+        with(defaultDensity) {
+            val fontSize = 10.sp
+            val text = "Hello World Hello World Hello World"
+            val inlineContentId = "inline"
+            val annotatedString = buildAnnotatedString {
+                append(text)
+                appendInlineContent(inlineContentId)
+            }
+            val placeholder =
+                Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.AboveBaseline)
+
+            val placeholderRange =
+                AnnotatedString.Range(placeholder, start = text.length, end = text.length + 1)
+
+            val paragraph =
+                AndroidParagraph(
+                    text = annotatedString.text,
+                    style = TextStyle(fontSize = fontSize, fontFamily = basicFontFamily),
+                    annotations = annotatedString.spanStyles,
+                    placeholders = listOf(placeholderRange),
+                    maxLines = 2,
+                    overflow = TextOverflow.Clip,
+                    constraints = Constraints(maxWidth = (20 * fontSize.toPx()).roundToInt()),
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    density = defaultDensity,
+                )
+
+            assertThat(paragraph.placeholderRects).hasSize(1)
+            assertThat(paragraph.placeholderRects[0]).isNotNull()
+        }
+    }
+
+    @Test
+    fun placeholder_onNonEllipsizedLine_isNotNull() {
+        with(defaultDensity) {
+            val fontSize = 10.sp
+            val textBefore = "Hello "
+            val textAfter = " World Hello World Hello World"
+            val inlineContentId = "inline"
+            val annotatedString = buildAnnotatedString {
+                append(textBefore)
+                appendInlineContent(inlineContentId)
+                append(textAfter)
+            }
+            val placeholder =
+                Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.AboveBaseline)
+
+            val placeholderRange =
+                AnnotatedString.Range(
+                    placeholder,
+                    start = textBefore.length,
+                    end = textBefore.length + 1,
+                )
+
+            val paragraph =
+                AndroidParagraph(
+                    text = annotatedString.text,
+                    style = TextStyle(fontSize = fontSize, fontFamily = basicFontFamily),
+                    annotations = annotatedString.spanStyles,
+                    placeholders = listOf(placeholderRange),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    constraints = Constraints(maxWidth = (15 * fontSize.toPx()).roundToInt()),
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    density = defaultDensity,
+                )
+
+            assertThat(paragraph.placeholderRects).hasSize(1)
+            assertThat(paragraph.placeholderRects[0]).isNotNull()
+        }
     }
 
     private fun simpleParagraph(

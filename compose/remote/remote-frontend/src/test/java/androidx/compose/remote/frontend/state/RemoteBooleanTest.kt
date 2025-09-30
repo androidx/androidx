@@ -19,6 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices
 import androidx.compose.remote.frontend.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.view.platform.AndroidRemoteContext
@@ -650,6 +651,17 @@ class RemoteBooleanTest {
 
         assertThat(context.getInteger(i0Id)).isEqualTo(1)
         assertThat(context.getInteger(i1Id)).isEqualTo(0)
+    }
+
+    @Test
+    fun evaluateIfConstant() {
+        assertThat((RemoteInt(10) gt RemoteInt(5)).evaluateIfConstant(creationState)).isTrue()
+
+        assertThat(
+                (RemoteFloat(100f) gt RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC))
+                    .evaluateIfConstant(creationState)
+            )
+            .isNull()
     }
 
     private fun makeAndPaintCoreDocument() =

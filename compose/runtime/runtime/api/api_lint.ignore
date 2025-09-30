@@ -1,8 +1,6 @@
 // Baseline format: 1.0
 CallbackName: androidx.compose.runtime.RetainObserver:
     Class should be named RetainCallback
-CallbackName: androidx.compose.runtime.RetainStateProvider.RetainStatusObserver:
-    Class should be named RetainStatusCallback
 CallbackName: androidx.compose.runtime.snapshots.SnapshotStateObserver:
     Class should be named SnapshotStateCallback
 
@@ -51,3 +49,15 @@ NoByteOrShort: androidx.compose.runtime.Composer#changed(short) parameter #0:
 
 NullableCollection: androidx.compose.runtime.tooling.InspectionTablesKt#getLocalInspectionTables():
     Return type of method androidx.compose.runtime.tooling.InspectionTablesKt.getLocalInspectionTables() uses a nullable collection (`java.util.Set`); must be non-null
+
+
+TypeParameterName: androidx.compose.runtime.MovableContentKt#movableContentOf(kotlin.jvm.functions.Function2<? super P1,? super P2,kotlin.Unit>):
+    Invalid type parameter name "P1". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.MovableContentKt#movableContentOf(kotlin.jvm.functions.Function3<? super P1,? super P2,? super P3,kotlin.Unit>):
+    Invalid type parameter name "P1". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.MovableContentKt#movableContentOf(kotlin.jvm.functions.Function4<? super P1,? super P2,? super P3,? super P4,kotlin.Unit>):
+    Invalid type parameter name "P1". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.MovableContentKt#movableContentWithReceiverOf(kotlin.jvm.functions.Function3<? super R,? super P1,? super P2,kotlin.Unit>):
+    Invalid type parameter name "P1". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.compose.runtime.MovableContentKt#movableContentWithReceiverOf(kotlin.jvm.functions.Function4<? super R,? super P1,? super P2,? super P3,kotlin.Unit>):
+    Invalid type parameter name "P1". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

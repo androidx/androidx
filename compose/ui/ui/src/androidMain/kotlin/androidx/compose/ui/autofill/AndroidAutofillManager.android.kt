@@ -256,6 +256,7 @@ internal class AndroidAutofillManager(
             val value = values[itemId]
             semanticsOwner[itemId]?.semanticsConfiguration?.let { semanticsConfig ->
                 // Try to use the old and deprecated `onAutofillText`
+                @Suppress("DEPRECATION")
                 semanticsConfig
                     .getOrNull(SemanticsActions.OnAutofillText)
                     ?.action
@@ -344,6 +345,7 @@ internal class AndroidAutofillManager(
 }
 
 private fun SemanticsConfiguration.isAutofillable(): Boolean {
+    @Suppress("DEPRECATION")
     return props.contains(SemanticsActions.OnAutofillText) ||
         props.contains(SemanticsActions.OnFillData)
 }
@@ -353,6 +355,7 @@ private fun SemanticsConfiguration.isRelatedToAutoCommit(): Boolean {
 }
 
 private fun SemanticsConfiguration.isRelatedToAutofill(): Boolean {
+    @Suppress("DEPRECATION")
     return props.contains(SemanticsActions.OnAutofillText) ||
         props.contains(SemanticsActions.OnFillData) ||
         props.contains(SemanticsProperties.ContentType) ||

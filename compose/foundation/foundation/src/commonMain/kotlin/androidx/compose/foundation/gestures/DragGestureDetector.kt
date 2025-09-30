@@ -853,7 +853,12 @@ internal suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellatio
                 pointer = otherDown.id
             }
         } else {
-            val postSlopOffset = touchSlopDetector.addPointerInputChange(dragEvent, touchSlop)
+            val postSlopOffset =
+                touchSlopDetector.addPositions(
+                    dragEvent.position,
+                    dragEvent.previousPosition,
+                    touchSlop,
+                )
             if (postSlopOffset.isSpecified) {
                 onPointerSlopReached(dragEvent, postSlopOffset)
                 if (dragEvent.isConsumed) {
@@ -900,7 +905,12 @@ internal suspend fun AwaitPointerEventScope.awaitAllPointersUpWithSlopDetection(
                 pointer = otherDown.id
             }
         } else {
-            val postSlopOffset = touchSlopDetector.addPointerInputChange(dragEvent, touchSlop)
+            val postSlopOffset =
+                touchSlopDetector.addPositions(
+                    dragEvent.position,
+                    dragEvent.previousPosition,
+                    touchSlop,
+                )
             if (postSlopOffset.isSpecified) {
                 pointerSlopReached = true
             }
@@ -911,8 +921,8 @@ internal suspend fun AwaitPointerEventScope.awaitAllPointersUpWithSlopDetection(
 
 /**
  * Detects if touch slop has been crossed after adding a series of [PointerInputChange]. For every
- * new [PointerInputChange] one should add it to this detector using [addPointerInputChange]. If the
- * position change causes the touch slop to be crossed, [addPointerInputChange] will return true.
+ * new [PointerInputChange] one should add it to this detector using [addPositions]. If the position
+ * change causes the touch slop to be crossed, [addPositions] will return true.
  */
 internal class TouchSlopDetector(
     var orientation: Orientation? = null,
@@ -931,9 +941,7 @@ internal class TouchSlopDetector(
      * provided by [touchSlop], this method will return the post slop offset, that is the total
      * accumulated delta change minus the touch slop value, otherwise this should return null.
      */
-    fun addPointerInputChange(dragEvent: PointerInputChange, touchSlop: Float): Offset {
-        val currentPosition = dragEvent.position
-        val previousPosition = dragEvent.previousPosition
+    fun addPositions(currentPosition: Offset, previousPosition: Offset, touchSlop: Float): Offset {
         val positionChange = currentPosition - previousPosition
         totalPositionChange += positionChange
 

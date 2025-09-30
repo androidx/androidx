@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,7 +69,6 @@ private const val LongWebLink =
     "https://developer.android.com/design/ui/mobile/guides/foundations/system-bars"
 private const val PhoneUri = "tel:+123456789"
 
-@SuppressLint("NullAnnotationGroup")
 @Composable
 fun Hyperlinks() {
     Column(
@@ -308,7 +306,6 @@ private class AnnotatedStringSaver(private val linkInteractionListener: LinkInte
 
     @OptIn(ExperimentalTextApi::class)
     @Suppress("UNCHECKED_CAST")
-    @SuppressLint("NullAnnotationGroup")
     override fun restore(value: Any): AnnotatedString? {
         with(AnnotatedString.Saver as Saver<AnnotatedString, Any>) {
             val result = this.restore(value)

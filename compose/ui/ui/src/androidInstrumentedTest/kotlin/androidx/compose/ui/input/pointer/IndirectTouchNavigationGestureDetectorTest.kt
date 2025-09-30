@@ -19,7 +19,6 @@ package androidx.compose.ui.input.pointer
 import android.content.Context
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.IndirectTouchNavigationGestureDetector
@@ -31,7 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 @RunWith(JUnit4::class)
 class IndirectTouchNavigationGestureDetectorTest {
     private lateinit var context: Context

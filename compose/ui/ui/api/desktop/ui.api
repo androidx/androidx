@@ -437,10 +437,10 @@ public final class androidx/compose/ui/autofill/FillableData$Companion {
 }
 
 public final class androidx/compose/ui/autofill/FillableDataKt {
-	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;I)Landroidx/compose/ui/autofill/FillableData;
-	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;J)Landroidx/compose/ui/autofill/FillableData;
-	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;Ljava/lang/CharSequence;)Landroidx/compose/ui/autofill/FillableData;
-	public static final fun createFrom (Landroidx/compose/ui/autofill/FillableData$Companion;Z)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFromBoolean (Landroidx/compose/ui/autofill/FillableData$Companion;Z)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFromDateMillis (Landroidx/compose/ui/autofill/FillableData$Companion;J)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFromListIndex (Landroidx/compose/ui/autofill/FillableData$Companion;I)Landroidx/compose/ui/autofill/FillableData;
+	public static final fun createFromText (Landroidx/compose/ui/autofill/FillableData$Companion;Ljava/lang/CharSequence;)Landroidx/compose/ui/autofill/FillableData;
 }
 
 public final class androidx/compose/ui/awt/AwtEvents_desktopKt {
@@ -1523,11 +1523,26 @@ public abstract interface class androidx/compose/ui/input/InputModeManager {
 	public abstract fun requestInputMode-iuPiT84 (I)Z
 }
 
+public final class androidx/compose/ui/input/indirect/IndirectPointerInputChange {
+	public static final field $stable I
+	public synthetic fun <init> (JJJZFJJZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun consume ()V
+	public final fun getId-J3iCeTQ ()J
+	public final fun getPosition-F1C5BW0 ()J
+	public final fun getPressed ()Z
+	public final fun getPressure ()F
+	public final fun getPreviousPosition-F1C5BW0 ()J
+	public final fun getPreviousPressed ()Z
+	public final fun getPreviousUptimeMillis ()J
+	public final fun getUptimeMillis ()J
+	public final fun isConsumed ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class androidx/compose/ui/input/indirect/IndirectTouchEvent {
-	public abstract fun getPosition-F1C5BW0 ()J
+	public abstract fun getChanges ()Ljava/util/List;
 	public abstract fun getPrimaryDirectionalMotionAxis-ifgRr6E ()I
 	public abstract fun getType-LxEHWp8 ()I
-	public abstract fun getUptimeMillis ()J
 }
 
 public final class androidx/compose/ui/input/indirect/IndirectTouchEventPrimaryDirectionalMotionAxis {
@@ -1569,14 +1584,9 @@ public final class androidx/compose/ui/input/indirect/IndirectTouchEventType$Com
 	public final fun getUnknown-LxEHWp8 ()I
 }
 
-public final class androidx/compose/ui/input/indirect/IndirectTouchInputModifierKt {
-	public static final fun onIndirectTouchEvent (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
-	public static final fun onPreIndirectTouchEvent (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
-}
-
 public abstract interface class androidx/compose/ui/input/indirect/IndirectTouchInputModifierNode : androidx/compose/ui/node/DelegatableNode {
-	public abstract fun onIndirectTouchEvent (Landroidx/compose/ui/input/indirect/IndirectTouchEvent;)Z
-	public abstract fun onPreIndirectTouchEvent (Landroidx/compose/ui/input/indirect/IndirectTouchEvent;)Z
+	public abstract fun onCancelIndirectTouchInput ()V
+	public abstract fun onIndirectTouchEvent (Landroidx/compose/ui/input/indirect/IndirectTouchEvent;Landroidx/compose/ui/input/pointer/PointerEventPass;)V
 }
 
 public final class androidx/compose/ui/input/key/Key {
@@ -2909,6 +2919,8 @@ public final class androidx/compose/ui/layout/OnRemeasuredModifierKt {
 public final class androidx/compose/ui/layout/OnVisibilityChangedModifierKt {
 	public static final fun onVisibilityChanged (Landroidx/compose/ui/Modifier;JFLandroidx/compose/ui/layout/LayoutBoundsHolder;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun onVisibilityChanged$default (Landroidx/compose/ui/Modifier;JFLandroidx/compose/ui/layout/LayoutBoundsHolder;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun onVisibilityChangedNode (JFLandroidx/compose/ui/layout/LayoutBoundsHolder;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/node/DelegatableNode;
+	public static synthetic fun onVisibilityChangedNode$default (JFLandroidx/compose/ui/layout/LayoutBoundsHolder;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/node/DelegatableNode;
 }
 
 public abstract interface class androidx/compose/ui/layout/ParentDataModifier : androidx/compose/ui/Modifier$Element {
@@ -3536,6 +3548,10 @@ public final class androidx/compose/ui/node/TraversableNodeKt {
 	public static final fun traverseChildren (Landroidx/compose/ui/node/TraversableNode;Lkotlin/jvm/functions/Function1;)V
 	public static final fun traverseDescendants (Landroidx/compose/ui/node/DelegatableNode;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)V
 	public static final fun traverseDescendants (Landroidx/compose/ui/node/TraversableNode;Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract interface class androidx/compose/ui/node/UnplacedStateAwareModifierNode : androidx/compose/ui/node/DelegatableNode {
+	public abstract fun onUnplaced ()V
 }
 
 public abstract interface class androidx/compose/ui/platform/AccessibilityManager {

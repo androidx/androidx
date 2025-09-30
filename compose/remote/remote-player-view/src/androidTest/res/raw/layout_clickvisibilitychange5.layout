@@ -1,0 +1,24 @@
+ROOT [-2:-1] = [0.0, 0.0, 400.0, 400.0] VISIBLE
+  DATA_TEXT<44> = "Start column"
+  COLUMN [1:-1] = [0.0, 0.0, 400.0, 400.0] VISIBLE
+    DATA_TEXT<45> = "Start Box 1"
+    DATA_TEXT<46> = "End Box 1"
+    DATA_TEXT<47> = "Start Box 2"
+    DATA_TEXT<48> = "End Box 2"
+    MODIFIERS
+      BACKGROUND = [0.0, 0.0, 400.0, 400.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+      PADDING = [8.0, 8.0, 8.0, 8.0]
+    BOX [3:-1] = [142.0, 0.0, 100.0, 100.0] VISIBLE
+      MODIFIERS
+        WIDTH = 100.0
+        HEIGHT = 100.0
+        BACKGROUND = [0.0, 0.0, 100.0, 100.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+        CLICK_MODIFIER
+          VALUE_INTEGER_CHANGE = 43 -> 1
+    BOX [2:-1] = [167.0, 100.0, 50.0, 50.0] VISIBLE
+      MODIFIERS
+        WIDTH = 50.0
+        HEIGHT = 50.0
+        COMPONENT_VISIBILITY = 43
+        BACKGROUND = [0.0, 0.0, 50.0, 50.0] color [0.0, 1.0, 0.0, 1.0] shape [0]
+  DATA_TEXT<49> = "End Row"

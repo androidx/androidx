@@ -59,6 +59,7 @@ import androidx.compose.ui.util.lerp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -72,7 +73,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @OptIn(InternalAnimationApi::class)
 class AnimatedVisibilityTest {
-    val rule = createComposeRule()
+    val rule = createComposeRule(StandardTestDispatcher())
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)

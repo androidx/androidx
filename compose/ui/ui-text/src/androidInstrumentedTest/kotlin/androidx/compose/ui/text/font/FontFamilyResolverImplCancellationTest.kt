@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION") // b/220884136
-
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
@@ -28,10 +26,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runCurrent
-import org.junit.After
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,8 +37,6 @@ import org.junit.runner.RunWith
 @ExperimentalCoroutinesApi
 class FontFamilyResolverImplCancellationTest {
     private lateinit var typefaceLoader: AsyncTestTypefaceLoader
-    private lateinit var subject: FontFamilyResolverImpl
-    private lateinit var scope: TestCoroutineScope
     private lateinit var typefaceRequestCache: TypefaceRequestCache
     private lateinit var asyncTypefaceCache: AsyncTypefaceCache
 
@@ -54,33 +48,14 @@ class FontFamilyResolverImplCancellationTest {
     fun setup() {
         asyncTypefaceCache = AsyncTypefaceCache()
         typefaceRequestCache = TypefaceRequestCache()
-        val dispatcher = StandardTestDispatcher()
-        scope = TestCoroutineScope(dispatcher)
-        val injectedContext = scope.coroutineContext.minusKey(CoroutineExceptionHandler)
-        subject =
-            FontFamilyResolverImpl(
-                fontLoader,
-                fontResolveInterceptor,
-                typefaceRequestCache,
-                FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext),
-            )
         typefaceLoader = AsyncTestTypefaceLoader()
     }
 
-    @After
-    fun cleanup() {
-        try {
-            scope.cleanupTestCoroutines()
-        } catch (e: AssertionError) {
-            // TODO: fix Test finished with active jobs
-        }
-    }
-
     @Test
-    fun onAsyncLoadCancellation_consideredLoadFailure() {
+    fun onAsyncLoadCancellation_consideredLoadFailure() = runTest {
         val asyncFont = AsyncFauxFont(typefaceLoader)
         val fontFamily = asyncFont.toFontFamily()
-        subject.resolve(fontFamily)
+        subject().resolve(fontFamily)
 
         fun currentCacheItem(): TypefaceResult =
             typefaceRequestCache.get(
@@ -93,12 +68,23 @@ class FontFamilyResolverImplCancellationTest {
                 )
             )!!
 
-        scope.runCurrent()
+        testScheduler.runCurrent()
         val beforeCacheEntry = currentCacheItem()
         assertThat(beforeCacheEntry).isAsyncTypeface()
         typefaceLoader.errorOne(asyncFont, CancellationException())
-        scope.runCurrent()
+        testScheduler.runCurrent()
         val afterCache = currentCacheItem()
         assertThat(afterCache).isImmutableTypefaceOf(Typeface.DEFAULT)
     }
+
+    private fun TestScope.subject() =
+        FontFamilyResolverImpl(
+            fontLoader,
+            fontResolveInterceptor,
+            typefaceRequestCache,
+            FontListFontFamilyTypefaceAdapter(
+                asyncTypefaceCache,
+                backgroundScope.coroutineContext.minusKey(CoroutineExceptionHandler),
+            ),
+        )
 }

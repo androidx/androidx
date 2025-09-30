@@ -287,6 +287,16 @@ internal fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
     return itemSizeSum / visibleItems.size + mainAxisItemSpacing
 }
 
+internal fun LazyStaggeredGridLayoutInfo.calculateContentSize(laneCount: Int): Int {
+    val contentPadding = beforeContentPadding + afterContentPadding
+    if (totalItemsCount == 0 || laneCount <= 0) return contentPadding
+
+    val contentSizeWithSpacing =
+        (visibleItemsAverageSize() * totalItemsCount) / laneCount - mainAxisItemSpacing
+
+    return contentSizeWithSpacing + contentPadding
+}
+
 internal val LazyStaggeredGridLayoutInfo.singleAxisViewportSize: Int
     get() =
         if (orientation == Orientation.Vertical) {

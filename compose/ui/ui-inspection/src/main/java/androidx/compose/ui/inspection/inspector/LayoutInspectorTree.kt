@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import android.util.Log
 import android.view.View
 import androidx.collection.LongObjectMap
 import androidx.collection.emptyLongObjectMap
@@ -24,6 +25,7 @@ import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionInstance
 import androidx.compose.ui.R
+import androidx.compose.ui.inspection.LOG_TAG
 import androidx.compose.ui.inspection.util.AnchorMap
 import androidx.compose.ui.inspection.util.isPrimitiveClass
 import androidx.compose.ui.node.RootForTest
@@ -170,6 +172,27 @@ class LayoutInspectorTree(anchorMap: AnchorMap) {
             maxRecursions,
             maxInitialIterableSize,
         )
+    }
+
+    fun convertStateValue(value: Any?): NodeParameter? {
+        return try {
+            builderData.parameterFactory.create(
+                rootId = -1,
+                nodeId = -1,
+                anchorId = -1,
+                name = "value",
+                value = value,
+                kind = ParameterKind.Normal,
+                parameterIndex = 0,
+                maxRecursions = 3,
+                maxInitialIterableSize = 5,
+            )
+        } catch (ex: Throwable) {
+            // A failure to decompose the value should not stop the agent from sending
+            // state reads to the client.
+            Log.w(LOG_TAG, "Could not decompose parameter: $value", ex)
+            null
+        }
     }
 
     private fun sort(compositions: List<SubCompositionResult>): List<SubCompositionResult> {

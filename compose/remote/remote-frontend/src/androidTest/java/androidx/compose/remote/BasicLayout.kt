@@ -362,7 +362,7 @@ class LayoutTest {
     fun testLayoutAndValues() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -412,7 +412,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testSimple() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -531,7 +531,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testSimpleText() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 DATA_TEXT<43> = "Bonjour le monde!"
 DATA_TEXT<44> = "Hello World"
 DATA_TEXT<45> = "Hola Mundo"
@@ -606,7 +606,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testSimpleTextVariants() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 DATA_TEXT<43> = "Bonjour Le Monde!"
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
@@ -732,7 +732,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testBasicClickAction() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -762,7 +762,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testBasicClickActionParam() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -795,7 +795,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testStateLayoutOn() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -848,7 +848,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testStateLayoutOff() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -900,7 +900,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testTouch() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -965,7 +965,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testIntrinsics1() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   ROW [-3:-1] = [0.0, 0.0, 825.0, 165.0] VISIBLE
     MODIFIERS
@@ -1010,7 +1010,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testIntrinsics2() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   ROW [-3:-1] = [0.0, 0.0, 825.0, 165.0] VISIBLE
     MODIFIERS
@@ -1066,7 +1066,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testColorFilter1() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 DATA_TEXT<43> = "Green"
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   BOX [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
@@ -1128,7 +1128,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testColorFilter2() {
         val result =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   BOX [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     MODIFIERS
@@ -1142,7 +1142,6 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
         BACKGROUND = [0.0, 0.0, 88.0, 88.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
       CANVAS_CONTENT [-10:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
         BitmapData id 47 (88x88)
-        DATA_TEXT<48> = ""
 """
         testLayout(result) {
             val colors =
@@ -1169,7 +1168,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testContentDraw() {
         val layoutResult =
             """
-DATA_TEXT<42> = "default"
+DATA_TEXT<42> = ""
 DATA_TEXT<43> = "XYZ"
 ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
   ROW [-3:-1] = [0.0, 0.0, 176.0, 176.0] VISIBLE

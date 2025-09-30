@@ -10,7 +10,7 @@ package androidx.compose.material.navigation {
   @androidx.navigation.Navigator.Name("bottomSheet") public final class BottomSheetNavigator extends androidx.navigation.Navigator<androidx.compose.material.navigation.BottomSheetNavigator.Destination> {
     ctor public BottomSheetNavigator(androidx.compose.material.ModalBottomSheetState sheetState);
     method public androidx.compose.material.navigation.BottomSheetNavigator.Destination createDestination();
-    method public androidx.compose.material.navigation.BottomSheetNavigatorSheetState getNavigatorSheetState();
+    method @InaccessibleFromKotlin public androidx.compose.material.navigation.BottomSheetNavigatorSheetState getNavigatorSheetState();
     property public androidx.compose.material.navigation.BottomSheetNavigatorSheetState navigatorSheetState;
   }
 
@@ -28,15 +28,15 @@ package androidx.compose.material.navigation {
   }
 
   public final class BottomSheetNavigatorKt {
-    method @androidx.compose.runtime.Composable public static androidx.compose.material.navigation.BottomSheetNavigator rememberBottomSheetNavigator(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material.navigation.BottomSheetNavigator rememberBottomSheetNavigator(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material.navigation.BottomSheetNavigator rememberBottomSheetNavigator(androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class BottomSheetNavigatorSheetState {
     ctor public BottomSheetNavigatorSheetState(androidx.compose.material.ModalBottomSheetState sheetState);
-    method public androidx.compose.material.ModalBottomSheetValue getCurrentValue();
-    method public androidx.compose.material.ModalBottomSheetValue getTargetValue();
-    method public boolean isVisible();
+    method @InaccessibleFromKotlin public androidx.compose.material.ModalBottomSheetValue getCurrentValue();
+    method @InaccessibleFromKotlin public androidx.compose.material.ModalBottomSheetValue getTargetValue();
+    method @InaccessibleFromKotlin public boolean isVisible();
     property public androidx.compose.material.ModalBottomSheetValue currentValue;
     property public boolean isVisible;
     property public androidx.compose.material.ModalBottomSheetValue targetValue;

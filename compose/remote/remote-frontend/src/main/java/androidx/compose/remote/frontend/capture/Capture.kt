@@ -61,8 +61,7 @@ public open class RemoteComposeCreationState {
         this.size = size
         this.apiLevel = CoreDocument.DOCUMENT_API_LEVEL
         this.profiles = 0
-        document =
-            RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "default", platform)
+        document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
     }
 
     public constructor(
@@ -79,18 +78,13 @@ public open class RemoteComposeCreationState {
         this.profiles = profiles
         if (this.apiLevel == CoreDocument.DOCUMENT_API_LEVEL && this.profiles == 0) {
             document =
-                RemoteComposeWriterAndroid(
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    "default",
-                    platform,
-                )
+                RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
         } else {
             document =
                 RemoteComposeWriterAndroid(
                     size.width.toInt(),
                     size.height.toInt(),
-                    "default",
+                    "",
                     apiLevel,
                     profiles,
                     platform,
@@ -104,7 +98,7 @@ public open class RemoteComposeCreationState {
         this.size = size
         this.apiLevel = profile.apiLevel
         this.profiles = profile.operationsProfiles
-        this.document = profile.create(size.width.toInt(), size.height.toInt(), "default")
+        this.document = profile.create(size.width.toInt(), size.height.toInt(), "")
     }
 }
 

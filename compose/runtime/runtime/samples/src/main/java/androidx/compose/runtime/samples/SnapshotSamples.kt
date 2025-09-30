@@ -45,7 +45,7 @@ fun snapshotFlowSample() {
     val collectionScope: CoroutineScope = TODO("Use your scope here")
 
     // Collect the flow and offer greetings!
-    collectionScope.launch { greetPersonFlow.collect { println(greeting) } }
+    collectionScope.launch { greetPersonFlow.collect { flowGreeting -> println(flowGreeting) } }
 
     // ...
 

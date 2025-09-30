@@ -103,6 +103,7 @@ internal class LayoutNode(
     internal var lastSize: IntSize = IntSize.Zero
     internal var outerToInnerOffset: IntOffset = IntOffset.Max
     internal var outerToInnerOffsetDirty: Boolean = true
+    internal var addedToRectList: Boolean = true
 
     override var compositeKeyHash: Int = 0
 
@@ -1234,6 +1235,13 @@ internal class LayoutNode(
     internal fun onCoordinatorPositionChanged() {
         outerToInnerOffsetDirty = true
         forEachChild { it.invalidateOffsetFromRoot() }
+
+        // Since there has been an update to a coordinator somewhere in the
+        // modifier chain of this layout node, we might have onRectChanged
+        // callbacks that need to be notified of that change. As a result, even
+        // if the outer rect of this layout node hasn't changed, we want to
+        // invalidate the callbacks for them
+        owner?.rectManager?.invalidateCallbacksFor(this)
     }
 
     internal inline fun <T> ignoreRemeasureRequests(block: () -> T): T {
@@ -1495,6 +1503,10 @@ internal class LayoutNode(
         }
         rescheduleRemeasureOrRelayout(this)
         owner?.onPostLayoutNodeReused(this, oldSemanticsId)
+        // Sometimes, while scrolling with reuse, a child LayoutNode, might not
+        // require measure or layout at all, but at a minimum we need to update RectManager with
+        // the correct information.
+        owner?.rectManager?.onLayoutPositionChanged(this, forceUpdate = true)
     }
 
     override fun onDeactivate() {
@@ -1517,6 +1529,7 @@ internal class LayoutNode(
             }
         }
         owner?.onLayoutNodeDeactivated(this)
+        owner?.rectManager?.remove(this)
     }
 
     override fun onRelease() {

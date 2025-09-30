@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.samples
 
+import android.annotation.SuppressLint
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -25,6 +26,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
+import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -33,17 +35,22 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.draggable2D
+import androidx.compose.foundation.gestures.rememberDraggable2DState
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceEvenly
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredSize
@@ -91,6 +98,7 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -919,6 +927,108 @@ fun ListToDetailSample() {
                             contentDescription = null,
                         )
                         Text("Item $itemSelected", fontSize = 23.sp)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@SuppressLint("PrimitiveInCollection")
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Sampled
+@Composable
+fun SharedElementWithFlingSample() {
+    @Composable
+    fun Cat(modifier: Modifier = Modifier) {
+        Image(
+            painterResource(id = R.drawable.yt_profile),
+            contentDescription = "cute cat",
+            contentScale = ContentScale.FillHeight,
+            modifier = modifier.clip(shape = RoundedCornerShape(10)),
+        )
+    }
+
+    var showDetails by remember { mutableStateOf(true) }
+
+    // First, we need to create a SharedTransitionLayout, this Layout will provide the coordinator
+    // space for shared element position animation, as well as an overlay for shared elements to
+    // render in. Children content in this Layout will be able to create shared element transition
+    // using the receiver scope: SharedTransitionScope
+    SharedTransitionLayout(
+        Modifier.clickable(remember { MutableInteractionSource() }, indication = null) {
+                showDetails = !showDetails
+            }
+            .fillMaxSize()
+            .padding(10.dp)
+    ) {
+        // In the SharedTransitionLayout, we will be able to access the receiver scope (i.e.
+        // SharedTransitionScope) in order to create shared element transition.
+        AnimatedContent(
+            targetState = showDetails,
+            transitionSpec = { fadeIn() togetherWith fadeOut() using null },
+        ) { isDetails ->
+            if (isDetails) {
+                var offset by remember(transition.currentState) { mutableStateOf(Offset.Zero) }
+                // Create a mutable state to hold the sharedContentState, so that we can invoke
+                // prepareTransitionWithInitialVelocity on it in order to set up the initial
+                // velocity in drag handler.
+                var sharedContentStateForDraggableCat: SharedContentState? by remember {
+                    mutableStateOf(null)
+                }
+                Column(
+                    Modifier.fillMaxSize()
+                        .draggable2D(
+                            rememberDraggable2DState { offset += it },
+                            onDragStopped = { velocity ->
+                                // Set up the initial velocity for the upcoming shared element
+                                // transition.
+                                sharedContentStateForDraggableCat
+                                    ?.prepareTransitionWithInitialVelocity(velocity)
+                                showDetails = false
+                            },
+                        )
+                ) {
+                    Cat(
+                        Modifier.fillMaxWidth()
+                            .offset { offset.round() }
+                            .aspectRatio(1f)
+                            // Creating a shared element. Note that this modifier is *after*
+                            // the size modifier and aspectRatio modifier, because those size specs
+                            // are not shared between the two shared elements.
+                            .sharedElement(
+                                // Using the AnimatedVisibilityScope from the AnimatedContent
+                                // defined above.
+                                rememberSharedContentState("cat").also {
+                                    sharedContentStateForDraggableCat = it
+                                },
+                                this@AnimatedContent,
+                            )
+                    )
+                }
+            } else {
+                val colors = listOf(Color(0xff2a9d84), Color(0xffffcc5c), Color(0xffff6f69))
+                FlowRow(modifier = Modifier.fillMaxWidth()) {
+                    repeat(7) {
+                        if (it == 3) {
+                            Cat(
+                                Modifier.size(100.dp)
+                                    // Creating another shared element with the same key.
+                                    // Note that this modifier is *after* the size modifier,
+                                    // The size changes between these two shared elements, i.e. the
+                                    // size
+                                    // is not shared between the two shared elements.
+                                    .sharedElement(
+                                        rememberSharedContentState("cat"),
+                                        this@AnimatedContent,
+                                    )
+                            )
+                        } else {
+                            Box(
+                                Modifier.size(100.dp)
+                                    .background(colors[it % 3], RoundedCornerShape(5.dp))
+                            )
+                        }
                     }
                 }
             }

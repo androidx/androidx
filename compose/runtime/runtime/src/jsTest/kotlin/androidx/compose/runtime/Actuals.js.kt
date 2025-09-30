@@ -16,16 +16,15 @@
 
 package androidx.compose.runtime
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.await
-import kotlinx.coroutines.promise
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestResult
 
 internal actual suspend fun TestResult.awaitCompletion() {
-    await()
-}
-
-@Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
-internal actual fun wrapTestWithCoroutine(block: suspend () -> Unit): TestResult {
-    return MainScope().promise { block() }
+    // Copied from Promise.await(), as JsPromiseInterfaceForTesting does not implement it.
+    suspendCancellableCoroutine { cont: CancellableContinuation<Unit> ->
+        then(onFulfilled = { cont.resume(Unit) }, onRejected = { cont.resumeWithException(it) })
+    }
 }

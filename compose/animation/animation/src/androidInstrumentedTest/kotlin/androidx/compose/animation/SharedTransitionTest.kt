@@ -23,7 +23,7 @@
 package androidx.compose.animation
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
+import androidx.compose.animation.SharedTransitionScope.PlaceholderSize.Companion.AnimatedSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.core.LinearEasing
@@ -110,6 +110,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -127,6 +128,7 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertNotEquals
 import org.junit.Rule
@@ -137,7 +139,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SharedTransitionTest {
-    val rule = createComposeRule()
+    val rule = createComposeRule(StandardTestDispatcher())
 
     // Detect leaks BEFORE and AFTER compose rule work
     @get:Rule
@@ -1180,7 +1182,7 @@ class SharedTransitionTest {
     }
 
     @Test
-    fun testPlaceHolderSize() {
+    fun testPlaceholderSize() {
         var transitionScope: SharedTransitionScope? = null
         var visible by mutableStateOf(true)
         var parent1Size: IntSize? = null
@@ -1222,8 +1224,8 @@ class SharedTransitionTest {
                                 .sharedElement(
                                     rememberSharedContentState(key = "child"),
                                     this@AnimatedVisibility,
-                                    placeHolderSize =
-                                        SharedTransitionScope.PlaceHolderSize { _, _ ->
+                                    placeholderSize =
+                                        SharedTransitionScope.PlaceholderSize { _, _ ->
                                             expectedSize
                                         },
                                 )
@@ -1857,7 +1859,7 @@ class SharedTransitionTest {
                                         exit = ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.Fit),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(80.dp)
                                     .background(Color.Red)
@@ -1871,7 +1873,7 @@ class SharedTransitionTest {
                                         exit = ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.Fit),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(40.dp, 160.dp)
                                     .background(Color.Gray)
@@ -1959,7 +1961,7 @@ class SharedTransitionTest {
                                         ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.FillHeight),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(80.dp)
                                     .background(Color.Red)
@@ -1973,7 +1975,7 @@ class SharedTransitionTest {
                                         ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.FillWidth),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(40.dp, 160.dp)
                                     .background(Color.Gray)
@@ -2072,7 +2074,7 @@ class SharedTransitionTest {
                                         resizeMode =
                                             scaleToBounds(ContentScale.Fit, Alignment.TopStart),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(80.dp)
                                     .background(Color.Red)
@@ -2087,7 +2089,7 @@ class SharedTransitionTest {
                                         resizeMode =
                                             scaleToBounds(ContentScale.Fit, Alignment.BottomStart),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(40.dp, 160.dp)
                                     .background(Color.Gray)
@@ -2175,7 +2177,7 @@ class SharedTransitionTest {
                                         ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.Crop),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(80.dp)
                                     .background(Color.Red)
@@ -2189,7 +2191,7 @@ class SharedTransitionTest {
                                         ExitTransition.None,
                                         resizeMode = scaleToBounds(ContentScale.FillWidth),
                                         boundsTransform = boundsTransform,
-                                        placeHolderSize = animatedSize,
+                                        placeholderSize = AnimatedSize,
                                     )
                                     .size(40.dp, 160.dp)
                                     .background(Color.Gray)
@@ -2662,7 +2664,7 @@ class SharedTransitionTest {
     }
 
     @Test
-    fun testPlaceHolderLogicSkippedWhenNoMatch() {
+    fun testPlaceholderLogicSkippedWhenNoMatch() {
         var parentSize: IntSize? = null
         val changeInProgress = true
         var testSize by mutableStateOf(IntSize.Zero)
@@ -4673,6 +4675,239 @@ class SharedTransitionTest {
 
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
+    }
+
+    @Test
+    fun initialVelocityForExitIsUsed() {
+        var exit by mutableStateOf(false)
+        var sharedContentState: SharedTransitionScope.SharedContentState? = null
+        var position: Offset? = null
+        var position2: Offset? = null
+        var controlPosition: Offset? = null
+        var controlPosition2: Offset? = null
+        rule.setContent {
+            SharedTransitionLayout {
+                AnimatedContent(targetState = exit) {
+                    if (!it) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("test").also {
+                                            sharedContentState = it
+                                        },
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned { position = it.positionInRoot() }
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned { controlPosition = it.positionInRoot() }
+                            )
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("test"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                                    .onGloballyPositioned { position2 = it.positionInRoot() }
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                                    .onGloballyPositioned { controlPosition2 = it.positionInRoot() }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        exit = true
+        rule.mainClock.autoAdvance = false
+
+        var lastPosition = position
+        sharedContentState!!.prepareTransitionWithInitialVelocity(Velocity(11000f, -12000f))
+        while (lastPosition == position) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.runOnIdle {
+            val deltaX = position!!.x - controlPosition!!.x
+            val deltaY = position!!.y - controlPosition!!.y
+
+            assert(deltaX > 0f)
+            assert(deltaY < 0f)
+        }
+
+        rule.mainClock.autoAdvance = true
+        // Finish the animation
+        rule.waitForIdle()
+
+        rule.runOnIdle { exit = false }
+        rule.mainClock.autoAdvance = false
+
+        lastPosition = position2
+        // Pulse animation frames until the animation starts
+        while (lastPosition == position2) {
+            rule.waitForIdle()
+            rule.mainClock.advanceTimeByFrame()
+        }
+
+        rule.runOnIdle {
+            val deltaX = position2!!.x - controlPosition2!!.x
+            val deltaY = position2!!.y - controlPosition2!!.y
+
+            assertEquals(0f, deltaX)
+            assertEquals(0f, deltaY)
+        }
+    }
+
+    @Test
+    fun zeroInitialVelocityForExit() {
+        var exit by mutableStateOf(false)
+        var sharedContentState: SharedTransitionScope.SharedContentState? = null
+        var position: MutableList<Offset> = mutableListOf()
+        var controlPosition: MutableList<Offset> = mutableListOf()
+        rule.setContent {
+            SharedTransitionLayout {
+                AnimatedContent(targetState = exit) {
+                    if (!it) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("test").also {
+                                            sharedContentState = it
+                                        },
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned { position.add(it.positionInRoot()) }
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned {
+                                        controlPosition.add(it.positionInRoot())
+                                    }
+                            )
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("test"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        sharedContentState!!.prepareTransitionWithInitialVelocity(
+            // Zero velocity, this should not affect the animation at all
+            Velocity(0f, 0f)
+        )
+        exit = true
+        rule.waitForIdle()
+
+        position.forEachIndexed { id, actualOffset ->
+            // Zero velocity. This should not affect the animation at all.
+            assertEquals(controlPosition[id], actualOffset)
+        }
+    }
+
+    @Test
+    fun initialVelocityForDisabledElement() {
+        var exit by mutableStateOf(false)
+        var sharedContentState: SharedTransitionScope.SharedContentState? = null
+        var position: MutableList<Offset> = mutableListOf()
+        var controlPosition: MutableList<Offset> = mutableListOf()
+        rule.setContent {
+            SharedTransitionLayout {
+                AnimatedContent(targetState = exit) {
+                    if (!it) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState(
+                                                "test",
+                                                config = remember { SharedContentConfig { false } },
+                                            )
+                                            .also { sharedContentState = it },
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned { position.add(it.positionInRoot()) }
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(100.dp)
+                                    .onGloballyPositioned {
+                                        controlPosition.add(it.positionInRoot())
+                                    }
+                            )
+                        }
+                    } else {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Center) {
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("test"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                            )
+                            Box(
+                                Modifier.sharedElement(
+                                        rememberSharedContentState("control"),
+                                        this@AnimatedContent,
+                                    )
+                                    .size(200.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        sharedContentState!!.prepareTransitionWithInitialVelocity(
+            // High velocity, this should not affect the animation at all as the shared element
+            // is disabled
+            Velocity(-10000f, 20000f)
+        )
+        exit = true
+        rule.waitForIdle()
+
+        position.forEachIndexed { id, actualOffset ->
+            assertEquals(controlPosition[id], actualOffset)
+        }
     }
 }
 

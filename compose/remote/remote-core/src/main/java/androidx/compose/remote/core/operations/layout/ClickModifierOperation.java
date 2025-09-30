@@ -214,8 +214,10 @@ public class ClickModifierOperation extends PaintOperation
         locationInWindow[0] = 0f;
         locationInWindow[1] = 0f;
         component.getLocationInWindow(locationInWindow);
-        animateRipple(
-                x - locationInWindow[0], y - locationInWindow[1], context.getClock().millis());
+        if (context.isAnimationEnabled()) {
+            animateRipple(
+                    x - locationInWindow[0], y - locationInWindow[1], context.getClock().millis());
+        }
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
                 ((ActionOperation) o).runAction(context, document, component, x, y);

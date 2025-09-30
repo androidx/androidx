@@ -18,11 +18,20 @@
 
 package androidx.compose.animation
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.launch
 
 internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl) {
 
@@ -41,6 +50,8 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     fun isAnimating(): Boolean = enabledEntries.fastAny { it.boundsAnimation.isRunning }
 
+    private val momentumAnimation = Animatable(Offset.Zero, Offset.VectorConverter)
+
     internal fun updateMatch() {
         @Suppress("VisibleForTests") scope.testBlockToRun?.invoke()
         _enabledEntries.removeAll { !allEntries.contains(it) || !it.isEnabled }
@@ -51,6 +62,51 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         }
         val hasVisibleContent = _enabledEntries.hasVisibleContent()
         stateMachine.checkForAndDeferStateUpdates(hasVisibleContent)
+    }
+
+    private var animationSpecFinalized = false
+
+    internal fun updateExitVelocity(velocity: Velocity) {
+        // Start the momentum animation right away, in order to use the next frame as the start
+        // time. In contrast, the actual shared element will need to wait for the next composition
+        // to start the animation. The shared element transition will then acquire its official
+        // start time the frame after the composition. For velocity related animations, a 2-frame
+        // delay on the start will cause visual jank.
+        scope.coroutineScope.launch {
+            // Start the animation right away. The expectation is in the first frame we will
+            // finalize the animation spec.
+            momentumAnimation.animateTo(
+                Offset.Zero,
+                DefaultMomentumSpring,
+                initialVelocity = velocity.toOffset(),
+            )
+            animationSpecFinalized = true
+        }
+    }
+
+    val momentumAnimationOffset: () -> Offset = {
+        if (!animationSpecFinalized && scope.isTransitionActive && momentumAnimation.isRunning) {
+            enabledEntries
+                .firstOrNull { it.target }
+                ?.let {
+                    val targetSpec = it.boundsAnimation.animationSpec
+                    // New target animation acquired. Finalize the animation spec for the momentum
+                    // animation.
+                    if (targetSpec is SpringSpec) {
+                        val spring =
+                            spring(
+                                targetSpec.dampingRatio,
+                                targetSpec.stiffness,
+                                Offset.VisibilityThreshold,
+                            )
+                        scope.coroutineScope.launch {
+                            momentumAnimation.animateTo(Offset.Zero, spring)
+                        }
+                    }
+                    animationSpecFinalized = true
+                }
+        }
+        momentumAnimation.value
     }
 
     fun invalidateTargetBoundsProvider() = stateMachine.invalidateTargetBoundsProvider()
@@ -117,7 +173,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
     private val _enabledEntries = mutableStateListOf<SharedElementEntry>()
 
     internal val observingVisibilityChange: () -> Unit = {
-        allEntries.any { it.target && it.isEnabled }
+        allEntries.fastAny { it.target && it.isEnabled }
     }
 
     fun addEntry(sharedElementState: SharedElementEntry) {
@@ -135,3 +191,8 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 private fun List<SharedElementEntry>.hasVisibleContent(): Boolean = fastAny {
     it.boundsAnimation.target
 }
+
+private val DefaultMomentumSpring =
+    spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = Offset(3f, 3f))
+
+internal fun Velocity.toOffset(): Offset = Offset(x, y)

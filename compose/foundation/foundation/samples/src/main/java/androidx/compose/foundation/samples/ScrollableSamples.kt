@@ -62,7 +62,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ScrollableSample() {
     // actual composable state that we will show on UI and update in `Scrollable`
-    val offset = remember { mutableStateOf(0f) }
+    var offset by remember { mutableStateOf(0f) }
     Box(
         Modifier.size(150.dp)
             .scrollable(
@@ -72,7 +72,7 @@ fun ScrollableSample() {
                     rememberScrollableState { delta ->
                         // use the scroll data and indicate how much this element consumed.
                         // unconsumed deltas will be propagated to nested scrollables (if present)
-                        offset.value = offset.value + delta // update the state
+                        offset = offset + delta // update the state
                         delta // indicate that we consumed all the pixels available
                     },
             )
@@ -81,9 +81,9 @@ fun ScrollableSample() {
     ) {
         // Modifier.scrollable is not opinionated about its children's layouts. It will however
         // promote nested scrolling capabilities if those children also use the modifier.
-        // The modifier will not change any layouts so one must handle any desired changes through
-        // the delta values in the scrollable state
-        Text(offset.value.roundToInt().toString(), style = TextStyle(fontSize = 32.sp))
+        // The modifier will not change any layouts so one must handle any desired changes
+        // through the delta values in the scrollable state
+        Text(offset.roundToInt().toString(), style = TextStyle(fontSize = 32.sp))
     }
 }
 

@@ -24,7 +24,9 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.impl.light.LightParameter
 import kotlin.metadata.jvm.annotations
 import org.jetbrains.kotlin.psi.KtAnnotated
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -43,6 +45,7 @@ import org.jetbrains.uast.getContainingDeclaration
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.withContainingElements
 
 /**
@@ -267,3 +270,36 @@ private val KtAnnotated.hasComposableAnnotation: Boolean
         annotationEntries.any {
             (it.toUElement() as UAnnotation).qualifiedName == Names.Runtime.Composable.javaFqn
         }
+
+/**
+ * For a function invocation of the shape `fun <T> foo(..., () -> T): T`, this function returns
+ * whether an invocation returns Unit. Specifically, this function returns true if `T is Unit` or if
+ * the return type of the lambda in the final parameter returns `Unit`.
+ */
+fun isReallyRememberingUnit(node: UCallExpression, method: PsiMethod): Boolean =
+    when {
+        node.typeArguments.singleOrNull()?.isVoidOrUnit == true -> {
+            // Call with an explicit type argument, e.g., retain<Unit> { 42 }
+            true
+        }
+        node.sourcePsi is KtCallExpression -> {
+            // Even though the return type is Unit, we should double check if the type of
+            // the lambda expression matches
+            @Suppress("UnstableApiUsage")
+            val calculationParameterIndex = method.parameters.lastIndex
+            val argument = node.getArgumentForParameter(calculationParameterIndex)?.sourcePsi
+            // If the argument is a lambda, check the expression inside
+            if (argument is KtLambdaExpression) {
+                val lastExp = argument.bodyExpression?.statements?.lastOrNull()
+                val lastExpType = lastExp?.toUElementOfType<UExpression>()?.getExpressionType()
+                // If unresolved (i.e., type error), the expression type will be actually
+                // `null`
+                node.getExpressionType() == lastExpType
+            } else {
+                // Otherwise return true, since it is a reference to something else that is
+                // unit (such as a variable)
+                true
+            }
+        }
+        else -> true
+    }

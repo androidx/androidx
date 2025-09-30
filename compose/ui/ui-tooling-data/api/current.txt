@@ -17,16 +17,16 @@ package androidx.compose.ui.tooling.data {
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public abstract sealed class Group {
-    method public final androidx.compose.ui.unit.IntRect getBox();
-    method public final java.util.Collection<androidx.compose.ui.tooling.data.Group> getChildren();
-    method public final java.util.Collection<java.lang.Object?> getData();
-    method public final Object? getIdentity();
-    method public final Object? getKey();
-    method public final androidx.compose.ui.tooling.data.SourceLocation? getLocation();
-    method public java.util.List<androidx.compose.ui.layout.ModifierInfo> getModifierInfo();
-    method public final String? getName();
-    method public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> getParameters();
-    method public final boolean isInline();
+    method @InaccessibleFromKotlin public final androidx.compose.ui.unit.IntRect getBox();
+    method @InaccessibleFromKotlin public final java.util.Collection<androidx.compose.ui.tooling.data.Group> getChildren();
+    method @InaccessibleFromKotlin public final java.util.Collection<java.lang.Object?> getData();
+    method @InaccessibleFromKotlin public final Object? getIdentity();
+    method @InaccessibleFromKotlin public final Object? getKey();
+    method @InaccessibleFromKotlin public final androidx.compose.ui.tooling.data.SourceLocation? getLocation();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.layout.ModifierInfo> getModifierInfo();
+    method @InaccessibleFromKotlin public final String? getName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> getParameters();
+    method @InaccessibleFromKotlin public final boolean isInline();
     property public final androidx.compose.ui.unit.IntRect box;
     property public final java.util.Collection<androidx.compose.ui.tooling.data.Group> children;
     property public final java.util.Collection<java.lang.Object?> data;
@@ -44,15 +44,15 @@ package androidx.compose.ui.tooling.data {
     method public Object? component1();
     method public Object? component2();
     method public androidx.compose.ui.tooling.data.JoinedKey copy(optional Object? left, optional Object? right);
-    method public Object? getLeft();
-    method public Object? getRight();
+    method @InaccessibleFromKotlin public Object? getLeft();
+    method @InaccessibleFromKotlin public Object? getRight();
     property public Object? left;
     property public Object? right;
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class NodeGroup extends androidx.compose.ui.tooling.data.Group {
     ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<? extends java.lang.Object?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
-    method public Object getNode();
+    method @InaccessibleFromKotlin public Object getNode();
     property public java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo;
     property public Object node;
   }
@@ -67,13 +67,13 @@ package androidx.compose.ui.tooling.data {
     method public String? component6();
     method public boolean component7();
     method public androidx.compose.ui.tooling.data.ParameterInformation copy(optional String name, optional Object? value, optional boolean fromDefault, optional boolean static, optional boolean compared, optional String? inlineClass, optional boolean stable);
-    method public boolean getCompared();
-    method public boolean getFromDefault();
-    method public String? getInlineClass();
-    method public String getName();
-    method public boolean getStable();
-    method public boolean getStatic();
-    method public Object? getValue();
+    method @InaccessibleFromKotlin public boolean getCompared();
+    method @InaccessibleFromKotlin public boolean getFromDefault();
+    method @InaccessibleFromKotlin public String? getInlineClass();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public boolean getStable();
+    method @InaccessibleFromKotlin public boolean getStatic();
+    method @InaccessibleFromKotlin public Object? getValue();
     property public boolean compared;
     property public boolean fromDefault;
     property public String? inlineClass;
@@ -86,18 +86,18 @@ package androidx.compose.ui.tooling.data {
   public final class SlotTreeKt {
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static androidx.compose.ui.tooling.data.Group asTree(androidx.compose.runtime.tooling.CompositionData);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> findParameters(androidx.compose.runtime.tooling.CompositionGroup, optional androidx.compose.ui.tooling.data.ContextCache? cache);
-    method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? getPosition(androidx.compose.ui.tooling.data.Group);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? getPosition(androidx.compose.ui.tooling.data.Group);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> T? mapTree(androidx.compose.runtime.tooling.CompositionData, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? extends T?> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
     property @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? androidx.compose.ui.tooling.data.Group.position;
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public interface SourceContext {
-    method public androidx.compose.ui.unit.IntRect getBounds();
-    method public int getDepth();
-    method public androidx.compose.ui.tooling.data.SourceLocation? getLocation();
-    method public String? getName();
-    method public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> getParameters();
-    method public default boolean isInline();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.IntRect getBounds();
+    method @InaccessibleFromKotlin public int getDepth();
+    method @InaccessibleFromKotlin public androidx.compose.ui.tooling.data.SourceLocation? getLocation();
+    method @InaccessibleFromKotlin public String? getName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> getParameters();
+    method @InaccessibleFromKotlin public default boolean isInline();
     property public abstract androidx.compose.ui.unit.IntRect bounds;
     property public abstract int depth;
     property public default boolean isInline;
@@ -114,11 +114,11 @@ package androidx.compose.ui.tooling.data {
     method public String? component4();
     method public int component5();
     method public androidx.compose.ui.tooling.data.SourceLocation copy(optional int lineNumber, optional int offset, optional int length, optional String? sourceFile, optional int packageHash);
-    method public int getLength();
-    method public int getLineNumber();
-    method public int getOffset();
-    method public int getPackageHash();
-    method public String? getSourceFile();
+    method @InaccessibleFromKotlin public int getLength();
+    method @InaccessibleFromKotlin public int getLineNumber();
+    method @InaccessibleFromKotlin public int getOffset();
+    method @InaccessibleFromKotlin public int getPackageHash();
+    method @InaccessibleFromKotlin public String? getSourceFile();
     property public int length;
     property public int lineNumber;
     property public int offset;

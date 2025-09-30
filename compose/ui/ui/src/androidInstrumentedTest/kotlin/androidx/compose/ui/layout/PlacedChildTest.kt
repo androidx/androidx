@@ -17,7 +17,6 @@
 package androidx.compose.ui.layout
 
 import android.os.Build
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.testTag
@@ -489,6 +490,149 @@ class PlacedChildTest {
         }
         rule.runOnIdle { childHeight = 200 }
         rule.runOnIdle { assertThat(coordinates.positionInParent().y.roundToInt()).isEqualTo(200) }
+    }
+
+    @Test
+    fun onPlacedIsNotCalledDuringAlignmentLinesCalculation() {
+        val onPlacedPositions = mutableListOf<Offset>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Layout(
+                            modifier =
+                                Modifier.onPlaced { onPlacedPositions.add(it.positionInRoot()) }
+                        ) { measurables, constraints ->
+                            layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(Offset(10f, 10f))) }
+    }
+
+    @Test
+    fun onPlacedIsNotCalledOnNotPlacedChildUsedByAlignmentLinesCalculation() {
+        var onPlacedCalls = 0
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Layout(modifier = Modifier.onPlaced { onPlacedCalls++ }) {
+                            measurables,
+                            constraints ->
+                            layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) {}
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedCalls).isEqualTo(0) }
+    }
+
+    @Test
+    fun onPlacedIsNotCalledOnNotPlacedChildUsedByAlignmentLinesCalculation_nested() {
+        var onPlacedCalls = 0
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Box(Modifier.offset(0.dp)) {
+                            Layout(modifier = Modifier.onPlaced { onPlacedCalls++ }) {
+                                measurables,
+                                constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) {}
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedCalls).isEqualTo(0) }
+    }
+
+    @Test
+    fun addingChildWithBaselineLater_isDisplayedDrawnAndOnPlacedIsCalled() {
+        var need by mutableStateOf(false)
+        val onPlacedPositions = mutableListOf<Offset?>()
+        var drawCalls = 0
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        if (need) {
+                            Layout(
+                                modifier =
+                                    Modifier.testTag("child")
+                                        .onPlaced { onPlacedPositions.add(it.positionInRoot()) }
+                                        .drawBehind { drawCalls++ }
+                            ) { measurables, constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { need = true }
+
+        rule.onNodeWithTag("child").assertIsDisplayed()
+        rule.runOnIdle {
+            assertThat(onPlacedPositions).isEqualTo(listOf(Offset(10f, 10f)))
+            assertThat(drawCalls).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun addingChildWithBaselineLater_onPlacedIsCalledOnOuterCoordinator() {
+        var need by mutableStateOf(false)
+        var actualPosition: Offset? = null
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        if (need) {
+                            Layout(
+                                modifier =
+                                    Modifier.onPlaced { actualPosition = it.positionInRoot() }
+                                        .offset(0.dp)
+                            ) { measurables, constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {}
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { need = true }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(10f, 10f)) }
     }
 }
 

@@ -34,6 +34,8 @@ import androidx.compose.foundation.internal.PlatformOptimizedCancellationExcepti
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.rememberPlatformOverscrollEffect
+import androidx.compose.foundation.scrollableArea
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -58,7 +60,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
@@ -92,6 +93,14 @@ import kotlinx.coroutines.withContext
  * Users should update their state themselves using default [ScrollableState] and its
  * `consumeScrollDelta` callback or by implementing [ScrollableState] interface manually and reflect
  * their own state in UI when using this component.
+ *
+ * `scrollable` is a low level modifier that handles low level scrolling input gestures, without
+ * other behaviors commonly used for scrollable containers. For building scrollable containers, see
+ * [androidx.compose.foundation.scrollableArea]. `scrollableArea` clips its content to its bounds,
+ * renders overscroll, and adjusts the direction of scroll gestures to ensure that the content moves
+ * with the user's gestures. See also [androidx.compose.foundation.verticalScroll] and
+ * [androidx.compose.foundation.horizontalScroll] for high level scrollable containers that handle
+ * layout and move the content as the user scrolls.
  *
  * If you don't need to have fling or nested scroll support, but want to make component simply
  * draggable, consider using [draggable].
@@ -134,12 +143,23 @@ fun Modifier.scrollable(
  * `consumeScrollDelta` callback or by implementing [ScrollableState] interface manually and reflect
  * their own state in UI when using this component.
  *
+ * `scrollable` is a low level modifier that handles low level scrolling input gestures, without
+ * other behaviors commonly used for scrollable containers. For building scrollable containers, see
+ * [androidx.compose.foundation.scrollableArea]. `scrollableArea` clips its content to its bounds,
+ * renders overscroll, and adjusts the direction of scroll gestures to ensure that the content moves
+ * with the user's gestures. See also [androidx.compose.foundation.verticalScroll] and
+ * [androidx.compose.foundation.horizontalScroll] for high level scrollable containers that handle
+ * layout and move the content as the user scrolls.
+ *
  * If you don't need to have fling or nested scroll support, but want to make component simply
  * draggable, consider using [draggable].
  *
  * This overload provides the access to [OverscrollEffect] that defines the behaviour of the over
  * scrolling logic. Use [androidx.compose.foundation.rememberOverscrollEffect] to create an instance
- * of the current provided overscroll implementation.
+ * of the current provided overscroll implementation. Note: compared to other APIs that accept
+ * [overscrollEffect] such as [scrollableArea] and [verticalScroll], `scrollable` does not render
+ * the overscroll, it only provides events. Manually add [androidx.compose.foundation.overscroll] to
+ * render the overscroll or use other APIs.
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
@@ -529,7 +549,7 @@ internal class ScrollableNode(
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
-        if (pointerEvent.changes.fastAny { canDrag.invoke(it) }) {
+        if (pointerEvent.changes.fastAny { canDrag.invoke(it.type) }) {
             super.onPointerEvent(pointerEvent, pass, bounds)
         }
         if (enabled) {
@@ -612,8 +632,19 @@ object ScrollableDefaults {
     }
 
     /**
-     * Used to determine the value of `reverseDirection` parameter of [Modifier.scrollable] in
-     * scrollable layouts.
+     * Calculates the final `reverseDirection` value for a scrollable component.
+     *
+     * This is a helper function used by [androidx.compose.foundation.scrollableArea] to determine
+     * whether to reverse the direction of scroll input. The goal is to provide a "natural"
+     * scrolling experience where content moves with the user's gesture, while also accounting for
+     * the [layoutDirection].
+     *
+     * The logic is as follows:
+     * 1. To achieve "natural" scrolling (content moves with the gesture), scroll deltas are
+     *    inverted. This function returns `true` by default when `reverseScrolling` is `false`.
+     * 2. In a Right-to-Left (`Rtl`) context with a `Horizontal` orientation, the direction is
+     *    flipped an additional time to maintain the natural feel, as the content is laid out from
+     *    right to left.
      *
      * @param layoutDirection current layout direction (e.g. from [LocalLayoutDirection])
      * @param orientation orientation of scroll
@@ -651,9 +682,7 @@ internal interface ScrollConfig {
 internal expect fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig
 
 // TODO: provide public way to drag by mouse (especially requested for Pager)
-internal val CanDragCalculation: (PointerInputChange) -> Boolean = { change ->
-    change.type != PointerType.Mouse
-}
+internal val CanDragCalculation: (PointerType) -> Boolean = { type -> type != PointerType.Mouse }
 
 /**
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta

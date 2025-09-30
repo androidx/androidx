@@ -117,7 +117,8 @@ internal class LookaheadPassDelegate(
      * nextChildLookaheadPlaceOrder and increments this counter. Not placed items will still have
      * [NotPlacedPlaceOrder] set.
      */
-    internal var placeOrder: Int = NotPlacedPlaceOrder
+    override var placeOrder: Int = NotPlacedPlaceOrder
+        internal set
 
     internal var measuredByParent = LayoutNode.UsageByParent.NotUsed
     internal val measurePassDelegate: MeasurePassDelegate
@@ -147,7 +148,7 @@ internal class LookaheadPassDelegate(
 
     private var lastExplicitLayer: GraphicsLayer? = null
 
-    override val isPlaced: Boolean
+    internal val isPlaced: Boolean
         get() = _placedState != PlacedState.IsNotPlaced
 
     private var _placedState: PlacedState = PlacedState.IsNotPlaced

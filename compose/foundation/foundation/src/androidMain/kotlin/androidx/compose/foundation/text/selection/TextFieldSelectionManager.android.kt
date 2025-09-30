@@ -120,20 +120,20 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
     ) {
         with(manager) {
             separator()
-            textFieldSuspendItem(Cut, enabled = canCut()) { cut() }
-            textFieldSuspendItem(Copy, enabled = canCopy()) {
+            textFieldSuspendItem(Cut, enabled = canShowCutMenuItem()) { cut() }
+            textFieldSuspendItem(Copy, enabled = canShowCopyMenuItem()) {
                 copy(cancelSelection = textToolbarShown)
             }
-            textFieldSuspendItem(Paste, enabled = canPaste()) { paste() }
+            textFieldSuspendItem(Paste, enabled = canShowPasteMenuItem()) { paste() }
             textFieldItem(
                 SelectAll,
-                enabled = canSelectAll(),
+                enabled = canShowSelectAllMenuItem(),
                 closePredicate = { !textToolbarShown },
             ) {
                 selectAll()
             }
             if (Build.VERSION.SDK_INT >= 26) {
-                textFieldItem(Autofill, enabled = canAutofill()) { autofill() }
+                textFieldItem(Autofill, enabled = canShowAutofillMenuItem()) { autofill() }
             }
             separator()
         }

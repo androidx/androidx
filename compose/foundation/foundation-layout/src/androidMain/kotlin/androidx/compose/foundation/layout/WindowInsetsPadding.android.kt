@@ -17,9 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireView
@@ -239,17 +237,7 @@ actual fun Modifier.mandatorySystemGesturesPadding() =
 private fun Modifier.windowInsetsPadding(
     inspectorInfo: InspectorInfo.() -> Unit,
     insetsCalculation: WindowInsetsHolder.() -> WindowInsets,
-): Modifier =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then SystemInsetsPaddingModifierElement(inspectorInfo, insetsCalculation)
-    else
-        composed(inspectorInfo) {
-            val composeInsets = WindowInsetsHolder.current()
-            remember(composeInsets) {
-                val insets = composeInsets.insetsCalculation()
-                InsetsPaddingModifier(insets)
-            }
-        }
+): Modifier = this then SystemInsetsPaddingModifierElement(inspectorInfo, insetsCalculation)
 
 private class SystemInsetsPaddingModifierElement(
     private val inspectorInfo: InspectorInfo.() -> Unit,

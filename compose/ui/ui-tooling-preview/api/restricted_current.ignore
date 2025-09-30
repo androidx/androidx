@@ -7,3 +7,43 @@ RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_
     Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SMALL_ROUND()
 RemovedDeprecatedMethod: androidx.compose.ui.tooling.preview.Devices#getWEAR_OS_SQUARE():
     Binary breaking change: Removed deprecated method androidx.compose.ui.tooling.preview.Devices.getWEAR_OS_SQUARE()
+
+
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#apiLevel():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.apiLevel() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#backgroundColor():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.backgroundColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#device():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.device() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#fontScale():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.fontScale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#group():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.group() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#heightDp():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.heightDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#locale():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.locale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#name():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.name() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#showBackground():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.showBackground() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#showSystemUi():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.showSystemUi() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#uiMode():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.uiMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#wallpaper():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.wallpaper() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.Preview#widthDp():
+    Source breaking change: method androidx.compose.ui.tooling.preview.Preview.widthDp() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameter#limit():
+    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameter.limit() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameter#provider():
+    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameter.provider() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameterProvider#getCount():
+    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameterProvider.getCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.PreviewParameterProvider#getValues():
+    Source breaking change: method androidx.compose.ui.tooling.preview.PreviewParameterProvider.getValues() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider#getValues():
+    Source breaking change: method androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider.getValues() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.tooling.preview.datasource.LoremIpsum#getValues():
+    Source breaking change: method androidx.compose.ui.tooling.preview.datasource.LoremIpsum.getValues() can no longer be resolved from Kotlin source

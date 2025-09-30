@@ -289,7 +289,7 @@ internal class SharedBoundsNode(state: SharedElementEntry) :
         val (w, h) =
             if (sharedElement.state.matchIsOrHasBeenConfigured) {
                 // found match && actively animating
-                sharedElementEntry.placeHolderSize.calculateSize(
+                sharedElementEntry.placeholderSize.calculateSize(
                     requireLookaheadLayoutCoordinates().size,
                     IntSize(placeable.width, placeable.height),
                 )

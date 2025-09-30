@@ -305,7 +305,7 @@ internal class AndroidParagraph(
                 val exceedsMaxLines = line >= maxLines
                 val isPlaceholderSpanEllipsized =
                     layout.getLineEllipsisCount(line) > 0 &&
-                        end > layout.getLineEllipsisOffset(line)
+                        end > (layout.getLineStart(line) + layout.getLineEllipsisOffset(line))
                 val isPlaceholderSpanTruncated = end > layout.getLineEnd(line)
                 // This Placeholder is ellipsized or truncated, return null instead.
                 if (isPlaceholderSpanEllipsized || isPlaceholderSpanTruncated || exceedsMaxLines) {

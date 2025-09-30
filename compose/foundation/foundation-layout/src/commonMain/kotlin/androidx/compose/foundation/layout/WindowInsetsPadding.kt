@@ -20,46 +20,29 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ModifierLocalReadScope
-import androidx.compose.ui.modifier.ProvidableModifierLocal
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.modifier.modifierLocalOf
-import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.SkipSubtreeAndContinueTraversal
 import androidx.compose.ui.node.invalidateMeasurement
-import androidx.compose.ui.node.invalidatePlacement
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
@@ -78,24 +61,14 @@ import androidx.compose.ui.util.fastRoundToInt
  */
 @Stable
 fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            InsetsPaddingModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "windowInsetsPadding"
-                    properties["insets"] = insets
-                },
-            )
-    else
-        composed(
+    this then
+        InsetsPaddingModifierElement(
+            insets,
             debugInspectorInfo {
                 name = "windowInsetsPadding"
                 properties["insets"] = insets
-            }
-        ) {
-            remember(insets) { InsetsPaddingModifier(insets) }
-        }
+            },
+        )
 
 /**
  * Consume insets that haven't been consumed yet by other insets Modifiers similar to
@@ -109,24 +82,14 @@ fun Modifier.windowInsetsPadding(insets: WindowInsets): Modifier =
  */
 @Stable
 fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            UnionInsetsConsumingModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "consumeWindowInsets"
-                    properties["insets"] = insets
-                },
-            )
-    else
-        composed(
+    this then
+        UnionInsetsConsumingModifierElement(
+            insets,
             debugInspectorInfo {
                 name = "consumeWindowInsets"
                 properties["insets"] = insets
-            }
-        ) {
-            remember(insets) { UnionInsetsConsumingModifier(insets) }
-        }
+            },
+        )
 
 /**
  * Consume [paddingValues] as insets as if the padding was added irrespective of insets. Layouts
@@ -143,24 +106,14 @@ fun Modifier.consumeWindowInsets(insets: WindowInsets): Modifier =
  */
 @Stable
 fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            PaddingValuesConsumingModifierElement(
-                paddingValues,
-                debugInspectorInfo {
-                    name = "consumeWindowInsets"
-                    properties["paddingValues"] = paddingValues
-                },
-            )
-    else
-        composed(
+    this then
+        PaddingValuesConsumingModifierElement(
+            paddingValues,
             debugInspectorInfo {
                 name = "consumeWindowInsets"
                 properties["paddingValues"] = paddingValues
-            }
-        ) {
-            remember(paddingValues) { PaddingValuesConsumingModifier(paddingValues) }
-        }
+            },
+        )
 
 /**
  * Calls [block] with the [WindowInsets] that have been consumed, either by [consumeWindowInsets] or
@@ -170,24 +123,14 @@ fun Modifier.consumeWindowInsets(paddingValues: PaddingValues): Modifier =
  */
 @Stable
 fun Modifier.onConsumedWindowInsetsChanged(block: (consumedWindowInsets: WindowInsets) -> Unit) =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            ConsumedInsetsModifierElement(
-                block,
-                debugInspectorInfo {
-                    name = "onConsumedWindowInsetsChanged"
-                    properties["block"] = block
-                },
-            )
-    else
-        composed(
+    this then
+        ConsumedInsetsModifierElement(
+            block,
             debugInspectorInfo {
                 name = "onConsumedWindowInsetsChanged"
                 properties["block"] = block
-            }
-        ) {
-            remember(block) { ConsumedInsetsModifier(block) }
-        }
+            },
+        )
 
 /**
  * Adds padding to accommodate the [safe drawing][WindowInsets.Companion.safeDrawing] insets.
@@ -409,268 +352,10 @@ expect fun Modifier.mandatorySystemGesturesPadding(): Modifier
  *
  * @sample androidx.compose.foundation.layout.samples.consumeWindowInsetsWithPaddingSample
  */
-fun Modifier.recalculateWindowInsets(): Modifier =
-    this then
-        if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-            RecalculateWindowInsetsModifierElement
-        else ModifierLocalRecalculateWindowInsetsModifierElement
+fun Modifier.recalculateWindowInsets(): Modifier = this then RecalculateWindowInsetsModifierElement
 
-internal val ModifierLocalConsumedWindowInsets = modifierLocalOf { WindowInsets(0, 0, 0, 0) }
-
-internal class InsetsPaddingModifier(private val insets: WindowInsets) :
-    LayoutModifier, ModifierLocalConsumer, ModifierLocalProvider<WindowInsets> {
-    private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
-    private var consumedInsets: WindowInsets by mutableStateOf(insets)
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val left = unconsumedInsets.getLeft(this, layoutDirection)
-        val top = unconsumedInsets.getTop(this)
-        val right = unconsumedInsets.getRight(this, layoutDirection)
-        val bottom = unconsumedInsets.getBottom(this)
-
-        val horizontal = left + right
-        val vertical = top + bottom
-
-        val childConstraints = constraints.offset(-horizontal, -vertical)
-        val placeable = measurable.measure(childConstraints)
-
-        val width = constraints.constrainWidth(placeable.width + horizontal)
-        val height = constraints.constrainHeight(placeable.height + vertical)
-        return layout(width, height) { placeable.place(left, top) }
-    }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        with(scope) {
-            val consumed = ModifierLocalConsumedWindowInsets.current
-            unconsumedInsets = insets.exclude(consumed)
-            consumedInsets = consumed.union(insets)
-        }
-    }
-
-    override val key: ProvidableModifierLocal<WindowInsets>
-        get() = ModifierLocalConsumedWindowInsets
-
-    override val value: WindowInsets
-        get() = consumedInsets
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is InsetsPaddingModifier) {
-            return false
-        }
-
-        return other.insets == insets
-    }
-
-    override fun hashCode(): Int = insets.hashCode()
-}
-
-/** Base class for arbitrary insets consumption modifiers. */
-@Stable
-private sealed class InsetsConsumingModifier :
-    ModifierLocalConsumer, ModifierLocalProvider<WindowInsets> {
-    private var consumedInsets: WindowInsets by mutableStateOf(WindowInsets(0, 0, 0, 0))
-
-    abstract fun calculateInsets(modifierLocalInsets: WindowInsets): WindowInsets
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) {
-        with(scope) {
-            val current = ModifierLocalConsumedWindowInsets.current
-            consumedInsets = calculateInsets(current)
-        }
-    }
-
-    override val key: ProvidableModifierLocal<WindowInsets>
-        get() = ModifierLocalConsumedWindowInsets
-
-    override val value: WindowInsets
-        get() = consumedInsets
-}
-
-@Stable
-private class PaddingValuesConsumingModifier(private val paddingValues: PaddingValues) :
-    InsetsConsumingModifier() {
-    override fun calculateInsets(modifierLocalInsets: WindowInsets): WindowInsets =
-        paddingValues.asInsets().add(modifierLocalInsets)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is PaddingValuesConsumingModifier) {
-            return false
-        }
-
-        return other.paddingValues == paddingValues
-    }
-
-    override fun hashCode(): Int = paddingValues.hashCode()
-}
-
-@Stable
-private class ConsumedInsetsModifier(private val block: (WindowInsets) -> Unit) :
-    ModifierLocalConsumer {
-
-    private var oldWindowInsets: WindowInsets? = null
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is ConsumedInsetsModifier) {
-            return false
-        }
-
-        return other.block === block
-    }
-
-    override fun hashCode(): Int = block.hashCode()
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) =
-        with(scope) {
-            val consumed = ModifierLocalConsumedWindowInsets.current
-            if (consumed != oldWindowInsets) {
-                oldWindowInsets = consumed
-                block(consumed)
-            }
-        }
-}
-
-@Stable
-private class UnionInsetsConsumingModifier(private val insets: WindowInsets) :
-    InsetsConsumingModifier() {
-    override fun calculateInsets(modifierLocalInsets: WindowInsets): WindowInsets =
-        insets.union(modifierLocalInsets)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is UnionInsetsConsumingModifier) {
-            return false
-        }
-
-        return other.insets == insets
-    }
-
-    override fun hashCode(): Int = insets.hashCode()
-}
-
-private object ModifierLocalRecalculateWindowInsetsModifierElement :
-    ModifierNodeElement<ModifierLocalRecalculateWindowInsetsModifierNode>() {
-    override fun create(): ModifierLocalRecalculateWindowInsetsModifierNode =
-        ModifierLocalRecalculateWindowInsetsModifierNode()
-
-    override fun hashCode(): Int = 0
-
-    override fun equals(other: Any?): Boolean = other === this
-
-    override fun update(node: ModifierLocalRecalculateWindowInsetsModifierNode) {}
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "recalculateWindowInsets"
-    }
-}
-
-private class ModifierLocalRecalculateWindowInsetsModifierNode :
-    Modifier.Node(),
-    ModifierLocalModifierNode,
-    LayoutModifierNode,
-    GlobalPositionAwareModifierNode {
-    val insets = ValueInsets(InsetsValues(0, 0, 0, 0), "reset")
-    var oldPosition = IntOffset.Zero
-
-    override val providedValues: ModifierLocalMap =
-        modifierLocalMapOf(ModifierLocalConsumedWindowInsets to insets)
-
-    override val shouldAutoInvalidate: Boolean
-        get() = false
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        return if (!constraints.hasFixedWidth || !constraints.hasFixedHeight) {
-            // We can't provide the modifier local value.
-            // We'll fall back to measuring the contents without providing the value
-            provide(ModifierLocalConsumedWindowInsets, ModifierLocalConsumedWindowInsets.current)
-            val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-        } else {
-            val width = constraints.maxWidth
-            val height = constraints.maxHeight
-            layout(width, height) {
-                val coordinates = coordinates
-                coordinates?.let { oldPosition = it.positionInRoot().round() }
-                val windowInsets =
-                    if (coordinates == null) {
-                        // We don't know where we are, so can't reset the value. Use the old value.
-                        ModifierLocalConsumedWindowInsets.current
-                    } else {
-                        val topLeft = coordinates.positionInRoot()
-                        val size = coordinates.size
-                        val bottomRight =
-                            coordinates.localToRoot(
-                                Offset(size.width.toFloat(), size.height.toFloat())
-                            )
-                        val root = coordinates.findRootCoordinates()
-                        val rootSize = root.size
-                        val left = topLeft.x.fastRoundToInt()
-                        val top = topLeft.y.fastRoundToInt()
-                        val right = rootSize.width - bottomRight.x.fastRoundToInt()
-                        val bottom = rootSize.height - bottomRight.y.fastRoundToInt()
-                        val oldValues = insets.value
-                        if (
-                            oldValues.left != left ||
-                                oldValues.top != top ||
-                                oldValues.right != right ||
-                                oldValues.bottom != bottom
-                        ) {
-                            insets.value = InsetsValues(left, top, right, bottom)
-                        }
-                        insets
-                    }
-                provide(ModifierLocalConsumedWindowInsets, windowInsets)
-                val placeable = measurable.measure(Constraints.fixed(width, height))
-                placeable.place(0, 0)
-            }
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int,
-    ): Int = measurable.minIntrinsicHeight(width)
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int,
-    ): Int = measurable.minIntrinsicWidth(height)
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: Int,
-    ): Int = measurable.maxIntrinsicHeight(width)
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: Int,
-    ): Int = measurable.maxIntrinsicWidth(height)
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        val newPosition = coordinates.positionInRoot().round()
-        val hasMoved = oldPosition != newPosition
-        oldPosition = newPosition
-        if (hasMoved) {
-            invalidatePlacement()
-        }
-    }
-}
+// This is here only for ABI compatibility. This class is unused.
+internal class InsetsPaddingModifier
 
 private class InsetsPaddingModifierElement(
     private val insets: WindowInsets,

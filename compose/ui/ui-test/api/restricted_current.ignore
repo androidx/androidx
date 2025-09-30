@@ -37,6 +37,10 @@ ChangedType: androidx.compose.ui.test.InjectionScope#percentOffset(float, float)
     Source breaking change: Method androidx.compose.ui.test.InjectionScope.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
 
 
+RemovedClass: androidx.compose.ui.test.IndirectTouchInputHelpersKt:
+    Binary breaking change: Removed class androidx.compose.ui.test.IndirectTouchInputHelpersKt
+
+
 RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScope#getVisibleSize():
     Binary breaking change: Removed deprecated method androidx.compose.ui.test.GestureScope.getVisibleSize()
 RemovedDeprecatedMethod: androidx.compose.ui.test.GestureScopeKt#click(androidx.compose.ui.test.GestureScope, long):
@@ -71,12 +75,18 @@ RemovedDeprecatedMethod: androidx.compose.ui.test.TextActionsKt#performTextInput
     Binary breaking change: Removed deprecated method androidx.compose.ui.test.TextActionsKt.performTextInputSelection(androidx.compose.ui.test.SemanticsNodeInteraction,long)
 
 
+RemovedFromBytecode: androidx.compose.ui.test.DeviceConfigurationOverride#Override(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.ui.test.DeviceConfigurationOverride.Override(kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.test.DeviceConfigurationOverrideKt#DeviceConfigurationOverride(androidx.compose.ui.test.DeviceConfigurationOverride, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Binary breaking change: method androidx.compose.ui.test.DeviceConfigurationOverrideKt.DeviceConfigurationOverride(androidx.compose.ui.test.DeviceConfigurationOverride,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.test.InjectionScope#percentOffset(float, float):
     Binary breaking change: method androidx.compose.ui.test.InjectionScope.percentOffset(float,float) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.test.TouchInjectionScope#currentPosition(int):
     Binary breaking change: method androidx.compose.ui.test.TouchInjectionScope.currentPosition(int) has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottom(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottom(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomCenter(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottomCenter(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomLeft(androidx.compose.ui.test.GestureScope):
@@ -89,12 +99,82 @@ RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterLeft(android
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterRight(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterX(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterX(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getCenterY(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getCenterY(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getHeight(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getHeight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getLeft(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getRight(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTop(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTop(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopCenter(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopCenter(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopLeft(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopLeft(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopRight(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getWidth(androidx.compose.ui.test.GestureScope):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getWidth(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.IdlingResource#isIdleNow():
+    Source breaking change: method androidx.compose.ui.test.IdlingResource.isIdleNow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getBottom():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getBottom() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getCenterX():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getCenterX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getCenterY():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getCenterY() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getEventPeriodMillis():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getEventPeriodMillis() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getHeight():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getLeft():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getLeft() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getRight():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getRight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getTop():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getTop() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getViewConfiguration():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getViewConfiguration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getWidth():
+    Source breaking change: method androidx.compose.ui.test.InjectionScope.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScope#isCapsLockOn():
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScope.isCapsLockOn() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScope#isNumLockOn():
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScope.isNumLockOn() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScope#isScrollLockOn():
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScope.isScrollLockOn() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScopeKt#isAltDown(androidx.compose.ui.test.KeyInjectionScope):
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScopeKt.isAltDown(androidx.compose.ui.test.KeyInjectionScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScopeKt#isCtrlDown(androidx.compose.ui.test.KeyInjectionScope):
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScopeKt.isCtrlDown(androidx.compose.ui.test.KeyInjectionScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScopeKt#isFnDown(androidx.compose.ui.test.KeyInjectionScope):
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScopeKt.isFnDown(androidx.compose.ui.test.KeyInjectionScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScopeKt#isMetaDown(androidx.compose.ui.test.KeyInjectionScope):
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScopeKt.isMetaDown(androidx.compose.ui.test.KeyInjectionScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.KeyInjectionScopeKt#isShiftDown(androidx.compose.ui.test.KeyInjectionScope):
+    Source breaking change: method androidx.compose.ui.test.KeyInjectionScopeKt.isShiftDown(androidx.compose.ui.test.KeyInjectionScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.MainTestClock#getAutoAdvance():
+    Source breaking change: method androidx.compose.ui.test.MainTestClock.getAutoAdvance() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.MainTestClock#getCurrentTime():
+    Source breaking change: method androidx.compose.ui.test.MainTestClock.getCurrentTime() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.MainTestClock#setAutoAdvance(boolean):
+    Source breaking change: method androidx.compose.ui.test.MainTestClock.setAutoAdvance(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.MouseButton#getButtonId():
+    Source breaking change: method androidx.compose.ui.test.MouseButton.getButtonId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.ScrollWheel#getValue():
+    Source breaking change: method androidx.compose.ui.test.ScrollWheel.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.SelectionResult#getCustomErrorOnNoMatch():
+    Source breaking change: method androidx.compose.ui.test.SelectionResult.getCustomErrorOnNoMatch() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.SelectionResult#getSelectedNodes():
+    Source breaking change: method androidx.compose.ui.test.SelectionResult.getSelectedNodes() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.SemanticsMatcher#getDescription():
+    Source breaking change: method androidx.compose.ui.test.SemanticsMatcher.getDescription() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.SemanticsSelector#getDescription():
+    Source breaking change: method androidx.compose.ui.test.SemanticsSelector.getDescription() can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.compose.ui.test.BoundsAssertionsKt#assertHeightIsAtLeast(androidx.compose.ui.test.SemanticsNodeInteraction, float):

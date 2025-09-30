@@ -175,7 +175,7 @@ internal class RectList {
             val meta = items[i + 2]
             if (unpackMetaValue(meta) == parentId) {
                 // TODO: right now this number will always be a multiple of 3. Since the last child
-                //  offset only has 10 bits of precision, we probably want to encode this more
+                //  offset only has 9 bits of precision, we probably want to encode this more
                 //  efficiently. It doesn't have to be exact, it just can't be too small. We could
                 //  obviously divide by LongsPerItem, but we may also want to do something cheaper
                 //  like dividing by 2 or 4
@@ -344,7 +344,7 @@ internal class RectList {
             val parentId = unpackMetaValue(idAndStartAndOffset) // parent id is in the id slot
             var i = unpackMetaParentId(idAndStartAndOffset) // start index is in the parent id slot
             val offset = unpackMetaLastChildOffset(idAndStartAndOffset)
-            val endIndex = if (offset == Lower9Bits) size else offset + i
+            val endIndex = if (offset == MaxSupportedLastChildOffset) items.size else offset + i
             if (i < 0) break
             while (i < items.size - 2) {
                 if (i >= endIndex) break
@@ -842,6 +842,7 @@ internal const val LongsPerItem = 3
 internal const val InitialSize = 64
 internal const val Lower26Bits = 0b0000_0011_1111_1111_1111_1111_1111_1111
 internal const val Lower9Bits = 0b0000_0000_0000_0000_0000_0001_1111_1111
+internal const val MaxSupportedLastChildOffset = Lower9Bits
 internal const val EverythingButParentId = 0xfff0_0000_03ff_ffffUL
 internal const val EverythingButLastChildOffset = 0xe00fffffffffffffUL
 private const val PackedIntsLowestBit = 0x000_0001_0000_0001L
@@ -879,7 +880,7 @@ internal inline fun packMeta(
     (gesturable.toLong() shl 63) or
         (focusable.toLong() shl 62) or
         (updated.toLong() shl 61) or
-        ((lastChildOffset and Lower9Bits).toLong() shl 52) or
+        (minOf(lastChildOffset, MaxSupportedLastChildOffset).toLong() shl 52) or
         ((parentId and Lower26Bits).toLong() shl 26) or
         ((itemId and Lower26Bits).toLong() shl 0)
 
@@ -887,6 +888,10 @@ internal inline fun unpackMetaValue(meta: Long): Int = meta.toInt() and Lower26B
 
 internal inline fun unpackMetaParentId(meta: Long): Int = (meta shr 26).toInt() and Lower26Bits
 
+/**
+ * @return value which is not larger than [MaxSupportedLastChildOffset]. If this max value is
+ *   returned, it means we don't know the last child offset, and the whole array should be checked.
+ */
 internal inline fun unpackMetaLastChildOffset(meta: Long): Int =
     (meta shr 52).toInt() and Lower9Bits
 
@@ -906,9 +911,13 @@ internal inline fun metaMarkFlags(meta: Long, focusable: Boolean, gesturable: Bo
         ((1L shl 63) * gesturable.toInt())
 }
 
+/**
+ * @param lastChildOffset if the value is larger [MaxSupportedLastChildOffset], then
+ *   [MaxSupportedLastChildOffset] will be saved instead.
+ */
 internal inline fun metaWithLastChildOffset(meta: Long, lastChildOffset: Int): Long =
     (meta and EverythingButLastChildOffset.toLong()) or
-        ((lastChildOffset and Lower9Bits).toLong() shl 52)
+        ((minOf(lastChildOffset, MaxSupportedLastChildOffset)).toLong() shl 52)
 
 internal inline fun unpackMetaFocusable(meta: Long): Int = (meta shr 62).toInt() and 0b1
 

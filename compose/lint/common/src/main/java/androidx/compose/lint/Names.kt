@@ -51,8 +51,6 @@ object Names {
         val ProduceState = Name(PackageName, "produceState")
         val Remember = Name(PackageName, "remember")
         val RememberObserver = Name(PackageName, "RememberObserver")
-        val Retain = Name(PackageName, "retain")
-        val RetainObserver = Name(PackageName, "RetainObserver")
         val DisposableEffect = Name(PackageName, "DisposableEffect")
         val RememberSaveable = Name(PackageName, "rememberSaveable")
         val LaunchedEffect = Name(PackageName, "LaunchedEffect")

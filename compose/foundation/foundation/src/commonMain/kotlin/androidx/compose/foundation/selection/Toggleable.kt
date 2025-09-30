@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.FillableData
-import androidx.compose.ui.autofill.createFrom
+import androidx.compose.ui.autofill.createFromBoolean
 import androidx.compose.ui.composed
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateSemantics
@@ -336,7 +336,7 @@ private class ToggleableNode(
     override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
         this.toggleableState = ToggleableState(value)
         this.contentDataType = ContentDataType.Toggle
-        FillableData.createFrom(value)?.let { this.fillableData = it }
+        FillableData.createFromBoolean(value)?.let { this.fillableData = it }
         this.onFillData { fillableData ->
             fillableData.booleanValue?.let {
                 this.toggleableState = ToggleableState(it)
@@ -644,7 +644,7 @@ private class TriStateToggleableNode(
         this.contentDataType = ContentDataType.Toggle
         // If the toggle state is not indeterminate, set the boolean value on the fillableData
         // semantic property.
-        FillableData.createFrom(state != ToggleableState.Indeterminate)?.let {
+        FillableData.createFromBoolean(state != ToggleableState.Indeterminate)?.let {
             this.fillableData = it
         }
         this.onFillData { fillableData ->

@@ -141,6 +141,16 @@ public class AndroidRemoteContext extends RemoteContext {
     }
 
     @Override
+    public void setNamedBooleanOverride(@NonNull String booleanName, boolean value) {
+        setNamedIntegerOverride(booleanName, value ? 1 : 0);
+    }
+
+    @Override
+    public void clearNamedBooleanOverride(@NonNull String booleanName) {
+        clearNamedIntegerOverride(booleanName);
+    }
+
+    @Override
     public void setNamedIntegerOverride(@NonNull String integerName, int value) {
         if (mVarNameHashMap.get(integerName) != null) {
             int id = mVarNameHashMap.get(integerName).mId;

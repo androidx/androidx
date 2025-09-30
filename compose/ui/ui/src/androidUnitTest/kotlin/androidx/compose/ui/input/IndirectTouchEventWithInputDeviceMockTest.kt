@@ -18,7 +18,6 @@ package androidx.compose.ui.input
 
 import android.view.InputDevice
 import android.view.MotionEvent
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
 import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.indirect.indirectPrimaryDirectionalScrollAxis
 import androidx.test.filters.SdkSuppress
@@ -29,7 +28,6 @@ import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
 @RunWith(MockitoJUnitRunner::class)
 @SdkSuppress(minSdkVersion = 28) // Mocks for final classes can only be done on 28 and higher
 class IndirectTouchEventWithInputDeviceMockTest {

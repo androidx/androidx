@@ -43,7 +43,6 @@ import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.selection.TextFieldSelectionHandle
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.addBasicTextFieldTextContextMenuComponents
-import androidx.compose.foundation.text.selection.awaitSelectionGestures
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
 import androidx.compose.foundation.text.selection.rememberPlatformSelectionBehaviors
 import androidx.compose.foundation.text.selection.textFieldMagnifier
@@ -308,12 +307,11 @@ internal fun CoreTextField(
             rememberPlatformSelectionBehaviors(SelectedTextType.EditableText, textStyle.localeList)
     }
 
-    // TODO: Upstreaming https://youtrack.jetbrains.com/issue/CMP-7517
     rememberClipboardEventsHandler(
         isEnabled = state.hasFocus,
-        onCopy = { manager.onCopyWithResult() },
-        onCut = { manager.onCutWithResult() },
-        onPaste = { manager.paste(AnnotatedString(it)) }
+        onCopy = { manager.copyWithResult() },
+        onCut = { manager.cutWithResult() },
+        onPaste = { manager.paste(it) },
     )
 
     // Focus

@@ -16,12 +16,6 @@
 
 package androidx.compose.foundation.layout
 
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.ModifierLocal
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.TraversableNode
-import kotlin.jvm.JvmField
-
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
  * "riskier" refactors or new feature support that is added to this module. These flags are always
@@ -54,15 +48,4 @@ import kotlin.jvm.JvmField
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalLayoutApi
-object ComposeFoundationLayoutFlags {
-    /**
-     * The WindowInsets implementation has changed from using [Modifier.composed] and
-     * [ModifierLocal] to using [ModifierNodeElement] and [TraversableNode] for composition
-     * performance improvement purposes. If there is a problem encountered with the new
-     * implementation, the old implementation can be restored by setting this flag to `false`.
-     */
-    @Suppress("MutableBareField")
-    @JvmField
-    var isWindowInsetsModifierLocalNodeImplementationEnabled = true
-}
+@ExperimentalLayoutApi object ComposeFoundationLayoutFlags {}

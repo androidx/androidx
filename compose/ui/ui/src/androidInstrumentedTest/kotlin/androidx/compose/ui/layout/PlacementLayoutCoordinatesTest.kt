@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -860,6 +862,179 @@ class PlacementLayoutCoordinatesTest {
         assert(relayoutExpected = false, "size") { it.size }
         assert(relayoutExpected = false, "isAttached") { it.isAttached }
         assert(relayoutExpected = false, "providedAlignmentLines") { it.providedAlignmentLines }
+    }
+
+    @Test
+    fun grandChildIsPlacedWithNullCoordinatesFirstDuringAlignmentLinesCalculation() {
+        val onPlacedPositions = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Box {
+                            Layout { measurables, constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {
+                                    onPlacedPositions.add(coordinates?.positionInRoot())
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(null, Offset(0f, 0f))) }
+    }
+
+    @Test
+    fun grandChildIsPlacedWithNullCoordinatesFirstDuringAlignmentLinesCalculation_modifier() {
+        val onPlacedPositions = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Box {
+                            Box(
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(Constraints.fixed(50, 50))
+                                    layout(
+                                        placeable.width,
+                                        placeable.height,
+                                        mapOf(FirstBaseline to 0),
+                                    ) {
+                                        onPlacedPositions.add(coordinates?.positionInRoot())
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(null, Offset(0f, 0f))) }
+    }
+
+    @Test
+    fun grandChildIsPlacedWithNullCoordinatesFirstDuringAlignmentLinesCalculation_nonZeroOffset() {
+        val onPlacedPositions = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Box {
+                            Layout { measurables, constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {
+                                    onPlacedPositions.add(coordinates?.positionInRoot())
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(null, Offset(10f, 10f))) }
+    }
+
+    @Test
+    fun grandChildIsPlacedWithNullCoordinatesFirstDuringAlignmentLinesCalculation_modifier_nonZeroOffset() {
+        val onPlacedPositions = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Box {
+                            Box(
+                                Modifier.layout { measurable, constraints ->
+                                    val placeable = measurable.measure(Constraints.fixed(50, 50))
+                                    layout(
+                                        placeable.width,
+                                        placeable.height,
+                                        mapOf(FirstBaseline to 0),
+                                    ) {
+                                        onPlacedPositions.add(coordinates?.positionInRoot())
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 10) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(null, Offset(10f, 10f))) }
+    }
+
+    @Test
+    fun grandChildIsOnlyCalledWithNullCoordinatesWhenUsedByAlignmentLinesCalculationButNotPlaced() {
+        val onPlacedPositions = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        Layout { measurables, constraints ->
+                            layout(50, 50, mapOf(FirstBaseline to 0)) {
+                                onPlacedPositions.add(coordinates?.positionInRoot())
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) {}
+            }
+        }
+
+        rule.runOnIdle { assertThat(onPlacedPositions).isEqualTo(listOf(null)) }
+    }
+
+    @Test
+    fun addingChildWithBaselineLater_layoutBlockUsingCoordinatesIsReexecuted() {
+        var need by mutableStateOf(false)
+        val actualCoordinates = mutableListOf<Offset?>()
+        rule.setContent {
+            Layout(
+                content = {
+                    Box {
+                        if (need) {
+                            Layout { measurables, constraints ->
+                                layout(50, 50, mapOf(FirstBaseline to 0)) {
+                                    actualCoordinates.add(coordinates?.positionInRoot())
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                placeable[FirstBaseline]
+                layout(placeable.width, placeable.height) { placeable.place(10, 0) }
+            }
+        }
+
+        rule.runOnIdle { need = true }
+
+        rule.runOnIdle { assertThat(actualCoordinates).isEqualTo(listOf(null, Offset(10f, 0f))) }
     }
 }
 

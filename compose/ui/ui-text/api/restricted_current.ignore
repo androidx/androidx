@@ -81,6 +81,430 @@ RemovedFromBytecode: androidx.compose.ui.text.TextLayoutResult#getWordBoundary(i
     Binary breaking change: method androidx.compose.ui.text.TextLayoutResult.getWordBoundary(int) has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#getLength():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.getLength() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#getParagraphStyles():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.getParagraphStyles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#getSpanStyles():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.getSpanStyles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString#getText():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Builder#getLength():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Builder.getLength() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Companion#getSaver():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Companion.getSaver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Range#getEnd():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Range.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Range#getItem():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Range.getItem() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Range#getStart():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Range.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.AnnotatedString.Range#getTag():
+    Source breaking change: method androidx.compose.ui.text.AnnotatedString.Range.getTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Bullet#getAlpha():
+    Source breaking change: method androidx.compose.ui.text.Bullet.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Bullet#getBrush():
+    Source breaking change: method androidx.compose.ui.text.Bullet.getBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Bullet#getDrawStyle():
+    Source breaking change: method androidx.compose.ui.text.Bullet.getDrawStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Bullet#getShape():
+    Source breaking change: method androidx.compose.ui.text.Bullet.getShape() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Bullet.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.Bullet.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation#getLinkInteractionListener():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.getLinkInteractionListener() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation#getStyles():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.getStyles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Clickable#getLinkInteractionListener():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Clickable.getLinkInteractionListener() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Clickable#getStyles():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Clickable.getStyles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Clickable#getTag():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Clickable.getTag() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Url#getLinkInteractionListener():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Url.getLinkInteractionListener() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Url#getStyles():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Url.getStyles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.LinkAnnotation.Url#getUrl():
+    Source breaking change: method androidx.compose.ui.text.LinkAnnotation.Url.getUrl() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getDidExceedMaxLines():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getDidExceedMaxLines() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getFirstBaseline():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getFirstBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getHeight():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getIntrinsics():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getIntrinsics() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getLastBaseline():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getLastBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getLineCount():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getLineCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getMaxIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getMaxIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getMaxLines():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getMaxLines() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getMinIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getMinIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getPlaceholderRects():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getPlaceholderRects() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraph#getWidth():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraph.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraphIntrinsics#getAnnotatedString():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraphIntrinsics.getAnnotatedString() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraphIntrinsics#getMaxIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraphIntrinsics.getMaxIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraphIntrinsics#getMinIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraphIntrinsics.getMinIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.MultiParagraphIntrinsics#getPlaceholders():
+    Source breaking change: method androidx.compose.ui.text.MultiParagraphIntrinsics.getPlaceholders() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getDidExceedMaxLines():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getDidExceedMaxLines() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getFirstBaseline():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getFirstBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getHeight():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getLastBaseline():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getLastBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getLineCount():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getLineCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getMaxIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getMaxIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getMinIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getMinIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getPlaceholderRects():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getPlaceholderRects() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.Paragraph#getWidth():
+    Source breaking change: method androidx.compose.ui.text.Paragraph.getWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphIntrinsics#getHasStaleResolvedFonts():
+    Source breaking change: method androidx.compose.ui.text.ParagraphIntrinsics.getHasStaleResolvedFonts() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphIntrinsics#getMaxIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.ParagraphIntrinsics.getMaxIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphIntrinsics#getMinIntrinsicWidth():
+    Source breaking change: method androidx.compose.ui.text.ParagraphIntrinsics.getMinIntrinsicWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getHyphens-EaSxIns():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getHyphens-EaSxIns() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getLineBreak-LgCVezo():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getLineBreak-LgCVezo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getLineHeightStyle():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getLineHeightStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getPlatformStyle():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getPlatformStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getTextAlign-buA522U():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getTextAlign-buA522U() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getTextDirection-mmuk1to():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getTextDirection-mmuk1to() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getTextIndent():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getTextIndent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.ParagraphStyle#getTextMotion():
+    Source breaking change: method androidx.compose.ui.text.ParagraphStyle.getTextMotion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.PlatformParagraphStyle#getIncludeFontPadding():
+    Source breaking change: method androidx.compose.ui.text.PlatformParagraphStyle.getIncludeFontPadding() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.PlatformParagraphStyle.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.PlatformParagraphStyle.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.PlatformSpanStyle.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.PlatformSpanStyle.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.PlatformTextStyle#getParagraphStyle():
+    Source breaking change: method androidx.compose.ui.text.PlatformTextStyle.getParagraphStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.PlatformTextStyle#getSpanStyle():
+    Source breaking change: method androidx.compose.ui.text.PlatformTextStyle.getSpanStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getAlpha():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getBrush():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getDrawStyle():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getDrawStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getFontFamily():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getFontFamily() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getFontFeatureSettings():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getFontFeatureSettings() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getFontWeight():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getFontWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getLocaleList():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getLocaleList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getPlatformStyle():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getPlatformStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getShadow():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getShadow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getTextDecoration():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getTextDecoration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.SpanStyle#getTextGeometricTransform():
+    Source breaking change: method androidx.compose.ui.text.SpanStyle.getTextGeometricTransform() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.StringAnnotation#getValue():
+    Source breaking change: method androidx.compose.ui.text.StringAnnotation.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextInclusionStrategy.Companion#getAnyOverlap():
+    Source breaking change: method androidx.compose.ui.text.TextInclusionStrategy.Companion.getAnyOverlap() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextInclusionStrategy.Companion#getContainsAll():
+    Source breaking change: method androidx.compose.ui.text.TextInclusionStrategy.Companion.getContainsAll() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextInclusionStrategy.Companion#getContainsCenter():
+    Source breaking change: method androidx.compose.ui.text.TextInclusionStrategy.Companion.getContainsCenter() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getDensity():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getFontFamilyResolver():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getFontFamilyResolver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getLayoutDirection():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getLayoutDirection() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getMaxLines():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getMaxLines() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getPlaceholders():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getPlaceholders() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getResourceLoader():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getResourceLoader() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getSoftWrap():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getSoftWrap() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getStyle():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutInput#getText():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutInput.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getDidOverflowHeight():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getDidOverflowHeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getDidOverflowWidth():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getDidOverflowWidth() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getFirstBaseline():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getFirstBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getHasVisualOverflow():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getHasVisualOverflow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getLastBaseline():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getLastBaseline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getLayoutInput():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getLayoutInput() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getLineCount():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getLineCount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getMultiParagraph():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getMultiParagraph() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLayoutResult#getPlaceholderRects():
+    Source breaking change: method androidx.compose.ui.text.TextLayoutResult.getPlaceholderRects() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getFocusedStyle():
+    Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getFocusedStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getHoveredStyle():
+    Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getHoveredStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getPressedStyle():
+    Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getPressedStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getStyle():
+    Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getAlpha():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getAlpha() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getBrush():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getBrush() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getDrawStyle():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getDrawStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getFontFamily():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getFontFamily() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getFontFeatureSettings():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getFontFeatureSettings() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getFontWeight():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getFontWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getHyphens-EaSxIns():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getHyphens-EaSxIns() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getLineBreak-LgCVezo():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getLineBreak-LgCVezo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getLineHeightStyle():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getLineHeightStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getLocaleList():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getLocaleList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getPlatformStyle():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getPlatformStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getShadow():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getShadow() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextAlign-buA522U():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextAlign-buA522U() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextDecoration():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextDecoration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextDirection-mmuk1to():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextDirection-mmuk1to() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextGeometricTransform():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextGeometricTransform() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextIndent():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextIndent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getTextMotion():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.getTextMotion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextStyle.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.TextStyle.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.VerbatimTtsAnnotation#getVerbatim():
+    Source breaking change: method androidx.compose.ui.text.VerbatimTtsAnnotation.getVerbatim() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.AndroidFont#getTypefaceLoader():
+    Source breaking change: method androidx.compose.ui.text.font.AndroidFont.getTypefaceLoader() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.AndroidFont#getVariationSettings():
+    Source breaking change: method androidx.compose.ui.text.font.AndroidFont.getVariationSettings() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.DeviceFontFamilyName#getName():
+    Source breaking change: method androidx.compose.ui.text.font.DeviceFontFamilyName.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.Font#getWeight():
+    Source breaking change: method androidx.compose.ui.text.font.Font.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily#getCanLoadSynchronously():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.getCanLoadSynchronously() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily.Companion#getCursive():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.Companion.getCursive() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily.Companion#getMonospace():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.Companion.getMonospace() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily.Companion#getSansSerif():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.Companion.getSansSerif() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontFamily.Companion#getSerif():
+    Source breaking change: method androidx.compose.ui.text.font.FontFamily.Companion.getSerif() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontListFontFamily#getFonts():
+    Source breaking change: method androidx.compose.ui.text.font.FontListFontFamily.getFonts() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontLoadingStrategy#getValue():
+    Source breaking change: method androidx.compose.ui.text.font.FontLoadingStrategy.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontStyle#getValue():
+    Source breaking change: method androidx.compose.ui.text.font.FontStyle.getValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontVariation.Setting#getAxisName():
+    Source breaking change: method androidx.compose.ui.text.font.FontVariation.Setting.getAxisName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontVariation.Setting#getNeedsDensity():
+    Source breaking change: method androidx.compose.ui.text.font.FontVariation.Setting.getNeedsDensity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontVariation.Settings#getSettings():
+    Source breaking change: method androidx.compose.ui.text.font.FontVariation.Settings.getSettings() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight#getWeight():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getBlack():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getBlack() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getBold():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getBold() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getExtraBold():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getExtraBold() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getExtraLight():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getExtraLight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getLight():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getLight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getMedium():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getMedium() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getNormal():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getNormal() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getSemiBold():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getSemiBold() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getThin():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getThin() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW100():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW100() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW200():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW200() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW300():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW300() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW400():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW400() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW500():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW500() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW600():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW600() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW700():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW700() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW800():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW800() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.FontWeight.Companion#getW900():
+    Source breaking change: method androidx.compose.ui.text.font.FontWeight.Companion.getW900() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.GenericFontFamily#getName():
+    Source breaking change: method androidx.compose.ui.text.font.GenericFontFamily.getName() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.LoadedFontFamily#getTypeface():
+    Source breaking change: method androidx.compose.ui.text.font.LoadedFontFamily.getTypeface() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.ResourceFont#getResId():
+    Source breaking change: method androidx.compose.ui.text.font.ResourceFont.getResId() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.ResourceFont#getVariationSettings():
+    Source breaking change: method androidx.compose.ui.text.font.ResourceFont.getVariationSettings() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.ResourceFont#getWeight():
+    Source breaking change: method androidx.compose.ui.text.font.ResourceFont.getWeight() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.font.Typeface#getFontFamily():
+    Source breaking change: method androidx.compose.ui.text.font.Typeface.getFontFamily() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.CommitTextCommand#getAnnotatedString():
+    Source breaking change: method androidx.compose.ui.text.input.CommitTextCommand.getAnnotatedString() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.CommitTextCommand#getNewCursorPosition():
+    Source breaking change: method androidx.compose.ui.text.input.CommitTextCommand.getNewCursorPosition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.CommitTextCommand#getText():
+    Source breaking change: method androidx.compose.ui.text.input.CommitTextCommand.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.DeleteSurroundingTextCommand#getLengthAfterCursor():
+    Source breaking change: method androidx.compose.ui.text.input.DeleteSurroundingTextCommand.getLengthAfterCursor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.DeleteSurroundingTextCommand#getLengthBeforeCursor():
+    Source breaking change: method androidx.compose.ui.text.input.DeleteSurroundingTextCommand.getLengthBeforeCursor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand#getLengthAfterCursor():
+    Source breaking change: method androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand.getLengthAfterCursor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand#getLengthBeforeCursor():
+    Source breaking change: method androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand.getLengthBeforeCursor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.ImeOptions#getAutoCorrect():
+    Source breaking change: method androidx.compose.ui.text.input.ImeOptions.getAutoCorrect() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.ImeOptions#getHintLocales():
+    Source breaking change: method androidx.compose.ui.text.input.ImeOptions.getHintLocales() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.ImeOptions#getPlatformImeOptions():
+    Source breaking change: method androidx.compose.ui.text.input.ImeOptions.getPlatformImeOptions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.ImeOptions#getSingleLine():
+    Source breaking change: method androidx.compose.ui.text.input.ImeOptions.getSingleLine() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.ImeOptions.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.input.ImeOptions.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.MoveCursorCommand#getAmount():
+    Source breaking change: method androidx.compose.ui.text.input.MoveCursorCommand.getAmount() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.OffsetMapping.Companion#getIdentity():
+    Source breaking change: method androidx.compose.ui.text.input.OffsetMapping.Companion.getIdentity() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.PasswordVisualTransformation#getMask():
+    Source breaking change: method androidx.compose.ui.text.input.PasswordVisualTransformation.getMask() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.PlatformImeOptions#getPrivateImeOptions():
+    Source breaking change: method androidx.compose.ui.text.input.PlatformImeOptions.getPrivateImeOptions() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetComposingRegionCommand#getEnd():
+    Source breaking change: method androidx.compose.ui.text.input.SetComposingRegionCommand.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetComposingRegionCommand#getStart():
+    Source breaking change: method androidx.compose.ui.text.input.SetComposingRegionCommand.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetComposingTextCommand#getAnnotatedString():
+    Source breaking change: method androidx.compose.ui.text.input.SetComposingTextCommand.getAnnotatedString() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetComposingTextCommand#getNewCursorPosition():
+    Source breaking change: method androidx.compose.ui.text.input.SetComposingTextCommand.getNewCursorPosition() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetComposingTextCommand#getText():
+    Source breaking change: method androidx.compose.ui.text.input.SetComposingTextCommand.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetSelectionCommand#getEnd():
+    Source breaking change: method androidx.compose.ui.text.input.SetSelectionCommand.getEnd() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.SetSelectionCommand#getStart():
+    Source breaking change: method androidx.compose.ui.text.input.SetSelectionCommand.getStart() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TextFieldValue#getAnnotatedString():
+    Source breaking change: method androidx.compose.ui.text.input.TextFieldValue.getAnnotatedString() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TextFieldValue#getText():
+    Source breaking change: method androidx.compose.ui.text.input.TextFieldValue.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TextFieldValue.Companion#getSaver():
+    Source breaking change: method androidx.compose.ui.text.input.TextFieldValue.Companion.getSaver() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TextInputSession#isOpen():
+    Source breaking change: method androidx.compose.ui.text.input.TextInputSession.isOpen() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TransformedText#getOffsetMapping():
+    Source breaking change: method androidx.compose.ui.text.input.TransformedText.getOffsetMapping() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.TransformedText#getText():
+    Source breaking change: method androidx.compose.ui.text.input.TransformedText.getText() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.input.VisualTransformation.Companion#getNone():
+    Source breaking change: method androidx.compose.ui.text.input.VisualTransformation.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.Locale#getLanguage():
+    Source breaking change: method androidx.compose.ui.text.intl.Locale.getLanguage() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.Locale#getPlatformLocale():
+    Source breaking change: method androidx.compose.ui.text.intl.Locale.getPlatformLocale() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.Locale#getRegion():
+    Source breaking change: method androidx.compose.ui.text.intl.Locale.getRegion() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.Locale#getScript():
+    Source breaking change: method androidx.compose.ui.text.intl.Locale.getScript() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.Locale.Companion#getCurrent():
+    Source breaking change: method androidx.compose.ui.text.intl.Locale.Companion.getCurrent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#getLocaleList():
+    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.getLocaleList() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList#getSize():
+    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.getSize() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList.Companion#getCurrent():
+    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.Companion.getCurrent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.intl.LocaleList.Companion#getEmpty():
+    Source breaking change: method androidx.compose.ui.text.intl.LocaleList.Companion.getEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.BaselineShift#getMultiplier():
+    Source breaking change: method androidx.compose.ui.text.style.BaselineShift.getMultiplier() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.LineHeightStyle.Companion#getDefault():
+    Source breaking change: method androidx.compose.ui.text.style.LineHeightStyle.Companion.getDefault() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextDecoration#getMask():
+    Source breaking change: method androidx.compose.ui.text.style.TextDecoration.getMask() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextDecoration.Companion#getLineThrough():
+    Source breaking change: method androidx.compose.ui.text.style.TextDecoration.Companion.getLineThrough() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextDecoration.Companion#getNone():
+    Source breaking change: method androidx.compose.ui.text.style.TextDecoration.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextDecoration.Companion#getUnderline():
+    Source breaking change: method androidx.compose.ui.text.style.TextDecoration.Companion.getUnderline() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextGeometricTransform#getScaleX():
+    Source breaking change: method androidx.compose.ui.text.style.TextGeometricTransform.getScaleX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextGeometricTransform#getSkewX():
+    Source breaking change: method androidx.compose.ui.text.style.TextGeometricTransform.getSkewX() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextIndent.Companion#getNone():
+    Source breaking change: method androidx.compose.ui.text.style.TextIndent.Companion.getNone() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextMotion.Companion#getAnimated():
+    Source breaking change: method androidx.compose.ui.text.style.TextMotion.Companion.getAnimated() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.style.TextMotion.Companion#getStatic():
+    Source breaking change: method androidx.compose.ui.text.style.TextMotion.Companion.getStatic() can no longer be resolved from Kotlin source
+
+
 RemovedMethod: androidx.compose.ui.text.AnnotatedString#subSequence(long):
     Binary breaking change: Removed method androidx.compose.ui.text.AnnotatedString.subSequence(long)
 RemovedMethod: androidx.compose.ui.text.AnnotatedString.Builder#addBullet(androidx.compose.ui.text.Bullet, long, int, int):

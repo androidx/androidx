@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -66,6 +67,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -746,6 +748,82 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             )
         }
         rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)
+    }
+
+    @Test
+    fun textField_setsEmailContentType_whenKeyboardTypeIsEmail() {
+        rule.setContent {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            )
+        }
+
+        rule
+            .onNodeWithTag(Tag)
+            .assert(
+                SemanticsMatcher("ContentType") {
+                    it.config.getOrNull(SemanticsProperties.ContentType) == ContentType.EmailAddress
+                }
+            )
+    }
+
+    @Test
+    fun textField_setsPasswordContentType_whenKeyboardTypeIsNumberPassword() {
+        rule.setContent {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            )
+        }
+
+        rule
+            .onNodeWithTag(Tag)
+            .assert(
+                SemanticsMatcher("ContentType") {
+                    it.config.getOrNull(SemanticsProperties.ContentType) == ContentType.Password
+                }
+            )
+    }
+
+    @Test
+    fun textField_setsPasswordContentType_whenKeyboardTypeIsPassword() {
+        rule.setContent {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            )
+        }
+
+        rule
+            .onNodeWithTag(Tag)
+            .assert(
+                SemanticsMatcher("ContentType") {
+                    it.config.getOrNull(SemanticsProperties.ContentType) == ContentType.Password
+                }
+            )
+    }
+
+    @Test
+    fun textField_setsPhoneContentType_whenKeyboardTypeIsPhone() {
+        rule.setContent {
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            )
+        }
+
+        rule
+            .onNodeWithTag(Tag)
+            .assert(
+                SemanticsMatcher("ContentType") {
+                    it.config.getOrNull(SemanticsProperties.ContentType) == ContentType.PhoneNumber
+                }
+            )
     }
 
     @Test

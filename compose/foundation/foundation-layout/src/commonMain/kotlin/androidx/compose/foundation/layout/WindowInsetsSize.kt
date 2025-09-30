@@ -20,20 +20,15 @@ package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.modifier.ModifierLocalConsumer
-import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -51,26 +46,14 @@ import androidx.compose.ui.unit.LayoutDirection
  */
 @Stable
 fun Modifier.windowInsetsStartWidth(insets: WindowInsets) =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            DerivedWidthModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsStartWidth"
-                    properties["insets"] = insets
-                },
-                startCalc,
-            )
-    else
-        this.then(
-            DerivedWidthModifier(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsStartWidth"
-                    properties["insets"] = insets
-                },
-                startCalc,
-            )
+    this then
+        DerivedWidthModifierElement(
+            insets,
+            debugInspectorInfo {
+                name = "insetsStartWidth"
+                properties["insets"] = insets
+            },
+            startCalc,
         )
 
 private val startCalc: WindowInsets.(LayoutDirection, Density) -> Int =
@@ -94,26 +77,14 @@ private val startCalc: WindowInsets.(LayoutDirection, Density) -> Int =
  */
 @Stable
 fun Modifier.windowInsetsEndWidth(insets: WindowInsets) =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            DerivedWidthModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsEndWidth"
-                    properties["insets"] = insets
-                },
-                endCalc,
-            )
-    else
-        this.then(
-            DerivedWidthModifier(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsEndWidth"
-                    properties["insets"] = insets
-                },
-                endCalc,
-            )
+    this then
+        DerivedWidthModifierElement(
+            insets,
+            debugInspectorInfo {
+                name = "insetsEndWidth"
+                properties["insets"] = insets
+            },
+            endCalc,
         )
 
 private val endCalc: WindowInsets.(LayoutDirection, Density) -> Int = { layoutDirection, density ->
@@ -134,26 +105,14 @@ private val endCalc: WindowInsets.(LayoutDirection, Density) -> Int = { layoutDi
  */
 @Stable
 fun Modifier.windowInsetsTopHeight(insets: WindowInsets) =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            DerivedHeightModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsTopHeight"
-                    properties["insets"] = insets
-                },
-                topCalc,
-            )
-    else
-        this.then(
-            DerivedHeightModifier(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsTopHeight"
-                    properties["insets"] = insets
-                },
-                topCalc,
-            )
+    this then
+        DerivedHeightModifierElement(
+            insets,
+            debugInspectorInfo {
+                name = "insetsTopHeight"
+                properties["insets"] = insets
+            },
+            topCalc,
         )
 
 private val topCalc: WindowInsets.(Density) -> Int = { getTop(it) }
@@ -168,113 +127,17 @@ private val topCalc: WindowInsets.(Density) -> Int = { getTop(it) }
  */
 @Stable
 fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
-    if (ComposeFoundationLayoutFlags.isWindowInsetsModifierLocalNodeImplementationEnabled)
-        this then
-            DerivedHeightModifierElement(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsBottomHeight"
-                    properties["insets"] = insets
-                },
-                bottomCalc,
-            )
-    else
-        this.then(
-            DerivedHeightModifier(
-                insets,
-                debugInspectorInfo {
-                    name = "insetsBottomHeight"
-                    properties["insets"] = insets
-                },
-                bottomCalc,
-            )
+    this then
+        DerivedHeightModifierElement(
+            insets,
+            debugInspectorInfo {
+                name = "insetsBottomHeight"
+                properties["insets"] = insets
+            },
+            bottomCalc,
         )
 
 private val bottomCalc: WindowInsets.(Density) -> Int = { getBottom(it) }
-
-/**
- * Sets the width based on [widthCalc]. If the width is 0, the height will also always be 0 and the
- * content will not be placed.
- */
-@Stable
-private class DerivedWidthModifier(
-    private val insets: WindowInsets,
-    inspectorInfo: InspectorInfo.() -> Unit,
-    private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int,
-) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
-    private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val width = unconsumedInsets.widthCalc(layoutDirection, this)
-        if (width == 0) {
-            return layout(0, 0) {}
-        }
-        // check for height first
-        val childConstraints = constraints.copy(minWidth = width, maxWidth = width)
-        val placeable = measurable.measure(childConstraints)
-        return layout(width, placeable.height) { placeable.placeRelative(0, 0) }
-    }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) =
-        with(scope) { unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current) }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is DerivedWidthModifier) {
-            return false
-        }
-        return insets == other.insets && widthCalc === other.widthCalc
-    }
-
-    override fun hashCode(): Int = 31 * insets.hashCode() + widthCalc.hashCode()
-}
-
-/**
- * Sets the height based on [heightCalc]. If the height is 0, the width will also always be 0 and
- * the content will not be placed.
- */
-@Stable
-private class DerivedHeightModifier(
-    private val insets: WindowInsets,
-    inspectorInfo: InspectorInfo.() -> Unit,
-    private val heightCalc: WindowInsets.(Density) -> Int,
-) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
-    private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-    ): MeasureResult {
-        val height = unconsumedInsets.heightCalc(this)
-        if (height == 0) {
-            return layout(0, 0) {}
-        }
-        // check for height first
-        val childConstraints = constraints.copy(minHeight = height, maxHeight = height)
-        val placeable = measurable.measure(childConstraints)
-        return layout(placeable.width, height) { placeable.placeRelative(0, 0) }
-    }
-
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) =
-        with(scope) { unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current) }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other !is DerivedHeightModifier) {
-            return false
-        }
-        return insets == other.insets && heightCalc === other.heightCalc
-    }
-
-    override fun hashCode(): Int = 31 * insets.hashCode() + heightCalc.hashCode()
-}
 
 private class DerivedWidthModifierElement(
     private val insets: WindowInsets,

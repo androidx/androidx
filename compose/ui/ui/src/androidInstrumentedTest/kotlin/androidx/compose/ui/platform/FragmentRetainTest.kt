@@ -24,9 +24,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.Text
-import androidx.compose.runtime.LocalRetainScope
-import androidx.compose.runtime.RetainScope
-import androidx.compose.runtime.retain
+import androidx.compose.runtime.retain.LocalRetainScope
+import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.CountingRetainObject
 import androidx.compose.ui.test.assert

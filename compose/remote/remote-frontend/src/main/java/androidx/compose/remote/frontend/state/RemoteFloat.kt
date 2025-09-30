@@ -202,6 +202,19 @@ internal constructor(public override val hasConstantValue: Boolean) : Number(), 
         )
     }
 
+    /**
+     * If this [RemoteFloat] represents a constant value, then this method evaluates it and returns
+     * it, otherwise it returns null.
+     */
+    public fun evaluateIfConstant(creationState: RemoteComposeCreationState): Float? {
+        val a = arrayForCreationState(creationState)
+        return if (a.isLiteral()) {
+            a[0]
+        } else {
+            null
+        }
+    }
+
     public override fun toByte(): Byte {
         TODO("Not yet implemented")
     }

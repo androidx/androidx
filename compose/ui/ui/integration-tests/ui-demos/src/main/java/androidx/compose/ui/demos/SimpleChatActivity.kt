@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.demos
 
-import android.annotation.SuppressLint
 import android.content.LocusId
 import android.os.Build
 import android.os.Bundle
@@ -72,7 +71,6 @@ class SimpleChatActivity : ComponentActivity() {
 
 private data class Message(val content: String, val isReceived: Boolean = true)
 
-@SuppressLint("NullAnnotationGroup")
 @Composable
 private fun SimpleChatPage() {
     val messages = remember { mutableStateListOf<Message>() }

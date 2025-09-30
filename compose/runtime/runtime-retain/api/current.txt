@@ -1,0 +1,127 @@
+// Signature format: 4.0
+package androidx.compose.runtime.retain {
+
+  public final class ControlledRetainScope extends androidx.compose.runtime.retain.RetainScope {
+    ctor public ControlledRetainScope();
+    method public Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
+    method @InaccessibleFromKotlin public int getKeepExitedValuesRequestsFromSelf();
+    method protected void onStartKeepingExitedValues();
+    method protected void onStopKeepingExitedValues();
+    method protected void saveExitingValue(Object key, Object? value);
+    method public void setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider parent);
+    method public void startKeepingExitedValues();
+    method public void stopKeepingExitedValues();
+    property public int keepExitedValuesRequestsFromSelf;
+  }
+
+  public final class ForgetfulRetainScope extends androidx.compose.runtime.retain.RetainScope {
+    method public Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
+    method protected void onStartKeepingExitedValues();
+    method protected void onStopKeepingExitedValues();
+    method protected void saveExitingValue(Object key, Object? value);
+    field public static final androidx.compose.runtime.retain.ForgetfulRetainScope INSTANCE;
+  }
+
+  public final class RetainKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void RetainedContentHost(boolean active, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RetainedContentHost(boolean, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.retain.RetainScope> getLocalRetainScope();
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T> T retain(java.lang.Object?... keys, kotlin.jvm.functions.Function0<T> calculation);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified T> T retain(kotlin.jvm.functions.Function0<T> calculation);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.retain.ControlledRetainScope retainControlledRetainScope();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.retain.ControlledRetainScope retainControlledRetainScope(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.retain.RetainScopeHolder retainRetainScopeHolder();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.retain.RetainScopeHolder retainRetainScopeHolder(androidx.compose.runtime.Composer?, int);
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.retain.RetainScope> LocalRetainScope;
+  }
+
+  public interface RetainObserver {
+    method public void onEnteredComposition();
+    method public void onExitedComposition();
+    method public void onRetained();
+    method public void onRetired();
+    method public void onUnused();
+  }
+
+  public abstract class RetainScope implements androidx.compose.runtime.retain.RetainStateProvider {
+    ctor public RetainScope();
+    method public final void addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    method public abstract Object? getExitedValueOrDefault(Object key, Object? defaultIfAbsent);
+    method @InaccessibleFromKotlin protected final int getKeepExitedValuesRequests();
+    method @InaccessibleFromKotlin public final boolean isKeepingExitedValues();
+    method protected abstract void onStartKeepingExitedValues();
+    method protected abstract void onStopKeepingExitedValues();
+    method public final void removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    method protected final void requestKeepExitedValues();
+    method protected abstract void saveExitingValue(Object key, Object? value);
+    method protected final void unRequestKeepExitedValues();
+    property public final boolean isKeepingExitedValues;
+    property protected final int keepExitedValuesRequests;
+  }
+
+  public final class RetainScopeHolder {
+    ctor public RetainScopeHolder();
+    method @KotlinOnly @androidx.compose.runtime.Composable public void RetainScopeProvider(Object? key, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void RetainScopeProvider(Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method public void clearChild(Object? key);
+    method public void clearChildren(kotlin.jvm.functions.Function1<java.lang.Object?,java.lang.Boolean> predicate);
+    method public void dispose();
+    method public androidx.compose.runtime.retain.RetainScope getOrCreateRetainScopeForChild(Object? key);
+    method public int keepExitedValuesRequestsFor(Object? key);
+    method public void setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider parent);
+    method public void startKeepingExitedValues(Object? key);
+    method public void stopKeepingExitedValues(Object? key);
+  }
+
+  public interface RetainStateProvider {
+    method public void addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    method @InaccessibleFromKotlin public boolean isKeepingExitedValues();
+    method public void removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    property public abstract boolean isKeepingExitedValues;
+  }
+
+  @androidx.compose.runtime.Stable public static final class RetainStateProvider.AlwaysKeepExitedValues implements androidx.compose.runtime.retain.RetainStateProvider {
+    method public void addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    method @InaccessibleFromKotlin public boolean isKeepingExitedValues();
+    method public void removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    property public boolean isKeepingExitedValues;
+    field public static final androidx.compose.runtime.retain.RetainStateProvider.AlwaysKeepExitedValues INSTANCE;
+  }
+
+  @androidx.compose.runtime.Stable public static final class RetainStateProvider.NeverKeepExitedValues implements androidx.compose.runtime.retain.RetainStateProvider {
+    method public void addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    method @InaccessibleFromKotlin public boolean isKeepingExitedValues();
+    method public void removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver observer);
+    property public boolean isKeepingExitedValues;
+    field public static final androidx.compose.runtime.retain.RetainStateProvider.NeverKeepExitedValues INSTANCE;
+  }
+
+  public static interface RetainStateProvider.RetainStateObserver {
+    method public void onStartKeepingExitedValues();
+    method public void onStopKeepingExitedValues();
+  }
+
+  public final class RetainedEffectKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RetainedEffect(Object?, Object?, Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.retain.RetainedEffectScope!,? extends androidx.compose.runtime.retain.RetainedEffectResult!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void RetainedEffect(Object? key1, Object? key2, Object? key3, kotlin.jvm.functions.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RetainedEffect(Object?, Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.retain.RetainedEffectScope!,? extends androidx.compose.runtime.retain.RetainedEffectResult!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void RetainedEffect(Object? key1, Object? key2, kotlin.jvm.functions.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RetainedEffect(Object?, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.retain.RetainedEffectScope!,? extends androidx.compose.runtime.retain.RetainedEffectResult!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void RetainedEffect(Object? key1, kotlin.jvm.functions.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult> effect);
+    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void RetainedEffect(java.lang.Object?... keys, kotlin.jvm.functions.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult> effect);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void RetainedEffect(Object![], kotlin.jvm.functions.Function1<? super androidx.compose.runtime.retain.RetainedEffectScope!,? extends androidx.compose.runtime.retain.RetainedEffectResult!>, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void RetainedEffect(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.retain.RetainedEffectScope!,? extends androidx.compose.runtime.retain.RetainedEffectResult!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void RetainedEffect(kotlin.jvm.functions.Function1<androidx.compose.runtime.retain.RetainedEffectScope,androidx.compose.runtime.retain.RetainedEffectResult> effect);
+  }
+
+  public interface RetainedEffectResult {
+    method public void retire();
+  }
+
+  public final class RetainedEffectScope {
+    ctor public RetainedEffectScope();
+    method public inline androidx.compose.runtime.retain.RetainedEffectResult onRetire(kotlin.jvm.functions.Function0<kotlin.Unit> onRetiredEffect);
+  }
+
+}
+

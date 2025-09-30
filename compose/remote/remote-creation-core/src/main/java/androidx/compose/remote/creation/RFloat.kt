@@ -32,6 +32,10 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.RAND
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.VAR1
 
+/**
+ * This is a collection of utilities that make RFloat class and allows kotlin float expressions to
+ * be converted to remote compose RPM expressions
+ */
 public fun RemoteComposeWriter.rf(vararg elements: Float): RFloat {
     return RFloat(this, elements)
 }
@@ -39,6 +43,22 @@ public fun RemoteComposeWriter.rf(vararg elements: Float): RFloat {
 public fun RemoteComposeWriter.rf(v: Number): RFloat {
     if (v is RFloat) return v
     return RFloat(this, v.toFloat())
+}
+
+public operator fun Float.times(v: RFloat): RFloat {
+    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.MUL))
+}
+
+public operator fun Float.plus(v: RFloat): RFloat {
+    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.ADD))
+}
+
+public operator fun Float.minus(v: RFloat): RFloat {
+    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.SUB))
+}
+
+public operator fun Float.div(v: RFloat): RFloat {
+    return RFloat(v.writer, floatArrayOf(this, *v.array, AnimatedFloatExpression.DIV))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -197,6 +217,10 @@ public fun toFloat(a: Number): Float {
     }
 }
 
+public fun arrayValue(array: Float, b: RFloat): RFloat {
+    return RFloat(b.writer, floatArrayOf(array, b.toFloat(), AnimatedFloatExpression.A_DEREF))
+}
+
 public fun max(a: RFloat, b: Float): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.MAX))
 }
@@ -281,6 +305,7 @@ public fun round(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ROUND))
 }
 
+/** Math.sin(a) */
 public fun sin(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.SIN))
 }
@@ -289,44 +314,85 @@ public fun cos(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.COS))
 }
 
+/** Math.tan(a) */
 public fun tan(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.TAN))
 }
 
+/** Math.asin(a) */
 public fun asin(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ASIN))
 }
 
+/** Math.acos(a) */
 public fun acos(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ACOS))
 }
 
+/** atan(a) */
 public fun atan(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.ATAN))
 }
 
+/** atan2(a,b) */
 public fun atan2(a: RFloat, b: Float): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, b, AnimatedFloatExpression.ATAN2))
 }
 
+/** atan2(a,b) */
 public fun atan2(a: Float, b: RFloat): RFloat {
     return RFloat(b.writer, floatArrayOf(a, *b.array, AnimatedFloatExpression.ATAN2))
 }
 
+/** atan2(a,b) */
 public fun atan2(a: RFloat, b: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.ATAN2))
 }
 
+/** cube root */
 public fun cbrt(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CBRT))
 }
 
+/** if (a) b else c */
+public fun ifThenElse(a: RFloat, b: RFloat, c: RFloat): RFloat {
+    return RFloat(
+        a.writer,
+        floatArrayOf(*a.array, *b.array, *c.array, AnimatedFloatExpression.IFELSE),
+    )
+}
+
+/** convert radians to degrees */
 public fun toDeg(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.DEG))
 }
 
+/** convert degrees to radians */
 public fun toRad(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.RAD))
+}
+
+/** NOISE_FROM operator calculate a random 0..1 number based on a seed */
+public fun noiseFrom(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.NOISE_FROM))
+}
+
+/** the sum of the square of two numbers */
+public fun sqrSum(a: RFloat, b: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.SQUARE_SUM))
+}
+
+/** Math.hypot */
+public fun hypot(a: RFloat, b: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, AnimatedFloatExpression.HYPOT))
+}
+
+/** random number in range */
+public fun random(min: RFloat, max: RFloat): RFloat {
+    return RFloat(
+        min.writer,
+        floatArrayOf(*min.array, *max.array, AnimatedFloatExpression.RAND_IN_RANGE),
+    )
 }
 
 /** parameters can be float or RFloat. Coded this way to not require 8 versions returns a*b+c */
@@ -363,9 +429,9 @@ public fun toArray(a: Number): FloatArray {
     return floatArrayOf(a.toFloat())
 }
 
-public fun clamp(min: Number, max: Number, value: Number): RFloat {
+public fun clamp(min: Number, max: Number, value: RFloat): RFloat {
     return RFloat(
-        null,
+        value.writer,
         floatArrayOf(
             *(toArray(min)),
             *(toArray(max)),

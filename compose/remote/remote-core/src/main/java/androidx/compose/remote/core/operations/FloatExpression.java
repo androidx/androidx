@@ -184,7 +184,7 @@ public class FloatExpression extends Operation
                 markDirty();
             }
         } else if (mSpring != null) { // support damped spring animation
-            float lastComputedValue = mSpring.get(t - mLastChange);
+            float lastComputedValue = mSpring.get(t);
             float epsilon = 0.01f;
             if (lastComputedValue != mLastAnimatedValue
                     || Math.abs(mSpring.getTargetValue() - lastComputedValue) > epsilon) {
