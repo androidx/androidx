@@ -47,6 +47,7 @@ import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.fail
 import kotlinx.coroutines.launch
 import platform.QuartzCore.CADisplayLink
@@ -66,13 +67,13 @@ internal class FrameRateTest {
         }
 
         val redrawer = hostingViewController.rootViewRedrawer
-        assertNotNull(redrawer, "redrawer is null")
+        assertNull(redrawer, "redrawer is null")
 
         for (frameRate in frameRates) {
             val expectedFrameDuration = 1.0 / frameRate
             findNodeWithTag("${frameRate}fps").tap()
             waitUntil {
-                val frameDuration = redrawer.currentTargetFrameDuration
+                val frameDuration = redrawer!!.currentTargetFrameDuration
                 assertNotNull(frameDuration)
                 checkEqual(expectedFrameDuration, frameDuration, 1e-5)
             }
