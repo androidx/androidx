@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.KmpPlatformsKt
+import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
@@ -25,14 +25,18 @@ plugins {
     id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXComposeMultiplatform {
     android()
     desktop()
+    darwin()
+    js()
+    wasm()
+}
 
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-8954
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -61,6 +65,22 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.2.0")
             }
+        }
+
+        nonJvmMain {
+            dependsOn(skikoMain)
+        }
+
+        jsMain {
+            dependsOn(nonJvmMain)
+        }
+
+        wasmJsMain {
+            dependsOn(nonJvmMain)
+        }
+
+        darwinMain {
+            dependsOn(nonJvmMain)
         }
 
         jvmTest {

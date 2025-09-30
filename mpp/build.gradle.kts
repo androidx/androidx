@@ -59,10 +59,7 @@ val libraryToComponents = mapOf(
             ":compose:ui:ui-tooling-data",
             supportedPlatforms = ComposePlatforms.JVM_BASED
         ),
-        ComposeComponent(
-            ":compose:ui:ui-tooling-preview",
-            supportedPlatforms = ComposePlatforms.JVM_BASED
-        ),
+        ComposeComponent(":compose:ui:ui-tooling-preview"),
         ComposeComponent(
             ":compose:ui:ui-uikit",
             supportedPlatforms = ComposePlatforms.UI_KIT
