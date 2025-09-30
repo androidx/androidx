@@ -8,7 +8,7 @@ package androidx.lifecycle.viewmodel.testing {
 
   public final class ViewModelScenario<VM extends androidx.lifecycle.ViewModel> implements java.lang.AutoCloseable {
     method public void close();
-    method public VM getViewModel();
+    method @InaccessibleFromKotlin public VM getViewModel();
     method public void recreate();
     property public VM viewModel;
   }

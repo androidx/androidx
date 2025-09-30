@@ -5,7 +5,7 @@ package androidx.lifecycle {
     ctor public ComputableLiveData();
     ctor public ComputableLiveData(optional java.util.concurrent.Executor executor);
     method @WorkerThread protected abstract T compute();
-    method public androidx.lifecycle.LiveData<T?> getLiveData();
+    method @InaccessibleFromKotlin public androidx.lifecycle.LiveData<T?> getLiveData();
     method public void invalidate();
     property public androidx.lifecycle.LiveData<T?> liveData;
   }
@@ -29,7 +29,7 @@ package androidx.lifecycle {
   public interface LiveDataScope<T> {
     method public suspend Object? emit(T value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super kotlinx.coroutines.DisposableHandle>);
-    method public T? getLatestValue();
+    method @InaccessibleFromKotlin public T? getLatestValue();
     property public abstract T? latestValue;
   }
 

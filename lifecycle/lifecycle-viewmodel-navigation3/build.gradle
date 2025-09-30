@@ -35,21 +35,24 @@ androidXMultiplatform {
         compileSdk = 36
         namespace = "androidx.lifecycle.viewmodel.navigation3"
     }
+    jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
-                api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-                api("androidx.compose.runtime:runtime:1.7.5")
-                api("androidx.compose.runtime:runtime-saveable:1.7.5")
+                api("androidx.lifecycle:lifecycle-viewmodel:2.9.3")
+                api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
+                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.3")
+                api("androidx.compose.runtime:runtime:1.9.0")
+                api("androidx.compose.runtime:runtime-saveable:1.9.0")
                 api(project(":navigation3:navigation3-runtime"))
-                api("androidx.savedstate:savedstate:1.3.0")
-                api("androidx.savedstate:savedstate-compose:1.3.0")
+                api("androidx.savedstate:savedstate:1.3.2")
+                api("androidx.savedstate:savedstate-compose:1.3.2")
                 implementation(libs.kotlinStdlib)
-                implementation("androidx.collection:collection-ktx:1.4.5")
+                implementation("androidx.collection:collection:1.5.0")
             }
         }
 
@@ -61,27 +64,15 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        androidMain {
             dependsOn(commonMain)
             dependencies {
-            }
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.activity:activity-compose:1.12.0-alpha01")
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
+                api("androidx.activity:activity-compose:1.12.0-alpha06")
             }
         }
 
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -90,10 +81,22 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(project(":navigation3:navigation3-ui"))
                 implementation(project(":compose:test-utils"))
-                implementation("androidx.compose.animation:animation:1.8.0")
-                implementation("androidx.compose.ui:ui-test:1.7.5")
-                implementation("androidx.compose.ui:ui-test-junit4:1.7.5")
+                implementation("androidx.compose.animation:animation:1.9.0")
+                implementation("androidx.compose.ui:ui-test:1.9.0")
+                implementation("androidx.compose.ui:ui-test-junit4:1.9.0")
             }
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        jvmStubsMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(nonAndroidMain)
         }
     }
 }

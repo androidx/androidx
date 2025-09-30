@@ -2,9 +2,9 @@
 package androidx.lifecycle.viewmodel.navigation3 {
 
   public final class ViewModelStoreNavEntryDecoratorKt {
-    method public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object> ViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStore viewModelStore, kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
-    method @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object> rememberViewModelStoreNavEntryDecorator(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.navigation3.runtime.NavEntryDecorator<java.lang.Object!> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStoreOwner?, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
+    method public static <T> androidx.navigation3.runtime.NavEntryDecorator<T> ViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStore viewModelStore, kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.NavEntryDecorator<T> rememberViewModelStoreNavEntryDecorator(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional kotlin.jvm.functions.Function0<java.lang.Boolean> shouldRemoveStoreOwner);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.runtime.NavEntryDecorator<T!> rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStoreOwner?, kotlin.jvm.functions.Function0<java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

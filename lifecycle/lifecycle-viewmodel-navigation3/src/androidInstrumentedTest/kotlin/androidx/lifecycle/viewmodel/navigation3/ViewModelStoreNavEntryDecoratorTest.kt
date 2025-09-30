@@ -25,9 +25,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.DecorateNavEntry
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,8 +43,8 @@ class ViewModelStoreNavEntryDecoratorTest {
 
     @Test
     fun testViewModelProvided() {
-        lateinit var savedStateWrapper: NavEntryDecorator<Any>
-        lateinit var viewModelWrapper: NavEntryDecorator<Any>
+        lateinit var savedStateWrapper: NavEntryDecorator<String>
+        lateinit var viewModelWrapper: NavEntryDecorator<String>
         lateinit var viewModel1: MyViewModel
         lateinit var viewModel2: MyViewModel
         val entry1Arg = "entry1 Arg"
@@ -63,8 +63,11 @@ class ViewModelStoreNavEntryDecoratorTest {
             savedStateWrapper = rememberSavedStateNavEntryDecorator()
             viewModelWrapper = rememberViewModelStoreNavEntryDecorator()
 
-            DecorateNavEntry(entry1, listOf(savedStateWrapper, viewModelWrapper))
-            DecorateNavEntry(entry2, listOf(savedStateWrapper, viewModelWrapper))
+            rememberDecoratedNavEntries(
+                    listOf(entry1, entry2),
+                    listOf(savedStateWrapper, viewModelWrapper),
+                )
+                .forEach { it.Content() }
         }
 
         composeTestRule.runOnIdle {
@@ -79,7 +82,7 @@ class ViewModelStoreNavEntryDecoratorTest {
 
     @Test
     fun testViewModelNoSavedStateNavEntryDecorator() {
-        lateinit var viewModelWrapper: NavEntryDecorator<Any>
+        lateinit var viewModelWrapper: NavEntryDecorator<String>
         lateinit var viewModel1: MyViewModel
         val entry1Arg = "entry1 Arg"
         val entry1 =
@@ -90,7 +93,10 @@ class ViewModelStoreNavEntryDecoratorTest {
         try {
             composeTestRule.setContent {
                 viewModelWrapper = rememberViewModelStoreNavEntryDecorator()
-                DecorateNavEntry(entry1, listOf(viewModelWrapper))
+
+                rememberDecoratedNavEntries(listOf(entry1), listOf(viewModelWrapper)).forEach {
+                    it.Content()
+                }
             }
         } catch (e: Exception) {
             assertThat(e)

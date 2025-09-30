@@ -11,6 +11,10 @@ RemovedFromJava: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle
     Source breaking change: method androidx.lifecycle.Transformations.switchMap(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Java source
 
 
+RemovedFromKotlin: androidx.lifecycle.ComputableLiveData#getLiveData():
+    Source breaking change: method androidx.lifecycle.ComputableLiveData.getLiveData() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.LiveDataScope#getLatestValue():
+    Source breaking change: method androidx.lifecycle.LiveDataScope.getLatestValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.Transformations#map(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,Y>):
     Source breaking change: method androidx.lifecycle.Transformations.map(androidx.lifecycle.LiveData,androidx.arch.core.util.Function) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.Transformations#switchMap(androidx.lifecycle.LiveData<X>, androidx.arch.core.util.Function<X,androidx.lifecycle.LiveData<Y>>):

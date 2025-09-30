@@ -13,12 +13,12 @@ package androidx.lifecycle {
     ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner provider);
     method @MainThread public void addObserver(androidx.lifecycle.LifecycleObserver observer);
     method @VisibleForTesting public static final androidx.lifecycle.LifecycleRegistry createUnsafe(androidx.lifecycle.LifecycleOwner owner);
-    method public androidx.lifecycle.Lifecycle.State getCurrentState();
-    method public int getObserverCount();
+    method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getCurrentState();
+    method @InaccessibleFromKotlin public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event event);
     method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State state);
     method @MainThread public void removeObserver(androidx.lifecycle.LifecycleObserver observer);
-    method public void setCurrentState(androidx.lifecycle.Lifecycle.State);
+    method @InaccessibleFromKotlin public void setCurrentState(androidx.lifecycle.Lifecycle.State);
     property public androidx.lifecycle.Lifecycle.State currentState;
     property public kotlinx.coroutines.flow.StateFlow<androidx.lifecycle.Lifecycle.State> currentStateFlow;
     property public int observerCount;
@@ -40,7 +40,7 @@ package androidx.lifecycle {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ReportFragment extends android.app.Fragment {
     ctor public ReportFragment();
-    method public static final androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method @InaccessibleFromKotlin public static final androidx.lifecycle.ReportFragment get(android.app.Activity);
     method public static final void injectIfNeededIn(android.app.Activity activity);
     method public void onActivityCreated(android.os.Bundle? savedInstanceState);
     method public void onDestroy();
@@ -59,7 +59,7 @@ package androidx.lifecycle {
   }
 
   public static final class ReportFragment.Companion {
-    method public androidx.lifecycle.ReportFragment get(android.app.Activity);
+    method @InaccessibleFromKotlin public androidx.lifecycle.ReportFragment get(android.app.Activity);
     method public void injectIfNeededIn(android.app.Activity activity);
     property public static androidx.lifecycle.ReportFragment android.app.Activity.reportFragment;
   }

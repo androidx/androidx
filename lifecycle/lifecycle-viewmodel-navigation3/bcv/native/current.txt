@@ -1,0 +1,10 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.lifecycle:lifecycle-viewmodel-navigation3>
+final fun <#A: kotlin/Any> androidx.lifecycle.viewmodel.navigation3/ViewModelStoreNavEntryDecorator(androidx.lifecycle/ViewModelStore, kotlin/Function0<kotlin/Boolean>): androidx.navigation3.runtime/NavEntryDecorator<#A> // androidx.lifecycle.viewmodel.navigation3/ViewModelStoreNavEntryDecorator|ViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStore;kotlin.Function0<kotlin.Boolean>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> androidx.lifecycle.viewmodel.navigation3/rememberViewModelStoreNavEntryDecorator(androidx.lifecycle/ViewModelStoreOwner?, kotlin/Function0<kotlin/Boolean>?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.navigation3.runtime/NavEntryDecorator<#A> // androidx.lifecycle.viewmodel.navigation3/rememberViewModelStoreNavEntryDecorator|rememberViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStoreOwner?;kotlin.Function0<kotlin.Boolean>?;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any>}[0]
