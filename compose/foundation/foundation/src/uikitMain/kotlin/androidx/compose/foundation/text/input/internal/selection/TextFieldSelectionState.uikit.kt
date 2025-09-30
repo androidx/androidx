@@ -412,10 +412,10 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
 
     with(state) {
         separator()
-        textFieldItem(TextContextMenuKeys.CutKey, enabled = canCut()) { cut() }
-        textFieldItem(TextContextMenuKeys.CopyKey, enabled = canCopy()) { copy(cancelSelection = false) }
-        textFieldItem(TextContextMenuKeys.PasteKey, enabled = canPaste()) { paste() }
-        textFieldItem(TextContextMenuKeys.SelectAllKey, enabled = canSelectAll()) { selectAll() }
+        textFieldItem(TextContextMenuKeys.CutKey, enabled = canShowCutMenuItem()) { cut() }
+        textFieldItem(TextContextMenuKeys.CopyKey, enabled = canShowCopyMenuItem()) { copy(cancelSelection = false) }
+        textFieldItem(TextContextMenuKeys.PasteKey, enabled = canShowPasteMenuItem()) { paste() }
+        textFieldItem(TextContextMenuKeys.SelectAllKey, enabled = canShowSelectAllMenuItem()) { selectAll() }
         separator()
     }
 }

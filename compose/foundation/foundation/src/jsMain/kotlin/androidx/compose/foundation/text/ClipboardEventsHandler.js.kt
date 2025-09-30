@@ -49,7 +49,7 @@ internal actual inline fun rememberClipboardEventsHandler(
             val pasteListener = EventListener { event ->
                 if (event is ClipboardEvent) {
                     val textToPaste = event.clipboardData?.getData("text/plain") ?: ""
-                    onPaste(textToPaste)
+                    onPaste(AnnotatedString(textToPaste))
                     event.preventDefault()
                 }
             }
