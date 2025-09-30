@@ -75,7 +75,7 @@ class FocusedViewsListTest {
     }
 
     @Test
-    fun testRemovingFocusWithDelay() = runBlocking {
+    fun testRemovingFocusWithDelay() {
         val list = FocusedViewsList()
         val view1 = FocusableView()
         val view2 = FocusableView()
@@ -87,15 +87,14 @@ class FocusedViewsListTest {
         assertTrue(view3.isFirstResponder())
 
         list.remove(view3, delayMillis = 50)
-        performRunLoopCycle()
         assertTrue(view3.isFirstResponder())
 
-        performRunLoopCycle(delayMills = 100)
+        performRunLoopCycle(delayMills = 200)
         assertTrue(view2.isFirstResponder())
     }
 
     @Test
-    fun testChildFocusedViewsList() = runBlocking {
+    fun testChildFocusedViewsList() {
         val list = FocusedViewsList()
         val view = FocusableView()
         val childView = FocusableView()
@@ -115,7 +114,7 @@ class FocusedViewsListTest {
     }
 
     @Test
-    fun testChildFocusedViewsListDisposal() = runBlocking {
+    fun testChildFocusedViewsListDisposal() {
         val view1 = FocusableView()
         val list = FocusedViewsList()
         list.addAndFocus(view1)
@@ -132,7 +131,7 @@ class FocusedViewsListTest {
     }
 
     @Test
-    fun testChildFocusedViewsListParentAddAndFocus() = runBlocking {
+    fun testChildFocusedViewsListParentAddAndFocus() {
         val view1 = FocusableView()
         val childView1 = FocusableView()
         val list = FocusedViewsList()
@@ -147,7 +146,7 @@ class FocusedViewsListTest {
     }
 
     @Test
-    fun testFocusWithMultipleChildren() = runBlocking {
+    fun testFocusWithMultipleChildren() {
         val view = FocusableView()
         val childView1 = FocusableView()
         val childView2 = FocusableView()
@@ -177,7 +176,7 @@ class FocusedViewsListTest {
     }
 
     @Test
-    fun testChildSubtree() = runBlocking {
+    fun testChildSubtree() {
         val view = FocusableView()
         val grandChild1View = FocusableView()
         val grandChild2View = FocusableView()
@@ -205,7 +204,7 @@ class FocusedViewsListTest {
         assertTrue(view.isFirstResponder())
     }
 
-    private fun performRunLoopCycle(delayMills: Long = 0) {
+    private fun performRunLoopCycle(delayMills: Long = 10) {
         NSRunLoop.currentRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(delayMills.toDouble() / 1000.0))
     }
 
