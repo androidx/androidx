@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui
+package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry

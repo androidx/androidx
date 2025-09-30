@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui
+package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -28,7 +28,7 @@ import androidx.navigation3.runtime.navEntryDecorator
 
 /** Returns a [SceneSetupNavEntryDecorator] that is remembered across recompositions. */
 @Composable
-public fun rememberSceneSetupNavEntryDecorator(): NavEntryDecorator<Any> = remember {
+public fun <T : Any> rememberSceneSetupNavEntryDecorator(): NavEntryDecorator<T> = remember {
     SceneSetupNavEntryDecorator()
 }
 
@@ -41,7 +41,7 @@ public fun rememberSceneSetupNavEntryDecorator(): NavEntryDecorator<Any> = remem
  * This should likely be the first [NavEntryDecorator] to ensure that other [NavEntryDecorator]
  * calls that are stateful are moved properly inside the [movableContentOf].
  */
-public fun SceneSetupNavEntryDecorator(): NavEntryDecorator<Any> {
+public fun <T : Any> SceneSetupNavEntryDecorator(): NavEntryDecorator<T> {
     val movableContentMap: MutableMap<Any, @Composable (@Composable () -> Unit) -> Unit> =
         mutableStateMapOf()
     return navEntryDecorator(onPop = { contentKey -> movableContentMap.remove(contentKey) }) { entry

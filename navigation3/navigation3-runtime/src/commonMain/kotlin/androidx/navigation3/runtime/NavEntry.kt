@@ -16,7 +16,6 @@
 
 package androidx.navigation3.runtime
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 
 /**
@@ -50,14 +49,6 @@ public open class NavEntry<T : Any>(
     public open fun Content() {
         this.content(key)
     }
-
-    /**
-     * Returns true if this NavEntry is in the [backStack], false otherwise.
-     *
-     * @param [backStack] the backStack to check if it contains this NavEntry.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun isInBackStack(backStack: List<Any>): Boolean = backStack.contains(this.key)
 }
 
 @PublishedApi internal fun defaultContentKey(key: Any): Any = key.toString()

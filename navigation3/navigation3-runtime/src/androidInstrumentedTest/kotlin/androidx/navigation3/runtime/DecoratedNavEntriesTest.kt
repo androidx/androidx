@@ -38,12 +38,12 @@ class DecoratedNavEntriesTest {
 
     @Test
     fun decoratedEntriesRemembered() {
-        var entries: List<NavEntry<Any>>? = null
+        var entries: List<NavEntry<Int>>? = null
         val state = mutableStateOf(2) // force into else branch
 
         val backStack = mutableStateListOf(1)
         val entryDecorators = listOf(createTestNavEntryDecorator<Int> {})
-        val entryProvider: (key: Any) -> NavEntry<out Any> = { NavEntry(1) {} }
+        val entryProvider: (key: Int) -> NavEntry<Int> = { NavEntry(1) {} }
         composeTestRule.setContent {
             if (state.value == 1) {
                 fail("Should not reach this branch")
@@ -60,12 +60,12 @@ class DecoratedNavEntriesTest {
 
     @Test
     fun decoratedEntriesRecreated() {
-        var entries: List<NavEntry<Any>>? = null
+        var entries: List<NavEntry<Int>>? = null
         val state = mutableStateOf(1)
 
         val backStack = mutableStateListOf(1)
         val entryDecorators = listOf(createTestNavEntryDecorator<Int> {})
-        val entryProvider: (key: Any) -> NavEntry<out Any> = { NavEntry(1) {} }
+        val entryProvider: (key: Int) -> NavEntry<Int> = { NavEntry(1) {} }
         composeTestRule.setContent {
             if (state.value == 1) {
                 entries = rememberDecoratedNavEntries(backStack, entryDecorators, entryProvider)
@@ -194,8 +194,9 @@ class DecoratedNavEntriesTest {
         val entriesRendered = mutableListOf<String>()
 
         val decorator =
-            createTestNavEntryDecorator<Any>(onPop = { key -> entriesOnPop.add(key as String) }) {
-                entry ->
+            createTestNavEntryDecorator<String>(
+                onPop = { key -> entriesOnPop.add(key as String) }
+            ) { entry ->
                 entry.Content()
             }
         lateinit var backStack: SnapshotStateList<String>
@@ -411,6 +412,229 @@ class DecoratedNavEntriesTest {
     }
 
     @Test
+    fun redecoratedEntriesRemembered() {
+        var initialEntries: List<NavEntry<Int>>? = null
+        var redecoratedEntries: List<NavEntry<Int>>? = null
+        val state = mutableStateOf(2) // force into else branch
+
+        val backStack = mutableStateListOf(1)
+        val initialDecorators = listOf(createTestNavEntryDecorator<Int> {})
+        val additionalDecorators = listOf(createTestNavEntryDecorator<Int> {})
+        val entryProvider: (key: Int) -> NavEntry<Int> = { NavEntry(1) {} }
+        composeTestRule.setContent {
+            if (state.value == 1) {
+                fail("Should not reach this branch")
+            } else {
+                initialEntries =
+                    rememberDecoratedNavEntries(backStack, initialDecorators, entryProvider)
+                redecoratedEntries =
+                    rememberDecoratedNavEntries(initialEntries, additionalDecorators)
+            }
+        }
+        val previousInitialEntries = initialEntries
+        val previousRedecoratedEntries = redecoratedEntries
+        state.value = 3 // force into else branch
+
+        composeTestRule.waitForIdle()
+        assertThat(previousInitialEntries).isEqualTo(initialEntries)
+        assertThat(previousRedecoratedEntries).isEqualTo(redecoratedEntries)
+    }
+
+    @Test
+    fun redecoratedEntriesRecreated() {
+        var initialEntries: List<NavEntry<Int>>? = null
+        var redecoratedEntries: List<NavEntry<Int>>? = null
+        val state = mutableStateOf(1)
+
+        val backStack = mutableStateListOf(1)
+        val initialDecorators = listOf(createTestNavEntryDecorator<Int> {})
+        val additionalDecorators = listOf(createTestNavEntryDecorator<Int> {})
+        val entryProvider: (key: Int) -> NavEntry<Int> = { NavEntry(1) {} }
+        composeTestRule.setContent {
+            if (state.value == 1) {
+                initialEntries =
+                    rememberDecoratedNavEntries(backStack, initialDecorators, entryProvider)
+                redecoratedEntries =
+                    rememberDecoratedNavEntries(initialEntries!!, additionalDecorators)
+            } else {
+                initialEntries =
+                    rememberDecoratedNavEntries(backStack, initialDecorators, entryProvider)
+                redecoratedEntries =
+                    rememberDecoratedNavEntries(initialEntries, additionalDecorators)
+            }
+        }
+        val previousInitialEntries = initialEntries
+        val previousRedecoratedEntries = redecoratedEntries
+        state.value = 2 // go into else branch
+
+        composeTestRule.waitForIdle()
+        assertThat(previousInitialEntries).isNotEqualTo(initialEntries)
+        assertThat(previousRedecoratedEntries).isNotEqualTo(redecoratedEntries)
+    }
+
+    @Test
+    fun redecorator_called() {
+        var calledWrapContent = false
+        var calledReWrapContent = false
+
+        val decorator = createTestNavEntryDecorator<Any> { entry -> calledWrapContent = true }
+        val redecorator =
+            createTestNavEntryDecorator<Any> { entry ->
+                calledReWrapContent = true
+                entry.Content()
+            }
+
+        composeTestRule.setContent {
+            WithRedecoratedNavEntries(
+                backStack = listOf("something"),
+                initialEntryDecorators = listOf(decorator),
+                additionalEntryDecorators = listOf(redecorator),
+                entryProvider = { NavEntry("something") {} },
+            ) { records ->
+                records.last().Content()
+            }
+        }
+
+        assertThat(calledWrapContent).isTrue()
+        assertThat(calledReWrapContent).isTrue()
+    }
+
+    @Test
+    fun redecorator_calledOnce() {
+        var calledWrapContentCount = 0
+        var calledReWrapContentCount = 0
+
+        val decorator = createTestNavEntryDecorator<Any> { entry -> calledWrapContentCount++ }
+        val redecorator =
+            createTestNavEntryDecorator<Any> { entry ->
+                calledReWrapContentCount++
+                entry.Content()
+            }
+
+        composeTestRule.setContent {
+            WithRedecoratedNavEntries(
+                backStack = listOf("something"),
+                initialEntryDecorators = listOf(decorator),
+                additionalEntryDecorators = listOf(redecorator),
+                entryProvider = { NavEntry("something") {} },
+            ) { records ->
+                records.last().Content()
+            }
+        }
+
+        assertThat(calledWrapContentCount).isEqualTo(1)
+        assertThat(calledReWrapContentCount).isEqualTo(1)
+    }
+
+    @Test
+    fun redecorator_nestedCallOrder() {
+        var callOrder = -1
+        var outerEntryDecorator: Int = -1
+        var innerEntryDecorator: Int = -1
+
+        val innerDecorator =
+            createTestNavEntryDecorator<Any> { entry -> innerEntryDecorator = ++callOrder }
+        val outerDecorator =
+            createTestNavEntryDecorator<Any> { entry ->
+                outerEntryDecorator = ++callOrder
+                entry.Content()
+            }
+
+        composeTestRule.setContent {
+            WithRedecoratedNavEntries(
+                backStack = listOf("something"),
+                initialEntryDecorators = listOf(innerDecorator),
+                additionalEntryDecorators = listOf(outerDecorator),
+                entryProvider = { NavEntry("something") {} },
+            ) { records ->
+                records.last().Content()
+            }
+        }
+
+        assertThat(outerEntryDecorator).isEqualTo(0)
+        assertThat(innerEntryDecorator).isEqualTo(1)
+    }
+
+    @Test
+    fun redecorator_onPop_order() {
+        var count = -1
+        var redecoratorPop = -1
+        var decoratorPop = -1
+
+        val decorator =
+            createTestNavEntryDecorator<Any>(onPop = { _ -> decoratorPop = ++count }) { entry ->
+                entry.Content()
+            }
+        val redecorator =
+            createTestNavEntryDecorator<Any>(onPop = { _ -> redecoratorPop = ++count }) { entry ->
+                entry.Content()
+            }
+        lateinit var backStack: SnapshotStateList<Int>
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(1, 2) }
+            WithRedecoratedNavEntries(
+                backStack = backStack,
+                initialEntryDecorators = listOf(decorator),
+                additionalEntryDecorators = listOf(redecorator),
+                entryProvider = { key ->
+                    when (key) {
+                        1 -> NavEntry(1) {}
+                        2 -> NavEntry(2) {}
+                        else -> error("Invalid Key")
+                    }
+                },
+            ) { records ->
+                records.last().Content()
+            }
+        }
+
+        composeTestRule.runOnIdle { backStack.removeAt(1) }
+
+        composeTestRule.waitForIdle()
+        assertThat(redecoratorPop).isEqualTo(0)
+        assertThat(decoratorPop).isEqualTo(1)
+    }
+
+    @Test
+    fun redecorator_wrapAddedEntry() {
+        val wrappedEntries = mutableListOf<String>()
+        val decorator = createTestNavEntryDecorator<String> { it.Content() }
+        val redecorator =
+            createTestNavEntryDecorator<String> {
+                wrappedEntries.add(it.contentKey as String)
+                it.Content()
+            }
+        val backStack = mutableStateListOf("first")
+        composeTestRule.setContent {
+            WithRedecoratedNavEntries(
+                backStack = backStack,
+                initialEntryDecorators = listOf(decorator),
+                additionalEntryDecorators = listOf(redecorator),
+                entryProvider = {
+                    when (it) {
+                        "first" -> NavEntry("first", "first") {}
+                        "second" -> NavEntry("second", "second") {}
+                        else -> error("Unknown key")
+                    }
+                },
+            ) { entries ->
+                entries.lastOrNull()?.Content()
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertThat(backStack).containsExactly("first")
+        assertThat(wrappedEntries).containsExactly("first")
+
+        backStack.add("second")
+        composeTestRule.waitForIdle()
+
+        assertThat(backStack).containsExactly("first", "second")
+        assertThat(wrappedEntries).containsExactly("first", "second")
+    }
+
+    @Test
     fun entry_reWrappedWithNewlyAddedDecorator() {
         var dec1Wrapped = 0
         var dec2Wrapped = 0
@@ -517,7 +741,7 @@ class DecoratedNavEntriesTest {
     fun decoratorState_sameContentKeySharedState() {
         var popCalled = false
         val decorator =
-            createTestNavEntryDecorator<Any>(onPop = { popCalled = true }) { entry ->
+            createTestNavEntryDecorator<Int>(onPop = { popCalled = true }) { entry ->
                 entry.Content()
             }
         val entry1 = NavEntry(1, contentKey = "sameKey") {}
@@ -761,7 +985,7 @@ class DecoratedNavEntriesTest {
                     entry.Content()
                 }
             )
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -796,7 +1020,7 @@ class DecoratedNavEntriesTest {
                     entry.Content()
                 }
             )
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -830,7 +1054,7 @@ class DecoratedNavEntriesTest {
                     entry.Content()
                 }
             )
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -878,7 +1102,7 @@ class DecoratedNavEntriesTest {
                     entry.Content()
                 }
             )
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -925,7 +1149,7 @@ class DecoratedNavEntriesTest {
                     entry.Content()
                 }
             )
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -965,7 +1189,7 @@ class DecoratedNavEntriesTest {
                 }
             )
 
-        val entryProvider: (key: Any) -> NavEntry<out Any> = entryProvider {
+        val entryProvider: (key: Any) -> NavEntry<Any> = entryProvider {
             entry<DataClass>({ it.arg }) {}
         }
         composeTestRule.setContent {
@@ -1516,10 +1740,25 @@ class DecoratedNavEntriesTest {
 @Composable
 private fun <T : Any> WithDecoratedNavEntries(
     backStack: List<T>,
-    entryDecorators: List<@JvmSuppressWildcards NavEntryDecorator<*>> = listOf(),
-    entryProvider: (key: T) -> NavEntry<out T>,
+    entryDecorators: List<NavEntryDecorator<T>> = listOf(),
+    entryProvider: (key: T) -> NavEntry<T>,
     content: @Composable (List<NavEntry<T>>) -> Unit,
 ) {
     val decoratedEntries = rememberDecoratedNavEntries(backStack, entryDecorators, entryProvider)
     content(decoratedEntries)
+}
+
+@Composable
+private fun <T : Any> WithRedecoratedNavEntries(
+    backStack: List<T>,
+    initialEntryDecorators: List<@JvmSuppressWildcards NavEntryDecorator<T>> = listOf(),
+    additionalEntryDecorators: List<@JvmSuppressWildcards NavEntryDecorator<T>> = listOf(),
+    entryProvider: (key: T) -> NavEntry<T>,
+    content: @Composable (List<NavEntry<T>>) -> Unit,
+) {
+    val decoratedEntries =
+        rememberDecoratedNavEntries(backStack, initialEntryDecorators, entryProvider)
+    val redecoratedEntries =
+        rememberDecoratedNavEntries(decoratedEntries, additionalEntryDecorators)
+    content(redecoratedEntries)
 }

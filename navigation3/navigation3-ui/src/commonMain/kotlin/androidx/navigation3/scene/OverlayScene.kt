@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui
+package androidx.navigation3.scene
 
 import androidx.navigation3.runtime.NavEntry
 
@@ -32,7 +32,8 @@ import androidx.navigation3.runtime.NavEntry
 public interface OverlayScene<T : Any> : Scene<T> {
 
     /**
-     * The [NavEntry]s that should be handled by another [Scene] that sits below this Scene.
+     * The [androidx.navigation3.runtime.NavEntry]s that should be handled by another [Scene] that
+     * sits below this Scene.
      *
      * This *must* always be a non-empty list to correctly display entries below the overlay.
      */

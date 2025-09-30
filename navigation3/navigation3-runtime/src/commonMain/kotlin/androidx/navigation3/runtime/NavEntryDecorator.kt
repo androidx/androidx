@@ -17,7 +17,6 @@
 package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
-import kotlin.jvm.JvmSuppressWildcards
 
 /**
  * Marker class to hold the onPop and decorator functions that will be invoked at runtime.
@@ -67,30 +66,3 @@ public fun <T : Any> navEntryDecorator(
     onPop: (contentKey: Any) -> Unit = {},
     decorator: @Composable (entry: NavEntry<T>) -> Unit,
 ): NavEntryDecorator<T> = NavEntryDecorator(onPop, decorator)
-
-/**
- * Wraps a [NavEntry] with the list of [NavEntryDecorator] in the order that the decorators were
- * added to the list and invokes the content of the wrapped entry.
- *
- * @param T the type of the backStack key
- * @param entry the [NavEntry] to wrap
- * @param entryDecorators the list of decorators to wrap the [entry] with
- */
-@Composable
-public fun <T : Any> DecorateNavEntry(
-    entry: NavEntry<T>,
-    entryDecorators: List<@JvmSuppressWildcards NavEntryDecorator<*>>,
-) {
-    @Suppress("UNCHECKED_CAST")
-    (entryDecorators as List<@JvmSuppressWildcards NavEntryDecorator<T>>)
-        .fastDistinctOrDistinct()
-        .foldRight(initial = entry) { decorator, wrappedEntry ->
-            object : NavEntryWrapper<T>(wrappedEntry) {
-                @Composable
-                override fun Content() {
-                    decorator.navEntryDecorator(wrappedEntry)
-                }
-            }
-        }
-        .Content()
-}

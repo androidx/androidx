@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui
+package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
-import androidx.navigationevent.NavigationEventState.InProgress
+import androidx.navigationevent.NavigationEventTransitionState
 import androidx.navigationevent.compose.NavigationEventDispatcherOwner
 import androidx.navigationevent.testing.TestNavigationEventDispatcherOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,7 +39,7 @@ internal class NavDisplayInfoTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun testPredictiveBackSwipePopulatesNavDisplayInfoCorrectly() {
+    fun testPredictiveBackSwipePopulatesSceneInfoCorrectly() {
         val dispatcherOwner = TestNavigationEventDispatcherOwner()
         val dispatcher = dispatcherOwner.navigationEventDispatcher
         val input = DirectNavigationEventInput()
@@ -63,6 +64,7 @@ internal class NavDisplayInfoTest {
         }
 
         // Simulate a predictive back gesture in progress.
+        input.backStarted(NavigationEvent(progress = 0.1F))
         input.backProgressed(NavigationEvent(progress = 0.5F))
 
         // Wait for the UI to recompose and update the state.
@@ -73,16 +75,25 @@ internal class NavDisplayInfoTest {
 
         // Assert the state correctly reflects the in-progress gesture.
         rule.runOnIdle {
-            @Suppress("UNCHECKED_CAST")
-            val currentState = dispatcher.state.value as InProgress<NavDisplayInfo>
+            // Assert the gesture is physically in progress
+            val transitionState = dispatcher.transitionState.value
+            assertThat(transitionState).isInstanceOf<NavigationEventTransitionState.InProgress>()
 
-            // The `currentInfo` should reflect the current back stack.
-            assertThat(currentState.currentInfo.visibleEntries)
+            // Get the navigation stack state
+            val history = dispatcher.history.value
+
+            @Suppress("UNCHECKED_CAST")
+            // Assert the "current" entry (at currentIndex) matches the full back stack
+            val currentInfo = history.mergedHistory[history.currentIndex] as SceneInfo<String>
+            assertThat(currentInfo.scene.entries.map { it.contentKey })
                 .containsExactlyElementsIn(currentBackStack)
 
-            // The `previousInfo` should reflect the back stack after a pop,
-            // as calculated by the SceneStrategy.
-            assertThat(currentState.backInfo.lastOrNull()?.visibleEntries)
+            // Assert the "back" stack (everything before currentIndex)
+            // matches the state *after* the pop, as calculated by the SceneStrategy.
+            val backInfoStack = history.mergedHistory.subList(0, history.currentIndex)
+            @Suppress("UNCHECKED_CAST")
+            val previousInfo = backInfoStack.lastOrNull() as? SceneInfo<String>
+            assertThat(previousInfo?.scene?.entries?.map { it.contentKey })
                 .containsExactlyElementsIn(currentBackStack.dropLast(2))
         }
     }

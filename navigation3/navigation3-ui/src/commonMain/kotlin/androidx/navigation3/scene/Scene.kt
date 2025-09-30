@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui
+package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 
 /**
- * A specific scene to render 1 or more [NavEntry]s.
+ * A specific scene to render 1 or more [androidx.navigation3.runtime.NavEntry]s.
  *
  * A scene instance is identified by its [key] and the class of the [Scene], and this change drives
  * the top-level animation based on the [SceneStrategy] calculating what the current [Scene] is for
  * the backstack.
  *
- * The rendering for [content] should invoke the content for each [NavEntry] contained in [entries]
- * at most once concurrently in a given [Scene].
+ * The rendering for [content] should invoke the content for each
+ * [androidx.navigation3.runtime.NavEntry] contained in [entries] at most once concurrently in a
+ * given [Scene].
  *
- * It is valid for two different instances of a [Scene] to render the same [NavEntry]. In this
- * situation, the content for a [NavEntry] will only be rendered in the most recent target [Scene]
+ * It is valid for two different instances of a [Scene] to render the same
+ * [androidx.navigation3.runtime.NavEntry]. In this situation, the content for a
+ * [androidx.navigation3.runtime.NavEntry] will only be rendered in the most recent target [Scene]
  * that it is displayed in, as determined by [entries].
  */
 public interface Scene<T : Any> {
@@ -44,11 +46,12 @@ public interface Scene<T : Any> {
     public val key: Any
 
     /**
-     * The list of [NavEntry]s that can be displayed in this scene.
+     * The list of [androidx.navigation3.runtime.NavEntry]s that can be displayed in this scene.
      *
-     * When animating between scenes, the underlying content for each [NavEntry] will only be
-     * rendered by the scene that is most recently the target scene, and is displaying that
-     * [NavEntry] as determined by this [entries] list.
+     * When animating between scenes, the underlying content for each
+     * [androidx.navigation3.runtime.NavEntry] will only be rendered by the scene that is most
+     * recently the target scene, and is displaying that [androidx.navigation3.runtime.NavEntry] as
+     * determined by this [entries] list.
      *
      * For example, consider a transition from `Scene1` to `Scene2` below:
      * ```

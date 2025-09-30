@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation3.ui.usecases
+package androidx.navigation3.scene.usecases
 
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
@@ -38,9 +38,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.Scene
-import androidx.navigation3.ui.SceneStrategy
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertWithMessage
@@ -65,6 +65,25 @@ private class HierarchicalScene<T : Any>(
                 }
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as HierarchicalScene<*>
+
+        return key == other.key &&
+            navEntries == other.navEntries &&
+            previousEntries == other.previousEntries
+    }
+
+    override fun hashCode(): Int {
+        return key.hashCode() * 31 + navEntries.hashCode() * 31 + previousEntries.hashCode() * 31
+    }
+
+    override fun toString(): String {
+        return "HierarchicalScene(key=$key, entries=$entries, previousEntries=$previousEntries)"
     }
 }
 
@@ -149,10 +168,8 @@ class HierarchicalSceneTest {
 
     @Test
     fun testOnBack() {
-        lateinit var onBackDispatcher: OnBackPressedDispatcher
         lateinit var backStack: MutableList<Any>
         composeTestRule.setContent {
-            onBackDispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
@@ -174,11 +191,14 @@ class HierarchicalSceneTest {
 
         composeTestRule.runOnIdle { backStack.add(third) }
 
+        composeTestRule.waitForIdle()
+
         assertThat(composeTestRule.onNodeWithText(first).isDisplayed()).isFalse()
         assertThat(composeTestRule.onNodeWithText(second).isDisplayed()).isTrue()
         assertThat(composeTestRule.onNodeWithText(third).isDisplayed()).isTrue()
 
-        composeTestRule.runOnIdle { onBackDispatcher.onBackPressed() }
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+        composeTestRule.waitForIdle()
 
         assertThat(composeTestRule.onNodeWithText(first).isDisplayed()).isTrue()
         assertThat(composeTestRule.onNodeWithText(second).isDisplayed()).isTrue()

@@ -17,28 +17,37 @@
 package androidx.navigation3.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.rememberLifecycleOwner
+import androidx.navigation3.fastAnyOrAny
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.navEntryDecorator
 
 @Composable
-internal fun rememberTransitionAwareLifecycleNavEntryDecorator(backStack: List<Any>) =
-    remember(backStack) {
-        navEntryDecorator<Any> { entry ->
-            val isSettled = LocalNavTransitionSettledState.current
-            val isInBackStack = entry.isInBackStack(backStack)
-            val maxLifecycle =
-                when {
-                    isInBackStack && isSettled -> Lifecycle.State.RESUMED
-                    isInBackStack && !isSettled -> Lifecycle.State.STARTED
-                    else /* !isInBackStack */ -> Lifecycle.State.CREATED
-                }
-            LifecycleOwner(maxLifecycle = maxLifecycle) { entry.Content() }
-        }
+internal fun <T : Any> rememberTransitionAwareLifecycleNavEntryDecorator(
+    entries: List<NavEntry<T>>
+): NavEntryDecorator<T> {
+    val updatedEntries by rememberUpdatedState(entries)
+    return navEntryDecorator { entry ->
+        val isSettled = LocalNavTransitionSettledState.current
+        val isInBackStack = updatedEntries.fastAnyOrAny { it.contentKey == entry.contentKey }
+        val maxLifecycle =
+            when {
+                isInBackStack && isSettled -> Lifecycle.State.RESUMED
+                isInBackStack && !isSettled -> Lifecycle.State.STARTED
+                else /* !isInBackStack */ -> Lifecycle.State.CREATED
+            }
+        val owner = rememberLifecycleOwner(maxLifecycle = maxLifecycle)
+        CompositionLocalProvider(LocalLifecycleOwner provides owner) { entry.Content() }
     }
+}
 
 internal val LocalNavTransitionSettledState: ProvidableCompositionLocal<Boolean> =
     compositionLocalOf {

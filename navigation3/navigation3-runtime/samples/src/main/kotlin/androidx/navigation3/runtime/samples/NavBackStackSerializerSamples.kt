@@ -18,18 +18,21 @@ package androidx.navigation3.runtime.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Details
 import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Home
 import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Screen
+import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
+import androidx.savedstate.serialization.decodeFromSavedState
+import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-object RememberNavBackStackSamples {
+object NavBackStackSerializerSamples {
 
     @Serializable open class Screen : NavKey
 
@@ -40,24 +43,31 @@ object RememberNavBackStackSamples {
 
 @Composable
 @Sampled
-fun rememberNavBackStack_withReflection() {
-    // Works on Android (uses reflection internally).
-    rememberNavBackStack(Home("start"), Details(42))
+fun NavBackStackSerializer_withReflection() {
+    // On Android, the no-argument overload uses reflection and requires no configuration.
+    // This will throw a runtime exception on non-Android platforms during serialization.
+    val serializer = NavBackStackSerializer<Screen>()
+
+    val backStack = NavBackStack(Home("abc"), Details(42))
+    val encoded = encodeToSavedState(serializer, backStack)
+    val decoded = decodeFromSavedState(serializer, encoded)
 }
 
 @Composable
 @Sampled
-fun rememberNavBackStack_withSerializersModule() {
-    val config = SavedStateConfiguration {
-        // Register subtypes for open polymorphism or multiplatform use.
-        serializersModule = SerializersModule {
-            polymorphic(baseClass = Screen::class) {
-                subclass(serializer = Home.serializer())
-                subclass(serializer = Details.serializer())
-            }
+fun NavBackStackSerializer_withSerializersModule() {
+    val module = SerializersModule {
+        polymorphic(Screen::class) {
+            subclass(Home.serializer())
+            subclass(Details.serializer())
         }
     }
+    val configuration = SavedStateConfiguration { serializersModule = module }
 
-    // Pass the configuration so encoding/decoding works consistently.
-    rememberNavBackStack<Screen>(config, Home("start"))
+    val serializer = NavBackStackSerializer<Screen>()
+
+    // Pass the same configuration (or at least its serializersModule) to encode/decode:
+    val backStack = NavBackStack(Home("abc"), Details(42))
+    val encoded = encodeToSavedState(serializer, backStack, configuration)
+    val decoded = decodeFromSavedState(serializer, encoded, configuration)
 }

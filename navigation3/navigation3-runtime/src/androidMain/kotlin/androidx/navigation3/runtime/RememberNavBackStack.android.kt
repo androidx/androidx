@@ -19,43 +19,41 @@ package androidx.navigation3.runtime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
+import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
-import kotlinx.serialization.modules.SerializersModule
 
 /**
  * Provides a [NavBackStack] that is automatically remembered in the Compose hierarchy across
  * process death and configuration changes.
  *
- * This function uses [NavBackStackSerializer] under the hood to save and restore the back stack via
- * [rememberSerializable].
+ * This overload **does not take a [SavedStateConfiguration]**. It relies on the platform default:
+ * on **Android**, state is saved/restored using a **reflection-based serializer**; on **other
+ * platforms this will fail at runtime**. If you target non-Android platforms, use the overload that
+ * accepts a [SavedStateConfiguration] and register your serializers explicitly.
+ *
+ * ### When to use this overload
+ * - You are on **Android only** and want a simple API that uses reflection under the hood.
+ * - Your back stack elements use **closed polymorphism** (sealed hierarchies) or otherwise work
+ *   with Android’s reflective serializer.
  *
  * ### Serialization requirements
  * - Each element placed in the [NavBackStack] must be `@Serializable`.
  * - For **closed polymorphism** (sealed hierarchies), the compiler knows all subtypes and generates
- *   serializers automatically. No custom [SavedStateConfiguration] is required.
+ *   serializers; Android’s reflection will also work.
  * - For **open polymorphism** (interfaces or non-sealed hierarchies):
- *     - On Android, `SavedStateConfiguration.DEFAULT` uses a reflective serializer that can handle
- *       subtypes without registration.
- *     - On other platforms, or when you supply a custom configuration, you must register all
- *       subtypes of [NavKey] in a [SerializersModule] and pass that via [configuration]. You must
- *       also provide the same configuration to the encoder/decoder when saving/restoring state.
+ *     - On Android, the reflection path can handle subtypes without manual registration.
+ *     - On non-Android, this overload is **unsupported**; use the configuration overload and
+ *       register all subtypes of [NavKey] in a [SerializersModule].
  *
- * @sample androidx.navigation3.runtime.samples.rememberNavBackStack_withSerializersModule
- * @param configuration Controls how element serializers are resolved. On Android,
- *   [SavedStateConfiguration.DEFAULT] uses reflection; otherwise, the provided [SerializersModule]
- *   is used.
+ * @sample androidx.navigation3.runtime.samples.rememberNavBackStack_withReflection
  * @param elements The initial keys of this back stack.
- * @return A [NavBackStack] that survives process death and configuration changes.
+ * @return A [NavBackStack] that survives process death and configuration changes on Android.
  * @see NavBackStackSerializer
  */
 @Composable
-public inline fun <reified T : NavKey> rememberNavBackStack(
-    configuration: SavedStateConfiguration,
-    vararg elements: T,
-): NavBackStack<NavKey> {
+public fun <T : NavKey> rememberNavBackStack(vararg elements: T): NavBackStack<NavKey> {
     return rememberSerializable(
-        configuration = configuration,
-        serializer = NavBackStackSerializer<NavKey>(),
+        serializer = NavBackStackSerializer(elementSerializer = NavKeySerializer())
     ) {
         NavBackStack(*elements)
     }

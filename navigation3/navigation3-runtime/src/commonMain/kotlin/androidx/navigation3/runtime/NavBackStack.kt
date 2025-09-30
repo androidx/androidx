@@ -19,12 +19,8 @@ package androidx.navigation3.runtime
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.StateObject
-import androidx.savedstate.serialization.SavedStateConfiguration
-import kotlinx.serialization.KSerializer
+import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 
 /**
  * A mutable back stack of [NavKey] elements that integrates with Compose state.
@@ -45,46 +41,15 @@ import kotlinx.serialization.encoding.Encoder
  * backStack.removeLast()         // pops stack
  * ```
  *
+ * @sample androidx.navigation3.runtime.samples.NavBackStack_Serializer
  * @constructor Creates a new back stack backed by the provided [SnapshotStateList].
  * @see rememberNavBackStack for lifecycle-aware persistence.
  */
-@Serializable(with = NavBackStack.Serializer::class)
-public class NavBackStack<T : NavKey> public constructor(private val base: SnapshotStateList<T>) :
-    MutableList<T> by base, StateObject by base {
+@Serializable(with = NavBackStackSerializer::class)
+public class NavBackStack<T : NavKey> public constructor(internal val base: SnapshotStateList<T>) :
+    MutableList<T> by base, StateObject by base, RandomAccess by base {
 
     public constructor() : this(base = mutableStateListOf())
 
     public constructor(vararg elements: T) : this(base = mutableStateListOf(*elements))
-
-    /**
-     * A [KSerializer] for [NavBackStack].
-     *
-     * Delegates to [NavBackStackSerializer] to encode/decode the underlying [SnapshotStateList].
-     * This indirection allows [NavBackStack] itself to be annotated with `@Serializable` while
-     * still preserving Compose integration and delegating to [MutableList] and [StateObject].
-     *
-     * On Android, the default surrogate uses reflection to resolve subtypes of [NavKey]. On
-     * non-Android platforms, use [NavBackStackSerializer] with an explicit
-     * [SavedStateConfiguration] instead.
-     *
-     * @sample androidx.navigation3.runtime.samples.NavBackStack_Serializer
-     */
-    public class Serializer<T : NavKey> : KSerializer<NavBackStack<T>> {
-
-        private val surrogate = NavBackStackSerializer<NavKey>()
-
-        override val descriptor: SerialDescriptor
-            get() = surrogate.descriptor
-
-        override fun deserialize(decoder: Decoder): NavBackStack<T> {
-            @Suppress("UNCHECKED_CAST")
-            val base = decoder.decodeSerializableValue(surrogate) as SnapshotStateList<T>
-            return NavBackStack(base)
-        }
-
-        override fun serialize(encoder: Encoder, value: NavBackStack<T>) {
-            @Suppress("UNCHECKED_CAST")
-            encoder.encodeSerializableValue(surrogate, value.base as SnapshotStateList<NavKey>)
-        }
-    }
 }
