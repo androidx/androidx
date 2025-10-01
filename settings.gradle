@@ -2,13 +2,15 @@ import groovy.transform.Field
 
 pluginManagement {
     repositories {
+        /*
         maven {
             url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
         }
         maven {
             url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/internal").getCanonicalFile()
         }
-        if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+         */
+        if (true /* In JetBrains Fork */) {
             mavenCentral()
             google()
             maven {
@@ -45,15 +47,12 @@ buildscript {
     }
 }
 
-plugins {
-    id("AndroidXHostTestFailureHandlerPlugin")
-}
-
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
 
 def supportRootFolder = buildscript.sourceFile.getParentFile()
 skikoSetup.defineSkikoInVersionCatalog(settings)
 
+/* In JetBrains Fork we don't force Android Studio usage.
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
 if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
     def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
@@ -61,6 +60,7 @@ if (startParameter.projectProperties.containsKey('android.injected.invoked.from.
         throw new Exception("Android Studio must be run from studiow or gradlew studio.")
     }
 }
+*/
 
 // Makes strong assumptions about the project structure.
 def prebuiltsRoot = new File(
@@ -85,14 +85,17 @@ getGradle().beforeProject { project ->
     }
     project.ext.supportRootFolder = supportRootFolder
     project.ext.prebuiltsRoot = prebuiltsRoot
-    init.chooseBuildDirectory(
-            new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
-    )
+    def checkoutRoot = new File("${buildscript.sourceFile.parent}")
+    init.chooseBuildDirectory(checkoutRoot, rootProject.name, project)
+
+    /*
+    Could not set unknown property 'kotlin.project.persistent.dir' for project ':buildSrc' of type org.gradle.api.Project.
 
     // https://youtrack.jetbrains.com/issue/KT-58223
-    def kotlinDir = new File(System.getenv("OUT_DIR"), ".kotlin")
+    def kotlinDir = new File(System.env.OUT_DIR ?: checkoutRoot, ".kotlin")
     project.setProperty("kotlin.project.persistent.dir", kotlinDir.absolutePath)
     project.setProperty("kotlin.user.home", kotlinDir.absolutePath)
+    */
 }
 
 apply(plugin: "com.gradle.develocity")
@@ -217,11 +220,14 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
+    return "COMPOSE"
+    /* In JetBrains Fork only COMPOSE subset is supported.
     def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
     if (envProp.isPresent()) {
         return envProp.get().toUpperCase()
     }
     return null
+    */
 }
 
 /**
@@ -360,6 +366,23 @@ ext.projectDependencyGraph = createProjectDependencyGraph(
 @Field Set<String> filteredProjects = new HashSet<String>()
 filteredProjects.add(":lint-checks")
 
+static def shouldIncludeInJetBrainsFork(String name, filePath) {
+    if (filePath != null && filePath instanceof File) {
+        // This overload used only for projects outside of root directory
+        return false
+    }
+    if (name.contains(":hero") ||
+        name.startsWith(":emoji2") ||
+        name.startsWith(":hilt") ||
+        name.startsWith(":room") ||
+        name.startsWith(":sqlite") ||
+        name.startsWith(":tv") ||
+        name.startsWith(":wear") ||
+        name.startsWith(":xr")) {
+        return false
+    }
+    return true
+}
 
 // Calling includeProject(name, filePath) is shorthand for:
 //
@@ -371,6 +394,8 @@ filteredProjects.add(":lint-checks")
 //   the Maven artifactId
 //
 def includeProject(String name, filePath, List<BuildType> filter = []) {
+    if (!shouldIncludeInJetBrainsFork(name, filePath)) { return }
+
     if (projectPrefixFilter.isConfigured) {
         if (projectPrefixFilter.matches(name)) {
             filteredProjects.add(name)
@@ -976,8 +1001,8 @@ includeProject(":navigation:lint:common-test", [BuildType.MAIN, BuildType.FLAN, 
 includeProject(":navigation:navigation-runtime", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.KMP])
 includeProject(":navigation:navigation-runtime-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-runtime-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.KMP])
-includeProject(":navigation:navigation-safe-args-generator", [BuildType.MAIN, BuildType.FLAN])
-includeProject(":navigation:navigation-safe-args-gradle-plugin", [BuildType.MAIN, BuildType.FLAN])
+//includeProject(":navigation:navigation-safe-args-generator", [BuildType.MAIN, BuildType.FLAN])
+//includeProject(":navigation:navigation-safe-args-gradle-plugin", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-testing", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-ui", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-ui-ktx", [BuildType.MAIN, BuildType.FLAN])

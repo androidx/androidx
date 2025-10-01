@@ -98,10 +98,17 @@ val Project.defaultAndroidConfig: AndroidConfig
             ?: extensions.create("androidx.build.AndroidConfigImpl", AndroidConfigImpl::class.java)
 
 fun Project.getGradlePrebuiltsPath(): File {
+    if (ProjectLayoutType.isPlayground(project)) {
+        throw IllegalStateException("external projects are not available in playground project layout")
+    }
     return File(rootProject.projectDir, "../../tools/external/gradle").canonicalFile
 }
 
 fun Project.getExternalProjectPath(): File {
+    if (ProjectLayoutType.isPlayground(project)) {
+        // In JetBrains Fork required parts of the "external" folder are copied into this repo.
+        return File(rootProject.projectDir, "external").canonicalFile
+    }
     return File(rootProject.projectDir, "../../external").canonicalFile
 }
 
@@ -110,6 +117,10 @@ fun Project.getKeystore(): File {
 }
 
 fun Project.getPrebuiltsRoot(): File {
+    if (ProjectLayoutType.isPlayground(project)) {
+        // Do not ban calling this because it's used in a lot benchmark projects during the configuration stage.
+        return rootProject.projectDir
+    }
     return File(project.extraPropertyOrNull("prebuiltsRoot").toString())
 }
 

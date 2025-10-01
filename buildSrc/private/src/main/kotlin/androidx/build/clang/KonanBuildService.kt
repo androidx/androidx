@@ -55,17 +55,6 @@ import org.jetbrains.kotlin.konan.target.PlatformManager
 abstract class KonanBuildService @Inject constructor(private val execOperations: ExecOperations) :
     BuildService<KonanBuildService.Parameters> {
     private val dist by lazy {
-        // double check that we don't initialize konan distribution without prebuilts in AOSP
-        check(
-            parameters.projectLayoutType.get() == ProjectLayoutType.PLAYGROUND ||
-                parameters.prebuilts.isPresent
-        ) {
-            """
-                Prebuilts directory for Konan must be provided when the project is not a playground
-                project.
-            """
-                .trimIndent()
-        }
         KonanPrebuiltsSetup.createKonanDistribution(
             prebuiltsDirectory = parameters.prebuilts.orNull?.asFile,
             konanHome = parameters.konanHome.get().asFile,

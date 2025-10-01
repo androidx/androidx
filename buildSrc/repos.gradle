@@ -38,6 +38,7 @@ def addMavenRepositories(RepositoryHandler handler) {
             }
         }
     }
+    /*
     handler.maven {
         url = "${repos.prebuiltsRoot}/androidx/internal"
         metadataSources {
@@ -63,7 +64,8 @@ def addMavenRepositories(RepositoryHandler handler) {
             }
         }
     }
-    if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
+    */
+    if (true /* In JetBrains Fork */) {
         handler.mavenCentral()
         handler.google {
             content {
