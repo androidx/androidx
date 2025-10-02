@@ -41,8 +41,9 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     fun KotlinJsTest.passTestFlagsToEnvironment() {
         listOf(
             "jetbrains.androidx.web.tests.enableChrome",
+            "jetbrains.androidx.web.tests.enableChromium",
             "jetbrains.androidx.web.tests.enableFirefox",
-            "jetbrains.androidx.web.tests.enableSafari"
+            "jetbrains.androidx.web.tests.enableSafari",
         ).forEach { propertyName ->
             if (project.findProperty(propertyName)?.toString()?.toBoolean() == true) {
                 environment(propertyName, "1")
