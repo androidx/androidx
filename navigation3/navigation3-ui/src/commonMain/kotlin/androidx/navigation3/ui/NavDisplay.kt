@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavDisplayKt")
+@file:JvmMultifileClass
+
 package androidx.navigation3.ui
 
 import androidx.collection.mutableObjectFloatMapOf
@@ -59,6 +62,8 @@ import androidx.navigationevent.NavigationEventTransitionState.InProgress
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventState
 import androidx.navigationevent.compose.rememberNavigationEventState
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
