@@ -26,6 +26,8 @@ import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
 import platform.UIKit.UITextContentType
 import platform.UIKit.UIView
+import platform.UIKit.UIWritingToolsBehavior
+import platform.UIKit.UIWritingToolsBehaviorDefault
 
 @Immutable
 private data class PlatformImeOptionsImpl(
@@ -40,6 +42,7 @@ private data class PlatformImeOptionsImpl(
     val hasExplicitTextContentType: Boolean,
     val inputView: UIView?,
     val inputAccessoryView: UIView?,
+    val writingToolsBehavior: UIWritingToolsBehavior,
 ): PlatformImeOptions()
 
 /**
@@ -58,6 +61,7 @@ class PlatformImeOptionsConfiguration internal constructor() {
     private var hasExplicitTextContentType: Boolean = false
     private var inputView: UIView? = null
     private var inputAccessoryView: UIView? = null
+    private var writingToolsBehavior: UIWritingToolsBehavior = UIWritingToolsBehaviorDefault
     /**
      * Sets the keyboard type to be used for the text input field.
      * If not set, the value will be derived from [ImeOptions].
@@ -167,6 +171,16 @@ class PlatformImeOptionsConfiguration internal constructor() {
     }
 
     /**
+     * Sets the writing tools behavior to apply to the IME.
+     *
+     * See [UIKit documentation](https://developer.apple.com/documentation/uikit/uitextinputtraits/writingtoolsbehavior)
+     */
+    @ExperimentalComposeUiApi
+    fun writingToolsBehavior(value: UIWritingToolsBehavior): PlatformImeOptionsConfiguration = apply {
+        writingToolsBehavior = value
+    }
+
+    /**
      * Builds the final PlatformImeOptions instance with the configured values.
      */
     internal fun build(): PlatformImeOptions {
@@ -182,6 +196,7 @@ class PlatformImeOptionsConfiguration internal constructor() {
             hasExplicitTextContentType = hasExplicitTextContentType,
             inputView = inputView,
             inputAccessoryView = inputAccessoryView,
+            writingToolsBehavior = writingToolsBehavior,
         )
     }
 }
@@ -243,3 +258,7 @@ val PlatformImeOptions.inputView: UIView?
 @ExperimentalComposeUiApi
 val PlatformImeOptions.inputAccessoryView: UIView?
     get() = (this as? PlatformImeOptionsImpl)?.inputAccessoryView
+
+@ExperimentalComposeUiApi
+val PlatformImeOptions.writingToolsBehavior: UIWritingToolsBehavior
+    get() = (this as? PlatformImeOptionsImpl)?.writingToolsBehavior ?: UIWritingToolsBehaviorDefault

@@ -70,6 +70,8 @@ import platform.UIKit.UITextRange
 import platform.UIKit.UITextSelectionRect
 import platform.UIKit.UITextStorageDirection
 import platform.UIKit.UIView
+import platform.UIKit.UIWritingToolsBehavior
+import platform.UIKit.UIWritingToolsResultOptions
 import platform.darwin.NSInteger
 
 private val NoOpOnKeyboardPresses: (Set<*>) -> Unit = {}
@@ -458,13 +460,10 @@ internal class IntermediateTextInputUIView(
     override fun returnKeyType(): UIReturnKeyType = inputTraits.returnKeyType()
     override fun textContentType(): UITextContentType = inputTraits.textContentType()
     override fun isSecureTextEntry(): Boolean = inputTraits.isSecureTextEntry()
-    override fun enablesReturnKeyAutomatically(): Boolean =
-        inputTraits.enablesReturnKeyAutomatically()
-
-    override fun autocapitalizationType(): UITextAutocapitalizationType =
-        inputTraits.autocapitalizationType()
-
+    override fun enablesReturnKeyAutomatically(): Boolean = inputTraits.enablesReturnKeyAutomatically()
+    override fun autocapitalizationType(): UITextAutocapitalizationType = inputTraits.autocapitalizationType()
     override fun autocorrectionType(): UITextAutocorrectionType = inputTraits.autocorrectionType()
+    override fun writingToolsBehavior(): UIWritingToolsBehavior = inputTraits.writingToolsBehavior()
 
     override fun dictationRecognitionFailed() {
         //todo may be useful

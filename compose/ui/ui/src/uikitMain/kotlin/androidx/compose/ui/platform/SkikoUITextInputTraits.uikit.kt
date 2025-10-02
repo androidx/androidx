@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.keyboardAppearance
 import androidx.compose.ui.text.input.keyboardType
 import androidx.compose.ui.text.input.returnKeyType
 import androidx.compose.ui.text.input.textContentType
+import androidx.compose.ui.text.input.writingToolsBehavior
 import platform.UIKit.UIKeyboardAppearance
 import platform.UIKit.UIKeyboardAppearanceDefault
 import platform.UIKit.UIKeyboardType
@@ -49,6 +50,8 @@ import platform.UIKit.UITextContentTypeEmailAddress
 import platform.UIKit.UITextContentTypePassword
 import platform.UIKit.UITextContentTypeTelephoneNumber
 import platform.UIKit.UIView
+import platform.UIKit.UIWritingToolsBehavior
+import platform.UIKit.UIWritingToolsBehaviorDefault
 
 internal interface SkikoUITextInputTraits {
     fun keyboardType(): UIKeyboardType =
@@ -78,6 +81,9 @@ internal interface SkikoUITextInputTraits {
     fun inputView(): UIView? = null
 
     fun inputAccessoryView(): UIView? = null
+
+    fun writingToolsBehavior(): UIWritingToolsBehavior =
+        UIWritingToolsBehaviorDefault
 }
 
 internal object EmptyInputTraits : SkikoUITextInputTraits
@@ -196,6 +202,10 @@ internal fun getUITextInputTraits(currentImeOptions: ImeOptions?) =
 
         override fun inputAccessoryView(): UIView? {
             return currentImeOptions?.platformImeOptions?.inputAccessoryView
+        }
+
+        override fun writingToolsBehavior(): UIWritingToolsBehavior {
+            return currentImeOptions?.platformImeOptions?.writingToolsBehavior ?: UIWritingToolsBehaviorDefault
         }
     }
 

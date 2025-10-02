@@ -65,6 +65,8 @@ import platform.UIKit.UITextContentTypeTelephoneNumber
 import platform.UIKit.UITextContentTypeUsername
 import platform.UIKit.UITextInputProtocol
 import platform.UIKit.UIView
+import platform.UIKit.UIWritingToolsBehaviorDefault
+import platform.UIKit.UIWritingToolsBehaviorLimited
 import platform.UIKit.inputAccessoryView
 import platform.UIKit.inputView
 
@@ -441,6 +443,22 @@ internal class ImeOptionsTest {
             waitForIdle()
             assertEquals(1, startInputCount)
         }
+    }
+
+    @Test
+    fun testWritingToolsBehaviorDefault() = runUIKitInstrumentedTest {
+        val input = setContentAndFindInput(
+            imeOptions = PlatformImeOptions()
+        )
+        assertEquals(UIWritingToolsBehaviorDefault, input.writingToolsBehavior)
+    }
+
+    @Test
+    fun testWritingToolsBehavior() = runUIKitInstrumentedTest {
+        val input = setContentAndFindInput(
+            imeOptions = PlatformImeOptions { writingToolsBehavior(UIWritingToolsBehaviorLimited) }
+        )
+        assertEquals(UIWritingToolsBehaviorLimited, input.writingToolsBehavior)
     }
 
     private fun UIKitInstrumentedTest.setContentAndFindInputView(

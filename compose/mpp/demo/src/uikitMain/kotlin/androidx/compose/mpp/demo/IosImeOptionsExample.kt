@@ -60,6 +60,10 @@ import platform.UIKit.UIKeyboardTypeWebSearch
 import platform.UIKit.UIReturnKeyType
 import platform.UIKit.UITextAutocapitalizationType
 import platform.UIKit.UITextAutocorrectionType
+import platform.UIKit.UIWritingToolsBehaviorComplete
+import platform.UIKit.UIWritingToolsBehaviorDefault
+import platform.UIKit.UIWritingToolsBehaviorLimited
+import platform.UIKit.UIWritingToolsBehaviorNone
 import platform.UIKit.constraintEqualToSystemSpacingBelowAnchor
 
 private val keyboardTypes = listOf(
@@ -105,6 +109,13 @@ private val autocapitalizationTypes = listOf(
     "Words" to UITextAutocapitalizationType.UITextAutocapitalizationTypeWords,
     "All Characters" to UITextAutocapitalizationType.UITextAutocapitalizationTypeAllCharacters,
     "Null" to null
+)
+
+private val writingToolsBehaviorTypes = listOf(
+    "None" to UIWritingToolsBehaviorNone,
+    "Default" to UIWritingToolsBehaviorDefault,
+    "Limited" to UIWritingToolsBehaviorLimited,
+    "Complete" to UIWritingToolsBehaviorComplete
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -199,6 +210,15 @@ private val IosImeOptionsInputViewExample = Screen.Example("Input View") {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+private val IosImeOptionsWritingToolsBehaviorExample = Screen.Example("Writing Tools Behavior") {
+    LazyColumn {
+        items(writingToolsBehaviorTypes) {
+            Item(it.first, PlatformImeOptions { writingToolsBehavior(it.second) })
+        }
+    }
+}
+
 val IosImeOptionsExample = Screen.Selection(
     "iOS Platform IME Options",
     IosImeOptionsKeyboardTypeExample,
@@ -209,6 +229,7 @@ val IosImeOptionsExample = Screen.Selection(
     IosImeOptionsAutocapitalizationTypeExample,
     IosImeOptionsAutocorrectionTypeExample,
     IosImeOptionsInputViewExample,
+    IosImeOptionsWritingToolsBehaviorExample
 )
 
 @Composable
