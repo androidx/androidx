@@ -381,7 +381,7 @@ internal class ComposeSceneMediator(
 
         contentComponent.focusTraversalKeysEnabled = false
 
-        subscribe(contentComponent)
+        subscribeToInputEvents()
     }
 
     private inline fun catchExceptions(block: () -> Unit) {
@@ -399,18 +399,22 @@ internal class ComposeSceneMediator(
         }
     }
 
-    private fun subscribe(component: Component) {
-        component.addInputMethodListener(inputMethodListener)
-        component.addFocusListener(focusListener)
-        component.addKeyListener(keyListener)
-        component.subscribeToMouseEvents(mouseListener)
+    private fun subscribeToInputEvents() {
+        with(contentComponent) {
+            addInputMethodListener(inputMethodListener)
+            addFocusListener(focusListener)
+            addKeyListener(keyListener)
+            subscribeToMouseEvents(mouseListener)
+        }
     }
 
-    private fun unsubscribe(component: Component) {
-        component.removeInputMethodListener(inputMethodListener)
-        component.removeFocusListener(focusListener)
-        component.removeKeyListener(keyListener)
-        component.unsubscribeFromMouseEvents(mouseListener)
+    private fun unsubscribeFromInputEvents() {
+        with(contentComponent) {
+            removeInputMethodListener(inputMethodListener)
+            removeFocusListener(focusListener)
+            removeKeyListener(keyListener)
+            unsubscribeFromMouseEvents(mouseListener)
+        }
     }
 
     private var isMouseEventProcessing = false
@@ -464,8 +468,57 @@ internal class ComposeSceneMediator(
         if (eventListener.onMouseEvent(event)) {
             return
         }
+
         processMouseEvent {
-            scene.onMouseWheelEvent(event.position, event)
+            val processingResult = scene.onMouseWheelEvent(event.position, event)
+            if (!processingResult.anyChangeConsumed) {
+                if (ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents.value) {
+                    redispatchUnconsumedMouseEvent(event)
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the first heavyweight ancestor of the given component.
+     */
+    private fun Component.heavyWeightAncestorOrNull() : Component? {
+        var parent = parent
+        while (parent != null) {
+            if (!parent.isLightweight) return parent
+            parent = parent.parent
+        }
+        return null
+    }
+
+    /**
+     * (Re)Dispatches the given mouse event to the component that would have received it had
+     * this [ComposeSceneMediator] not been listening to the corresponding type of mouse events.
+     *
+     * The problem this attempts to solve is that [ComposeSceneMediator] has to register listeners
+     * for all types of mouse events, even if there is nothing in the scene that listens to them.
+     * AWT/Swing, however, interprets listening to mouse events as "interest" in them and sends them
+     * only to the "interested" component "under" the mouse pointer.
+     */
+    private fun redispatchUnconsumedMouseEvent(event: MouseEvent) {
+        // Redispatch the event to the heavyweight ancestor, which in turn will try to find the
+        // correct target component and send the event to it. Unregistering from mouse events
+        // during this call allows the event to be sent to the component it would've been sent to
+        // if ComposeSceneMediator wasn't listening to the corresponding type of mouse events.
+        //
+        // This is possibly a dangerous hack. If it breaks something, the alternative is to dispatch
+        // only to the parent of the source. This isn't ideal because the "right" component may not
+        // be the parent/ancestor, but a sibling of the source component.
+        // With that approach, there would probably also be a need to add a flag (or multiple flags)
+        // to ComposePanel that would control which types of events should be listened to.
+        val source = event.component ?: return  // Should be contentComponent
+        val target = source.heavyWeightAncestorOrNull() ?: return
+        try {
+            unsubscribeFromInputEvents()
+            val retargetedEvent = SwingUtilities.convertMouseEvent(source, event, target)
+            target.dispatchEvent(retargetedEvent)
+        } finally {
+            subscribeToInputEvents()
         }
     }
 
@@ -493,7 +546,7 @@ internal class ComposeSceneMediator(
         check(!isDisposed) { "ComposeSceneMediator is already disposed" }
         isDisposed = true
 
-        unsubscribe(contentComponent)
+        unsubscribeFromInputEvents()
 
         container.remove(contentComponent)
         container.remove(invisibleComponent)
@@ -829,8 +882,8 @@ internal val MouseEvent.composePointerButton: PointerButton? get() {
 private fun ComposeScene.onMouseWheelEvent(
     position: Offset,
     event: MouseWheelEvent
-) {
-    sendPointerEvent(
+) : PointerEventResult {
+    return sendPointerEvent(
         eventType = PointerEventType.Scroll,
         position = position,
         scrollDelta = if (event.isShiftDown) {

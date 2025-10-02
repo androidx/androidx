@@ -186,8 +186,8 @@ fun Container.sendMouseEvent(
 }
 
 fun Container.sendMouseWheelEvent(
-    x: Int,
-    y: Int,
+    x: Int = width / 2,
+    y: Int = height / 2,
     scrollType: Int = MouseWheelEvent.WHEEL_UNIT_SCROLL,
     wheelRotation: Double = 0.0,
     modifiers: Int = 0,
