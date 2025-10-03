@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.build
+package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXComposeMultiplatformExtension
 import javax.inject.Inject
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByName
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
+import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.tomlj.Toml
-import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
 
 open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     val project: Project
@@ -141,7 +143,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             return System.getProperty("idea.active")?.toBoolean() == true
         }
 
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    @OptIn(ExperimentalWasmDsl::class)
     override fun wasm(): Unit = multiplatformExtension.run {
         wasmJs {
             browser {

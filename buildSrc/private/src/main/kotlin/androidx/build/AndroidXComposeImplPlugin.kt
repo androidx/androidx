@@ -95,12 +95,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
         ) {
             if (isMultiplatformEnabled) {
                 project.apply(plugin = "kotlin-multiplatform")
-
-                project.extensions.create(
-                    AndroidXComposeMultiplatformExtension::class.java,
-                    "androidXComposeMultiplatform",
-                    AndroidXComposeMultiplatformExtensionImpl::class.java
-                )
             } else {
                 project.apply(plugin = "org.jetbrains.kotlin.android")
             }

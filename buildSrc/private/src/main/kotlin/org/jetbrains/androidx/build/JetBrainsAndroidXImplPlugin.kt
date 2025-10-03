@@ -18,6 +18,7 @@
 
 package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXComposeMultiplatformExtension
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.multiplatformExtension
@@ -168,6 +169,12 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
     }
 
     private fun onKotlinMultiplatformPluginApplied(project: Project) {
+        project.extensions.create(
+            AndroidXComposeMultiplatformExtension::class.java,
+            "androidXComposeMultiplatform",
+            AndroidXComposeMultiplatformExtensionImpl::class.java
+        )
+
         enableArtifactRedirectionPublishing(project)
         enableBinaryCompatibilityValidator(project)
         val multiplatformExtension =
