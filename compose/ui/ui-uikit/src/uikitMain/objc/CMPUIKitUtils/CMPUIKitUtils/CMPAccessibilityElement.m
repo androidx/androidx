@@ -105,6 +105,14 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
 }
 
+- (CGRect)focusEffectRect {
+    return CGRectZero;
+}
+
+- (UIFocusEffect *)focusEffect {
+    return [UIFocusHaloEffect effectWithRect:[self focusEffectRect]];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

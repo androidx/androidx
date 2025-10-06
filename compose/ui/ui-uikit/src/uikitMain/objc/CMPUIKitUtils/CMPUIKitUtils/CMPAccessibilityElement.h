@@ -19,7 +19,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CMPAccessibilityElement : UIAccessibilityElement
+@interface CMPAccessibilityElement : UIAccessibilityElement <UIFocusItem>
 
 - (NSArray<UIAccessibilityCustomAction *> *)accessibilityCustomActions;
 
@@ -58,6 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setAccessibilityElements:(nullable NSArray *)accessibilityElements;
 
 - (BOOL)drawsFocusRingWhenChildrenFocused;
+
+- (CGRect)focusEffectRect;
+
+- (UIFocusEffect *)focusEffect API_AVAILABLE(ios(15.0));
 
 @end
 

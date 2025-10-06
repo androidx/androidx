@@ -118,9 +118,7 @@ import platform.UIKit.UIAccessibilityTraits
 import platform.UIKit.UICoordinateSpaceProtocol
 import platform.UIKit.UIEdgeInsetsInsetRect
 import platform.UIKit.UIFocusAnimationCoordinator
-import platform.UIKit.UIFocusEffect
 import platform.UIKit.UIFocusEnvironmentProtocol
-import platform.UIKit.UIFocusHaloEffect
 import platform.UIKit.UIFocusItemContainerProtocol
 import platform.UIKit.UIFocusItemProtocol
 import platform.UIKit.UIFocusItemScrollableContainerProtocol
@@ -516,10 +514,6 @@ private class AccessibilityElement(
         }
     }
 
-    override fun focusEffect(): UIFocusEffect = UIFocusHaloEffect.effectWithRect(
-        rect = convertRect(rect = bounds, toCoordinateSpace = mediator.view)
-    )
-
     private fun nodeSemanticsElements(): List<Any> =
         getOrElse(CachedAccessibilityPropertyKeys.accessibilityElements) {
             listOfNotNull(node.accessibilityInteropView?.also {
@@ -710,6 +704,8 @@ private class AccessibilityElement(
     } else {
         convertRect(rect = bounds(), toCoordinateSpace = mediator.view)
     }
+
+    override fun focusEffectRect(): CValue<CGRect> = convertRect(rect = bounds, toCoordinateSpace = mediator.view)
 
     override fun bounds(): CValue<CGRect> {
         val offset = contentOffset()
