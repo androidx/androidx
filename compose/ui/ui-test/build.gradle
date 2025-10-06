@@ -152,6 +152,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.atomicFu)
                     implementation(project(":lifecycle:lifecycle-runtime-compose"))
                     implementation(project(":navigationevent:navigationevent-compose"))
+                    implementation(project(":compose:ui:ui-backhandler"))
                 }
             }
 

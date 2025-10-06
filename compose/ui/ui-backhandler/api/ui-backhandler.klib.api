@@ -7,5 +7,9 @@
 
 // Library unique name: <org.jetbrains.compose.ui:ui-backhandler>
 final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop|#static{}androidx_compose_ui_backhandler_BackEventCompat$stableprop[0]
+final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventHandler$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventHandler$stableprop|#static{}androidx_compose_ui_backhandler_BackEventHandler$stableprop[0]
+final val androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop|#static{}androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop[0]
 
 final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter|androidx_compose_ui_backhandler_BackEventCompat$stableprop_getter(){}[0]
+final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventHandler$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_BackEventHandler$stableprop_getter|androidx_compose_ui_backhandler_BackEventHandler$stableprop_getter(){}[0]
+final fun androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop_getter(): kotlin/Int // androidx.compose.ui.backhandler/androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop_getter|androidx_compose_ui_backhandler_ProgressBackEventHandler$stableprop_getter(){}[0]

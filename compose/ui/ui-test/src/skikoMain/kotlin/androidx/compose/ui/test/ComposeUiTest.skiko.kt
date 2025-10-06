@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -543,6 +544,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         CompositionLocalProvider(
             LocalLifecycleOwner provides testOwner,
             LocalNavigationEventDispatcherOwner provides testOwner,
+            LocalCompatNavigationEventDispatcherOwner provides testOwner,
             content = content,
         )
     }

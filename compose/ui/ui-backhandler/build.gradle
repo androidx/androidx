@@ -62,7 +62,8 @@ kotlin {
         jbMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(project(":navigationevent:navigationevent-compose"))
+                def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+                implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
         }
         desktopMain.dependsOn(jbMain)

@@ -39,7 +39,7 @@ class DialogNavigatorTest {
         val navigatorState = TestNavigatorState()
         navigator.onAttach(navigatorState)
 
-        setContentWithLifecycleOwner { DialogHost(navigator) }
+        setContent { DialogHost(navigator) }
 
         onNodeWithText(defaultText).assertDoesNotExist()
 
@@ -59,7 +59,7 @@ class DialogNavigatorTest {
         val entry = navigatorState.createBackStackEntry(dialog, null)
         navigator.navigate(listOf(entry), null, null)
 
-        setContentWithLifecycleOwner { DialogHost(navigator) }
+        setContent { DialogHost(navigator) }
 
         onNodeWithText(defaultText).assertIsDisplayed()
 
@@ -72,7 +72,7 @@ class DialogNavigatorTest {
     fun testNestedNavHostInDialogDismissed() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
                 composable("first") {}
@@ -102,7 +102,7 @@ class DialogNavigatorTest {
     fun testDialogMarkedTransitionComplete() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
                 composable("first") {}
@@ -139,7 +139,7 @@ class DialogNavigatorTest {
     fun testDialogMarkedTransitionCompleteInOrder() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
                 composable("first") {}
@@ -182,7 +182,7 @@ class DialogNavigatorTest {
     fun testDialogNavigateConsecutively() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
                 composable("first") {}
@@ -209,7 +209,7 @@ class DialogNavigatorTest {
     fun testDialogNavigatePopNavigate() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
                 composable("first") {}
@@ -240,7 +240,7 @@ class DialogNavigatorTest {
     fun testDialogNavigatePopNavigateSameDialog() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
                 composable("first") {}
@@ -270,7 +270,7 @@ class DialogNavigatorTest {
     fun testDialogNavigatePopPopNavigate() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
 
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
                 composable("first") {}
@@ -303,7 +303,7 @@ class DialogNavigatorTest {
     @Test
     fun testDialogObserveRemovedOnPopNavigate() = runComposeUiTestOnUiThread {
         lateinit var navController: NavHostController
-        setContentWithLifecycleOwner {
+        setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
                 composable("first") {}

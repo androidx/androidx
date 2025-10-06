@@ -22,6 +22,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
 import androidx.compose.ui.geometry.Offset
@@ -431,6 +432,7 @@ internal class ComposeWindow(
                 LocalLifecycleOwner provides this,
                 LocalInternalViewModelStoreOwner provides this,
                 LocalInternalNavigationEventDispatcherOwner provides this,
+                LocalCompatNavigationEventDispatcherOwner provides this,
                 LocalInteropContainer provides interopContainer,
                 LocalActiveClipEventsTarget provides {
                     (platformContext.textInputService as WebTextInputService).getBackingInput() ?: canvas

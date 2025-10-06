@@ -25,6 +25,7 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
 import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
@@ -513,6 +514,7 @@ internal class ComposeHostingViewController(
             LocalLifecycleOwner provides archComponentsOwner,
             LocalInternalViewModelStoreOwner provides archComponentsOwner,
             LocalInternalNavigationEventDispatcherOwner provides archComponentsOwner,
+            LocalCompatNavigationEventDispatcherOwner provides archComponentsOwner,
             LocalSaveableStateRegistry provides savableStateRegistry,
             content = content
         )

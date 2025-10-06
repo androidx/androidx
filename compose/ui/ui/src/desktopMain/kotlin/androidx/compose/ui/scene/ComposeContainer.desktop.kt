@@ -29,6 +29,7 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.RenderSettings
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.navigationevent.DesktopNavigationEventInput
 import androidx.compose.ui.platform.DisposableSaveableStateRegistry
@@ -589,6 +590,7 @@ private fun ProvideContainerCompositionLocals(
         LocalSaveableStateRegistry provides saveableStateRegistry,
         LocalInternalViewModelStoreOwner provides composeContainer,
         LocalInternalNavigationEventDispatcherOwner provides composeContainer,
+        LocalCompatNavigationEventDispatcherOwner provides composeContainer,
         content = content,
     )
 }
