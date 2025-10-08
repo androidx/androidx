@@ -211,7 +211,14 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     api(project(":compose:ui:ui-text"))
                     api(libs.skikoCommon)
                     implementation(libs.atomicFu)
-                    implementation(project(":compose:ui:ui-backhandler")) //https://youtrack.jetbrains.com/issue/CMP-9008
+
+                    // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
+                    implementation(project(":compose:ui:ui-backhandler"))
+
+                    // Use direct dependency to AOSP's artifact instead of using project reference
+                    // because this module supports all KMP platforms from the beginning.
+                    // Project dependency (commented out version) is required for `integration` branch setup
+                    // implementation(project(":navigationevent:navigationevent"))
                     def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                     implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
                 }

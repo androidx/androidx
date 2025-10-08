@@ -16,8 +16,12 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.lifecycle.LifecycleOwner
 
 /**
@@ -30,8 +34,8 @@ import androidx.lifecycle.LifecycleOwner
 actual val LocalLifecycleOwner get() = androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
- * The CompositionLocal that provides information about Screen Reader state associated with current
- * scene.
+ * The CompositionLocal that provides information about Screen Reader state associated with
+ * the current scene.
  */
 @InternalComposeUiApi
 val LocalPlatformScreenReader = staticCompositionLocalOf<PlatformScreenReader> {
@@ -45,4 +49,32 @@ val LocalPlatformScreenReader = staticCompositionLocalOf<PlatformScreenReader> {
 @InternalComposeUiApi
 val LocalPlatformWindowInsets = staticCompositionLocalOf<PlatformWindowInsets> {
     error("CompositionLocal LocalPlatformWindowInsets not present")
+}
+
+private val PlatformArchitectureComponentsOwner.values: Array<ProvidedValue<*>>
+    get() {
+        val providedValues = mutableListOf(
+            androidx.lifecycle.compose.LocalLifecycleOwner provides lifecycleOwner,
+            LocalInternalNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+            LocalCompatNavigationEventDispatcherOwner provides navigationEventDispatcherOwner,
+        )
+        viewModelStoreOwner?.let { providedValues.add(LocalInternalViewModelStoreOwner provides it) }
+        return providedValues.toTypedArray()
+    }
+
+@Composable
+internal fun ProvidePlatformCompositionLocals(
+    vararg values: ProvidedValue<*>,
+    platformContext: PlatformContext,
+    content: @Composable () -> Unit,
+) {
+    // TODO: Provide LocalSavedStateRegistryOwner and LocalSaveableStateRegistry
+
+    CompositionLocalProvider(
+        *values,
+        LocalPlatformScreenReader provides platformContext.screenReader,
+        LocalPlatformWindowInsets provides platformContext.windowInsets,
+        *platformContext.architectureComponentsOwner.values,
+        content = content,
+    )
 }

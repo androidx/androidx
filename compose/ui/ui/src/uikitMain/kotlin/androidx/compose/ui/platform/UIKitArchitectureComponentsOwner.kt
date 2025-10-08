@@ -17,22 +17,9 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.window.ApplicationForegroundStateListener
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Lifecycle.State
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.navigationevent.NavigationEventDispatcher
-import androidx.navigationevent.NavigationEventDispatcherOwner
 
-internal class UIKitArchitectureComponentsOwner :
-    LifecycleOwner,
-    ViewModelStoreOwner,
-    NavigationEventDispatcherOwner {
-    override val lifecycle = LifecycleRegistry(this)
-    override val viewModelStore = ViewModelStore()
-    override val navigationEventDispatcher = NavigationEventDispatcher()
-
+internal class UIKitArchitectureComponentsOwner : DefaultArchitectureComponentsOwner() {
     var isViewAppeared = false
         set(value) {
             field = value

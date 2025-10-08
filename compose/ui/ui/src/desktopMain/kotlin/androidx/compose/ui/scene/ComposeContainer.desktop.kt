@@ -29,13 +29,11 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.RenderSettings
-import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.navigationevent.DesktopNavigationEventInput
 import androidx.compose.ui.platform.DisposableSaveableStateRegistry
-import androidx.compose.ui.platform.LocalInternalNavigationEventDispatcherOwner
-import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.skiko.OverlayRenderDecorator
@@ -55,7 +53,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.navigationevent.NavigationEventDispatcher
 import androidx.navigationevent.NavigationEventDispatcherOwner
@@ -145,6 +142,12 @@ internal class ComposeContainer(
             onWindowContainerPositionChanged()
         }
 
+    val architectureComponentsOwner = object : PlatformArchitectureComponentsOwner {
+        override val lifecycleOwner get() = this@ComposeContainer
+        override val navigationEventDispatcherOwner get() = this@ComposeContainer
+        override val viewModelStoreOwner get() = this@ComposeContainer
+    }
+
     private val coroutineExceptionHandler = DesktopCoroutineExceptionHandler()
     private val coroutineContext = MainUIDispatcher + coroutineExceptionHandler
 
@@ -158,6 +161,7 @@ internal class ComposeContainer(
             DetectEventOutsideLayer(),
             FocusableLayerEventFilter()
         ),
+        architectureComponentsOwner = architectureComponentsOwner,
         coroutineContext = coroutineContext,
         skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
@@ -383,6 +387,7 @@ internal class ComposeContainer(
         mediator.setKeyEventListeners(
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = {
+                // FIXME: It won't work for window layers + the order is different from other platforms
                 onKeyEvent(it) || navigationEventInput.onKeyEvent(it)
             }
         )
@@ -579,18 +584,15 @@ private fun ProvideContainerCompositionLocals(
     composeContainer: ComposeContainer,
     content: @Composable () -> Unit,
 ) {
+    // TODO: Move to ProvidePlatformCompositionLocals
     val saveableStateRegistry = remember {
         DisposableSaveableStateRegistry("ComposeContainer", composeContainer)
     }
     DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
 
     CompositionLocalProvider(
-        LocalLifecycleOwner provides composeContainer,
         LocalSavedStateRegistryOwner provides composeContainer,
         LocalSaveableStateRegistry provides saveableStateRegistry,
-        LocalInternalViewModelStoreOwner provides composeContainer,
-        LocalInternalNavigationEventDispatcherOwner provides composeContainer,
-        LocalCompatNavigationEventDispatcherOwner provides composeContainer,
         content = content,
     )
 }

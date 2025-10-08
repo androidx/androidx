@@ -42,6 +42,7 @@ import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.LocalPlatformScreenReader
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
+import androidx.compose.ui.platform.ProvidePlatformCompositionLocals
 import androidx.compose.ui.util.trace
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
@@ -141,19 +142,18 @@ internal abstract class BaseComposeScene(
             inputHandler.onChangeContent()
 
             /*
-         * It's required before setting content to apply changed parameters
-         * before first recomposition. Otherwise, it can lead to double recomposition.
-         */
+             * It's required before setting content to apply changed parameters
+             * before first recomposition. Otherwise, it can lead to double recomposition.
+             */
             recomposer.performScheduledRecomposerTasks()
 
             composition?.dispose()
             composition = createComposition {
-                CompositionLocalProvider(
+                ProvidePlatformCompositionLocals(
                     @Suppress("DEPRECATION")
                     LocalComposeScene provides this,
                     LocalComposeSceneContext provides composeSceneContext,
-                    LocalPlatformScreenReader provides composeSceneContext.platformContext.screenReader,
-                    LocalPlatformWindowInsets provides composeSceneContext.platformContext.windowInsets,
+                    platformContext = composeSceneContext.platformContext,
                     content = content
                 )
             }

@@ -38,7 +38,7 @@ class ComposeWindowLifecycleTest : OnCanvasTests {
         val canvas = getCanvas()
         canvas.focus()
 
-        val lifecycleOwner = ComposeWindow(
+        val composeWindow = ComposeWindow(
             canvas = canvas,
             interopContainerElement = document.createElement("div") as HTMLDivElement,
             a11yContainerElement = null,
@@ -49,7 +49,8 @@ class ComposeWindowLifecycleTest : OnCanvasTests {
 
         val eventsChannel = Channel<Lifecycle.Event>(10)
 
-        lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+        val lifecycle = composeWindow.archComponentsOwner.lifecycle
+        lifecycle.addObserver(object : LifecycleEventObserver {
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 eventsChannel.sendFromScope(event)
             }

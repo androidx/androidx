@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformInsets
+import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformScreenReader
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -186,6 +187,7 @@ internal class ComposeSceneMediator(
     private val onFocusBehavior: OnFocusBehavior,
     private val focusedViewsList: FocusedViewsList?,
     private val windowContext: PlatformWindowContext,
+    private val architectureComponentsOwner: PlatformArchitectureComponentsOwner,
     private val coroutineContext: CoroutineContext,
     private val redrawer: MetalRedrawer,
     private val navigationEventInput: UIKitNavigationEventInput,
@@ -686,6 +688,7 @@ internal class ComposeSceneMediator(
 
     private inner class PlatformContextImpl : PlatformContext {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
+        override val architectureComponentsOwner get() = this@ComposeSceneMediator.architectureComponentsOwner
         override val screenReader: PlatformScreenReader get() = platformScreenReader
 
         override fun convertLocalToWindowPosition(localPosition: Offset): Offset =

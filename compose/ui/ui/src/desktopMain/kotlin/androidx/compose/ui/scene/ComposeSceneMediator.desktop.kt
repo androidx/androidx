@@ -31,6 +31,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.key.internal
 import androidx.compose.ui.input.key.toComposeEvent
@@ -42,6 +43,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.platform.AwtDragAndDropManager
+import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.DelegateRootForTestListener
 import androidx.compose.ui.platform.DesktopTextInputService
 import androidx.compose.ui.platform.DesktopTextInputService2
@@ -49,6 +51,7 @@ import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
+import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
@@ -119,6 +122,7 @@ internal class ComposeSceneMediator(
      */
     private val measureDrawLayerBounds: Boolean = false,
 
+    private val architectureComponentsOwner: PlatformArchitectureComponentsOwner,
     val coroutineContext: CoroutineContext,
 
     skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
@@ -759,8 +763,9 @@ internal class ComposeSceneMediator(
         }
     }
 
-    private inner class DesktopPlatformContext : PlatformContext by PlatformContext.Empty {
+    private inner class DesktopPlatformContext : PlatformContext {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
+        override val architectureComponentsOwner get() = this@ComposeSceneMediator.architectureComponentsOwner
         override val isWindowTransparent: Boolean get() = windowContext.isWindowTransparent
 
         override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
@@ -777,6 +782,7 @@ internal class ComposeSceneMediator(
 
         override val measureDrawLayerBounds: Boolean = this@ComposeSceneMediator.measureDrawLayerBounds
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()
+        override val inputModeManager: InputModeManager = DefaultInputModeManager()
         override val textInputService = this@ComposeSceneMediator.textInputService
 
         override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
