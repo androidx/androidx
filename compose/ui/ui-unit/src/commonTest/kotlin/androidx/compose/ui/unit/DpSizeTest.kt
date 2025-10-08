@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 
 class DpSizeTest {
     @Test
-    fun constructor() {
+    fun checkConstructor() {
         val size = DpSize(width = 5.dp, height = 10.dp)
         assertEquals(5.dp, size.width)
         assertEquals(10.dp, size.height)

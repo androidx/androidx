@@ -23,14 +23,14 @@ import kotlin.test.assertTrue
 
 class DpOffsetTest {
     @Test
-    fun constructor() {
+    fun checkConstructor() {
         val size = DpOffset(x = 5.dp, y = 10.dp)
         assertEquals(5.dp, size.x)
         assertEquals(10.dp, size.y)
     }
 
     @Test
-    fun copy() {
+    fun checkCopy() {
         val position = DpOffset(12.dp, 27.dp)
         assertEquals(position, position.copy())
     }

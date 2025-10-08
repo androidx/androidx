@@ -93,7 +93,9 @@ kotlin {
         nonJvmMain.dependsOn(commonMain)
         nonJvmTest.dependsOn(commonTest)
         nativeMain.dependsOn(nonJvmMain)
+        nativeTest.dependsOn(nonJvmTest)
         webMain.dependsOn(nonJvmMain)
+        webTest.dependsOn(nonJvmTest)
 
         jsMain {
             dependsOn(webMain)
@@ -111,9 +113,11 @@ kotlin {
 
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }

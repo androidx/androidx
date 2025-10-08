@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 
 class IntSizeTest {
     @Test
-    fun constructor() {
+    fun checkConstructor() {
         val size = IntSize(width = 5, height = 10)
         assertEquals(5, size.width)
         assertEquals(10, size.height)

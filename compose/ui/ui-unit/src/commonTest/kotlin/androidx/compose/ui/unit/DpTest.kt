@@ -25,7 +25,7 @@ import kotlin.test.fail
 class DpTest {
 
     @Test
-    fun constructor() {
+    fun checkConstructor() {
         val dim1 = Dp(value = 5f)
         assertEquals(5f, dim1.value, 0f)
 
