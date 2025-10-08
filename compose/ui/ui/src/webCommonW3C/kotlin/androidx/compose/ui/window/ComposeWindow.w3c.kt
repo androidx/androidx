@@ -723,6 +723,7 @@ fun ComposeViewport(
     val canvas = document.createElement("canvas") as HTMLCanvasElement
     canvas.setAttribute("tabindex", "0")
     canvas.setAttribute("role", "generic")
+    canvas.style.outline = "none" // Fixes https://youtrack.jetbrains.com/issue/CMP-9040
 
     // Create a common container (parent html element) for canvas and the interop container
     // to position at the same place - the interop container is position at 0,0 relative to <canvas>.
