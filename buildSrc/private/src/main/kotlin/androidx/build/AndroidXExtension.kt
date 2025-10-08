@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,16 +72,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
             spec.parameters.composeCustomGroup = composeCustomGroup
             spec.parameters.useMultiplatformGroupVersions = project.provider {
                 Multiplatform.isKotlinNativeEnabled(project)
-            }
-            spec.parameters.libsOverrideVersions = project.provider {
-                val allOverriddenVersions = project.properties.keys.filter {
-                    it.startsWith("jetbrains.publication.version.")
-                }.associate {  propertyName ->
-                    val tag = propertyName.replace("jetbrains.publication.version.", "")
-                    val version = project.properties[propertyName] as String
-                    tag to version
-                }
-                allOverriddenVersions
             }
         }.get()
         AllLibraryGroups = versionService.libraryGroups.values.toList()
@@ -189,7 +179,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
         if (explanationBuilder != null) {
             explanationBuilder.add(
                 "Library group (in libraryversions.toml) having" +
-                    " overrideInclude=[\"$projectPath\"] is $overridden"
+                " overrideInclude=[\"$projectPath\"] is $overridden"
             )
         }
         if (overridden != null)
@@ -234,12 +224,6 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
                 "Library group (in libraryversions.toml) having group=\"$groupIdText\" is $result"
             )
         }
-
-        // for JetBrains Fork, androidx.compose groups -> org.jetbrains groups (see libraryversions.toml)
-        if (groupIdText.startsWith("androidx.compose")) {
-            return libraryGroupsByGroupId.get(groupIdText.replaceFirst("androidx", "org.jetbrains"))
-        }
-
         return result
     }
 
@@ -309,13 +293,11 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware {
     }
 
     private fun isGroupVersionOverrideAllowed(): Boolean {
-        // TODO: [1.4 Update] seems that for JetBrains fork version override is always allowed to build publications
-        return true
         // Grant an exception to the same-version-group policy for artifacts that haven't shipped a
         // stable API surface, e.g. 1.0.0-alphaXX, to allow for rapid early-stage development.
-//        val version = mavenVersion
-//        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
-//            version.isAlpha()
+        val version = mavenVersion
+        return version != null && version.major == 1 && version.minor == 0 && version.patch == 0 &&
+            version.isAlpha()
     }
 
     private var versionIsSet = false

@@ -36,7 +36,6 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         var composeCustomVersion: Provider<String>
         var composeCustomGroup: Provider<String>
         var useMultiplatformGroupVersions: Provider<Boolean>
-        var libsOverrideVersions: Provider<Map<String, String>>
     }
 
     private val parsedTomlFile: TomlParseResult by lazy {
@@ -61,26 +60,14 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     // map from name of constant to Version
     val libraryVersions: Map<String, Version> by lazy {
         val versions = getTable("versions")
-        val libsGroupsAndVersions = parameters.libsOverrideVersions.get()
         versions.keySet().associateWith { versionName ->
-            val tagName = libsGroupsAndVersions.keys.firstOrNull { versionName == it }
-            val versionForTag = libsGroupsAndVersions[tagName]
             val versionValue =
                 if (versionName.startsWith("COMPOSE") &&
                     parameters.composeCustomVersion.isPresent
                 ) {
                     parameters.composeCustomVersion.get()
-                } else if (tagName != null && versionForTag != null) {
-                    versionForTag
                 } else {
-                    // Do not use version from toml to about accidentally publish "stable" version
-                    //
-                    // We use a big version, so it will win in case of version conflict during
-                    // local runs:
-                    // project("compose:ui") -> lifecycle-runtime-compose:2.8.4 -> compose.runtime:runtime:1.6.11
-                    // project("compose:ui") -> project("compose:runtime")
-                    // project("compose:runtime") should override compose.runtime:runtime:1.6.11 by default
-                    "9999.0.0-SNAPSHOT"
+                    versions.getString(versionName)!!
                 }
             Version.parseOrNull(versionValue)
                 ?: throw GradleException(

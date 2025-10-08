@@ -18,16 +18,13 @@ package org.jetbrains.androidx.build
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXMultiplatformExtension
-import androidx.build.LibraryGroup
 import androidx.build.Release
 import androidx.build.getAlternativeProjectUrl
 import androidx.build.getBuildId
 import androidx.build.getProjectsMap
 import androidx.build.getRepositoryDirectory
-import androidx.build.isSnapshotBuild
 import androidx.build.multiplatformExtension
 import androidx.build.version
-import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
 import com.android.utils.forEach
@@ -76,7 +73,6 @@ import org.xml.sax.XMLReader
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
-import org.jetbrains.androidx.build.originalToRedirectedDependency
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 
 fun Project.configureMavenArtifactUpload(
@@ -89,12 +85,11 @@ fun Project.configureMavenArtifactUpload(
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
             configureComponentPublishing(extension, kmpExtension, component, componentFactory)
-            Release.register(this, extension)
             registered = true
         }
     }
     afterEvaluate {
-        if (!extension.shouldPublish()) {
+        if (!JetBrainsPublication.shouldPublish(project)) {
             return@afterEvaluate
         }
         components.all { component ->
@@ -103,21 +98,6 @@ fun Project.configureMavenArtifactUpload(
             }
         }
     }
-    // validate that all libraries that should be published actually get registered.
-    gradle.taskGraph.whenReady {
-        if (releaseTaskShouldBeRegistered(extension)) {
-            tasks.findByName(Release.PROJECT_ARCHIVE_ZIP_TASK_NAME)
-                ?: throw GradleException("Project $name is configured for publishing, but a " +
-                    "'createProjectZip' task was never registered. This is likely a bug in" +
-                    "AndroidX plugin configuration")
-        }
-    }
-}
-
-private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
-    if (plugins.hasPlugin(AppPlugin::class.java)) { return false }
-    if (!extension.shouldRelease() && !isSnapshotBuild()) { return false }
-    return extension.shouldPublish()
 }
 
 /**
@@ -129,12 +109,10 @@ private fun Project.configureComponentPublishing(
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory
 ) {
-    val androidxGroup = validateCoordinatesAndGetGroup(extension)
     val projectArchiveDir = File(
         getRepositoryDirectory(),
-        "${androidxGroup.group.replace('.', '/')}/$name"
+        "${group.toString().replace('.', '/')}/$name"
     )
-    group = androidxGroup.group
 
     /*
      * Provides a set of maven coordinates (groupId:artifactId) of artifacts in AndroidX
@@ -503,23 +481,6 @@ private fun Project.releaseComponentName() = when {
     else -> "release"
 }
 
-private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension): LibraryGroup {
-    val mavenGroup = extension.mavenGroup
-    if (mavenGroup == null) {
-        val groupExplanation = extension.explainMavenGroup().joinToString("\n")
-        throw Exception("You must specify mavenGroup for $path :\n$groupExplanation")
-    }
-    val strippedGroupId = mavenGroup.group.substringAfterLast(".")
-    if (
-        !extension.bypassCoordinateValidation &&
-        mavenGroup.group.startsWith("androidx") &&
-        !name.startsWith(strippedGroupId)
-    ) {
-        throw Exception("Your artifactId must start with '$strippedGroupId'. (currently is $name)")
-    }
-    return mavenGroup
-}
-
 /**
  * Delete any existing archives, so that developers don't get
  * confused/surprised by the presence of old versions.
@@ -533,15 +494,7 @@ private fun removePreviouslyUploadedArchives(projectArchiveDir: File) {
 private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: MavenPom) {
     pom.name.set(extension.name)
     pom.description.set(provider { extension.description })
-    pom.url.set(
-        provider {
-            fun defaultUrl() = "https://developer.android.com/jetpack/androidx/releases/" +
-                extension.mavenGroup!!.group.removePrefix("androidx.")
-                    .replace(".", "-") +
-                "#" + extension.project.version()
-            getAlternativeProjectUrl() ?: defaultUrl()
-        }
-    )
+    pom.url.set("https://github.com/JetBrains/compose-multiplatform")
     pom.inceptionYear.set(provider { extension.inceptionYear })
     pom.licenses { licenses ->
         licenses.license { license ->

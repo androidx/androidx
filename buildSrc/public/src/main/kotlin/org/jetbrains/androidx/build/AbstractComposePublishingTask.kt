@@ -23,19 +23,31 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
 
     abstract fun dependsOnComposeTask(task: String)
 
-    fun publish(project: String, publications: Collection<String>) {
+    fun publish(component: ComposeComponent) {
+        if (component.customTasks.isNotEmpty()) {
+            publish(
+                component.path,
+                onlyWithPlatforms = component.supportedPlatforms,
+                publications = component.customTasks
+            )
+        } else {
+            publishMultiplatform(component)
+        }
+    }
+
+    private fun publish(project: String, publications: Collection<String>) {
         for (publication in publications) {
             dependsOnComposeTask("$project:publish${publication}PublicationTo$repository")
         }
     }
 
-    fun publish(project: String, publications: Collection<String>, onlyWithPlatforms: Set<ComposePlatforms>) {
+    private fun publish(project: String, publications: Collection<String>, onlyWithPlatforms: Set<ComposePlatforms>) {
         if (onlyWithPlatforms.any { it in targetPlatforms }) {
             publish(project, publications)
         }
     }
 
-    fun publishMultiplatform(component: ComposeComponent) {
+    private fun publishMultiplatform(component: ComposeComponent) {
         val project = project.rootProject.findProject(component.path) ?:
             throw IllegalArgumentException("Cannot find project ${component.path}")
 

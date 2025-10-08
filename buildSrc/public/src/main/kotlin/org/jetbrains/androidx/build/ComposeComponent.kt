@@ -7,4 +7,5 @@ package org.jetbrains.androidx.build
 data class ComposeComponent(
     val path: String,
     val supportedPlatforms: Set<ComposePlatforms> = ComposePlatforms.SKIKO_SUPPORT,
+    val customTasks: List<String> = emptyList(),
 )

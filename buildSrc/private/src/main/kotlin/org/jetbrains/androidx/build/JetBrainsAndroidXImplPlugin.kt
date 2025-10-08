@@ -154,10 +154,15 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
 
     @Suppress("UNREACHABLE_CODE", "UNUSED_VARIABLE")
     override fun apply(project: Project) {
+        check(project.plugins.hasPlugin("AndroidXPlugin")) {
+            "JetBrainsAndroidXPlugin should be applied after AndroidXPlugin"
+        }
+
         val androidxExtension =
             project.extensions.getByType(AndroidXExtension::class.java)
         val androidxMultiplatformExtension =
             project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
+        project.changeMavenCoordinatesToJetBrains(androidxExtension)
         project.configureMavenArtifactUpload(
             androidxExtension, androidxMultiplatformExtension, componentFactory)
 
@@ -226,10 +231,8 @@ private fun enableArtifactRedirectionPublishing(project: Project) {
 
 @OptIn(ExperimentalBCVApi::class)
 private fun enableBinaryCompatibilityValidator(project: Project) {
-    val androidXExtension = project.extensions.findByType(AndroidXExtension::class.java)
-        ?: throw Exception("You have applied AndroidXComposePlugin without AndroidXPlugin")
     project.afterEvaluate {
-        if (androidXExtension.shouldPublish()) {
+        if (JetBrainsPublication.shouldPublish(project)) {
             project.apply(plugin = "org.jetbrains.kotlinx.binary-compatibility-validator")
             project.extensions.getByType(ApiValidationExtension::class.java).apply {
                 klib.enabled = true
