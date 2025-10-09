@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.nb() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primært felt",
+    Strings.defaultPaneTitleSecondary to "Sekundært felt",
+    Strings.defaultPaneTitleTertiary to "Tertiært panel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Håndtak for utvidelse av feltet",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Gjeldende feltdeling, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Endre feltdelingen til %s",

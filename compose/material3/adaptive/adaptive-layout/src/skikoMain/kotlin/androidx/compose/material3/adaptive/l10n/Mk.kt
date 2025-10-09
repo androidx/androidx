@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.mk() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Примарно окно",
+    Strings.defaultPaneTitleSecondary to "Секундарно окно",
+    Strings.defaultPaneTitleTertiary to "Терцијарно окно",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Рачка за влечење за проширување на окното",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Тековно поделено окно, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Променете го поделеното окно на %s",

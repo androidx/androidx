@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.eu() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Panel nagusia",
+    Strings.defaultPaneTitleSecondary to "Bigarren mailako panela",
+    Strings.defaultPaneTitleTertiary to "Hirugarren mailako panela",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Panelaren zabalera arrastatzeko kontrol-puntua",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Oraingo panela zatituta dago, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Aldatu panelaren zatiketa eta ezarri %s",

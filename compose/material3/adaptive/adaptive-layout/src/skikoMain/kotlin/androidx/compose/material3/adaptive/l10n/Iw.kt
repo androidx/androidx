@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.iw() = mapOf(
+    Strings.defaultPaneTitlePrimary to "החלונית הראשית",
+    Strings.defaultPaneTitleSecondary to "החלונית המשנית",
+    Strings.defaultPaneTitleTertiary to "החלונית השלישית",
     Strings.defaultPaneExpansionDragHandleContentDescription to "נקודת אחיזה לגרירה להרחבת החלונית",
     Strings.defaultPaneExpansionDragHandleStateDescription to "‏פיצול החלונית הנוכחי, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "‏שינוי של פיצול החלונית ל-%s",

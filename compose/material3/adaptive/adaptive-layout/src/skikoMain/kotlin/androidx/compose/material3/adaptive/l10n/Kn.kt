@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.kn() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ಪ್ರಾಥಮಿಕ ಪೇನ್",
+    Strings.defaultPaneTitleSecondary to "ದ್ವಿತೀಯ ಪೇನ್",
+    Strings.defaultPaneTitleTertiary to "ತೃತೀಯ ಪೇನ್",
     Strings.defaultPaneExpansionDragHandleContentDescription to "ಪೇನ್ ಅನ್ನು ವಿಸ್ತೃತಗೊಳಿಸುವುದಕ್ಕೆ ನೆರವಾಗುವ ಡ್ರ್ಯಾಗ್ ಹ್ಯಾಂಡಲ್",
     Strings.defaultPaneExpansionDragHandleStateDescription to "ಪ್ರಸ್ತುತ ಪೇನ್ ವಿಭಜನೆ, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "ಪೇನ್ ವಿಭಜನೆಯನ್ನು %s ಗೆ ಬದಲಾಯಿಸಿ",

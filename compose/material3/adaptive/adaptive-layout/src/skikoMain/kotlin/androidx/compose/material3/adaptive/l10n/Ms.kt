@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ms() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Anak tetingkap utama",
+    Strings.defaultPaneTitleSecondary to "Anak tetingkap kedua",
+    Strings.defaultPaneTitleTertiary to "Anak tetingkap ketiga",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Pemegang seret pengembangan anak tetingkap",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Pemisahan anak tetingkap semasa, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Tukar anak tetingkap terpisah kepada %s",

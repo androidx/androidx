@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.mn() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Үндсэн хэсэг",
+    Strings.defaultPaneTitleSecondary to "Хоёрдогч хэсэг",
+    Strings.defaultPaneTitleTertiary to "Гуравдагч хэсэг",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Хэсгийн өргөтгөлийг чирэх бариул",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Одоогийн хэсгийн хуваалт, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Хэсгийн хуваалтыг %s болгож өөрчлөх",

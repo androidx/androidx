@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.te() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ప్రధాన పేన్",
+    Strings.defaultPaneTitleSecondary to "ద్వితీయ పేన్",
+    Strings.defaultPaneTitleTertiary to "తృతీయ పేన్",
     Strings.defaultPaneExpansionDragHandleContentDescription to "పేన్‌ను విస్తరించడానికి లాగే హ్యాండిల్",
     Strings.defaultPaneExpansionDragHandleStateDescription to "ప్రస్తుత పేన్ విభజన, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "పేన్ విభజనను %s‌కు మార్చండి",

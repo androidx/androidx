@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.pa() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ਪ੍ਰਾਇਮਰੀ ਪੂਰਵ-ਝਲਕ",
+    Strings.defaultPaneTitleSecondary to "ਸੈਕੰਡਰੀ ਪੂਰਵ-ਝਲਕ",
+    Strings.defaultPaneTitleTertiary to "ਟਰਸ਼ਰੀ ਪੂਰਵ-ਝਲਕ",
     Strings.defaultPaneExpansionDragHandleContentDescription to "ਪੂਰਵ-ਝਲਕ ਦਾ ਵਿਸਤਾਰ ਕਰਨ ਲਈ ਘਸੀਟਣ ਵਾਲਾ ਹੈਂਡਲ",
     Strings.defaultPaneExpansionDragHandleStateDescription to "ਮੌਜੂਦਾ ਸਪਲਿਟ ਪੂਰਵ-ਝਲਕ, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "ਸਪਲਿਟ ਪੂਰਵ-ਝਲਕ ਨੂੰ %s \'ਤੇ ਬਦਲੋ",

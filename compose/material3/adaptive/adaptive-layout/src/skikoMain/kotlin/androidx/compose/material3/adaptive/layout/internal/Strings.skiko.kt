@@ -29,18 +29,21 @@ import kotlin.jvm.JvmInline
 @Immutable
 internal actual value class Strings(val value: Int) {
     actual companion object {
-        actual val defaultPaneExpansionDragHandleContentDescription = Strings(0)
-        actual val defaultPaneExpansionDragHandleStateDescription = Strings(1)
-        actual val defaultPaneExpansionDragHandleActionDescription = Strings(2)
-        actual val defaultPaneExpansionProportionAnchorDescription = Strings(3)
-        actual val defaultPaneExpansionStartOffsetAnchorDescription = Strings(4)
-        actual val defaultPaneExpansionEndOffsetAnchorDescription = Strings(5)
-        actual val dragToResizeClickToExpandDescription = Strings(6)
-        actual val dragToResizeClickToCollapseDescription = Strings(7)
-        actual val dragToResizeClickToPartiallyExpandDescription = Strings(8)
-        actual val dragToResizeExpandedStateDescription = Strings(9)
-        actual val dragToResizeCollapsedStateDescription = Strings(10)
-        actual val dragToResizePartiallyExpandedStateDescription = Strings(11)
+        actual val defaultPaneTitlePrimary = Strings(0)
+        actual val defaultPaneTitleSecondary = Strings(1)
+        actual val defaultPaneTitleTertiary = Strings(2)
+        actual val defaultPaneExpansionDragHandleContentDescription = Strings(3)
+        actual val defaultPaneExpansionDragHandleStateDescription = Strings(4)
+        actual val defaultPaneExpansionDragHandleActionDescription = Strings(5)
+        actual val defaultPaneExpansionProportionAnchorDescription = Strings(6)
+        actual val defaultPaneExpansionStartOffsetAnchorDescription = Strings(7)
+        actual val defaultPaneExpansionEndOffsetAnchorDescription = Strings(8)
+        actual val dragToResizeClickToExpandDescription = Strings(9)
+        actual val dragToResizeClickToCollapseDescription = Strings(10)
+        actual val dragToResizeClickToPartiallyExpandDescription = Strings(11)
+        actual val dragToResizeExpandedStateDescription = Strings(12)
+        actual val dragToResizeCollapsedStateDescription = Strings(13)
+        actual val dragToResizePartiallyExpandedStateDescription = Strings(14)
     }
 }
 

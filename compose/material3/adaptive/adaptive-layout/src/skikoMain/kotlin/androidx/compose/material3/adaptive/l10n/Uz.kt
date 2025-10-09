@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.uz() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Asosiy panel",
+    Strings.defaultPaneTitleSecondary to "Yordamchi panel",
+    Strings.defaultPaneTitleTertiary to "Qoʻshimcha panel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Panelni kengaytirish uchun surish dastagi",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Joriy panel taqsimoti, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Ajratilgan panelni %s sifatida oʻzgartirish",

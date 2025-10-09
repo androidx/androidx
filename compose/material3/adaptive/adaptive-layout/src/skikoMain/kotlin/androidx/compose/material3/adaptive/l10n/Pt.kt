@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ptBR() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Painel principal",
+    Strings.defaultPaneTitleSecondary to "Painel secundário",
+    Strings.defaultPaneTitleTertiary to "Painel terciário",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Alça de arrastar para expandir o painel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Divisão atual do painel, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Mudar a divisão do painel para %s",
@@ -37,6 +40,9 @@ internal fun Translations.ptBR() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ptPT() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Painel principal",
+    Strings.defaultPaneTitleSecondary to "Painel secundário",
+    Strings.defaultPaneTitleTertiary to "Painel terciário",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Indicador para arrastar de expansão do painel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Divisão do painel atual, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Altere a divisão do painel para %s",
@@ -53,6 +59,9 @@ internal fun Translations.ptPT() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.pt() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Painel principal",
+    Strings.defaultPaneTitleSecondary to "Painel secundário",
+    Strings.defaultPaneTitleTertiary to "Painel terciário",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Alça de arrastar para expandir o painel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Divisão atual do painel, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Mudar a divisão do painel para %s",

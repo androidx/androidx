@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.si() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ප්‍රාථමික කවුළුව",
+    Strings.defaultPaneTitleSecondary to "ද්විතියික කවුළුව",
+    Strings.defaultPaneTitleTertiary to "තෘතීයික කවුළුව",
     Strings.defaultPaneExpansionDragHandleContentDescription to "පැනල ප්‍රසාරණ ඇදීම් හැඬලය",
     Strings.defaultPaneExpansionDragHandleStateDescription to "වත්මන් කවුළු බෙදීම, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "කවුළු බෙදීම %s ලෙස වෙනස් කරන්න",

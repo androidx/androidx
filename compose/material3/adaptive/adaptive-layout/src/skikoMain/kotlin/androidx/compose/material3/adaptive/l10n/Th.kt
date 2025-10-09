@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.th() = mapOf(
+    Strings.defaultPaneTitlePrimary to "แผงหลัก",
+    Strings.defaultPaneTitleSecondary to "แผงรอง",
+    Strings.defaultPaneTitleTertiary to "แผงลำดับที่ 3",
     Strings.defaultPaneExpansionDragHandleContentDescription to "แฮนเดิลการลากเพื่อขยายแผง",
     Strings.defaultPaneExpansionDragHandleStateDescription to "การแบ่งแผงปัจจุบัน %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "เปลี่ยนการแบ่งแผงเป็น %s",

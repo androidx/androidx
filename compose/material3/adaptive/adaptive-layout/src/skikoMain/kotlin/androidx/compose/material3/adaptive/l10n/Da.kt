@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.da() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primær rude",
+    Strings.defaultPaneTitleSecondary to "Sekundær rude",
+    Strings.defaultPaneTitleTertiary to "Tertiær rude",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Håndtag til udvidelse af rude",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Aktuel rudeopdeling, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Skift rudeopdeling til %s",

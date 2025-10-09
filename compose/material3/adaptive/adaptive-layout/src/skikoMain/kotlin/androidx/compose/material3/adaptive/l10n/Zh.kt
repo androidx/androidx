@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhCN() = mapOf(
+    Strings.defaultPaneTitlePrimary to "主要窗格",
+    Strings.defaultPaneTitleSecondary to "次要窗格",
+    Strings.defaultPaneTitleTertiary to "第三窗格",
     Strings.defaultPaneExpansionDragHandleContentDescription to "窗格展开拖动手柄",
     Strings.defaultPaneExpansionDragHandleStateDescription to "当前窗格分割方式：%s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "将窗格分割更改为%s",
@@ -37,6 +40,9 @@ internal fun Translations.zhCN() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhHK() = mapOf(
+    Strings.defaultPaneTitlePrimary to "主要窗格",
+    Strings.defaultPaneTitleSecondary to "次要窗格",
+    Strings.defaultPaneTitleTertiary to "第三窗格",
     Strings.defaultPaneExpansionDragHandleContentDescription to "展開窗格拖曳控點",
     Strings.defaultPaneExpansionDragHandleStateDescription to "目前的分割窗格，%s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "將分割窗格轉做 %s",
@@ -53,6 +59,9 @@ internal fun Translations.zhHK() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.zhTW() = mapOf(
+    Strings.defaultPaneTitlePrimary to "主要窗格",
+    Strings.defaultPaneTitleSecondary to "次要窗格",
+    Strings.defaultPaneTitleTertiary to "第三窗格",
     Strings.defaultPaneExpansionDragHandleContentDescription to "窗格擴展拖曳控點",
     Strings.defaultPaneExpansionDragHandleStateDescription to "目前窗格分割狀態：%s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "將窗格分割變更為「%s」",

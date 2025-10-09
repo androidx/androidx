@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ro() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Panoul principal",
+    Strings.defaultPaneTitleSecondary to "Panoul secundar",
+    Strings.defaultPaneTitleTertiary to "Panoul terțiar",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Ghidaj de tragere pentru extinderea panoului",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Împărțirea actuală a panoului, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Modifică împărțirea panoului la %s",

@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.fa() = mapOf(
+    Strings.defaultPaneTitlePrimary to "قاب اصلی",
+    Strings.defaultPaneTitleSecondary to "قاب دوم",
+    Strings.defaultPaneTitleTertiary to "قاب سوم",
     Strings.defaultPaneExpansionDragHandleContentDescription to "دستگیره کشاندن برای از هم بازکردن اندازه قاب",
     Strings.defaultPaneExpansionDragHandleStateDescription to "‏حالت فعلی تقسیم قاب، %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "‏تقسیم‌بندی قاب به %s تغییر کند",

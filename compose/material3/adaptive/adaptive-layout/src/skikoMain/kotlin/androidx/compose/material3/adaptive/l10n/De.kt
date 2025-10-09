@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.de() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primärer Bereich",
+    Strings.defaultPaneTitleSecondary to "Sekundärer Bereich",
+    Strings.defaultPaneTitleTertiary to "Tertiärer Bereich",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Ziehpunkt zum Maximieren des Bereichs",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Aktueller Bereich geteilt, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "„Fenster teilen“ in %s ändern",

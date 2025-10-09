@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.`is`() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Fyrsti gluggi",
+    Strings.defaultPaneTitleSecondary to "Annar gluggi",
+    Strings.defaultPaneTitleTertiary to "Þriðji gluggi",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Dragkló gluggastækkunar",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Núverandi skiptur gluggi, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Breyta gluggaskiptingu í %s",

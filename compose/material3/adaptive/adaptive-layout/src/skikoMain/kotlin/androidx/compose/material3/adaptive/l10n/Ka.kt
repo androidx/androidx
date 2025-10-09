@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ka() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ძირითადი არე",
+    Strings.defaultPaneTitleSecondary to "მეორეული არე",
+    Strings.defaultPaneTitleTertiary to "მესამეული არე",
     Strings.defaultPaneExpansionDragHandleContentDescription to "არეს გაფართოების სახელური ჩავლებისთვის",
     Strings.defaultPaneExpansionDragHandleStateDescription to "მიმდინარე არის გაყოფა, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "არეს გაყოფის შეცვლა %s-ით",

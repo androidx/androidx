@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.gu() = mapOf(
+    Strings.defaultPaneTitlePrimary to "પ્રાથમિક વિભાગ",
+    Strings.defaultPaneTitleSecondary to "ગૌણ વિભાગ",
+    Strings.defaultPaneTitleTertiary to "તૃતીય વિભાગ",
     Strings.defaultPaneExpansionDragHandleContentDescription to "વિભાગ વિસ્તરણ માટે ઑબ્જેક્ટ ખેંચવાનું હૅન્ડલ",
     Strings.defaultPaneExpansionDragHandleStateDescription to "વર્તમાન વિભાગ વિભાજન, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "વિભાગ વિભાજનને %s પર બદલો",
