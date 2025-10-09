@@ -94,6 +94,7 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
         @Serializable
         class MyClass(@Serializable(with = SavedStateSerializer::class) val s: Bundle)
         MyClass(
+                @Suppress("DEPRECATION") // bundleOf is deprecated
                 bundleOf(
                     "i" to 1,
                     "s" to "foo",
@@ -121,7 +122,9 @@ internal class SavedStateCodecAndroidTest : RobolectricTest() {
             )
 
         // Bundle at root.
-        val origin = bundleOf("i" to 3, "s" to "foo", "d" to 3.14)
+        val origin =
+            @Suppress("DEPRECATION") // bundleOf is deprecated
+            bundleOf("i" to 3, "s" to "foo", "d" to 3.14)
         val encoded = encodeToSavedState(SavedStateSerializer, origin)
         val restored = decodeFromSavedState(SavedStateSerializer, encoded)
         // Bundle's `equals` doesn't compare contents.

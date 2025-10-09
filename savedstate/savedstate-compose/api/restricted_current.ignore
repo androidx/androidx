@@ -13,3 +13,13 @@ RemovedFromJava: androidx.savedstate.compose.serialization.serializers.SnapshotS
     Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializerKt.SnapshotStateListSerializer() can no longer be resolved from Java source
 RemovedFromJava: androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt#SnapshotStateMapSerializer():
     Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializerKt.SnapshotStateMapSerializer() can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.savedstate.compose.LocalSavedStateRegistryOwnerKt#getLocalSavedStateRegistryOwner():
+    Source breaking change: method androidx.savedstate.compose.LocalSavedStateRegistryOwnerKt.getLocalSavedStateRegistryOwner() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.compose.serialization.serializers.MutableStateSerializer#getDescriptor():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.MutableStateSerializer.getDescriptor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer#getDescriptor():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer.getDescriptor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer#getDescriptor():
+    Source breaking change: method androidx.savedstate.compose.serialization.serializers.SnapshotStateMapSerializer.getDescriptor() can no longer be resolved from Kotlin source

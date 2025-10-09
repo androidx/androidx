@@ -237,10 +237,16 @@ RemovedFromBytecode: androidx.savedstate.SavedStateWriter#remove(String):
     Binary breaking change: method androidx.savedstate.SavedStateWriter.remove(String) has been removed from bytecode
 RemovedFromBytecode: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedState(android.os.Bundle, androidx.savedstate.serialization.SavedStateConfiguration):
     Binary breaking change: method androidx.savedstate.serialization.SavedStateDecoderKt.decodeFromSavedState(android.os.Bundle,androidx.savedstate.serialization.SavedStateConfiguration) has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedState(kotlinx.serialization.DeserializationStrategy<? extends T>, android.os.Bundle, androidx.savedstate.serialization.SavedStateConfiguration):
+    Binary breaking change: method androidx.savedstate.serialization.SavedStateDecoderKt.decodeFromSavedState(kotlinx.serialization.DeserializationStrategy<T>,android.os.Bundle,androidx.savedstate.serialization.SavedStateConfiguration) has been removed from bytecode
 RemovedFromBytecode: androidx.savedstate.serialization.SavedStateEncoderKt#encodeToSavedState(T, androidx.savedstate.serialization.SavedStateConfiguration):
     Binary breaking change: method androidx.savedstate.serialization.SavedStateEncoderKt.encodeToSavedState(T,androidx.savedstate.serialization.SavedStateConfiguration) has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.serialization.SavedStateEncoderKt#encodeToSavedState(kotlinx.serialization.SerializationStrategy<? super T>, T, androidx.savedstate.serialization.SavedStateConfiguration):
+    Binary breaking change: method androidx.savedstate.serialization.SavedStateEncoderKt.encodeToSavedState(kotlinx.serialization.SerializationStrategy<T>,T,androidx.savedstate.serialization.SavedStateConfiguration) has been removed from bytecode
 RemovedFromBytecode: androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt#saved(androidx.savedstate.SavedStateRegistryOwner, String, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>):
     Binary breaking change: method androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt.saved(androidx.savedstate.SavedStateRegistryOwner,String,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<T>) has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt#saved(androidx.savedstate.SavedStateRegistryOwner, kotlinx.serialization.KSerializer<T>, String, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: method androidx.savedstate.serialization.SavedStateRegistryOwnerDelegateKt.saved(androidx.savedstate.SavedStateRegistryOwner,kotlinx.serialization.KSerializer<T>,String,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<T>) has been removed from bytecode
 RemovedFromBytecode: androidx.savedstate.serialization.serializers.MutableStateFlowSerializerKt#MutableStateFlowSerializer():
     Binary breaking change: method androidx.savedstate.serialization.serializers.MutableStateFlowSerializerKt.MutableStateFlowSerializer() has been removed from bytecode
 
@@ -495,8 +501,36 @@ RemovedFromJava: androidx.savedstate.serialization.serializers.MutableStateFlowS
     Source breaking change: method androidx.savedstate.serialization.serializers.MutableStateFlowSerializerKt.MutableStateFlowSerializer() can no longer be resolved from Java source
 
 
+RemovedFromKotlin: androidx.savedstate.SavedStateRegistry#isRestored():
+    Source breaking change: method androidx.savedstate.SavedStateRegistry.isRestored() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.SavedStateRegistryController#getSavedStateRegistry():
+    Source breaking change: method androidx.savedstate.SavedStateRegistryController.getSavedStateRegistry() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.SavedStateRegistryOwner#getSavedStateRegistry():
+    Source breaking change: method androidx.savedstate.SavedStateRegistryOwner.getSavedStateRegistry() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.savedstate.ViewKt#findViewTreeSavedStateRegistryOwner(android.view.View):
     Source breaking change: method androidx.savedstate.ViewKt.findViewTreeSavedStateRegistryOwner(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.ViewTreeSavedStateRegistryOwner#get(android.view.View):
+    Source breaking change: method androidx.savedstate.ViewTreeSavedStateRegistryOwner.get(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.ViewTreeSavedStateRegistryOwner#set(android.view.View, androidx.savedstate.SavedStateRegistryOwner):
+    Source breaking change: method androidx.savedstate.ViewTreeSavedStateRegistryOwner.set(android.view.View,androidx.savedstate.SavedStateRegistryOwner) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration#getClassDiscriminatorMode():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.getClassDiscriminatorMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration#getEncodeDefaults():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.getEncodeDefaults() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration#getSerializersModule():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.getSerializersModule() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#getClassDiscriminatorMode():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.getClassDiscriminatorMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#getEncodeDefaults():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.getEncodeDefaults() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#getSerializersModule():
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.getSerializersModule() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#setClassDiscriminatorMode(int):
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.setClassDiscriminatorMode(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#setEncodeDefaults(boolean):
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.setEncodeDefaults(boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.savedstate.serialization.SavedStateConfiguration.Builder#setSerializersModule(kotlinx.serialization.modules.SerializersModule):
+    Source breaking change: method androidx.savedstate.serialization.SavedStateConfiguration.Builder.setSerializersModule(kotlinx.serialization.modules.SerializersModule) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedState(kotlinx.serialization.DeserializationStrategy<? extends T>, android.os.Bundle):
     Source breaking change: method androidx.savedstate.serialization.SavedStateDecoderKt.decodeFromSavedState(kotlinx.serialization.DeserializationStrategy,android.os.Bundle) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.savedstate.serialization.SavedStateDecoderKt#decodeFromSavedState(kotlinx.serialization.DeserializationStrategy<? extends T>, android.os.Bundle, androidx.savedstate.serialization.SavedStateConfiguration):
