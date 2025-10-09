@@ -314,6 +314,18 @@ internal class ComposeLayersViewController(
 
 private class LayersWindow: UIWindow(frame = UIScreen.mainScreen.bounds) {
     override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
-        return rootViewController?.view?.hitTest(point, withEvent)
+        // Hit-testing only the Compose view or any view that located on top of it.
+        for (subview in subviews.reversed()) {
+            subview as UIView
+            val isDescendantOfComposeView = rootViewController?.view?.isDescendantOfView(subview)
+            if (isDescendantOfComposeView == true) {
+                return rootViewController?.view?.hitTest(point, withEvent)
+            } else {
+                subview.hitTest(point, withEvent)?.let {
+                    return it
+                }
+            }
+        }
+        return null
     }
 }

@@ -302,14 +302,14 @@ internal fun AccessibilityTestNode.normalized(): AccessibilityTestNode? {
 internal fun AccessibilityTestNode.assertVisibleInContainer() {
     var frame = this.frame ?: DpRectZero()
     var iterator = parent
-    while (iterator != null) {
+    while (iterator != null && iterator.element !is UIWindow) {
         frame = frame.intersect(iterator.frame ?: DpRectZero())
         iterator = iterator.parent
     }
 
     assertTrue(
         frame.width >= 1.dp && frame.height >= 1.dp,
-        "Element with frame ${this.frame} is not visible or has very small size"
+        "Element with frame ${this.frame} ($frame) is not visible or has very small size"
     )
 }
 
@@ -333,32 +333,36 @@ internal fun UIKitInstrumentedTest.assertAccessibilityTree(
 internal fun UIKitInstrumentedTest.findNodeWithTag(tag: String) = findNodeWithTagOrNull(tag)
     ?: fail("Unable to find node with identifier: $tag")
 
-internal fun UIKitInstrumentedTest.findNodeWithTagOrNull(tag: String) = findNodeOrNull {
+internal fun UIKitInstrumentedTest.findNodeWithTagOrNull(tag: String) = firstNodeOrNull {
     it.identifier == tag
 }
 
 internal fun UIKitInstrumentedTest.findNodeWithLabel(label: String) = findNodeWithLabelOrNull(label)
     ?: fail("Unable to find node with label: $label")
 
-internal fun UIKitInstrumentedTest.findNodeWithLabelOrNull(label: String) = findNodeOrNull {
+internal fun UIKitInstrumentedTest.findNodeWithLabelOrNull(label: String) = firstNodeOrNull {
     it.label == label
 }
 
-internal fun UIKitInstrumentedTest.findNodeOrNull(
+internal fun UIKitInstrumentedTest.firstNodeOrNull(
     isValid: (AccessibilityTestNode) -> Boolean
-): AccessibilityTestNode? {
-    waitForIdle()
-    val actualTreeRoot = getAccessibilityTree()
+): AccessibilityTestNode? = findAllNodes(isValid).firstOrNull()
 
-    fun check(node: AccessibilityTestNode): AccessibilityTestNode? {
-        return if (isValid(node)) {
-            node
-        } else {
-            node.children?.firstNotNullOfOrNull(::check)
+internal fun UIKitInstrumentedTest.findAllNodes(
+    isValid: (AccessibilityTestNode) -> Boolean
+): Sequence<AccessibilityTestNode> {
+    waitForIdle()
+
+    val actualTreeRoot = getAccessibilityTree()
+    fun getAllNodes(node: AccessibilityTestNode): Sequence<AccessibilityTestNode> = sequence {
+        if (isValid(node)) {
+            yield(node)
+        }
+        node.children?.forEach { child ->
+            yieldAll(getAllNodes(child))
         }
     }
-
-    return check(node = actualTreeRoot)
+    return getAllNodes(actualTreeRoot)
 }
 
 /**
