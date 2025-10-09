@@ -45,6 +45,7 @@ import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,23 +55,22 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class IndirectTouchEventTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val initialFocus = FocusRequester()
     private lateinit var rootView: View
 
-    private val capturedIndirectEventPasses = mutableStateListOf<PointerEventPass>()
-    private val capturedIndirectTouchEvents = mutableStateListOf<IndirectTouchEvent>()
+    private val capturedTestIndirectTouchEventInformation =
+        mutableListOf<CapturedTestIndirectTouchEvent>()
     private var indirectTouchCancellations = false
 
     // Used for tests only checking IndirectPointerInputChange values directly.
-    val emptyMotionEvent: MotionEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0f, 0f, 0)
+    val emptyMotionEvent: MotionEvent = MotionEvent.obtain(0, 0, ACTION_DOWN, 0f, 0f, 0)
 
     @Before
     fun before() {
         indirectTouchCancellations = false
-        capturedIndirectEventPasses.clear()
-        capturedIndirectTouchEvents.clear()
+        capturedTestIndirectTouchEventInformation.clear()
     }
 
     @Test
@@ -81,7 +81,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 SystemClock.uptimeMillis(), // downTime,
                 SystemClock.uptimeMillis(), // eventTime,
-                MotionEvent.ACTION_DOWN,
+                ACTION_DOWN,
                 offset.x,
                 offset.y,
                 0, // metaState
@@ -121,7 +121,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 /* downTime = */ startOfEventStreamMillis,
                 /* eventTime = */ uptimeMillis,
-                /* action = */ MotionEvent.ACTION_DOWN,
+                /* action = */ ACTION_DOWN,
                 /* x = */ downOffset.x,
                 /* y = */ downOffset.y,
                 /* metaState = */ 0,
@@ -158,7 +158,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 /* downTime = */ startOfEventStreamMillis,
                 /* eventTime = */ uptimeMillis,
-                /* action = */ MotionEvent.ACTION_MOVE,
+                /* action = */ ACTION_MOVE,
                 /* x = */ move1Offset.x,
                 /* y = */ move1Offset.y,
                 /* metaState = */ 0,
@@ -203,7 +203,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 /* downTime = */ startOfEventStreamMillis,
                 /* eventTime = */ uptimeMillis,
-                /* action = */ MotionEvent.ACTION_MOVE,
+                /* action = */ ACTION_MOVE,
                 /* x = */ move2Offset.x,
                 /* y = */ move2Offset.y,
                 /* metaState = */ 0,
@@ -248,7 +248,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 /* downTime = */ startOfEventStreamMillis,
                 /* eventTime = */ uptimeMillis,
-                /* action = */ MotionEvent.ACTION_UP,
+                /* action = */ ACTION_UP,
                 /* x = */ upOffset.x,
                 /* y = */ upOffset.y,
                 /* metaState = */ 0,
@@ -294,7 +294,7 @@ class IndirectTouchEventTest {
             MotionEvent.obtain(
                 SystemClock.uptimeMillis(), // downTime,
                 SystemClock.uptimeMillis(), // eventTime,
-                MotionEvent.ACTION_DOWN,
+                ACTION_DOWN,
                 offset.x,
                 offset.y,
                 0, // metaState
@@ -336,8 +336,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -352,11 +357,111 @@ class IndirectTouchEventTest {
         }
 
         rule.runOnIdle {
-            assertThat(capturedIndirectEventPasses).hasSize(3)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
-            assertThat(capturedIndirectEventPasses[0]).isEqualTo(PointerEventPass.Initial)
-            assertThat(capturedIndirectEventPasses[1]).isEqualTo(PointerEventPass.Main)
-            assertThat(capturedIndirectEventPasses[2]).isEqualTo(PointerEventPass.Final)
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation[0].pass)
+                .isEqualTo(PointerEventPass.Initial)
+            assertThat(capturedTestIndirectTouchEventInformation[1].pass)
+                .isEqualTo(PointerEventPass.Main)
+            assertThat(capturedTestIndirectTouchEventInformation[2].pass)
+                .isEqualTo(PointerEventPass.Final)
+        }
+    }
+
+    @Test
+    fun androidTouchNavigationEventWithParent_triggersIndirectTouchEventsInOrderAndInParentAndChild() {
+        val capturedParentIndirectTouchEventInformation =
+            mutableStateListOf<CapturedTestIndirectTouchEvent>()
+        var indirectParentTouchCancellations = false
+
+        var timeStamp = 0L
+
+        ContentWithInitialFocus {
+            Box(
+                modifier =
+                    @Suppress("DEPRECATION")
+                    Modifier.onIndirectTouchInput(
+                            onEvent = {
+                                indirectTouchEvent: IndirectTouchEvent,
+                                pointerEventPass: PointerEventPass ->
+                                capturedParentIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = timeStamp,
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
+                                timeStamp += 10
+                            },
+                            onCancel = { indirectParentTouchCancellations = true },
+                        )
+                        .focusTarget()
+            ) {
+                Box(
+                    modifier =
+                        @Suppress("DEPRECATION")
+                        Modifier.onIndirectTouchInput(
+                                onEvent = {
+                                    indirectTouchEvent: IndirectTouchEvent,
+                                    pointerEventPass: PointerEventPass ->
+                                    capturedTestIndirectTouchEventInformation.add(
+                                        CapturedTestIndirectTouchEvent(
+                                            timestamp = timeStamp,
+                                            pass = pointerEventPass,
+                                            event = indirectTouchEvent,
+                                        )
+                                    )
+                                    timeStamp += 10
+                                },
+                                onCancel = { indirectTouchCancellations = true },
+                            )
+                            .focusable(focusRequester = initialFocus, initiallyFocused = true)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            rootView.dispatchGenericMotionEvent(
+                MotionEventBuilder.newBuilder().setSource(SOURCE_TOUCH_NAVIGATION).build()
+            )
+        }
+
+        rule.runOnIdle {
+            // Parent
+            assertThat(indirectParentTouchCancellations).isFalse()
+            assertThat(capturedParentIndirectTouchEventInformation).hasSize(3)
+            assertThat(capturedParentIndirectTouchEventInformation[0].pass)
+                .isEqualTo(PointerEventPass.Initial)
+            assertThat(capturedParentIndirectTouchEventInformation[1].pass)
+                .isEqualTo(PointerEventPass.Main)
+            assertThat(capturedParentIndirectTouchEventInformation[2].pass)
+                .isEqualTo(PointerEventPass.Final)
+
+            // Child
+            assertThat(indirectTouchCancellations).isFalse()
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation[0].pass)
+                .isEqualTo(PointerEventPass.Initial)
+            assertThat(capturedTestIndirectTouchEventInformation[1].pass)
+                .isEqualTo(PointerEventPass.Main)
+            assertThat(capturedTestIndirectTouchEventInformation[2].pass)
+                .isEqualTo(PointerEventPass.Final)
+
+            // Check ordering is correct
+            // Initial pass / tunnel pass (parent should happen first)
+            val parentInitialEventTimestamp =
+                capturedParentIndirectTouchEventInformation[0].timestamp
+            val childInitialEventTimestamp = capturedTestIndirectTouchEventInformation[0].timestamp
+            assertThat(parentInitialEventTimestamp).isLessThan(childInitialEventTimestamp)
+
+            // Main pass / bubble pass (child should happen first)
+            val parentMainEventTimestamp = capturedParentIndirectTouchEventInformation[1].timestamp
+            val childMainEventTimestamp = capturedTestIndirectTouchEventInformation[1].timestamp
+            assertThat(childMainEventTimestamp).isLessThan(parentMainEventTimestamp)
+
+            // Final pass / tunnel pass (parent should happen first)
+            val parentFinalEventTimestamp = capturedParentIndirectTouchEventInformation[2].timestamp
+            val childFinalEventTimestamp = capturedTestIndirectTouchEventInformation[2].timestamp
+            assertThat(parentFinalEventTimestamp).isLessThan(childFinalEventTimestamp)
         }
     }
 
@@ -370,8 +475,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -390,8 +500,7 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).isEmpty()
-            assertThat(capturedIndirectEventPasses).isEmpty()
+            assertThat(capturedTestIndirectTouchEventInformation).isEmpty()
         }
     }
 
@@ -518,8 +627,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -538,10 +652,10 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
             assertThat(
-                    capturedIndirectTouchEvents.all {
-                        it.changes.first().position == Offset(10f, 10f)
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.changes.first().position == Offset(10f, 10f)
                     }
                 )
                 .isTrue()
@@ -550,8 +664,8 @@ class IndirectTouchEventTest {
             // If you want to see tests of the scroll ranges (for primary axis), view the mocked
             // tests in [IndirectTouchEventWithInputDeviceMockTest].
             assertThat(
-                    capturedIndirectTouchEvents.all {
-                        it.primaryDirectionalMotionAxis ==
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.primaryDirectionalMotionAxis ==
                             IndirectTouchEventPrimaryDirectionalMotionAxis.None
                     }
                 )
@@ -570,8 +684,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -590,9 +709,11 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
             assertThat(
-                    capturedIndirectTouchEvents.all { it.changes.first().uptimeMillis == uptimeMs }
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.changes.first().uptimeMillis == uptimeMs
+                    }
                 )
                 .isTrue()
         }
@@ -608,8 +729,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -628,8 +754,12 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
-            assertThat(capturedIndirectTouchEvents.all { it.type == IndirectTouchEventType.Press })
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
+            assertThat(
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.type == IndirectTouchEventType.Press
+                    }
+                )
                 .isTrue()
         }
     }
@@ -644,8 +774,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -664,9 +799,11 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
             assertThat(
-                    capturedIndirectTouchEvents.all { it.type == IndirectTouchEventType.Release }
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.type == IndirectTouchEventType.Release
+                    }
                 )
                 .isTrue()
         }
@@ -682,8 +819,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -702,8 +844,12 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
-            assertThat(capturedIndirectTouchEvents.all { it.type == IndirectTouchEventType.Move })
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
+            assertThat(
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.type == IndirectTouchEventType.Move
+                    }
+                )
                 .isTrue()
         }
     }
@@ -718,8 +864,13 @@ class IndirectTouchEventTest {
                             onEvent = {
                                 indirectTouchEvent: IndirectTouchEvent,
                                 pointerEventPass: PointerEventPass ->
-                                capturedIndirectEventPasses.add(pointerEventPass)
-                                capturedIndirectTouchEvents.add(indirectTouchEvent)
+                                capturedTestIndirectTouchEventInformation.add(
+                                    CapturedTestIndirectTouchEvent(
+                                        timestamp = SystemClock.uptimeMillis(),
+                                        pass = pointerEventPass,
+                                        event = indirectTouchEvent,
+                                    )
+                                )
                             },
                             onCancel = { indirectTouchCancellations = true },
                         )
@@ -738,9 +889,11 @@ class IndirectTouchEventTest {
 
         rule.runOnIdle {
             assertThat(indirectTouchCancellations).isEqualTo(false)
-            assertThat(capturedIndirectTouchEvents).hasSize(3)
+            assertThat(capturedTestIndirectTouchEventInformation).hasSize(3)
             assertThat(
-                    capturedIndirectTouchEvents.all { it.type == IndirectTouchEventType.Unknown }
+                    capturedTestIndirectTouchEventInformation.all {
+                        it.event.type == IndirectTouchEventType.Unknown
+                    }
                 )
                 .isTrue()
         }
@@ -831,4 +984,10 @@ class IndirectTouchEventTest {
     ) =
         this.then(if (initiallyFocused) Modifier.focusRequester(focusRequester) else Modifier)
             .focusTarget()
+
+    private data class CapturedTestIndirectTouchEvent(
+        val timestamp: Long,
+        val pass: PointerEventPass,
+        val event: IndirectTouchEvent,
+    )
 }

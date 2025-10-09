@@ -16,6 +16,7 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.DataDynamicListFloat;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
@@ -598,6 +599,20 @@ public class RemoteComposeState implements CollectionsAccess {
     }
 
     @Override
+    public float @Nullable [] getDynamicFloats(int id) {
+        ArrayAccess array = mCollectionMap.get(id & 0xFFFFF);
+        if (array instanceof DataDynamicListFloat) {
+            return array.getFloats();
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable ArrayAccess getArray(int id) {
+        return mCollectionMap.get(id & 0xFFFFF);
+    }
+
+    @Override
     public int getId(int listId, int index) {
         ArrayAccess array = mCollectionMap.get(listId & 0xFFFFF);
         if (array != null) {
@@ -664,4 +679,13 @@ public class RemoteComposeState implements CollectionsAccess {
     public @Nullable Object getObject(int id) {
         return mObjectMap.get(id);
     }
+
+    /**
+     * Mark the variable with id to be dirty
+     * @param id
+     */
+    public void markVariableDirty(int id) {
+        updateListeners(id);
+    }
+
 }

@@ -21,9 +21,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.filters.LargeTest
@@ -219,6 +222,30 @@ class PagerCacheWindowTest(val config: ParamConfig) : BasePagerTest(config) {
             rule.onNodeWithTag("5").assertExists()
             rule.onNodeWithTag("6").assertDoesNotExist()
         }
+    }
+
+    @Test
+    fun updateItemCount_shouldUpdateKeepAroundCorrectly() {
+        val itemCount = mutableIntStateOf(3)
+        rule.setContent {
+            val state = rememberPagerState { itemCount.intValue }
+            HorizontalOrVerticalPager(
+                modifier =
+                    Modifier.testTag(PagerTestTag).onSizeChanged {
+                        pagerSize = if (vertical) it.height else it.width
+                    },
+                state = state,
+                beyondViewportPageCount = 2,
+                pageSize = PageSize.Fill,
+            ) {
+                Page(it)
+            }
+        }
+
+        rule.runOnIdle { itemCount.intValue = 2 }
+
+        rule.onNodeWithTag("0").assertExists()
+        rule.onNodeWithTag("1").assertExists()
     }
 
     private fun waitForPrefetch() {

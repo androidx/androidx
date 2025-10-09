@@ -1,0 +1,344 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
+package androidx.compose.remote.creation.compose.layout
+
+import androidx.annotation.RestrictTo
+import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.Text
+import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
+import androidx.compose.remote.creation.compose.capture.RecordingCanvas
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.modifier.toComposeUi
+import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.state.RemoteIntReference
+import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rememberRemoteString
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.GenericFontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
+
+@Composable
+@RemoteComposable
+public fun RemoteText(
+    text: String,
+    modifier: RemoteModifier = RemoteModifier,
+    color: Color = Color.Black,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    style: TextStyle = LocalTextStyle.current,
+) {
+    val remoteText = rememberRemoteString { text }
+    RemoteText(
+        remoteText,
+        modifier,
+        color,
+        fontSize,
+        fontStyle,
+        fontWeight,
+        fontFamily,
+        textAlign,
+        overflow,
+        maxLines,
+        style,
+    )
+}
+
+@Composable
+@RemoteComposable
+public fun RemoteText(
+    text: RemoteString,
+    modifier: RemoteModifier = RemoteModifier,
+    color: Color = Color.Black,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    style: TextStyle = LocalTextStyle.current,
+) {
+    val style =
+        style.merge(
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            fontFamily = fontFamily,
+            fontStyle = fontStyle,
+        )
+
+    RemoteText(
+        text,
+        modifier,
+        style.color,
+        style.fontSize,
+        style.fontStyle,
+        style.fontWeight,
+        style.fontFamily,
+        style.textAlign,
+        overflow,
+        maxLines,
+    )
+}
+
+/** Utility modifier to record the layout information */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeTextComponentModifier(
+    public var modifier: RecordingModifier,
+    public var id: RemoteIntReference,
+    public var color: Color,
+    public var fontSize: Float,
+    public var fontStyle: Int,
+    public var fontWeight: Float,
+    public var fontFamily: String?,
+    public var textAlign: Int,
+    public var overflow: Int,
+    public var maxLines: Int,
+) : DrawModifier {
+    override fun ContentDrawScope.draw() {
+        drawIntoCanvas {
+            if (it.nativeCanvas is RecordingCanvas) {
+                (it.nativeCanvas as RecordingCanvas).let {
+                    it.document.startTextComponent(
+                        modifier,
+                        id.toInt(),
+                        color.toArgb(),
+                        fontSize,
+                        fontStyle,
+                        fontWeight,
+                        fontFamily,
+                        textAlign,
+                        overflow,
+                        maxLines,
+                    )
+                    drawContent()
+                    it.document.endTextComponent()
+                }
+            }
+        }
+    }
+}
+
+// TODO: b/373614081 - Add support for textAlign, overflow, and maxLines.
+@Composable
+@RemoteComposable
+public fun RemoteText(
+    text: RemoteString,
+    modifier: RemoteModifier = RemoteModifier,
+    color: Color = Color.Black,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+) {
+    val captureMode = LocalRemoteComposeCreationState.current
+    val rFontSize =
+        with(LocalDensity.current) {
+            if (fontSize == TextUnit.Unspecified) 12.sp.toPx() else fontSize.toPx()
+        }
+    val rFontStyle =
+        when (fontStyle) {
+            FontStyle.Normal -> 0
+            FontStyle.Italic -> 1
+            else -> -1
+        }
+    val rFontWeight = fontWeight?.weight?.toFloat() ?: 400f
+    val rFontFamily =
+        when (fontFamily) {
+            FontFamily.Default -> "default"
+            FontFamily.SansSerif -> "sans-serif"
+            FontFamily.Serif -> "serif"
+            FontFamily.Monospace -> "monospace"
+            FontFamily.Cursive -> "cursive"
+            else -> {
+                if (fontFamily != null && (fontFamily is GenericFontFamily)) {
+                    fontFamily.name
+                }
+                null
+            }
+        }
+    val rTextAlign =
+        when (textAlign) {
+            TextAlign.Left -> TextLayout.TEXT_ALIGN_LEFT
+            TextAlign.Right -> TextLayout.TEXT_ALIGN_RIGHT
+            TextAlign.Center -> TextLayout.TEXT_ALIGN_CENTER
+            TextAlign.Justify -> TextLayout.TEXT_ALIGN_JUSTIFY
+            TextAlign.Start -> TextLayout.TEXT_ALIGN_START
+            TextAlign.End -> TextLayout.TEXT_ALIGN_END
+            TextAlign.Unspecified -> Int.MIN_VALUE
+            else -> -1
+        }
+    val rOverflow =
+        when (overflow) {
+            TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
+            TextOverflow.Visible -> TextLayout.OVERFLOW_VISIBLE
+            TextOverflow.Ellipsis -> TextLayout.OVERFLOW_ELLIPSIS
+            TextOverflow.StartEllipsis -> TextLayout.OVERFLOW_START_ELLIPSIS
+            TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
+            else -> -1
+        }
+    if (captureMode is NoRemoteCompose) {
+        Text(
+            text = text.value,
+            modifier = modifier.toComposeUi(),
+            color,
+            fontSize,
+            fontStyle,
+            fontWeight,
+            fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+    } else {
+        androidx.compose.foundation.layout.Box(
+            RemoteComposeTextComponentModifier(
+                    modifier.toRemoteCompose(),
+                    RemoteIntReference(text.getIdForCreationState(captureMode)),
+                    color,
+                    rFontSize,
+                    rFontStyle,
+                    rFontWeight,
+                    rFontFamily,
+                    rTextAlign,
+                    rOverflow,
+                    maxLines,
+                )
+                .then(modifier.semantics { this.text = text }.toComposeUiLayout())
+        )
+    }
+}
+
+@Composable
+@RemoteComposable
+public fun RemoteText(
+    textId: RemoteIntReference,
+    modifier: RemoteModifier = RemoteModifier,
+    color: Color = Color.Black,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    fontStyle: FontStyle? = null,
+    fontWeight: FontWeight? = null,
+    fontFamily: FontFamily? = null,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+) {
+    val captureMode = LocalRemoteComposeCreationState.current
+    val rFontSize =
+        with(LocalDensity.current) {
+            if (fontSize == TextUnit.Unspecified) 12.sp.toPx() else fontSize.toPx()
+        }
+    val rFontStyle =
+        when (fontStyle) {
+            FontStyle.Normal -> 0
+            FontStyle.Italic -> 1
+            else -> -1
+        }
+    val rFontWeight = fontWeight?.weight?.toFloat() ?: 400f
+    val rFontFamily =
+        when (fontFamily) {
+            FontFamily.Default -> "default"
+            FontFamily.SansSerif -> "sans-serif"
+            FontFamily.Serif -> "serif"
+            FontFamily.Monospace -> "monospace"
+            FontFamily.Cursive -> "cursive"
+            else -> {
+                if (fontFamily != null && (fontFamily is GenericFontFamily)) {
+                    fontFamily.name
+                }
+                null
+            }
+        }
+    val rTextAlign =
+        when (textAlign) {
+            TextAlign.Left -> TextLayout.TEXT_ALIGN_LEFT
+            TextAlign.Right -> TextLayout.TEXT_ALIGN_RIGHT
+            TextAlign.Center -> TextLayout.TEXT_ALIGN_CENTER
+            TextAlign.Justify -> TextLayout.TEXT_ALIGN_JUSTIFY
+            TextAlign.Start -> TextLayout.TEXT_ALIGN_START
+            TextAlign.End -> TextLayout.TEXT_ALIGN_END
+            TextAlign.Unspecified -> Int.MIN_VALUE
+            else -> -1
+        }
+    val rOverflow =
+        when (overflow) {
+            TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
+            TextOverflow.Visible -> TextLayout.OVERFLOW_VISIBLE
+            TextOverflow.Ellipsis -> TextLayout.OVERFLOW_ELLIPSIS
+            TextOverflow.StartEllipsis -> TextLayout.OVERFLOW_START_ELLIPSIS
+            TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
+            else -> -1
+        }
+    if (captureMode is NoRemoteCompose) {
+        Text(
+            text = "XX",
+            modifier = modifier.toComposeUi(),
+            color,
+            fontSize,
+            fontStyle,
+            fontWeight,
+            fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+    } else {
+        androidx.compose.foundation.layout.Box(
+            RemoteComposeTextComponentModifier(
+                    modifier.toRemoteCompose(),
+                    textId,
+                    color,
+                    rFontSize,
+                    rFontStyle,
+                    rFontWeight,
+                    rFontFamily,
+                    rTextAlign,
+                    rOverflow,
+                    maxLines,
+                )
+                .then(modifier.toComposeUiLayout())
+        )
+    }
+}

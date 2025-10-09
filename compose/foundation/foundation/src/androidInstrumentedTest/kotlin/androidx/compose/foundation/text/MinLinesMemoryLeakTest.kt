@@ -18,6 +18,7 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import leakcanary.DetectLeaksAfterTestSuccess
 import leakcanary.LeakCanary
 import org.junit.AfterClass
@@ -73,7 +74,7 @@ class MinLinesMemoryLeakTest(private val numLines: Int) {
         }
     }
 
-    private val composeTestRule = createComposeRule()
+    private val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule
     val ruleChain: RuleChain =

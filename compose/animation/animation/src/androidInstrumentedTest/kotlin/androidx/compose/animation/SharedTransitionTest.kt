@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(
-    ExperimentalSharedTransitionApi::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalComposeUiApi::class,
-)
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 
 package androidx.compose.animation
 

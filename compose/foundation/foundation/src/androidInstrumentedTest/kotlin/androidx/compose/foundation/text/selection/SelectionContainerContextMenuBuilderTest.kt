@@ -50,6 +50,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +60,7 @@ import org.junit.runner.RunWith
 @RunWith(ContextMenuFlagFlipperRunner::class)
 @ContextMenuFlagSuppress(suppressedFlagValue = false)
 class SelectionContainerContextMenuBuilderTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val textTag = "text"
     private val defaultText = "Text Text Text"
@@ -73,7 +74,7 @@ class SelectionContainerContextMenuBuilderTest {
             isMouse = false,
             expectedSessionClosed = true,
             itemToInvoke = TextContextMenuItems.Copy,
-            expectedSelection = TextRange(5, 9),
+            expectedSelection = null,
             expectedClipboardContent = "Text",
         )
     }
@@ -115,7 +116,7 @@ class SelectionContainerContextMenuBuilderTest {
         isMouse: Boolean,
         expectedSessionClosed: Boolean,
         itemToInvoke: TextContextMenuItems,
-        expectedSelection: TextRange,
+        expectedSelection: TextRange?,
         expectedClipboardContent: String,
     ) {
         var sessionClosed = false
@@ -170,8 +171,7 @@ class SelectionContainerContextMenuBuilderTest {
         }
 
         // verify selection updated
-        assertThat(selection).isNotNull()
-        assertThat(selection!!.toTextRange()).isEqualTo(expectedSelection)
+        assertThat(selection?.toTextRange()).isEqualTo(expectedSelection)
 
         // verify clipboard contents
         val clipboardContent = fakeClipboard.getClipEntry()

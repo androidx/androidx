@@ -63,11 +63,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class AndroidTextContextMenuToolbarProviderTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun whenDefault_expectedItemsAppear() = runTest {
@@ -82,7 +83,7 @@ class AndroidTextContextMenuToolbarProviderTest {
         assertThatJob(contextMenuCoroutine).isActive()
 
         rule.runOnUiThread { contextMenuCoroutine.cancel() }
-
+        rule.waitForIdle()
         assertContextMenuDoesNotExist()
         assertThatJob(contextMenuCoroutine).run {
             isCompleted()

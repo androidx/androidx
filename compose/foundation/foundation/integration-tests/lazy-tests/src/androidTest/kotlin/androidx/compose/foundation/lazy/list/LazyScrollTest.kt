@@ -50,6 +50,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
@@ -60,7 +61,8 @@ import org.junit.runners.Parameterized
 @MediumTest
 @RunWith(Parameterized::class)
 class LazyScrollTest(private val orientation: Orientation) {
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(testDispatcher)
 
     private val lazyListTag = "LazyList"
 
@@ -469,6 +471,8 @@ class LazyScrollTest(private val orientation: Orientation) {
         rule.mainClock.autoAdvance = false
 
         scope.launch { state.animateScrollToItem(toIndex, toOffset) }
+
+        testDispatcher.scheduler.runCurrent()
 
         while (!state.isScrollInProgress) {
             Thread.sleep(5)

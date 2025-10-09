@@ -77,13 +77,16 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
 class TextFieldCursorHandleTest : FocusedWindowTest {
 
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+
+    @get:Rule val rule = createComposeRule(testDispatcher)
     @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     private lateinit var state: TextFieldState
@@ -1043,6 +1046,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
 
     private fun CoroutineScope.runBlockingOnIdle(block: suspend CoroutineScope.() -> Unit) {
         val job = rule.runOnIdle { launch(block = block) }
+        testDispatcher.scheduler.runCurrent()
         runBlocking { job.join() }
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import androidx.build.SoftwareType
 
 plugins {
@@ -41,8 +40,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":compose:remote:remote-frontend"))
-    implementation(project(":compose:remote:remote-foundation"))
+    implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":compose:remote:remote-creation"))
     implementation("androidx.graphics:graphics-path:1.0.1")
     implementation("androidx.wear.compose:compose-material3:1.5.0")
@@ -52,6 +50,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation-layout:1.8.3")
 
     androidTestImplementation(project(":compose:remote:remote-creation"))
+    androidTestImplementation(project(":compose:remote:remote-player-core"))
     androidTestImplementation(project(":compose:remote:test-utils"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))

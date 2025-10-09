@@ -157,6 +157,8 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         // Act
         rule.runOnIdle { scope.launch { state.scrollToPage(5, 0.2f) } }
 
+        rule.waitForIdle()
+
         val previousPage = state.currentPage
         val previousOffset = state.currentPageOffsetFraction
         tester.emulateSavedInstanceStateRestore()

@@ -468,6 +468,7 @@ class RecompositionTest {
                 stateReadKind = StateReadSettings.Kind.BY_ID,
                 composableToObserve = listOf(nodes.item1.anchorHash),
                 maxRecompositions = 3,
+                sendDiscardedEvents = true,
             )
         )
 
@@ -657,6 +658,7 @@ class RecompositionTest {
                 stateReadKind = StateReadSettings.Kind.BY_ID,
                 composableToObserve = listOf(nodes.button1.anchorHash),
                 maxRecompositions = 3,
+                sendDiscardedEvents = true,
             )
         )
 
@@ -695,6 +697,7 @@ class RecompositionTest {
                 keepRecomposeCounts = true,
                 stateReadKind = StateReadSettings.Kind.BY_ID,
                 maxRecompositions = 3,
+                sendDiscardedEvents = true,
             )
         )
 
@@ -706,6 +709,7 @@ class RecompositionTest {
                 stateReadKind = StateReadSettings.Kind.BY_ID,
                 composableToObserve = listOf(nodes.item1.anchorHash),
                 maxRecompositions = 3,
+                sendDiscardedEvents = true,
             )
         )
 

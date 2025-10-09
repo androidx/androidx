@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -38,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,13 +47,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DetectDownAndDragGesturesWithObserverInitializationTest {
 
-    /**
-     * The regular test dispatcher will already run the [kotlinx.coroutines.launch]es as if they
-     * were [kotlinx.coroutines.CoroutineStart.UNDISPATCHED], so overwrite it with a standard single
-     * parallelism dispatcher. Without this, a regression on this functionality would not be caught
-     * in this test.
-     */
-    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule(Dispatchers.Main)
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val testTag = "testTag"
     private val observer = RecordingTextDragObserver()

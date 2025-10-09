@@ -51,6 +51,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume
@@ -62,7 +63,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class WindowInsetsDeviceTest {
-    @get:Rule val rule = createAndroidComposeRule<WindowInsetsActivity>()
+    @get:Rule val rule = createAndroidComposeRule<WindowInsetsActivity>(StandardTestDispatcher())
 
     @Before
     fun setup() {

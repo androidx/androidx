@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -56,7 +55,6 @@ import androidx.compose.ui.zIndex
  * Note that despite the items position changing due to the scroll, it does not affect or trigger an
  * animation.
  */
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
 fun LookaheadInScrollingColumn() {

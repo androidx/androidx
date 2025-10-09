@@ -196,7 +196,12 @@ class StateReadHandler(
                 firstStateReadSendForAnchor.removeAll(stopObserving)
             }
             this.sendDiscardedEvent =
-                settings.methodCase == MethodCase.BY_ID && anchorsObserved.isNotEmpty()
+                when (settings.methodCase) {
+                    MethodCase.BY_ID ->
+                        settings.byId.sendDiscardedEvents && anchorsObserved.isNotEmpty()
+                    else -> false
+                }
+            settings.methodCase == MethodCase.BY_ID && anchorsObserved.isNotEmpty()
             this.maxRecompositions =
                 when (settings.methodCase) {
                     MethodCase.ALL -> settings.all.maxRecompositions

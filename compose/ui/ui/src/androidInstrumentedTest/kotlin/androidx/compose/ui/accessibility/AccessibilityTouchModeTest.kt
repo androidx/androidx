@@ -45,6 +45,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -55,7 +56,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class AccessibilityTouchModeTest(private val param: Param) {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private lateinit var inputModeManager: InputModeManager
     private lateinit var view: View

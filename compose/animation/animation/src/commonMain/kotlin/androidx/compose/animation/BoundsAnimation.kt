@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
-@ExperimentalSharedTransitionApi
 internal class BoundsAnimation(
     val transitionScope: SharedTransitionScope,
     val transition: Transition<Boolean>,

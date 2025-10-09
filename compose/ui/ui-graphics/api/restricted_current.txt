@@ -65,7 +65,8 @@ package androidx.compose.ui.graphics {
   }
 
   public final class AndroidColor_androidKt {
-    method @InaccessibleFromJava public static androidx.compose.ui.graphics.Color fromColorLong(androidx.compose.ui.graphics.Color.Companion, @ColorLong long colorLong);
+    method @KotlinOnly public static androidx.compose.ui.graphics.Color fromColorLong(androidx.compose.ui.graphics.Color.Companion, @ColorLong long colorLong);
+    method @BytecodeOnly public static long fromColorLong(androidx.compose.ui.graphics.Color.Companion, long);
     method @KotlinOnly @ColorLong public static long toColorLong(androidx.compose.ui.graphics.Color);
     method @BytecodeOnly public static long toColorLong-8_81llA(long);
   }
@@ -215,7 +216,8 @@ package androidx.compose.ui.graphics {
     method @BytecodeOnly public static boolean isSupported-0vamqd0(int);
     method @KotlinOnly public static android.graphics.Shader.TileMode toAndroidTileMode(androidx.compose.ui.graphics.TileMode);
     method @BytecodeOnly public static android.graphics.Shader.TileMode toAndroidTileMode-0vamqd0(int);
-    method @InaccessibleFromJava public static androidx.compose.ui.graphics.TileMode toComposeTileMode(android.graphics.Shader.TileMode);
+    method @KotlinOnly public static androidx.compose.ui.graphics.TileMode toComposeTileMode(android.graphics.Shader.TileMode);
+    method @BytecodeOnly public static int toComposeTileMode(android.graphics.Shader.TileMode);
   }
 
   public final class AndroidVertexMode_androidKt {
@@ -224,8 +226,10 @@ package androidx.compose.ui.graphics {
   }
 
   public final class BezierKt {
-    method @InaccessibleFromJava @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.collection.FloatFloatPair computeCubicVerticalBounds(float p0y, float p1y, float p2y, float p3y, float[] roots, optional int index);
-    method @InaccessibleFromJava @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.collection.FloatFloatPair computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment segment, float[] roots, optional int index);
+    method @KotlinOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.collection.FloatFloatPair computeCubicVerticalBounds(float p0y, float p1y, float p2y, float p3y, float[] roots, optional int index);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static long computeCubicVerticalBounds(float, float, float, float, float[], int);
+    method @KotlinOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static androidx.collection.FloatFloatPair computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment segment, float[] roots, optional int index);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static long computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment, float[], int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateCubic(float p1, float p2, float t);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateY(androidx.compose.ui.graphics.PathSegment segment, float t);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float findFirstCubicRoot(float p0, float p1, float p2, float p3);
@@ -505,10 +509,14 @@ package androidx.compose.ui.graphics {
   }
 
   public final class ColorKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(float red, float green, float blue, optional float alpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(@ColorInt int color);
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(@IntRange(from=0L, to=255L) int red, @IntRange(from=0L, to=255L) int green, @IntRange(from=0L, to=255L) int blue, optional @IntRange(from=0L, to=255L) int alpha);
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(long color);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(float red, float green, float blue, optional float alpha, optional androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Color(float, float, float, float, androidx.compose.ui.graphics.colorspace.ColorSpace);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(@ColorInt int color);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Color(@ColorInt int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(@IntRange(from=0L, to=255L) int red, @IntRange(from=0L, to=255L) int green, @IntRange(from=0L, to=255L) int blue, optional @IntRange(from=0L, to=255L) int alpha);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Color(@IntRange(from=0L, to=255L) int, @IntRange(from=0L, to=255L) int, @IntRange(from=0L, to=255L) int, @IntRange(from=0L, to=255L) int);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color Color(long color);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Color(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Color compositeOver(androidx.compose.ui.graphics.Color, androidx.compose.ui.graphics.Color background);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long compositeOver--OWjLjI(long, long);
     method @BytecodeOnly public static boolean isSpecified-8_81llA(long);

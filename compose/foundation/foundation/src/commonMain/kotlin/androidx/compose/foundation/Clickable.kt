@@ -1669,8 +1669,15 @@ internal abstract class AbstractClickableNode(
             // gestures have been processed.
             val job = delayJob
             if (job?.isActive == true) {
+                // Immediately cancel the job to avoid a race condition from coroutine launching -
+                // if we wait until inside the launch to cancel it could be executed after the job
+                // is no longer active. An alternative approach would be to launch with
+                // start = CoroutineStart.UNDISPATCHED, but it is more reasonable to cancel
+                // outside the coroutine in any case.
+                job.cancel()
                 coroutineScope.launch {
-                    job.cancelAndJoin()
+                    // Wait for cancelling the job to finish if needed
+                    job.join()
                     // The press released successfully, before the timeout duration - emit the press
                     // interaction instantly.
                     val press = PressInteraction.Press(offset)

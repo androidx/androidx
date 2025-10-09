@@ -1,41 +1,13 @@
 // Signature format: 4.0
 package androidx.compose.remote.player.view {
 
-  public class RemoteComposeDocument {
-    ctor public RemoteComposeDocument(androidx.compose.remote.core.CoreDocument);
-    ctor public RemoteComposeDocument(byte[]);
-    method public java.time.Clock getClock();
-    method public androidx.compose.remote.core.CoreDocument getDocument();
-    method public void setDocument(androidx.compose.remote.core.CoreDocument);
-  }
-
   public class RemoteComposePlayer extends android.widget.FrameLayout {
     ctor public RemoteComposePlayer(android.content.Context);
     ctor public RemoteComposePlayer(android.content.Context, android.util.AttributeSet?);
     ctor public RemoteComposePlayer(android.content.Context, android.util.AttributeSet?, int);
-    method public androidx.compose.remote.player.view.RemoteComposeDocument getDocument();
-    method public androidx.compose.remote.player.view.state.StateUpdater getStateUpdater();
-    method public void setDocument(androidx.compose.remote.player.view.RemoteComposeDocument);
-  }
-
-}
-
-package androidx.compose.remote.player.view.action {
-
-  public interface NamedActionHandler {
-    method public void execute(String, Object?, androidx.compose.remote.player.view.state.StateUpdater);
-  }
-
-}
-
-package androidx.compose.remote.player.view.state {
-
-  public interface StateUpdater {
-    method public void setNamedLong(String, long);
-    method public void setUserLocalBitmap(String, android.graphics.Bitmap);
-    method public void setUserLocalColor(String, int);
-    method public void setUserLocalInt(String, int);
-    method public void setUserLocalString(String, String);
+    method public androidx.compose.remote.player.core.RemoteComposeDocument getDocument();
+    method public androidx.compose.remote.player.core.state.StateUpdater getStateUpdater();
+    method public void setDocument(androidx.compose.remote.player.core.RemoteComposeDocument);
   }
 
 }

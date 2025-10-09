@@ -1,0 +1,1021 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Bitmap#createBitmap`"
+        errorLine1="                                Bitmap.createBitmap("
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/CaptureAsBitmap.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Typeface#getWeight`"
+        errorLine1="        val tmpTypefaceWeight = paintTypeface?.weight ?: 0"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter`"
+        errorLine1="            if (tmpLastColorFilter is BlendModeColorFilter) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter#getColor`"
+        errorLine1="                tmpLastColorFilter.color"
+        errorLine2="                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter`"
+        errorLine1="            if (tmpLastColorFilter is BlendModeColorFilter) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter#getMode`"
+        errorLine1="                colorFilterModeToInt(tmpLastColorFilter.mode)"
+        errorLine2="                                                        ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter`"
+        errorLine1="            } else if (tmpLastColorFilter is BlendModeColorFilter) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `BlendModeColorFilter` to `ColorFilter` requires API level 29 (current min is 26)"
+        errorLine1="                lastColorFilter = tmpLastColorFilter"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter#getColor`"
+        errorLine1="                    tmpLastColorFilter.color,"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter#getMode`"
+        errorLine1="                    colorFilterModeToInt(tmpLastColorFilter.mode),"
+        errorLine2="                                                            ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#getBlendMode`"
+        errorLine1="        val paintBlendMode = paint.blendMode"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#getTextBounds`"
+        errorLine1="        ap.getTextBounds(text, 0, text.length, rec)"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#getTextBounds`"
+        errorLine1="        ap.getTextBounds(text, 0, text.length, rec)"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvas.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Enum for switch requires API level 29 (current min is 26): `android.graphics.BlendMode`"
+        errorLine1="    return when (mode) {"
+        errorLine2="                 ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#CLEAR`"
+        errorLine1="        android.graphics.BlendMode.CLEAR -> PaintBundle.BLEND_MODE_CLEAR"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC`"
+        errorLine1="        android.graphics.BlendMode.SRC -> PaintBundle.BLEND_MODE_SRC"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST`"
+        errorLine1="        android.graphics.BlendMode.DST -> PaintBundle.BLEND_MODE_DST"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_OVER`"
+        errorLine1="        android.graphics.BlendMode.SRC_OVER -> PaintBundle.BLEND_MODE_SRC_OVER"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_OVER`"
+        errorLine1="        android.graphics.BlendMode.DST_OVER -> PaintBundle.BLEND_MODE_DST_OVER"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_IN`"
+        errorLine1="        android.graphics.BlendMode.SRC_IN -> PaintBundle.BLEND_MODE_SRC_IN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_IN`"
+        errorLine1="        android.graphics.BlendMode.DST_IN -> PaintBundle.BLEND_MODE_DST_IN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_OUT`"
+        errorLine1="        android.graphics.BlendMode.SRC_OUT -> PaintBundle.BLEND_MODE_SRC_OUT"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_OUT`"
+        errorLine1="        android.graphics.BlendMode.DST_OUT -> PaintBundle.BLEND_MODE_DST_OUT"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_ATOP`"
+        errorLine1="        android.graphics.BlendMode.SRC_ATOP -> PaintBundle.BLEND_MODE_SRC_ATOP"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_ATOP`"
+        errorLine1="        android.graphics.BlendMode.DST_ATOP -> PaintBundle.BLEND_MODE_DST_ATOP"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#XOR`"
+        errorLine1="        android.graphics.BlendMode.XOR -> PaintBundle.BLEND_MODE_XOR"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#PLUS`"
+        errorLine1="        android.graphics.BlendMode.PLUS -> PaintBundle.BLEND_MODE_PLUS"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#MODULATE`"
+        errorLine1="        android.graphics.BlendMode.MODULATE -> PaintBundle.BLEND_MODE_MODULATE"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SCREEN`"
+        errorLine1="        android.graphics.BlendMode.SCREEN -> PaintBundle.BLEND_MODE_SCREEN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#OVERLAY`"
+        errorLine1="        android.graphics.BlendMode.OVERLAY -> PaintBundle.BLEND_MODE_OVERLAY"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DARKEN`"
+        errorLine1="        android.graphics.BlendMode.DARKEN -> PaintBundle.BLEND_MODE_DARKEN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#LIGHTEN`"
+        errorLine1="        android.graphics.BlendMode.LIGHTEN -> PaintBundle.BLEND_MODE_LIGHTEN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR_DODGE`"
+        errorLine1="        android.graphics.BlendMode.COLOR_DODGE -> PaintBundle.BLEND_MODE_COLOR_DODGE"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR_BURN`"
+        errorLine1="        android.graphics.BlendMode.COLOR_BURN -> PaintBundle.BLEND_MODE_COLOR_BURN"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#HARD_LIGHT`"
+        errorLine1="        android.graphics.BlendMode.HARD_LIGHT -> PaintBundle.BLEND_MODE_HARD_LIGHT"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SOFT_LIGHT`"
+        errorLine1="        android.graphics.BlendMode.SOFT_LIGHT -> PaintBundle.BLEND_MODE_SOFT_LIGHT"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DIFFERENCE`"
+        errorLine1="        android.graphics.BlendMode.DIFFERENCE -> PaintBundle.BLEND_MODE_DIFFERENCE"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#EXCLUSION`"
+        errorLine1="        android.graphics.BlendMode.EXCLUSION -> PaintBundle.BLEND_MODE_EXCLUSION"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#MULTIPLY`"
+        errorLine1="        android.graphics.BlendMode.MULTIPLY -> PaintBundle.BLEND_MODE_MULTIPLY"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#HUE`"
+        errorLine1="        android.graphics.BlendMode.HUE -> PaintBundle.BLEND_MODE_HUE"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SATURATION`"
+        errorLine1="        android.graphics.BlendMode.SATURATION -> PaintBundle.BLEND_MODE_SATURATION"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR`"
+        errorLine1="        android.graphics.BlendMode.COLOR -> PaintBundle.BLEND_MODE_COLOR"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#LUMINOSITY`"
+        errorLine1="        android.graphics.BlendMode.LUMINOSITY -> PaintBundle.BLEND_MODE_LUMINOSITY"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/colorFilterModeToInt.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="        @RequiresApi(26)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteColor.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="@RequiresApi(26)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteColor.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 26"
+        errorLine1="    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            actions.map { it.toRemoteAction() }"
+        errorLine2="                    ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/ClickActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/ClickActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/ClickActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        for (op in conditionalOperations.mList) {"
+        errorLine2="                ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/util/DocumentStats.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                for (op in document.operations) {"
+        errorLine2="                        ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/util/DocumentStats.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                colorStops = stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
+        errorLine2="                                   ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    colors.forEachIndexed { index, color ->"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                colorStops = stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
+        errorLine2="                                   ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                *stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
+        errorLine2="                       ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            actions.map { it.toRemoteAction() },"
+        errorLine2="                    ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            actions.map { it.toRemoteAction() },"
+        errorLine2="                    ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchDownActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchDownActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchDownActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            actions.map { it.toRemoteAction() },"
+        errorLine2="                    ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
+        errorLine2="                                     ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="        @Composable { content() },"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RemoteComposeCapture.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableLongStateOf` instead of `mutableStateOf`"
+        errorLine1="    public val time: MutableState&lt;Long> = mutableStateOf(0L)"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="    ) : this(content, { creationState -> id ?: content.value.toLong() })"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteInt.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field animCache with type HashMap&lt;Integer, AnimatedRemoteFloat>: replace with IntObjectMap"
+        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap&lt;Int, AnimatedRemoteFloat>()"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type HashMap&lt;Integer, AnimatedRemoteFloat> of getAnimCache: replace with IntObjectMap"
+        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap&lt;Int, AnimatedRemoteFloat>()"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field expressionCache with type HashMap&lt;Integer, RemoteFloat>: replace with IntObjectMap"
+        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap&lt;Int, RemoteFloat>()"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type HashMap&lt;Integer, RemoteFloat> of getExpressionCache: replace with IntObjectMap"
+        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap&lt;Int, RemoteFloat>()"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field intExpressionCache with type HashMap&lt;Integer, RemoteInt>: replace with IntObjectMap"
+        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap&lt;Int, RemoteInt>()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type HashMap&lt;Integer, RemoteInt> of getIntExpressionCache: replace with IntObjectMap"
+        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap&lt;Int, RemoteInt>()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field remoteVariableToId with type HashMap&lt;BaseRemoteState, Integer>: replace with ObjectIntMap"
+        errorLine1="    public val remoteVariableToId: HashMap&lt;BaseRemoteState, Int> = HashMap&lt;BaseRemoteState, Int>()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type HashMap&lt;BaseRemoteState, Integer> of getRemoteVariableToId: replace with ObjectIntMap"
+        errorLine1="    public val remoteVariableToId: HashMap&lt;BaseRemoteState, Int> = HashMap&lt;BaseRemoteState, Int>()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteBitmapFont has parameter kerningTable with type Map&lt;String, Short>: replace with ObjectIntMap"
+        errorLine1="    public val kerningTable: Map&lt;String, Short> = emptyMap(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteBitmapFont.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field kerningTable with type Map&lt;String, Short>: replace with ObjectIntMap"
+        errorLine1="    public val kerningTable: Map&lt;String, Short> = emptyMap(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteBitmapFont.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;String, Short> of getKerningTable: replace with ObjectIntMap"
+        errorLine1="    public val kerningTable: Map&lt;String, Short> = emptyMap(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteBitmapFont.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvasDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvasDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RemoteDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
+        errorLine1="        points: List&lt;Offset>,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/RemoteDrawScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method linearGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method horizontalGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method verticalGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteLinearGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteLinearGradient has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method countTransparentColors has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="internal fun countTransparentColors(colors: List&lt;Color>): Int {"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method makeTransparentColors has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="internal fun makeTransparentColors(colors: List&lt;Color>, numTransparentColors: Int): IntArray {"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method makeTransparentStops has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    stops: List&lt;Float>?,"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method makeTransparentStops has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method radialGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteRadialGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteRadialGradient has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method sweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    colors: List&lt;Color>,"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteSweepGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor RemoteSweepGradient has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colorStops with type List&lt;Float>: replace with FloatList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method validateColorStops has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private fun validateColorStops(colors: List&lt;Color>, colorStops: List&lt;Float>?) {"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field statesNames with type HashMap&lt;String, Integer>: replace with ObjectIntMap"
+        errorLine1="    public val statesNames: HashMap&lt;String, Int> = HashMap&lt;String, Int>()"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/StateLayout.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type HashMap&lt;String, Integer> of getStatesNames: replace with ObjectIntMap"
+        errorLine1="    public val statesNames: HashMap&lt;String, Int> = HashMap&lt;String, Int>()"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/layout/StateLayout.kt"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="        return with(LocalDensity.current) { offset(x.toFloat().toDp(), y.toFloat().toDp()) }"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/creation/compose/modifier/OffsetModifier.kt"/>
+    </issue>
+
+</issues>

@@ -62,6 +62,8 @@ public class TouchExpression extends Operation
     float mOutMax = 1;
     float mOutMin = 1;
     float mValue = 0;
+    float mMaxAtDown = Float.NaN;
+    float mMinAtDown = Float.NaN;
     boolean mUnmodified = true;
     private float[] mPreCalcValue;
     private float mLastChange = Float.NaN;
@@ -107,6 +109,9 @@ public class TouchExpression extends Operation
 
     /** Jump to the absolute poition of the point */
     public static final int STOP_ABSOLUTE_POS = 6;
+
+    /** Stop at evenly spaced single step notches */
+    public static final int STOP_NOTCHES_SINGLE_EVEN = 7;
 
     /**
      * create a touch expression
@@ -270,10 +275,15 @@ public class TouchExpression extends Operation
             case STOP_INSTANTLY:
                 return pos;
             case STOP_NOTCHES_EVEN:
+            case STOP_NOTCHES_SINGLE_EVEN:
                 int evenSpacing = (int) mOutStopSpec[0];
                 float notchMax = (mOutStopSpec.length > 1) ? mOutStopSpec[1] : mOutMax;
                 float step = (notchMax - min) / evenSpacing;
                 float notch = min + step * (int) (0.5f + (target - mOutMin) / step);
+                if (mStopMode == STOP_NOTCHES_SINGLE_EVEN) {
+                    notch = Math.min(mMaxAtDown, notch);
+                    notch = Math.max(mMinAtDown, notch);
+                }
                 if (!mWrapMode) {
                     notch = Math.max(Math.min(notch, mOutMax), min);
                 }
@@ -338,6 +348,7 @@ public class TouchExpression extends Operation
                 haptic(context);
                 break;
             case STOP_NOTCHES_EVEN:
+            case STOP_NOTCHES_SINGLE_EVEN:
                 int evenSpacing = (int) mStopSpec[0];
                 float step = (max - min) / evenSpacing;
                 if ((int) ((prev - min) / step) != (int) ((next - min) / step)) {
@@ -433,6 +444,7 @@ public class TouchExpression extends Operation
         if (mTouchDown) {
             float value =
                     mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
+
             if (mMode == 0) {
                 value = mValueAtDown + (value - mDownTouchValue);
             }
@@ -444,7 +456,12 @@ public class TouchExpression extends Operation
             mCurrentValue = value;
         }
         crossNotchCheck(context);
+        if (mStopMode == STOP_NOTCHES_SINGLE_EVEN) {
+            mCurrentValue = Math.min(mMaxAtDown, mCurrentValue);
+            mCurrentValue = Math.max(mMinAtDown, mCurrentValue);
+        }
         context.loadFloat(mId, wrap(mCurrentValue));
+
     }
 
     float mValueAtDown; // The currently "displayed" value at down
@@ -461,6 +478,16 @@ public class TouchExpression extends Operation
         mUnmodified = false;
         if (mMode == 0) {
             mValueAtDown = context.getFloat(mId);
+            if (STOP_NOTCHES_SINGLE_EVEN == mStopMode) {
+                float min = mWrapMode ? 0 : mOutMin;
+                int evenSpacing = (int) mOutStopSpec[0];
+                float notchMax = (mOutStopSpec.length > 1) ? mOutStopSpec[1] : mOutMax;
+                float step = (notchMax - min) / evenSpacing;
+                float notch = mValueAtDown;
+                mMaxAtDown = notch + step;
+                mMinAtDown = notch - step;
+            }
+
             mDownTouchValue =
                     mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
         }

@@ -30,11 +30,11 @@ AddedAbstractMethod: androidx.compose.foundation.text.modifiers.TextAutoSizeLayo
 
 
 ChangedType: androidx.compose.foundation.gestures.TransformGestureDetectorKt#calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent, boolean):
-    Binary breaking change: Method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculateCentroid has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculateCentroid has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.foundation.gestures.TransformGestureDetectorKt#calculatePan(androidx.compose.ui.input.pointer.PointerEvent):
-    Binary breaking change: Method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculatePan has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculatePan has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.foundation.lazy.grid.LazyGridSpanKt#GridItemSpan(int):
-    Binary breaking change: Method androidx.compose.foundation.lazy.grid.LazyGridSpanKt.GridItemSpan has changed return type from long to androidx.compose.foundation.lazy.grid.GridItemSpan
+    Source breaking change: Method androidx.compose.foundation.lazy.grid.LazyGridSpanKt.GridItemSpan has changed return type from long to androidx.compose.foundation.lazy.grid.GridItemSpan
 ChangedType: androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchResultScope#getSize(int):
     Source breaking change: Method androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchResultScope.getSize has changed return type from long to androidx.compose.ui.unit.IntSize
 ChangedType: androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider#position(androidx.compose.ui.layout.LayoutCoordinates):
@@ -329,6 +329,10 @@ RemovedFromKotlin: androidx.compose.foundation.gestures.TapGestureDetectorKt#awa
     Source breaking change: method androidx.compose.foundation.gestures.TapGestureDetectorKt.awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope,boolean,kotlin.coroutines.Continuation) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.gestures.TapGestureDetectorKt#waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange>):
     Source breaking change: method androidx.compose.foundation.gestures.TapGestureDetectorKt.waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope,kotlin.coroutines.Continuation) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.gestures.TransformGestureDetectorKt#calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent, boolean):
+    Source breaking change: method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent,boolean) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.gestures.TransformGestureDetectorKt#calculatePan(androidx.compose.ui.input.pointer.PointerEvent):
+    Source breaking change: method androidx.compose.foundation.gestures.TransformGestureDetectorKt.calculatePan(androidx.compose.ui.input.pointer.PointerEvent) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.gestures.TransformableState#isTransformInProgress():
     Source breaking change: method androidx.compose.foundation.gestures.TransformableState.isTransformInProgress() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.interaction.DragInteraction.Cancel#getStart():
@@ -421,6 +425,8 @@ RemovedFromKotlin: androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo#getV
     Source breaking change: method androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo.getViewportStartOffset() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo#getVisibleItemsInfo():
     Source breaking change: method androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo.getVisibleItemsInfo() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.lazy.grid.LazyGridSpanKt#GridItemSpan(int):
+    Source breaking change: method androidx.compose.foundation.lazy.grid.LazyGridSpanKt.GridItemSpan(int) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.lazy.grid.LazyGridState#getFirstVisibleItemIndex():
     Source breaking change: method androidx.compose.foundation.lazy.grid.LazyGridState.getFirstVisibleItemIndex() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.lazy.grid.LazyGridState#getFirstVisibleItemScrollOffset():

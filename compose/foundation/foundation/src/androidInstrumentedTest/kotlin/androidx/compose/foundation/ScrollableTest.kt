@@ -141,6 +141,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.instanceOf
@@ -155,7 +156,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ScrollableTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val scrollableBoxTag = "scrollableBox"
 
@@ -835,6 +836,7 @@ class ScrollableTest {
         // We use the initial event to determine user intention due to mouse wheel events batching.
         rule.onRoot().performMouseInput {
             this.scroll(Offset(-10f, -50f))
+            advanceEventTime()
             this.scroll(Offset(-50f, -10f))
         }
 
@@ -2789,6 +2791,7 @@ class ScrollableTest {
             )
         }
         rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeForward(rule)
+        rule.waitForIdle()
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
         // Swipe forward has a negative sign because indirect touch events are inverted in
@@ -2799,6 +2802,7 @@ class ScrollableTest {
         flingVelocity = 0.0f
 
         rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward(rule)
+        rule.waitForIdle()
         assertThat(flingCalled).isEqualTo(1)
         assertThat(flingVelocity).isNonZero()
         // Swipe backwards has a positive sign because indirect touch events are inverted in

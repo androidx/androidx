@@ -79,7 +79,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -100,7 +100,8 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
         fun initParameters() = arrayOf(arrayOf(Vertical), arrayOf(Horizontal))
     }
 
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(testDispatcher)
 
     private val scrollableAreaTag = "scrollableArea"
     private val focusableTag = "focusable"
@@ -134,10 +135,8 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
             .assertScrollAxisPositionInRootIsEqualTo(90.toDp())
             .assertIsDisplayed()
             .assertIsFocused()
-
         // Act: Shrink the viewport.
         viewportSize = 50.toDp()
-
         rule
             .onNodeWithTag(focusableTag)
             .assertScrollAxisPositionInRootIsEqualTo(40.toDp())
@@ -874,8 +873,8 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
     }
 
     private fun runBlockingOnIdle(block: suspend CoroutineScope.() -> Unit) {
-        val job = rule.runOnIdle { scope.launch(block = block) }
-        runBlocking { job.join() }
+        rule.runOnIdle { scope.launch(block = block) }
+        rule.waitForIdle()
     }
 
     private fun SemanticsNodeInteraction.assertScrollAxisPositionInRootIsEqualTo(

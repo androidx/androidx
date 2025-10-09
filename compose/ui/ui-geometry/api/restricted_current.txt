@@ -41,7 +41,8 @@ package androidx.compose.ui.geometry {
   }
 
   public final class CornerRadiusKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.CornerRadius CornerRadius(float x, optional float y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.CornerRadius CornerRadius(float x, optional float y);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long CornerRadius(float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.CornerRadius lerp(androidx.compose.ui.geometry.CornerRadius start, androidx.compose.ui.geometry.CornerRadius stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-3Ry4LBc(long, long, float);
   }
@@ -186,7 +187,8 @@ package androidx.compose.ui.geometry {
   }
 
   public final class OffsetKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset Offset(float x, float y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset Offset(float x, float y);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Offset(float, float);
     method @BytecodeOnly public static boolean isFinite-k-4lQ0M(long);
     method @BytecodeOnly public static boolean isSpecified-k-4lQ0M(long);
     method @BytecodeOnly public static boolean isUnspecified-k-4lQ0M(long);
@@ -398,7 +400,8 @@ package androidx.compose.ui.geometry {
   }
 
   public final class SizeKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Size Size(float width, float height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Size Size(float width, float height);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Size(float, float);
     method @BytecodeOnly public static long getCenter-uvyYCjk(long);
     method @BytecodeOnly public static boolean isSpecified-uvyYCjk(long);
     method @BytecodeOnly public static boolean isUnspecified-uvyYCjk(long);

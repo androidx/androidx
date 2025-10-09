@@ -997,7 +997,6 @@ class AnimatedContentTest {
         rule.waitForIdle()
     }
 
-    @OptIn(ExperimentalSharedTransitionApi::class)
     @SuppressLint("UnusedContentLambdaTargetStateParameter")
     @Test
     fun testSizeTransformAlwaysContinuous() {

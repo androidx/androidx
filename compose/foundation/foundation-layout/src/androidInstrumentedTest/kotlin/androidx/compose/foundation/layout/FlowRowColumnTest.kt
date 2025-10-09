@@ -54,6 +54,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -65,7 +66,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FlowRowColumnTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testFlowRow_wrapsToTheNextLine() {

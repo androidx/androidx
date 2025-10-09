@@ -25,10 +25,10 @@ plugins {
 
 androidx {
     name = "Remote Compose Player Compose"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Compose player for RemoteCompose documents"
-    doNotDocumentReason = "Not shipped externally"
+    addGoldenImageAssets()
 }
 
 android {
@@ -41,9 +41,23 @@ android {
 
 dependencies {
     implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-player-core"))
     implementation(project(":compose:remote:remote-player-view"))
     implementation(libs.androidx.core)
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.compose.foundation:foundation:1.8.1")
-    implementation("androidx.compose.ui:ui:1.8.1")
+    implementation("androidx.compose.foundation:foundation:1.8.3")
+    implementation("androidx.compose.ui:ui:1.8.3")
+
+    androidTestImplementation(project(":compose:remote:remote-creation"))
+    androidTestImplementation(project(":compose:remote:remote-creation-compose"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:remote:test-utils"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 }

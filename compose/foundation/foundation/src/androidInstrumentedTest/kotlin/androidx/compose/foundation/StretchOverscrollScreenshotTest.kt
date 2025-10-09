@@ -49,6 +49,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.ScreenshotTestRule
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.testutils.AnimationDurationScaleRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +64,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class StretchOverscrollScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_FOUNDATION)
 

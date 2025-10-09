@@ -187,8 +187,9 @@ package androidx.compose.ui {
     method @BytecodeOnly public static androidx.compose.ui.Modifier composed(androidx.compose.ui.Modifier, String, Object![], kotlin.jvm.functions.Function1<? super androidx.compose.ui.platform.InspectorInfo!,kotlin.Unit!>, kotlin.jvm.functions.Function3<? super androidx.compose.ui.Modifier!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends androidx.compose.ui.Modifier!>);
     method public static androidx.compose.ui.Modifier composed(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.platform.InspectorInfo,kotlin.Unit> inspectorInfo, kotlin.jvm.functions.Function1<? super androidx.compose.ui.Modifier,? extends androidx.compose.ui.Modifier> factory);
     method @BytecodeOnly public static androidx.compose.ui.Modifier composed(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.platform.InspectorInfo!,kotlin.Unit!>, kotlin.jvm.functions.Function3<? super androidx.compose.ui.Modifier!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends androidx.compose.ui.Modifier!>);
+    method @KotlinOnly public static androidx.compose.ui.Modifier materialize(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.Modifier! materialize(androidx.compose.runtime.Composer!, androidx.compose.ui.Modifier!);
-    method public static androidx.compose.ui.Modifier materializeModifier(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier modifier);
+    method @InaccessibleFromKotlin public static androidx.compose.ui.Modifier materializeModifier(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier modifier);
   }
 
   @kotlin.jvm.JvmInline public final value class FrameRateCategory {
@@ -1102,7 +1103,8 @@ package androidx.compose.ui.graphics {
   }
 
   public final class TransformOriginKt {
-    method @InaccessibleFromJava public static androidx.compose.ui.graphics.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
+    method @KotlinOnly public static androidx.compose.ui.graphics.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
+    method @BytecodeOnly public static long TransformOrigin(float, float);
   }
 
 }
@@ -2167,7 +2169,8 @@ package androidx.compose.ui.input.key {
   }
 
   public final class Key_androidKt {
-    method @InaccessibleFromJava public static androidx.compose.ui.input.key.Key Key(int nativeKeyCode);
+    method @KotlinOnly public static androidx.compose.ui.input.key.Key Key(int nativeKeyCode);
+    method @BytecodeOnly public static long Key(int);
     method @BytecodeOnly public static int getNativeKeyCode-YVgTNJs(long);
     property public static int androidx.compose.ui.input.key.Key.nativeKeyCode;
   }
@@ -2320,9 +2323,11 @@ package androidx.compose.ui.input.pointer {
     method @KotlinOnly public static boolean isOutOfBounds(androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.unit.IntSize size, androidx.compose.ui.geometry.Size extendedTouchPadding);
     method @BytecodeOnly @Deprecated public static boolean isOutOfBounds-O0kMr_c(androidx.compose.ui.input.pointer.PointerInputChange, long);
     method @BytecodeOnly public static boolean isOutOfBounds-jwHxaWs(androidx.compose.ui.input.pointer.PointerInputChange, long, long);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
+    method @BytecodeOnly public static long positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
     method @Deprecated public static boolean positionChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method @BytecodeOnly public static long positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean positionChanged(androidx.compose.ui.input.pointer.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
   }
@@ -2843,10 +2848,14 @@ package androidx.compose.ui.layout {
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.geometry.Rect! boundsInWindow(androidx.compose.ui.layout.LayoutCoordinates!);
     method public static androidx.compose.ui.geometry.Rect boundsInWindow(androidx.compose.ui.layout.LayoutCoordinates, optional boolean clipBounds);
     method public static androidx.compose.ui.layout.LayoutCoordinates findRootCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionInParent(androidx.compose.ui.layout.LayoutCoordinates);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionInWindow(androidx.compose.ui.layout.LayoutCoordinates);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionInParent(androidx.compose.ui.layout.LayoutCoordinates);
+    method @BytecodeOnly public static long positionInParent(androidx.compose.ui.layout.LayoutCoordinates);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
+    method @BytecodeOnly public static long positionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionInWindow(androidx.compose.ui.layout.LayoutCoordinates);
+    method @BytecodeOnly public static long positionInWindow(androidx.compose.ui.layout.LayoutCoordinates);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates);
+    method @BytecodeOnly public static long positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
   public final class LayoutIdKt {
@@ -2901,8 +2910,10 @@ package androidx.compose.ui.layout {
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void MultiMeasureLayout(optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content, androidx.compose.ui.layout.MeasurePolicy measurePolicy);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void MultiMeasureLayout(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.layout.MeasurePolicy, androidx.compose.runtime.Composer?, int, int);
     method @kotlin.PublishedApi internal static kotlin.jvm.functions.Function0<kotlin.Unit> combineAsVirtualLayouts(java.util.List<? extends kotlin.jvm.functions.Function0<kotlin.Unit>> contents);
-    method @Deprecated @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> materializerOf(androidx.compose.ui.Modifier modifier);
-    method @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> modifierMaterializerOf(androidx.compose.ui.Modifier modifier);
+    method @InaccessibleFromKotlin @Deprecated @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> materializerOf(androidx.compose.ui.Modifier modifier);
+    method @KotlinOnly @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> materializerOf(androidx.compose.ui.Modifier modifier);
+    method @KotlinOnly @Deprecated @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> materializerOfWithCompositionLocalInjection(androidx.compose.ui.Modifier modifier);
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static kotlin.jvm.functions.Function1<androidx.compose.runtime.SkippableUpdater<androidx.compose.ui.node.ComposeUiNode>,kotlin.Unit> modifierMaterializerOf(androidx.compose.ui.Modifier modifier);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface LayoutModifier extends androidx.compose.ui.Modifier.Element {
@@ -3190,7 +3201,8 @@ package androidx.compose.ui.layout {
   }
 
   public final class ScaleFactorKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.layout.ScaleFactor ScaleFactor(float scaleX, float scaleY);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.layout.ScaleFactor ScaleFactor(float scaleX, float scaleY);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long ScaleFactor(float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Size div(androidx.compose.ui.geometry.Size, androidx.compose.ui.layout.ScaleFactor scaleFactor);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-UQTWf7w(long, long);
     method @BytecodeOnly public static boolean isSpecified-FK8aYYs(long);
@@ -3695,7 +3707,8 @@ package androidx.compose.ui.node {
   public final class TouchBoundsExpansionKt {
     method @KotlinOnly public static androidx.compose.ui.node.DpTouchBoundsExpansion DpTouchBoundsExpansion(optional androidx.compose.ui.unit.Dp start, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp end, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly public static androidx.compose.ui.node.DpTouchBoundsExpansion DpTouchBoundsExpansion-a9UjIt4(float, float, float, float);
-    method @InaccessibleFromJava public static androidx.compose.ui.node.TouchBoundsExpansion TouchBoundsExpansion(optional int start, optional int top, optional int end, optional int bottom);
+    method @KotlinOnly public static androidx.compose.ui.node.TouchBoundsExpansion TouchBoundsExpansion(optional int start, optional int top, optional int end, optional int bottom);
+    method @BytecodeOnly public static long TouchBoundsExpansion(int, int, int, int);
   }
 
   public interface TraversableNode extends androidx.compose.ui.node.DelegatableNode {

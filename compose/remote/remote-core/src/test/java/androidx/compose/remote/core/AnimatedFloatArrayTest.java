@@ -31,8 +31,10 @@ import static org.junit.Assert.assertEquals;
 
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
+import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 
 public class AnimatedFloatArrayTest {
@@ -74,6 +76,17 @@ public class AnimatedFloatArrayTest {
             @Override
             public float[] getFloats(int id) {
                 return data;
+            }
+
+            @Override
+            public float @Nullable [] getDynamicFloats(int id) {
+                return data;
+            }
+
+            @Override
+            @Nullable
+            public ArrayAccess getArray(int id) {
+                return null;
             }
 
             @Override

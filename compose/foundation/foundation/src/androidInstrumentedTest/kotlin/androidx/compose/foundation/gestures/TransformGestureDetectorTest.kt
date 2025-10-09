@@ -40,6 +40,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -54,7 +55,7 @@ private const val TargetTag = "TargetLayout"
 @RunWith(Parameterized::class)
 class TransformGestureDetectorTest(val panZoomLock: Boolean) {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     companion object {
         @JvmStatic @Parameterized.Parameters fun parameters() = arrayOf(false, true)

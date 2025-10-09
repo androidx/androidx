@@ -22,10 +22,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.frontend.capture.rememberRemoteDocument
-import androidx.compose.remote.frontend.layout.RemoteComposable
-import androidx.compose.remote.frontend.player.RemoteDocumentPlayer as ViewRemoteDocumentPlayer
-import androidx.compose.remote.player.compose.RemoteDocumentPlayer as ComposeRemoteDocumentPlayer
+import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.test.screenshot.TargetPlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,53 +44,64 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
-import org.junit.rules.TestName
 import org.junit.rules.TestRule
+import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
  * A [TestRule] that takes screenshots of remote composable functions using devices and the Remote
- * Compose [Compose Player][androidx.compose.remote.player.compose.RemoteDocumentPlayer].
+ * Compose player.
  *
  * @param matcher The algorithm to be used to perform the matching. If null, it will let
  *   [assertAgainstGolden] use its default.
  */
+@OptIn(ExperimentalRemoteComposePlayerApi::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class RemoteComposeScreenshotTestRule(
     moduleDirectory: String,
     private val matcher: BitmapMatcher? = null,
     private val targetPlayer: TargetPlayer,
-) : TestRule {
-    val composeTestRule = createComposeRule()
-    val testName = TestName()
-    val screenshotRule = AndroidXScreenshotTestRule(moduleDirectory)
+) : ExternalResource() {
+    private val composeTestRule = createComposeRule(StandardTestDispatcher())
+    private val screenshotRule = AndroidXScreenshotTestRule(moduleDirectory)
 
-    val thisRule =
-        object : TestRule {
-            override fun apply(base: Statement, description: Description): Statement {
-                return object : Statement() {
-                    override fun evaluate() {
-                        val result = base.evaluate()
-                        return result
-                    }
-                }
+    private lateinit var testDescription: Description
+
+    private val testName =
+        object : TestWatcher() {
+
+            override fun starting(description: Description) {
+                testDescription = description
             }
         }
 
-    val delegateChain: RuleChain =
-        RuleChain.outerRule(thisRule)
-            .around(testName)
-            .around(composeTestRule)
-            .around(screenshotRule)
+    private val delegateChain: RuleChain =
+        RuleChain.outerRule(testName).around(composeTestRule).around(screenshotRule)
+
+    var bitmapLoader = BitmapLoader.UNSUPPORTED
 
     override fun apply(base: Statement, description: Description): Statement {
         return delegateChain.apply(base, description)
     }
 
+    override fun before() {
+        super.before()
+
+        RemoteComposePlayerFlags.isViewPlayerEnabled = targetPlayer == TargetPlayer.View
+    }
+
+    override fun after() {
+        super.after()
+
+        RemoteComposePlayerFlags.isViewPlayerEnabled = true
+    }
+
     fun runScreenshotTest(
-        screenshotName: TestName = testName,
+        screenshotName: Description = testDescription,
         size: Size = displaySize(),
         backgroundColor: Color? = null,
         content: @Composable @RemoteComposable () -> Unit,
@@ -98,7 +111,7 @@ class RemoteComposeScreenshotTestRule(
     }
 
     fun runScreenshotTest(
-        screenshotName: TestName = testName,
+        screenshotName: Description = testDescription,
         size: Size = displaySize(),
         backgroundColor: Color? = null,
         document: CoreDocument,
@@ -157,29 +170,17 @@ class RemoteComposeScreenshotTestRule(
 
     @Composable
     private fun RemoteDocumentPlayer(document: CoreDocument, size: Size) {
-        when (targetPlayer) {
-            TargetPlayer.View -> {
-                ViewRemoteDocumentPlayer(
-                    document,
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    debugMode = 1,
-                )
-            }
-
-            TargetPlayer.Compose -> {
-                ComposeRemoteDocumentPlayer(
-                    document,
-                    size.width.toInt(),
-                    size.height.toInt(),
-                    debugMode = 1,
-                )
-            }
-        }
+        RemoteDocumentPlayer(
+            document,
+            size.width.toInt(),
+            size.height.toInt(),
+            debugMode = 1,
+            bitmapLoader = bitmapLoader,
+        )
     }
 
     fun ComposeContentTestRule.verifyScreenshot(
-        testName: TestName,
+        testName: Description,
         screenshotRule: AndroidXScreenshotTestRule,
     ) {
         val goldenScreenshotName = testName.goldenIdentifier()
@@ -195,8 +196,10 @@ class RemoteComposeScreenshotTestRule(
      * Valid characters for golden identifiers are [A-Za-z0-9_-] TestParameterInjector adds '[' +
      * parameter_values + ']' + ',' to the test name.
      */
-    fun TestName.goldenIdentifier(): String =
-        methodName.replace("[", "_").replace("]", "").replace(",", "_")
+    fun Description.goldenIdentifier(): String {
+        val testIdentifier = className.substringAfterLast('.') + "_" + methodName
+        return testIdentifier.replace("[\\[$]".toRegex(), "_").replace("]", "")
+    }
 
     internal companion object {
         fun displaySize(): Size {

@@ -218,7 +218,7 @@ public fun toFloat(a: Number): Float {
 }
 
 public fun arrayValue(array: Float, b: RFloat): RFloat {
-    return RFloat(b.writer, floatArrayOf(array, b.toFloat(), AnimatedFloatExpression.A_DEREF))
+    return RFloat(b.writer, floatArrayOf(array, *b.array, AnimatedFloatExpression.A_DEREF))
 }
 
 public fun max(a: RFloat, b: Float): RFloat {
@@ -370,6 +370,16 @@ public fun toDeg(a: RFloat): RFloat {
 /** convert degrees to radians */
 public fun toRad(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.RAD))
+}
+
+/** convert degrees to radians */
+public fun second(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD2))
+}
+
+/** convert degrees to radians */
+public fun first(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, AnimatedFloatExpression.CMD1))
 }
 
 /** NOISE_FROM operator calculate a random 0..1 number based on a seed */

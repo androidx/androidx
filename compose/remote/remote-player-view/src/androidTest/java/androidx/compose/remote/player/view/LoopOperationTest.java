@@ -30,6 +30,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;

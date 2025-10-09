@@ -72,7 +72,7 @@ annotation class Preview(
     val showSystemUi: Boolean = false,
     val showBackground: Boolean = false,
     val backgroundColor: Long = 0,
-    @UiMode val uiMode: Int = 0,
+    @AndroidUiMode val uiMode: Int = 0,
     @Device val device: String = Devices.DEFAULT,
     @Wallpaper val wallpaper: Int = Wallpapers.NONE,
 )

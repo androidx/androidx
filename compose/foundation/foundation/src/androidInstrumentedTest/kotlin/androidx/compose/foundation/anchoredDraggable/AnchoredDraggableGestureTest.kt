@@ -67,6 +67,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -464,36 +465,37 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
     }
 
     @Test
-    fun anchoredDraggable_targetValue_animationCancelledResetsTargetValueToClosest() = runBlocking {
-        rule.mainClock.autoAdvance = false
-        lateinit var scope: CoroutineScope
-        rule.setContent { scope = rememberCoroutineScope() }
+    fun anchoredDraggable_targetValue_animationCancelledResetsTargetValueToClosest() =
+        runTest(testDispatcher) {
+            rule.mainClock.autoAdvance = false
+            lateinit var scope: CoroutineScope
+            rule.setContent { scope = rememberCoroutineScope() }
 
-        val anchors = DraggableAnchors {
-            A at 0f
-            B at 250f
-            C at 500f
-        }
-        val state = createAnchoredDraggableState(initialValue = A, anchors = anchors)
+            val anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+                C at 500f
+            }
+            val state = createAnchoredDraggableState(initialValue = A, anchors = anchors)
 
-        assertThat(state.currentValue).isEqualTo(A)
-        assertThat(state.targetValue).isEqualTo(A)
+            assertThat(state.currentValue).isEqualTo(A)
+            assertThat(state.targetValue).isEqualTo(A)
 
-        scope.launch { state.animateTo(C, DefaultSnapAnimationSpec) }
+            scope.launch { state.animateTo(C, DefaultSnapAnimationSpec) }
 
-        // Advance until our closest anchor is B
-        while (state.requireOffset() < anchors.positionOf(B)) {
+            // Advance until our closest anchor is B
+            while (state.requireOffset() < anchors.positionOf(B)) {
+                rule.mainClock.advanceTimeByFrame()
+            }
+            assertThat(state.targetValue).isEqualTo(C)
+
+            // Take over the state to cancel the ongoing animation
+            state.anchoredDrag {}
             rule.mainClock.advanceTimeByFrame()
+
+            // B is the closest now so we should target it
+            assertThat(state.targetValue).isEqualTo(B)
         }
-        assertThat(state.targetValue).isEqualTo(C)
-
-        // Take over the state to cancel the ongoing animation
-        state.anchoredDrag {}
-        rule.mainClock.advanceTimeByFrame()
-
-        // B is the closest now so we should target it
-        assertThat(state.targetValue).isEqualTo(B)
-    }
 
     // TODO(b/360835763): Remove when removing the old overload
     @Test

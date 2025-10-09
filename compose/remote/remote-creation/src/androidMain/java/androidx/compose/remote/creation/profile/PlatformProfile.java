@@ -18,7 +18,7 @@ package androidx.compose.remote.creation.profile;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
-import androidx.compose.remote.core.Operations;
+import androidx.compose.remote.core.Profiles;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
 
@@ -34,7 +34,7 @@ public class PlatformProfile {
     public static final @NonNull Profile ANDROIDX =
             new Profile(
                     CoreDocument.DOCUMENT_API_LEVEL,
-                    Operations.PROFILE_ANDROIDX,
+                    Profiles.PROFILE_ANDROIDX,
                     new AndroidxPlatformServices(),
                     (width, height, contentDescription, profile) ->
                             new RemoteComposeWriterAndroid(
@@ -42,6 +42,6 @@ public class PlatformProfile {
                                     height,
                                     contentDescription,
                                     CoreDocument.DOCUMENT_API_LEVEL,
-                                    Operations.PROFILE_ANDROIDX,
+                                    Profiles.PROFILE_ANDROIDX,
                                     profile.getPlatform()));
 }

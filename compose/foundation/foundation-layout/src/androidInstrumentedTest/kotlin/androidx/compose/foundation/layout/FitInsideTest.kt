@@ -38,6 +38,7 @@ import androidx.core.view.WindowInsetsCompat.Type
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +51,7 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 30)
 @RunWith(JUnit4::class)
 class FitInsideTest {
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     @Before
     fun setup() {

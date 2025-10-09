@@ -35,7 +35,7 @@ import androidx.compose.remote.player.compose.utils.remoteToPorterDuffMode
 import androidx.compose.remote.player.compose.utils.toPaintingStyle
 import androidx.compose.remote.player.compose.utils.toStrokeCap
 import androidx.compose.remote.player.compose.utils.toStrokeJoin
-import androidx.compose.remote.player.view.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.graphics.NativePaint
 import java.io.File
 import java.io.IOException

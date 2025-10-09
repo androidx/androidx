@@ -113,7 +113,6 @@ import kotlinx.coroutines.launch
  * @see SharedTransitionScope.sharedElement
  * @see SharedTransitionScope.sharedBounds
  */
-@ExperimentalSharedTransitionApi
 @Composable
 public fun SharedTransitionLayout(
     modifier: Modifier = Modifier,
@@ -139,7 +138,6 @@ public fun SharedTransitionLayout(
  *
  * @param content The children composable to be laid out.
  */
-@ExperimentalSharedTransitionApi
 @Composable
 public fun SharedTransitionScope(content: @Composable SharedTransitionScope.(Modifier) -> Unit) {
     LookaheadScope {
@@ -149,7 +147,6 @@ public fun SharedTransitionScope(content: @Composable SharedTransitionScope.(Mod
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 private data class SharedTransitionScopeRootModifierElement(
     val sharedTransitionScope: SharedTransitionScopeImpl
 ) : ModifierNodeElement<SharedTransitionScopeRootModifierNode>() {
@@ -167,7 +164,6 @@ private data class SharedTransitionScopeRootModifierElement(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitionScopeImpl) :
     Modifier.Node(), LayoutModifierNode, ObserverModifierNode, DrawModifierNode {
     override fun onAttach() {
@@ -222,7 +218,6 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
  * [BoundsTransform] defines the animation spec used to animate from initial bounds to the target
  * bounds.
  */
-@ExperimentalSharedTransitionApi
 public fun interface BoundsTransform {
     /**
      * Returns a [FiniteAnimationSpec] for animating the bounds from [initialBounds] to
@@ -253,7 +248,6 @@ public fun interface BoundsTransform {
  * @sample androidx.compose.animation.samples.SharedElementInAnimatedContentSample
  */
 @Stable
-@ExperimentalSharedTransitionApi
 public interface SharedTransitionScope : LookaheadScope {
 
     /**
@@ -296,7 +290,7 @@ public interface SharedTransitionScope : LookaheadScope {
         }
 
         /**
-         * Returns the size of the place holder based on [contentSize] and [animatedSize]. Note:
+         * Returns the size of the placeholder based on [contentSize] and [animatedSize]. Note:
          * [contentSize] for exiting content is the size before it starts exiting. For entering
          * content, [contentSize] is the lookahead size of the content (i.e. target size of the
          * shared transition).
@@ -559,7 +553,7 @@ public interface SharedTransitionScope : LookaheadScope {
      * change. In such cases, [renderInOverlayDuringTransition] could be specified to false.
      *
      * During a shared element transition, the space that was occupied by the exiting shared element
-     * and the space that the entering shared element will take up are considered place holders.
+     * and the space that the entering shared element will take up are considered placeholders.
      * Their sizes during the shared element transition can be configured through [placeholderSize].
      * By default, it will be the same as the content size of the respective shared element. It can
      * also be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout
@@ -651,11 +645,11 @@ public interface SharedTransitionScope : LookaheadScope {
      * change. In such cases, [renderInOverlayDuringTransition] could be specified to false.
      *
      * During a shared bounds transition, the space that was occupied by the exiting shared bounds
-     * and the space that the entering shared bounds will take up are considered place holders.
-     * Their sizes during the shared element transition can be configured through [placeholderSize].
-     * By default, it will be the same as the content size of the respective shared bounds. It can
-     * also be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout
-     * an animated size to create a visual effect where the parent layout dynamically adjusts the
+     * and the space that the entering shared bounds will take up are considered placeholders. Their
+     * sizes during the shared element transition can be configured through [placeholderSize]. By
+     * default, it will be the same as the content size of the respective shared bounds. It can also
+     * be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout an
+     * animated size to create a visual effect where the parent layout dynamically adjusts the
      * layout to accommodate the animated size of the shared elements.
      *
      * @sample androidx.compose.animation.samples.SharedBoundsSample
@@ -758,7 +752,7 @@ public interface SharedTransitionScope : LookaheadScope {
      * change. In such cases, [renderInOverlayDuringTransition] could be specified to false.
      *
      * During a shared element transition, the space that was occupied by the exiting shared element
-     * and the space that the entering shared element will take up are considered place holders.
+     * and the space that the entering shared element will take up are considered placeholders.
      * Their sizes during the shared element transition can be configured through [placeholderSize].
      * By default, it will be the same as the content size of the respective shared element. It can
      * also be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout
@@ -1008,7 +1002,6 @@ public interface SharedTransitionScope : LookaheadScope {
     }
 }
 
-@ExperimentalSharedTransitionApi
 @Stable
 internal class SharedTransitionScopeImpl
 internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: CoroutineScope) :
@@ -1183,11 +1176,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
      * such cases, [renderInOverlayDuringTransition] could be specified to false.
      *
      * During a shared bounds transition, the space that was occupied by the exiting shared bounds
-     * and the space that the entering shared bounds will take up are considered place holders.
-     * Their sizes during the shared bounds transition can be configured through [placeholderSize].
-     * By default, it will be the same as the content size of the respective shared bounds. It can
-     * also be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout
-     * an animated size to create a visual effect where the parent layout dynamically adjusts the
+     * and the space that the entering shared bounds will take up are considered placeholders. Their
+     * sizes during the shared bounds transition can be configured through [placeholderSize]. By
+     * default, it will be the same as the content size of the respective shared bounds. It can also
+     * be set to [AnimatedSize] or any other [PlaceholderSize] to report to their parent layout an
+     * animated size to create a visual effect where the parent layout dynamically adjusts the
      * layout to accommodate the animated size of the shared bounds.
      *
      * // TODO: Evaluate whether this could become a public API
@@ -1490,7 +1483,6 @@ internal interface LayerRenderer {
 private val DefaultSpring =
     spring(stiffness = StiffnessMediumLow, visibilityThreshold = Rect.VisibilityThreshold)
 
-@ExperimentalSharedTransitionApi
 private val ParentClip: OverlayClip =
     object : OverlayClip {
         override fun getClipPath(
@@ -1506,7 +1498,6 @@ private val ParentClip: OverlayClip =
 internal const val VisualDebugging = false
 
 /** Caching immutable ScaleToBoundsImpl objects to avoid extra allocation */
-@ExperimentalSharedTransitionApi
 private fun ScaleToBoundsCached(
     contentScale: ContentScale,
     alignment: Alignment,
@@ -1543,21 +1534,17 @@ private val ContentScale.shouldCache: Boolean
             this === ContentScale.None ||
             this === ContentScale.Inside
 
-@ExperimentalSharedTransitionApi
 private val cachedScaleToBoundsImplMap =
     MutableScatterMap<ContentScale, MutableScatterMap<Alignment, ScaleToBoundsImpl>>()
 
 @Immutable
-@ExperimentalSharedTransitionApi
 internal class ScaleToBoundsImpl(val contentScale: ContentScale, val alignment: Alignment) :
     ResizeMode
 
-@ExperimentalSharedTransitionApi
 private object CachedSharedContentConfig : SharedTransitionScope.SharedContentConfig
 
-@ExperimentalSharedTransitionApi private object RemeasureImpl : ResizeMode
+private object RemeasureImpl : ResizeMode
 
-@ExperimentalSharedTransitionApi
 /**
  * Default values for [SharedTransitionScope.sharedElement], [SharedTransitionScope.sharedBounds]
  * and [SharedTransitionScope.renderInSharedTransitionScopeOverlay] related configurations.

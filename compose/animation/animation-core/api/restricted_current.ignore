@@ -129,8 +129,6 @@ RemovedFromKotlin: androidx.compose.animation.core.AnimationState#getLastFrameTi
     Source breaking change: method androidx.compose.animation.core.AnimationState.getLastFrameTimeNanos() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.AnimationState#getTypeConverter():
     Source breaking change: method androidx.compose.animation.core.AnimationState.getTypeConverter() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.animation.core.AnimationState#getValue():
-    Source breaking change: method androidx.compose.animation.core.AnimationState.getValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.AnimationState#getVelocity():
     Source breaking change: method androidx.compose.animation.core.AnimationState.getVelocity() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.AnimationState#getVelocityVector():
@@ -275,8 +273,6 @@ RemovedFromKotlin: androidx.compose.animation.core.InfiniteTransition.Transition
     Source breaking change: method androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState.getLabel() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState#getTypeConverter():
     Source breaking change: method androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState.getTypeConverter() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState#getValue():
-    Source breaking change: method androidx.compose.animation.core.InfiniteTransition.TransitionAnimationState.getValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.KeyframesSpec#getConfig():
     Source breaking change: method androidx.compose.animation.core.KeyframesSpec.getConfig() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.KeyframesSpecBaseConfig#getDelayMillis():
@@ -343,6 +339,8 @@ RemovedFromKotlin: androidx.compose.animation.core.Transition#getTransitions():
     Source breaking change: method androidx.compose.animation.core.Transition.getTransitions() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.Transition#isRunning():
     Source breaking change: method androidx.compose.animation.core.Transition.isRunning() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.Transition#seek(S, S, long):
+    Source breaking change: method androidx.compose.animation.core.Transition.seek(S,S,long) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.Transition.Segment#getInitialState():
     Source breaking change: method androidx.compose.animation.core.Transition.Segment.getInitialState() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.Transition.Segment#getTargetState():
@@ -355,8 +353,6 @@ RemovedFromKotlin: androidx.compose.animation.core.Transition.TransitionAnimatio
     Source breaking change: method androidx.compose.animation.core.Transition.TransitionAnimationState.getLabel() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.Transition.TransitionAnimationState#getTypeConverter():
     Source breaking change: method androidx.compose.animation.core.Transition.TransitionAnimationState.getTypeConverter() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.animation.core.Transition.TransitionAnimationState#getValue():
-    Source breaking change: method androidx.compose.animation.core.Transition.TransitionAnimationState.getValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.TransitionState#getCurrentState():
     Source breaking change: method androidx.compose.animation.core.TransitionState.getCurrentState() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.core.TransitionState#getTargetState():

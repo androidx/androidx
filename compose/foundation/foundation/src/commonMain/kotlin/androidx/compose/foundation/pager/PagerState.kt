@@ -748,7 +748,7 @@ internal constructor(
             } else {
                 scrollPosition.updateFromMeasureResult(result)
                 if (isCacheWindowForPagerEnabled) {
-                    if (prefetchingEnabled && result.beyondViewportPageCount < pageCount) {
+                    if (prefetchingEnabled) {
                         cacheWindowLogic.onVisibleItemsChanged(result)
                     }
                 } else {

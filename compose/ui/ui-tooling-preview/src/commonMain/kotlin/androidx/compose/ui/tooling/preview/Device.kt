@@ -63,22 +63,26 @@ object Devices {
 
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND] from the " +
-            "wear:wear-tooling-preview library instead"
+            "wear:wear-tooling-preview library instead",
+        level = DeprecationLevel.HIDDEN,
     )
     const val WEAR_OS_LARGE_ROUND = "id:wearos_large_round"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND] from the " +
-            "wear:wear-tooling-preview library instead"
+            "wear:wear-tooling-preview library instead",
+        level = DeprecationLevel.HIDDEN,
     )
     const val WEAR_OS_SMALL_ROUND = "id:wearos_small_round"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.SQUARE] from the " +
-            "wear:wear-tooling-preview library instead"
+            "wear:wear-tooling-preview library instead",
+        level = DeprecationLevel.HIDDEN,
     )
     const val WEAR_OS_SQUARE = "id:wearos_square"
     @Deprecated(
         "Use [androidx.wear.tooling.preview.devices.WearDevices.RECT] from the " +
-            "wear:wear-tooling-preview library instead"
+            "wear:wear-tooling-preview library instead",
+        level = DeprecationLevel.HIDDEN,
     )
     const val WEAR_OS_RECT = "id:wearos_rect"
 
@@ -138,10 +142,6 @@ object Devices {
             Devices.PIXEL_FOLD,
             Devices.PIXEL_TABLET,
             Devices.AUTOMOTIVE_1024p,
-            Devices.WEAR_OS_LARGE_ROUND,
-            Devices.WEAR_OS_SMALL_ROUND,
-            Devices.WEAR_OS_SQUARE,
-            Devices.WEAR_OS_RECT,
             Devices.PHONE,
             Devices.FOLDABLE,
             Devices.TABLET,

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
@@ -34,9 +35,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -48,6 +51,8 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -69,6 +74,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
@@ -80,7 +86,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PopupTest {
 
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     private val testTag = "testedPopup"
     private val offset = IntOffset(10, 10)
@@ -559,6 +565,152 @@ class PopupTest {
         rule.waitForIdle()
 
         // Should not have crashed.
+    }
+
+    @Test
+    fun nestedPopup_isPositioned_relativeToParentPopup() {
+        val anchorTag = "anchor"
+        val outerPopupTag = "outerPopup"
+        val innerPopupTag = "innerPopup"
+        var outerPopupPosition: Offset? = null
+        var innerPopupPosition: Offset? = null
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                // An anchor Box in the center of the screen to host the popups.
+                Box(Modifier.align(Alignment.Center).testTag(anchorTag)) {
+                    // The outer popup is aligned to the TopStart of the anchor.
+                    Popup(alignment = Alignment.TopStart) {
+                        Box(
+                            Modifier.size(100.dp).testTag(outerPopupTag).onGloballyPositioned {
+                                // Capture the absolute screen coordinates of the outer popup.
+                                outerPopupPosition = it.positionOnScreen()
+                            }
+                        ) {
+                            // The nested popup is aligned to the TopStart of its parent Box.
+                            Popup(alignment = Alignment.TopStart) {
+                                Box(
+                                    Modifier.size(20.dp)
+                                        .testTag(innerPopupTag)
+                                        .onGloballyPositioned {
+                                            // Capture the absolute screen coordinates of the inner
+                                            // popup.
+                                            innerPopupPosition = it.positionOnScreen()
+                                        }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Wait for composition and layout to complete.
+        rule.onNodeWithTag(anchorTag).assertExists()
+        rule.onNodeWithTag(outerPopupTag).assertIsDisplayed()
+        rule.onNodeWithTag(innerPopupTag).assertIsDisplayed()
+
+        rule.runOnIdle {
+            // Ensure that both popups were measured and their positions captured.
+            assertThat(outerPopupPosition).isNotNull()
+            assertThat(innerPopupPosition).isNotNull()
+
+            // Since both popups are Top-aligned (TopStart), their x- and y-coordinates
+            // on the screen should be the same. A small tolerance is used for floating-point
+            // values.
+            assertThat(innerPopupPosition!!.y).isWithin(0.1f).of(outerPopupPosition!!.y)
+            assertThat(innerPopupPosition.x).isWithin(0.1f).of(outerPopupPosition.x)
+        }
+    }
+
+    @Test
+    fun nestedPopupInScrollingContainer_scrollsWithContainer_andInnerAnchorsToOuter() {
+        val scrollTag = "scroll"
+        val outerPopupTag = "outerPopup"
+        val innerPopupTag = "innerPopup"
+        var outerPopupPositionOnScreen: Offset? = null
+        var innerPopupPositionOnScreen: Offset? = null
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item { Box(Modifier.requiredHeight(350.dp).testTag(scrollTag)) }
+                    item {
+                        Box(Modifier.size(200.dp)) {
+                            Popup(alignment = Alignment.TopStart) {
+                                Box(
+                                    Modifier.size(100.dp)
+                                        .testTag(outerPopupTag)
+                                        .onGloballyPositioned {
+                                            outerPopupPositionOnScreen = it.positionOnScreen()
+                                        }
+                                ) {
+                                    Popup(alignment = Alignment.TopStart) {
+                                        Box(
+                                            Modifier.size(50.dp)
+                                                .testTag(innerPopupTag)
+                                                .onGloballyPositioned {
+                                                    innerPopupPositionOnScreen =
+                                                        it.positionOnScreen()
+                                                }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    item { Box(Modifier.requiredHeight(1200.dp)) }
+                }
+            }
+        }
+
+        // Wait for composition and layout to complete.
+        rule.onNodeWithTag(scrollTag).assertExists()
+        rule.onNodeWithTag(outerPopupTag).assertIsDisplayed()
+        rule.onNodeWithTag(innerPopupTag).assertIsDisplayed()
+
+        // Capture initial positions
+        val (initialOuterPopupPosition, initialInnerPopupPosition) =
+            rule.runOnIdle {
+                val outerPos = outerPopupPositionOnScreen
+                val innerPos = innerPopupPositionOnScreen
+                assertThat(outerPos).isNotNull()
+                assertThat(innerPos).isNotNull()
+
+                // Verify inner popup anchors to outer popup initially
+                assertThat(innerPos!!.x).isWithin(1f).of(outerPos!!.x)
+                assertThat(innerPos.y).isWithin(1f).of(outerPos.y)
+
+                outerPos to innerPos
+            }
+
+        // Scroll the container by simulating a user swipe gesture.
+        var scrollDistance = 0f
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(scrollTag).performTouchInput {
+            scrollDistance = this.bottom - this.top
+            swipeUp()
+        }
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        // Now that we've synchronized, capture the new, stable positions.
+        val (scrolledOuterPopupPosition, scrolledInnerPopupPosition) =
+            rule.runOnIdle { outerPopupPositionOnScreen!! to innerPopupPositionOnScreen!! }
+
+        // Verify outer popup position updated by the scroll amount
+        assertThat(scrolledOuterPopupPosition.y)
+            .isWithin(1f) // Use a 1px tolerance for pixel comparisons
+            .of(initialOuterPopupPosition.y - scrollDistance)
+
+        // Verify inner popup position also updated by the scroll amount
+        assertThat(scrolledInnerPopupPosition.y)
+            .isWithin(1f)
+            .of(initialInnerPopupPosition.y - scrollDistance)
+
+        // Verify inner popup still anchors to outer popup after scroll
+        assertThat(scrolledInnerPopupPosition.x).isWithin(1f).of(scrolledOuterPopupPosition.x)
+        assertThat(scrolledInnerPopupPosition.y).isWithin(1f).of(scrolledOuterPopupPosition.y)
     }
 
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {

@@ -74,23 +74,23 @@ AddedAbstractMethod: androidx.compose.ui.window.PopupPositionProvider#calculateP
 ChangedType: androidx.compose.ui.graphics.TransformOrigin#copy(float, float):
     Source breaking change: Method androidx.compose.ui.graphics.TransformOrigin.copy has changed return type from long to androidx.compose.ui.graphics.TransformOrigin
 ChangedType: androidx.compose.ui.graphics.TransformOriginKt#TransformOrigin(float, float):
-    Binary breaking change: Method androidx.compose.ui.graphics.TransformOriginKt.TransformOrigin has changed return type from long to androidx.compose.ui.graphics.TransformOrigin
+    Source breaking change: Method androidx.compose.ui.graphics.TransformOriginKt.TransformOrigin has changed return type from long to androidx.compose.ui.graphics.TransformOrigin
 ChangedType: androidx.compose.ui.input.key.Key_androidKt#Key(int):
-    Binary breaking change: Method androidx.compose.ui.input.key.Key_androidKt.Key has changed return type from long to androidx.compose.ui.input.key.Key
+    Source breaking change: Method androidx.compose.ui.input.key.Key_androidKt.Key has changed return type from long to androidx.compose.ui.input.key.Key
 ChangedType: androidx.compose.ui.input.pointer.PointerEventKt#positionChange(androidx.compose.ui.input.pointer.PointerInputChange):
-    Binary breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChange has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChange has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.input.pointer.PointerEventKt#positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange):
-    Binary breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChangeIgnoreConsumed has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.input.pointer.PointerEventKt.positionChangeIgnoreConsumed has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.input.pointer.util.VelocityTracker#calculateVelocity():
     Source breaking change: Method androidx.compose.ui.input.pointer.util.VelocityTracker.calculateVelocity has changed return type from long to androidx.compose.ui.unit.Velocity
 ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInParent(androidx.compose.ui.layout.LayoutCoordinates):
-    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInParent has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInParent has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInRoot(androidx.compose.ui.layout.LayoutCoordinates):
-    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInRoot has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInRoot has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInWindow(androidx.compose.ui.layout.LayoutCoordinates):
-    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInWindow has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInWindow has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.layout.LayoutCoordinatesKt#positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates):
-    Binary breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionOnScreen has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.layout.LayoutCoordinatesKt.positionOnScreen has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.layout.ScaleFactor#copy(float, float):
     Source breaking change: Method androidx.compose.ui.layout.ScaleFactor.copy has changed return type from long to androidx.compose.ui.layout.ScaleFactor
 ChangedType: androidx.compose.ui.layout.ScaleFactor#div(float):
@@ -98,7 +98,7 @@ ChangedType: androidx.compose.ui.layout.ScaleFactor#div(float):
 ChangedType: androidx.compose.ui.layout.ScaleFactor#times(float):
     Source breaking change: Method androidx.compose.ui.layout.ScaleFactor.times has changed return type from long to androidx.compose.ui.layout.ScaleFactor
 ChangedType: androidx.compose.ui.layout.ScaleFactorKt#ScaleFactor(float, float):
-    Binary breaking change: Method androidx.compose.ui.layout.ScaleFactorKt.ScaleFactor has changed return type from long to androidx.compose.ui.layout.ScaleFactor
+    Source breaking change: Method androidx.compose.ui.layout.ScaleFactorKt.ScaleFactor has changed return type from long to androidx.compose.ui.layout.ScaleFactor
 ChangedType: androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle#getSize(int):
     Source breaking change: Method androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle.getSize has changed return type from long to androidx.compose.ui.unit.IntSize
 ChangedType: androidx.compose.ui.node.DpTouchBoundsExpansion#roundToTouchBoundsExpansion(androidx.compose.ui.unit.Density):
@@ -106,7 +106,7 @@ ChangedType: androidx.compose.ui.node.DpTouchBoundsExpansion#roundToTouchBoundsE
 ChangedType: androidx.compose.ui.node.TouchBoundsExpansion.Companion#Absolute(int, int, int, int):
     Source breaking change: Method androidx.compose.ui.node.TouchBoundsExpansion.Companion.Absolute has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
 ChangedType: androidx.compose.ui.node.TouchBoundsExpansionKt#TouchBoundsExpansion(int, int, int, int):
-    Binary breaking change: Method androidx.compose.ui.node.TouchBoundsExpansionKt.TouchBoundsExpansion has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
+    Source breaking change: Method androidx.compose.ui.node.TouchBoundsExpansionKt.TouchBoundsExpansion has changed return type from long to androidx.compose.ui.node.TouchBoundsExpansion
 ChangedType: androidx.compose.ui.res.ColorResources_androidKt#colorResource(int):
     Source breaking change: Method androidx.compose.ui.res.ColorResources_androidKt.colorResource has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.res.PrimitiveResources_androidKt#dimensionResource(int):
@@ -315,8 +315,8 @@ RemovedFromKotlin: androidx.compose.ui.BiasAlignment.Horizontal#getBias():
     Source breaking change: method androidx.compose.ui.BiasAlignment.Horizontal.getBias() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.BiasAlignment.Vertical#getBias():
     Source breaking change: method androidx.compose.ui.BiasAlignment.Vertical.getBias() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.ComposedModifierKt#materialize(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier):
-    Source breaking change: method androidx.compose.ui.ComposedModifierKt.materialize(androidx.compose.runtime.Composer,androidx.compose.ui.Modifier) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.ComposedModifierKt#materializeModifier(androidx.compose.runtime.Composer, androidx.compose.ui.Modifier):
+    Source breaking change: method androidx.compose.ui.ComposedModifierKt.materializeModifier(androidx.compose.runtime.Composer,androidx.compose.ui.Modifier) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.Modifier.Node#getCoroutineScope():
     Source breaking change: method androidx.compose.ui.Modifier.Node.getCoroutineScope() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.Modifier.Node#getNode():
@@ -325,8 +325,6 @@ RemovedFromKotlin: androidx.compose.ui.Modifier.Node#getShouldAutoInvalidate():
     Source breaking change: method androidx.compose.ui.Modifier.Node.getShouldAutoInvalidate() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.Modifier.Node#isAttached():
     Source breaking change: method androidx.compose.ui.Modifier.Node.isAttached() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.MotionDurationScale#getKey():
-    Source breaking change: method androidx.compose.ui.MotionDurationScale.getKey() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.MotionDurationScale#getScaleFactor():
     Source breaking change: method androidx.compose.ui.MotionDurationScale.getScaleFactor() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.autofill.AutofillNode#getAutofillTypes():
@@ -439,10 +437,6 @@ RemovedFromKotlin: androidx.compose.ui.draw.BuildDrawCacheParams#getDensity():
     Source breaking change: method androidx.compose.ui.draw.BuildDrawCacheParams.getDensity() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.draw.BuildDrawCacheParams#getLayoutDirection():
     Source breaking change: method androidx.compose.ui.draw.BuildDrawCacheParams.getLayoutDirection() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.draw.CacheDrawScope#getDensity():
-    Source breaking change: method androidx.compose.ui.draw.CacheDrawScope.getDensity() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.draw.CacheDrawScope#getFontScale():
-    Source breaking change: method androidx.compose.ui.draw.CacheDrawScope.getFontScale() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.draw.CacheDrawScope#getLayoutDirection():
     Source breaking change: method androidx.compose.ui.draw.CacheDrawScope.getLayoutDirection() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.draw.ShadowScope#getAlpha():
@@ -611,6 +605,8 @@ RemovedFromKotlin: androidx.compose.ui.graphics.GraphicsLayerScope#setTranslatio
     Source breaking change: method androidx.compose.ui.graphics.GraphicsLayerScope.setTranslationY(float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.GraphicsLayerScopeKt#getDefaultShadowColor():
     Source breaking change: method androidx.compose.ui.graphics.GraphicsLayerScopeKt.getDefaultShadowColor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.TransformOriginKt#TransformOrigin(float, float):
+    Source breaking change: method androidx.compose.ui.graphics.TransformOriginKt.TransformOrigin(float,float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.vector.ImageVector#getAutoMirror():
     Source breaking change: method androidx.compose.ui.graphics.vector.ImageVector.getAutoMirror() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.vector.ImageVector#getName():
@@ -679,6 +675,8 @@ RemovedFromKotlin: androidx.compose.ui.input.key.Key#getKeyCode():
     Source breaking change: method androidx.compose.ui.input.key.Key.getKeyCode() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.key.KeyEvent#getNativeKeyEvent():
     Source breaking change: method androidx.compose.ui.input.key.KeyEvent.getNativeKeyEvent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.input.key.Key_androidKt#Key(int):
+    Source breaking change: method androidx.compose.ui.input.key.Key_androidKt.Key(int) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher#getCoroutineScope():
     Source breaking change: method androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher.getCoroutineScope() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.pointer.AwaitPointerEventScope#getCurrentEvent():
@@ -701,6 +699,10 @@ RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerEvent#getClassificat
     Source breaking change: method androidx.compose.ui.input.pointer.PointerEvent.getClassification() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerEvent#getMotionEvent():
     Source breaking change: method androidx.compose.ui.input.pointer.PointerEvent.getMotionEvent() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerEventKt#positionChange(androidx.compose.ui.input.pointer.PointerInputChange):
+    Source breaking change: method androidx.compose.ui.input.pointer.PointerEventKt.positionChange(androidx.compose.ui.input.pointer.PointerInputChange) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerEventKt#positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange):
+    Source breaking change: method androidx.compose.ui.input.pointer.PointerEventKt.positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerIcon.Companion#getCrosshair():
     Source breaking change: method androidx.compose.ui.input.pointer.PointerIcon.Companion.getCrosshair() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.input.pointer.PointerIcon.Companion#getDefault():
@@ -811,6 +813,14 @@ RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinates#getProvidedAlign
     Source breaking change: method androidx.compose.ui.layout.LayoutCoordinates.getProvidedAlignmentLines() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinates#isAttached():
     Source breaking change: method androidx.compose.ui.layout.LayoutCoordinates.isAttached() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInParent(androidx.compose.ui.layout.LayoutCoordinates):
+    Source breaking change: method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInParent(androidx.compose.ui.layout.LayoutCoordinates) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInRoot(androidx.compose.ui.layout.LayoutCoordinates):
+    Source breaking change: method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInRoot(androidx.compose.ui.layout.LayoutCoordinates) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinatesKt#positionInWindow(androidx.compose.ui.layout.LayoutCoordinates):
+    Source breaking change: method androidx.compose.ui.layout.LayoutCoordinatesKt.positionInWindow(androidx.compose.ui.layout.LayoutCoordinates) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.LayoutCoordinatesKt#positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates):
+    Source breaking change: method androidx.compose.ui.layout.LayoutCoordinatesKt.positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.LayoutIdKt#getLayoutId(androidx.compose.ui.layout.Measurable):
     Source breaking change: method androidx.compose.ui.layout.LayoutIdKt.getLayoutId(androidx.compose.ui.layout.Measurable) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.LayoutIdParentData#getLayoutId():
@@ -839,6 +849,8 @@ RemovedFromKotlin: androidx.compose.ui.layout.LayoutInfo#isPlaced():
     Source breaking change: method androidx.compose.ui.layout.LayoutInfo.isPlaced() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.LayoutInfo_androidKt#getView(androidx.compose.ui.layout.LayoutInfo):
     Source breaking change: method androidx.compose.ui.layout.LayoutInfo_androidKt.getView(androidx.compose.ui.layout.LayoutInfo) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.LayoutKt#modifierMaterializerOf(androidx.compose.ui.Modifier):
+    Source breaking change: method androidx.compose.ui.layout.LayoutKt.modifierMaterializerOf(androidx.compose.ui.Modifier) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.LookaheadScope#getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope):
     Source breaking change: method androidx.compose.ui.layout.LookaheadScope.getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.MeasureResult#getAlignmentLines():
@@ -873,10 +885,6 @@ RemovedFromKotlin: androidx.compose.ui.layout.Placeable#getWidth():
     Source breaking change: method androidx.compose.ui.layout.Placeable.getWidth() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.Placeable.PlacementScope#getCoordinates():
     Source breaking change: method androidx.compose.ui.layout.Placeable.PlacementScope.getCoordinates() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.layout.Placeable.PlacementScope#getDensity():
-    Source breaking change: method androidx.compose.ui.layout.Placeable.PlacementScope.getDensity() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.layout.Placeable.PlacementScope#getFontScale():
-    Source breaking change: method androidx.compose.ui.layout.Placeable.PlacementScope.getFontScale() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.Placeable.PlacementScope#getParentLayoutDirection():
     Source breaking change: method androidx.compose.ui.layout.Placeable.PlacementScope.getParentLayoutDirection() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.Placeable.PlacementScope#getParentWidth():
@@ -893,6 +901,8 @@ RemovedFromKotlin: androidx.compose.ui.layout.RulerScope#getCoordinates():
     Source breaking change: method androidx.compose.ui.layout.RulerScope.getCoordinates() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.ScaleFactor#getPackedValue():
     Source breaking change: method androidx.compose.ui.layout.ScaleFactor.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.layout.ScaleFactorKt#ScaleFactor(float, float):
+    Source breaking change: method androidx.compose.ui.layout.ScaleFactorKt.ScaleFactor(float,float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.SubcomposeLayoutState.PausedPrecomposition#isComplete():
     Source breaking change: method androidx.compose.ui.layout.SubcomposeLayoutState.PausedPrecomposition.isComplete() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.layout.SubcomposeLayoutState.PrecomposedSlotHandle#getPlaceablesCount():
@@ -1039,6 +1049,8 @@ RemovedFromKotlin: androidx.compose.ui.node.SemanticsModifierNode#getShouldMerge
     Source breaking change: method androidx.compose.ui.node.SemanticsModifierNode.getShouldMergeDescendantSemantics() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.node.SemanticsModifierNode#isImportantForBounds():
     Source breaking change: method androidx.compose.ui.node.SemanticsModifierNode.isImportantForBounds() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.node.TouchBoundsExpansionKt#TouchBoundsExpansion(int, int, int, int):
+    Source breaking change: method androidx.compose.ui.node.TouchBoundsExpansionKt.TouchBoundsExpansion(int,int,int,int) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.node.TraversableNode#getTraverseKey():
     Source breaking change: method androidx.compose.ui.node.TraversableNode.getTraverseKey() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.platform.AbstractComposeView#getHasComposition():
@@ -1127,8 +1139,6 @@ RemovedFromKotlin: androidx.compose.ui.platform.CompositionLocalsKt#getLocalView
     Source breaking change: method androidx.compose.ui.platform.CompositionLocalsKt.getLocalViewConfiguration() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.platform.CompositionLocalsKt#getLocalWindowInfo():
     Source breaking change: method androidx.compose.ui.platform.CompositionLocalsKt.getLocalWindowInfo() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.platform.InfiniteAnimationPolicy#getKey():
-    Source breaking change: method androidx.compose.ui.platform.InfiniteAnimationPolicy.getKey() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.platform.InspectableModifier#getEnd():
     Source breaking change: method androidx.compose.ui.platform.InspectableModifier.getEnd() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.platform.InspectableValue#getInspectableElements():

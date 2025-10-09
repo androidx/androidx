@@ -25,7 +25,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.frontend.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.compose.test.util.getCoreDocument
 import androidx.compose.remote.test.screenshot.TargetPlayer
 import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
@@ -42,13 +42,29 @@ import org.junit.runners.JUnit4
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
-class ThemeTest {
+class ThemeComposeTest : ThemeTest() {
     @get:Rule
-    val remoteComposeTestRule =
+    override val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             targetPlayer = TargetPlayer.Compose,
         )
+}
+
+@MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(JUnit4::class)
+class ThemeViewTest() : ThemeTest() {
+    @get:Rule
+    override val remoteComposeTestRule =
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            targetPlayer = TargetPlayer.View,
+        )
+}
+
+abstract class ThemeTest() {
+    abstract val remoteComposeTestRule: RemoteComposeScreenshotTestRule
 
     @Test
     fun nightUnspecifiedDarkMode_darkThemeProvided_showsDarkTheme() {

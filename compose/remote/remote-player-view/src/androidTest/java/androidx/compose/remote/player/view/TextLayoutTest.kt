@@ -23,8 +23,9 @@ import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices
-import androidx.compose.remote.player.view.platform.AndroidPaintContext
-import androidx.compose.remote.player.view.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.platform.AndroidPaintContext
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.test.filters.SdkSuppress
 import java.io.ByteArrayInputStream
 import org.junit.Rule

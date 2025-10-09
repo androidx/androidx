@@ -28,6 +28,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +38,7 @@ private const val invalid = "Not applicable to a 2D focus search."
 
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalThreeItemsTest(param: Param) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.

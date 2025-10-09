@@ -33,6 +33,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 
 /**
@@ -41,7 +42,8 @@ import org.junit.Rule
  */
 abstract class AnchoredDraggableBackwardsCompatibleTest(private val testNewBehavior: Boolean) {
 
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(testDispatcher)
 
     fun <T> createStateAndModifier(
         initialValue: T,

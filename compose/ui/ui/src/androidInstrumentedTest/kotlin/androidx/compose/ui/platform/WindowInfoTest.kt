@@ -25,6 +25,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @LargeTest
@@ -32,7 +33,7 @@ import org.junit.Test
 class WindowInfoTest {
     @Test
     fun launchFragment_windowInfo_isWindowFocused_true() {
-        runComposeUiTest {
+        runComposeUiTest(StandardTestDispatcher()) {
             launchFragmentInContainer<TestFragment>().onFragment {
                 waitUntil("isWindowFocused", timeoutMillis = 5_000) { it.isWindowFocused == true }
             }

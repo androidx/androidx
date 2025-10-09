@@ -37,13 +37,14 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 /** Regression test for [b/391378120](https://issuetracker.google.com/391378120). */
 @MediumTest
 class BasicTextUnexpectedWrappingRegressionTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val fontResource = R.font.overshoot_test
     private val regularExtentChar = "a" // width of 1, and a matching extent of 1

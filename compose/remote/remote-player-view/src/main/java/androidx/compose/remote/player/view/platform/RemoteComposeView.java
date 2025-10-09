@@ -41,7 +41,8 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
-import androidx.compose.remote.player.view.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

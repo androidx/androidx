@@ -590,6 +590,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
             // Assert
             assertThat(pagerState.targetPage).isEqualTo(previousTargetPage)
             onPager().performTouchInput { up() }
+            rule.waitForIdle()
             runBlocking { resetTestCase() }
         }
     }
@@ -962,6 +963,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
             }
 
             onPager().performTouchInput { up() }
+            rule.waitForIdle()
             runBlocking { resetTestCase(initialPage = 5) }
         }
     }
@@ -1012,6 +1014,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
             }
 
             onPager().performTouchInput { up() }
+            rule.waitForIdle()
             runBlocking { resetTestCase(initialPage = 5) }
         }
     }
@@ -1044,7 +1047,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
             // Act
             // Moving forward
             rule.runOnIdle { scope.launch { pagerState.animateScrollToPage(DefaultPageCount - 1) } }
-
+            rule.mainClock.advanceTimeByFrame()
             // Settled page shouldn't change whilst scroll is in progress.
             assertTrue { pagerState.isScrollInProgress }
             assertTrue { settledPageChanges == 0 }
@@ -1168,6 +1171,7 @@ class PagerStateTest : SingleParamBasePagerTest() {
                 assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(-0.25f)
             }
             onPager().performTouchInput { up() }
+            rule.waitForIdle()
             runBlocking { resetTestCase(initialPage = DefaultPageCount / 2) }
         }
     }

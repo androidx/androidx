@@ -39,6 +39,7 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +50,7 @@ private const val Tag: String = "tag"
 @MediumTest
 @RunWith(Parameterized::class)
 class FocusSearchInteropTest(private val keyEvent: AndroidKeyEvent) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun singleFocusableComposable() {

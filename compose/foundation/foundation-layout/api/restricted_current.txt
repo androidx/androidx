@@ -321,8 +321,10 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues PaddingValues-a9UjIt4(float, float, float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absolutePadding(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absolutePadding-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static float calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static float calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp all);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp horizontal, optional androidx.compose.ui.unit.Dp vertical);
@@ -341,6 +343,8 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly public float calculateRightPadding-u2uoSUM(androidx.compose.ui.unit.LayoutDirection);
     method @KotlinOnly public androidx.compose.ui.unit.Dp calculateTopPadding();
     method @BytecodeOnly public float calculateTopPadding-D9Ej5fM();
+    method @androidx.compose.runtime.Stable public default operator androidx.compose.foundation.layout.PaddingValues minus(androidx.compose.foundation.layout.PaddingValues other);
+    method @androidx.compose.runtime.Stable public default operator androidx.compose.foundation.layout.PaddingValues plus(androidx.compose.foundation.layout.PaddingValues other);
     field public static final androidx.compose.foundation.layout.PaddingValues.Companion Companion;
   }
 

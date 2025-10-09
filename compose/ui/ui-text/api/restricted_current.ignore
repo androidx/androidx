@@ -26,9 +26,9 @@ ChangedType: androidx.compose.ui.text.Paragraph#getWordBoundary(int):
 ChangedType: androidx.compose.ui.text.TextLayoutResult#getWordBoundary(int):
     Source breaking change: Method androidx.compose.ui.text.TextLayoutResult.getWordBoundary has changed return type from long to androidx.compose.ui.text.TextRange
 ChangedType: androidx.compose.ui.text.TextRangeKt#TextRange(int):
-    Binary breaking change: Method androidx.compose.ui.text.TextRangeKt.TextRange has changed return type from long to androidx.compose.ui.text.TextRange
+    Source breaking change: Method androidx.compose.ui.text.TextRangeKt.TextRange has changed return type from long to androidx.compose.ui.text.TextRange
 ChangedType: androidx.compose.ui.text.TextRangeKt#TextRange(int, int):
-    Binary breaking change: Method androidx.compose.ui.text.TextRangeKt.TextRange has changed return type from long to androidx.compose.ui.text.TextRange
+    Source breaking change: Method androidx.compose.ui.text.TextRangeKt.TextRange has changed return type from long to androidx.compose.ui.text.TextRange
 
 
 RemovedDeprecatedMethod: androidx.compose.ui.text.MultiParagraph#paint(androidx.compose.ui.graphics.Canvas, long, androidx.compose.ui.graphics.Shadow, androidx.compose.ui.text.style.TextDecoration):
@@ -281,6 +281,10 @@ RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getPressedStyle():
     Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getPressedStyle() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.text.TextLinkStyles#getStyle():
     Source breaking change: method androidx.compose.ui.text.TextLinkStyles.getStyle() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextRangeKt#TextRange(int):
+    Source breaking change: method androidx.compose.ui.text.TextRangeKt.TextRange(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.text.TextRangeKt#TextRange(int, int):
+    Source breaking change: method androidx.compose.ui.text.TextRangeKt.TextRange(int,int) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getAlpha():
     Source breaking change: method androidx.compose.ui.text.TextStyle.getAlpha() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.text.TextStyle#getBrush():

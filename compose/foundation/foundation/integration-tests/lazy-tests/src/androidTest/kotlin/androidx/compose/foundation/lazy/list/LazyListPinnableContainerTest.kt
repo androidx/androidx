@@ -57,6 +57,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -72,7 +73,7 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
         fun params() = arrayOf(true, false)
     }
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private var pinnableContainer: PinnableContainer? = null
 

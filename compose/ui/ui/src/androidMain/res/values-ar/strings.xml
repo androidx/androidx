@@ -36,5 +36,5 @@
     <string name="range_start" msgid="7097486360902471446">"بداية النطاق"</string>
     <string name="range_end" msgid="5941395253238309765">"نهاية النطاق"</string>
     <string name="snackbar_pane_title" msgid="2792228137354697160">"تنبيه"</string>
-    <string name="autofill" msgid="9020470552698189270">"الملء التلقائي"</string>
+    <string name="androidx_compose_ui_autofill" msgid="9020470552698189270">"الملء التلقائي"</string>
 </resources>

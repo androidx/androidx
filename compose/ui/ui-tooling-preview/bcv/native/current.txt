@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.ui:ui-tooling-preview>
+open annotation class androidx.compose.ui.tooling.preview/AndroidUiMode : kotlin/Annotation { // androidx.compose.ui.tooling.preview/AndroidUiMode|null[0]
+    constructor <init>() // androidx.compose.ui.tooling.preview/AndroidUiMode.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.ui.tooling.preview/Preview : kotlin/Annotation { // androidx.compose.ui.tooling.preview/Preview|null[0]
     constructor <init>(kotlin/String = ..., kotlin/String = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/String = ..., kotlin/Float = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Long = ..., kotlin/Int = ..., kotlin/String = ..., kotlin/Int = ...) // androidx.compose.ui.tooling.preview/Preview.<init>|<init>(kotlin.String;kotlin.String;kotlin.Int;kotlin.Int;kotlin.Int;kotlin.String;kotlin.Float;kotlin.Boolean;kotlin.Boolean;kotlin.Long;kotlin.Int;kotlin.String;kotlin.Int){}[0]
 
@@ -62,10 +66,6 @@ open annotation class androidx.compose.ui.tooling.preview/PreviewScreenSizes : k
     constructor <init>() // androidx.compose.ui.tooling.preview/PreviewScreenSizes.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.compose.ui.tooling.preview/UiMode : kotlin/Annotation { // androidx.compose.ui.tooling.preview/UiMode|null[0]
-    constructor <init>() // androidx.compose.ui.tooling.preview/UiMode.<init>|<init>(){}[0]
-}
-
 abstract interface <#A: kotlin/Any?> androidx.compose.ui.tooling.preview/PreviewParameterProvider { // androidx.compose.ui.tooling.preview/PreviewParameterProvider|null[0]
     abstract val values // androidx.compose.ui.tooling.preview/PreviewParameterProvider.values|{}values[0]
         abstract fun <get-values>(): kotlin.sequences/Sequence<#A> // androidx.compose.ui.tooling.preview/PreviewParameterProvider.values.<get-values>|<get-values>(){}[0]
@@ -88,6 +88,35 @@ open class androidx.compose.ui.tooling.preview.datasource/LoremIpsum : androidx.
 
     open val values // androidx.compose.ui.tooling.preview.datasource/LoremIpsum.values|{}values[0]
         open fun <get-values>(): kotlin.sequences/Sequence<kotlin/String> // androidx.compose.ui.tooling.preview.datasource/LoremIpsum.values.<get-values>|<get-values>(){}[0]
+}
+
+final object androidx.compose.ui.tooling.preview/AndroidUiModes { // androidx.compose.ui.tooling.preview/AndroidUiModes|null[0]
+    final const val UI_MODE_NIGHT_MASK // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_MASK|{}UI_MODE_NIGHT_MASK[0]
+        final fun <get-UI_MODE_NIGHT_MASK>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_MASK.<get-UI_MODE_NIGHT_MASK>|<get-UI_MODE_NIGHT_MASK>(){}[0]
+    final const val UI_MODE_NIGHT_NO // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_NO|{}UI_MODE_NIGHT_NO[0]
+        final fun <get-UI_MODE_NIGHT_NO>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_NO.<get-UI_MODE_NIGHT_NO>|<get-UI_MODE_NIGHT_NO>(){}[0]
+    final const val UI_MODE_NIGHT_UNDEFINED // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_UNDEFINED|{}UI_MODE_NIGHT_UNDEFINED[0]
+        final fun <get-UI_MODE_NIGHT_UNDEFINED>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_UNDEFINED.<get-UI_MODE_NIGHT_UNDEFINED>|<get-UI_MODE_NIGHT_UNDEFINED>(){}[0]
+    final const val UI_MODE_NIGHT_YES // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_YES|{}UI_MODE_NIGHT_YES[0]
+        final fun <get-UI_MODE_NIGHT_YES>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_NIGHT_YES.<get-UI_MODE_NIGHT_YES>|<get-UI_MODE_NIGHT_YES>(){}[0]
+    final const val UI_MODE_TYPE_APPLIANCE // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_APPLIANCE|{}UI_MODE_TYPE_APPLIANCE[0]
+        final fun <get-UI_MODE_TYPE_APPLIANCE>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_APPLIANCE.<get-UI_MODE_TYPE_APPLIANCE>|<get-UI_MODE_TYPE_APPLIANCE>(){}[0]
+    final const val UI_MODE_TYPE_CAR // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_CAR|{}UI_MODE_TYPE_CAR[0]
+        final fun <get-UI_MODE_TYPE_CAR>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_CAR.<get-UI_MODE_TYPE_CAR>|<get-UI_MODE_TYPE_CAR>(){}[0]
+    final const val UI_MODE_TYPE_DESK // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_DESK|{}UI_MODE_TYPE_DESK[0]
+        final fun <get-UI_MODE_TYPE_DESK>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_DESK.<get-UI_MODE_TYPE_DESK>|<get-UI_MODE_TYPE_DESK>(){}[0]
+    final const val UI_MODE_TYPE_MASK // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_MASK|{}UI_MODE_TYPE_MASK[0]
+        final fun <get-UI_MODE_TYPE_MASK>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_MASK.<get-UI_MODE_TYPE_MASK>|<get-UI_MODE_TYPE_MASK>(){}[0]
+    final const val UI_MODE_TYPE_NORMAL // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_NORMAL|{}UI_MODE_TYPE_NORMAL[0]
+        final fun <get-UI_MODE_TYPE_NORMAL>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_NORMAL.<get-UI_MODE_TYPE_NORMAL>|<get-UI_MODE_TYPE_NORMAL>(){}[0]
+    final const val UI_MODE_TYPE_TELEVISION // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_TELEVISION|{}UI_MODE_TYPE_TELEVISION[0]
+        final fun <get-UI_MODE_TYPE_TELEVISION>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_TELEVISION.<get-UI_MODE_TYPE_TELEVISION>|<get-UI_MODE_TYPE_TELEVISION>(){}[0]
+    final const val UI_MODE_TYPE_UNDEFINED // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_UNDEFINED|{}UI_MODE_TYPE_UNDEFINED[0]
+        final fun <get-UI_MODE_TYPE_UNDEFINED>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_UNDEFINED.<get-UI_MODE_TYPE_UNDEFINED>|<get-UI_MODE_TYPE_UNDEFINED>(){}[0]
+    final const val UI_MODE_TYPE_VR_HEADSET // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_VR_HEADSET|{}UI_MODE_TYPE_VR_HEADSET[0]
+        final fun <get-UI_MODE_TYPE_VR_HEADSET>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_VR_HEADSET.<get-UI_MODE_TYPE_VR_HEADSET>|<get-UI_MODE_TYPE_VR_HEADSET>(){}[0]
+    final const val UI_MODE_TYPE_WATCH // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_WATCH|{}UI_MODE_TYPE_WATCH[0]
+        final fun <get-UI_MODE_TYPE_WATCH>(): kotlin/Int // androidx.compose.ui.tooling.preview/AndroidUiModes.UI_MODE_TYPE_WATCH.<get-UI_MODE_TYPE_WATCH>|<get-UI_MODE_TYPE_WATCH>(){}[0]
 }
 
 final object androidx.compose.ui.tooling.preview/Devices { // androidx.compose.ui.tooling.preview/Devices|null[0]
@@ -189,35 +218,6 @@ final object androidx.compose.ui.tooling.preview/Devices { // androidx.compose.u
         final fun <get-WEAR_OS_SQUARE>(): kotlin/String // androidx.compose.ui.tooling.preview/Devices.WEAR_OS_SQUARE.<get-WEAR_OS_SQUARE>|<get-WEAR_OS_SQUARE>(){}[0]
 }
 
-final object androidx.compose.ui.tooling.preview/UiModes { // androidx.compose.ui.tooling.preview/UiModes|null[0]
-    final const val UI_MODE_NIGHT_MASK // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_MASK|{}UI_MODE_NIGHT_MASK[0]
-        final fun <get-UI_MODE_NIGHT_MASK>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_MASK.<get-UI_MODE_NIGHT_MASK>|<get-UI_MODE_NIGHT_MASK>(){}[0]
-    final const val UI_MODE_NIGHT_NO // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_NO|{}UI_MODE_NIGHT_NO[0]
-        final fun <get-UI_MODE_NIGHT_NO>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_NO.<get-UI_MODE_NIGHT_NO>|<get-UI_MODE_NIGHT_NO>(){}[0]
-    final const val UI_MODE_NIGHT_UNDEFINED // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_UNDEFINED|{}UI_MODE_NIGHT_UNDEFINED[0]
-        final fun <get-UI_MODE_NIGHT_UNDEFINED>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_UNDEFINED.<get-UI_MODE_NIGHT_UNDEFINED>|<get-UI_MODE_NIGHT_UNDEFINED>(){}[0]
-    final const val UI_MODE_NIGHT_YES // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_YES|{}UI_MODE_NIGHT_YES[0]
-        final fun <get-UI_MODE_NIGHT_YES>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_NIGHT_YES.<get-UI_MODE_NIGHT_YES>|<get-UI_MODE_NIGHT_YES>(){}[0]
-    final const val UI_MODE_TYPE_APPLIANCE // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_APPLIANCE|{}UI_MODE_TYPE_APPLIANCE[0]
-        final fun <get-UI_MODE_TYPE_APPLIANCE>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_APPLIANCE.<get-UI_MODE_TYPE_APPLIANCE>|<get-UI_MODE_TYPE_APPLIANCE>(){}[0]
-    final const val UI_MODE_TYPE_CAR // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_CAR|{}UI_MODE_TYPE_CAR[0]
-        final fun <get-UI_MODE_TYPE_CAR>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_CAR.<get-UI_MODE_TYPE_CAR>|<get-UI_MODE_TYPE_CAR>(){}[0]
-    final const val UI_MODE_TYPE_DESK // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_DESK|{}UI_MODE_TYPE_DESK[0]
-        final fun <get-UI_MODE_TYPE_DESK>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_DESK.<get-UI_MODE_TYPE_DESK>|<get-UI_MODE_TYPE_DESK>(){}[0]
-    final const val UI_MODE_TYPE_MASK // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_MASK|{}UI_MODE_TYPE_MASK[0]
-        final fun <get-UI_MODE_TYPE_MASK>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_MASK.<get-UI_MODE_TYPE_MASK>|<get-UI_MODE_TYPE_MASK>(){}[0]
-    final const val UI_MODE_TYPE_NORMAL // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_NORMAL|{}UI_MODE_TYPE_NORMAL[0]
-        final fun <get-UI_MODE_TYPE_NORMAL>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_NORMAL.<get-UI_MODE_TYPE_NORMAL>|<get-UI_MODE_TYPE_NORMAL>(){}[0]
-    final const val UI_MODE_TYPE_TELEVISION // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_TELEVISION|{}UI_MODE_TYPE_TELEVISION[0]
-        final fun <get-UI_MODE_TYPE_TELEVISION>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_TELEVISION.<get-UI_MODE_TYPE_TELEVISION>|<get-UI_MODE_TYPE_TELEVISION>(){}[0]
-    final const val UI_MODE_TYPE_UNDEFINED // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_UNDEFINED|{}UI_MODE_TYPE_UNDEFINED[0]
-        final fun <get-UI_MODE_TYPE_UNDEFINED>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_UNDEFINED.<get-UI_MODE_TYPE_UNDEFINED>|<get-UI_MODE_TYPE_UNDEFINED>(){}[0]
-    final const val UI_MODE_TYPE_VR_HEADSET // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_VR_HEADSET|{}UI_MODE_TYPE_VR_HEADSET[0]
-        final fun <get-UI_MODE_TYPE_VR_HEADSET>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_VR_HEADSET.<get-UI_MODE_TYPE_VR_HEADSET>|<get-UI_MODE_TYPE_VR_HEADSET>(){}[0]
-    final const val UI_MODE_TYPE_WATCH // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_WATCH|{}UI_MODE_TYPE_WATCH[0]
-        final fun <get-UI_MODE_TYPE_WATCH>(): kotlin/Int // androidx.compose.ui.tooling.preview/UiModes.UI_MODE_TYPE_WATCH.<get-UI_MODE_TYPE_WATCH>|<get-UI_MODE_TYPE_WATCH>(){}[0]
-}
-
 final object androidx.compose.ui.tooling.preview/Wallpapers { // androidx.compose.ui.tooling.preview/Wallpapers|null[0]
     final const val BLUE_DOMINATED_EXAMPLE // androidx.compose.ui.tooling.preview/Wallpapers.BLUE_DOMINATED_EXAMPLE|{}BLUE_DOMINATED_EXAMPLE[0]
         final fun <get-BLUE_DOMINATED_EXAMPLE>(): kotlin/Int // androidx.compose.ui.tooling.preview/Wallpapers.BLUE_DOMINATED_EXAMPLE.<get-BLUE_DOMINATED_EXAMPLE>|<get-BLUE_DOMINATED_EXAMPLE>(){}[0]
@@ -233,12 +233,12 @@ final object androidx.compose.ui.tooling.preview/Wallpapers { // androidx.compos
 
 final val androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop // androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop|#static{}androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop[0]
 final val androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop // androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop|#static{}androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop[0]
+final val androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop|#static{}androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop[0]
 final val androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Devices$stableprop // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Devices$stableprop|#static{}androidx_compose_ui_tooling_preview_Devices$stableprop[0]
-final val androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_UiModes$stableprop // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_UiModes$stableprop|#static{}androidx_compose_ui_tooling_preview_UiModes$stableprop[0]
 final val androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Wallpapers$stableprop // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Wallpapers$stableprop|#static{}androidx_compose_ui_tooling_preview_Wallpapers$stableprop[0]
 
 final fun androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop_getter|androidx_compose_ui_tooling_preview_datasource_CollectionPreviewParameterProvider$stableprop_getter(){}[0]
 final fun androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview.datasource/androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop_getter|androidx_compose_ui_tooling_preview_datasource_LoremIpsum$stableprop_getter(){}[0]
+final fun androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop_getter|androidx_compose_ui_tooling_preview_AndroidUiModes$stableprop_getter(){}[0]
 final fun androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Devices$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Devices$stableprop_getter|androidx_compose_ui_tooling_preview_Devices$stableprop_getter(){}[0]
-final fun androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_UiModes$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_UiModes$stableprop_getter|androidx_compose_ui_tooling_preview_UiModes$stableprop_getter(){}[0]
 final fun androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Wallpapers$stableprop_getter(): kotlin/Int // androidx.compose.ui.tooling.preview/androidx_compose_ui_tooling_preview_Wallpapers$stableprop_getter|androidx_compose_ui_tooling_preview_Wallpapers$stableprop_getter(){}[0]

@@ -20,7 +20,6 @@ package androidx.compose.ui.layout
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
@@ -146,6 +145,7 @@ import kotlin.test.assertNotNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -156,7 +156,7 @@ private const val Debug = false
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class LookaheadScopeTest {
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
@@ -3701,7 +3701,6 @@ class LookaheadScopeTest {
      * Test based on SharedElementClipReveal demo that verifies skipToLookaheadPosition maintains
      * position during shared element transitions.
      */
-    @OptIn(ExperimentalSharedTransitionApi::class)
     @Test
     fun testSharedElementClipRevealWithskipToLookaheadPosition() {
         var target by mutableStateOf(true)
@@ -3797,7 +3796,6 @@ class LookaheadScopeTest {
      * Test that verifies skipToLookaheadPosition works with multiple shared elements in a complex
      * layout scenario.
      */
-    @OptIn(ExperimentalSharedTransitionApi::class)
     @Test
     fun testMultipleSharedElementsWithskipToLookaheadPosition() {
         var target by mutableStateOf(true)
@@ -3955,7 +3953,6 @@ class LookaheadScopeTest {
     }
 
     /** Test that verifies skipToLookaheadPosition works correctly with conditional activation. */
-    @OptIn(ExperimentalSharedTransitionApi::class)
     @Test
     fun testConditionalskipToLookaheadPosition() {
         var isEnabled by mutableStateOf(false)

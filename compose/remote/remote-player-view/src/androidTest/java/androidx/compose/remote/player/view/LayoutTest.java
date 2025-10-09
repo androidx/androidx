@@ -47,6 +47,7 @@ import androidx.compose.remote.creation.actions.ValueIntegerChange;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 import androidx.compose.remote.creation.modifiers.RoundedRectShape;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Rule;

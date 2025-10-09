@@ -18,6 +18,7 @@ package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -1389,6 +1390,86 @@ class SnapshotTests {
                 state.intValue = 2
             }
         }
+    }
+
+    @Test // b/442791065 -- test adapted from the report.
+    fun testMergePolicy() {
+        var mergeCalled = false
+        var lastSeenPrevious = -1
+        var lastSeenCurrent = -1
+        var lastSeenApplied = -1
+
+        fun myPolicy(): SnapshotMutationPolicy<Int> =
+            object : SnapshotMutationPolicy<Int> {
+                override fun equivalent(a: Int, b: Int): Boolean = a == b
+
+                override fun merge(previous: Int, current: Int, applied: Int): Int? {
+                    mergeCalled = true
+                    lastSeenPrevious = previous
+                    lastSeenCurrent = current
+                    lastSeenApplied = applied
+                    return applied
+                }
+            }
+
+        val initialValue = 0
+        val snapshot1Value = 10
+        val snapshot2Value = 20
+        val snapshot3Value = 30
+        val snapshot4Value = 40
+        val state = mutableStateOf(initialValue, myPolicy())
+        val snapshot1 = takeMutableSnapshot()
+        val snapshot2 = takeMutableSnapshot()
+        val snapshot3 = takeMutableSnapshot()
+        val snapshot4 = takeMutableSnapshot()
+
+        snapshot1.enter { state.value = snapshot1Value }
+        snapshot2.enter { state.value = snapshot2Value }
+        snapshot3.enter { state.value = snapshot3Value }
+        snapshot4.enter { state.value = snapshot4Value }
+
+        fun testApply(
+            expectedPrevious: Int,
+            expectedCurrent: Int,
+            expectedApplied: Int,
+            snapshot: MutableSnapshot,
+        ) {
+            mergeCalled = false
+            lastSeenPrevious = -1
+            lastSeenCurrent = -1
+            lastSeenApplied = -1
+            snapshot.apply()
+            assertTrue(mergeCalled)
+            assertEquals(expectedPrevious, lastSeenPrevious)
+            assertEquals(expectedCurrent, lastSeenCurrent)
+            assertEquals(expectedApplied, lastSeenApplied)
+            assertEquals(expectedApplied, state.value)
+        }
+
+        // No merge expected for the first apply
+        snapshot1.apply()
+        assertFalse(mergeCalled)
+
+        testApply(
+            expectedPrevious = initialValue,
+            expectedCurrent = snapshot1Value,
+            expectedApplied = snapshot2Value,
+            snapshot2,
+        )
+
+        testApply(
+            expectedPrevious = initialValue,
+            expectedCurrent = snapshot2Value,
+            expectedApplied = snapshot3Value,
+            snapshot3,
+        )
+
+        testApply(
+            expectedPrevious = initialValue,
+            expectedCurrent = snapshot3Value,
+            expectedApplied = snapshot4Value,
+            snapshot4,
+        )
     }
 
     private fun usedRecords(state: StateObject): Int {

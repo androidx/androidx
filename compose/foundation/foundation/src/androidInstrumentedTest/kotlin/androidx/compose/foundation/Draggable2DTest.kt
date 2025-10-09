@@ -60,7 +60,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -72,7 +73,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Draggable2DTest {
 
-    @get:Rule val rule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(testDispatcher)
 
     private val draggable2DBoxTag = "drag2DTag"
 
@@ -375,39 +377,40 @@ class Draggable2DTest {
     }
 
     @Test
-    fun draggable2D_resumesNormally_whenInterruptedWithHigherPriority() = runBlocking {
-        var total = Offset.Zero
-        var dragStopped = 0f
-        val state = Draggable2DState { total += it }
-        setDraggable2DContent {
-            Modifier.draggable2D(onDragStopped = { dragStopped += 1 }, state = state)
-        }
-        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
-            down(center)
-            moveBy(Offset(100f, 100f))
-        }
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total.x).isGreaterThan(0f)
-                assertThat(total.y).isGreaterThan(0f)
-                total
+    fun draggable2D_resumesNormally_whenInterruptedWithHigherPriority() =
+        runTest(testDispatcher) {
+            var total = Offset.Zero
+            var dragStopped = 0f
+            val state = Draggable2DState { total += it }
+            setDraggable2DContent {
+                Modifier.draggable2D(onDragStopped = { dragStopped += 1 }, state = state)
             }
-        state.drag(MutatePriority.PreventUserInput) { dragBy(Offset(123f, 123f)) }
-        rule.runOnIdle {
-            assertThat(total).isEqualTo(prevTotal + Offset(123f, 123f))
-            assertThat(dragStopped).isEqualTo(1f)
+            rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
+                down(center)
+                moveBy(Offset(100f, 100f))
+            }
+            val prevTotal =
+                rule.runOnIdle {
+                    assertThat(total.x).isGreaterThan(0f)
+                    assertThat(total.y).isGreaterThan(0f)
+                    total
+                }
+            state.drag(MutatePriority.PreventUserInput) { dragBy(Offset(123f, 123f)) }
+            rule.runOnIdle {
+                assertThat(total).isEqualTo(prevTotal + Offset(123f, 123f))
+                assertThat(dragStopped).isEqualTo(1f)
+            }
+            rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
+                up()
+                down(center)
+                moveBy(Offset(100f, 100f))
+                up()
+            }
+            rule.runOnIdle {
+                assertThat(total.x).isGreaterThan(prevTotal.x + 123f)
+                assertThat(total.y).isGreaterThan(prevTotal.y + 123f)
+            }
         }
-        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
-            up()
-            down(center)
-            moveBy(Offset(100f, 100f))
-            up()
-        }
-        rule.runOnIdle {
-            assertThat(total.x).isGreaterThan(prevTotal.x + 123f)
-            assertThat(total.y).isGreaterThan(prevTotal.y + 123f)
-        }
-    }
 
     @Test
     fun draggable2D_noNestedDrag() {

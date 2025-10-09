@@ -16,9 +16,9 @@
 
 package androidx.compose.remote.player.compose
 
-import androidx.compose.remote.frontend.layout.RemoteCanvas
-import androidx.compose.remote.frontend.layout.RemoteOffset
-import androidx.compose.remote.frontend.state.rf
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.test.screenshot.TargetPlayer
 import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.ui.graphics.Color

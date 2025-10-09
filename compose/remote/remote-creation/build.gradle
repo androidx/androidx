@@ -24,7 +24,7 @@ plugins {
 
 androidx {
     name = "Remote Compose Creation"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Provides a procedural API to create RemoteCompose documents"
 }
@@ -34,6 +34,7 @@ androidXMultiplatform {
         withJava()
         namespace = "androidx.compose.remote.creation"
         compileSdk = 35
+        minSdk = 26
     }
     jvm()
 
@@ -80,7 +81,6 @@ androidXMultiplatform {
                 implementation(project(":compose:remote:test-utils"))
                 implementation(project(":compose:remote:remote-player-view"))
                 implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-test-manifest"))
             }
         }
     }

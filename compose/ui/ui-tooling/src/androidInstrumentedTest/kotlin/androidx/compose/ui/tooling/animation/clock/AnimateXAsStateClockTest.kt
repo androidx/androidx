@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation.Com
 import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.Utils
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
+import androidx.compose.ui.tooling.animation.clock.TransitionClockTest.EnumState
 import androidx.compose.ui.tooling.animation.states.ComposeAnimationState
 import androidx.compose.ui.tooling.animation.states.TargetState
 import androidx.compose.ui.unit.Dp
@@ -806,6 +807,34 @@ class AnimateXAsStateClockTest {
             initialValue = Utils.EnumState.One,
             composeState = { state!!.value!! },
         )
+    }
+
+    @Test
+    fun clockKeepsSetTime() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        var state: State<Dp>? = null
+        rule.addAnimations(search) {
+            state =
+                animateDpAsState(
+                    targetValue = 10.dp,
+                    animationSpec = TweenSpec(durationMillis = 100),
+                )
+        }
+        val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
+
+        // Update state and set clock time to the end of animation
+        rule.runOnUiThread {
+            clock.setStateParameters(10.dp, 20.dp)
+            clock.setClockTime(millisToNanos(100))
+        }
+        rule.waitForIdle()
+        assertEquals(20.dp, state!!.value)
+
+        // Change state but not time
+        clock.setStateParameters(30.dp, 40.dp)
+        rule.waitForIdle()
+        // Clock still at the end of animation
+        assertEquals(40.dp, state.value)
     }
 
     private fun <T : ComposeAnimation, TState : ComposeAnimationState, V : Any> checkInitialState(

@@ -36,5 +36,5 @@
     <string name="range_start" msgid="7097486360902471446">"Début de plage"</string>
     <string name="range_end" msgid="5941395253238309765">"Fin de plage"</string>
     <string name="snackbar_pane_title" msgid="2792228137354697160">"Alerte"</string>
-    <string name="autofill" msgid="9020470552698189270">"Saisie automatique"</string>
+    <string name="androidx_compose_ui_autofill" msgid="9020470552698189270">"Saisie automatique"</string>
 </resources>

@@ -131,8 +131,9 @@ class AnimatedVisibilityClockTest {
                 assertEquals("Built-in shrink/expand", it.label)
                 assertNotEquals(IntSize(0, 0), it.value)
             }
-            // Change start and end state.
+            // Change start and end state and reset time.
             clock.state = AnimatedVisibilityState.Exit
+            clock.setClockTime(0L)
         }
         rule.waitForIdle()
         rule.runOnIdle {
@@ -165,6 +166,32 @@ class AnimatedVisibilityClockTest {
             }
             // Change start and end state.
             clock.state = AnimatedVisibilityState.Exit
+        }
+    }
+
+    @Test
+    fun clockKeepsSetTime() {
+        val clock = setupClock()
+        rule.runOnIdle {
+            // Set clock to the end of the animation.
+            clock.setStateParameters(AnimatedVisibilityState.Enter)
+            clock.setClockTime(millisToNanos(380))
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(
+                listOf(IntOffset(0, 0), 1f, IntSize(234, 43)),
+                clock.getAnimatedProperties().map { it.value },
+            )
+            // Change state but keep the clock time.
+            clock.setStateParameters(AnimatedVisibilityState.Exit)
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(
+                listOf(IntOffset(0, 0), 0f, IntSize(0, 0)),
+                clock.getAnimatedProperties().map { it.value },
+            )
         }
     }
 

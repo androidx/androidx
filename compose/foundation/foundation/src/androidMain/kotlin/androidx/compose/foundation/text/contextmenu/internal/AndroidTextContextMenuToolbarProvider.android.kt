@@ -151,6 +151,7 @@ internal class AndroidTextContextMenuToolbarProvider(
     private var actionMode: ActionMode? = null
 
     private var startActionModeRunnable: Runnable? = null
+    private var finishActionModeRunnable: Runnable? = null
 
     override suspend fun showTextContextMenu(dataProvider: TextContextMenuDataProvider) {
         mutatorMutex.mutate {
@@ -180,7 +181,15 @@ internal class AndroidTextContextMenuToolbarProvider(
                 session.awaitClose()
             } finally {
                 snapshotStateObserver.clear()
-                actionMode?.finish()
+                if (Looper.myLooper() !== view.handler?.looper) {
+                    val finishActionModeRunnable =
+                        finishActionModeRunnable
+                            ?: Runnable { actionMode?.finish() }
+                                .also { finishActionModeRunnable = it }
+                    view.post(finishActionModeRunnable)
+                } else {
+                    actionMode?.finish()
+                }
                 startActionModeRunnable?.let { view.removeCallbacks(it) }
                 actionMode = null
             }

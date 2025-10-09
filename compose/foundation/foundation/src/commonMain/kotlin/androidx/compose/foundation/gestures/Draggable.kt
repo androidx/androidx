@@ -405,6 +405,7 @@ internal abstract class DragGestureNode(
     private var channel: Channel<DragEvent>? = null
     private var dragInteraction: DragInteraction.Start? = null
     internal var isListeningForEvents = false
+    internal var isListeningForPointerInputEvents = false
 
     /** Store non-initialized states for re-use */
     private var _awaitDownState: DragDetectionState.AwaitDown? = null
@@ -531,6 +532,7 @@ internal abstract class DragGestureNode(
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
+        isListeningForPointerInputEvents = true
         if (isNonSuspendingPointerInputInDraggableEnabled) {
             if (enabled) {
                 // initialize current state
@@ -637,7 +639,9 @@ internal abstract class DragGestureNode(
 
     override fun onCancelPointerInput() {
         pointerInputNode?.onCancelPointerInput()
-        if (isNonSuspendingPointerInputInDraggableEnabled) resetDragDetectionState()
+        if (isNonSuspendingPointerInputInDraggableEnabled && isListeningForPointerInputEvents)
+            resetDragDetectionState()
+        isListeningForPointerInputEvents = false
     }
 
     private suspend fun processDragStart(event: DragStarted) {
@@ -704,7 +708,8 @@ internal abstract class DragGestureNode(
         }
 
         if (resetPointerInputHandling) {
-            if (isNonSuspendingPointerInputInDraggableEnabled) resetDragDetectionState()
+            if (isNonSuspendingPointerInputInDraggableEnabled && isListeningForPointerInputEvents)
+                resetDragDetectionState()
             indirectTouchInputDragCycleDetector?.resetDragDetectionState()
             pointerInputNode?.resetPointerInputHandler()
         }
@@ -1054,6 +1059,7 @@ internal abstract class DragGestureNode(
             requireVelocityTracker().calculateVelocity(Velocity(maximumVelocity, maximumVelocity))
         requireVelocityTracker().resetTracking()
         requireChannel().trySend(DragStopped(velocity.toValidVelocity(), false))
+        isListeningForPointerInputEvents = false
     }
 
     private fun sendDragCancelled() {

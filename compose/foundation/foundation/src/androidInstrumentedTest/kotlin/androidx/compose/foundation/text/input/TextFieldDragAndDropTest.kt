@@ -62,6 +62,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +73,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextFieldDragAndDropTest {
 
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     @Test
     fun nonTextContent_isNotAccepted() {
@@ -152,6 +153,7 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(200.dp),
         ) {
             drag(Offset(1f, 1f), "hello")
+            rule.waitForIdle()
             assertThat(isHovered).isTrue()
         }
     }
@@ -165,9 +167,11 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(200.dp),
         ) {
             drag(Offset(1f, 1f), "hello")
+            rule.waitForIdle()
             assertThat(isHovered).isTrue()
 
             drag(Offset(1000f, 1f), "hello")
+            rule.waitForIdle()
             assertThat(isHovered).isFalse()
         }
     }
@@ -181,9 +185,11 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(200.dp),
         ) {
             drag(Offset(1f, 1f), "hello")
+            rule.waitForIdle()
             assertThat(isHovered).isTrue()
 
             cancelDrag()
+            rule.waitForIdle()
             assertThat(isHovered).isFalse()
         }
     }
@@ -197,9 +203,11 @@ class TextFieldDragAndDropTest {
             modifier = Modifier.width(200.dp),
         ) {
             drag(Offset(1f, 1f), "hello")
+            rule.waitForIdle()
             assertThat(isHovered).isTrue()
 
             drop()
+            rule.waitForIdle()
             assertThat(isHovered).isFalse()
         }
     }

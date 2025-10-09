@@ -90,14 +90,20 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
         }
 
     override val firstVisibleLineIndex: Int
-        get() =
-            (layoutInfo.visiblePagesInfo.first().index - layoutInfo.beyondViewportPageCount)
-                .coerceAtLeast(0)
+        get() {
+            val itemIndex =
+                layoutInfo.visiblePagesInfo.first().index.toLong() -
+                    layoutInfo.beyondViewportPageCount.toLong()
+            return itemIndex.coerceAtLeast(0L).toInt()
+        }
 
     override val lastVisibleLineIndex: Int
-        get() =
-            (layoutInfo.visiblePagesInfo.last().index + layoutInfo.beyondViewportPageCount)
-                .coerceAtMost(totalItemsCount - 1)
+        get() {
+            val itemIndex =
+                (layoutInfo.visiblePagesInfo.last().index.toLong() +
+                    layoutInfo.beyondViewportPageCount.toLong())
+            return itemIndex.coerceAtMost(totalItemsCount - 1L).toInt()
+        }
 
     override val mainAxisViewportSize: Int
         get() = layoutInfo.mainAxisViewportSize

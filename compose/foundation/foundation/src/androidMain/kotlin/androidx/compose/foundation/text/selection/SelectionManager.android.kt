@@ -95,7 +95,12 @@ internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
     ) {
         with(selectionManager) {
             separator()
-            selectionContainerItem(Copy, enabled = isNonEmptySelection()) { copy() }
+            selectionContainerItem(Copy, enabled = isNonEmptySelection()) {
+                copy()
+                if (isInTouchMode) {
+                    onRelease()
+                }
+            }
             selectionContainerItem(
                 item = SelectAll,
                 enabled = !isEntireContainerSelected(),

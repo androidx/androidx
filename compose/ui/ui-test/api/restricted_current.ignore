@@ -30,9 +30,9 @@ ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.
 ChangedType: androidx.compose.ui.test.ActionsKt#performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>>):
     Binary breaking change: Method androidx.compose.ui.test.ActionsKt.performSemanticsAction has changed return type from void to androidx.compose.ui.test.SemanticsNodeInteraction
 ChangedType: androidx.compose.ui.test.BoundsAssertionsKt#getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine):
-    Binary breaking change: Method androidx.compose.ui.test.BoundsAssertionsKt.getAlignmentLinePosition has changed return type from float to androidx.compose.ui.unit.Dp
+    Source breaking change: Method androidx.compose.ui.test.BoundsAssertionsKt.getAlignmentLinePosition has changed return type from float to androidx.compose.ui.unit.Dp
 ChangedType: androidx.compose.ui.test.GestureScopeKt#percentOffset(androidx.compose.ui.test.GestureScope, float, float):
-    Binary breaking change: Method androidx.compose.ui.test.GestureScopeKt.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.test.GestureScopeKt.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.test.InjectionScope#percentOffset(float, float):
     Source breaking change: Method androidx.compose.ui.test.InjectionScope.percentOffset has changed return type from long to androidx.compose.ui.geometry.Offset
 
@@ -85,6 +85,8 @@ RemovedFromBytecode: androidx.compose.ui.test.TouchInjectionScope#currentPositio
     Binary breaking change: method androidx.compose.ui.test.TouchInjectionScope.currentPosition(int) has been removed from bytecode
 
 
+RemovedFromKotlin: androidx.compose.ui.test.BoundsAssertionsKt#getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine):
+    Source breaking change: method androidx.compose.ui.test.BoundsAssertionsKt.getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction,androidx.compose.ui.layout.AlignmentLine) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottom(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getBottom(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getBottomCenter(androidx.compose.ui.test.GestureScope):
@@ -119,6 +121,8 @@ RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getTopRight(androidx.
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getTopRight(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#getWidth(androidx.compose.ui.test.GestureScope):
     Source breaking change: method androidx.compose.ui.test.GestureScopeKt.getWidth(androidx.compose.ui.test.GestureScope) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.test.GestureScopeKt#percentOffset(androidx.compose.ui.test.GestureScope, float, float):
+    Source breaking change: method androidx.compose.ui.test.GestureScopeKt.percentOffset(androidx.compose.ui.test.GestureScope,float,float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.IdlingResource#isIdleNow():
     Source breaking change: method androidx.compose.ui.test.IdlingResource.isIdleNow() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.test.InjectionScope#getBottom():

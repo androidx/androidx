@@ -20,6 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("AndroidXComposePlugin")
 }
 
 androidx {
@@ -32,12 +33,25 @@ androidx {
 android {
     namespace = "androidx.compose.remote.serialization"
     compileSdk = 35
+    defaultConfig {
+        minSdk = 26
+    }
 }
 
 dependencies {
     api(libs.jspecify)
     api(libs.junit)
     api(libs.truth)
+    api(libs.testRunner)
+    implementation("androidx.compose.runtime:runtime:1.8.3")
+    implementation("androidx.compose.foundation:foundation:1.8.3")
+    implementation("androidx.compose.ui:ui:1.8.3")
+    implementation(project(":compose:test-utils"))
     implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":compose:remote:remote-player-core"))
+    implementation(project(":compose:remote:remote-player-view"))
+    implementation(project(":compose:remote:remote-player-compose"))
+    implementation(project(":test:screenshot:screenshot"))
     implementation("org.yaml:snakeyaml:2.4")
 }

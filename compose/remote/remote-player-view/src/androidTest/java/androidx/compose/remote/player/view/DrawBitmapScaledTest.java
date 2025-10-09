@@ -31,6 +31,7 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.Log;
 
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
 import androidx.test.platform.app.InstrumentationRegistry;

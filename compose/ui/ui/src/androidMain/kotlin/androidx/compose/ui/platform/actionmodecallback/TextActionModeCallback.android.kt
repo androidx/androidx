@@ -111,7 +111,7 @@ internal enum class MenuItemOption(val id: Int) {
                 SelectAll -> android.R.string.selectAll
                 Autofill ->
                     if (Build.VERSION.SDK_INT <= 26) {
-                        R.string.autofill
+                        R.string.androidx_compose_ui_autofill
                     } else {
                         android.R.string.autofill
                     }

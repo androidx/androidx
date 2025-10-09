@@ -1370,7 +1370,8 @@ public class CoreDocument implements Serializable {
      *
      * @return array of named variables or null
      */
-    public String @NonNull [] getNamedVariables(int type) {
+    @NonNull
+    public String[] getNamedVariables(int type) {
         ArrayList<String> ret = new ArrayList<>();
         getNamedVars(type, mOperations, ret);
         return ret.toArray(new String[0]);

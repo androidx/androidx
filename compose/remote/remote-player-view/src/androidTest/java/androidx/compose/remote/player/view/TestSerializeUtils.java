@@ -20,6 +20,8 @@ import static androidx.compose.remote.player.view.TestUtils.createDocument;
 import android.content.Context;
 
 import androidx.compose.remote.core.operations.Theme;
+import androidx.compose.remote.creation.profile.Profile;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.compose.remote.serialization.yaml.YAMLSerializer;
 
 import java.io.BufferedReader;
@@ -39,6 +41,19 @@ public class TestSerializeUtils {
         RemoteComposeDocument doc = createDocument(debugContext, run);
         return doc.getDocument().getBuffer().getBuffer().cloneBytes();
     }
+
+    /**
+     * Create a byte buffer from a doc
+     *
+     * @param run
+     * @return
+     */
+    public static byte[] createDoc(Profile profile, TestUtils.Callback run) {
+        DebugPlayerContext debugContext = new DebugPlayerContext();
+        RemoteComposeDocument doc = createDocument(debugContext, profile, run);
+        return doc.getDocument().getBuffer().getBuffer().cloneBytes();
+    }
+
 
     /**
      * Convert to YAML
@@ -70,6 +85,22 @@ public class TestSerializeUtils {
             return TestUtils.grep(s, sub).replace("  ", " ");
         }
         return serializer.toSimpleString();
+    }
+
+    /**
+     * Convert to YAML (flat string)
+     * @param rawDoc
+     * @return
+     */
+    public static String toYamlFlatString(byte[] rawDoc) {
+        RemoteComposeDocument doc = new RemoteComposeDocument(rawDoc);
+
+        DebugPlayerContext debugContext = new DebugPlayerContext();
+        doc.paint(debugContext, Theme.UNSPECIFIED);
+        YAMLSerializer serializer = new YAMLSerializer();
+
+        doc.serialize(serializer.serializeMap());
+        return serializer.toFlatString();
     }
 
     static String loadFileFromRaw(Context context, int id) {
