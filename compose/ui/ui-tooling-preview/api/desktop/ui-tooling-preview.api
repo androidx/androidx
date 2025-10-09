@@ -1,6 +1,27 @@
 public abstract interface annotation class androidx/compose/desktop/ui/tooling/preview/Preview : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class androidx/compose/ui/tooling/preview/AndroidUiMode : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/ui/tooling/preview/AndroidUiModes {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/ui/tooling/preview/AndroidUiModes;
+	public static final field UI_MODE_NIGHT_MASK I
+	public static final field UI_MODE_NIGHT_NO I
+	public static final field UI_MODE_NIGHT_UNDEFINED I
+	public static final field UI_MODE_NIGHT_YES I
+	public static final field UI_MODE_TYPE_APPLIANCE I
+	public static final field UI_MODE_TYPE_CAR I
+	public static final field UI_MODE_TYPE_DESK I
+	public static final field UI_MODE_TYPE_MASK I
+	public static final field UI_MODE_TYPE_NORMAL I
+	public static final field UI_MODE_TYPE_TELEVISION I
+	public static final field UI_MODE_TYPE_UNDEFINED I
+	public static final field UI_MODE_TYPE_VR_HEADSET I
+	public static final field UI_MODE_TYPE_WATCH I
+}
+
 public final class androidx/compose/ui/tooling/preview/Devices {
 	public static final field $stable I
 	public static final field AUTOMOTIVE_1024p Ljava/lang/String;
@@ -100,27 +121,6 @@ public final class androidx/compose/ui/tooling/preview/PreviewParameterProvider$
 }
 
 public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewScreenSizes : java/lang/annotation/Annotation {
-}
-
-public abstract interface annotation class androidx/compose/ui/tooling/preview/UiMode : java/lang/annotation/Annotation {
-}
-
-public final class androidx/compose/ui/tooling/preview/UiModes {
-	public static final field $stable I
-	public static final field INSTANCE Landroidx/compose/ui/tooling/preview/UiModes;
-	public static final field UI_MODE_NIGHT_MASK I
-	public static final field UI_MODE_NIGHT_NO I
-	public static final field UI_MODE_NIGHT_UNDEFINED I
-	public static final field UI_MODE_NIGHT_YES I
-	public static final field UI_MODE_TYPE_APPLIANCE I
-	public static final field UI_MODE_TYPE_CAR I
-	public static final field UI_MODE_TYPE_DESK I
-	public static final field UI_MODE_TYPE_MASK I
-	public static final field UI_MODE_TYPE_NORMAL I
-	public static final field UI_MODE_TYPE_TELEVISION I
-	public static final field UI_MODE_TYPE_UNDEFINED I
-	public static final field UI_MODE_TYPE_VR_HEADSET I
-	public static final field UI_MODE_TYPE_WATCH I
 }
 
 public final class androidx/compose/ui/tooling/preview/Wallpapers {

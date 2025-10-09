@@ -14,10 +14,15 @@ public final class androidx/compose/material3/AlertDialog_skikoKt {
 }
 
 public final class androidx/compose/material3/AppBarColumnKt {
-	public static final fun AppBarColumn (Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AppBarColumn (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun AppBarColumn (Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class androidx/compose/material3/AppBarColumnScope : androidx/compose/material3/AppBarScope {
+}
+
+public final class androidx/compose/material3/AppBarDslKt {
+	public static final fun AppBarOverflowIndicator (Landroidx/compose/material3/AppBarMenuState;Landroidx/compose/ui/Modifier;ZLandroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/IconButtonColors;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class androidx/compose/material3/AppBarKt {
@@ -36,12 +41,14 @@ public final class androidx/compose/material3/AppBarMenuState {
 	public static final field $stable I
 	public fun <init> ()V
 	public final fun dismiss ()V
-	public final fun isExpanded ()Z
+	public final synthetic fun isExpanded ()Z
+	public final fun isShowing ()Z
 	public final fun show ()V
 }
 
 public final class androidx/compose/material3/AppBarRowKt {
-	public static final fun AppBarRow (Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final fun AppBarRow (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun AppBarRow (Lkotlin/jvm/functions/Function3;Landroidx/compose/ui/Modifier;ILkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
 }
 
 public abstract interface class androidx/compose/material3/AppBarRowScope : androidx/compose/material3/AppBarScope {
@@ -154,7 +161,8 @@ public final class androidx/compose/material3/ButtonGroupMenuState {
 	public fun <init> (Z)V
 	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun dismiss ()V
-	public final fun isExpanded ()Z
+	public final synthetic fun isExpanded ()Z
+	public final fun isShowing ()Z
 	public final fun show ()V
 }
 
@@ -384,6 +392,12 @@ public final class androidx/compose/material3/ColorSchemeKt {
 	public static final fun surfaceColorAtElevation-3ABfNKs (Landroidx/compose/material3/ColorScheme;F)J
 }
 
+public final class androidx/compose/material3/ComposableSingletons$AppBarColumnKt {
+	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$AppBarColumnKt;
+	public fun <init> ()V
+	public final fun getLambda$479541071$material3 ()Lkotlin/jvm/functions/Function3;
+}
+
 public final class androidx/compose/material3/ComposableSingletons$AppBarKt {
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$AppBarKt;
 	public fun <init> ()V
@@ -421,6 +435,12 @@ public final class androidx/compose/material3/ComposableSingletons$AppBarKt {
 	public final fun getLambda$657782987$material3 ()Lkotlin/jvm/functions/Function2;
 	public final fun getLambda$917296843$material3 ()Lkotlin/jvm/functions/Function3;
 	public final fun getLambda$968008621$material3 ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class androidx/compose/material3/ComposableSingletons$AppBarRowKt {
+	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$AppBarRowKt;
+	public fun <init> ()V
+	public final fun getLambda$1581062749$material3 ()Lkotlin/jvm/functions/Function3;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$BottomSheetScaffoldKt {

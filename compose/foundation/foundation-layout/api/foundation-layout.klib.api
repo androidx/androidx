@@ -59,6 +59,8 @@ abstract interface androidx.compose.foundation.layout/PaddingValues { // android
     abstract fun calculateLeftPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateLeftPadding|calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
     abstract fun calculateRightPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateRightPadding|calculateRightPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
     abstract fun calculateTopPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateTopPadding|calculateTopPadding(){}[0]
+    open fun minus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues.minus|minus(androidx.compose.foundation.layout.PaddingValues){}[0]
+    open fun plus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues.plus|plus(androidx.compose.foundation.layout.PaddingValues){}[0]
 
     final class Absolute : androidx.compose.foundation.layout/PaddingValues { // androidx.compose.foundation.layout/PaddingValues.Absolute|null[0]
         constructor <init>(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.foundation.layout/PaddingValues.Absolute.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
