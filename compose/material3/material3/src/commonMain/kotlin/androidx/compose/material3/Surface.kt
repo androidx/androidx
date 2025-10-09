@@ -34,7 +34,9 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -473,6 +475,50 @@ private fun Modifier.surface(
         .then(if (border != null) Modifier.border(border, shape) else Modifier)
         .background(color = backgroundColor, shape = shape)
         .clip(shape)
+
+@Composable
+internal fun Surface(
+    backgroundColor: ColorProducer,
+    modifier: Modifier,
+    tonalElevation: Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
+    content: @Composable () -> Unit,
+) {
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    val tonalElevationEnabled = LocalTonalElevationEnabled.current
+    val colorScheme = MaterialTheme.colorScheme
+    CompositionLocalProvider(LocalAbsoluteTonalElevation provides absoluteElevation) {
+        Box(
+            modifier =
+                modifier
+                    .then(
+                        if (shadowElevation > 0.dp) {
+                            Modifier.graphicsLayer {
+                                this.shadowElevation = shadowElevation.toPx()
+                                clip = false
+                            }
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .drawBehind {
+                        val backgroundColorResolved = backgroundColor()
+                        val color =
+                            if (
+                                backgroundColorResolved == colorScheme.surface &&
+                                    tonalElevationEnabled
+                            ) {
+                                colorScheme.surfaceColorAtElevation(tonalElevation)
+                            } else {
+                                backgroundColorResolved
+                            }
+                        drawRect(color = color)
+                    }
+        ) {
+            content()
+        }
+    }
+}
 
 @Composable
 private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color =

@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TextLinkStylesScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 

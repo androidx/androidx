@@ -63,6 +63,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +73,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class TooltipTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun plainTooltip_noContent_size() {
@@ -513,7 +514,7 @@ class TooltipTest {
         assertThat(changedToVisible).isFalse()
 
         rule.runOnIdle { focusRequester.requestFocus() }
-
+        rule.waitForIdle()
         assertThat(changedToVisible).isTrue()
         assertThat(state.isVisible).isTrue()
     }
@@ -544,12 +545,16 @@ class TooltipTest {
         rule.runOnIdle {
             // First focus on tooltip.
             focusRequester.requestFocus()
-            assertThat(state.isVisible).isTrue()
+        }
+        rule.waitForIdle()
+        assertThat(state.isVisible).isTrue()
 
+        rule.runOnIdle {
             // Then move focus away.
             outsideFocusRequester.requestFocus()
         }
 
+        rule.waitForIdle()
         assertThat(state.isVisible).isFalse()
     }
 
@@ -579,12 +584,15 @@ class TooltipTest {
         }
 
         rule.runOnIdle { focusRequester.requestFocus() }
+        rule.waitForIdle()
         assertThat(state.isVisible).isTrue()
 
         rule.runOnIdle { outsideFocusRequester.requestFocus() }
+        rule.waitForIdle()
         assertThat(state.isVisible).isFalse()
 
         rule.runOnIdle { scope.launch { state.show() } }
+        rule.waitForIdle()
         assertThat(state.isVisible).isTrue()
     }
 
@@ -811,7 +819,7 @@ class TooltipTest {
             scope.launch { topState.show() }
             scope.launch { bottomState.show() }
         }
-
+        rule.waitForIdle()
         assertThat(topState.isVisible).isFalse()
         assertThat(bottomState.isVisible).isTrue()
     }
@@ -875,7 +883,7 @@ class TooltipTest {
             scope.launch { topState.show() }
             scope.launch { bottomState.show() }
         }
-
+        rule.waitForIdle()
         assertThat(topState.isVisible).isTrue()
         assertThat(bottomState.isVisible).isTrue()
     }

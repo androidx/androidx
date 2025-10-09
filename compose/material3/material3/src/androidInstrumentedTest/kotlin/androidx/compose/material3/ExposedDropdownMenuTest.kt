@@ -88,6 +88,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeNotNull
 import org.junit.Ignore
 import org.junit.Rule
@@ -99,7 +100,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExposedDropdownMenuTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val TFTag = "TextFieldTag"
     private val TrailingIconTag = "TrailingIconTag"

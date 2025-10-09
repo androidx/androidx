@@ -39,6 +39,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import com.google.common.truth.Truth
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +56,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class TextSelectionColorsScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 

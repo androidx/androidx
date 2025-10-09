@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -68,7 +70,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
-import org.junit.Ignore
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +78,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class WideNavigationRailTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val restorationTester = StateRestorationTester(rule)
 
     private val collapsedWidth = NavigationRailCollapsedTokens.ContainerWidth
@@ -552,13 +554,19 @@ class WideNavigationRailTest {
     }
 
     @Test
-    @Ignore("b/422746273")
     fun header_position_centeredArrangement() {
         rule.setMaterialContent(lightColorScheme()) {
+            val windowInsets =
+                if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    WindowInsets()
+                } else {
+                    WideNavigationRailDefaults.windowInsets
+                }
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
                 arrangement = Arrangement.Center,
                 header = { Box(Modifier.testTag("header").size(10.dp)) },
+                windowInsets = windowInsets,
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
@@ -586,13 +594,19 @@ class WideNavigationRailTest {
     }
 
     @Test
-    @Ignore("b/422746273")
     fun header_position_bottomArrangement() {
         rule.setMaterialContent(lightColorScheme()) {
+            val windowInsets =
+                if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    WindowInsets()
+                } else {
+                    WideNavigationRailDefaults.windowInsets
+                }
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
                 arrangement = Arrangement.Bottom,
                 header = { Box(Modifier.testTag("header").size(10.dp)) },
+                windowInsets = windowInsets,
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),

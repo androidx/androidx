@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,8 +49,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +60,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class IconButtonScreenshotTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
@@ -110,7 +111,6 @@ class IconButtonScreenshotTest {
     }
 
     @Test
-    @Ignore("b/355413615")
     fun iconButton_lightTheme_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -131,7 +131,13 @@ class IconButtonScreenshotTest {
         // synchronization. Instead just wait until after the ripples are finished animating.
         Thread.sleep(300)
 
-        assertAgainstGolden("iconButton_lightTheme_pressed")
+        val nameId =
+            if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                "wideNavigationRail_lightTheme_pressed_post_api_34"
+            } else {
+                "iconButton_lightTheme_pressed"
+            }
+        assertAgainstGolden(nameId)
     }
 
     @Test

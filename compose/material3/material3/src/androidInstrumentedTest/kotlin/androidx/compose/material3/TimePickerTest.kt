@@ -22,9 +22,11 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -77,6 +79,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import kotlin.math.PI
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,7 +89,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TimePickerTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun timePicker_vertical_layout() {
@@ -311,7 +314,6 @@ class TimePickerTest {
             .onAllNodesWithContentDescription(hourDescription)
             .onLast()
             .onSiblings()
-            .filter(isFocusable())
             .assertCountEquals(11)
             .assertAll(
                 hasContentDescription(value = "o'clock", substring = true, ignoreCase = true)
@@ -735,6 +737,7 @@ class TimePickerTest {
             )
 
         rule.setMaterialContent(lightColorScheme()) {
+            LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
             ClockFace(
                 modifier = Modifier,
                 state = state,
@@ -811,6 +814,7 @@ class TimePickerTest {
             )
 
         rule.setMaterialContent(lightColorScheme()) {
+            LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
             ClockFace(
                 modifier = Modifier,
                 state = state,

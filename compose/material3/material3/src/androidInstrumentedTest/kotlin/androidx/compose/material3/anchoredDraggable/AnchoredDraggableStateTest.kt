@@ -85,6 +85,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 import org.junit.Rule
@@ -96,7 +97,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class AnchoredDraggableStateTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val AnchoredDraggableTestTag = "dragbox"
     private val AnchoredDraggableBoxSize = 200.dp

@@ -22,6 +22,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +32,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ColorSchemeTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     /**
      * Test for switching between provided [ColorScheme]s, ensuring that the existing colors objects

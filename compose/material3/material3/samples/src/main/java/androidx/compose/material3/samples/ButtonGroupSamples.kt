@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
@@ -39,7 +38,6 @@ import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
@@ -65,20 +63,7 @@ fun ButtonGroupSample() {
     val numButtons = 10
     ButtonGroup(
         overflowIndicator = { menuState ->
-            FilledIconButton(
-                onClick = {
-                    if (menuState.isExpanded) {
-                        menuState.dismiss()
-                    } else {
-                        menuState.show()
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "Localized description",
-                )
-            }
+            ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
         }
     ) {
         for (i in 0 until numButtons) {

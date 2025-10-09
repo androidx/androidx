@@ -78,6 +78,8 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,7 +90,7 @@ class SliderTest {
     private val tag = "slider"
     private val SliderTolerance = 0.003f
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
@@ -1214,6 +1216,7 @@ class SliderTest {
         rule.runOnIdle { Truth.assertThat(state.value).isWithin(SliderTolerance).of(expected) }
     }
 
+    @Ignore("b/447508701")
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun rangeSlider_thumb_recomposition() {

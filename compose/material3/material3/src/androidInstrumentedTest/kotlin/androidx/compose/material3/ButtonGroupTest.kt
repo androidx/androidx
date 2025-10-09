@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +53,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ButtonGroupTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val wrapperTestTag = "WrapperTestTag"
     private val aButton = "A"
@@ -921,7 +922,7 @@ class ButtonGroupTest {
                         IconButton(
                             modifier = Modifier.testTag(overflowIndicator),
                             onClick = {
-                                if (menuState.isExpanded) {
+                                if (menuState.isShowing) {
                                     menuState.dismiss()
                                 } else {
                                     menuState.show()

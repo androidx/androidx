@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"More options"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"Dialog"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"Expanded"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Collapsed"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Expand bottom sheet"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Collapse toolbar"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Expand toolbar"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"More options"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Tooltip"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Show tooltip"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>

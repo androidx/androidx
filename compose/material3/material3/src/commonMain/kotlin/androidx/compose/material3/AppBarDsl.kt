@@ -16,6 +16,10 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.internal.Icons
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -238,19 +244,24 @@ internal class CustomAppBarItem(
 
 /** State class for the overflow menu in [AppBarRow] and [AppBarColumn]. */
 class AppBarMenuState {
-
     /** Indicates whether the overflow menu is currently expanded. */
-    var isExpanded by mutableStateOf(false)
+    @Deprecated("Keeping for binary compatibility", level = DeprecationLevel.HIDDEN)
+    var isExpanded = false
+        get() = isShowing
+        private set
+
+    /** Indicates whether the overflow menu is currently showing. */
+    var isShowing by mutableStateOf(false)
         private set
 
     /** Closes the overflow menu. */
     fun dismiss() {
-        isExpanded = false
+        isShowing = false
     }
 
     /** Show the overflow menu. */
     fun show() {
-        isExpanded = true
+        isShowing = true
     }
 }
 
@@ -399,4 +410,51 @@ internal class OverflowMeasurePolicy(
             }
         }
     }
+}
+
+/**
+ * Default overflow indicator for an [AppBarRow] and [AppBarColumn]. It uses a [IconButton]. When
+ * clicked it will open the menu associated with the provided [AppBarMenuState].
+ *
+ * @param menuState the [AppBarMenuState] used to show or dismiss the overflow menu.
+ * @param modifier [Modifier] to be applied to the overflow indicator.
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param shape defines the shape of this icon button's container.
+ * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.iconButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ */
+@Composable
+fun AppBarOverflowIndicator(
+    menuState: AppBarMenuState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = IconButtonDefaults.standardShape,
+    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+) {
+    val contentDescription = getString(Strings.FloatingToolbarMoreOptions)
+
+    IconButton(
+        onClick = {
+            if (menuState.isShowing) {
+                menuState.dismiss()
+            } else {
+                menuState.show()
+            }
+        },
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        interactionSource = interactionSource,
+        content = {
+            Icon(imageVector = Icons.Filled.MoreVert, contentDescription = contentDescription)
+        },
+    )
 }

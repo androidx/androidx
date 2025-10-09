@@ -54,7 +54,7 @@ internal fun Translations.fa() = mapOf(
     Strings.DateInputNoInputDescription to "هیچ‌کدام",
     Strings.DateInputInvalidNotAllowed to "‏تاریخ مجاز نیست: %1\$s",
     Strings.DateInputInvalidForPattern to "‏تاریخ با الگوی موردانتظار مطابقت ندارد: %1\$s",
-    Strings.DateInputInvalidYearRange to "‏تاریخ خارج از بازه زمانی %1\$s تا %2\$s است",
+    Strings.DateInputInvalidYearRange to "‏تاریخ خارج از محدوده سال %1\$s تا %2\$s است",
     Strings.DatePickerSwitchToCalendarMode to "تعویض به حالت ورودی تقویم",
     Strings.DatePickerSwitchToInputMode to "رفتن به حالت ورودی نوشتاری",
     Strings.DatePickerScrollToShowLaterYears to "برای نمایش سال‌های بعد پیمایش کنید",
