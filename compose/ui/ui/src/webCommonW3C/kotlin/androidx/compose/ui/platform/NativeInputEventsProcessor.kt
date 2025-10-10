@@ -137,6 +137,10 @@ internal abstract class NativeInputEventsProcessor(
                     val deleteSize = deleteContentBackwardSize
                     if (deleteSize > 0) {
                         add(DeleteSurroundingTextCommand(deleteSize, 0))
+                    } else if (deleteSize == 0) {
+                        // under specific circumstance previous symbol can be deleted while inputing new one
+                        // see https://youtrack.jetbrains.com/issue/CMP-8773
+                        add(BackspaceCommand())
                     }
                 }
             }

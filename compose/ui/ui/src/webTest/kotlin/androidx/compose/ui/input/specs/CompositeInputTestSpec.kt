@@ -26,6 +26,7 @@ import androidx.compose.ui.events.keyEvent
 import kotlin.test.Test
 import kotlin.test.assertIs
 import org.w3c.dom.HTMLTextAreaElement
+import androidx.compose.ui.platform.InputEvent as InputEventDetailed
 
 internal interface СompositeInputTestSpec : TextFieldTestSpec {
 
@@ -77,6 +78,26 @@ internal interface ChromeCompositeInput : СompositeInputTestSpec {
             keyEvent(compositionInput, type = "keyup")
         )
     }
+
+    @Test
+    fun `input hangul-hol`() = runApplicationTest {
+        val textFieldValue = createApplicationWithHolder()
+        eventsSequence(
+            compositionStart(),
+            keyEvent(key= "ㅎ", code = "KeyG", keyCode = 229),
+            beforeInput(inputType = "compositionStart", data = "null"),
+            keyEvent(key= "ㅎ", code = "KeyG", keyCode = 71, type = "keyup", isComposing = true),
+            keyEvent(key= "ㅗ", code = "KeyH", keyCode = 229),
+            beforeInput(inputType = "insertCompositionText", data = "호"),
+            keyEvent(key= "ㅗ", code = "KeyH", keyCode = 72, type = "keyup", isComposing = true),
+            keyEvent(key= "ㄹ", code = "KeyF", keyCode = 229),
+            beforeInput(inputType = "insertCompositionText", data = "홀"),
+            keyEvent(key= "ㄹ", code = "KeyF", keyCode = 70, type = "keyup", isComposing = true),
+        ).sendToHtmlInput()
+
+        textFieldValue.awaitAndAssertTextEquals("홀")
+    }
+
 }
 
 internal interface FirefoxCompositeInput : СompositeInputTestSpec {
@@ -147,7 +168,7 @@ internal interface WinCompositeInput : СompositeInputTestSpec {
     }
 
     @Test
-    fun `input korean-hol`() = runApplicationTest {
+    fun `input hangul-hol`() = runApplicationTest {
         val textFieldValue = createApplicationWithHolder()
         compositionStart("g", "ㅎ")
             .compositionUpdate("h", "호")
@@ -216,6 +237,26 @@ internal interface IosCompositeInput : СompositeInputTestSpec {
             compositionEnd(typedKey),
         )
     }
+
+    @Test
+    fun `input hangul-hol`() = runApplicationTest {
+        val textFieldValue = createApplicationWithHolder()
+        eventsSequence(
+            keyEvent(key= "ㅎ", code = "Unidentified", keyCode = 0),
+            beforeInput("insertText", data = "ㅎ", isComposing = false),
+            keyEvent(key= "ㅎ", code = "Unidentified", keyCode = 0, type = "keyup"),
+            keyEvent(key= "ㅗ", code = "Unidentified", keyCode = 0),
+            beforeInput("deleteContentBackward", data = null, isComposing = false),
+            beforeInput("insertText", data = "호", isComposing = false),
+            keyEvent(key= "ㅗ", code = "Unidentified", keyCode = 0, type = "keyup"),
+            keyEvent(key= "ㄹ", code = "Unidentified", keyCode = 0),
+            beforeInput("deleteContentBackward", data = null, isComposing = false),
+            beforeInput("insertText", data = "홀", isComposing = false),
+            keyEvent(key= "ㄹ", code = "Unidentified", keyCode = 0, type = "keyup")
+        ).sendToHtmlInput()
+
+        textFieldValue.awaitAndAssertTextEquals("홀")
+    }
 }
 
 internal interface AndroidCompositeInput : СompositeInputTestSpec {
@@ -252,7 +293,7 @@ internal interface AndroidCompositeInput : СompositeInputTestSpec {
     }
 
     @Test
-    fun `input korean-hol`() = runApplicationTest {
+    fun `input hangul-hol`() = runApplicationTest {
         val textFieldValue = createApplicationWithHolder()
         compositionStart("g", "ㅎ")
             .compositionUpdate("h", "호")
