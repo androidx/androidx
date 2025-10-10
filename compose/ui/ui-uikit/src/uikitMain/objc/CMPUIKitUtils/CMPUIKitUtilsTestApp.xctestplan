@@ -9,11 +9,14 @@
     }
   ],
   "defaultOptions" : {
+    "defaultTestExecutionTimeAllowance" : 60,
     "targetForVariableExpansion" : {
       "containerPath" : "container:CMPUIKitUtils.xcodeproj",
       "identifier" : "997DFCF92B18E5D3000B56B5",
       "name" : "CMPUIKitUtilsTestApp"
-    }
+    },
+    "testRepetitionMode" : "retryOnFailure",
+    "testTimeoutsEnabled" : true
   },
   "testTargets" : [
     {

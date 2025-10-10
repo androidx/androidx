@@ -1,0 +1,163 @@
+name: Compose Tests
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - jb-main
+
+jobs:
+  compose-desktop-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Desktop Tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Desktop Tests
+        run: |
+          ./gradlew testDesktop \
+            --no-daemon --stacktrace
+
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshot-tests
+          path: |
+            golden/**/*_actual.png
+            golden/**/*_diff.png
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-ios-tests:
+    runs-on: macos-15-xlarge
+    name: Compose iOS Tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Run iOS Tests
+        timeout-minutes: 15
+        run: |
+          ./gradlew testUIKit \
+            --no-daemon --stacktrace
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-web-chrome-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Web Chrome Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        chrome: [ '118', 'stable' ]
+        task: [ 'Js', 'Wasm' ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
+      - name: Compile ${{ matrix.task }} Tests
+        run: |
+          ./gradlew compileTestKotlin${{ matrix.task }} \
+            --no-daemon --stacktrace
+
+      - name: Setup Google Chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: ${{ matrix.chrome }}
+          install-chromedriver: true
+          install-dependencies: true
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Web Chrome Tests
+        run: |
+          ./gradlew :mpp:testWeb${{ matrix.task }} \
+            --no-daemon --stacktrace --no-parallel \
+            -Pjetbrains.androidx.web.tests.enableFirefox=false \
+            -Pjetbrains.androidx.web.tests.enableChrome=true
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-web-firefox-tests:
+    runs-on: ubuntu-24.04
+    name: Compose Web Firefox Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        firefox: [ '119.0', 'latest' ]
+        task: [ 'Js', 'Wasm' ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
+      - name: Compile ${{ matrix.task }} Tests
+        run: |
+          ./gradlew compileTestKotlin${{ matrix.task }} \
+            --no-daemon --stacktrace
+
+      - name: Setup Missing Packages
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install libdbus-glib-1-2 -y
+
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: ${{ matrix.firefox }}
+
+      - name: Start X Server
+        run: |
+          sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
+          echo "DISPLAY=:1.0" >> $GITHUB_ENV
+
+      - name: Run Web Firefox Tests
+        run: |
+          ./gradlew :mpp:testWeb${{ matrix.task }} \
+            --no-daemon --stacktrace --no-parallel \
+            -Pjetbrains.androidx.web.tests.enableFirefox=true \
+            -Pjetbrains.androidx.web.tests.enableChrome=false
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()

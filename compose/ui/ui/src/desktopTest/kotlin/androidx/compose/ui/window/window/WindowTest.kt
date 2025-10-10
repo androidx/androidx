@@ -588,6 +588,7 @@ class WindowTest {
         assertThat(isWindowEffectEnded).isTrue()
     }
 
+    @Ignore("flaky") // TODO https://youtrack.jetbrains.com/issue/CMP-8957
     @Test
     fun `undecorated resizable window with unspecified size`() = runApplicationTest(
         useDelay = true

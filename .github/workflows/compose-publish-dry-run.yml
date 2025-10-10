@@ -1,0 +1,56 @@
+name: Compose Publish Dry Run
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - jb-main
+
+jobs:
+  compose-native-publish:
+    runs-on: macos-15-xlarge
+    name: Dry Run Compose Publish Darwin + Native Linux
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Compose Publish Darwin + Native Linux
+        run: |
+          ./gradlew publishComposeJb -Pcompose.platforms=macos,uikit,tvos,watchos,linux,mingw \
+            --no-daemon --stacktrace
+
+  compose-web-publish:
+    runs-on: ubuntu-24.04
+    name: Dry Run Compose Publish Web
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Compose Publish Web
+        run: |
+          ./gradlew publishComposeJb -Pcompose.platforms=web \
+            --no-daemon --stacktrace
+
+  compose-jvm-publish:
+    runs-on: ubuntu-24.04
+    name: Dry Run Compose Publish JVM
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Compose Publish JVM
+        run: |
+          ./gradlew publishComposeJb -Pcompose.platforms=jvm,android \
+            --no-daemon --stacktrace

@@ -1,0 +1,23 @@
+name: 'Setup Xcode'
+runs:
+  using: "composite"
+  steps:
+    # List of available Xcode versions:
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#xcode
+    # Note that explicit download is required due to updated support policy:
+    # https://github.com/actions/runner-images/issues/12758#issuecomment-3206748945
+    - name: Setup Xcode version
+      shell: bash
+      run: |
+        sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        xcodebuild -downloadPlatform iOS -buildVersion 18.2
+        /usr/bin/xcodebuild -version
+
+    - name: Cache Xcode DerivedData
+      uses: irgaly/xcode-cache@v1
+      with:
+        key: xcode-cache-deriveddata-${{ github.sha }}
+        restore-keys: xcode-cache-deriveddata-
+        # Only save DerivedData state for builds on the 'jb-main' branch.
+        # Builds on other branches will only read existing entries from the cache.
+        cache-read-only: ${{ github.ref != 'refs/heads/jb-main' }}

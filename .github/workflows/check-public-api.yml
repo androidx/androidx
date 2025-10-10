@@ -1,0 +1,26 @@
+name: Check Public API
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - jb-main
+
+jobs:
+  check-public-api:
+    runs-on: macos-15-xlarge
+    name: Check Public API
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Check Public API
+        run: |
+          ./gradlew jbApiCheck \
+            --no-daemon --stacktrace

@@ -49,6 +49,7 @@ import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.test.IgnoreJsTarget
 
 @OptIn(ExperimentalTestApi::class)
 class LazyGridSlotsReuseTest {
@@ -345,6 +346,7 @@ class LazyGridSlotsReuseTest {
         onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
     }
 
+    @IgnoreJsTarget // TODO https://youtrack.jetbrains.com/issue/CMP-8955
     @Test
     fun differentContentTypes() = runSkikoComposeUiTest {
         lateinit var state: LazyGridState

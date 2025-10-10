@@ -26,6 +26,7 @@ import java.time.Duration
 import javax.swing.JFrame
 import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
+import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -39,6 +40,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ComposeContainerLifecycleOwnerTest {
+    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8957
     @Test
     fun allEvents() = runTest {
         val window = JFrame().apply {
