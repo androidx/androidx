@@ -197,8 +197,13 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.skikoCommon)
                 }
             }
+
             nonJvmTest {
                 dependsOn(skikoTest)
+            }
+
+            webTest {
+                dependsOn(nonJvmTest)
             }
 
             desktopTest {
@@ -226,8 +231,9 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopTest.kotlin.srcDirs("src/desktopTest/kotlin")
 
             nativeTest.dependsOn(nonJvmTest)
-            jsTest.dependsOn(nonJvmTest)
-            wasmJsTest.dependsOn(nonJvmTest)
+
+            jsTest.dependsOn(webTest)
+            wasmJsTest.dependsOn(webTest)
 
             configureEach {
                 languageSettings.optIn("androidx.compose.foundation.ExperimentalFoundationApi")

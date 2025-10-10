@@ -46,7 +46,7 @@ private val ResolvedKeyboardActions
         else -> DefaultKeyboardActions
     }
 
-class WasmSelectionTests {
+class WebSelectionTests {
     private val keyboardActions = ResolvedKeyboardActions
 
     @OptIn(ExperimentalTestApi::class)
@@ -83,7 +83,7 @@ class WasmSelectionTests {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun selectLineStart() {
+    fun selectLineStart() =
         textFieldSemanticInteraction("line 1\nline 2\nline 3\nline 4\nline 5") { node, state ->
             node.performKeyInput {
                 pressKey(Key.DirectionRight)
@@ -95,11 +95,11 @@ class WasmSelectionTests {
 
             assertThat(state.value.selection).isEqualTo(TextRange(8, 7))
         }
-    }
+
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun selectTextStart() {
+    fun selectTextStart() =
         textFieldSemanticInteraction("line 1\nline 2\nline 3\nline 4\nline 5") { node, state ->
             node.performKeyInput {
                 pressKey(Key.DirectionRight)
@@ -112,11 +112,11 @@ class WasmSelectionTests {
 
             assertThat(state.value.selection).isEqualTo(TextRange(8, 0))
         }
-    }
+
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun selectTextEnd() {
+    fun selectTextEnd() =
         textFieldSemanticInteraction("line 1\nline 2\nline 3\nline 4\nline 5") { node, state ->
             node.performKeyInput {
                 pressKey(Key.DirectionRight)
@@ -128,11 +128,11 @@ class WasmSelectionTests {
 
             assertThat(state.value.selection).isEqualTo(TextRange(8, 34))
         }
-    }
+
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun selectLineEnd() {
+    fun selectLineEnd() =
         textFieldSemanticInteraction("line 1\nline 2\nline 3\nline 4\nline 5") { node, state ->
             node.performKeyInput {
                 pressKey(Key.DirectionRight)
@@ -145,27 +145,25 @@ class WasmSelectionTests {
 
             assertThat(state.value.selection).isEqualTo(TextRange(8, 13))
         }
-    }
+
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun deleteAll() {
-        textFieldSemanticInteraction("") { node, state ->
-            node.performKeyInput { keyboardActions.apply { this@performKeyInput.deleteAll() } }
-            assertThat(state.value.text).isEqualTo("")
-        }
+    fun deleteAll() = textFieldSemanticInteraction("") { node, state ->
+        node.performKeyInput { keyboardActions.apply { this@performKeyInput.deleteAll() } }
+        assertThat(state.value.text).isEqualTo("")
     }
+
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun selectAll() {
-        textFieldSemanticInteraction("Select this text") { node, state ->
-            node.performKeyInput { keyboardActions.apply { this@performKeyInput.selectAll() } }
-            assertThat(state.value.selection).isEqualTo(TextRange(0, 16))
+    fun selectAll() = textFieldSemanticInteraction("Select this text") { node, state ->
+        node.performKeyInput { keyboardActions.apply { this@performKeyInput.selectAll() } }
+        assertThat(state.value.selection).isEqualTo(TextRange(0, 16))
 
-            node.performKeyInput { keyDown(Key.Delete) }
-            assertThat(state.value.selection).isEqualTo(TextRange(0, 0))
-            assertThat(state.value.text).isEqualTo("")
-        }
+        node.performKeyInput { keyDown(Key.Delete) }
+        assertThat(state.value.selection).isEqualTo(TextRange(0, 0))
+        assertThat(state.value.text).isEqualTo("")
     }
+
 }
