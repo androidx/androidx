@@ -1351,6 +1351,86 @@ public fun RemoteComposeWriter.particlesLoops(
     this.particlesLoop(id, restart?.array, expressions, r)
 }
 
+/**
+ * Particles comparison
+ *
+ * @param id the id of the particle system
+ * @param condition run then and action if condition > 0
+ * @param then modify particles if condition > 0
+ * @param action the action on condition > 0
+ */
+public fun RemoteComposeWriter.particlesComparison(
+    id: Float,
+    condition: RFloat?,
+    then: Array<Number>,
+    action: Runnable,
+) {
+    val expressions1: Array<FloatArray> =
+        Array(then.size) {
+            val v = then[it]
+            if (v is RFloat) v.array else floatArrayOf(v.toFloat())
+        }
+
+    this.particlesComparison(id, 0, -1f, -1f, condition?.array, expressions1, null, action)
+}
+
+/**
+ * 2 Particle comparison
+ *
+ * @param condition run then and action if condition > 0
+ * @param thenA modify particles if condition > 0
+ * @param thenB modify particles if condition > 0
+ * @param action the action on condition > 0
+ */
+public fun RemoteComposeWriter.particleComparison(
+    id: Float,
+    condition: RFloat?,
+    thenA: Array<Number>,
+    thenB: Array<Number>,
+    action: Runnable,
+) {
+    val expressionsA: Array<FloatArray> =
+        Array(thenA.size) {
+            val v = thenA[it]
+            if (v is RFloat) v.array else floatArrayOf(v.toFloat())
+        }
+    val expressionsB: Array<FloatArray> =
+        Array(thenB.size) {
+            val v = thenB[it]
+            if (v is RFloat) v.array else floatArrayOf(v.toFloat())
+        }
+
+    this.particlesComparison(id, 0, -1f, -1f, condition?.array, expressionsA, expressionsB, action)
+}
+
+/**
+ * Particles comparison with flags
+ *
+ * @param flags the flags to use
+ * @param min the min range of particles
+ * @param max the max range of particles
+ * @param condition run then and action if condition > 0
+ * @param then modify particles if condition > 0
+ * @param action the action on condition > 0
+ */
+public fun RemoteComposeWriter.particlesComparison(
+    id: Float,
+    flags: Short = 0,
+    min: Float = -1f,
+    max: Float = -1f,
+    condition: RFloat?,
+    then: Array<Number>,
+    action: Runnable,
+) {
+    val expressions1: Array<FloatArray> =
+        Array(then.size) {
+            val v = then[it]
+            if (v is RFloat) v.array else floatArrayOf(v.toFloat())
+        }
+
+    this.particlesComparison(id, flags, min, max, condition?.array, expressions1, action)
+}
+
 public fun RemoteComposeWriter.createParticles(
     rvariables: Array<RFloat>,
     initialize: Array<Number>,

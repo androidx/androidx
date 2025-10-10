@@ -34,6 +34,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.tracing.Trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -104,6 +105,17 @@ class PokedexScrollBenchmark(
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {
+                // Start by setting up the images on disk
+                trace("Set up images") {
+                    val setupIntent = Intent()
+                    setupIntent.action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_SETUP_ACTIVITY"
+                    startActivityAndWait(setupIntent)
+                    device.waitForIdle()
+                    killProcess()
+                }
+
+                databaseCleanupRule.deleteDatabaseFiles()
+
                 val intent = Intent()
                 intent.action = action
                 intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
@@ -146,3 +158,11 @@ class PokedexScrollBenchmark(
             }
     }
 }
+
+private fun <R> trace(sectionName: String, block: () -> R): R =
+    try {
+        Trace.beginSection(sectionName)
+        block()
+    } finally {
+        Trace.endSection()
+    }

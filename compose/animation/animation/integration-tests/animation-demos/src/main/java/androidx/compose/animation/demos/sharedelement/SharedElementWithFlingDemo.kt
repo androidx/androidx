@@ -17,14 +17,12 @@
 package androidx.compose.animation.demos.sharedelement
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.samples.SharedElementWithFlingSample
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
 @SuppressLint("PrimitiveInCollection")
 @Preview
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedElementWithFlingDemo() {
     SharedElementWithFlingSample()

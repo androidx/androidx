@@ -49,6 +49,7 @@ import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +57,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldFocusCustomDialogTest {
-    @get:Rule val rule = createAndroidComposeRule<FragmentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<FragmentActivity>(StandardTestDispatcher())
 
     data class FocusTestData(val focusRequester: FocusRequester, var focused: Boolean = false)
 

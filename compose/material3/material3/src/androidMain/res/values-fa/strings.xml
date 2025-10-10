@@ -17,6 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3c_button_group_more_options" msgid="3990875819916144919">"گزینه‌های بیشتر"</string>
     <string name="m3c_dialog" msgid="7617233117134790350">"کادر گفتگو"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"ازهم باز شد"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"جمع شد"</string>
@@ -43,7 +44,7 @@
     <string name="m3c_date_input_no_input_description" msgid="1237013946323089826">"هیچ‌کدام"</string>
     <string name="m3c_date_input_invalid_not_allowed" msgid="2521768508935305279">"‏تاریخ مجاز نیست: %1$s"</string>
     <string name="m3c_date_input_invalid_for_pattern" msgid="6116910750161463197">"‏تاریخ با الگوی موردانتظار مطابقت ندارد: %1$s"</string>
-    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"‏تاریخ خارج از بازه زمانی %1$s تا %2$s است"</string>
+    <string name="m3c_date_input_invalid_year_range" msgid="7052898923934555305">"‏تاریخ خارج از محدوده سال %1$s تا %2$s است"</string>
     <string name="m3c_date_picker_switch_to_calendar_mode" msgid="1804346892470238807">"تعویض به حالت ورودی تقویم"</string>
     <string name="m3c_date_picker_switch_to_input_mode" msgid="2219746470065162704">"رفتن به حالت ورودی نوشتاری"</string>
     <string name="m3c_date_picker_scroll_to_later_years" msgid="5727367015496556177">"برای نمایش سال‌های بعد پیمایش کنید"</string>
@@ -63,6 +64,7 @@
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"ازهم باز کردن برگ زیرین"</string>
     <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"جمع کردن نوارابزار"</string>
     <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"ازهم بازکردن نوارابزار"</string>
+    <string name="m3c_floating_toolbar_more_options" msgid="5546418917311349543">"گزینه‌های بیشتر"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"نکته‌ابزار"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"نمایش نکته‌ابزار"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"ب.ظ."</string>

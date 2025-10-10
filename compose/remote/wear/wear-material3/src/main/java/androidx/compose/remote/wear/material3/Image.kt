@@ -17,25 +17,26 @@
 
 package androidx.compose.remote.wear.material3
 
+import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.remote.foundation.RemoteImage
-import androidx.compose.remote.frontend.capture.RecordingCanvas
-import androidx.compose.remote.frontend.layout.RemoteBox
-import androidx.compose.remote.frontend.layout.RemoteCanvas
-import androidx.compose.remote.frontend.layout.RemoteComposable
-import androidx.compose.remote.frontend.modifier.RemoteModifier
-import androidx.compose.remote.frontend.modifier.clip
-import androidx.compose.remote.frontend.modifier.fillMaxSize
-import androidx.compose.remote.frontend.modifier.height
-import androidx.compose.remote.frontend.modifier.width
-import androidx.compose.remote.frontend.state.RemoteBitmap
-import androidx.compose.remote.frontend.state.RemoteColor
-import androidx.compose.remote.frontend.state.RemoteDp
-import androidx.compose.remote.frontend.state.RemoteString
-import androidx.compose.remote.frontend.state.rememberRemoteDpValue
+import androidx.compose.remote.creation.compose.capture.RecordingCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.RemoteBitmap
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rememberRemoteDpValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.nativeCanvas
@@ -161,12 +162,13 @@ private fun FallbackAvatar(
 
 @Composable
 @RemoteComposable
+@SuppressLint("RestrictedApiAndroidX")
 private fun BackgroundOverlay(modifier: RemoteModifier, overlayColor: RemoteColor) {
     RemoteCanvas(modifier = modifier.clip(ImageDefaults.backgroundShape())) {
         val canvas = drawContext.canvas.nativeCanvas
         val paint =
-            Paint().apply {
-                setColor(overlayColor.getValueForCreationState(remoteComposeCreationState))
+            RemotePaint().apply {
+                remoteColor = overlayColor
                 style = Paint.Style.FILL
             }
         if (canvas is RecordingCanvas) {

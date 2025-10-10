@@ -63,6 +63,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
@@ -75,7 +76,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalLayoutApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 class WindowInsetsControllerTest {
-    @get:Rule val rule = createAndroidComposeRule<WindowInsetsActivity>()
+    @get:Rule val rule = createAndroidComposeRule<WindowInsetsActivity>(StandardTestDispatcher())
 
     private val testTag = "TestTag"
 

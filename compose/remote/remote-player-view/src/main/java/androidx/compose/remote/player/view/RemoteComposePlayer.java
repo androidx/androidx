@@ -32,6 +32,7 @@ import android.widget.ScrollView;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.CoreDocument.ShaderControl;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.RemoteContextActions;
 import androidx.compose.remote.core.operations.NamedVariable;
@@ -39,16 +40,18 @@ import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext;
+import androidx.compose.remote.player.core.platform.BitmapLoader;
+import androidx.compose.remote.player.core.platform.SettingsRetriever;
+import androidx.compose.remote.player.core.state.StateUpdater;
+import androidx.compose.remote.player.core.state.StateUpdaterImpl;
 import androidx.compose.remote.player.view.accessibility.platform.RemoteComposeTouchHelper;
-import androidx.compose.remote.player.view.platform.AndroidRemoteContext;
 import androidx.compose.remote.player.view.platform.HapticSupport;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.platform.RemotePreparedDocument;
 import androidx.compose.remote.player.view.platform.SensorSupport;
-import androidx.compose.remote.player.view.platform.SettingsRetriever;
 import androidx.compose.remote.player.view.platform.ThemeSupport;
-import androidx.compose.remote.player.view.state.StateUpdater;
-import androidx.compose.remote.player.view.state.StateUpdaterImpl;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -78,14 +81,12 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     private RemoteComposeView mInner;
     private StateUpdater mStateUpdater;
 
-    private final ThemeSupport mThemeSupport = new ThemeSupport();
-    private final SensorSupport mSensorsSupport = new SensorSupport();
-    private final HapticSupport mHapticSupport = new HapticSupport();
+    private final @NonNull ThemeSupport mThemeSupport = new ThemeSupport();
+    private final @NonNull SensorSupport mSensorsSupport = new SensorSupport();
+    private final @NonNull HapticSupport mHapticSupport = new HapticSupport();
 
-    private CoreDocument.ShaderControl mShaderControl =
-            (shader) -> {
-                return false;
-            };
+    private @NonNull ShaderControl mShaderControl =
+            (shader) -> false;
 
     public RemoteComposePlayer(@NonNull Context context) {
         super(context);
@@ -97,7 +98,8 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         init(context, attrs, 0);
     }
 
-    public RemoteComposePlayer(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public RemoteComposePlayer(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -260,8 +262,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /**
      * Set a document on the player
-     *
-     * @param buffer
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(byte[] buffer) {
@@ -271,8 +271,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /**
      * Set a document on the player
-     *
-     * @param inputStream
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setDocument(InputStream inputStream) {
@@ -282,8 +280,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /**
      * Set a document on the player
-     *
-     * @param value
      */
     public void setDocument(@NonNull RemoteComposeDocument value) {
         if (value != null) {
@@ -376,6 +372,16 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         mInner.setBackgroundColor(Color.TRANSPARENT);
         addView(mInner, layoutParams);
         mStateUpdater = new StateUpdaterImpl(getRemoteContext());
+    }
+
+    /**
+     * Sets a BitmapLoader on the RemoteContext.
+     *
+     * @param bitmapLoader new bitmap loader.
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void setBitmapLoader(@NonNull BitmapLoader bitmapLoader) {
+        ((AndroidRemoteContext) mInner.getRemoteContext()).setBitmapLoader(bitmapLoader);
     }
 
     /**
@@ -539,8 +545,6 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
 
     /**
      * Set to use the choreographer
-     *
-     * @param value
      */
     @VisibleForTesting
     @RestrictTo(LIBRARY_GROUP)
@@ -684,7 +688,7 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
      * @param ctl the controller
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void setShaderControl(CoreDocument.ShaderControl ctl) {
+    public void setShaderControl(@NonNull ShaderControl ctl) {
         mShaderControl = ctl;
     }
 

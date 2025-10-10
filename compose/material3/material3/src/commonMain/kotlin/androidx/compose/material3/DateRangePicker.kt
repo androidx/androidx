@@ -892,6 +892,9 @@ private fun VerticalMonthsList(
                         selectableDates = selectableDates,
                         colors = colors,
                         locale = calendarModel.locale,
+                        lazyListState = lazyListState,
+                        focusManager = null,
+                        onReturnFocus = {},
                     )
                 }
             }

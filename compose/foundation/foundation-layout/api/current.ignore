@@ -106,9 +106,9 @@ BecameUnchecked: androidx.compose.foundation.layout.WindowInsets_androidKt#isTap
 
 
 ChangedType: androidx.compose.foundation.layout.PaddingKt#calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection):
-    Binary breaking change: Method androidx.compose.foundation.layout.PaddingKt.calculateEndPadding has changed return type from float to androidx.compose.ui.unit.Dp
+    Source breaking change: Method androidx.compose.foundation.layout.PaddingKt.calculateEndPadding has changed return type from float to androidx.compose.ui.unit.Dp
 ChangedType: androidx.compose.foundation.layout.PaddingKt#calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection):
-    Binary breaking change: Method androidx.compose.foundation.layout.PaddingKt.calculateStartPadding has changed return type from float to androidx.compose.ui.unit.Dp
+    Source breaking change: Method androidx.compose.foundation.layout.PaddingKt.calculateStartPadding has changed return type from float to androidx.compose.ui.unit.Dp
 ChangedType: androidx.compose.foundation.layout.PaddingValues#calculateBottomPadding():
     Source breaking change: Method androidx.compose.foundation.layout.PaddingValues.calculateBottomPadding has changed return type from float to androidx.compose.ui.unit.Dp
 ChangedType: androidx.compose.foundation.layout.PaddingValues#calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection):
@@ -197,6 +197,10 @@ RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getSp
     Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getSpaceBetween() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.layout.Arrangement.Absolute#getSpaceEvenly():
     Source breaking change: method androidx.compose.foundation.layout.Arrangement.Absolute.getSpaceEvenly() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.PaddingKt#calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: method androidx.compose.foundation.layout.PaddingKt.calculateEndPadding(androidx.compose.foundation.layout.PaddingValues,androidx.compose.ui.unit.LayoutDirection) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.foundation.layout.PaddingKt#calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection):
+    Source breaking change: method androidx.compose.foundation.layout.PaddingKt.calculateStartPadding(androidx.compose.foundation.layout.PaddingValues,androidx.compose.ui.unit.LayoutDirection) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.layout.PaddingValues.Companion#getZero():
     Source breaking change: method androidx.compose.foundation.layout.PaddingValues.Companion.getZero() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.foundation.layout.WindowInsets_androidKt#getConsumeWindowInsets(androidx.compose.ui.platform.AbstractComposeView):

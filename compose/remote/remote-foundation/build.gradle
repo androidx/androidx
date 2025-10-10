@@ -25,7 +25,7 @@ plugins {
 
 androidx {
     name = "Remote Compose Foundation"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Provides a set of RemoteCompose foundational UI components, that are built with the RemoteCompose frontend APIs."
     addGoldenImageAssets()
@@ -34,30 +34,7 @@ androidx {
 android {
     namespace = "androidx.compose.remote.foundation"
     compileSdk = 35
-
-}
-
-dependencies {
-    api(libs.jspecify)
-    implementation(project(":compose:remote:remote-frontend"))
-    implementation(project(":compose:remote:remote-player-view"))
-    implementation(project(":compose:remote:remote-creation"))
-    implementation(project(":graphics:graphics-path"))
-    implementation("androidx.compose.ui:ui:1.8.3")
-    implementation("androidx.compose.runtime:runtime:1.8.3")
-    implementation("androidx.compose.foundation:foundation:1.8.3")
-    implementation("androidx.compose.foundation:foundation-layout:1.8.3")
-
-    androidTestImplementation(project(":compose:remote:remote-creation"))
-    androidTestImplementation(project(":compose:remote:test-utils"))
-    androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation("androidx.activity:activity:1.7.2")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinTest)
-    androidTestImplementation(libs.truth)
+    defaultConfig {
+        minSdk = 26
+    }
 }

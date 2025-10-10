@@ -3392,7 +3392,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     val nextView =
                         FocusFinder.getInstance()
                             .findNextFocus(rootView as ViewGroup, view, direction)
-                    if (nextView == null || nextView == this) {
+                    if (nextView == null || nextView == this@AndroidComposeView) {
                         return focusOwner.resetFocus(focusDirection)
                     }
                 }
@@ -3431,7 +3431,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // will
             // instead be visited when the AndroidView around them gets a moveFocus(Enter)).
             if (androidDirection != null) {
-                val nextView = findNextNonChildView(androidDirection).takeIf { it != this }
+                val nextView =
+                    findNextNonChildView(androidDirection).takeIf { it != this@AndroidComposeView }
                 if (nextView != null) {
                     val androidRect =
                         checkPreconditionNotNull(focusedRect?.toAndroidRect()) { "Invalid rect" }

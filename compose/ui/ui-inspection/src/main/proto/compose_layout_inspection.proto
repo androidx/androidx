@@ -288,6 +288,10 @@ message StateReadSettings {
       // Limit the number of recompositions that state reads are kept for each
       // composable. Older data is sent to Studio via an event. The default is 20.
       int32 max_recompositions = 2;
+
+      // Send state reads that are discarded because of max_recompositions as
+      // events.
+      bool send_discarded_events = 3;
   }
 }
 

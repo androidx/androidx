@@ -76,17 +76,17 @@ AddedAbstractMethod: androidx.compose.ui.graphics.drawscope.DrawTransform#transf
 
 
 ChangedType: androidx.compose.ui.graphics.AndroidColor_androidKt#fromColorLong(androidx.compose.ui.graphics.Color.Companion, long):
-    Binary breaking change: Method androidx.compose.ui.graphics.AndroidColor_androidKt.fromColorLong has changed return type from long to androidx.compose.ui.graphics.Color
+    Source breaking change: Method androidx.compose.ui.graphics.AndroidColor_androidKt.fromColorLong has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.AndroidPathMeasure#getPosition(float):
     Source breaking change: Method androidx.compose.ui.graphics.AndroidPathMeasure.getPosition has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.graphics.AndroidPathMeasure#getTangent(float):
     Source breaking change: Method androidx.compose.ui.graphics.AndroidPathMeasure.getTangent has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.graphics.AndroidTileMode_androidKt#toComposeTileMode(android.graphics.Shader.TileMode):
-    Binary breaking change: Method androidx.compose.ui.graphics.AndroidTileMode_androidKt.toComposeTileMode has changed return type from int to androidx.compose.ui.graphics.TileMode
+    Source breaking change: Method androidx.compose.ui.graphics.AndroidTileMode_androidKt.toComposeTileMode has changed return type from int to androidx.compose.ui.graphics.TileMode
 ChangedType: androidx.compose.ui.graphics.BezierKt#computeCubicVerticalBounds(float, float, float, float, float[], int):
-    Binary breaking change: Method androidx.compose.ui.graphics.BezierKt.computeCubicVerticalBounds has changed return type from long to androidx.collection.FloatFloatPair
+    Source breaking change: Method androidx.compose.ui.graphics.BezierKt.computeCubicVerticalBounds has changed return type from long to androidx.collection.FloatFloatPair
 ChangedType: androidx.compose.ui.graphics.BezierKt#computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment, float[], int):
-    Binary breaking change: Method androidx.compose.ui.graphics.BezierKt.computeHorizontalBounds has changed return type from long to androidx.collection.FloatFloatPair
+    Source breaking change: Method androidx.compose.ui.graphics.BezierKt.computeHorizontalBounds has changed return type from long to androidx.collection.FloatFloatPair
 ChangedType: androidx.compose.ui.graphics.Color#convert(androidx.compose.ui.graphics.colorspace.ColorSpace):
     Source breaking change: Method androidx.compose.ui.graphics.Color.convert has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.Color#copy(float, float, float, float):
@@ -96,13 +96,13 @@ ChangedType: androidx.compose.ui.graphics.Color.Companion#hsl(float, float, floa
 ChangedType: androidx.compose.ui.graphics.Color.Companion#hsv(float, float, float, float, androidx.compose.ui.graphics.colorspace.Rgb):
     Source breaking change: Method androidx.compose.ui.graphics.Color.Companion.hsv has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.ColorKt#Color(float, float, float, float, androidx.compose.ui.graphics.colorspace.ColorSpace):
-    Binary breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
+    Source breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.ColorKt#Color(int):
-    Binary breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
+    Source breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.ColorKt#Color(int, int, int, int):
-    Binary breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
+    Source breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.ColorKt#Color(long):
-    Binary breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
+    Source breaking change: Method androidx.compose.ui.graphics.ColorKt.Color has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.ColorProducer#invoke():
     Source breaking change: Method androidx.compose.ui.graphics.ColorProducer.invoke has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.ui.graphics.PathMeasure#getPosition(float):
@@ -145,6 +145,8 @@ RemovedFromBytecode: androidx.compose.ui.graphics.PixelMap#get(int, int):
 
 RemovedFromKotlin: androidx.compose.ui.graphics.AndroidCanvas_androidKt#getNativeCanvas(androidx.compose.ui.graphics.Canvas):
     Source breaking change: method androidx.compose.ui.graphics.AndroidCanvas_androidKt.getNativeCanvas(androidx.compose.ui.graphics.Canvas) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidColor_androidKt#fromColorLong(androidx.compose.ui.graphics.Color.Companion, long):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidColor_androidKt.fromColorLong(androidx.compose.ui.graphics.Color.Companion,long) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getAlpha():
     Source breaking change: method androidx.compose.ui.graphics.AndroidPaint.getAlpha() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPaint#getColorFilter():
@@ -181,6 +183,20 @@ RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPath#isEmpty():
     Source breaking change: method androidx.compose.ui.graphics.AndroidPath.isEmpty() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.AndroidPathMeasure#getLength():
     Source breaking change: method androidx.compose.ui.graphics.AndroidPathMeasure.getLength() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.AndroidTileMode_androidKt#toComposeTileMode(android.graphics.Shader.TileMode):
+    Source breaking change: method androidx.compose.ui.graphics.AndroidTileMode_androidKt.toComposeTileMode(android.graphics.Shader.TileMode) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.BezierKt#computeCubicVerticalBounds(float, float, float, float, float[], int):
+    Source breaking change: method androidx.compose.ui.graphics.BezierKt.computeCubicVerticalBounds(float,float,float,float,float[],int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.BezierKt#computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment, float[], int):
+    Source breaking change: method androidx.compose.ui.graphics.BezierKt.computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment,float[],int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ColorKt#Color(float, float, float, float, androidx.compose.ui.graphics.colorspace.ColorSpace):
+    Source breaking change: method androidx.compose.ui.graphics.ColorKt.Color(float,float,float,float,androidx.compose.ui.graphics.colorspace.ColorSpace) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ColorKt#Color(int):
+    Source breaking change: method androidx.compose.ui.graphics.ColorKt.Color(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ColorKt#Color(int, int, int, int):
+    Source breaking change: method androidx.compose.ui.graphics.ColorKt.Color(int,int,int,int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.graphics.ColorKt#Color(long):
+    Source breaking change: method androidx.compose.ui.graphics.ColorKt.Color(long) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.ColorMatrix#getValues():
     Source breaking change: method androidx.compose.ui.graphics.ColorMatrix.getValues() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.FilterQuality#getValue():
@@ -405,12 +421,8 @@ RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.WhitePoint#getX():
     Source breaking change: method androidx.compose.ui.graphics.colorspace.WhitePoint.getX() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.colorspace.WhitePoint#getY():
     Source breaking change: method androidx.compose.ui.graphics.colorspace.WhitePoint.getY() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getDensity():
-    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getDensity() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getDrawContext():
     Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getDrawContext() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getFontScale():
-    Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getFontScale() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope#getLayoutDirection():
     Source breaking change: method androidx.compose.ui.graphics.drawscope.CanvasDrawScope.getLayoutDirection() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams#component4-NH-jbRc():

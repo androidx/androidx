@@ -747,8 +747,10 @@ package androidx.compose.ui.text {
   }
 
   public final class TextRangeKt {
-    method @InaccessibleFromJava public static androidx.compose.ui.text.TextRange TextRange(int index);
-    method @InaccessibleFromJava public static androidx.compose.ui.text.TextRange TextRange(int start, int end);
+    method @KotlinOnly public static androidx.compose.ui.text.TextRange TextRange(int index);
+    method @BytecodeOnly public static long TextRange(int);
+    method @KotlinOnly public static androidx.compose.ui.text.TextRange TextRange(int start, int end);
+    method @BytecodeOnly public static long TextRange(int, int);
     method @KotlinOnly public static androidx.compose.ui.text.TextRange coerceIn(androidx.compose.ui.text.TextRange, int minimumValue, int maximumValue);
     method @BytecodeOnly public static long coerceIn-8ffj60Q(long, int, int);
     method @KotlinOnly public static String substring(CharSequence, androidx.compose.ui.text.TextRange range);

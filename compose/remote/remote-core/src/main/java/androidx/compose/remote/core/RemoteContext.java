@@ -562,6 +562,14 @@ public abstract class RemoteContext {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Mark the variable as dirty
+     * @param id
+     */
+    public void markVariableDirty(int id) {
+        // empty
+    }
+
+    /**
      * Save a bitmap under an imageId
      *
      * @param imageId the id of the image

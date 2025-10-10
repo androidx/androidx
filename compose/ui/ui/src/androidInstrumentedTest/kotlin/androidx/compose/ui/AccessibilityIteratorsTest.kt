@@ -43,6 +43,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import java.util.Locale
 import kotlin.math.abs
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AccessibilityIteratorsTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val InputText = List(500) { "Line: $it" }.joinToString("\n")
     private val TextFieldTag = "textFieldTag"

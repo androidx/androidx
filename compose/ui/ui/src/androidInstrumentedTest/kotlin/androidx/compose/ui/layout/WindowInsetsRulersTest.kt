@@ -66,6 +66,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -77,7 +78,7 @@ import org.junit.runners.JUnit4
 @SdkSuppress(minSdkVersion = 30)
 @RunWith(JUnit4::class)
 class WindowInsetsRulersTest {
-    @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>()
+    @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>(StandardTestDispatcher())
 
     private lateinit var composeView: AndroidComposeView
     private var insetsRect: IntRect? = null

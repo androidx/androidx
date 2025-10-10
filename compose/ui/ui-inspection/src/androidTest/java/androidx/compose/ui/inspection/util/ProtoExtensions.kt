@@ -249,6 +249,7 @@ internal fun GetUpdateSettingsCommand(
     stateReadKind: StateReadSettings.Kind = StateReadSettings.Kind.NONE,
     composableToObserve: List<Int> = emptyList(),
     maxRecompositions: Int = 0,
+    sendDiscardedEvents: Boolean = false,
 ): Command =
     Command.newBuilder()
         .apply {
@@ -278,6 +279,8 @@ internal fun GetUpdateSettingsCommand(
                                                             composableToObserve
                                                         )
                                                         this.maxRecompositions = maxRecompositions
+                                                        this.sendDiscardedEvents =
+                                                            sendDiscardedEvents
                                                     }
                                                     .build()
                                         else -> none = StateReadSettings.None.getDefaultInstance()

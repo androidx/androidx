@@ -39,6 +39,7 @@ import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeContextAndroid;
 import androidx.compose.remote.creation.platform.AndroidxPlatformServices;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.platform.app.InstrumentationRegistry;
 

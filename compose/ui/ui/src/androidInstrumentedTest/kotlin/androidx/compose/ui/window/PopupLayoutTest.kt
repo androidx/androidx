@@ -40,6 +40,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.UUID
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +55,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PopupLayoutTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun canCalculatePosition_onlyWhenSizeAndCoordinatesAreAvailable() {
@@ -378,6 +379,9 @@ class PopupLayoutTest {
             override var parentCoordinates: LayoutCoordinates? = null
 
             var windowOffset: Offset = Offset.Zero
+
+            override fun localToScreen(relativeToLocal: Offset): Offset =
+                relativeToLocal + windowOffset
 
             override fun windowToLocal(relativeToWindow: Offset): Offset =
                 relativeToWindow - windowOffset

@@ -27,6 +27,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestWatcher
@@ -61,7 +62,7 @@ class CustomEffectContextRuleTest {
     fun effectContextPropagatedToComposition_createComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
-        val rule = createComposeRule(testElement)
+        val rule = createComposeRule(testElement + StandardTestDispatcher())
         val baseStatement =
             object : Statement() {
                 override fun evaluate() {
@@ -79,7 +80,8 @@ class CustomEffectContextRuleTest {
     fun effectContextPropagatedToComposition_createAndroidComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
-        val rule = createAndroidComposeRule<ComponentActivity>(testElement)
+        val rule =
+            createAndroidComposeRule<ComponentActivity>(testElement + StandardTestDispatcher())
         val baseStatement =
             object : Statement() {
                 override fun evaluate() {
@@ -97,7 +99,7 @@ class CustomEffectContextRuleTest {
     fun effectContextPropagatedToComposition_createEmptyComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
-        val composeRule = createEmptyComposeRule(testElement)
+        val composeRule = createEmptyComposeRule(testElement + StandardTestDispatcher())
         val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
         val baseStatement =
             object : Statement() {

@@ -8,7 +8,7 @@ ChangedType: androidx.compose.ui.geometry.CornerRadius#times(float):
 ChangedType: androidx.compose.ui.geometry.CornerRadius#unaryMinus():
     Source breaking change: Method androidx.compose.ui.geometry.CornerRadius.unaryMinus has changed return type from long to androidx.compose.ui.geometry.CornerRadius
 ChangedType: androidx.compose.ui.geometry.CornerRadiusKt#CornerRadius(float, float):
-    Binary breaking change: Method androidx.compose.ui.geometry.CornerRadiusKt.CornerRadius has changed return type from long to androidx.compose.ui.geometry.CornerRadius
+    Source breaking change: Method androidx.compose.ui.geometry.CornerRadiusKt.CornerRadius has changed return type from long to androidx.compose.ui.geometry.CornerRadius
 ChangedType: androidx.compose.ui.geometry.Offset#copy(float, float):
     Source breaking change: Method androidx.compose.ui.geometry.Offset.copy has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.geometry.Offset#div(float):
@@ -20,7 +20,7 @@ ChangedType: androidx.compose.ui.geometry.Offset#times(float):
 ChangedType: androidx.compose.ui.geometry.Offset#unaryMinus():
     Source breaking change: Method androidx.compose.ui.geometry.Offset.unaryMinus has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.geometry.OffsetKt#Offset(float, float):
-    Binary breaking change: Method androidx.compose.ui.geometry.OffsetKt.Offset has changed return type from long to androidx.compose.ui.geometry.Offset
+    Source breaking change: Method androidx.compose.ui.geometry.OffsetKt.Offset has changed return type from long to androidx.compose.ui.geometry.Offset
 ChangedType: androidx.compose.ui.geometry.Size#copy(float, float):
     Source breaking change: Method androidx.compose.ui.geometry.Size.copy has changed return type from long to androidx.compose.ui.geometry.Size
 ChangedType: androidx.compose.ui.geometry.Size#div(float):
@@ -28,7 +28,7 @@ ChangedType: androidx.compose.ui.geometry.Size#div(float):
 ChangedType: androidx.compose.ui.geometry.Size#times(float):
     Source breaking change: Method androidx.compose.ui.geometry.Size.times has changed return type from long to androidx.compose.ui.geometry.Size
 ChangedType: androidx.compose.ui.geometry.SizeKt#Size(float, float):
-    Binary breaking change: Method androidx.compose.ui.geometry.SizeKt.Size has changed return type from long to androidx.compose.ui.geometry.Size
+    Source breaking change: Method androidx.compose.ui.geometry.SizeKt.Size has changed return type from long to androidx.compose.ui.geometry.Size
 
 
 RemovedFromBytecode: androidx.compose.ui.geometry.CornerRadius#component1():
@@ -83,6 +83,8 @@ RemovedFromBytecode: androidx.compose.ui.geometry.Size#times(float):
 
 RemovedFromKotlin: androidx.compose.ui.geometry.CornerRadius#getPackedValue():
     Source breaking change: method androidx.compose.ui.geometry.CornerRadius.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.CornerRadiusKt#CornerRadius(float, float):
+    Source breaking change: method androidx.compose.ui.geometry.CornerRadiusKt.CornerRadius(float,float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getBottom():
     Source breaking change: method androidx.compose.ui.geometry.MutableRect.getBottom() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#getHeight():
@@ -115,6 +117,8 @@ RemovedFromKotlin: androidx.compose.ui.geometry.MutableRect#setTop(float):
     Source breaking change: method androidx.compose.ui.geometry.MutableRect.setTop(float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.Offset#getPackedValue():
     Source breaking change: method androidx.compose.ui.geometry.Offset.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.OffsetKt#Offset(float, float):
+    Source breaking change: method androidx.compose.ui.geometry.OffsetKt.Offset(float,float) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getBottom():
     Source breaking change: method androidx.compose.ui.geometry.Rect.getBottom() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.Rect#getHeight():
@@ -189,6 +193,8 @@ RemovedFromKotlin: androidx.compose.ui.geometry.RoundRectKt#isSimple(androidx.co
     Source breaking change: method androidx.compose.ui.geometry.RoundRectKt.isSimple(androidx.compose.ui.geometry.RoundRect) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.ui.geometry.Size#getPackedValue():
     Source breaking change: method androidx.compose.ui.geometry.Size.getPackedValue() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.geometry.SizeKt#Size(float, float):
+    Source breaking change: method androidx.compose.ui.geometry.SizeKt.Size(float,float) can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.compose.ui.geometry.CornerRadius#minus(long):

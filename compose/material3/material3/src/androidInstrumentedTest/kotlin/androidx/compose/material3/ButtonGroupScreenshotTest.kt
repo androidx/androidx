@@ -35,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +46,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ButtonGroupScreenshotTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
@@ -511,7 +512,7 @@ class ButtonGroupScreenshotTest {
                     overflowIndicator = { menuState ->
                         IconButton(
                             onClick = {
-                                if (menuState.isExpanded) {
+                                if (menuState.isShowing) {
                                     menuState.dismiss()
                                 } else {
                                     menuState.show()
@@ -557,7 +558,7 @@ class ButtonGroupScreenshotTest {
                     overflowIndicator = { menuState ->
                         IconButton(
                             onClick = {
-                                if (menuState.isExpanded) {
+                                if (menuState.isShowing) {
                                     menuState.dismiss()
                                 } else {
                                     menuState.show()

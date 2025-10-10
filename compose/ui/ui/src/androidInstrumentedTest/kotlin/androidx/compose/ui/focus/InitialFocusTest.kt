@@ -43,6 +43,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -52,7 +53,7 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 class InitialFocusTest(private val initialFocusEnabled: Boolean, private val touchMode: Boolean) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     lateinit var owner: View
     lateinit var layoutDirection: LayoutDirection

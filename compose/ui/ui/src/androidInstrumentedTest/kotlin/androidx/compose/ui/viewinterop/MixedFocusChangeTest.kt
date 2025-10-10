@@ -55,13 +55,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class MixedFocusChangeTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity2>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity2>(StandardTestDispatcher())
 
     @Before
     fun isPre26FocusFinderFixEnabled() {

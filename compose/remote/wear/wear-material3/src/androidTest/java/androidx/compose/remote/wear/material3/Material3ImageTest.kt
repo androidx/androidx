@@ -19,11 +19,11 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.compose.remote.frontend.modifier.RemoteModifier
-import androidx.compose.remote.frontend.modifier.size
-import androidx.compose.remote.frontend.state.rememberRemoteBitmapValue
-import androidx.compose.remote.frontend.state.rememberRemoteColor
-import androidx.compose.remote.frontend.state.rememberRemoteString
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rememberRemoteBitmapValue
+import androidx.compose.remote.creation.compose.state.rememberRemoteColor
+import androidx.compose.remote.creation.compose.state.rememberRemoteString
 import androidx.compose.remote.test.screenshot.TargetPlayer
 import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -42,7 +42,7 @@ class Material3ImageTest {
     @get:Rule
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(
-            moduleDirectory = GOLDEN_REMOTE_COMPOSE,
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
             targetPlayer = TargetPlayer.View,
         )
 
@@ -83,8 +83,6 @@ class Material3ImageTest {
     }
 
     internal companion object {
-        const val GOLDEN_REMOTE_COMPOSE = "compose/remote/wear/wear-material3"
-
         // Draws a red cross with a blue background
         fun createImage(tw: Int, th: Int): Bitmap {
             val image = Bitmap.createBitmap(tw, th, Bitmap.Config.ARGB_8888)

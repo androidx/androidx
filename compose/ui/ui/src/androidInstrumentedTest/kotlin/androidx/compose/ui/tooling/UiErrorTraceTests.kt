@@ -52,6 +52,7 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -75,7 +76,8 @@ class UiErrorTraceTests(private val lookahead: Boolean) {
     @get:Rule
     val rule =
         createAndroidComposeRule<ComponentActivity>(
-            CoroutineExceptionHandler { _, e -> exceptionHandler.invoke(e) }
+            CoroutineExceptionHandler { _, e -> exceptionHandler.invoke(e) } +
+                StandardTestDispatcher()
         )
 
     @Before

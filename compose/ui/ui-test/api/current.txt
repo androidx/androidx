@@ -99,7 +99,8 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsAtLeast-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
     method @KotlinOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.unit.Dp expectedWidth);
     method @BytecodeOnly public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo-3ABfNKs(androidx.compose.ui.test.SemanticsNodeInteraction, float);
-    method @InaccessibleFromJava public static androidx.compose.ui.unit.Dp getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method @KotlinOnly public static androidx.compose.ui.unit.Dp getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method @BytecodeOnly public static float getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine);
     method public static androidx.compose.ui.unit.DpRect getBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.geometry.Rect? getFirstLinkBounds(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
     method public static androidx.compose.ui.unit.DpRect getUnclippedBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
@@ -291,7 +292,8 @@ package androidx.compose.ui.test {
     method @KotlinOnly @Deprecated public static void moveTo(androidx.compose.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
     method @BytecodeOnly @Deprecated public static void moveTo-0AR0LA0(androidx.compose.ui.test.GestureScope, int, long);
     method @BytecodeOnly @Deprecated public static void moveTo-Uv8p0NA(androidx.compose.ui.test.GestureScope, long);
-    method @InaccessibleFromJava @Deprecated public static androidx.compose.ui.geometry.Offset percentOffset(androidx.compose.ui.test.GestureScope, optional float x, optional float y);
+    method @KotlinOnly @Deprecated public static androidx.compose.ui.geometry.Offset percentOffset(androidx.compose.ui.test.GestureScope, optional float x, optional float y);
+    method @BytecodeOnly @Deprecated public static long percentOffset(androidx.compose.ui.test.GestureScope, float, float);
     method @KotlinOnly @Deprecated public static void pinch(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, optional long durationMillis);
     method @BytecodeOnly @Deprecated public static void pinch-_QUENCA(androidx.compose.ui.test.GestureScope, long, long, long, long, long);
     method @KotlinOnly @Deprecated public static void swipe(androidx.compose.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, optional long durationMillis);
@@ -707,10 +709,10 @@ package androidx.compose.ui.test.internal {
 
   @SuppressCompatibility @androidx.compose.ui.test.InternalTestApi public abstract class DelayPropagatingContinuationInterceptorWrapper extends kotlin.coroutines.AbstractCoroutineContextElement implements kotlin.coroutines.ContinuationInterceptor kotlinx.coroutines.Delay {
     ctor public DelayPropagatingContinuationInterceptorWrapper(kotlin.coroutines.ContinuationInterceptor wrappedInterceptor);
-    method @InaccessibleFromJava @Deprecated public suspend Object? delay(long time, kotlin.coroutines.Continuation<? super java.lang.Void>);
-    method @InaccessibleFromJava public kotlinx.coroutines.DisposableHandle invokeOnTimeout(long timeMillis, Runnable block, kotlin.coroutines.CoroutineContext context);
+    method @Deprecated public suspend Object? delay(long time, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method public kotlinx.coroutines.DisposableHandle invokeOnTimeout(long timeMillis, Runnable block, kotlin.coroutines.CoroutineContext context);
     method @BytecodeOnly public void releaseInterceptedContinuation(kotlin.coroutines.Continuation<? extends java.lang.Object!>);
-    method @InaccessibleFromJava public void scheduleResumeAfterDelay(long timeMillis, kotlinx.coroutines.CancellableContinuation<kotlin.Unit> continuation);
+    method public void scheduleResumeAfterDelay(long timeMillis, kotlinx.coroutines.CancellableContinuation<kotlin.Unit> continuation);
   }
 
 }

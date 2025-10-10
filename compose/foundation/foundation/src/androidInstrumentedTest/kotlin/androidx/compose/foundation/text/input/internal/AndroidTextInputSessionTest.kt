@@ -49,6 +49,7 @@ import com.google.common.truth.Truth
 import kotlin.test.assertFalse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +59,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidTextInputSessionTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var hostView: View
@@ -80,8 +81,7 @@ class AndroidTextInputSessionTest {
         val state = TextFieldState("hello", initialSelection = TextRange(0, 5))
         launchInputSessionWithDefaultsForTest(state)
         val editorInfo = EditorInfo()
-
-        rule.runOnUiThread { hostView.onCreateInputConnection(editorInfo) }
+        rule.runOnIdle { hostView.onCreateInputConnection(editorInfo) }
 
         Truth.assertThat(editorInfo.initialSelStart).isEqualTo(0)
         Truth.assertThat(editorInfo.initialSelEnd).isEqualTo(5)

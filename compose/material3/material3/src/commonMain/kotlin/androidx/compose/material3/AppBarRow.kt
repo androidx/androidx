@@ -38,9 +38,9 @@ import androidx.compose.ui.util.fastForEach
  * A sample with an [TopAppBar], that varies the number of actions shown.
  *
  * @sample androidx.compose.material3.samples.SimpleTopAppBarWithAdaptiveActions
+ * @param modifier The modifier to be applied to the row.
  * @param overflowIndicator A composable that is displayed at the end of the row when the content
  *   overflows. It receives an [AppBarMenuState] instance.
- * @param modifier The modifier to be applied to the row.
  * @param maxItemCount the max amount of items that should render in the row, before starting to use
  *   the overflow menu. Consider that using large items or small constraints, will reduce the
  *   effective maximum. Note: If the number of items supplied is bigger than max, at most max - 1
@@ -50,8 +50,10 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 @Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
 fun AppBarRow(
-    overflowIndicator: @Composable (AppBarMenuState) -> Unit,
     modifier: Modifier = Modifier,
+    overflowIndicator: @Composable (AppBarMenuState) -> Unit = { menuState ->
+        AppBarOverflowIndicator(menuState)
+    },
     maxItemCount: Int = Int.MAX_VALUE,
     content: AppBarRowScope.() -> Unit,
 ) {
@@ -74,7 +76,7 @@ fun AppBarRow(
                     Box {
                         overflowIndicator(menuState)
                         DropdownMenu(
-                            expanded = menuState.isExpanded,
+                            expanded = menuState.isShowing,
                             onDismissRequest = { menuState.dismiss() },
                         ) {
                             scope.items
@@ -91,6 +93,16 @@ fun AppBarRow(
         measurePolicy = measurePolicy,
     )
 }
+
+@Deprecated(level = DeprecationLevel.HIDDEN, message = "Maintained for binary compatibility.")
+@Composable
+@Suppress("ComposableLambdaParameterPosition", "KotlinDefaultParameterOrder")
+fun AppBarRow(
+    overflowIndicator: @Composable (AppBarMenuState) -> Unit,
+    modifier: Modifier = Modifier,
+    maxItemCount: Int = Int.MAX_VALUE,
+    content: AppBarRowScope.() -> Unit,
+) = AppBarRow(modifier, overflowIndicator, maxItemCount, content)
 
 /** DSL scope for building the content of an [AppBarRow]. */
 interface AppBarRowScope : AppBarScope

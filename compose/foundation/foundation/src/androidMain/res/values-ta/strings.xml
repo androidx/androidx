@@ -19,5 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="tooltip_description" msgid="3765533235322692011">"உதவிக்குறிப்பு"</string>
     <string name="tooltip_label" msgid="3124740595719787496">"உதவிக்குறிப்பைக் காட்டும்"</string>
-    <string name="autofill" msgid="389117264260014992">"தன்னிரப்பி"</string>
+    <string name="androidx_compose_foundation_autofill" msgid="389117264260014992">"தன்னிரப்பி"</string>
 </resources>

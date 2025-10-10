@@ -25,33 +25,41 @@ import androidx.compose.runtime.annotation.FrequentlyChangingValue
  * provided by a scrollable component.
  *
  * For scrollable components with a large number of items, such as lazy layouts, implementations may
- * need to provide a reasonable heuristic for properties like content size, as calculating the exact
- * value might be computationally expensive or impossible.
+ * need to provide a reasonable heuristic for properties like [scrollOffset] and [contentSize], as
+ * calculating the exact value might be computationally expensive or impossible.
  */
 @Stable
 interface ScrollIndicatorState {
     /**
-     * The current scroll offset of the content from the start, in pixels.
+     * The current scroll offset of the content from the start, typically in pixels.
      *
      * For a vertical scrollable component, this is the Y offset. For a horizontal scrollable
      * component, this is the X offset.
+     *
+     * For lazy layouts, this value may represent an estimated scroll offset.
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
     @get:FrequentlyChangingValue @get:IntRange(from = 0) val scrollOffset: Int
 
     /**
-     * The total size of the scrollable content, in pixels.
+     * The total size of the scrollable content, typically in pixels.
      *
      * For a vertical scrollable component, this is the total height of the content. For a
      * horizontal scrollable component, this is the total width of the content.
+     *
+     * For lazy layouts, this value may represent an estimated total size of content, and may change
+     * as [scrollOffset] changes.
+     *
+     * The scroll range (how far the content can scroll) can be determined by subtracting the
+     * [viewportSize] from this [contentSize].
      *
      * Implementations should return [Int.MAX_VALUE] if this value is not yet known.
      */
     @get:IntRange(from = 0) val contentSize: Int
 
     /**
-     * The size of the visible portion of the scrollable content, in pixels.
+     * The size of the visible portion of the scrollable content, typically in pixels.
      *
      * For a vertical scrollable component, this is the height of the viewport. For a horizontal
      * scrollable component, this is the width of the viewport.

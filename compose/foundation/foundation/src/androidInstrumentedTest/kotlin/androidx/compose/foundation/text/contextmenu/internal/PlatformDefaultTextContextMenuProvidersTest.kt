@@ -32,13 +32,14 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 private const val MESSAGE = "FakeTextContextMenuProvider.showTextContextMenu called unexpectedly."
 
 class PlatformDefaultTextContextMenuProvidersTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val fakeTextContextMenuProvider = FakeTextContextMenuProvider {
         throw AssertionError(MESSAGE)

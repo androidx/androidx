@@ -892,10 +892,10 @@ package androidx.compose.animation.core {
   public final class VectorizedSpringSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedFiniteAnimationSpec<V> {
     ctor public VectorizedSpringSpec(optional float dampingRatio, optional float stiffness, optional V? visibilityThreshold);
     method @InaccessibleFromKotlin public float getDampingRatio();
-    method @InaccessibleFromJava public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
+    method public long getDurationNanos(V initialValue, V targetValue, V initialVelocity);
     method @InaccessibleFromKotlin public float getStiffness();
-    method @InaccessibleFromJava public V getValueFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
-    method @InaccessibleFromJava public V getVelocityFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
+    method public V getValueFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
+    method public V getVelocityFromNanos(long playTimeNanos, V initialValue, V targetValue, V initialVelocity);
     property public float dampingRatio;
     property public boolean isInfinite;
     property public float stiffness;

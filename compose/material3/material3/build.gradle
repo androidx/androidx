@@ -307,8 +307,10 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
             "m3c_time_picker_toggle_touch": "TimePickerToggleTouch",
             "m3c_floating_toolbar_collapse": "FloatingToolbarCollapse",
             "m3c_floating_toolbar_expand": "FloatingToolbarExpand",
+            "m3c_floating_toolbar_more_options": "FloatingToolbarMoreOptions",
             "m3c_wide_navigation_rail_close_rail": "CloseRail",
             "m3c_wide_navigation_rail_pane_title": "WideNavigationRailPaneTitle",
+            "m3c_button_group_more_options": "ButtonGroupMoreOptions",
     ]
     // This is all the locales translated by Compose on Android in the ui module:
     // https://github.com/androidx/androidx/tree/androidx-main/compose/ui/ui/src/androidMain/res

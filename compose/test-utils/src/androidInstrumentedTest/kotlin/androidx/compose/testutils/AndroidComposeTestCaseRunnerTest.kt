@@ -44,6 +44,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.Test
@@ -53,7 +54,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidComposeTestCaseRunnerTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
 
     internal fun <A : ComponentActivity> AndroidComposeTestRule<ActivityScenarioRule<A>, A>
         .forGivenContent(composable: @Composable () -> Unit): ComposeTestCaseSetup {

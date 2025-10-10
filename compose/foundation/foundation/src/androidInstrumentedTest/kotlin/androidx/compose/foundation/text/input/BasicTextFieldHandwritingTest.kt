@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -48,7 +49,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextFieldHandwritingTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
@@ -223,6 +224,7 @@ internal class BasicTextFieldHandwritingTest {
         }
 
         rule.onNodeWithTag(Tag).performStylusHandwriting()
+        rule.waitForIdle()
         keyboardHelper.waitForKeyboardVisibility(true)
         Truth.assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }
@@ -240,6 +242,7 @@ internal class BasicTextFieldHandwritingTest {
         }
 
         rule.onNodeWithTag(Tag).performStylusHandwriting()
+        rule.waitForIdle()
         keyboardHelper.waitForKeyboardVisibility(true)
         Truth.assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }

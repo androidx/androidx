@@ -54,11 +54,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.mockito.kotlin.mock
 
 internal abstract class AbstractSelectionContainerTest {
-    @get:Rule val rule = createComposeRule().also { it.mainClock.autoAdvance = false }
+    @get:Rule
+    val rule = createComposeRule(StandardTestDispatcher()).also { it.mainClock.autoAdvance = false }
 
     protected val textContent = "Text Demo Text"
     protected val fontFamily = TEST_FONT_FAMILY

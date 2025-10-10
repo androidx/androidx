@@ -21,9 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.test.StandardTestDispatcher
 
 /**
  * A Rule that allows simulation of parameterized tests that change a Composable input. Make sure to
@@ -88,7 +91,10 @@ private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeConte
 }
 
 /** Creates a [ParameterizedComposeTestRule] to simulate input parameterization in tests. */
-fun <T> createParameterizedComposeTestRule(): ParameterizedComposeTestRule<T> {
-    val contentRule = createComposeRule()
+@Suppress("ComposeTestRuleDispatcher")
+fun <T> createParameterizedComposeTestRule(
+    effectContext: CoroutineContext = StandardTestDispatcher()
+): ParameterizedComposeTestRule<T> {
+    @OptIn(ExperimentalTestApi::class) val contentRule = createComposeRule(effectContext)
     return ParameterizedComposeTestRuleImpl(contentRule)
 }

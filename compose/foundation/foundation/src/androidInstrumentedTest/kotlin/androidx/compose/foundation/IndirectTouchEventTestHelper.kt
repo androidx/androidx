@@ -36,6 +36,8 @@ internal fun SemanticsNodeInteraction.sendIndirectSwipeEvent(
     delayTimeMills: Long = 16L,
     primaryDirectionalMotionAxis: IndirectTouchEventPrimaryDirectionalMotionAxis =
         IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+    sendMoveEvents: Boolean = true,
+    sendReleaseEvent: Boolean = true,
 ) {
     require(stepCount > 0) { "Step count should be at least 1" }
     val stepSize = (to - from) / stepCount.toFloat()
@@ -49,24 +51,30 @@ internal fun SemanticsNodeInteraction.sendIndirectSwipeEvent(
     currentValue += stepSize
 
     val (newCurrentTime, newCurrentValue, lastMove) =
-        sendIndirectTouchMoveEvents(
-            rule,
-            stepCount,
-            currentTime,
-            currentValue,
-            delayTimeMills,
-            stepSize,
-            primaryDirectionalMotionAxis,
-            downEvent,
-        )
+        if (sendMoveEvents) {
+            sendIndirectTouchMoveEvents(
+                rule,
+                stepCount,
+                currentTime,
+                currentValue,
+                delayTimeMills,
+                stepSize,
+                primaryDirectionalMotionAxis,
+                downEvent,
+            )
+        } else {
+            Triple(currentTime, currentValue, downEvent)
+        }
 
-    sendIndirectTouchReleaseEvent(
-        rule,
-        newCurrentTime,
-        newCurrentValue,
-        primaryDirectionalMotionAxis,
-        lastMove,
-    )
+    if (sendReleaseEvent) {
+        sendIndirectTouchReleaseEvent(
+            rule,
+            newCurrentTime,
+            newCurrentValue,
+            primaryDirectionalMotionAxis,
+            lastMove,
+        )
+    }
 }
 
 @OptIn(ExperimentalIndirectTouchTypeApi::class)

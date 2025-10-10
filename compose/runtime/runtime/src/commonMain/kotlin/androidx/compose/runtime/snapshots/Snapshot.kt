@@ -1019,15 +1019,49 @@ internal constructor(
     ): SnapshotApplyResult {
         // This must be called in a synchronized block
 
-        // If there are modifications we need to ensure none of the modifications have
-        // collisions.
+        // If there are modifications, we need to ensure none of the them have collisions.
 
-        // A record is guaranteed not collide if no other write was performed to the record
-        // by an applied snapshot since this snapshot was taken. No writes to a state object
-        // occurred if, ignoring this snapshot, the readable records for the snapshots are
-        // the same. If they are different then there is a potential collision and the state
-        // object is asked if it can resolve the collision. If it can the updated state record
-        // is for the apply.
+        // A record is guaranteed not to collide if no other write was performed to it since this
+        // snapshot was taken. No writes to a state object occurred if, ignoring this snapshot,
+        // the readable records for the snapshots remain the same. If they are different then
+        // there is a potential collision, and the state object is asked if it can resolve
+        // it. If it can, the updated state record is used for the apply.
+
+        // Determining if there is a collision and resolving it requires finding:
+        //  1) the applying record state (i.e., the record being applied by this snapshot)
+        //  2) the current record state (i.e., the record seen by the global snapshot)
+        //  3) the previous state record (i.e., the record originally copied)
+
+        // The applying record is the readable record this snapshot observes. It is found by calling
+        // readable with this snapshot's ignore set and id (which what the state object also does).
+
+        // The current record can be found by asking what would the next snapshot observes. This is
+        // found by calling readable with the invalidSnapshots (the set of all currently open
+        // snapshots) which is what the next snapshot would have in its invalid, and nextId, which
+        // is the id the next snapshot will have.
+
+        // The previous record can be found by looking for the record that this snapshot would
+        // observe had it not modified it. This is done by excluding the snapshot itself from
+        // invalid (an all previous ids the snapshot had because it advanced) while still using its
+        // id to find the record.
+
+        // Once these records are found, a record is in a merge conflict if both the applying record
+        // and the current record have a different record and neither of them is the previous
+        // record.
+
+        // If the record is not changed outside this snapshot (the most likely scenario), then
+        // there is no conflict, and there is no reason to determine the applying record. For this
+        // reason, the current and previous are determined first the applied record is only
+        // determined if there is a conflict (as it is assumed applied record is different from the
+        // previous record since this code would not execute if they were equal).
+
+        // A state object's mutation policy controls how conflicts are resolved. By default, all
+        // conflicts cannot be resolved and the snapshot will not be applied. However, given the
+        // previous, current, and next records, sometimes conflicts can be resolved (e.g. similar to
+        // merge conflicts in a git commit) and, if so, a new value can be provided by the mutation
+        // policy that merges the changes. If all changed objects can be merged, then the snapshot
+        // will apply but with the new, merged values (e.g., conflict-free data types are an example
+        // of types that can be merged).
         var mergedRecords: MutableList<Pair<StateObject, StateRecord>>? = null
         val start = this.invalid.set(this.snapshotId).or(this.previousIds)
         var statesToRemove: MutableList<StateObject>? = null
@@ -2409,6 +2443,11 @@ internal inline fun <T : StateRecord, R> T.overwritable(
  * Produce a set of optimistic merges of the state records, this is performed outside the a
  * synchronization block to reduce the amount of time taken in the synchronization block reducing
  * the thread contention of merging state values.
+ *
+ * How sets and ids are used to determine a merged record is explained in
+ * [MutableSnapshot.innerApplyLocked].
+ *
+ * @see MutableSnapshot.innerApplyLocked
  */
 private fun optimisticMerges(
     currentSnapshotId: SnapshotId,
@@ -2417,18 +2456,17 @@ private fun optimisticMerges(
 ): Map<StateRecord, StateRecord>? {
     val modified = applyingSnapshot.modified
     if (modified == null) return null
-    val start =
-        applyingSnapshot.invalid.set(applyingSnapshot.snapshotId).or(applyingSnapshot.previousIds)
+    val applyingSnapshotId = applyingSnapshot.snapshotId
+    val start = applyingSnapshot.invalid.set(applyingSnapshotId).or(applyingSnapshot.previousIds)
     var result: MutableMap<StateRecord, StateRecord>? = null
     modified.forEach { state ->
         val first = state.firstStateRecord
         val current = readable(first, currentSnapshotId, invalidSnapshots) ?: return@forEach
-        val previous = readable(first, currentSnapshotId, start) ?: return@forEach
+        val previous = readable(first, applyingSnapshotId, start) ?: return@forEach
         if (current != previous) {
             // Try to produce a merged state record
             val applied =
-                readable(first, applyingSnapshot.snapshotId, applyingSnapshot.invalid)
-                    ?: readError()
+                readable(first, applyingSnapshotId, applyingSnapshot.invalid) ?: readError()
             val merged = state.mergeRecords(previous, current, applied)
             if (merged != null) {
                 (result ?: hashMapOf<StateRecord, StateRecord>().also { result = it })[current] =

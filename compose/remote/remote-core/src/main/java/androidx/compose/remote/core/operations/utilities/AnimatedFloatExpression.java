@@ -27,7 +27,7 @@ import java.util.Random;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimatedFloatExpression {
     @NonNull static IntMap<String> sNames = new IntMap<>();
-
+    private float mR0, mR1, mR2, mR3;
     /** The START POINT in the float NaN space for operators */
     public static final int OFFSET = 0x310_000;
 
@@ -196,8 +196,41 @@ public class AnimatedFloatExpression {
     /** PINGPONG (go pp(x,y) = x%2*y < x ? x%2*y : y-x%2*y) operator */
     public static final float PINGPONG = asNan(OFFSET + 54);
 
+    /** NOP operator */
+    public static final float NOP = asNan(OFFSET + 55);
+
+    /** store to register 0 operator */
+    public static final float STORE_RO = asNan(OFFSET + 56);
+
+    /** store to register 1 operator */
+    public static final float STORE_R1 = asNan(OFFSET + 57);
+
+    /** store to register 2 operator */
+    public static final float STORE_R2 = asNan(OFFSET + 58);
+
+    /** store to register 3 operator */
+    public static final float STORE_R3 = asNan(OFFSET + 59);
+
+    /** load from register 0 operator */
+    public static final float LOAD_R0 = asNan(OFFSET + 60);
+    /** load from register 1 operator */
+    public static final float LOAD_R1 = asNan(OFFSET + 61);
+    /** load from register 2 operator */
+    public static final float LOAD_R2 = asNan(OFFSET + 62);
+    /** load from register 3 operator */
+    public static final float LOAD_R3 = asNan(OFFSET + 63);
+
+    /** Command reserved for operator use such as particles */
+    public static final float CMD1 = asNan(OFFSET + 64);
+    /** Command reserved for operator use such as particles  */
+    public static final float CMD2 = asNan(OFFSET + 65);
+    /** Command reserved for operator use such as particles  */
+    public static final float CMD3 = asNan(OFFSET + 66);
+    /** Command reserved for operator use such as particles  */
+    public static final float CMD4 = asNan(OFFSET + 67);
+
     /** LAST valid operator */
-    public static final int LAST_OP = OFFSET + 54;
+    public static final int LAST_OP = OFFSET + 63;
 
     /** VAR1 operator */
     public static final float VAR1 = asNan(OFFSET + 70);
@@ -472,6 +505,15 @@ public class AnimatedFloatExpression {
         sNames.put(k++, "inv");
         sNames.put(k++, "fract");
         sNames.put(k++, "ping_pong");
+        sNames.put(k++, "nop");
+        sNames.put(k++, "store0");
+        sNames.put(k++, "store1");
+        sNames.put(k++, "store2");
+        sNames.put(k++, "store3");
+        sNames.put(k++, "load0");
+        sNames.put(k++, "load1");
+        sNames.put(k++, "load2");
+        sNames.put(k++, "load3");
         k = 70;
         sNames.put(k++, "a[0]");
         sNames.put(k++, "a[1]");
@@ -588,6 +630,9 @@ public class AnimatedFloatExpression {
         1, // inv
         1, // fract
         2, // ping_pong
+        1, // nop
+        1, 1, 1, 1, // store
+        0, 0, 0, 0, // load
     };
 
     /**
@@ -677,6 +722,16 @@ public class AnimatedFloatExpression {
     private static final int OP_INV = OFFSET + 52;
     private static final int OP_FRACT = OFFSET + 53;
     private static final int OP_PINGPONG = OFFSET + 54;
+    private static final int OP_NOP = OFFSET + 55;
+    private static final int OP_STORE_R0 = OFFSET + 56;
+    private static final int OP_STORE_R1 = OFFSET + 57;
+    private static final int OP_STORE_R2 = OFFSET + 58;
+    private static final int OP_STORE_R3 = OFFSET + 59;
+    private static final int OP_LOAD_R0 = OFFSET + 60;
+    private static final int OP_LOAD_R1 = OFFSET + 61;
+    private static final int OP_LOAD_R2 = OFFSET + 62;
+    private static final int OP_LOAD_R3 = OFFSET + 63;
+
 
     private static final int OP_FIRST_VAR = OFFSET + 70;
     private static final int OP_SECOND_VAR = OFFSET + 71;
@@ -961,6 +1016,32 @@ public class AnimatedFloatExpression {
                 float tmp = mStack[sp - 1] % max_2;
                 mStack[sp - 1] = (tmp < mStack[sp]) ? tmp : max_2 - tmp;
                 return sp - 1;
+            case OP_NOP:
+                return sp;
+            case OP_STORE_R0:
+                mR0 = mStack[sp];
+                return sp - 1;
+            case OP_STORE_R1:
+                mR1 = mStack[sp];
+                return sp - 1;
+            case OP_STORE_R2:
+                mR2 = mStack[sp];
+                return sp - 1;
+            case OP_STORE_R3:
+                mR3 = mStack[sp];
+                return sp - 1;
+            case OP_LOAD_R0:
+                mStack[sp + 1] = mR0;
+                return sp + 1;
+            case OP_LOAD_R1:
+                mStack[sp + 1] = mR1;
+                return sp + 1;
+            case OP_LOAD_R2:
+                mStack[sp + 1] = mR2;
+                return sp + 1;
+            case OP_LOAD_R3:
+                mStack[sp + 1] = mR3;
+                return sp + 1;
             case OP_FIRST_VAR:
                 mStack[sp + 1] = mVar[0];
                 return sp + 1;

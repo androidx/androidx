@@ -32,13 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 @LargeTest
 class PagerScrollingTest : SingleParamBasePagerTest() {
 
     private fun resetTestCase(initialPage: Int = 0) {
-        rule.runOnIdle { runBlocking { pagerState.scrollToPage(initialPage) } }
+        rule.runOnIdle { runTest(testDispatcher) { pagerState.scrollToPage(initialPage) } }
     }
 
     @Test

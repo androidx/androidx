@@ -96,6 +96,7 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -110,7 +111,7 @@ import org.mockito.kotlin.verify
 @RunWith(ContextMenuFlagFlipperRunner::class)
 @ContextMenuFlagSuppress(suppressedFlagValue = true)
 class TextFieldTextToolbarTest : FocusedWindowTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     val fontSize = 10.sp
 

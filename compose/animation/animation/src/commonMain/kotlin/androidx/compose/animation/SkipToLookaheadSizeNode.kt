@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.toSize
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 internal class SkipToLookaheadSizeNode(
     scaleToBounds: ScaleToBoundsImpl?,
     isEnabled: () -> Boolean,
@@ -155,7 +154,6 @@ internal class SkipToLookaheadSizeNode(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 internal class SkipToLookaheadSizeElement(
     val scaleToBounds: ScaleToBoundsImpl? = null,
     val isEnabled: () -> Boolean = DefaultEnabled,
@@ -189,7 +187,6 @@ internal class SkipToLookaheadSizeElement(
 
 private val DefaultEnabled: () -> Boolean = { true }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 internal fun Modifier.createContentScaleModifier(
     scaleToBounds: ScaleToBoundsImpl,
     isEnabled: () -> Boolean,

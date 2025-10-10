@@ -26,6 +26,10 @@ ParameterNameChange: androidx.compose.runtime.saveable.RememberSerializableKt#re
 ParameterNameChange: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(java.lang.Object..., kotlinx.serialization.KSerializer<T>, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<androidx.compose.runtime.MutableState<T>>) parameter #1:
     Source breaking change: Attempted to change parameter name from serializer to stateSerializer in method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable
 
+RemovedDeprecatedMethod: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: Removed deprecated method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[],androidx.compose.runtime.saveable.Saver<T,?>,String,kotlin.jvm.functions.Function0<? extends T>)
+RemovedDeprecatedMethod: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>):
+    Binary breaking change: Removed deprecated method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[],androidx.compose.runtime.saveable.Saver<T,?>,String,kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>)
 
 RemovedFromBytecode: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, String, kotlin.jvm.functions.Function0<? extends T>):
     Binary breaking change: method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(java.lang.Object...,androidx.compose.runtime.saveable.Saver<T,?>,String,kotlin.jvm.functions.Function0<androidx.compose.runtime.MutableState<T>>) has been removed from bytecode
@@ -55,5 +59,19 @@ RemovedFromKotlin: androidx.compose.runtime.saveable.SaveableStateRegistryKt#get
     Source breaking change: method androidx.compose.runtime.saveable.SaveableStateRegistryKt.getLocalSaveableStateRegistry() can no longer be resolved from Kotlin source
 
 
+RemovedMethod: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[],androidx.compose.runtime.saveable.Saver<T,?>,kotlin.jvm.functions.Function0<? extends T>)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], androidx.compose.runtime.saveable.Saver<T,?>, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[],androidx.compose.runtime.saveable.Saver<T,?>,kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSaveableKt#rememberSaveable(Object[], kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSaveableKt.rememberSaveable(Object[],kotlin.jvm.functions.Function0<? extends T>)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends T>)
 RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>, androidx.compose.runtime.Composer, int, int):
     Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends T>,androidx.compose.runtime.Composer,int,int)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], kotlinx.serialization.KSerializer<T>, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends T>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],kotlinx.serialization.KSerializer<T>,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends T>)
+RemovedMethod: androidx.compose.runtime.saveable.RememberSerializableKt#rememberSerializable(Object[], kotlinx.serialization.KSerializer<T>, androidx.savedstate.serialization.SavedStateConfiguration, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>):
+    Binary breaking change: Removed method androidx.compose.runtime.saveable.RememberSerializableKt.rememberSerializable(Object[],kotlinx.serialization.KSerializer<T>,androidx.savedstate.serialization.SavedStateConfiguration,kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>>)

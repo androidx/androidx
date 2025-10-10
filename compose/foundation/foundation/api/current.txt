@@ -781,9 +781,11 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class TransformGestureDetectorKt {
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent, optional boolean useCurrent);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent, optional boolean useCurrent);
+    method @BytecodeOnly public static long calculateCentroid(androidx.compose.ui.input.pointer.PointerEvent, boolean);
     method public static float calculateCentroidSize(androidx.compose.ui.input.pointer.PointerEvent, optional boolean useCurrent);
-    method @InaccessibleFromJava public static androidx.compose.ui.geometry.Offset calculatePan(androidx.compose.ui.input.pointer.PointerEvent);
+    method @KotlinOnly public static androidx.compose.ui.geometry.Offset calculatePan(androidx.compose.ui.input.pointer.PointerEvent);
+    method @BytecodeOnly public static long calculatePan(androidx.compose.ui.input.pointer.PointerEvent);
     method public static float calculateRotation(androidx.compose.ui.input.pointer.PointerEvent);
     method public static float calculateZoom(androidx.compose.ui.input.pointer.PointerEvent);
     method public static suspend Object? detectTransformGestures(androidx.compose.ui.input.pointer.PointerInputScope, optional boolean panZoomLock, kotlin.jvm.functions.Function4<? super androidx.compose.ui.geometry.Offset,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> onGesture, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -1286,7 +1288,8 @@ package androidx.compose.foundation.lazy.grid {
   }
 
   public final class LazyGridSpanKt {
-    method @InaccessibleFromJava public static androidx.compose.foundation.lazy.grid.GridItemSpan GridItemSpan(@IntRange(from=1L) int currentLineSpan);
+    method @KotlinOnly public static androidx.compose.foundation.lazy.grid.GridItemSpan GridItemSpan(@IntRange(from=1L) int currentLineSpan);
+    method @BytecodeOnly public static long GridItemSpan(@IntRange(from=1L) int);
   }
 
   @androidx.compose.runtime.Stable public final class LazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
@@ -1430,19 +1433,19 @@ package androidx.compose.foundation.lazy.layout {
     method @BytecodeOnly public void addFirst(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
     method @BytecodeOnly public void addLast(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
     method @BytecodeOnly public void clear();
-    method @BytecodeOnly public boolean contains(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem);
+    method public operator boolean contains(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
     method @BytecodeOnly public boolean contains(Object!);
-    method @BytecodeOnly public boolean containsAll(java.util.Collection<? extends java.lang.Object!>);
-    method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem get(int);
+    method public boolean containsAll(java.util.Collection<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> elements);
+    method public operator androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem get(int index);
     method @BytecodeOnly public int getSize();
-    method @BytecodeOnly public int indexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem);
+    method public int indexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
     method @BytecodeOnly public int indexOf(Object!);
-    method @BytecodeOnly public boolean isEmpty();
-    method @BytecodeOnly public java.util.Iterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!> iterator();
-    method @BytecodeOnly public int lastIndexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem);
+    method public boolean isEmpty();
+    method public operator java.util.Iterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> iterator();
+    method public int lastIndexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
     method @BytecodeOnly public int lastIndexOf(Object!);
-    method @BytecodeOnly public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!> listIterator();
-    method @BytecodeOnly public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!> listIterator(int);
+    method public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> listIterator();
+    method public java.util.ListIterator<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> listIterator(int index);
     method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! remove(int);
     method @BytecodeOnly public boolean remove(Object!);
     method @BytecodeOnly public boolean removeAll(java.util.Collection<? extends java.lang.Object!>!);
@@ -1453,9 +1456,10 @@ package androidx.compose.foundation.lazy.layout {
     method @BytecodeOnly public androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem! set(int, androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!);
     method @BytecodeOnly public int size();
     method @BytecodeOnly public void sort(java.util.Comparator<? super androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!>!);
-    method @BytecodeOnly public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem!> subList(int, int);
+    method public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> subList(int fromIndex, int toIndex);
     method @BytecodeOnly public Object![]! toArray();
     method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    property public int size;
   }
 
   public static sealed interface LazyLayoutPinnedItemList.PinnedItem {

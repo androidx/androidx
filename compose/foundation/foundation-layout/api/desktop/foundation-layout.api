@@ -185,6 +185,8 @@ public abstract interface class androidx/compose/foundation/layout/PaddingValues
 	public abstract fun calculateLeftPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
 	public abstract fun calculateRightPadding-u2uoSUM (Landroidx/compose/ui/unit/LayoutDirection;)F
 	public abstract fun calculateTopPadding-D9Ej5fM ()F
+	public fun minus (Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
+	public fun plus (Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
 }
 
 public final class androidx/compose/foundation/layout/PaddingValues$Absolute : androidx/compose/foundation/layout/PaddingValues {

@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.demos
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -163,7 +162,6 @@ fun ColorSchemeDemo() {
     }
 }
 
-@SuppressLint("NullAnnotationGroup")
 @OptIn(ExperimentalTextApi::class)
 @Composable
 private fun ColorTile(text: String, color: Color) {

@@ -61,7 +61,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasPerformImeAction
@@ -87,6 +86,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -99,10 +99,9 @@ class TextFieldCursorTest : FocusedWindowTest {
             override var scaleFactor: Float by mutableStateOf(1f)
         }
 
-    @OptIn(ExperimentalTestApi::class)
     @get:Rule
     val rule =
-        createComposeRule(effectContext = motionDurationScale).also {
+        createComposeRule(effectContext = motionDurationScale + StandardTestDispatcher()).also {
             it.mainClock.autoAdvance = false
         }
 

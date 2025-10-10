@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
@@ -709,6 +710,33 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
         assertAgainstGolden("appBarWithSearch_withoutNavigationIconAndActions_${scheme.name}")
+    }
+
+    @Test
+    fun appBarWithSearch_withScrolledContainerColor() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val searchBarState = rememberSearchBarState()
+            val scrollBehavior =
+                SearchBarDefaults.enterAlwaysSearchBarScrollBehavior(
+                    initialContentOffset = -Float.MAX_VALUE
+                )
+            val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()
+            AppBarWithSearch(
+                modifier = Modifier.testTag(testTag),
+                state = searchBarState,
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        searchBarState = searchBarState,
+                        textFieldState = rememberTextFieldState(),
+                        onSearch = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                scrollBehavior = scrollBehavior,
+                colors = appBarWithSearchColors,
+            )
+        }
+        assertAgainstGolden("appBarWithSearch_withScrolledContainerColor_${scheme.name}")
     }
 
     private fun assertAgainstGolden(goldenName: String) {

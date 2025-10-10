@@ -117,6 +117,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
@@ -132,8 +133,7 @@ import org.junit.runner.RunWith
 class ClickableTest {
 
     private val dispatcher = StandardTestDispatcher()
-
-    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule(dispatcher)
+    @get:Rule val rule = createComposeRule(dispatcher)
 
     private val InstanceOf =
         Correspondence.from<Any, KClass<*>>(
@@ -622,7 +622,6 @@ class ClickableTest {
     }
 
     @Test
-    @Ignore("Fixed in follow up CL (aosp/3768764)")
     fun interactionSource_immediateCancel_noScrollableContainer_indirectTouch() {
         val interactionSource = MutableInteractionSource()
 
@@ -1271,7 +1270,6 @@ class ClickableTest {
     }
 
     @Test
-    @Ignore("Fixed in follow up CL (aosp/3768764)")
     fun interactionSource_cancelledGesture_scrollableContainer_indirectTouch() {
         val interactionSource = MutableInteractionSource()
         lateinit var inputModeManager: InputModeManager
@@ -7421,6 +7419,83 @@ class ClickableTest {
             assertThat(interactions[3]).isInstanceOf(PressInteraction.Release::class.java)
             assertThat((interactions[3] as PressInteraction.Release).press)
                 .isEqualTo(interactions[2])
+        }
+    }
+
+    /**
+     * Regression test for b/444588128 - when inside a scrollable container (presses are delayed),
+     * if a release happens _just_ before the press delay finishes, any coroutines launched by the
+     * release will be executed after the press has finished, introducing a race condition if the
+     * coroutine's body is expected to cancel the delaying press. Instead we should cancel the press
+     * before waiting for a coroutine to execute.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun interactionSource_scrollableContainer_releaseJustBeforeTapDelayFinishes() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.verticalScroll(rememberScrollState())) {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable").clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                        ) {},
+                )
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        // Advance until just before the tap delay is reached
+        rule.mainClock.advanceTimeBy(TapIndicationDelay - 1, ignoreFrameDuration = true)
+
+        // We are just before the delay, so there should be no interaction
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
+
+        // We want to emulate the case where we launch a coroutine before the delay has finished,
+        // but the coroutine only starts to execute after the delay. Advancing time also causes
+        // coroutines to launch / execute, so we can't directly reproduce that in a test.
+        // Instead we advance time first (to reach the delay), and then immediately
+        // dispatch the release. This means that the suspended coroutine still hasn't resumed, so
+        // the release event handling has a chance to interact before the coroutine resumes. However
+        // if the release needs to launch a coroutine, that coroutine won't execute until after
+        // the press delay job resumes and emits a press, which matches the original scenario we
+        // want to test.
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            // NOTE: we need to advance time inside this block. We cannot do it before, as
+            // performTouchInput waits for idle (which will cause the delay to resume). And we
+            // cannot do it after, as that will run any coroutines launched by handling the up.
+
+            // NOTE: This test will still work if this line is moved after the up() - but that is
+            // misleading, up() just enqueues an up event, it doesn't actually emit it so the
+            // advanceTimeBy in that case would still be executed _before_ the event is emitted.
+            // Buffered input events are injected after this lambda executes, so this is more like a
+            // 'builder' for input events.
+            dispatcher.scheduler.advanceTimeBy(1)
+            up()
+        }
+
+        // We should exactly receive a press -> release
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
+            assertThat((interactions[1] as PressInteraction.Release).press)
+                .isEqualTo(interactions[0])
         }
     }
 }

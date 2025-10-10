@@ -330,69 +330,63 @@ private fun StandardBottomSheet(
                     getString(Strings.BottomSheetPartialExpandDescription)
                 val dismissActionLabel = getString(Strings.BottomSheetDismissDescription)
                 val expandActionLabel = getString(Strings.BottomSheetExpandDescription)
-                DragHandleWithTooltip {
-                    Box(
-                        modifier =
-                            Modifier.clickable {
-                                    when (state.currentValue) {
-                                        Expanded ->
-                                            scope.launch {
-                                                if (!state.skipHiddenState) {
-                                                    state.hide()
-                                                } else {
-                                                    state.partialExpand()
-                                                }
-                                            }
-
-                                        PartiallyExpanded -> scope.launch { state.expand() }
-                                        else -> scope.launch { state.show() }
-                                    }
-                                }
-                                .semantics(mergeDescendants = true) {
-                                    with(state) {
-                                        // Provides semantics to interact with the bottomsheet if
-                                        // there is more than one anchor to swipe to and swiping is
-                                        // enabled.
-                                        if (
-                                            anchoredDraggableState.anchors.size > 1 &&
-                                                sheetSwipeEnabled
-                                        ) {
-                                            if (currentValue == PartiallyExpanded) {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        Expanded
-                                                    )
-                                                ) {
-                                                    expand(expandActionLabel) {
-                                                        scope.launch { expand() }
-                                                        true
-                                                    }
-                                                }
-                                            } else {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        PartiallyExpanded
-                                                    )
-                                                ) {
-                                                    collapse(partialExpandActionLabel) {
-                                                        scope.launch { partialExpand() }
-                                                        true
-                                                    }
-                                                }
-                                            }
+                DragHandleWithTooltip(
+                    modifier =
+                        Modifier.clickable {
+                                when (state.currentValue) {
+                                    Expanded ->
+                                        scope.launch {
                                             if (!state.skipHiddenState) {
-                                                dismiss(dismissActionLabel) {
-                                                    scope.launch { hide() }
+                                                state.hide()
+                                            } else {
+                                                state.partialExpand()
+                                            }
+                                        }
+
+                                    PartiallyExpanded -> scope.launch { state.expand() }
+                                    else -> scope.launch { state.show() }
+                                }
+                            }
+                            .semantics(mergeDescendants = true) {
+                                with(state) {
+                                    // Provides semantics to interact with the bottomsheet if
+                                    // there is more than one anchor to swipe to and swiping is
+                                    // enabled.
+                                    if (
+                                        anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled
+                                    ) {
+                                        if (currentValue == PartiallyExpanded) {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(Expanded)
+                                            ) {
+                                                expand(expandActionLabel) {
+                                                    scope.launch { expand() }
+                                                    true
+                                                }
+                                            }
+                                        } else {
+                                            if (
+                                                anchoredDraggableState.confirmValueChange(
+                                                    PartiallyExpanded
+                                                )
+                                            ) {
+                                                collapse(partialExpandActionLabel) {
+                                                    scope.launch { partialExpand() }
                                                     true
                                                 }
                                             }
                                         }
+                                        if (!state.skipHiddenState) {
+                                            dismiss(dismissActionLabel) {
+                                                scope.launch { hide() }
+                                                true
+                                            }
+                                        }
                                     }
                                 }
-                    ) {
-                        dragHandle()
-                    }
-                }
+                            },
+                    content = dragHandle,
+                )
             }
             content()
         }

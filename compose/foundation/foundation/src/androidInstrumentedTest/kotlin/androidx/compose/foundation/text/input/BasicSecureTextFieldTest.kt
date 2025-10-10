@@ -74,6 +74,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -86,7 +87,8 @@ internal class BasicSecureTextFieldTest {
 
     // Keyboard shortcut tests for BasicSecureTextField are in TextFieldKeyEventTest
 
-    @get:Rule val rule = createComposeRule().apply { mainClock.autoAdvance = false }
+    @get:Rule
+    val rule = createComposeRule(StandardTestDispatcher()).apply { mainClock.autoAdvance = false }
 
     @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
@@ -472,6 +474,7 @@ internal class BasicSecureTextFieldTest {
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     @Test
     fun toolbarDoesNotShowCopyOrCut_newContextMenu() {
+        rule.mainClock.autoAdvance = true // No time-sensitive work is performed in this test case.
         val spyTextActionModeCallback = SpyTextActionModeCallback()
         val state = TextFieldState("Hello")
         inputMethodInterceptor.setContent {
@@ -495,6 +498,8 @@ internal class BasicSecureTextFieldTest {
 
         assertThat(actualLabels).doesNotContain("Cut")
         assertThat(actualLabels).doesNotContain("Copy")
+
+        rule.mainClock.autoAdvance = false
     }
 
     @Test

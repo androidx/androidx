@@ -18,23 +18,18 @@
 package androidx.compose.remote.player.compose
 
 import androidx.annotation.RestrictTo
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.player.view.RemoteComposeDocument
-import androidx.compose.remote.player.view.state.StateUpdater
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags.isViewPlayerEnabled
+import androidx.compose.remote.player.compose.impl.RemoteDocumentComposePlayer
+import androidx.compose.remote.player.compose.impl.RemoteDocumentViewPlayer
+import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.remote.player.core.state.StateUpdater
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 /** A player of a [CoreDocument] */
+@OptIn(ExperimentalRemoteComposePlayerApi::class)
 @Composable
 public fun RemoteDocumentPlayer(
     document: CoreDocument,
@@ -42,36 +37,34 @@ public fun RemoteDocumentPlayer(
     documentHeight: Int,
     modifier: Modifier = Modifier,
     debugMode: Int = 0,
+    init: (RemoteComposePlayer) -> Unit = {},
+    update: (RemoteComposePlayer) -> Unit = {},
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    bitmapLoader: BitmapLoader? = null,
 ) {
-    var inDarkTheme by remember { mutableStateOf(false) }
-    var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
-
-    val remoteDoc = remember(document) { RemoteComposeDocument(document) }
-
-    inDarkTheme =
-        when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> isSystemInDarkTheme()
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            AppCompatDelegate.MODE_NIGHT_UNSPECIFIED -> isSystemInDarkTheme()
-            else -> {
-                false
-            }
-        }
-
-    playbackTheme =
-        if (inDarkTheme) {
-            Theme.DARK
-        } else {
-            Theme.LIGHT
-        }
-
-    RemoteComposePlayer(
-        document = remoteDoc,
-        modifier = modifier.size(documentWidth.dp, documentHeight.dp),
-        theme = playbackTheme,
-        debugMode = debugMode,
-        onNamedAction = onNamedAction,
-    )
+    if (isViewPlayerEnabled) {
+        RemoteDocumentViewPlayer(
+            document = document,
+            documentWidth = documentWidth,
+            documentHeight = documentHeight,
+            modifier = modifier,
+            debugMode = debugMode,
+            init = init,
+            update = update,
+            onAction = onAction,
+            onNamedAction = onNamedAction,
+            bitmapLoader = bitmapLoader,
+        )
+    } else {
+        RemoteDocumentComposePlayer(
+            document = document,
+            documentWidth = documentWidth,
+            documentHeight = documentHeight,
+            modifier = modifier,
+            debugMode = debugMode,
+            onNamedAction = onNamedAction,
+            bitmapLoader = bitmapLoader,
+        )
+    }
 }

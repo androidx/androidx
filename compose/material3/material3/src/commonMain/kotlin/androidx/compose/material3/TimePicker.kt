@@ -114,6 +114,8 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
@@ -124,6 +126,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -156,6 +159,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
@@ -1595,6 +1599,7 @@ internal fun ClockFace(
     colors: TimePickerColors,
     autoSwitchToMinute: Boolean,
 ) {
+    val focusManager = LocalFocusManager.current
     // TODO Load the motionScheme tokens from the component tokens file
     Crossfade(
         modifier =
@@ -1631,6 +1636,7 @@ internal fun ClockFace(
                         state = state,
                         value = outerValue,
                         autoSwitchToMinute = autoSwitchToMinute,
+                        focusManager = focusManager,
                     )
                 }
 
@@ -1650,6 +1656,7 @@ internal fun ClockFace(
                                 state = state,
                                 value = innerValue,
                                 autoSwitchToMinute = autoSwitchToMinute,
+                                focusManager = focusManager,
                             )
                         }
                     }
@@ -1730,6 +1737,7 @@ private fun ClockText(
     state: AnalogTimePickerState,
     value: Int,
     autoSwitchToMinute: Boolean,
+    focusManager: FocusManager,
 ) {
     val style = ClockDialLabelTextFont.value
     val density: Density = LocalDensity.current
@@ -1768,6 +1776,7 @@ private fun ClockText(
             )
         }
     }
+    val focusable = LocalInputModeManager.current.inputMode != InputMode.Touch
 
     // TODO Load the motionScheme tokens from the component tokens file
     Box(
@@ -1796,10 +1805,22 @@ private fun ClockText(
                         }
                         return@onKeyEvent true
                     }
+                    // The arrow keys navigation should follow the same flow as tabbing navigation.
+                    // Down/Right moves focus forward and Up/Left moves focus backwards.
+                    if (it.type == KeyEventType.KeyDown) {
+                        if (it.key == Key.DirectionDown || it.key == Key.DirectionRight) {
+                            focusManager.moveFocus(FocusDirection.Next)
+                            return@onKeyEvent true
+                        } else if (it.key == Key.DirectionUp || it.key == Key.DirectionLeft) {
+                            focusManager.moveFocus(FocusDirection.Previous)
+                            return@onKeyEvent true
+                        }
+                    }
+
                     false
                 }
                 .indication(interactionSource, ripple(radius = MinimumInteractiveSize / 2))
-                .focusable(interactionSource = interactionSource)
+                .focusable(focusable, interactionSource)
                 .semantics(mergeDescendants = true) {
                     onClick {
                         onClockTextClick()

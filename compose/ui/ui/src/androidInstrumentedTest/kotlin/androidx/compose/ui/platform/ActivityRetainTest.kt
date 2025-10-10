@@ -58,6 +58,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -65,7 +66,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ActivityRetainTest {
     @get:Rule val activityScenarioRule = activityScenarioRule<ComponentActivity>()
-    @get:Rule val composeTestRule = createEmptyComposeRule()
+    @get:Rule val composeTestRule = createEmptyComposeRule(StandardTestDispatcher())
 
     private val activityScenario
         get() = activityScenarioRule.scenario

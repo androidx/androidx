@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -89,7 +88,6 @@ fun AnimateBoundsOnFloatingToolbarDemo() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun FloatingFabToolbar(modifier: Modifier = Modifier) {
     var mode by remember { mutableStateOf(FabToolbarMode.Toolbar) }

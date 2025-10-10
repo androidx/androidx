@@ -7,7 +7,7 @@
         errorLine1="            assertThat(texts.isEmpty())"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidUnitTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+            file="src/androidHostTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
     </issue>
 
     <issue

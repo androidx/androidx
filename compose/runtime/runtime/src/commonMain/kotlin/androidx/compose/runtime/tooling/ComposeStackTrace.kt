@@ -228,8 +228,8 @@ internal fun StringBuilder.appendSourceInformationStackTrace(trace: ComposeStack
     }
 }
 
-internal fun StringBuilder.appendGroupKeyStackTrace(trace: ComposeStackTrace) {
-    // This is allocated every time we are appending the stack trace, but in most apps
+internal fun ComposeStackTrace.filterInternalFramesByGroupKey(): List<ComposeStackTraceFrame> {
+    // This is allocated every time we are creating a stack trace, but in most apps
     // it happens at most once, so it is better than allocating during <clinit>
     val knownKeys =
         intArrayOf(
@@ -245,13 +245,13 @@ internal fun StringBuilder.appendGroupKeyStackTrace(trace: ComposeStackTrace) {
         )
 
     var i = 0
-    val fCount = trace.frames.size
+    val fCount = frames.size
     val filteredFrames = mutableListOf<ComposeStackTraceFrame>()
     while (i < fCount) {
-        val frame = trace.frames[i++]
+        val frame = frames[i++]
         if (frame.groupKey in knownKeys) continue
         if (frame.groupKey == rootKey) {
-            if (i + 1 < fCount && trace.frames[i + 1].groupKey == recomposerKey) {
+            if (i + 1 < fCount && frames[i + 1].groupKey == recomposerKey) {
                 // We reached the root group
                 break
             } else {
@@ -263,7 +263,11 @@ internal fun StringBuilder.appendGroupKeyStackTrace(trace: ComposeStackTrace) {
         }
         filteredFrames += frame
     }
-    filteredFrames.fastForEach {
+    return filteredFrames
+}
+
+internal fun StringBuilder.appendGroupKeyStackTrace(trace: ComposeStackTrace) {
+    trace.filterInternalFramesByGroupKey().fastForEach {
         // at $$compose.m$<group-key>(SourceFile:1)
         append("\tat $\$compose.m$")
         append(it.groupKey)

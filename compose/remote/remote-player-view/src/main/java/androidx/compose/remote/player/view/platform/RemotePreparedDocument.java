@@ -28,7 +28,7 @@ import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
-import androidx.compose.remote.player.view.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteComposeDocument;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 
 import org.jspecify.annotations.NonNull;

@@ -87,6 +87,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -98,7 +99,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class FloatingToolbarTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun horizontalFloatingToolbar_default_scrolledPositioning() {

@@ -66,6 +66,7 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,7 +75,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DismissibleNavigationDrawerTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
 

@@ -30,6 +30,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +53,8 @@ class DialogSecureFlagTest(private val setSecureFlagOnActivity: Boolean) {
                 ActivityWithFlagSecure::class.java
             } else {
                 ComponentActivity::class.java
-            }
+            },
+            StandardTestDispatcher(),
         )
 
     @Test

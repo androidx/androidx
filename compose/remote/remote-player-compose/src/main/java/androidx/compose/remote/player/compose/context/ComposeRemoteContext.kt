@@ -30,11 +30,9 @@ import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.core.types.LongConstant
+import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import java.io.IOException
-import java.net.MalformedURLException
-import java.net.URL
 import java.time.Clock
 
 /**
@@ -46,6 +44,19 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
     private var varNameHashMap: HashMap<String, VarName?> = HashMap<String, VarName?>()
 
     public var a11yAnimationEnabled = true
+
+    private var bitmapLoader: BitmapLoader = BitmapLoader.UNSUPPORTED
+
+    /**
+     * Sets the BitmapLoader to be used by the RemoteContext for loading bitmaps from URLs. This is
+     * useful when you want to provide a custom way of loading bitmaps, for example, from a network
+     * cache or a local file system.
+     *
+     * @param bitmapLoader The BitmapLoader to be used.
+     */
+    fun setBitmapLoader(bitmapLoader: BitmapLoader) {
+        this.bitmapLoader = bitmapLoader
+    }
 
     override fun loadPathData(instanceId: Int, winding: Int, floatPath: FloatArray) {
         mRemoteComposeState.putPathData(instanceId, floatPath)
@@ -280,13 +291,7 @@ internal class ComposeRemoteContext(clock: Clock) : RemoteContext(clock) {
                     }
                 BitmapData.ENCODING_FILE -> image = BitmapFactory.decodeFile(String(bitmap))
                 BitmapData.ENCODING_URL ->
-                    try {
-                        image = BitmapFactory.decodeStream(URL(String(bitmap)).openStream())
-                    } catch (e: MalformedURLException) {
-                        throw RuntimeException(e)
-                    } catch (e: IOException) {
-                        throw RuntimeException(e)
-                    }
+                    image = BitmapFactory.decodeStream(bitmapLoader.loadBitmap(String(bitmap)))
                 BitmapData.ENCODING_EMPTY ->
                     image = createBitmap(width, height, Bitmap.Config.ARGB_8888)
             }

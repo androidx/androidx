@@ -15,6 +15,8 @@
   -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Spoken description for the default overflow indicator for button groups -->
+    <string name="m3c_button_group_more_options">"More options"</string>
     <!-- Spoken description of a dialog -->
     <string name="m3c_dialog">"Dialog"</string>
     <!-- Spoken description of expanded state of a dropdown menu -->
@@ -89,6 +91,8 @@
     <string name="m3c_floating_toolbar_collapse">Collapse toolbar</string>
     <!-- Spoken for the expand action for a floating toolbar action. -->
     <string name="m3c_floating_toolbar_expand">Expand toolbar</string>
+    <!-- Spoken description for the default overflow indicator for floating toolbars -->
+    <string name="m3c_floating_toolbar_more_options">"More options"</string>
     <!-- Spoken description of a tooltip -->
     <string name="m3c_tooltip_pane_description">Tooltip</string>
     <string name="m3c_tooltip_long_press_label">Show tooltip</string>

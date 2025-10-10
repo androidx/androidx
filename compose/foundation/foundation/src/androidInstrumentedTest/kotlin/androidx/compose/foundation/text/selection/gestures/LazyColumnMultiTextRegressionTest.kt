@@ -80,6 +80,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +88,7 @@ import org.junit.runner.RunWith
 
 @RunWith(ContextMenuFlagFlipperRunner::class)
 class LazyColumnMultiTextRegressionTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val stateRestorationTester = StateRestorationTester(rule)
     private val textCount = 20
 

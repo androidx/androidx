@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `new android.graphics.RenderNode`"
+        errorLine1="        mNode = new RenderNode(&quot;layer&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setPosition`"
+        errorLine1="        mNode.setPosition(0, 0, w, h);"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#beginRecording`"
+        errorLine1="        mCanvas = mNode.beginRecording();"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setScaleX`"
+        errorLine1="                    mNode.setScaleX((Float) value);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setScaleY`"
+        errorLine1="                    mNode.setScaleY((Float) value);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setRotationX`"
+        errorLine1="                    mNode.setRotationX((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setRotationY`"
+        errorLine1="                    mNode.setRotationY((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setRotationZ`"
+        errorLine1="                    mNode.setRotationZ((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    mNode.setPivotX((Float) value * mNode.getWidth());"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setPivotX`"
+        errorLine1="                    mNode.setPivotX((Float) value * mNode.getWidth());"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    mNode.setPivotY((Float) value * mNode.getWidth());"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setPivotY`"
+        errorLine1="                    mNode.setPivotY((Float) value * mNode.getWidth());"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setTranslationX`"
+        errorLine1="                    mNode.setTranslationX((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setTranslationY`"
+        errorLine1="                    mNode.setTranslationY((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setTranslationZ`"
+        errorLine1="                    mNode.setTranslationZ((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setElevation`"
+        errorLine1="                    mNode.setElevation((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setAlpha`"
+        errorLine1="                    mNode.setAlpha((Float) value);"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setCameraDistance`"
+        errorLine1="                    mNode.setCameraDistance((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setSpotShadowColor`"
+        errorLine1="                    mNode.setSpotShadowColor((Integer) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setAmbientShadowColor`"
+        errorLine1="                    mNode.setAmbientShadowColor((Integer) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                    outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                                new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                                new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                        outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                        outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                    float radius = Math.min(mNode.getWidth(), mNode.getHeight()) / 2f;"
+        errorLine2="                                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    float radius = Math.min(mNode.getWidth(), mNode.getHeight()) / 2f;"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                            new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                            new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#setOutline`"
+        errorLine1="            mNode.setOutline(outline);"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.RenderNode#endRecording`"
+        errorLine1="        mNode.endRecording();"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Canvas#enableZ`"
+        errorLine1="            mCanvas.enableZ();"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Canvas#drawRenderNode`"
+        errorLine1="            mCanvas.drawRenderNode(mNode);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Canvas#disableZ`"
+        errorLine1="            mCanvas.disableZ();"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#CLEAR`"
+        errorLine1="                return BlendMode.CLEAR;"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC`"
+        errorLine1="                return BlendMode.SRC;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST`"
+        errorLine1="                return BlendMode.DST;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_OVER`"
+        errorLine1="                return BlendMode.SRC_OVER;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_OVER`"
+        errorLine1="                return BlendMode.DST_OVER;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_IN`"
+        errorLine1="                return BlendMode.SRC_IN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_IN`"
+        errorLine1="                return BlendMode.DST_IN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_OUT`"
+        errorLine1="                return BlendMode.SRC_OUT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_OUT`"
+        errorLine1="                return BlendMode.DST_OUT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SRC_ATOP`"
+        errorLine1="                return BlendMode.SRC_ATOP;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DST_ATOP`"
+        errorLine1="                return BlendMode.DST_ATOP;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#XOR`"
+        errorLine1="                return BlendMode.XOR;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#PLUS`"
+        errorLine1="                return BlendMode.PLUS;"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#MODULATE`"
+        errorLine1="                return BlendMode.MODULATE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SCREEN`"
+        errorLine1="                return BlendMode.SCREEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#OVERLAY`"
+        errorLine1="                return BlendMode.OVERLAY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DARKEN`"
+        errorLine1="                return BlendMode.DARKEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#LIGHTEN`"
+        errorLine1="                return BlendMode.LIGHTEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR_DODGE`"
+        errorLine1="                return BlendMode.COLOR_DODGE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR_BURN`"
+        errorLine1="                return BlendMode.COLOR_BURN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#HARD_LIGHT`"
+        errorLine1="                return BlendMode.HARD_LIGHT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SOFT_LIGHT`"
+        errorLine1="                return BlendMode.SOFT_LIGHT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#DIFFERENCE`"
+        errorLine1="                return BlendMode.DIFFERENCE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#EXCLUSION`"
+        errorLine1="                return BlendMode.EXCLUSION;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#MULTIPLY`"
+        errorLine1="                return BlendMode.MULTIPLY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#HUE`"
+        errorLine1="                return BlendMode.HUE;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#SATURATION`"
+        errorLine1="                return BlendMode.SATURATION;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#COLOR`"
+        errorLine1="                return BlendMode.COLOR;"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 26): `android.graphics.BlendMode#LUMINOSITY`"
+        errorLine1="                return BlendMode.LUMINOSITY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.DEFAULT, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Typeface#create`"
+        errorLine1="                                mPaint.setTypeface(Typeface.create(Typeface.SERIF, weight, italic));"
+        errorLine2="                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.SANS_SERIF, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 26): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.MONOSPACE, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder`"
+        errorLine1="                            Font.Builder builder = (Font.Builder) fi.fontBuilder;"
+        errorLine2="                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `new android.graphics.fonts.Font.Builder`"
+        errorLine1="                    mFontBuilder = new Font.Builder(new File(path));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#setWeight`"
+        errorLine1="                    mFontBuilder.setWeight(weight);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#setSlant`"
+        errorLine1="                    mFontBuilder.setSlant("
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `new android.graphics.fonts.Font.Builder`"
+        errorLine1="                    mFontBuilder = new Font.Builder(buffer);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#setWeight`"
+        errorLine1="                    mFontBuilder.setWeight(weight);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#setSlant`"
+        errorLine1="                    mFontBuilder.setSlant("
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#setFontVariationSettings`"
+        errorLine1="                            mFontBuilder.setFontVariationSettings(axis);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.Font.Builder#build`"
+        errorLine1="                        font = mFontBuilder.build();"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `new android.graphics.fonts.FontFamily.Builder`"
+        errorLine1="                    FontFamily.Builder fontFamilyBuilder = new FontFamily.Builder(font);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.fonts.FontFamily.Builder#build`"
+        errorLine1="                    FontFamily fontFamily = fontFamilyBuilder.build();"
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `new android.graphics.Typeface.CustomFallbackBuilder`"
+        errorLine1="                            new Typeface.CustomFallbackBuilder(fontFamily)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Typeface.CustomFallbackBuilder#setSystemFallback`"
+        errorLine1="                                    .setSystemFallback(&quot;sans-serif&quot;)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Typeface.CustomFallbackBuilder#build`"
+        errorLine1="                                    .build();"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#setBlendMode`"
+        errorLine1="                    mPaint.setBlendMode(remoteToAndroidBlendMode(mode));"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ThreadUtil {"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/core/platform/ThreadUtil.java"/>
+    </issue>
+
+</issues>

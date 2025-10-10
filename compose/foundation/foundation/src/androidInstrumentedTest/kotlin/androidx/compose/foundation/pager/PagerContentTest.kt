@@ -46,12 +46,13 @@ import androidx.compose.ui.zIndex
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class PagerContentTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun pageContent_makeSureContainerOwnsOutsideModifiers() {

@@ -521,6 +521,7 @@ class PagerNestedScrollContentTest(config: ParamConfig) : BasePagerTest(config =
         rule.runOnIdle { scope.launch { pagerState.scrollToPage(5) } }
 
         // Assert: Pager is settled
+        rule.waitForIdle()
         assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
         assertThat(pagerState.currentPage).isEqualTo(5)
 

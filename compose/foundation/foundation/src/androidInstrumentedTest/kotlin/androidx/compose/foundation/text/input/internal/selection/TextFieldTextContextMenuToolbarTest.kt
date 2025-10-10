@@ -92,6 +92,7 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest as coroutineRunTest
 import org.junit.Rule
 import org.junit.Test
@@ -103,7 +104,7 @@ import org.mockito.kotlin.verify
 @RunWith(ContextMenuFlagFlipperRunner::class)
 @ContextMenuFlagSuppress(suppressedFlagValue = false)
 class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val TAG = "BasicTextField"
     private val fontSize = 10.sp

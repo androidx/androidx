@@ -1225,10 +1225,12 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
     }
 
     /**
-     * Schedules an [action] to be invoked when this recomposer finishes the next execution of a
-     * frame. If a frame is currently in-progress, [action] will be invoked when the current frame
-     * finishes. If a frame isn't currently in-progress, a new frame will be scheduled (if one
-     * hasn't been already) and [action] will execute at the completion of the next frame.
+     * Schedules an [action] to be invoked when the recomposer finishes the next composition of a
+     * frame (including the completion of subcompositions). If a frame is currently in-progress,
+     * [action] will be invoked when the current frame fully finishes composing. If a frame isn't
+     * currently in-progress, a new frame will be scheduled (if one hasn't been already) and
+     * [action] will execute at the completion of the next frame's composition. If a new frame is
+     * scheduled and there is no other work to execute, [action] will still execute.
      *
      * [action] will always execute on the applier thread.
      *

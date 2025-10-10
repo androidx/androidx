@@ -107,9 +107,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Ignore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -120,7 +120,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CombinedClickableTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Before
     fun before() {
@@ -1125,7 +1125,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @Ignore("Fixed in follow up CL (aosp/3768764)")
     fun interactionSource_immediateCancel_noScrollableContainer_indirectTouch() {
         val interactionSource = MutableInteractionSource()
 
@@ -1795,7 +1794,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @Ignore("Fixed in follow up CL (aosp/3768764)")
     fun interactionSource_cancelledGesture_scrollableContainer_indirectTouch() {
         val interactionSource = MutableInteractionSource()
         lateinit var inputModeManager: InputModeManager
@@ -1977,10 +1975,11 @@ class CombinedClickableTest {
 
         rule.onNodeWithTag("myClickable").performMouseInput {
             enter(center)
+            advanceEventTime()
             click()
+            advanceEventTime()
             exit(Offset(-1f, -1f))
         }
-
         rule.runOnIdle {
             assertThat(interactions).hasSize(4)
             assertThat(interactions[0]).isInstanceOf(HoverInteraction.Enter::class.java)

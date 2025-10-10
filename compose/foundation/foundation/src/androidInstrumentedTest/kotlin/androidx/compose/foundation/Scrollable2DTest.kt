@@ -92,6 +92,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert
@@ -104,7 +105,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Scrollable2DTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val scrollable2DBoxTag = "scrollableBox"
 

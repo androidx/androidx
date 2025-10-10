@@ -169,7 +169,7 @@
         errorLine1="internal fun FakePointerInputModifierNode.toModifier(): Modifier {"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/androidUnitTest/kotlin/androidx/compose/ui/node/HitTestTouchBoundsExpansionTest.kt"/>
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/HitTestTouchBoundsExpansionTest.kt"/>
     </issue>
 
     <issue
@@ -178,7 +178,7 @@
         errorLine1="fun DelegatableNode.toModifier(): Modifier.Element {"
         errorLine2="                    ~~~~~~~~~~">
         <location
-            file="src/androidUnitTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
     </issue>
 
     <issue
@@ -295,7 +295,7 @@
         errorLine1="fun DelegatableNode.toModifier(): Modifier.Element {"
         errorLine2="                    ~~~~~~~~~~">
         <location
-            file="src/androidUnitTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
+            file="src/androidHostTest/kotlin/androidx/compose/ui/node/LayoutNodeTest.kt"/>
     </issue>
 
     <issue

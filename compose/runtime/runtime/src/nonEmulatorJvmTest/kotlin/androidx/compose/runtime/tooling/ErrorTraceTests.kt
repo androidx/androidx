@@ -729,7 +729,7 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
     if (composeTrace == null) {
         throw exception
     }
-    val message = composeTrace.message.orEmpty()
+    val message = composeTrace.stackTraceToString()
 
     val frameString =
         message

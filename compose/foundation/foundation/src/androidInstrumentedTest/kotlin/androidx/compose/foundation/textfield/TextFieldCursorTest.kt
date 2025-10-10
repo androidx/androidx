@@ -68,6 +68,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -79,10 +80,9 @@ class TextFieldCursorTest : FocusedWindowTest {
             override var scaleFactor: Float by mutableStateOf(1f)
         }
 
-    @OptIn(ExperimentalTestApi::class)
     @get:Rule
     val rule =
-        createComposeRule(effectContext = motionDurationScale).also {
+        createComposeRule(effectContext = motionDurationScale + StandardTestDispatcher()).also {
             it.mainClock.autoAdvance = false
         }
 

@@ -16,7 +16,6 @@
 
 package androidx.compose.animation.demos.lookahead
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -112,7 +111,6 @@ fun LookaheadWithSubcompose() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 private fun Modifier.conditionallyAnimateBounds(
     lookaheadScope: LookaheadScope,
     shouldAnimate: Boolean,

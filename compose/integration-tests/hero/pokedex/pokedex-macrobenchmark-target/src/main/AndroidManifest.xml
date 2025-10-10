@@ -50,6 +50,23 @@
 
         </activity>
 
+        <activity
+            android:name=".PokedexSetupActivity"
+            android:label="Pokedex"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.hero.pokedex.macrobenchmark.target.POKEDEX_SETUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
         <activity android:name="com.skydoves.pokedex.ui.main.PokedexViewsHomeActivity"
             android:label="Pokedex-Views"
             android:theme="@style/AppTheme"

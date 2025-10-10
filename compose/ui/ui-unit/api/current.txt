@@ -59,7 +59,8 @@ package androidx.compose.ui.unit {
   }
 
   public final class ConstraintsKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Constraints(int, int, int, int);
     method @KotlinOnly public static androidx.compose.ui.unit.Constraints constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long constrain-4WqzIAM(long, long);
@@ -352,7 +353,8 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntOffsetKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long IntOffset(int, int);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset lerp(androidx.compose.ui.unit.IntOffset start, androidx.compose.ui.unit.IntOffset stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-81ZRxRo(long, long, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
@@ -469,7 +471,8 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntSizeKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntSize IntSize(int width, int height);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntSize IntSize(int width, int height);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long IntSize(int, int);
     method @BytecodeOnly public static long getCenter-ozmzZPI(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize roundToIntSize(androidx.compose.ui.geometry.Size);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long roundToIntSize-uvyYCjk(long);
@@ -606,7 +609,8 @@ package androidx.compose.ui.unit {
   }
 
   public final class VelocityKt {
-    method @InaccessibleFromJava @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Velocity Velocity(float x, float y);
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Velocity Velocity(float x, float y);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long Velocity(float, float);
   }
 
 }

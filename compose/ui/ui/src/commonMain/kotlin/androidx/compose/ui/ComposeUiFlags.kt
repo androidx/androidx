@@ -167,7 +167,7 @@ object ComposeUiFlags {
     @Suppress("MutableBareField") @JvmField var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /** Flag for enabling the performance optimization for content capture. */
-    @Suppress("MutableBareField") @JvmField var isContentCaptureOptimizationEnabled: Boolean = true
+    @Suppress("MutableBareField") @JvmField var isContentCaptureOptimizationEnabled: Boolean = false
 
     /**
      * Flag for enabling nested scroll interop fix for propagating integers, this fixes an issue

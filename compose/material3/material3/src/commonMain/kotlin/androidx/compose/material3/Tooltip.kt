@@ -17,7 +17,6 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.MutatePriority
@@ -44,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.draw.drawWithCache
@@ -66,7 +64,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -316,10 +313,36 @@ fun TooltipBox(
     val wrappedContent: @Composable () -> Unit = {
         Box(modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }) { content() }
     }
+    // Define the animation specifications from the motion tokens.
+    val scaleSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+    val alphaSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+
+    // Animate scale based on the target visibility state.
+    val scale by
+        transition.animateFloat(
+            transitionSpec = { scaleSpec },
+            label = "tooltip transition: scaling",
+        ) {
+            if (it) 1f else 0.8f
+        }
+
+    // Animate alpha (transparency) based on the target visibility state.
+    val alpha by
+        transition.animateFloat(
+            transitionSpec = { alphaSpec },
+            label = "tooltip transition: alpha",
+        ) {
+            if (it) 1f else 0f
+        }
 
     BasicTooltipBox(
         positionProvider = positionProvider,
-        tooltip = { Box(Modifier.animateTooltip(transition)) { scope.tooltip() } },
+        tooltip = {
+            // Apply the animated values directly using a standard graphicsLayer modifier.
+            Box(Modifier.graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha)) {
+                scope.tooltip()
+            }
+        },
         focusable = focusable,
         enableUserInput = enableUserInput,
         onDismissRequest = onDismissRequest,
@@ -1256,36 +1279,6 @@ internal fun Modifier.textVerticalPadding(subheadExists: Boolean, actionExists: 
             .padding(bottom = TextBottomPadding)
     }
 }
-
-internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier =
-    composed(
-        inspectorInfo =
-            debugInspectorInfo {
-                name = "animateTooltip"
-                properties["transition"] = transition
-            }
-    ) {
-        // TODO Load the motionScheme tokens from the component tokens file
-        val inOutScaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-        val inOutAlphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
-        val scale by
-            transition.animateFloat(
-                transitionSpec = { inOutScaleAnimationSpec },
-                label = "tooltip transition: scaling",
-            ) {
-                if (it) 1f else 0.8f
-            }
-
-        val alpha by
-            transition.animateFloat(
-                transitionSpec = { inOutAlphaAnimationSpec },
-                label = "tooltip transition: alpha",
-            ) {
-                if (it) 1f else 0f
-            }
-
-        this.graphicsLayer(scaleX = scale, scaleY = scale, alpha = alpha)
-    }
 
 internal fun caretX(tooltipWidth: Float, screenWidthPx: Int, anchorBounds: Rect): Float {
     val anchorLeft = anchorBounds.left

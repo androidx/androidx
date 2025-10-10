@@ -48,7 +48,8 @@ public class Profile {
     int mApiLevel;
     int mOperationsProfiles;
     @NonNull Platform mPlatform;
-    @NonNull ProfileFactory mFactory;
+    @NonNull
+    RemoteComposeWriterFactory mFactory;
 
     @Nullable Supplier<Set<Integer>> mSupportedOperations;
 
@@ -64,7 +65,7 @@ public class Profile {
             int apiLevel,
             int operationProfiles,
             @NonNull Platform platform,
-            @NonNull ProfileFactory factory) {
+            @NonNull RemoteComposeWriterFactory factory) {
         mApiLevel = apiLevel;
         mOperationsProfiles = operationProfiles;
         mPlatform = platform;
@@ -85,7 +86,7 @@ public class Profile {
             int operationProfiles,
             @NonNull Platform platform,
             @NonNull Supplier<Set<Integer>> supportedOperations,
-            @NonNull ProfileFactory factory) {
+            @NonNull RemoteComposeWriterFactory factory) {
         mApiLevel = apiLevel;
         mOperationsProfiles = operationProfiles;
         mPlatform = platform;
@@ -137,7 +138,7 @@ public class Profile {
      *
      * @return a ProfileFactory
      */
-    public @NonNull ProfileFactory getProfileFactory() {
+    public @NonNull RemoteComposeWriterFactory getProfileFactory() {
         return mFactory;
     }
 

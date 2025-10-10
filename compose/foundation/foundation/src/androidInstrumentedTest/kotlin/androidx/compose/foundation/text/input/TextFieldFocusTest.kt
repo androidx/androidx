@@ -101,6 +101,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
@@ -110,7 +111,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldFocusTest {
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val testKeyboardController = TestSoftwareKeyboardController(rule)
@@ -277,6 +278,7 @@ internal class TextFieldFocusTest {
         rule.runOnIdle { focusManager.clearFocus() }
 
         rule.onNodeWithTag(tag).requestFocus()
+        rule.waitForIdle()
 
         assertThat(interactions1.filterIsInstance<FocusInteraction.Unfocus>()).hasSize(1)
         assertThat(interactions1.filterIsInstance<FocusInteraction.Unfocus>().first().focus)
@@ -316,6 +318,7 @@ internal class TextFieldFocusTest {
 
         rule.onNodeWithTag(tag).requestFocus()
 
+        rule.waitForIdle()
         assertThat(interactions1.filterIsInstance<FocusInteraction.Focus>()).isEmpty()
         assertThat(interactions2.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
     }

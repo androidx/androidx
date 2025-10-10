@@ -136,6 +136,29 @@ class TransitionClockTest {
     }
 
     @Test
+    fun clockKeepsSetTime() {
+        val clock = createEnumTransitionClock()
+        rule.waitForIdle()
+        rule.runOnIdle {
+            // Change state and clock time to end of the animation.
+            clock.state = TargetState(EnumState.One, EnumState.Two)
+            clock.setClockTime(millisToNanos(2000))
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            // Values are at the end of animation.
+            assertEquals(listOf(20.dp, Color.Gray), clock.getAnimatedProperties().map { it.value })
+            // Swap state without changing time.
+            clock.state = TargetState(EnumState.Two, EnumState.One)
+        }
+        rule.waitForIdle()
+        rule.runOnIdle {
+            // Values are still at the end of new animation.
+            assertEquals(listOf(10.dp, Color.Red), clock.getAnimatedProperties().map { it.value })
+        }
+    }
+
+    @Test
     fun clockWithAnimatedVisibility() {
         val clock = createBooleanTransitionClockWithAnimatedVisibility()
         rule.waitForIdle()

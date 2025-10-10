@@ -35,12 +35,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class TextAnnotatedStringContentCaptureInvalidationTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {

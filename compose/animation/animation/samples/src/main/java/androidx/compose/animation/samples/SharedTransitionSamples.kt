@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
@@ -101,7 +100,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun NestedSharedBoundsSample() {
@@ -225,7 +223,6 @@ fun NestedSharedBoundsSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun SharedElementWithMovableContentSample() {
@@ -286,7 +283,6 @@ fun SharedElementWithMovableContentSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun SharedElementWithFABInOverlaySample() {
@@ -370,7 +366,6 @@ fun SharedElementWithFABInOverlaySample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @Sampled
 fun SharedElementInAnimatedContentSample() {
@@ -492,7 +487,6 @@ fun SharedElementInAnimatedContentSample() {
 }
 
 @Sampled
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedElementClipRevealSample() {
     // In this sample, we are creating an animating clip bounds using shared element transition.
@@ -558,7 +552,7 @@ fun BackHandler(content: @Composable () -> Unit) {
     TODO("Not yet implemented")
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun DynamicallyEnabledSharedElementInPagerSample() {
@@ -667,7 +661,6 @@ fun DynamicallyEnabledSharedElementInPagerSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun SharedContentConfigSample() {
@@ -722,7 +715,6 @@ fun SharedContentConfigSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun DynamicallyEnableSharedElementsSample() {
@@ -812,7 +804,6 @@ fun DynamicallyEnableSharedElementsSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun SharedBoundsSample() {
@@ -878,7 +869,6 @@ fun SharedBoundsSample() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun ListToDetailSample() {
@@ -935,7 +925,6 @@ fun ListToDetailSample() {
 }
 
 @SuppressLint("PrimitiveInCollection")
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Sampled
 @Composable
 fun SharedElementWithFlingSample() {

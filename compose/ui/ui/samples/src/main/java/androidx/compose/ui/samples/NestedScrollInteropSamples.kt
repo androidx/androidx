@@ -133,7 +133,7 @@ fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
 
 private fun AndroidViewWithCompose(context: Context): View {
     return LayoutInflater.from(context)
-        .inflate(R.layout.three_fold_nested_scroll_interop, null)
+        .inflate(R.layout.ui_sample_three_fold_nested_scroll_interop, null)
         .apply {
             with(findViewById<ComposeView>(R.id.compose_view)) {
                 // Compose

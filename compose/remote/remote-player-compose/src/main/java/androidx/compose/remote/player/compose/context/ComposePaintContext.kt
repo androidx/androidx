@@ -36,7 +36,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.utils.FloatsToPath
 import androidx.compose.remote.player.compose.utils.copy
-import androidx.compose.remote.player.view.platform.AndroidComputedTextLayout
+import androidx.compose.remote.player.core.platform.AndroidComputedTextLayout
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
@@ -634,7 +634,7 @@ internal class ComposePaintContext(
         val path = android.graphics.Path()
         val pathData = androidContext.mRemoteComposeState.getPathData(id)
         if (pathData != null) {
-            androidx.compose.remote.player.view.platform.FloatsToPath.genPath(
+            androidx.compose.remote.player.core.platform.FloatsToPath.genPath(
                 path,
                 pathData,
                 start,

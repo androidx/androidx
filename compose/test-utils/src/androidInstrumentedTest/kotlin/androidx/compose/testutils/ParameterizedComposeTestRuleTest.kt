@@ -20,12 +20,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
 class ParameterizedComposeTestRuleTest {
-    @get:Rule val composeTestRule = createParameterizedComposeTestRule<Param>()
+    @get:Rule
+    val composeTestRule = createParameterizedComposeTestRule<Param>(StandardTestDispatcher())
 
     @Test
     fun assertionErrorInParameterIsPropagated() {

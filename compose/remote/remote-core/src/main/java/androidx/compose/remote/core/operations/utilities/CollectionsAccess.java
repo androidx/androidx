@@ -44,6 +44,21 @@ public interface CollectionsAccess {
     float @Nullable [] getFloats(int id);
 
     /**
+     * Get the array of float if it is a dynamic float array
+     *
+     * @param id the id of the float array
+     * @return float array
+     */
+    float @Nullable [] getDynamicFloats(int id);
+
+    /**
+     * Get the array operation for the given id
+     * @param id
+     * @return
+     */
+    @Nullable ArrayAccess getArray(int id);
+
+    /**
      * Get the number of entries in the list
      *
      * @param id the id of the list

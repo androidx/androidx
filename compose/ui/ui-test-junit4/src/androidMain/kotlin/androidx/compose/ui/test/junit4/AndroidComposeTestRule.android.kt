@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
@@ -42,9 +43,11 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+@SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>()
 
+@SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -63,6 +66,7 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
+@SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
@@ -92,6 +96,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
+@SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {

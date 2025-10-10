@@ -22,8 +22,9 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.view.TestUtils.createDocument
-import androidx.compose.remote.player.view.platform.AndroidRemoteContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.captureToBitmap
 import androidx.test.espresso.matcher.ViewMatchers

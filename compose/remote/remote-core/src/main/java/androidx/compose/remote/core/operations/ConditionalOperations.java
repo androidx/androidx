@@ -177,7 +177,11 @@ public class ConditionalOperations extends PaintOperation
         if (run) {
             for (Operation op : mList) {
                 remoteContext.incrementOpCount();
-                op.apply(context.getContext());
+                if (op instanceof ConditionalOperations) {
+                    ((ConditionalOperations) op).paint(context.getContext().getPaintContext());
+                } else {
+                    op.apply(context.getContext());
+                }
             }
         }
     }

@@ -26,7 +26,6 @@ import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleW
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog
 import androidx.compose.material3.adaptive.samples.NavigableListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSample
-import androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
@@ -338,14 +337,6 @@ val AdaptiveExamples =
             isExpressive = false,
         ) {
             SupportingPaneScaffoldSample()
-        },
-        Example(
-            name = "SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet",
-            description = AdaptiveExampleDescription,
-            sourceUrl = AdaptiveExampleSourceUrl,
-            isExpressive = false,
-        ) {
-            SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet()
         },
     )
 

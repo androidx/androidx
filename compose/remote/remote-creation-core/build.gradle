@@ -31,7 +31,7 @@ dependencies {
 
 androidx {
     name = "Remote Compose Creation Core"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Java core for RemoteCompose document creation"
 }
