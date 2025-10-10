@@ -20,10 +20,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
@@ -35,21 +35,18 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assert
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTextInputSelection
-import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import java.awt.datatransfer.StringSelection
 import kotlin.test.assertEquals
 import org.junit.Test
@@ -137,12 +134,17 @@ class ContextMenuTest {
             override val nativeClipboard: NativeClipboard
                 get() = mockPlatformClipboard
         }
+        val navEventInput = DirectNavigationEventInput()
 
         setContent {
             CompositionLocalProvider(
                 LocalLocalization provides localization,
                 LocalClipboard provides clipboard
             ) {
+                val owner = LocalNavigationEventDispatcherOwner.current
+                LaunchedEffect(owner) {
+                    owner?.navigationEventDispatcher?.addInput(navEventInput)
+                }
                 if (useBtf2) {
                     BasicTextField(rememberTextFieldState("Text"), Modifier.testTag("textfield"))
                 } else {
@@ -162,7 +164,7 @@ class ContextMenuTest {
         onNodeWithText(localization.paste).assertExists()
         onNodeWithText(localization.selectAll).assertExists()
 
-        onNodeWithTag("textfield").performKeyInput { pressKey(Key.Escape) }
+        navEventInput.backCompleted()
         onNodeWithText(localization.copy).assertDoesNotExist()
         onNodeWithText(localization.cut).assertDoesNotExist()
         onNodeWithText(localization.paste).assertDoesNotExist()
@@ -175,7 +177,7 @@ class ContextMenuTest {
         onNodeWithText(localization.paste).assertExists()
         onNodeWithText(localization.selectAll).assertMenuItemDoesNotExistOrIsDisabled()
 
-        onNodeWithTag("textfield").performKeyInput { pressKey(Key.Escape) }
+        navEventInput.backCompleted()
         onNodeWithText(localization.copy).assertDoesNotExist()
         onNodeWithText(localization.cut).assertDoesNotExist()
         onNodeWithText(localization.paste).assertDoesNotExist()

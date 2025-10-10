@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -48,6 +49,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -177,10 +180,15 @@ class DesktopMenuTest {
     }
 
     @Test
-    fun `pressing ESC button invokes onDismissRequest`() = runComposeUiTest {
+    fun `back event invokes onDismissRequest`() = runComposeUiTest {
         var dismissCount = 0
+        val navEventInput = DirectNavigationEventInput()
         setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                val owner = LocalNavigationEventDispatcherOwner.current
+                LaunchedEffect(owner) {
+                    owner?.navigationEventDispatcher?.addInput(navEventInput)
+                }
                 DropdownMenu(true, onDismissRequest = {
                     dismissCount++
                 }, modifier = Modifier.testTag("dropDownMenu")) {
@@ -189,14 +197,7 @@ class DesktopMenuTest {
             }
         }
 
-        onNodeWithTag("dropDownMenu")
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
-
-        assertEquals(1, dismissCount)
-
-        onNodeWithTag("dropDownMenu")
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
-
+        navEventInput.backCompleted()
         assertEquals(1, dismissCount)
     }
 

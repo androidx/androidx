@@ -114,6 +114,7 @@ internal class SwingComposeSceneLayer(
         ).also {
             it.onWindowTransparencyChanged(true)
             it.contentComponent.isFocusable = focusable
+            composeContainer.navigationEventDispatcher.addInput(it.navigationEventInput)
         }
 
         // TODO: Currently it works only with offscreen rendering
@@ -126,7 +127,10 @@ internal class SwingComposeSceneLayer(
     override fun close() {
         super.close()
         composeContainer.detachLayer(this)
-        mediator?.dispose()
+        mediator?.let {
+            composeContainer.navigationEventDispatcher.removeInput(it.navigationEventInput)
+            it.dispose()
+        }
         mediator = null
 
         windowContainer.remove(container)

@@ -208,7 +208,6 @@ internal class ComposeContainer(
     override val viewModelStore = ViewModelStore()
 
     override val navigationEventDispatcher = NavigationEventDispatcher()
-    private val navigationEventInput = DesktopNavigationEventInput()
 
     private var isDisposed = false
     private var isDetached = true
@@ -219,7 +218,7 @@ internal class ComposeContainer(
         savedStateController.performAttach()
         savedStateController.performRestore(savedState)
         enableSavedStateHandles()
-        navigationEventDispatcher.addInput(navigationEventInput)
+        navigationEventDispatcher.addInput(mediator.navigationEventInput)
 
         setWindow(window)
         this.windowContainer = windowContainer
@@ -245,9 +244,9 @@ internal class ComposeContainer(
         isDisposed = true
         updateLifecycleState()
         viewModelStore.clear()
-        navigationEventDispatcher.removeInput(navigationEventInput)
 
         _windowContainer?.removeComponentListener(windowContainerComponentListener)
+        navigationEventDispatcher.removeInput(mediator.navigationEventInput)
         mediator.dispose()
         layers.fastForEach(DesktopComposeSceneLayer::close)
     }
@@ -386,10 +385,7 @@ internal class ComposeContainer(
     ) {
         mediator.setKeyEventListeners(
             onPreviewKeyEvent = onPreviewKeyEvent,
-            onKeyEvent = {
-                // FIXME: It won't work for window layers + the order is different from other platforms
-                onKeyEvent(it) || navigationEventInput.onKeyEvent(it)
-            }
+            onKeyEvent = onKeyEvent
         )
     }
 

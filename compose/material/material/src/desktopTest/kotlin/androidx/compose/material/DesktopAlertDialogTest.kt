@@ -19,13 +19,10 @@ package androidx.compose.material
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
@@ -43,13 +40,14 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
-import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.runDesktopComposeUiTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -57,7 +55,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(InternalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class DesktopAlertDialogTest {
 
@@ -88,12 +85,17 @@ class DesktopAlertDialogTest {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun `pressing ESC button invokes onDismissRequest`() {
+    fun `back event invokes onDismissRequest`() {
         val dialogSize = IntSize(150, 150)
+        val navEventInput = DirectNavigationEventInput()
 
         var dismissCount = 0
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                val owner = LocalNavigationEventDispatcherOwner.current
+                LaunchedEffect(owner) {
+                    owner?.navigationEventDispatcher?.addInput(navEventInput)
+                }
                 AlertDialog(
                     onDismissRequest = { dismissCount++ },
                     title = { Text("AlertDialog") },
@@ -105,15 +107,7 @@ class DesktopAlertDialogTest {
             }
         }
 
-        rule.onNodeWithTag("alertDialog")
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
-
-        rule.runOnIdle {
-            assertEquals(1, dismissCount)
-        }
-
-        rule.onNodeWithTag("alertDialog")
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
+        navEventInput.backCompleted()
 
         rule.runOnIdle {
             assertEquals(1, dismissCount)

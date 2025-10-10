@@ -132,6 +132,7 @@ internal class WindowComposeSceneLayer(
             it.sceneBoundsInPx = boundsInPx
             it.contentComponent.size = windowContainer.size
             it.contentComponent.isFocusable = focusable
+            composeContainer.navigationEventDispatcher.addInput(it.navigationEventInput)
         }
         onDrawBoundsChanged()
 
@@ -147,7 +148,10 @@ internal class WindowComposeSceneLayer(
     override fun close() {
         super.close()
         composeContainer.detachLayer(this)
-        mediator?.dispose()
+        mediator?.let {
+            composeContainer.navigationEventDispatcher.removeInput(it.navigationEventInput)
+            it.dispose()
+        }
         mediator = null
 
         parentWindow.removeComponentListener(windowPositionListener)

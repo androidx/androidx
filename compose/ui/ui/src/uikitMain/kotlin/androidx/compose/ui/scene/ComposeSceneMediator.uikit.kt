@@ -683,8 +683,8 @@ internal class ComposeSceneMediator(
         textInputService.onPreviewKeyEvent(keyEvent) // TODO: fix redundant call
             || onPreviewKeyEvent(keyEvent)
             || scene.sendKeyEvent(keyEvent)
-            || navigationEventInput.onKeyEvent(keyEvent)
             || onKeyEvent(keyEvent)
+            || navigationEventInput.onKeyEvent(keyEvent)
 
     private inner class PlatformContextImpl : PlatformContext {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo

@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventDispatcherOwner
 
 /**
@@ -35,3 +36,4 @@ internal val LocalInternalNavigationEventDispatcherOwner =
 @Composable
 fun findDefaultNavigationEventDispatcherOwner(): NavigationEventDispatcherOwner? =
     LocalInternalNavigationEventDispatcherOwner.current
+        ?: LocalCompatNavigationEventDispatcherOwner.current

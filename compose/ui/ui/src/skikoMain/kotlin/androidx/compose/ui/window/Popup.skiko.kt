@@ -17,7 +17,9 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,11 +28,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.EmptyLayout
@@ -42,6 +40,7 @@ import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.exclude
+import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.Content
 import androidx.compose.ui.scene.rememberComposeSceneLayer
@@ -148,9 +147,11 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
  */
 @Deprecated(
     "Replaced by Popup with properties parameter",
-    ReplaceWith("Popup(alignment, offset, onDismissRequest, " +
-        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
-        "onPreviewKeyEvent, onKeyEvent, content)")
+    ReplaceWith(
+        "Popup(alignment, offset, onDismissRequest, " +
+            "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+            "onPreviewKeyEvent, onKeyEvent, content)"
+    )
 )
 @Composable
 fun Popup(
@@ -198,9 +199,11 @@ fun Popup(
  */
 @Deprecated(
     "Replaced by Popup with properties parameter",
-    ReplaceWith("Popup(popupPositionProvider, onDismissRequest, " +
-        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
-        "onPreviewKeyEvent, onKeyEvent, content)")
+    ReplaceWith(
+        "Popup(popupPositionProvider, onDismissRequest, " +
+            "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+            "onPreviewKeyEvent, onKeyEvent, content)"
+    )
 )
 @Composable
 fun Popup(
@@ -359,6 +362,7 @@ fun Popup(
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
+@OptIn(InternalComposeApi::class)
 @Composable
 fun Popup(
     popupPositionProvider: PopupPositionProvider,
@@ -371,19 +375,20 @@ fun Popup(
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
     val currentOnKeyEvent by rememberUpdatedState(onKeyEvent)
 
-    val overriddenOnKeyEvent = if (properties.dismissOnBackPress && onDismissRequest != null) {
-        // No need to remember this lambda, as it doesn't capture any values that can change.
-        { event: KeyEvent ->
-            val consumed = currentOnKeyEvent?.invoke(event) ?: false
-            if (!consumed && event.isDismissRequest()) {
-                currentOnDismissRequest?.invoke()
-                true
-            } else {
-                consumed
-            }
+    // Any focusable [Popup] must consume all back events
+    if (properties.focusable) {
+        val onBackHandler = remember {
+            OnBackClickEventHandler { currentOnDismissRequest?.invoke() }
         }
-    } else {
-        onKeyEvent
+        onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
+        val navigationEventDispatcher =
+            requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
+                error("NavigationEventDispatcherOwner not found")
+            }.navigationEventDispatcher
+        DisposableEffect(navigationEventDispatcher) {
+            navigationEventDispatcher.addHandler(onBackHandler)
+            onDispose { onBackHandler.remove() }
+        }
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside && onDismissRequest != null) {
         // No need to remember this lambda, as it doesn't capture any values that can change.
@@ -403,7 +408,7 @@ fun Popup(
         properties = properties,
         modifier = Modifier.semantics { popup() },
         onPreviewKeyEvent = onPreviewKeyEvent,
-        onKeyEvent = overriddenOnKeyEvent,
+        onKeyEvent = currentOnKeyEvent,
         onOutsidePointerEvent = onOutsidePointerEvent,
         content = content,
     )
@@ -483,30 +488,39 @@ private fun rememberPopupMeasurePolicy(
     platformInsets: PlatformInsets,
     layoutDirection: LayoutDirection,
     parentBoundsInWindow: MutableState<IntRect>
-) = remember(layer, popupPositionProvider, properties, containerSize, platformInsets, layoutDirection, parentBoundsInWindow) {
+) = remember(
+    layer,
+    popupPositionProvider,
+    properties,
+    containerSize,
+    platformInsets,
+    layoutDirection,
+    parentBoundsInWindow
+) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { contentSize ->
         val parentRectInWindow = parentBoundsInWindow.value
-        val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
-            // Position provider works in coordinates without insets.
-            val boundsWithoutInsets = parentRectInWindow.translate(
-                -platformInsets.left,
-                -platformInsets.top
-            )
-            val positionInWindow = popupPositionProvider.calculatePosition(
-                anchorBounds = boundsWithoutInsets,
-                windowSize = sizeWithoutInsets,
-                layoutDirection = layoutDirection,
-                popupContentSize = contentSize
-            )
-            if (properties.clippingEnabled) {
-                clipPosition(positionInWindow, contentSize, sizeWithoutInsets)
-            } else {
-                positionInWindow
+        val positionWithInsets =
+            positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
+                // Position provider works in coordinates without insets.
+                val boundsWithoutInsets = parentRectInWindow.translate(
+                    -platformInsets.left,
+                    -platformInsets.top
+                )
+                val positionInWindow = popupPositionProvider.calculatePosition(
+                    anchorBounds = boundsWithoutInsets,
+                    windowSize = sizeWithoutInsets,
+                    layoutDirection = layoutDirection,
+                    popupContentSize = contentSize
+                )
+                if (properties.clippingEnabled) {
+                    clipPosition(positionInWindow, contentSize, sizeWithoutInsets)
+                } else {
+                    positionInWindow
+                }
             }
-        }
         layer.boundsInWindow = IntRect(positionWithInsets, contentSize)
         layer.calculateLocalPosition(positionWithInsets)
     }
@@ -521,7 +535,3 @@ private fun clipPosition(position: IntOffset, contentSize: IntSize, containerSiz
             position.y.coerceIn(0, containerSize.height - contentSize.height)
         } else 0
     )
-
-private fun KeyEvent.isDismissRequest() =
-    type == KeyEventType.KeyDown && key == Key.Escape
-

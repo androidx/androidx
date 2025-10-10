@@ -39,6 +39,8 @@ import androidx.compose.ui.test.isPopup
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.unit.dp
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.google.common.truth.Truth.assertThat
 import java.awt.Window
 import kotlin.test.assertTrue
@@ -164,9 +166,14 @@ class DesktopPopupTest {
     }
 
     @Test
-    fun dismissPopupByEscWithBackPressProperty() {
+    fun dismissPopupByBackEventWithBackPressProperty() {
         var onDismissRequestCallCount = 0
+        val navEventInput = DirectNavigationEventInput()
         rule.setContent {
+            val owner = LocalNavigationEventDispatcherOwner.current
+            LaunchedEffect(owner) {
+                owner?.navigationEventDispatcher?.addInput(navEventInput)
+            }
             Popup(
                 onDismissRequest = { onDismissRequestCallCount++ },
                 properties = PopupProperties(
@@ -178,20 +185,19 @@ class DesktopPopupTest {
             }
         }
 
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
-        rule.waitForIdle()
-        assertThat(onDismissRequestCallCount).isEqualTo(1)
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
-        rule.waitForIdle()
+        navEventInput.backCompleted()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
 
     @Test
-    fun doNotDismissPopupByEscWithoutBackPressProperty() {
+    fun doNotDismissPopupByBackEventWithoutBackPressProperty() {
         var onDismissRequestCallCount = 0
+        val navEventInput = DirectNavigationEventInput()
         rule.setContent {
+            val owner = LocalNavigationEventDispatcherOwner.current
+            LaunchedEffect(owner) {
+                owner?.navigationEventDispatcher?.addInput(navEventInput)
+            }
             Popup(
                 onDismissRequest = { onDismissRequestCallCount++ },
                 properties = PopupProperties(
@@ -203,20 +209,19 @@ class DesktopPopupTest {
             }
         }
 
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
-        rule.waitForIdle()
-        assertThat(onDismissRequestCallCount).isEqualTo(0)
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
-        rule.waitForIdle()
+        navEventInput.backCompleted()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
     }
 
     @Test
-    fun dismissPopupByEscOnNotConsumedKeyEvent() {
+    fun dismissPopupByBackEventOnNotConsumedKeyEvent() {
         var onDismissRequestCallCount = 0
+        val navEventInput = DirectNavigationEventInput()
         rule.setContent {
+            val owner = LocalNavigationEventDispatcherOwner.current
+            LaunchedEffect(owner) {
+                owner?.navigationEventDispatcher?.addInput(navEventInput)
+            }
             Popup(
                 focusable = true,
                 onDismissRequest = { onDismissRequestCallCount++ },
@@ -226,24 +231,22 @@ class DesktopPopupTest {
             }
         }
 
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
-        rule.waitForIdle()
-        assertThat(onDismissRequestCallCount).isEqualTo(1)
-        rule.onNode(isPopup())
-            .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
-        rule.waitForIdle()
+        navEventInput.backCompleted()
         assertThat(onDismissRequestCallCount).isEqualTo(1)
     }
 
     @Test
     fun doNotDismissPopupByEscOnConsumedKeyEvent() {
         var onDismissRequestCallCount = 0
+        var onKeyEventCallCount = 0
         rule.setContent {
             Popup(
                 focusable = true,
                 onDismissRequest = { onDismissRequestCallCount++ },
-                onKeyEvent = { true }
+                onKeyEvent = {
+                    onKeyEventCallCount++
+                    true
+                }
             ) {
                 Box(Modifier)
             }
@@ -253,10 +256,12 @@ class DesktopPopupTest {
             .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyDown))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
+        assertThat(onKeyEventCallCount).isEqualTo(1)
         rule.onNode(isPopup())
             .performKeyPress(KeyEvent(Key.Escape, KeyEventType.KeyUp))
         rule.waitForIdle()
         assertThat(onDismissRequestCallCount).isEqualTo(0)
+        assertThat(onKeyEventCallCount).isEqualTo(2)
     }
 
     @Test

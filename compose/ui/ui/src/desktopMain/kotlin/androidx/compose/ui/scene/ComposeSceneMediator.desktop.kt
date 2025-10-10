@@ -42,6 +42,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.navigationevent.DesktopNavigationEventInput
 import androidx.compose.ui.platform.AwtDragAndDropManager
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.DelegateRootForTestListener
@@ -68,6 +69,7 @@ import androidx.compose.ui.viewinterop.SwingInteropContainer
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
+import androidx.navigationevent.NavigationEventInput
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
@@ -137,6 +139,8 @@ internal class ComposeSceneMediator(
     val accessible: Accessible = ComposeSceneAccessible {
         semanticsOwnerListener.accessibilityControllers
     }
+
+    val navigationEventInput: DesktopNavigationEventInput = DesktopNavigationEventInput()
 
     private val platformComponent = DesktopPlatformComponent()
     private val textInputService = DesktopTextInputService(platformComponent)
@@ -540,7 +544,8 @@ internal class ComposeSceneMediator(
         windowContext.setKeyboardModifiers(composeEvent.internal.modifiers)
         if (onPreviewKeyEvent(composeEvent) ||
             scene.sendKeyEvent(composeEvent) ||
-            onKeyEvent(composeEvent)
+            onKeyEvent(composeEvent) ||
+            navigationEventInput.onKeyEvent(composeEvent)
         ) {
             event.consume()
         }

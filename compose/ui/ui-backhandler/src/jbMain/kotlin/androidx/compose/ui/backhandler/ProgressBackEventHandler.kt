@@ -47,12 +47,16 @@ internal class ProgressBackEventHandler(
     }
 
     override fun onBackCancelled() {
-        progressChannel?.close(CancellationException("Cancelled"))
-        progressChannel = null
+        coroutineScope.launch {
+            progressChannel?.close(CancellationException("Cancelled"))
+            progressChannel = null
+        }
     }
 
     override fun onBackCompleted() {
-        progressChannel?.close()
-        progressChannel = null
+        coroutineScope.launch {
+            progressChannel?.close()
+            progressChannel = null
+        }
     }
 }
