@@ -36,6 +36,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -57,6 +59,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 
 private enum class CupertinoScrollSource {
@@ -389,7 +392,7 @@ internal class CupertinoOverscrollEffect(
         }
 
         springAnimationScope?.cancel()
-        springAnimationScope = CoroutineScope(coroutineContext)
+        springAnimationScope = CoroutineScope(currentCoroutineContext())
         springAnimationScope?.run {
             AnimationState(
                 Float.VectorConverter,
@@ -413,7 +416,7 @@ internal class CupertinoOverscrollEffect(
             springAnimationScope = null
         }
 
-        if (coroutineContext.isActive) {
+        if (currentCoroutineContext().isActive) {
             // The spring is critically damped, so in case spring-fling-spring sequence is slightly
             // offset and velocity is of the opposite sign, it will end up with no animation
             overscrollOffset = Offset.Zero
@@ -471,13 +474,15 @@ private class CupertinoOverscrollNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
-        if (pass == PointerEventPass.Final) {
-            if (pointerEvent.type == PointerEventType.Press) {
-                pointersDown++
-            } else if (pointerEvent.type == PointerEventType.Release) {
-                pointersDown--
-                assert(pointersDown >= 0) { "pointersDown cannot be negative" }
+        if (pass == PointerEventPass.Initial) {
+            pointerEvent.changes.forEach { change ->
+                if (change.changedToDown()) {
+                    pointersDown++
+                } else if (change.changedToUp()) {
+                    pointersDown--
+                }
             }
+            assert(pointersDown >= 0) { "pointersDown cannot be negative" }
         }
     }
 

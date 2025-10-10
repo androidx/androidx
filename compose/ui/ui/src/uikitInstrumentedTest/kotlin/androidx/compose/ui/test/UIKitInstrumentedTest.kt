@@ -23,6 +23,7 @@ import androidx.compose.ui.scene.ComposeHostingViewController
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.getTouchesEvent
 import androidx.compose.ui.test.utils.moveToLocationOnWindow
+import androidx.compose.ui.test.utils.resetTouches
 import androidx.compose.ui.test.utils.toCGPoint
 import androidx.compose.ui.test.utils.touchDown
 import androidx.compose.ui.test.utils.up
@@ -227,19 +228,19 @@ internal class UIKitInstrumentedTest {
      *
      * @param position The position on the root hosting controller.
      */
-    fun tap(position: DpOffset): UITouch {
+    fun tap(position: DpOffset) {
         return touchDown(position).up()
     }
 
     /**
      * Simulates a tap gesture for a given AccessibilityTestNode.
      */
-    fun AccessibilityTestNode.tap(): UITouch {
+    fun AccessibilityTestNode.tap() {
         val frame = frame ?: error("Internal error. Frame is missing.")
         return tap(frame.center())
     }
 
-    fun AccessibilityTestNode.doubleTap(): UITouch {
+    fun AccessibilityTestNode.doubleTap() {
         val frame = frame ?: error("Internal error. Frame is missing.")
         tap(frame.center())
         delay(50)
@@ -343,6 +344,7 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
             window.resignKeyWindow()
         }
 
+        _window?.resetTouches()
         _window?.resignKeyWindow()
         _window?.windowScene = null
         _window?.rootViewController = UIViewController()
@@ -395,8 +397,8 @@ internal fun UIKitInstrumentedTest.findFocusedUITextInput(): UITextInputProtocol
         if (view.isFirstResponder) {
             return view
         }
-        view.subviews.forEach {
-            findFirstResponder(it as UIView)?.let { return it }
+        view.subviews.forEach { view ->
+            findFirstResponder(view as UIView)?.let { return it }
         }
         return null
     }
