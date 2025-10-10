@@ -55,7 +55,8 @@ internal fun keyEvent(
     shiftKey: Boolean = false,
     cancelable: Boolean = true,
     repeat: Boolean = false,
-    isComposing: Boolean = false
+    isComposing: Boolean = false,
+    bubbles: Boolean = true,
 ): KeyboardEvent {
     val keyboardEventInit = KeyboardEventInit(
         key = key,
@@ -67,6 +68,7 @@ internal fun keyEvent(
         cancelable = cancelable,
         repeat = repeat,
         isComposing = isComposing,
+        bubbles = bubbles,
     ) as KeyboardEventInitExtended
 
     keyboardEventInit.keyCode = keyCode

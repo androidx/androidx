@@ -179,7 +179,7 @@ internal class WebApplicationScope(
      * awaitAnimationFrame is needed for text input tests,
      * due to DomInputStrategy implementation relying on animation frame events.
      */
-    private suspend fun awaitAnimationFrame() {
+    internal suspend fun awaitAnimationFrame() {
         suspendCoroutine { continuation ->
             window.requestAnimationFrame { continuation.resumeWith(Result.success(Unit)) }
         }
