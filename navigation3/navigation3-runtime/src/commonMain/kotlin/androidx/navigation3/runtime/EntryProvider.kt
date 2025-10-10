@@ -23,32 +23,31 @@ import kotlin.reflect.KClass
 @DslMarker public annotation class EntryDsl
 
 /**
- * Creates an [EntryProviderBuilder] with the entry providers provided in the builder.
+ * Provides a [EntryProviderScope] to build an entryProvider that provides NavEntries.
  *
  * @param [T] the type of the [NavEntry] key
  * @param fallback the fallback [NavEntry] when the provider cannot find an entry associated with a
  *   given key on the backStack
- * @param builder the [EntryProviderBuilder] DSL extension that builds NavEntries for the provider
+ * @param builder the DSL extension that provides a [EntryProviderScope] to build an entryProvider
+ *   that provides NavEntries.
+ * @return an entryProvider that provides the NavEntry associated with a given key
  */
 public inline fun <T : Any> entryProvider(
     noinline fallback: (unknownScreen: T) -> NavEntry<T> = {
         throw IllegalStateException("Unknown screen $it")
     },
-    builder: EntryProviderBuilder<T>.() -> Unit,
-): (T) -> NavEntry<T> = EntryProviderBuilder(fallback).apply(builder).build()
+    builder: EntryProviderScope<T>.() -> Unit,
+): (T) -> NavEntry<T> = EntryProviderScope(fallback).apply(builder).build()
 
 /**
- * DSL for constructing a new [NavEntry]
+ * The scope for constructing a new [NavEntry] with Kotlin DSL
  *
  * @param [T] the type of the [NavEntry] key
  * @param fallback the fallback [NavEntry] when the provider cannot find an entry associated with a
  *   given key on the backStack
  */
-@Suppress("TopLevelBuilder")
 @EntryDsl
-public class EntryProviderBuilder<T : Any>(
-    private val fallback: (unknownScreen: T) -> NavEntry<T>
-) {
+public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T) -> NavEntry<T>) {
     private val clazzProviders = mutableMapOf<KClass<out T>, EntryClassProvider<out T>>()
     private val providers = mutableMapOf<Any, EntryProvider<out T>>()
 
@@ -64,7 +63,6 @@ public class EntryProviderBuilder<T : Any>(
      * @param metadata provides information to the display
      * @param content content for this entry to be displayed when this entry is active
      */
-    @Suppress("SetterReturnsThis", "MissingGetterMatchingBuilder")
     public fun <K : T> addEntryProvider(
         key: K,
         contentKey: Any = defaultContentKey(key),
@@ -78,7 +76,7 @@ public class EntryProviderBuilder<T : Any>(
     }
 
     /**
-     * Add an entry provider to the [EntryProviderBuilder]
+     * Add an entry provider to the [EntryProviderScope]
      *
      * @param K the type of the key for this NavEntry
      * @param key key for this entry
@@ -89,8 +87,7 @@ public class EntryProviderBuilder<T : Any>(
      * @param metadata provides information to the display
      * @param content content for this entry to be displayed when this entry is active
      */
-    @Suppress("BuilderSetStyle")
-    public fun <K : T> EntryProviderBuilder<T>.entry(
+    public fun <K : T> EntryProviderScope<T>.entry(
         key: K,
         contentKey: Any = defaultContentKey(key),
         metadata: Map<String, Any> = emptyMap(),
@@ -111,7 +108,6 @@ public class EntryProviderBuilder<T : Any>(
      * @param metadata provides information to the display
      * @param content content for this entry to be displayed when this entry is active
      */
-    @Suppress("SetterReturnsThis", "MissingGetterMatchingBuilder")
     public fun <K : T> addEntryProvider(
         clazz: KClass<out K>,
         clazzContentKey: (key: @JvmSuppressWildcards K) -> Any = { defaultContentKey(it) },
@@ -125,7 +121,7 @@ public class EntryProviderBuilder<T : Any>(
     }
 
     /**
-     * Add an entry provider to the [EntryProviderBuilder]
+     * Add an entry provider to the [EntryProviderScope]
      *
      * @param K the type of the key for this NavEntry
      * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content
@@ -135,7 +131,6 @@ public class EntryProviderBuilder<T : Any>(
      * @param metadata provides information to the display
      * @param content content for this entry to be displayed when this entry is active
      */
-    @Suppress("BuilderSetStyle")
     public inline fun <reified K : T> entry(
         noinline clazzContentKey: (key: @JvmSuppressWildcards K) -> Any = { defaultContentKey(it) },
         metadata: Map<String, Any> = emptyMap(),
@@ -148,7 +143,8 @@ public class EntryProviderBuilder<T : Any>(
      * Returns an instance of entryProvider created from the entry providers set on this builder.
      */
     @Suppress("UNCHECKED_CAST")
-    public fun build(): (T) -> NavEntry<T> = { key ->
+    @PublishedApi
+    internal fun build(): (T) -> NavEntry<T> = { key ->
         val entryClassProvider = clazzProviders[key::class] as? EntryClassProvider<T>
         val entryProvider = providers[key] as? EntryProvider<T>
         entryClassProvider?.run { NavEntry(key, clazzContentKey(key), metadata, content) }

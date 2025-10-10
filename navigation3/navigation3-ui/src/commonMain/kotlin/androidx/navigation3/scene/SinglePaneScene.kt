@@ -27,6 +27,29 @@ internal data class SinglePaneScene<T : Any>(
     override val entries: List<NavEntry<T>> = listOf(entry)
 
     override val content: @Composable () -> Unit = { entry.Content() }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SinglePaneScene<*>
+
+        return key == other.key &&
+            entry == other.entry &&
+            previousEntries == other.previousEntries &&
+            entries == other.entries
+    }
+
+    override fun hashCode(): Int {
+        return key.hashCode() * 31 +
+            entry.hashCode() * 31 +
+            previousEntries.hashCode() * 31 +
+            entries.hashCode() * 31
+    }
+
+    override fun toString(): String {
+        return "SinglePaneScene(key=$key, entry=$entry, previousEntries=$previousEntries, entries=$entries)"
+    }
 }
 
 /**
@@ -34,18 +57,20 @@ internal data class SinglePaneScene<T : Any>(
  * list.
  */
 public class SinglePaneSceneStrategy<T : Any> : SceneStrategy<T> {
-    @Composable
-    override fun calculateScene(entries: List<NavEntry<T>>, onBack: (Int) -> Unit): Scene<T> =
-        SinglePaneScene(
+
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T> {
+        return SinglePaneScene(
             key = entries.last().contentKey,
             entry = entries.last(),
             previousEntries = entries.dropLast(1),
         )
+    }
 }
 
-@Composable
 internal fun <T : Any> SceneStrategy<T>.calculateSceneWithSinglePaneFallback(
+    scope: SceneStrategyScope<T>,
     entries: List<NavEntry<T>>,
-    onBack: (count: Int) -> Unit,
-): Scene<T> =
-    calculateScene(entries, onBack) ?: SinglePaneSceneStrategy<T>().calculateScene(entries, onBack)
+): Scene<T> {
+    return scope.calculateScene(entries)
+        ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
+}

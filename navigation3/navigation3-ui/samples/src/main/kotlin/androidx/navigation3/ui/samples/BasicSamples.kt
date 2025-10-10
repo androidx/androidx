@@ -33,37 +33,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HouseSiding
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.navEntryDecorator
-import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.samples.Dashboard
 import androidx.navigation3.runtime.samples.DialogBase
 import androidx.navigation3.runtime.samples.DialogContent
@@ -73,7 +60,6 @@ import androidx.navigation3.runtime.samples.Profile
 import androidx.navigation3.runtime.samples.ProfileViewModel
 import androidx.navigation3.runtime.samples.Scrollable
 import androidx.navigation3.scene.Scene
-import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.NavigationEvent
@@ -88,8 +74,7 @@ fun SceneNav() {
         backStack = backStack,
         entryDecorators =
             listOf(
-                rememberSceneSetupNavEntryDecorator(),
-                rememberSavedStateNavEntryDecorator(),
+                rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
             ),
         onBack = { backStack.removeAt(backStack.lastIndex) },
@@ -151,7 +136,7 @@ fun SceneNavSharedEntrySample() {
      * [Scene].
      */
     val sharedEntryInSceneNavEntryDecorator =
-        navEntryDecorator<Any> { entry ->
+        NavEntryDecorator<Any> { entry ->
             with(localNavSharedTransitionScope.current) {
                 Box(
                     Modifier.sharedElement(
@@ -173,8 +158,7 @@ fun SceneNavSharedEntrySample() {
                 entryDecorators =
                     listOf(
                         sharedEntryInSceneNavEntryDecorator,
-                        rememberSceneSetupNavEntryDecorator(),
-                        rememberSavedStateNavEntryDecorator(),
+                        rememberSaveableStateHolderNavEntryDecorator(),
                     ),
                 entryProvider =
                     entryProvider {
@@ -218,196 +202,6 @@ fun SceneNavSharedElementSample() {
                 },
         )
     }
-}
-
-/**
- * In this example, a backStack's associated decorator states will swap along with the backStack.
- */
-@Sampled
-@Composable
-fun MultipleBackStackSample() {
-    val tabKeys = listOf(Home, User)
-
-    /** set up User entries */
-    val homeBackStack = rememberNavBackStack(Home)
-    val homeTabEntries =
-        getHomeTabEntries(
-            backStackString = homeBackStack.map { (it as SampleKey).name }.toString(),
-            backStack = homeBackStack,
-        )
-
-    /** set up User entries */
-    val userBackStack = rememberNavBackStack(User)
-    val userTabEntries =
-        getUserTabEntries(
-            backStackString = userBackStack.map { (it as SampleKey).name }.toString(),
-            backStack = userBackStack,
-        )
-
-    /** condition for which tab to switch to */
-    var currentTab: SampleTabKey by remember { mutableStateOf(Home) }
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                tabKeys.forEach { tab ->
-                    val isSelected = tab == currentTab
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = { currentTab = tab },
-                        icon = { Icon(imageVector = tab.imageVector, contentDescription = null) },
-                    )
-                }
-            }
-        }
-    ) {
-        /** Swap backStacks based on the current selected tab */
-        NavDisplay(
-            entries = if (currentTab == Home) homeTabEntries else userTabEntries,
-            onBack = { backCount ->
-                val currBackStack = if (currentTab == Home) homeBackStack else userBackStack
-                repeat(backCount) { currBackStack.removeLastOrNull() }
-            },
-        )
-    }
-}
-
-/**
- * In this example, changes to a backStack will only affect the states that were passed alongside
- * that particular backStack into the [rememberDecoratedNavEntries] call.
- */
-@Sampled
-@Composable
-fun ConcatenatedBackStackSample() {
-    val tabKeys = listOf(Home, User)
-
-    /** set up User entries */
-    val homeBackStack = rememberNavBackStack(Home)
-    val homeBackStackNames = homeBackStack.map { (it as SampleKey).name }
-    val homeTabEntries =
-        getHomeTabEntries(
-            backStackString = homeBackStackNames.toString(),
-            backStack = homeBackStack,
-        )
-
-    /** set up User entries */
-    val userBackStack = rememberNavBackStack(User)
-    val userTabEntries =
-        getUserTabEntries(
-            backStackString =
-                (homeBackStackNames + userBackStack.map { (it as SampleKey).name }).toString(),
-            backStack = userBackStack,
-        )
-
-    /** condition for which tab to switch to */
-    var currentTab: SampleTabKey by remember { mutableStateOf(Home) }
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                tabKeys.forEach { tab ->
-                    val isSelected = tab == currentTab
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = { currentTab = tab },
-                        icon = { Icon(imageVector = tab.imageVector, contentDescription = null) },
-                    )
-                }
-            }
-        }
-    ) {
-        /** Swap backStacks based on the current selected tab */
-        NavDisplay(
-            entries = if (currentTab == Home) homeTabEntries else homeTabEntries + userTabEntries,
-            onBack = { backCount ->
-                for (i in 1..backCount) {
-                    val currBackStack = if (currentTab == Home) homeBackStack else userBackStack
-                    currBackStack.removeLastOrNull()
-                    if (currentTab == User && userBackStack.isEmpty()) {
-                        currentTab = Home
-                    }
-                }
-            },
-        )
-    }
-}
-
-@Composable
-fun getHomeTabEntries(
-    backStackString: String,
-    backStack: NavBackStack<NavKey>,
-): List<NavEntry<NavKey>> {
-    if (backStack.isEmpty()) backStack.add(Home)
-    val homeDecorators =
-        listOf<NavEntryDecorator<NavKey>>(
-            rememberSavedStateNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator(),
-        )
-    val homeEntryProvider =
-        entryProvider<NavKey> {
-            entry<Home> {
-                HomeScreen(backStackString = backStackString) {
-                    backStack.add(Detail("in Home Tab"))
-                }
-            }
-            entry<Detail> { key ->
-                DetailScreen(
-                    backStackString = "${backStack.map { (it as SampleKey).name }}",
-                    sourceTab = key.sourceTab,
-                )
-            }
-        }
-    return rememberDecoratedNavEntries(backStack, homeDecorators, homeEntryProvider)
-}
-
-@Composable
-fun getUserTabEntries(
-    backStackString: String,
-    backStack: NavBackStack<NavKey>,
-): List<NavEntry<NavKey>> {
-    if (backStack.isEmpty()) backStack.add(User)
-    val userDecorators =
-        listOf<NavEntryDecorator<NavKey>>(
-            rememberSavedStateNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator(),
-        )
-    val userEntryProvider =
-        entryProvider<NavKey> {
-            entry<User> {
-                UserScreen(backStackString = backStackString) {
-                    backStack.add(Detail("in User Tab"))
-                }
-            }
-            entry<Detail> { key ->
-                DetailScreen(backStackString = backStackString, sourceTab = key.sourceTab)
-            }
-        }
-    return rememberDecoratedNavEntries(backStack, userDecorators, userEntryProvider)
-}
-
-interface SampleKey : NavKey {
-    val name: String
-}
-
-interface SampleTabKey : SampleKey {
-    val imageVector: ImageVector
-}
-
-@Serializable
-object Home : SampleTabKey {
-    override val name: String = "Home"
-    override val imageVector: ImageVector = Icons.Filled.HouseSiding
-}
-
-@Serializable
-object User : SampleTabKey {
-    override val name: String = "User"
-    override val imageVector: ImageVector = Icons.Filled.Person
-}
-
-@Serializable
-data class Detail(val sourceTab: String) : SampleKey {
-    override val name: String = "Detail"
 }
 
 @Serializable object CatList : NavKey

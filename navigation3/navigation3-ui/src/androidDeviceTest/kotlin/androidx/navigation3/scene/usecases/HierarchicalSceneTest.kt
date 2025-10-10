@@ -40,6 +40,7 @@ import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -88,23 +89,17 @@ private class HierarchicalScene<T : Any>(
 }
 
 private class HierarchicalSceneStrategy<T : Any>(private val columns: Int) : SceneStrategy<T> {
-    @Composable
-    override fun calculateScene(
-        entries: List<NavEntry<T>>,
-        onBack: (count: Int) -> Unit,
-    ): Scene<T> {
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T> {
         val includedEntries = entries.takeLast(columns)
-        return remember(columns, includedEntries) {
-            HierarchicalScene(
-                List(columns, includedEntries::getOrNull),
-                previousEntries =
-                    if (entries.size > columns) {
-                        entries.dropLast(1)
-                    } else {
-                        emptyList()
-                    },
-            )
-        }
+        return HierarchicalScene(
+            List(columns, includedEntries::getOrNull),
+            previousEntries =
+                if (entries.size > columns) {
+                    entries.dropLast(1)
+                } else {
+                    emptyList()
+                },
+        )
     }
 }
 
@@ -119,7 +114,7 @@ class HierarchicalSceneTest {
             val backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {
@@ -143,7 +138,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {
@@ -173,7 +168,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {
@@ -216,7 +211,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember(columns) { HierarchicalSceneStrategy(columns) },
             ) {
                 when (it) {
@@ -265,7 +260,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {
@@ -303,7 +298,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {
@@ -380,7 +375,7 @@ class HierarchicalSceneTest {
             backStack = remember { mutableStateListOf(first, second, third) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
                 sceneStrategy = remember { HierarchicalSceneStrategy(2) },
             ) {
                 when (it) {

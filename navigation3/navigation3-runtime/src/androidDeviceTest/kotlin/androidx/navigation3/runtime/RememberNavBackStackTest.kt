@@ -19,11 +19,16 @@ package androidx.navigation3.runtime
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
+import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.Test
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -38,7 +43,7 @@ class RememberNavBackStackTest {
     @Test
     fun simpleObjectRestore() {
         var backStack: NavBackStack<NavKey>? = null
-        restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
+        restorationTester.setContent { backStack = rememberNavBackStack() }
 
         assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
@@ -56,7 +61,7 @@ class RememberNavBackStackTest {
     @Test
     fun simpleClassRestore() {
         var backStack: NavBackStack<NavKey>? = null
-        restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
+        restorationTester.setContent { backStack = rememberNavBackStack() }
 
         assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
@@ -76,7 +81,7 @@ class RememberNavBackStackTest {
     @Test
     fun simpleDataClassRestore() {
         var backStack: NavBackStack<NavKey>? = null
-        restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
+        restorationTester.setContent { backStack = rememberNavBackStack() }
 
         assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
@@ -100,7 +105,7 @@ class RememberNavBackStackTest {
     @Test
     fun noSerializerFail() {
         var backStack: NavBackStack<NavKey>? = null
-        restorationTester.setContent { backStack = rememberNavBackStack<NavKey>() }
+        restorationTester.setContent { backStack = rememberNavBackStack() }
 
         assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
 
@@ -109,20 +114,90 @@ class RememberNavBackStackTest {
             // we null it to ensure recomposition happened
             backStack = null
         }
-        try {
-            restorationTester.emulateSavedInstanceStateRestore()
-        } catch (e: SerializationException) {
-            assertThat(e)
-                .hasMessageThat()
-                .contains("Serializer for class 'TestNoSerializer' is not found")
+
+        assertThrows<SerializationException> {
+                restorationTester.emulateSavedInstanceStateRestore()
+            }
+            .hasMessageThat()
+            .contains("Serializer for class 'TestNoSerializer' is not found")
+    }
+
+    @Test
+    fun sealedClassRestore() {
+        var backStack: NavBackStack<NavKey>? = null
+        restorationTester.setContent { backStack = rememberNavBackStack() }
+
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
+
+        rule.runOnUiThread {
+            backStack?.add(TestSealedClass.Key1)
+            // we null it to ensure recomposition happened
+            backStack = null
         }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        assertThat(backStack).contains(TestSealedClass.Key1)
+    }
+
+    @Test
+    fun configurationRestore() {
+        var backStack: NavBackStack<NavKey>? = null
+        // Explicitly pass the custom Configuration object
+        restorationTester.setContent {
+            backStack = rememberNavBackStack(configuration = Configuration)
+        }
+
+        assertThat(backStack).isEqualTo(NavBackStack<NavKey>())
+
+        rule.runOnUiThread {
+            backStack?.add(TestObject)
+            // we null it to ensure recomposition happened
+            backStack = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        // We assert that an object defined in that configuration is restored
+        assertThat(backStack).contains(TestObject)
+    }
+
+    @Test
+    fun defaultConfigurationFails() {
+        assertThrows<IllegalArgumentException> {
+                rule.setContent {
+                    rememberNavBackStack(configuration = SavedStateConfiguration.DEFAULT)
+                }
+            }
+            .hasMessageThat()
+            .contains(
+                "You must pass a `SavedStateConfiguration.serializersModule` configured to " +
+                    "handle `NavKey` open polymorphism."
+            )
     }
 }
 
-internal object TestNoSerializer : NavKey
+private object TestNoSerializer : NavKey
 
-@Serializable internal object TestObject : NavKey
+@Serializable private object TestObject : NavKey
 
-@Serializable internal class TestClass : NavKey
+@Serializable private class TestClass : NavKey
 
-@Serializable internal data class TestDataClass(var value: Int) : NavKey
+@Serializable private data class TestDataClass(var value: Int) : NavKey
+
+@Serializable
+private sealed class TestSealedClass : NavKey {
+    @Serializable data object Key1 : TestSealedClass()
+}
+
+private val Configuration = SavedStateConfiguration {
+    serializersModule = SerializersModule {
+        polymorphic(NavKey::class) {
+            subclass(TestObject::class)
+            subclass(TestClass::class)
+            subclass(TestDataClass::class)
+            subclass(TestSealedClass::class)
+            subclass(TestSealedClass.Key1::class)
+        }
+    }
+}

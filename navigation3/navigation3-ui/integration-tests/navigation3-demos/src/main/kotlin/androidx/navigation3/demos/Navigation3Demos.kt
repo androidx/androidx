@@ -20,8 +20,10 @@ import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.navigation3.ui.samples.ConcatenatedBackStackSample
 import androidx.navigation3.ui.samples.MultipleBackStackSample
+import androidx.navigation3.ui.samples.SceneDefaultTransitionsSample
 import androidx.navigation3.ui.samples.SceneNav
 import androidx.navigation3.ui.samples.SceneNavSharedElementSample
+import androidx.navigation3.ui.samples.SceneOverrideEntryTransitionsSample
 
 val Navigation3Demos =
     DemoCategory(
@@ -32,5 +34,9 @@ val Navigation3Demos =
             ComposableDemo("Hierarchical Scene Strategy Demo") { HierarchicalSceneSample() },
             ComposableDemo("Nav3 with Multiple BackStack") { MultipleBackStackSample() },
             ComposableDemo("Nav3 with Concatenated BackStack") { ConcatenatedBackStackSample() },
+            ComposableDemo("Scene default Transitions") { SceneDefaultTransitionsSample() },
+            ComposableDemo("Scene override Entry Transitions") {
+                SceneOverrideEntryTransitionsSample()
+            },
         ),
     )

@@ -16,8 +16,27 @@
 
 package androidx.navigation3.scene
 
-import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
+
+/**
+ * Scope used to create a [Scene] from a list of [NavEntry]s.
+ *
+ * This Scope should be provided to the [SceneStrategy.calculateScene] function to create Scenes.
+ */
+public class SceneStrategyScope<T : Any>(
+    /**
+     * A callback that should be connected to any internal handling of system back done by the
+     * returned [Scene].
+     *
+     * For example, if your [Scene] uses a separate window that handles system back itself or if the
+     * UI present in your [Scene] allows users to go back via a custom gesture or affordance, this
+     * callback allows you to bubble up that event to the [SceneState] /
+     * [androidx.navigation3.ui.NavDisplay] that interfaces with the developer owned back stack.
+     *
+     * @sample androidx.navigation3.scene.samples.SceneStrategyOnBackSample
+     */
+    public val onBack: () -> Unit = {}
+)
 
 /**
  * A strategy that tries to calculate a [Scene] given a list of [NavEntry].
@@ -27,8 +46,8 @@ import androidx.navigation3.runtime.NavEntry
  */
 public fun interface SceneStrategy<T : Any> {
     /**
-     * Given a back stack of [entries], calculate whether this [SceneStrategy] should take on the
-     * task of rendering one or more of those entries.
+     * Given a [SceneStrategyScope], calculate whether this [SceneStrategy] should take on the task
+     * of rendering one or more of the entries in the scope.
      *
      * By returning a non-null [Scene], your [Scene] takes on the responsibility of rendering the
      * set of entries you declare in [Scene.entries]. If you return `null`, the next available
@@ -36,18 +55,18 @@ public fun interface SceneStrategy<T : Any> {
      *
      * @param entries The entries on the back stack that should be considered valid to render via a
      *   returned Scene.
-     * @param onBack a callback that should be connected to any internal handling of system back
-     *   done by the returned [Scene]. The passed [Int] should be the number of entries were popped.
      */
-    @Composable
-    public fun calculateScene(entries: List<NavEntry<T>>, onBack: (count: Int) -> Unit): Scene<T>?
+    public fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>?
 
     /**
      * Chains this [SceneStrategy] with another [sceneStrategy] to return a combined
      * [SceneStrategy].
      */
     public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> =
-        SceneStrategy { entries, onBack ->
-            calculateScene(entries, onBack) ?: sceneStrategy.calculateScene(entries, onBack)
+        object : SceneStrategy<T> {
+            override fun SceneStrategyScope<T>.calculateScene(
+                entries: List<NavEntry<T>>
+            ): Scene<T>? =
+                calculateScene(entries) ?: with(sceneStrategy) { calculateScene(entries) }
         }
 }

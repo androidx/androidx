@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+@file:JvmName("RememberNavBackStackKt")
+@file:JvmMultifileClass
+
 package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 
 /**
@@ -27,35 +33,41 @@ import kotlinx.serialization.modules.SerializersModule
  * process death and configuration changes.
  *
  * This function uses [NavBackStackSerializer] under the hood to save and restore the back stack via
- * [rememberSerializable].
+ * [rememberSerializable]. It is designed specifically for **open polymorphism** of the [NavKey]
+ * type.
  *
  * ### Serialization requirements
- * - Each element placed in the [NavBackStack] must be `@Serializable`.
- * - For **closed polymorphism** (sealed hierarchies), the compiler knows all subtypes and generates
- *   serializers automatically. No custom [SavedStateConfiguration] is required.
- * - For **open polymorphism** (interfaces or non-sealed hierarchies):
- *     - On Android, `SavedStateConfiguration.DEFAULT` uses a reflective serializer that can handle
- *       subtypes without registration.
- *     - On other platforms, or when you supply a custom configuration, you must register all
- *       subtypes of [NavKey] in a [SerializersModule] and pass that via [configuration]. You must
- *       also provide the same configuration to the encoder/decoder when saving/restoring state.
+ * - All destination keys must be `@Serializable` and implement the [NavKey] interface.
+ * - You **must** provide a [SavedStateConfiguration] containing a [SerializersModule] that
+ *   registers all subtypes of [NavKey]. This is required to handle open polymorphism correctly
+ *   across all platforms.
+ *
+ * On Android, an overload of this function is available that does not require a
+ * [SavedStateConfiguration]. That version uses reflection internally and does not require subtypes
+ * to be registered, but it is not available on other platforms.
  *
  * @sample androidx.navigation3.runtime.samples.rememberNavBackStack_withSerializersModule
- * @param configuration Controls how element serializers are resolved. On Android,
- *   [SavedStateConfiguration.DEFAULT] uses reflection; otherwise, the provided [SerializersModule]
- *   is used.
- * @param elements The initial keys of this back stack.
+ * @param configuration The [SavedStateConfiguration] containing a [SerializersModule] configured
+ *   for [NavKey] polymorphism. This configuration must be provided and cannot be the default.
+ * @param elements The initial [NavKey] elements of this back stack.
  * @return A [NavBackStack] that survives process death and configuration changes.
+ * @throws IllegalArgumentException If the provided [configuration] uses the default
+ *   [SerializersModule], as explicit [NavKey] subtype registration is required.
  * @see NavBackStackSerializer
+ * @see NavKey
  */
 @Composable
-public inline fun <reified T : NavKey> rememberNavBackStack(
+public fun rememberNavBackStack(
     configuration: SavedStateConfiguration,
-    vararg elements: T,
+    vararg elements: NavKey,
 ): NavBackStack<NavKey> {
+    require(configuration.serializersModule != SavedStateConfiguration.DEFAULT.serializersModule) {
+        "You must pass a `SavedStateConfiguration.serializersModule` configured to handle " +
+            "`NavKey` open polymorphism. Define it with: `polymorphic(NavKey::class) { ... }`"
+    }
     return rememberSerializable(
         configuration = configuration,
-        serializer = NavBackStackSerializer<NavKey>(),
+        serializer = NavBackStackSerializer(PolymorphicSerializer(NavKey::class)),
     ) {
         NavBackStack(*elements)
     }

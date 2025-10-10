@@ -16,6 +16,10 @@
 
 package androidx.navigation3.ui
 
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -39,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -47,7 +52,8 @@ import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.navEntryDecorator
+import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import kotlin.test.Test
@@ -115,6 +121,62 @@ class AnimatedTest {
         composeTestRule.onNodeWithText(first).assertDoesNotExist()
         composeTestRule.onNodeWithText(second).assertExists()
         assertThat(secondLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testNestedPredictiveBackAnimations() {
+        lateinit var backStack: MutableList<Any>
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second, third) }
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            NavDisplay(backStack = backStack, sceneStrategy = CardStackSceneStrategy()) {
+                when (it) {
+                    first -> NavEntry(first, metadata = mapOf(CARD_KEY to first)) { RedBox(first) }
+                    second ->
+                        NavEntry(second, metadata = mapOf(CARD_KEY to first)) { BlueBox(second) }
+                    third ->
+                        NavEntry(third, metadata = mapOf(CARD_KEY to first)) { GreenBox(third) }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+        composeTestRule.onNodeWithText(second).assertIsDisplayed()
+        composeTestRule.onNodeWithText(third).assertIsDisplayed()
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+        composeTestRule.onNodeWithText(second).assertIsDisplayed()
+        // animating out, text has moved off screen but node still exists
+        composeTestRule.onNodeWithText(third).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(third).assertExists()
+
+        backPressedDispatcher.onBackPressed()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+        composeTestRule.onNodeWithText(second).assertIsDisplayed()
+        // animate out complete, node removed
+        composeTestRule.onNodeWithText(third).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(third).assertDoesNotExist()
     }
 
     @Test
@@ -1010,7 +1072,7 @@ class AnimatedTest {
         lateinit var backstack: MutableList<Any>
         val LocalHasProvidedToEntry = compositionLocalOf { false }
         val provider =
-            navEntryDecorator<Any> { entry ->
+            NavEntryDecorator<Any> { entry ->
                 CompositionLocalProvider(LocalHasProvidedToEntry provides true) { entry.Content() }
             }
         var secondEntryIsWrapped = false

@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class SavedStateNavEntryDecoratorTest {
+class SaveableStateHolderNavEntryDecoratorTest {
 
     @get:Rule val composeTestRule = createComposeRule()
 
@@ -53,7 +53,7 @@ class SavedStateNavEntryDecoratorTest {
             val entries =
                 rememberDecoratedNavEntries(
                     backStack = backStack,
-                    entryDecorators = listOf(rememberSavedStateNavEntryDecorator()),
+                    entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
                     entryProvider = {
                         when (it) {
                             is Data1 ->

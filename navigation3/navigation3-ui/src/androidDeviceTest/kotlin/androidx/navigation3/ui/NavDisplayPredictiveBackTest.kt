@@ -59,7 +59,7 @@ class NavDisplayPredictiveBackTest {
             backStack = remember { mutableStateListOf(first) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
             ) {
                 when (it) {
                     first ->
@@ -142,7 +142,7 @@ class NavDisplayPredictiveBackTest {
             backStack = remember { mutableStateListOf(first) }
             NavDisplay(
                 backStack = backStack,
-                onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
             ) {
                 when (it) {
                     first ->
