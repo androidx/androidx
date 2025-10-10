@@ -33,6 +33,15 @@ import java.util.Locale
 @Immutable
 internal actual value class Strings(@StringRes val value: Int) {
     actual companion object {
+        actual inline val defaultPaneTitlePrimary
+            get() = Strings(R.string.m3_adaptive_default_pane_title_primary)
+
+        actual inline val defaultPaneTitleSecondary
+            get() = Strings(R.string.m3_adaptive_default_pane_title_secondary)
+
+        actual inline val defaultPaneTitleTertiary
+            get() = Strings(R.string.m3_adaptive_default_pane_title_tertiary)
+
         actual inline val defaultPaneExpansionDragHandleContentDescription
             get() =
                 Strings(R.string.m3_adaptive_default_pane_expansion_drag_handle_content_description)

@@ -26,6 +26,9 @@ import androidx.compose.foundation.focusable
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
 import androidx.compose.material3.adaptive.layout.DefaultAnimatedPaneOverride.AnimatedPane
+import androidx.compose.material3.adaptive.layout.internal.Strings
+import androidx.compose.material3.adaptive.layout.internal.delegableSemantics
+import androidx.compose.material3.adaptive.layout.internal.getString
 import androidx.compose.material3.adaptive.layout.internal.getValue
 import androidx.compose.material3.adaptive.layout.internal.rememberRef
 import androidx.compose.material3.adaptive.layout.internal.setValue
@@ -40,7 +43,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
@@ -124,7 +127,7 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                             enabled = animatingBounds,
                         )
                         .focusRequester(focusRequesters[paneRole]!!)
-                        .focusableInWholeTree(isInteractable)
+                        .focusableInWholeTree(isInteractable, paneRole)
                         .then(
                             if (paneValue is PaneAdaptedValue.Levitated) {
                                 Modifier.shadow(AnimatedPaneDefaults.ShadowElevation)
@@ -226,7 +229,7 @@ internal object AnimatedPaneDefaults {
     val ShadowElevation = 15.dp
 }
 
-private fun Modifier.focusableInWholeTree(focusable: Boolean): Modifier =
+private fun Modifier.focusableInWholeTree(focusable: Boolean, role: PaneScaffoldRole): Modifier =
     this
         // Workaround(b/342653995): Make the whole pane a focus group but cancel any focusing
         //   attempts so the whole subtree won't be focusable.
@@ -239,10 +242,23 @@ private fun Modifier.focusableInWholeTree(focusable: Boolean): Modifier =
         }
         .then(
             if (focusable) {
-                Modifier.semantics { isTraversalGroup = true }
+                Modifier.delegableSemantics {
+                    isTraversalGroup = true
+                    role.paneTitle()?.apply { paneTitle = getString(this) }
+                }
             } else {
                 // Workaround(b/343950986): clear all semantics under the tree so no children can
                 //   get the a11y focus.
                 Modifier.clearAndSetSemantics {}
             }
         )
+
+private fun PaneScaffoldRole.paneTitle() =
+    (this as? ThreePaneScaffoldRole).run {
+        when (this) {
+            ThreePaneScaffoldRole.Primary -> Strings.defaultPaneTitlePrimary
+            ThreePaneScaffoldRole.Secondary -> Strings.defaultPaneTitleSecondary
+            ThreePaneScaffoldRole.Tertiary -> Strings.defaultPaneTitleTertiary
+            else -> null
+        }
+    }

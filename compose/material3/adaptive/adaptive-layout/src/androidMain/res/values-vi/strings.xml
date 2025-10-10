@@ -17,6 +17,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for m3_adaptive_default_pane_title_primary (4435202124665670898) -->
+    <skip />
+    <!-- no translation found for m3_adaptive_default_pane_title_secondary (5571153069654173825) -->
+    <skip />
+    <!-- no translation found for m3_adaptive_default_pane_title_tertiary (4618411484428250300) -->
+    <skip />
     <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"Nút kéo mở rộng ngăn"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_state_description" msgid="3470811934112444098">"Trạng thái chia ngăn hiện tại, %s"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description" msgid="9031621431415014327">"Thay đổi chế độ tách ngăn thành %s"</string>

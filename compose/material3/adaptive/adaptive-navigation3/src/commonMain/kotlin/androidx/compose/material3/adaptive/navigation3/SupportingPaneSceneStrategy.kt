@@ -72,10 +72,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
     public val directive: PaneScaffoldDirective,
 ) : SceneStrategy<T> {
     @Composable
-    override fun calculateScene(
-        entries: List<NavEntry<T>>,
-        onBack: (count: Int) -> Unit,
-    ): Scene<T>? {
+    override fun calculateScene(entries: List<NavEntry<T>>, onBack: () -> Unit): Scene<T>? {
         val lastPaneMetadata = getPaneMetadata(entries.last()) ?: return null
         val sceneKey = lastPaneMetadata.sceneKey
 

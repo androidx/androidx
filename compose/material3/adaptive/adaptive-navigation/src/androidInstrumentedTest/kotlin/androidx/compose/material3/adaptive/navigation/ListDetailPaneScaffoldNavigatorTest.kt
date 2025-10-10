@@ -33,6 +33,7 @@ import kotlin.properties.Delegates
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,8 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ListDetailPaneScaffoldNavigatorTest {
-    @get:Rule val composeRule = createComposeRule()
+    val testDispatcher = StandardTestDispatcher()
+    @get:Rule val composeRule = createComposeRule(testDispatcher)
 
     @Test
     fun singlePaneLayout_navigateTo_makeDestinationPaneExpanded() {
@@ -711,6 +713,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     private fun CoroutineScope.runBlockingOnIdle(block: suspend CoroutineScope.() -> Unit) {
         val job = composeRule.runOnIdle { launch(block = block) }
+        testDispatcher.scheduler.runCurrent()
         runBlocking { job.join() }
     }
 }
