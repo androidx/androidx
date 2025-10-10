@@ -347,14 +347,14 @@ private constructor(
         checkInvariants()
 
         if (inputs.remove(input)) {
-            sharedProcessor.removeInput(dispatcher = this, input)
+            sharedProcessor.removeInput(input)
         }
     }
 
     /** @see [NavigationEventProcessor.dispatchOnStarted] */
     internal fun dispatchOnStarted(
         input: NavigationEventInput,
-        direction: @Direction Int,
+        @Direction direction: Int,
         event: NavigationEvent?,
     ) {
         checkInvariants()
@@ -366,7 +366,7 @@ private constructor(
     /** @see [NavigationEventProcessor.dispatchOnProgressed] */
     internal fun dispatchOnProgressed(
         input: NavigationEventInput,
-        direction: @Direction Int,
+        @Direction direction: Int,
         event: NavigationEvent,
     ) {
         checkInvariants()
@@ -376,7 +376,7 @@ private constructor(
     }
 
     /** @see [NavigationEventProcessor.dispatchOnCompleted] */
-    internal fun dispatchOnCompleted(input: NavigationEventInput, direction: @Direction Int) {
+    internal fun dispatchOnCompleted(input: NavigationEventInput, @Direction direction: Int) {
         checkInvariants()
 
         if (!isEnabled) return
@@ -384,7 +384,7 @@ private constructor(
     }
 
     /** @see [NavigationEventProcessor.dispatchOnCancelled] */
-    internal fun dispatchOnCancelled(input: NavigationEventInput, direction: @Direction Int) {
+    internal fun dispatchOnCancelled(input: NavigationEventInput, @Direction direction: Int) {
         checkInvariants()
 
         if (!isEnabled) return
@@ -436,7 +436,7 @@ private constructor(
             // This gives them a chance to clean up their own state, severing the lifecycle link
             // and preventing them from interacting with a disposed object.
             for (input in currentDispatcher.inputs) {
-                sharedProcessor.removeInput(currentDispatcher, input)
+                sharedProcessor.removeInput(input)
             }
             currentDispatcher.inputs.clear()
 

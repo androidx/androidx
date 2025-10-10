@@ -5,10 +5,6 @@ public final class androidx/navigationevent/compose/LocalNavigationEventDispatch
 	public final fun provides (Landroidx/navigationevent/NavigationEventDispatcherOwner;)Landroidx/compose/runtime/ProvidedValue;
 }
 
-public final class androidx/navigationevent/compose/NavigationEventDispatcherOwnerKt {
-	public static final fun NavigationEventDispatcherOwner (ZLandroidx/navigationevent/NavigationEventDispatcherOwner;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
-}
-
 public final class androidx/navigationevent/compose/NavigationEventHandlerKt {
 	public static final fun NavigationBackHandler (Landroidx/navigationevent/compose/NavigationEventState;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 	public static final fun NavigationEventHandler (Landroidx/navigationevent/compose/NavigationEventState;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
@@ -21,6 +17,10 @@ public final class androidx/navigationevent/compose/NavigationEventState {
 	public final fun getCurrentInfo ()Landroidx/navigationevent/NavigationEventInfo;
 	public final fun getForwardInfo ()Ljava/util/List;
 	public final fun getTransitionState ()Landroidx/navigationevent/NavigationEventTransitionState;
+}
+
+public final class androidx/navigationevent/compose/RememberNavigationEventDispatcherOwnerKt {
+	public static final fun rememberNavigationEventDispatcherOwner (ZLandroidx/navigationevent/NavigationEventDispatcherOwner;Landroidx/compose/runtime/Composer;II)Landroidx/navigationevent/NavigationEventDispatcherOwner;
 }
 
 public final class androidx/navigationevent/compose/RememberNavigationEventStateKt {

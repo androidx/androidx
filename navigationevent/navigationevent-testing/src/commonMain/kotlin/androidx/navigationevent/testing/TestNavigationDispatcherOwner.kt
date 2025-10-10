@@ -24,7 +24,7 @@ import androidx.navigationevent.NavigationEventHandler
  * A test implementation of [NavigationEventDispatcherOwner] for verifying
  * [NavigationEventDispatcher] interactions.
  *
- * Use this class in tests to confirm that the `fallbackOnBackPressed` action is invoked as
+ * Use this class in tests to confirm that the `onBackCompletedFallback` action is invoked as
  * expected. It tracks the number of times this event occurs.
  *
  * @param onBackCompletedFallback An optional lambda to execute when the [NavigationEventDispatcher]
@@ -32,17 +32,11 @@ import androidx.navigationevent.NavigationEventHandler
  *   incremented.
  */
 public class TestNavigationEventDispatcherOwner(
-    /**
-     * The number of times the dispatcher's `fallbackOnBackPressed` lambda has been invoked.
-     *
-     * This counter is incremented when a back navigation event completes and no
-     * [NavigationEventHandler] handles it.
-     */
     onBackCompletedFallback: TestNavigationEventDispatcherOwner.() -> Unit = {}
 ) : NavigationEventDispatcherOwner {
 
     /**
-     * The number of times the dispatcher's `fallbackOnBackPressed` lambda has been invoked.
+     * The number of times the dispatcher's `onBackCompletedFallback` lambda has been invoked.
      *
      * This counter is incremented when a back navigation event completes and no
      * [NavigationEventHandler] handles it.
@@ -53,7 +47,7 @@ public class TestNavigationEventDispatcherOwner(
     /**
      * The [NavigationEventDispatcher] instance managed by this owner.
      *
-     * This dispatcher is created with the `fallbackOnBackPressed` lambda provided to the
+     * This dispatcher is created with the `onBackCompletedFallback` lambda provided to the
      * [TestNavigationEventDispatcherOwner]'s constructor, which increments
      * [onBackCompletedFallback].
      */

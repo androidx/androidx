@@ -42,16 +42,6 @@ public sealed class NavigationEventTransitionState {
      */
     public object Idle : NavigationEventTransitionState() {
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || this::class != other::class) return false
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return this::class.hashCode()
-        }
-
         override fun toString(): String {
             return "Idle()"
         }
@@ -71,7 +61,7 @@ public sealed class NavigationEventTransitionState {
      */
     public class InProgress(
         public val latestEvent: NavigationEvent,
-        public val direction: @Direction Int,
+        @get:Direction @param:Direction public val direction: Int,
     ) : NavigationEventTransitionState() {
 
         override fun equals(other: Any?): Boolean {
@@ -105,11 +95,19 @@ public sealed class NavigationEventTransitionState {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
-    @Target(AnnotationTarget.TYPE)
-    @IntDef(TRANSITIONING_FORWARD, TRANSITIONING_BACK)
+    @Target(
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER,
+    )
+    @IntDef(TRANSITIONING_UNKNOWN, TRANSITIONING_FORWARD, TRANSITIONING_BACK)
     public annotation class Direction
 
     public companion object {
+
+        /** The transition state is unknown or has not been specified. */
+        internal const val TRANSITIONING_UNKNOWN: Int = 0
 
         /** Forward transition in progress. */
         public const val TRANSITIONING_FORWARD: Int = 1

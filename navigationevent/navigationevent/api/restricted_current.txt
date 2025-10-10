@@ -17,19 +17,19 @@ package androidx.navigationevent {
     ctor public NavigationEvent();
     ctor public NavigationEvent(optional int swipeEdge);
     ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress);
-    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0, to=1.0) float touchX);
-    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0, to=1.0) float touchX, optional @FloatRange(from=0.0, to=1.0) float touchY);
-    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0, to=1.0) float touchX, optional @FloatRange(from=0.0, to=1.0) float touchY, optional long frameTimeMillis);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY, optional long frameTimeMillis);
     method @InaccessibleFromKotlin public long getFrameTimeMillis();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getProgress();
     method @InaccessibleFromKotlin public int getSwipeEdge();
-    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getTouchX();
-    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getTouchY();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getTouchX();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getTouchY();
     property public long frameTimeMillis;
     property @FloatRange(from=0.0, to=1.0) public float progress;
     property public int swipeEdge;
-    property @FloatRange(from=0.0, to=1.0) public float touchX;
-    property @FloatRange(from=0.0, to=1.0) public float touchY;
+    property @FloatRange(from=0.0) public float touchX;
+    property @FloatRange(from=0.0) public float touchY;
     field public static final androidx.navigationevent.NavigationEvent.Companion Companion;
     field public static final int EDGE_LEFT = 0; // 0x0
     field public static final int EDGE_NONE = 2; // 0x2
@@ -175,8 +175,10 @@ package androidx.navigationevent {
   }
 
   public final class ViewTreeNavigationEventDispatcherOwner {
-    method public static androidx.navigationevent.NavigationEventDispatcherOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner? navigationEventDispatcherOwner);
+    method @KotlinOnly public static androidx.navigationevent.NavigationEventDispatcherOwner? findViewTreeNavigationEventDispatcherOwner(android.view.View);
+    method @InaccessibleFromKotlin public static androidx.navigationevent.NavigationEventDispatcherOwner? get(android.view.View);
+    method @InaccessibleFromKotlin public static void set(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner? navigationEventDispatcherOwner);
+    method @KotlinOnly public static void setViewTreeNavigationEventDispatcherOwner(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner? navigationEventDispatcherOwner);
   }
 
 }

@@ -61,17 +61,13 @@ public constructor(
      * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
      * will be `0.0F`.
      */
-    @param:FloatRange(from = 0.0, to = 1.0)
-    @get:FloatRange(from = 0.0, to = 1.0)
-    public val touchX: Float = 0.0F,
+    @param:FloatRange(from = 0.0) @get:FloatRange(from = 0.0) public val touchX: Float = 0.0F,
     /**
      * The absolute Y coordinate of the touch point for this event, in pixels, in the coordinate
      * space of the screen. For events not triggered by a touch gesture (e.g., a key press), this
      * will be `0.0F`.
      */
-    @param:FloatRange(from = 0.0, to = 1.0)
-    @get:FloatRange(from = 0.0, to = 1.0)
-    public val touchY: Float = 0.0F,
+    @param:FloatRange(from = 0.0) @get:FloatRange(from = 0.0) public val touchY: Float = 0.0F,
     /**
      * The timestamp in milliseconds when this navigation event occurred. This is useful for
      * synchronizing animations or for debugging event sequences.

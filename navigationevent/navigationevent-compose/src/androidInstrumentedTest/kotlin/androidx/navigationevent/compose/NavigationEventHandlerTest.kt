@@ -18,6 +18,7 @@ package androidx.navigationevent.compose
 
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +56,8 @@ internal class NavigationEventHandlerTest {
         val backInfo = mutableStateListOf<TestInfo>()
 
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state =
                         rememberNavigationEventState(
@@ -90,7 +92,10 @@ internal class NavigationEventHandlerTest {
     fun handler_whenStateIsReused_throwsException() {
         assertThrows<IllegalArgumentException> {
                 rule.setContent {
-                    NavigationEventDispatcherOwner(parent = owner) {
+                    val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+                    CompositionLocalProvider(
+                        LocalNavigationEventDispatcherOwner provides childOwner
+                    ) {
                         val state = rememberNavigationEventState(currentInfo = TestInfo(id = 1))
 
                         // Use it in the first handler (this one is fine)
@@ -113,7 +118,8 @@ internal class NavigationEventHandlerTest {
         val events = mutableListOf<String>()
 
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     onBackCancelled = { events += "cancelled" },
@@ -139,7 +145,8 @@ internal class NavigationEventHandlerTest {
     fun lambdaHandler_whenDisabled_invokesFallbackInsteadOfHandler() {
         var handlerCalled = false
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = false,
@@ -162,7 +169,8 @@ internal class NavigationEventHandlerTest {
         var isBackEnabled by mutableStateOf(true)
 
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = isBackEnabled,
@@ -206,7 +214,8 @@ internal class NavigationEventHandlerTest {
         var onBackCompleted by mutableStateOf({ results += "first" })
 
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = true,
@@ -232,7 +241,8 @@ internal class NavigationEventHandlerTest {
     fun lambdaHandler_whenNested_invokesOnlyInnermost() {
         val result = mutableListOf<String>()
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = true,
@@ -258,7 +268,8 @@ internal class NavigationEventHandlerTest {
     fun lambdaHandler_whenNestedChildIsDisabled_invokesParent() {
         val result = mutableListOf<String>()
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = true,
@@ -284,7 +295,8 @@ internal class NavigationEventHandlerTest {
     fun lambdaHandler_whenSiblingsExist_invokesLastComposed() {
         val result = mutableListOf<String>()
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = true,
@@ -307,7 +319,8 @@ internal class NavigationEventHandlerTest {
     fun lambdaHandler_whenLastSiblingIsDisabled_invokesPrevious() {
         val result = mutableListOf<String>()
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavigationEventHandler(
                     state = rememberNavigationEventState(currentInfo = TestInfo()),
                     isBackEnabled = true,

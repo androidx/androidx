@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,20 +40,16 @@ internal class NavigationEventDispatcherOwnerTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun navigationEventDispatcherOwner_asChild_whenInComposition_thenCreatesChildDispatcher() {
+    fun rememberNavigationEventDispatcherOwner_asChild_whenInComposition_thenCreatesChildDispatcher() {
         val handler = TestNavigationEventHandler()
         val parentOwner = TestNavigationEventDispatcherOwner()
         lateinit var childOwner: NavigationEventDispatcherOwner
 
         rule.setContent {
             CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides parentOwner) {
-                // This component is expected to create its own dispatcher instance and provide
-                // it to its children. This ensures that navigation events are scoped to the
-                // correct part of the UI tree, preventing child events from accidentally
-                // being handled by a parent.
-                NavigationEventDispatcherOwner {
-                    childOwner = LocalNavigationEventDispatcherOwner.current!!
-                }
+                // This component is expected to create its own dispatcher instance.
+                // It picks up the parentOwner from the LocalNavigationEventDispatcherOwner.
+                childOwner = rememberNavigationEventDispatcherOwner()
             }
         }
 
@@ -73,7 +69,7 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asChild_whenRemovedFromComposition_thenIsDisposed() {
+    fun rememberNavigationEventDispatcherOwner_asChild_whenRemovedFromComposition_thenIsDisposed() {
         val parentOwner = TestNavigationEventDispatcherOwner()
         lateinit var childOwner: NavigationEventDispatcherOwner
 
@@ -82,14 +78,12 @@ internal class NavigationEventDispatcherOwnerTest {
         rule.setContent {
             CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides parentOwner) {
                 if (showContent) {
-                    NavigationEventDispatcherOwner {
-                        childOwner = LocalNavigationEventDispatcherOwner.current!!
-                    }
+                    childOwner = rememberNavigationEventDispatcherOwner()
                 }
             }
         }
 
-        // Toggling this state variable removes the NavigationEventDispatcherOwner from composition.
+        // Toggling this state variable removes the owner from composition.
         // This is the trigger for the component's disposal logic.
         @Suppress("AssignedValueIsNeverRead")
         showContent = false
@@ -106,7 +100,7 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asChild_whenEnabledStateChanges_thenUpdatesDispatcher() {
+    fun rememberNavigationEventDispatcherOwner_asChild_whenEnabledStateChanges_thenUpdatesDispatcher() {
         val handler = TestNavigationEventHandler()
         val parentOwner = TestNavigationEventDispatcherOwner()
         lateinit var childOwner: NavigationEventDispatcherOwner
@@ -115,12 +109,8 @@ internal class NavigationEventDispatcherOwnerTest {
 
         rule.setContent {
             CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides parentOwner) {
-                // The 'enabled' parameter is a lambda to allow for dynamic updates.
-                // This is a common pattern for controlling behavior based on state,
-                // such as disabling back navigation during a loading operation.
-                NavigationEventDispatcherOwner(enabled = enabled) {
-                    childOwner = LocalNavigationEventDispatcherOwner.current!!
-                }
+                // The 'enabled' parameter is a state value to allow for dynamic updates.
+                childOwner = rememberNavigationEventDispatcherOwner(enabled = enabled)
             }
         }
 
@@ -147,7 +137,7 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_whenChildRecomposes_thenParentIsNotDisposed() {
+    fun rememberNavigationEventDispatcherOwner_whenChildRecomposes_thenParentIsNotDisposed() {
         // This test simulates a configuration change or navigation event where a child
         // owner is disposed and replaced. It verifies that the parent's dispatcher
         // remains functional and is not affected by its child's lifecycle.
@@ -156,17 +146,16 @@ internal class NavigationEventDispatcherOwnerTest {
         var configuration by mutableStateOf(1)
 
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = null) {
-                parentOwner = LocalNavigationEventDispatcherOwner.current!!
-
+            // Create the parent owner
+            parentOwner = rememberNavigationEventDispatcherOwner(parent = null)
+            // Manually provide it to its children
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides parentOwner) {
                 // Use a state variable to switch between children, simulating recomposition.
                 if (configuration == 1) {
-                    NavigationEventDispatcherOwner {
-                        childOwner1 = LocalNavigationEventDispatcherOwner.current!!
-                    }
+                    childOwner1 = rememberNavigationEventDispatcherOwner()
                 } else {
                     // Composing a different child causes the first one to be disposed.
-                    NavigationEventDispatcherOwner {}
+                    rememberNavigationEventDispatcherOwner()
                 }
             }
         }
@@ -196,7 +185,7 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_whenParentChanges_thenOldDispatcherIsDisposed() {
+    fun rememberNavigationEventDispatcherOwner_whenParentChanges_thenOldDispatcherIsDisposed() {
         val parentOwner1 = TestNavigationEventDispatcherOwner()
         val parentOwner2 = TestNavigationEventDispatcherOwner()
         lateinit var childOwner1: NavigationEventDispatcherOwner
@@ -206,18 +195,18 @@ internal class NavigationEventDispatcherOwnerTest {
         rule.setContent {
             // Provide the parent via a mutable state to simulate it changing.
             CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides currentParent) {
-                NavigationEventDispatcherOwner {
-                    // Capture the first instance of the child owner.
-                    if (currentParent == parentOwner1) {
-                        childOwner1 = LocalNavigationEventDispatcherOwner.current!!
-                    }
+                // The child owner will use the currentParent from the local as its parent.
+                val childOwner = rememberNavigationEventDispatcherOwner()
+                // Capture the first instance of the child owner.
+                if (currentParent == parentOwner1) {
+                    childOwner1 = childOwner
                 }
             }
         }
         rule.waitForIdle() // Let initial composition complete.
 
         // Trigger a recomposition with a new parent. This should cause the
-        // original localDispatcher to be disposed.
+        // original localDispatcher (inside childOwner1) to be disposed.
         currentParent = parentOwner2
         rule.waitForIdle()
 
@@ -231,17 +220,13 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asRoot_whenNoParent_thenCreatesRootDispatcher() {
+    fun rememberNavigationEventDispatcherOwner_asRoot_whenNoParent_thenCreatesRootDispatcher() {
         val handler = TestNavigationEventHandler()
         lateinit var rootOwner: NavigationEventDispatcherOwner
 
         rule.setContent {
-            // By placing the owner at the root of the composition without a parent provider,
-            // it's expected to create a new "root" dispatcher. This is the top-most
-            // parent in a potential navigation hierarchy.
-            NavigationEventDispatcherOwner(parent = null) {
-                rootOwner = LocalNavigationEventDispatcherOwner.current!!
-            }
+            // By passing parent = null, it's expected to create a new "root" dispatcher.
+            rootOwner = rememberNavigationEventDispatcherOwner(parent = null)
         }
 
         // Verify the root dispatcher can operate independently.
@@ -260,16 +245,14 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asRoot_whenRemovedFromComposition_thenIsDisposed() {
+    fun rememberNavigationEventDispatcherOwner_asRoot_whenRemovedFromComposition_thenIsDisposed() {
         lateinit var rootOwner: NavigationEventDispatcherOwner
         var showContent by mutableStateOf(true)
 
         rule.setContent {
             if (showContent) {
-                // This owner is a root since it has no parent in the composition.
-                NavigationEventDispatcherOwner(parent = null) {
-                    rootOwner = LocalNavigationEventDispatcherOwner.current!!
-                }
+                // This owner is a root since it has parent = null.
+                rootOwner = rememberNavigationEventDispatcherOwner(parent = null)
             }
         }
 
@@ -287,7 +270,7 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asRoot_whenEnabledStateChanges_thenUpdatesDispatcher() {
+    fun rememberNavigationEventDispatcherOwner_asRoot_whenEnabledStateChanges_thenUpdatesDispatcher() {
         val handler = TestNavigationEventHandler()
         lateinit var rootOwner: NavigationEventDispatcherOwner
         var enabled by mutableStateOf(true)
@@ -295,9 +278,7 @@ internal class NavigationEventDispatcherOwnerTest {
         rule.setContent {
             // The enabled state should work just as well for a root dispatcher
             // as it does for a child.
-            NavigationEventDispatcherOwner(parent = null, enabled = enabled) {
-                rootOwner = LocalNavigationEventDispatcherOwner.current!!
-            }
+            rootOwner = rememberNavigationEventDispatcherOwner(parent = null, enabled = enabled)
         }
 
         // Recompose with the dispatcher disabled.
@@ -321,12 +302,13 @@ internal class NavigationEventDispatcherOwnerTest {
     }
 
     @Test
-    fun navigationEventDispatcherOwner_asRoot_whenNoExplicitlyNullParent_thenThrows() {
+    fun rememberNavigationEventDispatcherOwner_asRoot_whenNoExplicitlyNullParent_thenThrows() {
         assertThrows<IllegalStateException> {
                 rule.setContent {
                     // Attempt to create a dispatcher owner without a parent in the composition.
-                    // This should fail because the default parent is non-nullable.
-                    NavigationEventDispatcherOwner {}
+                    // This should fail because the default parent is non-nullable
+                    // and LocalNavigationEventDispatcherOwner is not provided.
+                    rememberNavigationEventDispatcherOwner()
                 }
             }
             .hasMessageThat()

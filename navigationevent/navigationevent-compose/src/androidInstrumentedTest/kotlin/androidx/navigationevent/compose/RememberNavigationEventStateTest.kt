@@ -16,6 +16,7 @@
 
 package androidx.navigationevent.compose
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,7 +93,8 @@ internal class RememberNavigationEventStateTest {
         // Create and register a state + handler pair
         lateinit var state: NavigationEventState<TestInfo>
         rule.setContent {
-            NavigationEventDispatcherOwner(parent = owner) {
+            val childOwner = rememberNavigationEventDispatcherOwner(parent = owner)
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 state = rememberNavigationEventState(currentInfo = TestInfo(id = 1))
                 NavigationEventHandler(state)
             }
@@ -126,9 +128,13 @@ internal class RememberNavigationEventStateTest {
         assertThrows<IllegalArgumentException> {
             rule.setContent {
                 val state = rememberNavigationEventState(TestInfo(id = 1))
-                NavigationEventDispatcherOwner(parent = owner) {
+                val childOwner1 = rememberNavigationEventDispatcherOwner(parent = owner)
+                CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner1) {
                     NavigationEventHandler(state = state) { error("no-op") }
-                    NavigationEventDispatcherOwner {
+                    val childOwner2 = rememberNavigationEventDispatcherOwner(parent = owner)
+                    CompositionLocalProvider(
+                        LocalNavigationEventDispatcherOwner provides childOwner2
+                    ) {
                         // Attempt to add the same handler again in the same composition tree
                         NavigationEventHandler(state = state) { error("no-op") }
                     }

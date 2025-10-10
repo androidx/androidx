@@ -1,0 +1,46 @@
+// Signature format: 4.0
+package androidx.navigationevent.testing {
+
+  public final class TestNavigationEventDispatcherOwner implements androidx.navigationevent.NavigationEventDispatcherOwner {
+    ctor public TestNavigationEventDispatcherOwner();
+    ctor public TestNavigationEventDispatcherOwner(optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventDispatcherOwner,kotlin.Unit> onBackCompletedFallback);
+    method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
+    method @InaccessibleFromKotlin public int getOnBackCompletedFallbackInvocations();
+    property public androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
+    property public int onBackCompletedFallbackInvocations;
+  }
+
+  public final class TestNavigationEventHandler<T extends androidx.navigationevent.NavigationEventInfo> extends androidx.navigationevent.NavigationEventHandler<T> {
+    ctor public TestNavigationEventHandler(T currentInfo, optional java.util.List<? extends T> backInfo, optional java.util.List<? extends T> forwardInfo, optional boolean isForwardEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onForwardStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onForwardProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,kotlin.Unit> onForwardCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,kotlin.Unit> onForwardCompleted, optional boolean isBackEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onBackStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onBackProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,kotlin.Unit> onBackCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<T>,kotlin.Unit> onBackCompleted);
+    method @InaccessibleFromKotlin public int getOnBackCancelledInvocations();
+    method @InaccessibleFromKotlin public int getOnBackCompletedInvocations();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigationevent.NavigationEvent> getOnBackProgressedEvents();
+    method @InaccessibleFromKotlin public int getOnBackProgressedInvocations();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigationevent.NavigationEvent> getOnBackStartedEvents();
+    method @InaccessibleFromKotlin public int getOnBackStartedInvocations();
+    method @InaccessibleFromKotlin public int getOnForwardCancelledInvocations();
+    method @InaccessibleFromKotlin public int getOnForwardCompletedInvocations();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigationevent.NavigationEvent> getOnForwardProgressedEvents();
+    method @InaccessibleFromKotlin public int getOnForwardProgressedInvocations();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigationevent.NavigationEvent> getOnForwardStartedEvents();
+    method @InaccessibleFromKotlin public int getOnForwardStartedInvocations();
+    property public int onBackCancelledInvocations;
+    property public int onBackCompletedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> onBackProgressedEvents;
+    property public int onBackProgressedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> onBackStartedEvents;
+    property public int onBackStartedInvocations;
+    property public int onForwardCancelledInvocations;
+    property public int onForwardCompletedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> onForwardProgressedEvents;
+    property public int onForwardProgressedInvocations;
+    property public java.util.List<androidx.navigationevent.NavigationEvent> onForwardStartedEvents;
+    property public int onForwardStartedInvocations;
+  }
+
+  public final class TestNavigationEventHandlerKt {
+    method public static androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?> TestNavigationEventHandler(optional boolean isForwardEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onForwardStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onForwardProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,kotlin.Unit> onForwardCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,kotlin.Unit> onForwardCompleted, optional boolean isBackEnabled, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onBackStarted, optional kotlin.jvm.functions.Function2<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,? super androidx.navigationevent.NavigationEvent,kotlin.Unit> onBackProgressed, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,kotlin.Unit> onBackCancelled, optional kotlin.jvm.functions.Function1<? super androidx.navigationevent.testing.TestNavigationEventHandler<? extends java.lang.Object?>,kotlin.Unit> onBackCompleted);
+  }
+
+}
+
