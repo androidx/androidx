@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("NavDisplayKt")
-@file:JvmMultifileClass
-
 package androidx.navigation3.ui
 
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -25,10 +22,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.navigation3.scene.Scene
-import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEvent.SwipeEdge
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 
 private const val DEFAULT_TRANSITION_DURATION_MILLISECOND = 700
 
