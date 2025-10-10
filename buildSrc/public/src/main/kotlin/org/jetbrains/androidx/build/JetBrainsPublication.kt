@@ -37,6 +37,7 @@ object JetBrainsPublication {
             ComposeComponent(":compose:foundation:foundation"),
             ComposeComponent(":compose:foundation:foundation-layout"),
             ComposeComponent(":compose:material:material"),
+            ComposeComponent(":compose:material:material-navigation"),
             ComposeComponent(":compose:material:material-ripple"),
             ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
             ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
@@ -79,9 +80,6 @@ object JetBrainsPublication {
                     "Jvmwindows-arm64",
                 )
             ),
-        ),
-        "COMPOSE_MATERIAL_NAVIGATION" to listOf(
-            ComposeComponent(":compose:material:material-navigation"),
         ),
         "COMPOSE_MATERIAL3" to listOf(
             ComposeComponent(":compose:material3:material3"),

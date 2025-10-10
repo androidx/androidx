@@ -83,7 +83,6 @@ Compose Multiplatform core libraries can be published to local Maven with the fo
    `-Pjetbrains.publication.version.CORE_BUNDLE`,
    `-Pjetbrains.publication.version.CORE_URI`,
    `-Pjetbrains.publication.version.COMPOSE`,
-   `-Pjetbrains.publication.version.COMPOSE_MATERIAL_NAVIGATION`,
    `-Pjetbrains.publication.version.COMPOSE_MATERIAL3_ADAPTIVE`,
    `-Pjetbrains.publication.version.LIFECYCLE`,
    `-Pjetbrains.publication.version.NAVIGATION`,
@@ -95,7 +94,7 @@ Compose Multiplatform core libraries can be published to local Maven with the fo
    The default value for the version is `0.0.0-SNAPSHOT`
 
    And library groups:
-   `-Pjetbrains.publication.libraries=COMPOSE,COMPOSE_MATERIAL_NAVIGATION,COMPOSE_MATERIAL3_ADAPTIVE,LIFECYCLE,NAVIGATION,NAVIGATION_3,NAVIGATION_EVENT,SAVEDSTATE,WINDOW`
+   `-Pjetbrains.publication.libraries=COMPOSE,COMPOSE_MATERIAL3_ADAPTIVE,LIFECYCLE,NAVIGATION,NAVIGATION_3,NAVIGATION_EVENT,SAVEDSTATE,WINDOW`
 
    The default value includes all libraries.
 
