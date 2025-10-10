@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package androidx.navigationevent.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -26,8 +25,8 @@ import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventInput
 
 /**
- * Creates a new navigation scope by providing a [NavigationEventDispatcher] to descendant
- * composables.
+ * Remembers a new [NavigationEventDispatcherOwner] which creates a dispatcher linked to a parent
+ * dispatcher found in the composition.
  *
  * This composable creates a dispatcher that links to any parent dispatcher found in the
  * composition, forming a parent-child relationship. If no parent exists, it automatically becomes a
@@ -40,26 +39,31 @@ import androidx.navigationevent.NavigationEventInput
  * When used to create a root dispatcher, you must use a [NavigationEventInput] to send it events.
  * Otherwise, the dispatcher will be detached and will not receive events.
  *
+ * To provide the new [NavigationEventDispatcherOwner] to a sub-composition, use
+ * [androidx.compose.runtime.CompositionLocalProvider]:
+ *
+ * @samples androidx.navigationevent.compose.samples.RememberNavigationEventDispatcherOwner
+ *
  * **Null parent:** If [parent] is **EXPLICITLY** `null`, this creates a root dispatcher that runs
  * independently. By default, it requires a parent from the [LocalNavigationEventDispatcherOwner]
  * and will throw an [IllegalStateException] if one is not present.
  *
- * @param enabled A lambda to dynamically control if the dispatcher is active. When `false`, this
- *   dispatcher and any of its children will not receive the events. Defaults to `true`.
+ * @param enabled Controls if the dispatcher is active. If this value changes, the dispatcher's
+ *   `isEnabled` property will be updated. When `false`, this dispatcher and any of its children
+ *   will not receive events. Defaults to `true`.
  * @param parent The [NavigationEventDispatcherOwner] to use as the parent, or `null` if it is a
  *   root. Defaults to the owner from [LocalNavigationEventDispatcherOwner].
- * @param content The child composable content that will receive the new dispatcher.
+ * @return A new [NavigationEventDispatcherOwner] that is remembered across compositions.
  */
 @Composable
-public fun NavigationEventDispatcherOwner(
+public fun rememberNavigationEventDispatcherOwner(
     enabled: Boolean = true,
     parent: NavigationEventDispatcherOwner? =
         checkNotNull(LocalNavigationEventDispatcherOwner.current) {
             "No NavigationEventDispatcherOwner provided in LocalNavigationEventDispatcherOwner. " +
                 "If you intended to create a root dispatcher, explicitly pass null as the parent."
         },
-    content: @Composable () -> Unit,
-) {
+): NavigationEventDispatcherOwner {
     val localDispatcher =
         remember(parent) {
             // If a parent dispatcher exists, link to it. Otherwise, create a new root dispatcher.
@@ -75,15 +79,15 @@ public fun NavigationEventDispatcherOwner(
     // Clean up the dispatcher on dispose to prevent memory leaks.
     DisposableEffect(localDispatcher) { onDispose { localDispatcher.dispose() } }
 
-    // Provide this child dispatcher to all descendant.
-    val localOwner =
-        remember(localDispatcher) {
-            object : NavigationEventDispatcherOwner {
-                override val navigationEventDispatcher = localDispatcher
-            }
-        }
-    CompositionLocalProvider(
-        LocalNavigationEventDispatcherOwner provides localOwner,
-        content = content,
-    )
+    return remember(localDispatcher) {
+        ComposeNavigationEventDispatcherOwner(navigationEventDispatcher = localDispatcher)
+    }
 }
+
+/**
+ * A private, concrete implementation of [NavigationEventDispatcherOwner] that simply holds a given
+ * [NavigationEventDispatcher].
+ */
+private class ComposeNavigationEventDispatcherOwner(
+    override val navigationEventDispatcher: NavigationEventDispatcher
+) : NavigationEventDispatcherOwner
