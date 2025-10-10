@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.lifecycle.LiveDataReactiveStreams#fromPublisher(org.reactivestreams.Publisher<T>):
+    Source breaking change: method androidx.lifecycle.LiveDataReactiveStreams.fromPublisher(org.reactivestreams.Publisher<T>) can no longer be resolved from Kotlin source

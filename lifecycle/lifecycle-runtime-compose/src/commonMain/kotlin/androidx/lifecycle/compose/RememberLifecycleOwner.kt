@@ -48,6 +48,9 @@ import androidx.lifecycle.LifecycleRegistry
  * This ensures the child is properly cleaned up even if it is referenced outside the composition.
  *
  * To provide the new [LifecycleOwner] to a sub-composition, use [CompositionLocalProvider]:
+ *
+ * @sample androidx.lifecycle.compose.samples.ComposableWithMaxLifecycle
+ *
  * ```
  * // Limit a component's lifecycle to STARTED
  * val startedLifecycleOwner = rememberLifecycleOwner(maxLifecycle = Lifecycle.State.STARTED)
@@ -61,6 +64,7 @@ import androidx.lifecycle.LifecycleRegistry
  * **Null parent:** If [parent] is **EXPLICITLY** `null`, this creates a root lifecycle that runs
  * independently and manages its own state.
  *
+ * @sample androidx.lifecycle.compose.samples.ComposableWithParentNull
  * @param maxLifecycle The maximum [Lifecycle.State] this child lifecycle is allowed to enter.
  *   Defaults to [RESUMED].
  * @param parent The [LifecycleOwner] to use as the parent, or null if it is a root. Defaults to the

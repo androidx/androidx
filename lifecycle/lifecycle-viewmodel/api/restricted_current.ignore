@@ -39,3 +39,7 @@ RemovedFromKotlin: androidx.lifecycle.ViewModelStoreOwner#getViewModelStore():
     Source breaking change: method androidx.lifecycle.ViewModelStoreOwner.getViewModelStore() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelKt#findViewTreeViewModelStoreOwner(android.view.View):
     Source breaking change: method androidx.lifecycle.ViewTreeViewModelKt.findViewTreeViewModelStoreOwner(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelStoreOwner#get(android.view.View):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelStoreOwner.get(android.view.View) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.lifecycle.ViewTreeViewModelStoreOwner#set(android.view.View, androidx.lifecycle.ViewModelStoreOwner):
+    Source breaking change: method androidx.lifecycle.ViewTreeViewModelStoreOwner.set(android.view.View,androidx.lifecycle.ViewModelStoreOwner) can no longer be resolved from Kotlin source

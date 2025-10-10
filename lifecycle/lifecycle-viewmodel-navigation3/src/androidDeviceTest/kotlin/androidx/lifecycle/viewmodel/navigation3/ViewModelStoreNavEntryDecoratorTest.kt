@@ -28,7 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -60,7 +60,7 @@ class ViewModelStoreNavEntryDecoratorTest {
                 viewModel2.myArg = entry2Arg
             }
         composeTestRule.setContent {
-            savedStateWrapper = rememberSavedStateNavEntryDecorator()
+            savedStateWrapper = rememberSaveableStateHolderNavEntryDecorator()
             viewModelWrapper = rememberViewModelStoreNavEntryDecorator()
 
             rememberDecoratedNavEntries(
@@ -119,7 +119,7 @@ class ViewModelStoreNavEntryDecoratorTest {
                 backStack = backStack,
                 entryDecorators =
                     listOf(
-                        rememberSavedStateNavEntryDecorator(),
+                        rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator(),
                     ),
                 onBack = { backStack.removeAt(backStack.lastIndex) },
@@ -173,7 +173,7 @@ class ViewModelStoreNavEntryDecoratorTest {
                 backStack = backStack,
                 entryDecorators =
                     listOf(
-                        rememberSavedStateNavEntryDecorator(),
+                        rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator(),
                     ),
                 onBack = { backStack.removeAt(backStack.lastIndex) },
