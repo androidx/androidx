@@ -303,11 +303,17 @@ class SheetState(
             Saver<SheetState, SheetValue>(
                 save = { it.currentValue },
                 restore = { savedValue ->
+                    val newValue = if (skipPartiallyExpanded &&
+                        savedValue == PartiallyExpanded) {
+                        Expanded
+                    } else {
+                        savedValue
+                    }
                     SheetState(
                         skipPartiallyExpanded,
                         positionalThreshold,
                         velocityThreshold,
-                        savedValue,
+                        newValue,
                         confirmValueChange,
                         skipHiddenState,
                     )
