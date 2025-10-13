@@ -41,16 +41,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-rc01")
+                implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
                 implementation(project(":compose:material:material"))
                 implementation(libs.kotlinStdlib)
-
-                // Align navigation dependencies with Compose ones
-                // https://youtrack.jetbrains.com/issue/CMP-8704 workaround
-                implementation(project(":lifecycle:lifecycle-runtime-compose"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                implementation(project(":savedstate:savedstate-compose"))
             }
         }
 

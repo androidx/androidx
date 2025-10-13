@@ -34,7 +34,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(project(":annotation:annotation"))
-                api(projectOrArtifact(":lifecycle:lifecycle-common"))
+                implementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.5")
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinSerializationCore)
             }
