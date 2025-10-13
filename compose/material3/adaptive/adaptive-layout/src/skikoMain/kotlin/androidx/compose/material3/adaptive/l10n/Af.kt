@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.af() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primêre paneel",
+    Strings.defaultPaneTitleSecondary to "Sekondêre paneel",
+    Strings.defaultPaneTitleTertiary to "Tersiêre paneel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Sleephandvatsel van paneeluitbreiding",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Huidige paneelverdeling, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Verander paneelverdeling na %s",

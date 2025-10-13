@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.et() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Põhipaan",
+    Strings.defaultPaneTitleSecondary to "Teisene paan",
+    Strings.defaultPaneTitleTertiary to "Kolmas paan",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Paani laiendamise lohistamispide",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Praegune paani jaotus, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Muutke jaotatud paan väärtusele %s",

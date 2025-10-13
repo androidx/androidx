@@ -14,7 +14,7 @@ final class <#A: kotlin/Any> androidx.compose.material3.adaptive.navigation3/Lis
     final val directive // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.directive|{}directive[0]
         final fun <get-directive>(): androidx.compose.material3.adaptive.layout/PaneScaffoldDirective // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.directive.<get-directive>|<get-directive>(){}[0]
 
-    final fun calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin/Function1<kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.scene/Scene<#A>? // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.calculateScene|calculateScene(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>;kotlin.Function1<kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    final fun calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin/Function0<kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.scene/Scene<#A>? // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.calculateScene|calculateScene(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>;kotlin.Function0<kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 
     final object Companion { // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.Companion|null[0]
         final fun detailPane(kotlin/Any = ...): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.compose.material3.adaptive.navigation3/ListDetailSceneStrategy.Companion.detailPane|detailPane(kotlin.Any){}[0]
@@ -31,7 +31,7 @@ final class <#A: kotlin/Any> androidx.compose.material3.adaptive.navigation3/Sup
     final val directive // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.directive|{}directive[0]
         final fun <get-directive>(): androidx.compose.material3.adaptive.layout/PaneScaffoldDirective // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.directive.<get-directive>|<get-directive>(){}[0]
 
-    final fun calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin/Function1<kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.scene/Scene<#A>? // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.calculateScene|calculateScene(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>;kotlin.Function1<kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    final fun calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>, kotlin/Function0<kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.navigation3.scene/Scene<#A>? // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.calculateScene|calculateScene(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>;kotlin.Function0<kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 
     final object Companion { // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.Companion|null[0]
         final fun extraPane(kotlin/Any = ...): kotlin.collections/Map<kotlin/String, kotlin/Any> // androidx.compose.material3.adaptive.navigation3/SupportingPaneSceneStrategy.Companion.extraPane|extraPane(kotlin.Any){}[0]

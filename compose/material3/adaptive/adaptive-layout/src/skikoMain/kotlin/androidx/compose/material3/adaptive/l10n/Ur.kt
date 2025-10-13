@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ur() = mapOf(
+    Strings.defaultPaneTitlePrimary to "پرائمری پین",
+    Strings.defaultPaneTitleSecondary to "ثانوی پین",
+    Strings.defaultPaneTitleTertiary to "تیسرے درجے کا پین",
     Strings.defaultPaneExpansionDragHandleContentDescription to "پین کو پھیلانے کے لیے گھسیٹنے کا ہینڈل",
     Strings.defaultPaneExpansionDragHandleStateDescription to "‏موجودہ پین اسپلٹ، ‎%s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "‏پین اسپلٹ کو ‎%s میں تبدیل کریں",

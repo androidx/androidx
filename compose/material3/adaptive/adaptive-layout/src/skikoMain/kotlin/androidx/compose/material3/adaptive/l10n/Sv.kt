@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.sv() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primär ruta",
+    Strings.defaultPaneTitleSecondary to "Sekundär ruta",
+    Strings.defaultPaneTitleTertiary to "Tertiär ruta",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Handtag för rutexpansion",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Nuvarande rutdelning, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Ändra rutdelning till %s",

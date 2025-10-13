@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.lv() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primārā rūts",
+    Strings.defaultPaneTitleSecondary to "Sekundārā rūts",
+    Strings.defaultPaneTitleTertiary to "Terciārā rūts",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Rūts izvēršanas vilkšanas turis",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Pašreizējais rūts sadalījums, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Mainīt rūts sadalījumu uz šādu: %s",

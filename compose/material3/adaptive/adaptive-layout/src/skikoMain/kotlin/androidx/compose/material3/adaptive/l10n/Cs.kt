@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.cs() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primární panel",
+    Strings.defaultPaneTitleSecondary to "Sekundární panel",
+    Strings.defaultPaneTitleTertiary to "Terciární panel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Úchyt pro přetažení a rozbalení panelu",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Aktuální rozdělení panelu, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Změnit rozdělení panelu na %s",

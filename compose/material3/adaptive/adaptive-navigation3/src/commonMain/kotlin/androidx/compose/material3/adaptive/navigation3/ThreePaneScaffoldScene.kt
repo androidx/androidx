@@ -59,7 +59,7 @@ internal sealed interface ThreePaneScaffoldType {
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal class ThreePaneScaffoldScene<T : Any>(
     override val key: Any,
-    val onBack: (Int) -> Unit,
+    val onBack: () -> Unit,
     val backNavBehavior: BackNavigationBehavior,
     val directive: PaneScaffoldDirective,
     val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
@@ -209,7 +209,9 @@ internal class ThreePaneScaffoldScene<T : Any>(
         NavigationBackHandler(
             state = gestureState,
             isBackEnabled = previousScaffoldValue != null,
-            onBackCompleted = { onBack(allEntries.size - onBackResult.previousEntries.size) },
+            onBackCompleted = {
+                repeat(allEntries.size - onBackResult.previousEntries.size) { onBack() }
+            },
         )
 
         val dispatcher =

@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.be() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Асноўная панэль",
+    Strings.defaultPaneTitleSecondary to "Панэль другога ўзроўню",
+    Strings.defaultPaneTitleTertiary to "Панэль трэцяга ўзроўню",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Маркер перацягвання для разгортвання панэлі",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Бягучае раздзяленне панэлі, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Змяніць раздзяленне панэлі на %s",

@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.hy() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Հիմնական փեղկ",
+    Strings.defaultPaneTitleSecondary to "Օժանդակ փեղկ",
+    Strings.defaultPaneTitleTertiary to "Լրացուցիչ փեղկ",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Փեղկի ծավալման տեղափոխման նշիչ",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Փեղկերի բաժանման հարաբերակցությունը, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Փեղկի բաժանումը դարձնել %s",

@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.`in`() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Panel utama",
+    Strings.defaultPaneTitleSecondary to "Panel sekunder",
+    Strings.defaultPaneTitleTertiary to "Panel tersier",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Handel geser perluasan panel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Luas panel ganda saat ini, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Ubah luas panel ganda menjadi %s",

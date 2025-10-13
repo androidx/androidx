@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.lo() = mapOf(
+    Strings.defaultPaneTitlePrimary to "ແຖບຫຼັກ",
+    Strings.defaultPaneTitleSecondary to "ແຖບສຳຮອງ",
+    Strings.defaultPaneTitleTertiary to "ແຖບລຳດັບທີ 3",
     Strings.defaultPaneExpansionDragHandleContentDescription to "ບ່ອນຈັບລາກເພື່ອຂະຫຍາຍແຖບ",
     Strings.defaultPaneExpansionDragHandleStateDescription to "ການແບ່ງແຖບປັດຈຸບັນ, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "ປ່ຽນການແບ່ງແຖບເປັນ %s",

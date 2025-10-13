@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ar() = mapOf(
+    Strings.defaultPaneTitlePrimary to "اللوحة الأساسية",
+    Strings.defaultPaneTitleSecondary to "اللوحة الثانوية",
+    Strings.defaultPaneTitleTertiary to "اللوحة التكميلية",
     Strings.defaultPaneExpansionDragHandleContentDescription to "مقبض السحب لتوسيع اللوحة",
     Strings.defaultPaneExpansionDragHandleStateDescription to "‏حالة تقسيم اللوحة الحالية: %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "‏تغيير نسبة تقسيم اللوحة إلى %s",

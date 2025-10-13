@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.hu() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Elsődleges panel",
+    Strings.defaultPaneTitleSecondary to "Másodlagos panel",
+    Strings.defaultPaneTitleTertiary to "Harmadlagos panel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Panel kibontásának fogópontja",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Jelenlegi panelfelosztás, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Panelfelosztás módosítása a következőre: %s",

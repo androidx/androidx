@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.my() = mapOf(
+    Strings.defaultPaneTitlePrimary to "အဓိကအကန့်",
+    Strings.defaultPaneTitleSecondary to "ဒုတိယအကန့်",
+    Strings.defaultPaneTitleTertiary to "တတိယအကန့်",
     Strings.defaultPaneExpansionDragHandleContentDescription to "အကန့်တိုးချဲ့မှု ဖိဆွဲအထိန်း",
     Strings.defaultPaneExpansionDragHandleStateDescription to "လက်ရှိအကန့်အခွဲ၊ %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "အကန့်အခွဲကို %s သို့ ပြောင်းနိုင်သည်",

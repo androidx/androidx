@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ko() = mapOf(
+    Strings.defaultPaneTitlePrimary to "기본 창",
+    Strings.defaultPaneTitleSecondary to "보조 창",
+    Strings.defaultPaneTitleTertiary to "세 번째 창",
     Strings.defaultPaneExpansionDragHandleContentDescription to "창 확장 드래그 핸들",
     Strings.defaultPaneExpansionDragHandleStateDescription to "현재 창 분할, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "창 분할을 %s(으)로 변경",

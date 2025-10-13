@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.vi() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Ngăn chính",
+    Strings.defaultPaneTitleSecondary to "Ngăn thứ hai",
+    Strings.defaultPaneTitleTertiary to "Ngăn thứ ba",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Nút kéo mở rộng ngăn",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Trạng thái chia ngăn hiện tại, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Thay đổi chế độ tách ngăn thành %s",

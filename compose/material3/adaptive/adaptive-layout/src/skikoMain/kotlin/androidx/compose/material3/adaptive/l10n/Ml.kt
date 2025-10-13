@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ml() = mapOf(
+    Strings.defaultPaneTitlePrimary to "പ്രൈമറി പെയിൻ",
+    Strings.defaultPaneTitleSecondary to "സെക്കൻഡറി പെയിൻ",
+    Strings.defaultPaneTitleTertiary to "ടെർഷ്യറി പെയിൻ",
     Strings.defaultPaneExpansionDragHandleContentDescription to "പെയിൻ വികസിപ്പിക്കാനായി വലിച്ചിടുന്നതിനുള്ള ഹാൻഡിൽ",
     Strings.defaultPaneExpansionDragHandleStateDescription to "നിലവിലെ പെയിൻ വിഭജനം, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "പെയിൻ വിഭജനം %s ആയി മാറ്റുക",

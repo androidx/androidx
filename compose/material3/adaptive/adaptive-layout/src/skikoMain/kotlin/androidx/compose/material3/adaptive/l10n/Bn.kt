@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.bn() = mapOf(
+    Strings.defaultPaneTitlePrimary to "প্রাথমিক প্যানেল",
+    Strings.defaultPaneTitleSecondary to "সেকেন্ডারি প্যানেল",
+    Strings.defaultPaneTitleTertiary to "টার্শিয়ারি প্যানেল",
     Strings.defaultPaneExpansionDragHandleContentDescription to "প্যানেল বড় করার টেনে আনার হ্যান্ডেল",
     Strings.defaultPaneExpansionDragHandleStateDescription to "প্যানেল স্প্লিটের বর্তমান স্ট্যাটাস %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "প্যানেল স্প্লিট %s-এ পরিবর্তন করুন",

@@ -153,6 +153,9 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     kotlinStringsPackageName = "androidx.compose.material3.adaptive.layout.internal"
     stringByResourceName = [
             // These come are from the material3.adaptive-layout module resources
+            "m3_adaptive_default_pane_title_primary"                            : "defaultPaneTitlePrimary",
+            "m3_adaptive_default_pane_title_secondary"                          : "defaultPaneTitleSecondary",
+            "m3_adaptive_default_pane_title_tertiary"                           : "defaultPaneTitleTertiary",
             "m3_adaptive_default_pane_expansion_drag_handle_content_description": "defaultPaneExpansionDragHandleContentDescription",
             "m3_adaptive_default_pane_expansion_drag_handle_state_description"  : "defaultPaneExpansionDragHandleStateDescription",
             "m3_adaptive_default_pane_expansion_drag_handle_action_description" : "defaultPaneExpansionDragHandleActionDescription",

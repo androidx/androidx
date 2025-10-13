@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.esUS() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Panel principal",
+    Strings.defaultPaneTitleSecondary to "Panel secundario",
+    Strings.defaultPaneTitleTertiary to "Panel terciario",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Controlador de arrastre para expandir el panel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "División actual del panel, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Cambiar la división del panel a %s",
@@ -37,6 +40,9 @@ internal fun Translations.esUS() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.es() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Panel principal",
+    Strings.defaultPaneTitleSecondary to "Panel secundario",
+    Strings.defaultPaneTitleTertiary to "Panel terciario",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Controlador de arrastre para expandir el panel",
     Strings.defaultPaneExpansionDragHandleStateDescription to "División de panel actual, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Cambiar división de panel a %s",

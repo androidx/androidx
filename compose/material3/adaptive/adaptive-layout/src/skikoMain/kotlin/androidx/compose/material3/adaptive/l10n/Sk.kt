@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.sk() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Primárny panel",
+    Strings.defaultPaneTitleSecondary to "Sekundárny panel",
+    Strings.defaultPaneTitleTertiary to "Terciárny panel",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Presúvadlo na rozšírenie panela",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Aktuálne rozdelenie panela, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Zmeniť rozdelenie panela na %s",

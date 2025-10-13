@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.ne() = mapOf(
+    Strings.defaultPaneTitlePrimary to "मुख्य सामग्री भएको पेन",
+    Strings.defaultPaneTitleSecondary to "सहायक सामग्री भएको पेन",
+    Strings.defaultPaneTitleTertiary to "अतिरिक्त सामग्री भएको पेन",
     Strings.defaultPaneExpansionDragHandleContentDescription to "पेन एक्स्पान्सनको ड्र्याग ह्यान्डल",
     Strings.defaultPaneExpansionDragHandleStateDescription to "पेन स्प्लिटको हालको स्थिति, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "पेन स्प्लिट परिवर्तन गरी %s बनाउनुहोस्",

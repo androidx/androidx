@@ -21,6 +21,9 @@ import androidx.compose.material3.adaptive.layout.internal.Translations
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.frCA() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Volet principal",
+    Strings.defaultPaneTitleSecondary to "Volet secondaire",
+    Strings.defaultPaneTitleTertiary to "Volet tertiaire",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Poignée de déplacement d\'extension du volet",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Volet actuel divisé, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Modifiez la division du volet à %s",
@@ -37,6 +40,9 @@ internal fun Translations.frCA() = mapOf(
 
 @Suppress("UnusedReceiverParameter", "DuplicatedCode")
 internal fun Translations.fr() = mapOf(
+    Strings.defaultPaneTitlePrimary to "Volet principal",
+    Strings.defaultPaneTitleSecondary to "Volet secondaire",
+    Strings.defaultPaneTitleTertiary to "Volet tertiaire",
     Strings.defaultPaneExpansionDragHandleContentDescription to "Poignée de déplacement pour développer les volets",
     Strings.defaultPaneExpansionDragHandleStateDescription to "Répartition actuelle des volets, %s",
     Strings.defaultPaneExpansionDragHandleActionDescription to "Passer la répartition des volets sur %s",
