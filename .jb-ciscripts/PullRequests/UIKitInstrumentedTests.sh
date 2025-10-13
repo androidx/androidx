@@ -11,6 +11,8 @@ killall Simulator
 DEVICES=$(xcrun simctl list DEVICES --json)
 TEST_DEVICE="iPhone 16"
 
+echo $DEVICES
+
 # This assumes you have jq installed; you can also parse manually if not
 if ! command -v jq &> /dev/null; then
   echo "Error: jq is not installed"

@@ -43,6 +43,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.max
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -208,7 +209,9 @@ private fun calculateSelectionMagnifierCenterIOS(
     }
 
     val coreNodeBounds = textLayoutState.coreNodeCoordinates
-        ?.takeIf { it.isAttached }?.visibleBounds()
+        ?.takeIf { it.isAttached }
+        ?.visibleBounds()
+        ?.takeIf { !it.isEmpty }
         ?: return Offset.Unspecified
 
     // Center vertically on the current line.
@@ -226,7 +229,7 @@ private fun calculateSelectionMagnifierCenterIOS(
     return Offset(
         x = offset.x.coerceIn(
             -magnifierSize.width / 4f,
-            coreNodeBounds.right + magnifierSize.width / 4
+            max(0f, coreNodeBounds.right) + magnifierSize.width / 4
         ),
         y = offset.y.coerceIn(
             coreNodeBounds.top,

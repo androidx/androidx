@@ -35,9 +35,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier {
     if (!isPlatformMagnifierSupported()) {
@@ -118,7 +117,9 @@ private fun calculateSelectionMagnifierCenterIOS(
     }
 
     val innerFieldBounds = manager.state?.layoutResult
-        ?.innerTextFieldCoordinates?.visibleBounds()
+        ?.innerTextFieldCoordinates
+        ?.visibleBounds()
+        ?.takeIf { !it.isEmpty }
         ?: return Offset.Unspecified
 
     // Center vertically on the current line.
@@ -136,7 +137,7 @@ private fun calculateSelectionMagnifierCenterIOS(
     // native magnifier goes a little bit farther than text field bounds
     val centerX = innerDragPosition.x.coerceIn(
         -magnifierSize.width / 4f,
-        innerFieldBounds.right + magnifierSize.width / 4
+        max(0f, innerFieldBounds.right) + magnifierSize.width / 4
     )
 
     return Offset(centerX, centerY)
