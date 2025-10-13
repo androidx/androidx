@@ -690,6 +690,10 @@ internal class ComposeSceneMediator(
         skiaLayerComponent.onRenderApiChanged(action)
     }
 
+    fun renderImmediately() {
+        skiaLayerComponent.renderImmediately()
+    }
+
     fun onWindowFocusChanged() {
         keyboardModifiersRequireUpdate = true
     }

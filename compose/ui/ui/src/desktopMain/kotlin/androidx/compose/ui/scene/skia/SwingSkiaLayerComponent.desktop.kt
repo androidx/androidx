@@ -131,5 +131,9 @@ internal class SwingSkiaLayerComponent(
         contentComponent.repaint()
     }
 
+    override fun renderImmediately() {
+        contentComponent.paintImmediately(0, 0, contentComponent.width, contentComponent.height)
+    }
+
     override fun onRenderApiChanged(action: () -> Unit) = Unit
 }

@@ -168,6 +168,10 @@ internal class ComposeWindowPanel(
         composeContainer.onRenderApiChanged(action)
     }
 
+    fun renderImmediately() {
+        composeContainer.renderImmediately()
+    }
+
     // We need overridden listeners because we mix Swing and AWT components in the
     // org.jetbrains.skiko.SkiaLayer, they don't work well together.
     // TODO(demin): is it possible to fix that without overriding?

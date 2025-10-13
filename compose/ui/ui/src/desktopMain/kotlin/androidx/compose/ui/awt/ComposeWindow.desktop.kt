@@ -280,6 +280,19 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     }
 
     /**
+     * Renders the window's content synchronously.
+     *
+     * This doesn't need to be used in most cases, as the content will be rendered as needed
+     * automatically. It can, however, be used to force the rendering sooner than it normally would
+     * occur. Specifically, it allows rendering the content after the window has been made
+     * displayable, but before it has been shown, to avoid a brief flicker.
+     */
+    @ExperimentalComposeUiApi
+    fun renderImmediately() {
+        composePanel.renderImmediately()
+    }
+
+    /**
      * Retrieve underlying platform-specific operating system handle for the root window where
      * ComposeWindow is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
      * on macOS.

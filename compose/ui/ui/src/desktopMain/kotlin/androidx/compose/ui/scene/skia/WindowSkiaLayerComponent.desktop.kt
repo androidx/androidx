@@ -164,7 +164,11 @@ internal class WindowSkiaLayerComponent(
         contentComponent.requestNativeFocusOnAccessible(accessible)
 
     override fun onComposeInvalidation() {
-        contentComponent.needRedraw()
+        contentComponent.needRender()
+    }
+
+    override fun renderImmediately() {
+        contentComponent.renderImmediately()
     }
 
     override fun onRenderApiChanged(action: () -> Unit) {

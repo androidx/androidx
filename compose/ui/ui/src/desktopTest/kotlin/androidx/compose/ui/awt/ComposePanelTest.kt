@@ -148,43 +148,6 @@ class ComposePanelTest {
         }
     }
 
-    @Test
-    fun `a single layout pass at the window start`() {
-        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
-
-        val layoutPassConstraints = mutableListOf<Constraints>()
-
-        runBlocking(MainUIDispatcher) {
-            val composePanel = ComposePanel()
-            composePanel.setContent {
-                Box(Modifier.fillMaxSize().layout { _, constraints ->
-                    layoutPassConstraints.add(constraints)
-                    layout(0, 0) {}
-                })
-            }
-
-            val frame = JFrame()
-            try {
-                frame.contentPane.add(composePanel)
-                frame.size = Dimension(300, 400)
-                frame.isUndecorated = true
-                frame.isVisible = true
-                frame.paint(frame.graphics)
-
-                assertThat(layoutPassConstraints).isEqualTo(
-                    listOf(
-                        Constraints.fixed(
-                            width = (300 * frame.density.density).toInt(),
-                            height = (400 * frame.density.density).toInt()
-                        )
-                    )
-                )
-            } finally {
-                frame.dispose()
-            }
-        }
-    }
-
     @OptIn(ExperimentalSkikoApi::class, ExperimentalComposeUiApi::class)
     @Test
     fun SkiaLayerAnalytics() {

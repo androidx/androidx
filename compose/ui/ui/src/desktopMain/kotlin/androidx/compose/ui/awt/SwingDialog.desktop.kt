@@ -139,12 +139,12 @@ fun SwingDialog(
             update(it)
 
             // If displaying for the first time, make sure we draw the first frame before making
-            // the dialog visible, to avoid showing the dialog background.
+            // the dialog visible to avoid showing the dialog background.
             // It's the responsibility of setSizeSafely to
             // - Make the dialog displayable
             // - Size the dialog and the ComposeLayer correctly, so that we can draw it here
             if (!wasDisplayable && it.isDisplayable) {
-                it.contentPane.paint(it.contentPane.graphics)
+                it.renderImmediately()
             }
         },
     )

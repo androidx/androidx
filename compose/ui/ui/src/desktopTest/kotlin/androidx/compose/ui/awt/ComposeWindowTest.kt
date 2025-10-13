@@ -219,10 +219,10 @@ class ComposeWindowTest {
                         layout(0, 0) {}
                     })
                 }
-
                 window.isUndecorated = true
                 window.isVisible = true
-                window.paint(window.graphics)
+                window.renderImmediately()
+
                 assertThat(layoutPassConstraints).isEqualTo(
                     listOf(
                         Constraints.fixed(

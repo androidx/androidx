@@ -331,6 +331,10 @@ internal class ComposeContainer(
         mediator.onRenderApiChanged(action)
     }
 
+    fun renderImmediately() {
+        mediator.renderImmediately()
+    }
+
     fun addNotify() {
         mediator.onComponentAttached()
         setWindow(SwingUtilities.getWindowAncestor(container))
