@@ -68,7 +68,7 @@ object ComposeFoundationFlags {
      * [BasicTextField][androidx.compose.foundation.text.BasicTextField]s. If false, the previous
      * context menu that has no public APIs will be used instead.
      */
-    @Suppress("MutableBareField") @JvmField var isNewContextMenuEnabled = true
+    @Suppress("MutableBareField") @JvmField var isNewContextMenuEnabled = false
 
     /**
      * Whether to use the new smart selection feature in
