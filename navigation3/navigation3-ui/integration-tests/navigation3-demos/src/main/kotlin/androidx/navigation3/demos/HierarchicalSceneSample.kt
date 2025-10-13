@@ -43,11 +43,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
-import androidx.navigation3.runtime.navEntryDecorator
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
-import androidx.navigation3.scene.rememberSceneSetupNavEntryDecorator
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
@@ -83,7 +82,7 @@ fun HierarchicalSceneSample() {
      * [Scene].
      */
     val sharedEntryInSceneNavEntryDecorator =
-        navEntryDecorator<ColorEntry> { entry ->
+        NavEntryDecorator<ColorEntry> { entry ->
             with(LocalNavSharedTransitionScope.current) {
                 Box(
                     Modifier.sharedElement(
@@ -116,12 +115,11 @@ fun HierarchicalSceneSample() {
             CompositionLocalProvider(LocalNavSharedTransitionScope provides this) {
                 NavDisplay(
                     backStack = backStack,
-                    onBack = { repeat(it) { backStack.removeAt(backStack.lastIndex) } },
+                    onBack = { backStack.removeAt(backStack.lastIndex) },
                     entryDecorators =
                         listOf(
                             sharedEntryInSceneNavEntryDecorator,
-                            rememberSceneSetupNavEntryDecorator(),
-                            rememberSavedStateNavEntryDecorator(),
+                            rememberSaveableStateHolderNavEntryDecorator(),
                         ),
                     sceneStrategy = sceneStrategy,
                 ) {
@@ -194,25 +192,38 @@ private class HierarchicalScene<T : Any>(
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as HierarchicalScene<*>
+
+        return key == other.key &&
+            navEntries == other.navEntries &&
+            previousEntries == other.previousEntries
+    }
+
+    override fun hashCode(): Int {
+        return key.hashCode() * 31 + navEntries.hashCode() * 31 + previousEntries.hashCode() * 31
+    }
+
+    override fun toString(): String {
+        return "HierarchicalScene(key=$key, entries=$entries, previousEntries=$previousEntries)"
+    }
 }
 
 private class HierarchicalSceneStrategy<T : Any>(private val columns: Int) : SceneStrategy<T> {
-    @Composable
-    override fun calculateScene(
-        entries: List<NavEntry<T>>,
-        onBack: (count: Int) -> Unit,
-    ): Scene<T> {
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T> {
         val includedEntries = entries.takeLast(columns)
-        return remember(columns, includedEntries) {
-            HierarchicalScene(
-                List(columns, includedEntries::getOrNull),
-                previousEntries =
-                    if (entries.size > columns) {
-                        entries.dropLast(1)
-                    } else {
-                        emptyList()
-                    },
-            )
-        }
+        return HierarchicalScene(
+            List(columns, includedEntries::getOrNull),
+            previousEntries =
+                if (entries.size > columns) {
+                    entries.dropLast(1)
+                } else {
+                    emptyList()
+                },
+        )
     }
 }

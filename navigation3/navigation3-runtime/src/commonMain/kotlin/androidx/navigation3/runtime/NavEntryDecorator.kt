@@ -19,24 +19,13 @@ package androidx.navigation3.runtime
 import androidx.compose.runtime.Composable
 
 /**
- * Marker class to hold the onPop and decorator functions that will be invoked at runtime.
+ * Decorate the [NavEntry]s that are integrated with a [rememberDecoratedNavEntries].
  *
- * See documentation on [androidx.navigation3.runtime.navEntryDecorator] for more info.
- */
-public class NavEntryDecorator<T : Any>
-internal constructor(
-    internal val onPop: (key: Any) -> Unit,
-    internal val navEntryDecorator: @Composable (entry: NavEntry<T>) -> Unit,
-)
-
-/**
- * Function to decorate the [NavEntry] that are integrated with a [rememberDecoratedNavEntries].
- *
- * Primary usages include but are not limited to:
+ * **HOW TO USE** Primary usages include but are not limited to:
  * 1. provide information to entries with [androidx.compose.runtime.CompositionLocal], i.e.
  *
  * ```
- * val decorator = navEntryDecorator<Any> { entry ->
+ * val decorator = NavEntryDecorator<Any> { entry ->
  *    ...
  *    CompositionLocalProvider(LocalMyStateProvider provides myState) {
  *        entry.content.invoke(entry.key)
@@ -46,7 +35,7 @@ internal constructor(
  * 2. Wrap entry content with other composable content
  *
  * ```
- * val decorator = navEntryDecorator<Any> { entry ->
+ * val decorator = NavEntryDecorator<Any> { entry ->
  *    ...
  *    MyComposableFunction {
  *        entry.content.invoke(entry.key)
@@ -54,15 +43,44 @@ internal constructor(
  * }
  * ```
  *
+ * **REUSABILITY** To enhance reusability, the NavEntryDecorator can be returned by a function or
+ * subclassed:
+ * ```
+ * // a reusable function
+ * fun <T : Any> myDecorator(val myState: MyState): NavEntryDecorator<T> =
+ *     NavEntryDecorator(onPop = { contentKey ->  myState.clear(contentKey) }) { entry ->
+ *           myState.storeState(entry.contentKey)
+ *           entry.Content()
+ *     }
+ *
+ * // or subclass NavEntryDecorator
+ * class MyDecorator(
+ *      val myState: MyState
+ * ): NavEntryDecorator(
+ *      onPop = { contentKey ->  myState.clear(contentKey) },
+ *      decorate = { entry ->
+ *          myState.storeState(entry.contentKey)
+ *          entry.Content()
+ *      }
+ * )
+ * ```
+ *
  * @param T the type of the backStack key
- * @param onPop the callback to clean up the decorator state for a [NavEntry] when the entry is
- *   popped from the backstack and is leaving composition.The lambda provides the
- *   [NavEntry.contentKey] of the popped entry as input.
- * @param [decorator] the composable function to decorate a [NavEntry]. Note that this function only
+ * @param onPop the callback to clean up the decorator state associated with a [NavEntry.contentKey]
+ *   when the last [NavEntry] with that contentKey has been popped from the backStack. It provides
+ *   the [NavEntry.contentKey] of the popped entry as input. This callback is invoked if and only if
+ *   all these conditions are met:
+ *     1. A [NavEntry] has been popped from the backStack
+ *     2. The [NavEntry] that has been popped is the last entry on the backStack with that
+ *        particular [NavEntry.contentKey]
+ *     3. The [NavEntry.content] of the popped NavEntry has left composition
+ *
+ * @param [decorate] the composable function to decorate a [NavEntry]. Note that this function only
  *   gets invoked for NavEntries that are actually getting rendered (i.e. by invoking the
  *   [NavEntry.content].)
+ * @see NavEntry.contentKey
  */
-public fun <T : Any> navEntryDecorator(
-    onPop: (contentKey: Any) -> Unit = {},
-    decorator: @Composable (entry: NavEntry<T>) -> Unit,
-): NavEntryDecorator<T> = NavEntryDecorator(onPop, decorator)
+public open class NavEntryDecorator<T : Any>(
+    internal val onPop: (key: Any) -> Unit = {},
+    internal val decorate: @Composable (entry: NavEntry<T>) -> Unit,
+)

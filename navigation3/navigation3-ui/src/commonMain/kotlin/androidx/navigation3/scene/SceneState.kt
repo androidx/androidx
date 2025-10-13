@@ -30,71 +30,76 @@ import kotlin.collections.plusAssign
  *
  * @param entries all of the entries that are associated with this state
  * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
- * @param onBack a callback for handling system back press. The passed [Int] refers to the number of
- *   entries to pop from the end of the backstack, as calculated by the [sceneStrategy].
+ * @param onBack a callback for handling system back press.
  */
 @Composable
 public fun <T : Any> rememberSceneState(
     entries: List<NavEntry<T>>,
     sceneStrategy: SceneStrategy<T>,
-    onBack: (Int) -> Unit,
-): SceneState<T> {
-    // re-wrap the entries with the SceneSetupNavEntryDecorator to ensure all the ensures are
-    // inside of a moveable content.
-    // Calculate the single scene based on the sceneStrategy and start the list there.
-    val allScenes =
-        mutableListOf(
-            sceneStrategy.calculateSceneWithSinglePaneFallback(
-                rememberDecoratedNavEntries(entries, listOf(rememberSceneSetupNavEntryDecorator())),
-                onBack,
+    onBack: () -> Unit,
+): SceneState<T> =
+    with(SceneStrategyScope<T>(onBack)) {
+        // re-wrap the entries with the SceneSetupNavEntryDecorator to ensure all the ensures are
+        // inside of a moveable content.
+        // Calculate the single scene based on the sceneStrategy and start the list there.
+        val allScenes =
+            mutableListOf(
+                sceneStrategy.calculateSceneWithSinglePaneFallback(
+                    this,
+                    rememberDecoratedNavEntries(
+                        entries,
+                        listOf(rememberSceneSetupNavEntryDecorator()),
+                    ),
+                )
             )
-        )
-    // find all of the OverlayScenes
-    do {
-        // Starts from previously calculated scene and check if it is an OverlayScene
-        val overlayScene = allScenes.last() as? OverlayScene
-        val overlaidEntries = overlayScene?.overlaidEntries
-        if (overlaidEntries != null) {
-            // TODO Consider allowing a NavDisplay of only OverlayScene instances
-            require(overlaidEntries.isNotEmpty()) {
-                "Overlaid entries from $overlayScene must not be empty"
+        // find all of the OverlayScenes
+        do {
+            // Starts from previously calculated scene and check if it is an OverlayScene
+            val overlayScene = allScenes.last() as? OverlayScene
+            val overlaidEntries = overlayScene?.overlaidEntries
+            if (overlaidEntries != null) {
+                // TODO Consider allowing a NavDisplay of only OverlayScene instances
+                require(overlaidEntries.isNotEmpty()) {
+                    "Overlaid entries from $overlayScene must not be empty"
+                }
+                // Keep added scenes to the end of our list until we find a non-overlay scene
+                allScenes +=
+                    sceneStrategy.calculateSceneWithSinglePaneFallback(this, overlaidEntries)
             }
-            // Keep added scenes to the end of our list until we find a non-overlay scene
-            allScenes += sceneStrategy.calculateSceneWithSinglePaneFallback(overlaidEntries, onBack)
-        }
-    } while (overlaidEntries != null)
+        } while (overlaidEntries != null)
 
-    // Find all the overlay scenes
-    val overlayScenes = allScenes.dropLast(1).fastMap { it as OverlayScene<T> }
-    // The currentScene is just just whatever is last on the list.
-    val currentScene = allScenes.last()
-    // Get the previous scenes, starting from the current scene.
-    val previousScenes = mutableListOf(allScenes.first())
+        // Find all the overlay scenes
+        val overlayScenes = allScenes.dropLast(1).fastMap { it as OverlayScene<T> }
+        // The currentScene is just just whatever is last on the list.
+        val currentScene = allScenes.last()
+        // Get the previous scenes, starting from the current scene.
+        val previousScenes = mutableListOf(allScenes.first())
 
-    do {
-        // get the first scene off the list
-        val previousScene = previousScenes.firstOrNull()
-        val previousEntries = previousScene?.previousEntries
-        if (!previousEntries.isNullOrEmpty()) {
-            // If there are previous entries, add the scene from those entries to the front of the
-            // list
-            previousScenes.add(
-                0,
-                sceneStrategy.calculateSceneWithSinglePaneFallback(previousEntries, onBack),
-            )
-        }
-    } while (!previousEntries.isNullOrEmpty())
+        do {
+            // get the first scene off the list
+            val previousScene = previousScenes.firstOrNull()
+            val previousEntries = previousScene?.previousEntries
+            if (!previousEntries.isNullOrEmpty()) {
+                // If there are previous entries, add the scene from those entries to the front of
+                // the
+                // list
+                previousScenes.add(
+                    0,
+                    sceneStrategy.calculateSceneWithSinglePaneFallback(this, previousEntries),
+                )
+            }
+        } while (!previousEntries.isNullOrEmpty())
 
-    // remove the currentScene from the list
-    previousScenes.remove(currentScene)
+        // remove the currentScene from the list
+        previousScenes.remove(currentScene)
 
-    return SceneState(
-        entries = entries,
-        overlayScenes = overlayScenes,
-        currentScene = currentScene,
-        previousScenes = previousScenes,
-    )
-}
+        return SceneState(
+            entries = entries,
+            overlayScenes = overlayScenes,
+            currentScene = currentScene,
+            previousScenes = previousScenes,
+        )
+    }
 
 /**
  * Class for holding the state associated with a scene
@@ -114,4 +119,27 @@ internal constructor(
     public val overlayScenes: List<OverlayScene<T>>,
     public val currentScene: Scene<T>,
     public val previousScenes: List<Scene<T>>,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SceneState<*>
+
+        return entries == other.entries &&
+            overlayScenes == other.overlayScenes &&
+            currentScene == other.currentScene &&
+            previousScenes == other.previousScenes
+    }
+
+    override fun hashCode(): Int {
+        return entries.hashCode() * 31 +
+            overlayScenes.hashCode() * 31 +
+            currentScene.hashCode() * 31 +
+            previousScenes.hashCode() * 31
+    }
+
+    override fun toString(): String {
+        return "SceneState(entries=$entries, overlayScenes=$overlayScenes, currentScene=$currentScene, previousScenes=$previousScenes)"
+    }
+}

@@ -49,11 +49,6 @@ package androidx.lifecycle.compose {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.lifecycle.Lifecycle.State!> currentStateAsState(androidx.lifecycle.Lifecycle, androidx.compose.runtime.Composer?, int);
   }
 
-  public final class LifecycleOwnerKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.lifecycle.LifecycleOwner rememberLifecycleOwner(optional androidx.lifecycle.Lifecycle.State maxLifecycle, optional androidx.lifecycle.LifecycleOwner? parent);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.lifecycle.LifecycleOwner rememberLifecycleOwner(androidx.lifecycle.Lifecycle.State?, androidx.lifecycle.LifecycleOwner?, androidx.compose.runtime.Composer?, int, int);
-  }
-
   public interface LifecyclePauseOrDisposeEffectResult {
     method public void runPauseOrOnDisposeEffect();
   }
@@ -79,6 +74,11 @@ package androidx.lifecycle.compose {
   public final class LocalLifecycleOwnerKt {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> getLocalLifecycleOwner();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
+  }
+
+  public final class RememberLifecycleOwnerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.lifecycle.LifecycleOwner rememberLifecycleOwner(optional androidx.lifecycle.Lifecycle.State maxLifecycle, optional androidx.lifecycle.LifecycleOwner? parent);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.lifecycle.LifecycleOwner rememberLifecycleOwner(androidx.lifecycle.Lifecycle.State?, androidx.lifecycle.LifecycleOwner?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

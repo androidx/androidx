@@ -31,7 +31,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -42,8 +41,8 @@ import androidx.compose.ui.util.fastForEachReversed
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
-import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
-import androidx.navigation3.scene.LocalEntriesToRenderInCurrentScene
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneInfo
 import androidx.navigation3.scene.SceneState
@@ -71,8 +70,12 @@ import kotlinx.coroutines.launch
 /** Object that indicates the features that can be handled by the [NavDisplay] */
 public object NavDisplay {
     /**
-     * Function to be called on the [NavEntry.metadata] to notify the [NavDisplay] that the content
-     * should be animated using the provided [ContentTransform].
+     * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
+     * [NavDisplay] that the content should be animated using the provided [ContentTransform].
+     *
+     * **IMPORTANT** By default, the [transitionSpec] defined on a transitioning [NavEntry.metadata]
+     * takes precedence over the [transitionSpec] defined on a [Scene.metadata]. However, the
+     * [Scene] implementation can potentially override the [transitionSpec] defined on a NavEntry.
      *
      * @param transitionSpec the [ContentTransform] to be used when adding to the backstack. If this
      *   is null, the transition will fallback to the transition set on the [NavDisplay]
@@ -82,8 +85,14 @@ public object NavDisplay {
     ): Map<String, Any> = mapOf(TRANSITION_SPEC to transitionSpec)
 
     /**
-     * Function to be called on the [NavEntry.metadata] to notify the [NavDisplay] that, when
-     * popping from backstack, the content should be animated using the provided [ContentTransform].
+     * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
+     * [NavDisplay] that, when popping from backstack, the content should be animated using the
+     * provided [ContentTransform].
+     *
+     * **IMPORTANT** By default, the [popTransitionSpec] defined on a transitioning
+     * [NavEntry.metadata] takes precedence over the [popTransitionSpec] defined on a
+     * [Scene.metadata]. However, a [Scene] implementation can potentially override the
+     * [popTransitionSpec] defined on a NavEntry.
      *
      * @param popTransitionSpec the [ContentTransform] to be used when popping from backstack. If
      *   this is null, the transition will fallback to the transition set on the [NavDisplay]
@@ -93,9 +102,14 @@ public object NavDisplay {
     ): Map<String, Any> = mapOf(POP_TRANSITION_SPEC to popTransitionSpec)
 
     /**
-     * Function to be called on the [NavEntry.metadata] to notify the [NavDisplay] that, when
-     * popping from backstack using a Predictive back gesture, the content should be animated using
-     * the provided [ContentTransform].
+     * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
+     * [NavDisplay] that, when popping from backstack using a Predictive back gesture, the content
+     * should be animated using the provided [ContentTransform].
+     *
+     * **IMPORTANT** By default, the [predictivePopTransitionSpec] defined on a transitioning
+     * [NavEntry.metadata] takes precedence over the [predictivePopTransitionSpec] defined on a
+     * [Scene.metadata]. However, a [Scene] implementation can potentially override the
+     * [predictivePopTransitionSpec] defined on a NavEntry.
      *
      * @param predictivePopTransitionSpec the [ContentTransform] to be used when popping from
      *   backStack with predictive back gesture. If this is null, the transition will fallback to
@@ -129,11 +143,19 @@ public object NavDisplay {
  * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
  * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
  *
+ * By default, AnimatedContent transitions are prioritized in this order:
+ * ```
+ * transitioning [NavEntry.metadata] > current [Scene.metadata] > NavDisplay defaults
+ * ```
+ *
+ * However, a [Scene.metadata] does have the ability to override [NavEntry.metadata]. Nevertheless,
+ * the final fallback will always be the NavDisplay's default transitions.
+ *
  * @param backStack the collection of keys that represents the state that needs to be handled
  * @param modifier the modifier to be applied to the layout.
  * @param contentAlignment The [Alignment] of the [AnimatedContent]
- * @param onBack a callback for handling system back press. The passed [Int] refers to the number of
- *   entries to pop from the end of the backstack, as calculated by the [sceneStrategy].
+ * @param onBack a callback for handling system back press. By default, this pops a single item off
+ *   of the given back stack if it is a [MutableList], otherwise you should provide this parameter.
  * @param entryDecorators list of [NavEntryDecorator] to add information to the entry content
  * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
  * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
@@ -151,12 +173,13 @@ public fun <T : Any> NavDisplay(
     backStack: List<T>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    onBack: (Int) -> Unit = {
+    onBack: () -> Unit = {
         if (backStack is MutableList<T>) {
-            repeat(it) { backStack.removeAt(backStack.lastIndex) }
+            backStack.removeLastOrNull()
         }
     },
-    entryDecorators: List<NavEntryDecorator<T>> = listOf(rememberSavedStateNavEntryDecorator()),
+    entryDecorators: List<NavEntryDecorator<T>> =
+        listOf(rememberSaveableStateHolderNavEntryDecorator()),
     sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
     sizeTransform: SizeTransform? = null,
     transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
@@ -208,6 +231,14 @@ public fun <T : Any> NavDisplay(
  * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
  * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
  *
+ * By default, AnimatedContent transitions are prioritized in this order:
+ * ```
+ * transitioning [NavEntry.metadata] > current [Scene.metadata] > NavDisplay defaults
+ * ```
+ *
+ * However, a [Scene.metadata] does have the ability to override [NavEntry.metadata]. Nevertheless,
+ * the final fallback will always be the NavDisplay's default transitions.
+ *
  * **WHEN TO USE** This overload can be used when you need to switch between different backStacks
  * and each with their own separate decorator states, or when you want to concatenate backStacks and
  * their states to form a larger backstack.
@@ -225,8 +256,7 @@ public fun <T : Any> NavDisplay(
  * @param popTransitionSpec Default [ContentTransform] when popping [NavEntry]s.
  * @param predictivePopTransitionSpec Default [ContentTransform] when popping with predictive back
  *   [NavEntry]s.
- * @param onBack a callback for handling system back press. The passed [Int] refers to the number of
- *   entries to pop from the end of the backstack, as calculated by the [sceneStrategy].
+ * @param onBack a callback for handling system back press.
  * @sample androidx.navigation3.ui.samples.MultipleBackStackSample
  * @sample androidx.navigation3.ui.samples.ConcatenatedBackStackSample
  * @see [rememberDecoratedNavEntries]
@@ -247,7 +277,7 @@ public fun <T : Any> NavDisplay(
             @NavigationEvent.SwipeEdge Int
         ) -> ContentTransform =
         defaultPredictivePopTransitionSpec(),
-    onBack: (Int) -> Unit,
+    onBack: () -> Unit,
 ) {
     require(entries.isNotEmpty()) { "NavDisplay entries cannot be empty" }
 
@@ -274,11 +304,10 @@ public fun <T : Any> NavDisplay(
         isBackEnabled = scene.previousEntries.isNotEmpty(),
         onBackCompleted = {
             // If `enabled` becomes stale (e.g., it was set to false but a gesture was
-            // dispatched in the same frame), this ensures that the calculated index is valid
-            // before calling onBack, avoiding IndexOutOfBoundsException in edge cases.
-            if (finalEntries.size > scene.previousEntries.size) {
-                onBack(finalEntries.size - scene.previousEntries.size)
-            }
+            // dispatched in the same frame), this may result in no entries being popped
+            // due to finalEntries.size being smaller than scene.previousEntries.size
+            // but that's preferable to crashing with an IndexOutOfBoundsException
+            repeat(finalEntries.size - scene.previousEntries.size) { onBack() }
         },
     )
 
@@ -297,6 +326,14 @@ public fun <T : Any> NavDisplay(
 /**
  * A nav display that renders and animates between different [Scene]s, each of which can render one
  * or more [NavEntry]s.
+ *
+ * By default, AnimatedContent transitions are prioritized in this order:
+ * ```
+ * transitioning [NavEntry.metadata] > current [Scene.metadata] > NavDisplay defaults
+ * ```
+ *
+ * However, a [Scene.metadata] does have the ability to override [NavEntry.metadata]. Nevertheless,
+ * the final fallback will always be the NavDisplay's default transitions.
  *
  * @param sceneState the state that determines what current scene of the NavDisplay.
  * @param modifier the modifier to be applied to the layout.
@@ -389,7 +426,7 @@ public fun <T : Any> NavDisplay(
     // Determine which entries should be rendered within each currently rendered scene,
     // using the z-index of each screen to always show the entry on the topmost screen
     // The map is Pair<KCLass<Scene<T>, Scene.key> to a Set of NavEntry.key values
-    val sceneToRenderableEntryMap =
+    val sceneToExcludedEntryMap =
         remember(sceneMap.entries.toList(), overlayScenes.toList(), zIndices.toString()) {
             buildMap {
                 val scenes = mutableListOf<Scene<T>>()
@@ -424,7 +461,7 @@ public fun <T : Any> NavDisplay(
                             .map { it.contentKey }
                             .filterNot(coveredEntryKeys::contains)
                             .toSet()
-                    put(scene::class to scene.key, newlyCoveredEntryKeys)
+                    put(scene::class to scene.key, coveredEntryKeys.toMutableSet())
                     coveredEntryKeys.addAll(newlyCoveredEntryKeys)
                 }
             }
@@ -432,30 +469,24 @@ public fun <T : Any> NavDisplay(
 
     // Determine which NavEntry's transition to use(if any), prioritizing the one with highest
     // zIndex
-    val transitionEntry =
+    val transitionScene =
         if (initialZIndex >= targetZIndex) {
-            transition.currentState.entries.last()
+            transition.currentState
         } else {
-            transition.targetState.entries.last()
+            transition.targetState
         }
 
     // check if in gesture back
     if (inPredictiveBack) {
-        if (
-            transition.currentState::class != previousScene::class ||
-                transition.currentState.key != previousScene.key
-        ) {
-            LaunchedEffect(previousScene::class, previousScene.key, progress) {
+        if (transition.currentState != previousScene) {
+            LaunchedEffect(previousScene, progress) {
                 // Retarget on key change; seek on progress updates.
                 transitionState.seekTo(progress, previousScene)
             }
         }
     } else {
-        LaunchedEffect(scene::class, scene.key) {
-            if (
-                transitionState.currentState::class != scene::class ||
-                    transitionState.currentState.key != scene.key
-            ) {
+        LaunchedEffect(scene) {
+            if (transitionState.currentState != scene) {
                 // We are animating to the final state for regular navigate forward and regular pop
                 transitionState.animateTo(scene)
             } else {
@@ -500,15 +531,15 @@ public fun <T : Any> NavDisplay(
     val contentTransform: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = {
         when {
             inPredictiveBack -> {
-                transitionEntry.predictivePopSpec()?.invoke(this, swipeEdge)
+                transitionScene.predictivePopSpec()?.invoke(this, swipeEdge)
                     ?: predictivePopTransitionSpec(swipeEdge)
             }
             isPop -> {
-                transitionEntry.contentTransform(POP_TRANSITION_SPEC)?.invoke(this)
+                transitionScene.contentTransform(POP_TRANSITION_SPEC)?.invoke(this)
                     ?: popTransitionSpec(this)
             }
             else -> {
-                transitionEntry.contentTransform(TRANSITION_SPEC)?.invoke(this)
+                transitionScene.contentTransform(TRANSITION_SPEC)?.invoke(this)
                     ?: transitionSpec(this)
             }
         }
@@ -532,8 +563,8 @@ public fun <T : Any> NavDisplay(
         CompositionLocalProvider(
             LocalNavTransitionSettledState provides isSettled,
             LocalNavAnimatedContentScope provides this,
-            LocalEntriesToRenderInCurrentScene provides
-                sceneToRenderableEntryMap.getValue(targetScene::class to targetScene.key),
+            LocalEntriesToExcludeFromCurrentScene provides
+                sceneToExcludedEntryMap.getValue(targetScene::class to targetScene.key),
         ) {
             targetScene.content()
         }
@@ -560,8 +591,8 @@ public fun <T : Any> NavDisplay(
     // Show all OverlayScene instances above the AnimatedContent
     overlayScenes.fastForEachReversed { overlayScene ->
         CompositionLocalProvider(
-            LocalEntriesToRenderInCurrentScene provides
-                sceneToRenderableEntryMap.getValue(overlayScene::class to overlayScene.key)
+            LocalEntriesToExcludeFromCurrentScene provides
+                sceneToExcludedEntryMap.getValue(overlayScene::class to overlayScene.key)
         ) {
             overlayScene.content.invoke()
         }
@@ -582,14 +613,14 @@ private fun <T : Any> isPop(oldBackStack: List<T>, newBackStack: List<T>): Boole
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> NavEntry<T>.contentTransform(
+private fun <T : Any> Scene<T>.contentTransform(
     key: String
 ): (AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform)? {
     return metadata[key] as? AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> NavEntry<T>.predictivePopSpec():
+private fun <T : Any> Scene<T>.predictivePopSpec():
     (AnimatedContentTransitionScope<Scene<T>>.(
         @NavigationEvent.SwipeEdge Int
     ) -> ContentTransform)? {

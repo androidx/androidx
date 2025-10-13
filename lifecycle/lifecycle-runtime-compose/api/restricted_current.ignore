@@ -43,3 +43,9 @@ RemovedFromKotlin: androidx.lifecycle.compose.LifecycleStartStopEffectScope#getL
     Source breaking change: method androidx.lifecycle.compose.LifecycleStartStopEffectScope.getLifecycle() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.compose.LocalLifecycleOwnerKt#getLocalLifecycleOwner():
     Source breaking change: method androidx.lifecycle.compose.LocalLifecycleOwnerKt.getLocalLifecycleOwner() can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.lifecycle.compose.LifecycleEffectKt#LifecycleResumeEffect(Object[], androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult>):
+    Binary breaking change: Removed method androidx.lifecycle.compose.LifecycleEffectKt.LifecycleResumeEffect(Object[],androidx.lifecycle.LifecycleOwner,kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleResumePauseEffectScope,? extends androidx.lifecycle.compose.LifecyclePauseOrDisposeEffectResult>)
+RemovedMethod: androidx.lifecycle.compose.LifecycleEffectKt#LifecycleStartEffect(Object[], androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult>):
+    Binary breaking change: Removed method androidx.lifecycle.compose.LifecycleEffectKt.LifecycleStartEffect(Object[],androidx.lifecycle.LifecycleOwner,kotlin.jvm.functions.Function1<? super androidx.lifecycle.compose.LifecycleStartStopEffectScope,? extends androidx.lifecycle.compose.LifecycleStopOrDisposeEffectResult>)

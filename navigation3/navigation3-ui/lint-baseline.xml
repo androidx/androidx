@@ -1,11 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.13.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.0-alpha01)" variant="all" version="8.13.0-alpha01">
+<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testNavDisplayPredictiveBackAnimations` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testNavDisplayPredictiveBackAnimationsRightSwipeEdge` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testNavDisplayPredictiveBackAnimationsLeftSwipeEdge` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testNavigateZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testPopZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testTwoPanePopZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testPopNavigateDuplicateZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testPopNavigateZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testNavigateDuplicateZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UseSdkSuppress"
+        message="Don&apos;t use @RequiresApi from tests; use @SdkSuppress on `testPopDuplicateZIndex` instead"
+        errorLine1="    @RequiresApi(Build.VERSION_CODES.O)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
 
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                scenes.values.map { scene -> scene.entries.map(NavEntry&lt;T>::contentKey) },"
-        errorLine2="                                                           ~~~">
+        errorLine1="    val previousSceneInfos = sceneState.previousScenes.map { SceneInfo(it) }"
+        errorLine2="                                                       ~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -13,8 +103,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                    (mostRecentSceneKeys.filter { it != transition.targetState } +"
-        errorLine2="                                         ~~~~~~">
+        errorLine1="        remember(transition.currentState) { sceneState.entries.toList() }"
+        errorLine2="                                                               ~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -22,8 +112,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                                    .map { it.contentKey }"
-        errorLine2="                                     ~~~">
+        errorLine1="            transitionCurrentStateEntries.map { it.contentKey },"
+        errorLine2="                                          ~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -31,8 +121,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                                    .filterNot(coveredEntryKeys::contains)"
-        errorLine2="                                     ~~~~~~~~~">
+        errorLine1="            sceneState.entries.map { it.contentKey },"
+        errorLine2="                               ~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -40,8 +130,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                                    .toSet(),"
-        errorLine2="                                     ~~~~~">
+        errorLine1="        remember(sceneMap.entries.toList(), overlayScenes.toList(), zIndices.toString()) {"
+        errorLine2="                                                          ~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -49,8 +139,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                            scene.entries.forEach { coveredEntryKeys.add(it.contentKey) }"
-        errorLine2="                                          ~~~~~~~">
+        errorLine1="                    .map { it.value }"
+        errorLine2="                     ~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -58,8 +148,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        val transitionCurrentStateEntries = remember(transition.currentState) { entries.toList() }"
-        errorLine2="                                                                                        ~~~~~~">
+        errorLine1="                    .forEach { if (!scenes.contains(it)) scenes.add(it) }"
+        errorLine2="                     ~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -67,8 +157,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                transitionCurrentStateEntries.map { it.contentKey },"
-        errorLine2="                                              ~~~">
+        errorLine1="                            .map { it.contentKey }"
+        errorLine2="                             ~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -76,8 +166,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                entries.map { it.contentKey },"
-        errorLine2="                        ~~~">
+        errorLine1="                            .filterNot(coveredEntryKeys::contains)"
+        errorLine2="                             ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
@@ -85,35 +175,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                    scenes.keys.toList().forEach { key ->"
-        errorLine2="                                         ~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                    mostRecentSceneKeys.toList().forEach { key ->"
-        errorLine2="                                                 ~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            val allEntries = overlayScene.entries.map { it.contentKey }.toSet()"
-        errorLine2="                                                  ~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            val allEntries = overlayScene.entries.map { it.contentKey }.toSet()"
-        errorLine2="                                                                        ~~~~~">
+        errorLine1="                            .toSet()"
+        errorLine2="                             ~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>

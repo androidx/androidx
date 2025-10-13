@@ -36,6 +36,7 @@ androidXMultiplatform {
         compileSdk = 36
         namespace = "androidx.navigation3.runtime"
         androidResources.enable = true
+        lint.disable += "ComposeTestRuleDispatcher"
 
     }
     desktop()
@@ -74,7 +75,7 @@ androidXMultiplatform {
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)

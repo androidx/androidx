@@ -7,7 +7,7 @@
         errorLine1="    private fun withLifecycleOwner("
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/lifecycle/compose/CollectAsStateWithLifecycleTests.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/lifecycle/compose/CollectAsStateWithLifecycleTests.kt"/>
     </issue>
 
 </issues>

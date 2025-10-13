@@ -43,8 +43,10 @@ package androidx.lifecycle {
   }
 
   public final class ViewTreeLifecycleOwner {
-    method public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.lifecycle.LifecycleOwner? lifecycleOwner);
+    method @KotlinOnly public static androidx.lifecycle.LifecycleOwner? findViewTreeLifecycleOwner(android.view.View);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleOwner? get(android.view.View);
+    method @InaccessibleFromKotlin public static void set(android.view.View, androidx.lifecycle.LifecycleOwner? lifecycleOwner);
+    method @KotlinOnly public static void setViewTreeLifecycleOwner(android.view.View, androidx.lifecycle.LifecycleOwner? lifecycleOwner);
   }
 
   public final class WithLifecycleStateKt {

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavDisplayKt")
+@file:JvmMultifileClass
+
 package androidx.navigation3.ui
 
 import androidx.compose.animation.AnimatedContentTransitionScope

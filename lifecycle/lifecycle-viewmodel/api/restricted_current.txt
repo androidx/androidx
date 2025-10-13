@@ -119,8 +119,10 @@ package androidx.lifecycle {
   }
 
   public final class ViewTreeViewModelStoreOwner {
-    method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
-    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    method @KotlinOnly public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
+    method @InaccessibleFromKotlin public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
+    method @KotlinOnly public static void setViewTreeViewModelStoreOwner(android.view.View, androidx.lifecycle.ViewModelStoreOwner? viewModelStoreOwner);
   }
 
 }
