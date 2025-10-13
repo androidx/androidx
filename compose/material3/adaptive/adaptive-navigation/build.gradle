@@ -51,8 +51,8 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive-layout"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-util"))
+                implementation("org.jetbrains.compose.foundation:foundation:1.9.0")
+                implementation("org.jetbrains.compose.ui:ui-util:1.9.0")
             }
         }
 

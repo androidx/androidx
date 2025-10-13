@@ -52,15 +52,15 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive"))
-                api(project(":compose:animation:animation-core"))
-                api(project(":compose:ui:ui"))
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:ui:ui-geometry"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation(project(":window:window-core"))
-                implementation(project(":collection:collection"))
+                api("org.jetbrains.compose.animation:animation-core:1.9.0")
+                api("org.jetbrains.compose.ui:ui:1.9.0")
+                implementation("org.jetbrains.compose.animation:animation:1.9.0")
+                implementation("org.jetbrains.compose.foundation:foundation:1.9.0")
+                implementation("org.jetbrains.compose.foundation:foundation-layout:1.9.0")
+                implementation("org.jetbrains.compose.ui:ui-geometry:1.9.0")
+                implementation("org.jetbrains.compose.ui:ui-util:1.9.0")
+                implementation("org.jetbrains.androidx.window:window-core:1.4.0")
+                implementation("androidx.collection:collection:1.5.0")
             }
         }
 

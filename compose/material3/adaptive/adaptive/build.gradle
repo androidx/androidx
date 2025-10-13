@@ -50,9 +50,9 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:ui:ui-geometry"))
-                api(project(":window:window-core"))
+                api("org.jetbrains.compose.foundation:foundation:1.9.0")
+                api("org.jetbrains.compose.ui:ui-geometry:1.9.0")
+                api("org.jetbrains.androidx.window:window-core:1.4.0")
             }
         }
 
