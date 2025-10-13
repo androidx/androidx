@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.test.utils
 
-import androidx.compose.test.utils.endAllTouches
-import androidx.compose.test.utils.endTouch
 import androidx.compose.test.utils.getTouchesEvent
 import androidx.compose.test.utils.send
 import androidx.compose.test.utils.setLocationInWindow
@@ -42,14 +40,8 @@ internal fun UIWindow.touchDown(location: DpOffset): UITouch {
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
 internal fun UIWindow.getTouchesEvent(): UIEvent {
     return UITouch.getTouchesEvent()
-}
-
-@OptIn(ExperimentalForeignApi::class)
-internal fun UIWindow.resetTouches() {
-    UITouch.endAllTouches()
 }
 
 @OptIn(ExperimentalForeignApi::class)
@@ -67,8 +59,8 @@ internal fun UITouch.hold(): UITouch {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-internal fun UITouch.up() {
+internal fun UITouch.up(): UITouch {
     setPhase(UITouchPhase.UITouchPhaseEnded)
     send()
-    endTouch()
+    return this
 }
