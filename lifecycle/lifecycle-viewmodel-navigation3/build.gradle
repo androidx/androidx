@@ -22,35 +22,44 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
+import androidx.build.AndroidXComposePlugin
+import androidx.build.Publish
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.lifecycle.viewmodel.navigation3"
-    }
-    jvmStubs()
-    linuxX64Stubs()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+androidXComposeMultiplatform {
+    android()
+    desktop()
+    darwin()
+    js()
+    wasm()
+}
 
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("androidx.lifecycle:lifecycle-viewmodel:2.9.3")
-                api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
-                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.3")
-                api("androidx.compose.runtime:runtime:1.9.0")
-                api("androidx.compose.runtime:runtime-saveable:1.9.0")
-                api(project(":navigation3:navigation3-runtime"))
-                api("androidx.savedstate:savedstate:1.3.2")
-                api("androidx.savedstate:savedstate-compose:1.3.2")
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-viewmodel-compose"))
+                def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
+                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
+                api("org.jetbrains.compose.runtime:runtime:1.9.1")
+                api("org.jetbrains.compose.runtime:runtime-saveable:1.9.1")
+                def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
+                api("androidx.navigation3:navigation3-runtime:$navigation3Version")
+                def savedstateVersion = project.findProperty('artifactRedirection.version.androidx.savedstate')
+                api("androidx.savedstate:savedstate:$savedstateVersion")
+                api("androidx.savedstate:savedstate-compose:$savedstateVersion")
                 implementation(libs.kotlinStdlib)
                 implementation("androidx.collection:collection:1.5.0")
             }
@@ -64,8 +73,9 @@ androidXMultiplatform {
             }
         }
 
+        jvmMain.dependsOn(commonMain)
         androidMain {
-            dependsOn(commonMain)
+            dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity-compose:1.12.0-alpha06")
             }
@@ -91,19 +101,31 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        desktopMain {
+            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonJvmMain)
+        webMain.dependsOn(nonJvmMain)
 
-        linuxx64StubsMain {
-            dependsOn(nonAndroidMain)
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+            }
         }
     }
 }
 
+android {
+    namespace = "androidx.lifecycle.viewmodel.navigation3"
+}
+
 androidx {
     name = "Androidx Lifecycle Navigation3 ViewModel"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2024"
     description = "Provides the ViewModel wrapper for nav3."
 }

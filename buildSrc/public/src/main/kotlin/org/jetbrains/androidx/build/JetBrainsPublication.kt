@@ -108,6 +108,7 @@ object JetBrainsPublication {
             ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", supportedPlatforms = ComposePlatforms.ALL_AOSP),
             ComposeComponent(":lifecycle:lifecycle-runtime-compose", supportedPlatforms = ComposePlatforms.ALL),
             ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
+            ComposeComponent(":lifecycle:lifecycle-viewmodel-navigation3"),
         ),
         "NAVIGATION" to listOf(
             ComposeComponent(":navigation:navigation-compose"),
