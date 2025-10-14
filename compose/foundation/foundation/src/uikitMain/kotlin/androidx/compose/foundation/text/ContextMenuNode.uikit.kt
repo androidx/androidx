@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -102,7 +101,6 @@ internal class ContextMenuLayoutNode(
         density = null
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun onObservedReadsChanged() {
         observeReads {
             val previousContainerView = containerView

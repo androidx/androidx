@@ -17,7 +17,6 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 
@@ -37,7 +36,6 @@ val LocalUIViewController = staticCompositionLocalOf<UIViewController> {
  * Please use it carefully and don't add or remove other views - check
  * [androidx.compose.ui.interop.UIKitView] for those purposes.
  */
-@ExperimentalComposeUiApi
 val LocalUIView = staticCompositionLocalOf<UIView> {
     error("CompositionLocal UIView not provided")
 }

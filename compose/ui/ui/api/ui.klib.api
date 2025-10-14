@@ -5123,6 +5123,10 @@ final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneL
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop|#static{}androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.uikit/LocalUIView // androidx.compose.ui.uikit/LocalUIView|{}LocalUIView[0]
+    final fun <get-LocalUIView>(): androidx.compose.runtime/ProvidableCompositionLocal<platform.UIKit/UIView> // androidx.compose.ui.uikit/LocalUIView.<get-LocalUIView>|<get-LocalUIView>(){}[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.uikit/LocalUIViewController // androidx.compose.ui.uikit/LocalUIViewController|{}LocalUIViewController[0]
     final fun <get-LocalUIViewController>(): androidx.compose.runtime/ProvidableCompositionLocal<platform.UIKit/UIViewController> // androidx.compose.ui.uikit/LocalUIViewController.<get-LocalUIViewController>|<get-LocalUIViewController>(){}[0]
 
