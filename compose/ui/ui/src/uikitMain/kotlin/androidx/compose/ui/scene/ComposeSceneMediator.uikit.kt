@@ -83,7 +83,6 @@ import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
 import androidx.compose.ui.viewinterop.UIKitInteropContainer
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
-import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.KeyboardVisibilityListener
@@ -259,16 +258,6 @@ internal class ComposeSceneMediator(
         }
 
     val hasInteropViews: Boolean get() = interopContainer.hasInteropViews
-
-    private val applicationForegroundStateListener =
-        ApplicationForegroundStateListener { _ ->
-            // Sometimes the application can trigger animation and go background before the animation is
-            // finished. The scheduled GPU work is performed, but no presentation can be done, causing
-            // mismatch between visual state and application state. This can be fixed by forcing
-            // a redraw when app returns to foreground, which will ensure that the visual state is in
-            // sync with the application state even if such sequence of events took a place.
-            redrawer.setNeedsRedraw()
-        }
 
     /**
      * View wrapping the hierarchy managed by this Mediator.
@@ -619,7 +608,6 @@ internal class ComposeSceneMediator(
 
         _overlayView.dispose()
         textInputService.stopInput()
-        applicationForegroundStateListener.dispose()
         keyboardManager.dispose()
         userInputView.dispose()
 

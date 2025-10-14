@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.lifecycle.Lifecycle.State
 
 internal class UIKitArchitectureComponentsOwner : DefaultArchitectureComponentsOwner() {
@@ -25,12 +24,12 @@ internal class UIKitArchitectureComponentsOwner : DefaultArchitectureComponentsO
             field = value
             updateLifecycleState()
         }
-    var isAppForeground = ApplicationForegroundStateListener.isApplicationForeground
+    var isSceneInForeground = false
         set(value) {
             field = value
             updateLifecycleState()
         }
-    var isAppActive = isAppForeground
+    var isSceneActive = false
         set(value) {
             field = value
             updateLifecycleState()
@@ -51,8 +50,8 @@ internal class UIKitArchitectureComponentsOwner : DefaultArchitectureComponentsO
     private fun updateLifecycleState() {
         lifecycle.currentState = when {
             isDisposed -> State.DESTROYED
-            isViewAppeared && isAppForeground && isAppActive -> State.RESUMED
-            isViewAppeared && isAppForeground && !isAppActive -> State.STARTED
+            isViewAppeared && isSceneInForeground && isSceneActive -> State.RESUMED
+            isViewAppeared && isSceneInForeground && !isSceneActive -> State.STARTED
             else -> State.CREATED
         }
     }

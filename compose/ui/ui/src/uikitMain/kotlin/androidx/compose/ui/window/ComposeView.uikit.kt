@@ -51,6 +51,7 @@ internal class ComposeView(
     private var metalView: MetalView? = null
     private var onDidMoveToWindow: (UIWindow?) -> Unit = {}
     private var onLayoutSubviews: () -> Unit = {}
+    private var foregroundStateListener: SceneForegroundStateListener? = null
 
     val redrawer: MetalRedrawer? get() = metalView?.redrawer
 
@@ -93,12 +94,26 @@ internal class ComposeView(
         }
         updateLayout()
         window?.let(onDidMoveToWindow)
+
+        if (metalView == null) {
+            foregroundStateListener?.dispose()
+            foregroundStateListener = null
+        } else {
+            foregroundStateListener = SceneForegroundStateListener(getScene = {
+                window?.windowScene
+            }) { isSceneInForeground ->
+                metalView.redrawer.isActive = isSceneInForeground
+            }
+        }
+        updateRedrawerState()
     }
 
     override fun didMoveToWindow() {
         super.didMoveToWindow()
 
         onDidMoveToWindow(window)
+
+        updateRedrawerState()
 
         // To avoid a situation where a user decided to call [layoutIfNeeded] on the detached view
         // using a certain frame and it will be attached to the window later, so there is a chance
@@ -121,6 +136,10 @@ internal class ComposeView(
         super.safeAreaInsetsDidChange()
 
         setNeedsLayout()
+    }
+
+    private fun updateRedrawerState() {
+        metalView?.redrawer?.isActive = foregroundStateListener?.isSceneInForeground ?: false
     }
 
     private fun updateLayout() {
@@ -197,7 +216,7 @@ internal class ComposeView(
 
     private fun viewContentImage(): UIImage {
         val renderer = UIGraphicsImageRenderer(bounds = bounds)
-        return renderer.imageWithActions { context ->
+        return renderer.imageWithActions {
             this.drawViewHierarchyInRect(bounds, false)
         }
     }

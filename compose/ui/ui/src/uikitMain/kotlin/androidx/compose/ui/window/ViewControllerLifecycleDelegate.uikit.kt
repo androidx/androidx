@@ -19,34 +19,45 @@ package androidx.compose.ui.window
 import androidx.compose.ui.platform.UIKitArchitectureComponentsOwner
 import androidx.compose.ui.uikit.utils.CMPViewControllerLifecycleDelegateProtocol
 import platform.Foundation.NSNotificationCenter
+import platform.UIKit.UIWindowScene
 import platform.darwin.NSObject
 
 internal class ViewControllerLifecycleDelegate(
-    private val archComponentsOwner: UIKitArchitectureComponentsOwner,
-    notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter
+    private val componentsOwner: UIKitArchitectureComponentsOwner,
+    private val notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter,
 ): NSObject(), CMPViewControllerLifecycleDelegateProtocol {
+    private val activeStateListener = SceneActiveStateListener(
+        notificationCenter = notificationCenter,
+        getScene = ::windowScene
+    ) { isSceneActive ->
+        componentsOwner.isSceneActive = isSceneActive
+    }
+    private val foregroundStateListener = SceneForegroundStateListener(
+        notificationCenter = notificationCenter,
+        getScene = ::windowScene
+    ) { isSceneInForeground ->
+        componentsOwner.isSceneInForeground = isSceneInForeground
+    }
 
-    private val applicationForegroundStateListener =
-        ApplicationForegroundStateListener(notificationCenter) { isForeground ->
-            archComponentsOwner.isAppForeground = isForeground
-        }
-
-    private val applicationActiveStateListener =
-        ApplicationActiveStateListener(notificationCenter) { isActive ->
-            archComponentsOwner.isAppActive = isActive
+    var windowScene: UIWindowScene? = null
+        set(value) {
+            field = value
+            componentsOwner.isSceneInForeground = foregroundStateListener.isSceneInForeground
+            componentsOwner.isSceneActive = activeStateListener.isSceneActive
         }
 
     override fun viewControllerWillDealloc() {
-        applicationForegroundStateListener.dispose()
-        applicationActiveStateListener.dispose()
-        archComponentsOwner.dispose()
+        componentsOwner.dispose()
+        activeStateListener.dispose()
+        foregroundStateListener.dispose()
+        windowScene = null
     }
 
     override fun viewControllerWillAppear() {
-        archComponentsOwner.isViewAppeared = true
+        componentsOwner.isViewAppeared = true
     }
 
     override fun viewControllerDidDisappear() {
-        archComponentsOwner.isViewAppeared = false
+        componentsOwner.isViewAppeared = false
     }
 }
