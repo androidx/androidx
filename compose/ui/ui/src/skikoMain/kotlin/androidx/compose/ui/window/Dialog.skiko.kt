@@ -124,7 +124,7 @@ actual fun Dialog(
 ) {
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
     val onBackHandler = remember {
-        OnBackClickEventHandler(currentOnDismissRequest)
+        OnBackClickEventHandler { currentOnDismissRequest() }
     }
     onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
     val navigationEventDispatcher =

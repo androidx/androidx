@@ -43,7 +43,10 @@ import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.fail
 import kotlinx.coroutines.delay
@@ -259,5 +262,50 @@ class DialogTest {
         waitForIdle()
         mainClock.advanceTimeBy(1000)
         assertEquals(2, lastValueInComposition)
+    }
+
+    @Test
+    fun checkUpdatedDismissCallbackInDialog() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val eventList = mutableListOf<Int>()
+        val closeHandler1: () -> Unit = { eventList.add(1) }
+        val closeHandler2: () -> Unit = { eventList.add(2) }
+        var useSecondHandler by mutableStateOf(false)
+
+        val navEventInput = DirectNavigationEventInput()
+
+        setContent {
+            val owner = LocalNavigationEventDispatcherOwner.current
+            LaunchedEffect(owner) {
+                owner?.navigationEventDispatcher?.addInput(navEventInput)
+            }
+            Dialog(
+                onDismissRequest =
+                    if (useSecondHandler) closeHandler2
+                    else closeHandler1
+                ,
+                properties = DialogProperties(),
+                content = { }
+            )
+        }
+
+        navEventInput.backCompleted()
+        assertContentEquals(listOf(1), eventList)
+
+        navEventInput.backCompleted()
+        assertContentEquals(listOf(1, 1), eventList)
+
+        useSecondHandler = true
+        waitForIdle()
+
+        navEventInput.backCompleted()
+        assertContentEquals(listOf(1, 1, 2), eventList)
+
+        useSecondHandler = false
+        waitForIdle()
+
+        navEventInput.backCompleted()
+        assertContentEquals(listOf(1, 1, 2, 1), eventList)
     }
 }
