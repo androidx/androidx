@@ -20,4 +20,8 @@ package androidx.compose.desktop.ui.tooling.preview
 @Target(
     AnnotationTarget.FUNCTION
 )
+@Deprecated(
+    "Use androidx.compose.ui.tooling.preview.Preview instead",
+    ReplaceWith("Preview", "androidx.compose.ui.tooling.preview.Preview")
+)
 annotation class Preview
