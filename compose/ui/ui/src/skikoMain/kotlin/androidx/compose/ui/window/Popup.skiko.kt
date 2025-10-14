@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -380,7 +381,9 @@ fun Popup(
         val onBackHandler = remember {
             OnBackClickEventHandler { currentOnDismissRequest?.invoke() }
         }
-        onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
+        LaunchedEffect(onBackHandler, properties.dismissOnBackPress) {
+            onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
+        }
         val navigationEventDispatcher =
             requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
                 error("NavigationEventDispatcherOwner not found")
