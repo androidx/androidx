@@ -236,7 +236,7 @@ class EntityTest {
         }
 
         override val recommendedContentBoxInFullSpace: BoundingBox =
-            BoundingBox(
+            BoundingBox.fromMinMax(
                 min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
                 max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
             )
@@ -1252,6 +1252,8 @@ class EntityTest {
         assertFailsWith<IllegalStateException> { panelEntity.size }
         assertFailsWith<IllegalStateException> { groupEntity.getScale() }
         assertFailsWith<IllegalStateException> { activityPanelEntity.getPerceivedResolution() }
+
+        assertFailsWith<IllegalStateException> { gltfModelEntity.getGltfModelBoundingBox() }
         assertFailsWith<IllegalStateException> { gltfModelEntity.stopAnimation() }
         assertFailsWith<IllegalStateException> { activitySpace.bounds }
 

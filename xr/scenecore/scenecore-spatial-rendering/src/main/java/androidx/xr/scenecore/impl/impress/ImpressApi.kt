@@ -19,6 +19,9 @@ package androidx.xr.scenecore.impl.impress
 import android.view.Surface
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
@@ -251,6 +254,26 @@ public interface ImpressApi {
 
     /** This method creates an Impress node and returns its impress node object. */
     public fun createImpressNode(): ImpressNode
+
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model.
+     *
+     * The bounding box is defined in the model's local coordinate space, before any transformations
+     * (like scaling) from the entity are applied. This default implementation returns a unit box
+     * centered at the origin. The concrete implementation should query the underlying rendering
+     * engine for the actual bounds.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the glTF.
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    public fun getGltfModelBoundingBox(impressNode: ImpressNode): BoundingBox =
+        BoundingBox.fromCenterAndHalfExtents(
+            center = Vector3(0.5f, 0.5f, 0.5f),
+            halfExtents = FloatSize3d(0.5f, 0.5f, 0.5f),
+        )
 
     /** This method destroys an Impress node using its node object. */
     public fun destroyImpressNode(impressNode: ImpressNode)

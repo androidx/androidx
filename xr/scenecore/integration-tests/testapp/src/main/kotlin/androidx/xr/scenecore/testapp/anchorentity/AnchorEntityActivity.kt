@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore.testapp.anchorentity
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -28,12 +29,15 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType
+import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
+import androidx.xr.scenecore.testapp.common.DebugTextPanel
 import androidx.xr.scenecore.testapp.common.createSession
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.nio.file.Path
@@ -75,14 +79,14 @@ class AnchorEntityActivity : AppCompatActivity() {
         // Spawn button
         val button: Button = findViewById(R.id.spawn_activity_panel_button)
         button.text = getString(R.string.spawn_anchor_entity_button_text)
-        button.setOnClickListener { createAnchorEntity() }
+        button.setOnClickListener { createAnchorEntity(this) }
     }
 
     override fun onResume() {
         super.onResume()
     }
 
-    private fun createAnchorEntity() {
+    private fun createAnchorEntity(context: Context) {
         lifecycleScope.launch {
             session!!.configure(
                 Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
@@ -98,10 +102,41 @@ class AnchorEntityActivity : AppCompatActivity() {
                     PlaneOrientation.ANY,
                     PlaneSemanticType.ANY,
                 )
-            GltfModelEntity.create(session!!, xyzModel, Pose.Identity).also {
-                it.setScale(1f)
-                anchorEntity.addChild(it)
-            }
+            val xyzModelEntity =
+                GltfModelEntity.create(session!!, xyzModel, Pose.Identity).also {
+                    it.setScale(1f)
+                    anchorEntity.addChild(it)
+                }
+
+            val gltfEntityDebugPanel =
+                DebugTextPanel(
+                    context,
+                    session!!,
+                    session!!.scene.activitySpace,
+                    name = "GLTF Entity Info",
+                    pose = Pose(Vector3(0f, -0.4f, 0.1f)),
+                )
+
+            val view = gltfEntityDebugPanel.view
+
+            val xyzModelEntityBoundingBox = xyzModelEntity.getGltfModelBoundingBox()
+            val centerText =
+                "[x: %.3f, y: %.3f, z: %.3f]"
+                    .format(
+                        xyzModelEntityBoundingBox.center.x,
+                        xyzModelEntityBoundingBox.center.y,
+                        xyzModelEntityBoundingBox.center.z,
+                    )
+            view.setLine("center", centerText)
+
+            val halfExtentsText =
+                "[width: %.3f, height: %.3f, depth: %.3f]"
+                    .format(
+                        xyzModelEntityBoundingBox.halfExtents.width,
+                        xyzModelEntityBoundingBox.halfExtents.height,
+                        xyzModelEntityBoundingBox.halfExtents.depth,
+                    )
+            view.setLine("halfExtents", halfExtentsText)
         }
     }
 

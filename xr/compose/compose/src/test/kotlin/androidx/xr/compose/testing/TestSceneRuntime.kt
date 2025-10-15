@@ -313,7 +313,7 @@ class TestActivitySpace(
     override var activitySpacePose: Pose = Pose.Identity,
     override var activitySpaceScale: Vector3 = Vector3(1f, 1f, 1f),
     override val recommendedContentBoxInFullSpace: BoundingBox =
-        BoundingBox(
+        BoundingBox.fromMinMax(
             min = Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
             max = Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2),
         ),

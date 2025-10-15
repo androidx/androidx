@@ -411,7 +411,7 @@ final class ActivitySpaceImpl extends SystemSpaceEntityImpl implements ActivityS
                     }
 
                     Box3 recommendedBox = mExtensions.getRecommendedContentBoxInFullSpace();
-                    return new BoundingBox(
+                    return BoundingBox.fromMinMax(
                             new Vector3(
                                     recommendedBox.getMin().x,
                                     recommendedBox.getMin().y,

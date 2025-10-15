@@ -175,6 +175,7 @@ package androidx.xr.scenecore.impl.impress {
     method public void destroyNativeObject(long nativeHandle);
     method public void disposeAllResources();
     method public androidx.xr.scenecore.impl.impress.BindingsResourceManager getBindingsResourceManager();
+    method public default androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox(androidx.xr.scenecore.impl.impress.ImpressNode impressNode);
     method public androidx.xr.scenecore.impl.impress.Texture getReflectionTextureFromIbl(long iblToken);
     method public android.view.Surface getSurfaceFromStereoSurface(androidx.xr.scenecore.impl.impress.ImpressNode panelImpressNode);
     method public androidx.xr.scenecore.impl.impress.ImpressNode instanceGltfModel(long gltfToken);

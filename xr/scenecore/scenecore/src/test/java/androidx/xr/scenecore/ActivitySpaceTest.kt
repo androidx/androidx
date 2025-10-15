@@ -112,7 +112,7 @@ class ActivitySpaceTest {
     @Test
     fun recommendedContentBoxInFullSpace_returnsCorrectBoundingBox() {
         whenever(mockActivitySpace.recommendedContentBoxInFullSpace)
-            .thenReturn(BoundingBox(Vector3.Zero, Vector3.One))
+            .thenReturn(BoundingBox.fromMinMax(Vector3.Zero, Vector3.One))
         val activitySpace = ActivitySpace.create(mockSceneRuntime, entityManager)
         val recommendedContentBoxInFullSpace = activitySpace.recommendedContentBoxInFullSpace
         assertThat(recommendedContentBoxInFullSpace.min).isEqualTo(Vector3.Zero)

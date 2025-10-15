@@ -33,6 +33,8 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.FloatProducer
@@ -72,6 +74,7 @@ import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -82,6 +85,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.takeOrElse
 
 /**
  * [Material Design list item](https://m3.material.io/components/lists/overview)
@@ -102,6 +106,8 @@ import androidx.compose.ui.unit.offset
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -128,6 +134,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -144,6 +151,7 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = false,
         applySemantics = {},
@@ -177,6 +185,8 @@ internal fun ListItem(
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -204,6 +214,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -220,6 +231,7 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = selected,
         applySemantics = { this.selected = selected },
@@ -254,6 +266,8 @@ internal fun ListItem(
  *   icon.
  * @param overlineContent the content displayed above the main content of the list item.
  * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
  * @param onLongClick called when this list item is long clicked (long-pressed).
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
  * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
@@ -281,6 +295,7 @@ internal fun ListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -297,6 +312,7 @@ internal fun ListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = checked,
         applySemantics = { toggleableState = ToggleableState(checked) },
@@ -974,20 +990,50 @@ internal object InteractiveListItemDefaults {
         draggedElevation: Dp = ElevationTokens.Level4,
     ): InteractiveListItemElevation =
         InteractiveListItemElevation(elevation = elevation, draggedElevation = draggedElevation)
+
+    /**
+     * Returns the default vertical alignment of children content within a [ListItem]. This is
+     * equivalent to [Alignment.CenterVertically] for shorter items and [Alignment.Top] for taller
+     * items.
+     */
+    @Composable
+    fun verticalAlignment(): Alignment.Vertical {
+        val density = LocalDensity.current
+        return remember(density) {
+            Alignment.Vertical { size, space ->
+                val breakpoint =
+                    with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
+                val baseAlignment =
+                    if (size < breakpoint) {
+                        Alignment.CenterVertically
+                    } else {
+                        Alignment.Top
+                    }
+                baseAlignment.align(size, space)
+            }
+        }
+    }
 }
 
 @Composable
 private fun LeadingDecorator(
+    startPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(end = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = startPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -996,16 +1042,23 @@ private fun LeadingDecorator(
 
 @Composable
 private fun TrailingDecorator(
+    endPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(start = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = endPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -1129,6 +1182,7 @@ private fun InteractiveListItem(
     trailingContent: @Composable (() -> Unit)?,
     overlineContent: @Composable (() -> Unit)?,
     supportingContent: @Composable (() -> Unit)?,
+    verticalAlignment: Alignment.Vertical,
     enabled: Boolean,
     selected: Boolean,
     applySemantics: SemanticsPropertyReceiver.() -> Unit,
@@ -1233,9 +1287,10 @@ private fun InteractiveListItem(
     val targetElevation = if (dragged.value) elevation.draggedElevation else elevation.elevation
     val shadowElevation = animateDpAsState(targetElevation, elevationAnimationSpec)
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
-        Box(
+        InteractiveListItemLayout(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
@@ -1256,59 +1311,53 @@ private fun InteractiveListItem(
                         onLongClickLabel = onLongClickLabel,
                         onClick = onClick,
                     )
-        ) {
-            val alignmentBreakpoint =
-                (InteractiveListVerticalAlignmentBreakpoint -
-                        contentPadding.calculateTopPadding() -
-                        contentPadding.calculateBottomPadding())
-                    .coerceAtLeast(0.dp)
-            InteractiveListItemLayout(
-                modifier = Modifier.padding(contentPadding),
-                alignmentBreakpoint = alignmentBreakpoint,
-                leading = {
-                    LeadingDecorator(
-                        color = leadingColor,
-                        textStyle = leadingTextStyle,
-                        content = leadingContent,
-                    )
-                },
-                trailing = {
-                    TrailingDecorator(
-                        color = trailingColor,
-                        textStyle = trailingTextStyle,
-                        content = trailingContent,
-                    )
-                },
-                overline = {
-                    OverlineDecorator(
-                        color = overlineColor,
-                        textStyle = overlineTextStyle,
-                        content = overlineContent,
-                    )
-                },
-                supporting = {
-                    SupportingDecorator(
-                        color = supportingColor,
-                        textStyle = supportingTextStyle,
-                        content = supportingContent,
-                    )
-                },
-                content = {
-                    ContentDecorator(
-                        color = contentColor,
-                        textStyle = contentTextStyle,
-                        content = content,
-                    )
-                },
-            )
-        }
+                    .padding(contentPadding),
+            verticalAlignment = verticalAlignment,
+            leading = {
+                LeadingDecorator(
+                    startPadding = contentPadding.calculateStartPadding(layoutDirection),
+                    color = leadingColor,
+                    textStyle = leadingTextStyle,
+                    content = leadingContent,
+                )
+            },
+            trailing = {
+                TrailingDecorator(
+                    endPadding = contentPadding.calculateEndPadding(layoutDirection),
+                    color = trailingColor,
+                    textStyle = trailingTextStyle,
+                    content = trailingContent,
+                )
+            },
+            overline = {
+                OverlineDecorator(
+                    color = overlineColor,
+                    textStyle = overlineTextStyle,
+                    content = overlineContent,
+                )
+            },
+            supporting = {
+                SupportingDecorator(
+                    color = supportingColor,
+                    textStyle = supportingTextStyle,
+                    content = supportingContent,
+                )
+            },
+            content = {
+                ContentDecorator(
+                    color = contentColor,
+                    textStyle = contentTextStyle,
+                    content = content,
+                )
+            },
+        )
     }
 }
 
 @Composable
 private fun InteractiveListItemLayout(
     modifier: Modifier,
-    alignmentBreakpoint: Dp,
+    verticalAlignment: Alignment.Vertical,
     leading: @Composable () -> Unit,
     trailing: @Composable () -> Unit,
     overline: @Composable () -> Unit,
@@ -1316,7 +1365,9 @@ private fun InteractiveListItemLayout(
     content: @Composable () -> Unit,
 ) {
     val measurePolicy =
-        remember(alignmentBreakpoint) { InteractiveListItemMeasurePolicy(alignmentBreakpoint) }
+        remember(verticalAlignment) {
+            InteractiveListItemMeasurePolicy(verticalAlignment = verticalAlignment)
+        }
     Layout(
         modifier = modifier,
         contents = listOf(leading, trailing, overline, supporting, content),
@@ -1324,7 +1375,7 @@ private fun InteractiveListItemLayout(
     )
 }
 
-private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
+private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.Vertical) :
     MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
@@ -1509,13 +1560,6 @@ private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
         supportingPlaceable: Placeable?,
     ): MeasureResult {
         return layout(width, height) {
-            val verticalAlignment =
-                if (height > alignmentBreakpoint.roundToPx()) {
-                    Alignment.Top
-                } else {
-                    Alignment.CenterVertically
-                }
-
             leadingPlaceable?.placeRelative(
                 x = 0,
                 y = verticalAlignment.align(leadingPlaceable.height, height),
@@ -1591,4 +1635,5 @@ internal val InteractiveListDisabledOpacity = 0.38f
  * How tall a list item needs to be before internal content is top-aligned instead of
  * center-aligned.
  */
-internal val InteractiveListVerticalAlignmentBreakpoint = 80.dp
+internal val InteractiveListVerticalAlignmentBreakpoint =
+    80.dp - InteractiveListTopPadding - InteractiveListBottomPadding

@@ -102,10 +102,13 @@ import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.GltfModelEntity.AnimationState
 import java.nio.file.Paths
 import java.time.Clock
 import kotlin.math.cos
@@ -130,6 +133,7 @@ class SpatialCompose : ComponentActivity() {
                         .depth(0.5.meters.toDp())
                         .offset(x = 1.meters.toDp(), z = -0.5.meters.toDp())
                 )
+                DragonEntity()
             }
         }
 
@@ -410,6 +414,57 @@ class SpatialCompose : ComponentActivity() {
         }
 
         SpatialAndroidViewPanel(factory = { textView }, modifier = modifier)
+    }
+
+    @Composable
+    fun DragonEntity() {
+        val session = LocalSession.current ?: return
+        val dragonModel = remember { mutableStateOf<GltfModel?>(null) }
+        val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
+        val dragonAnimationState = remember {
+            androidx.compose.runtime.mutableIntStateOf(AnimationState.STOPPED)
+        }
+        var entitySize by remember { mutableStateOf(FloatSize3d(1f, 1f, 1f)) }
+
+        // Actions to run once.
+        LaunchedEffect(Unit) {
+            dragonModel.value =
+                GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
+
+            dragonEntity.value =
+                GltfModelEntity.create(
+                    session,
+                    dragonModel.value!!,
+                    Pose(Vector3(1.0f, 0.0f, 0.0f), Quaternion.Identity),
+                )
+
+            dragonEntity.value?.let {
+                it.startAnimation(true, "Fast_Flying")
+                dragonAnimationState.intValue = it.animationState
+            }
+        }
+
+        // Actions to run continuously.
+        LaunchedEffect(dragonEntity.value, dragonAnimationState.intValue) {
+            val entity = dragonEntity.value
+            if (entity != null && dragonAnimationState.intValue == AnimationState.PLAYING) {
+                while (true) {
+                    entitySize = entity.getGltfModelBoundingBox().halfExtents.times(2f)
+
+                    delay(16L)
+                }
+            }
+        }
+
+        if (dragonEntity.value != null) {
+            SceneCoreEntity(
+                factory = { dragonEntity.value!! },
+                modifier =
+                    SubspaceModifier.width(entitySize.width.meters.toDp())
+                        .height(entitySize.height.meters.toDp())
+                        .depth(entitySize.depth.meters.toDp()),
+            )
+        }
     }
 
     @OptIn(ExperimentalSubspaceVolumeApi::class)

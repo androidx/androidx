@@ -22,6 +22,9 @@ import android.view.Surface;
 
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.xr.runtime.math.BoundingBox;
+import androidx.xr.runtime.math.FloatSize3d;
+import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec;
 import androidx.xr.scenecore.runtime.TextureSampler;
 
@@ -457,6 +460,26 @@ public final class ImpressApiImpl implements ImpressApi {
     @NonNull
     public ImpressNode createImpressNode() {
         return new ImpressNode(nCreateImpressNode(getViewNativeHandle(mView)));
+    }
+
+    @Override
+    @NonNull
+    public BoundingBox getGltfModelBoundingBox(@NonNull ImpressNode impressNode) {
+        float[] center = new float[3];
+        float[] halfExtents = new float[3];
+        nGetGltfModelLocalBounds(
+                getViewNativeHandle(mView),
+                impressNode.getHandle(),
+                center,
+                halfExtents
+        );
+
+        return BoundingBox.fromCenterAndHalfExtents(
+                // center
+                new Vector3(center[0], center[1], center[2]),
+                // halfExtents
+                new FloatSize3d(halfExtents[0], halfExtents[1], halfExtents[2])
+        );
     }
 
     @Override
@@ -1385,6 +1408,12 @@ public final class ImpressApiImpl implements ImpressApi {
             AssetAnimator assetAnimator);
 
     private static native void nStopGltfModelAnimation(long view, int impressNode);
+
+    private static native void nGetGltfModelLocalBounds(
+            long view,
+            int impressNode,
+            float[] outCenter,
+            float[] outHalfExtent);
 
     private static native int nCreateImpressNode(long view);
 

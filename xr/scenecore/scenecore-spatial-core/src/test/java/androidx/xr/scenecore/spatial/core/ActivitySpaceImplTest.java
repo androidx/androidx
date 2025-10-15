@@ -350,7 +350,7 @@ public final class ActivitySpaceImplTest extends SystemSpaceEntityImplTest {
 
         assertThat(resultBox).isNotNull();
         BoundingBox expectedBox =
-                new BoundingBox(
+                BoundingBox.fromMinMax(
                         new Vector3(-1.73f / 2, -1.61f / 2, -0.5f / 2),
                         new Vector3(1.73f / 2, 1.61f / 2, 0.5f / 2));
         assertThat(resultBox).isEqualTo(expectedBox);

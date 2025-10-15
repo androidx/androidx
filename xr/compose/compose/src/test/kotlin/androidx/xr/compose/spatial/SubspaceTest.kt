@@ -83,6 +83,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Entity
@@ -128,7 +129,7 @@ class SubspaceTest {
                 TestActivitySpace(
                     fakeRuntime.activitySpace,
                     recommendedContentBoxInFullSpace =
-                        BoundingBox(
+                        BoundingBox.fromMinMax(
                             min = Vector3(-widthMeters / 2, -heightMeters / 2, -depthMeters / 2),
                             max = Vector3(widthMeters / 2, heightMeters / 2, depthMeters / 2),
                         ),
@@ -1442,11 +1443,10 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_contentIsAnchoredToAPosition() {
+    fun anchoredSubspace_whenLocked_contentIsWorldPositionedCorrectly() {
         var session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
         composeTestRule.session = session.session
 
-        // Even though we are passing a pose here, this is not getting passed to FakeAnchorEntity
         val anchorResult = Anchor.create(session.session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
         val anchorEntity = AnchorEntity.create(session.session, anchor = success.anchor)
@@ -1463,14 +1463,55 @@ class SubspaceTest {
         val anchorWorldPose = anchorEntity.getPose(Space.REAL_WORLD)
         val panelWorldPose = panelEntity.getPose(Space.REAL_WORLD)
         assertThat(anchorWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
-        // The setPose of fake is not implemented rigidly
-        // TODO(b/448999330): check the panelWorldPose when fake setPose is fixed.
-        // assertThat(panelWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
+        assertThat(panelWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
 
         composeTestRule
             .onSubspaceNodeWithTag("panel")
             .assertExists()
             .assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
             .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
+    }
+
+    @Test
+    fun anchoredSubspace_whenAnchorChanges_anchorsToNewAnchor() {
+        var session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
+        composeTestRule.session = session.session
+
+        val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
+        val anchorResult = Anchor.create(session.session, initialPose)
+        val anchorEntity =
+            AnchorEntity.create(
+                session.session,
+                anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor,
+            )
+
+        val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
+        val updatedAnchorResult = Anchor.create(session.session, updatedPose)
+        val updatedAnchorEntity =
+            AnchorEntity.create(
+                session.session,
+                anchor = assertIs<AnchorCreateSuccess>(updatedAnchorResult).anchor,
+            )
+
+        val currentAnchorState = mutableStateOf(anchorEntity)
+
+        composeTestRule.setContentWithCompatibilityForXr {
+            val lockEntity = assertNotNull(currentAnchorState.value)
+            AnchoredSubspace(lockTo = lockEntity) {
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+            }
+        }
+
+        val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
+        val panelEntity = assertNotNull(panelNode.semanticsEntity)
+        assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(initialPose)
+        composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+
+        currentAnchorState.value = updatedAnchorEntity
+        composeTestRule.waitForIdle()
+
+        assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(updatedPose)
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
     }
 }

@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
 
 /** Interface for a XR Runtime [GltfEntity]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -60,6 +61,19 @@ public interface GltfEntity : Entity {
 
     // TODO: b/417750821 - Add an OnAnimationFinished() Listener interface
     //                     Add a getAnimationTimeRemaining() interface
+
+    // TODO: b/451424385 -GltfEntity.getGltfModelBoundingBox() becomes a Flow if the bounding box
+    //  can change during animation.
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
+     * model's local coordinate space.
+     *
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    public fun getGltfModelBoundingBox(): BoundingBox
 
     /** Specifies the current animation state of the [GltfEntity]. */
     public annotation class AnimationStateValue

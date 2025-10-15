@@ -127,6 +127,7 @@ package androidx.xr.scenecore.testing {
     method public void clearMaterialOverride(String nodeName, int primitiveIndex);
     method @InaccessibleFromKotlin public int getAnimationState();
     method @InaccessibleFromKotlin public final String? getCurrentAnimationName();
+    method public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin public final androidx.xr.scenecore.testing.FakeGltfEntity.Node getNode();
     method @InaccessibleFromKotlin public final java.util.List<java.lang.String> getSupportedAnimationNames();
     method @InaccessibleFromKotlin public final boolean isLooping();
@@ -154,11 +155,14 @@ package androidx.xr.scenecore.testing {
     ctor public FakeGltfFeature(androidx.xr.runtime.NodeHolder<? extends java.lang.Object?> nodeHolder);
     method public void clearMaterialOverride(String nodeName, int primitiveIndex);
     method @InaccessibleFromKotlin public int getAnimationState();
+    method public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getSize();
     method public void setColliderEnabled(boolean enableCollider);
     method public void setMaterialOverride(androidx.xr.scenecore.runtime.MaterialResource material, String nodeName, int primitiveIndex);
     method public void startAnimation(boolean loop, String? animationName, java.util.concurrent.Executor executor);
     method public void stopAnimation();
     property public int animationState;
+    property public androidx.xr.runtime.math.FloatSize3d size;
     field public static final androidx.xr.scenecore.testing.FakeGltfFeature.Companion Companion;
   }
 

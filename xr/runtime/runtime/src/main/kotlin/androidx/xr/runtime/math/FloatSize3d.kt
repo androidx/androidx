@@ -71,4 +71,18 @@ public class FloatSize3d(
     public operator fun times(scalar: Int): FloatSize3d {
         return this * scalar.toFloat()
     }
+
+    public companion object {
+        /**
+         * Creates a [FloatSize3d] from a [Vector3], using the Vector3's x, y, and z components as
+         * the width, height, and depth respectively.
+         *
+         * @param vector The source [Vector3].
+         * @return A new [FloatSize3d] instance.
+         */
+        @JvmStatic
+        public fun fromVector3(vector: Vector3): FloatSize3d {
+            return FloatSize3d(vector.x, vector.y, vector.z)
+        }
+    }
 }

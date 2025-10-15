@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core;
 
 import android.content.Context;
 
+import androidx.xr.runtime.math.BoundingBox;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.GltfEntity;
 import androidx.xr.scenecore.runtime.GltfFeature;
@@ -48,6 +49,12 @@ class GltfEntityImpl extends BaseRenderingEntity implements GltfEntity {
         super(context, feature, extensions, entityManager, executor);
         mFeature = feature;
         setParent(parentEntity);
+    }
+
+    @Override
+    @NonNull
+    public BoundingBox getGltfModelBoundingBox() {
+        return mFeature.getGltfModelBoundingBox();
     }
 
     @Override
