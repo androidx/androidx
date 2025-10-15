@@ -54,7 +54,7 @@ jobs:
         - language: python
           build-mode: none
         - language: swift
-          build-mode: autobuild
+          build-mode: manual
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -70,8 +70,12 @@ jobs:
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
-    # - name: Setup runtime (example)
-    #   uses: actions/setup-example@v1
+    - name: Setup Java
+      if: matrix.language == 'swift'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -92,7 +96,68 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual'
+    - if: matrix.build-mode == 'manual' && matrix.language == 'swift'
+      shell: bash
+      run: |
+        echo "Building Swift projects with manual build steps..."
+        
+        # Install XcodeGen if not already available
+        if ! command -v xcodegen &> /dev/null; then
+          echo "Installing XcodeGen..."
+          brew install xcodegen
+        fi
+        
+        # Build the required XCFrameworks first
+        echo "Building XCFrameworks..."
+        ./gradlew :tracing:tracing:embedAndSignAppleFrameworkForXcode --no-daemon
+        
+        # Build benchmark XCFrameworks
+        ./gradlew :benchmark:benchmark-darwin:assembleAndroidXDarwinBenchmarksReleaseXCFramework --no-daemon
+        
+        # Generate Xcode projects for Swift code analysis
+        echo "Generating Xcode projects..."
+        
+        # For tracing testapp-darwin
+        cd tracing/integration-tests/testapp-darwin
+        if [ -f "xcodegen.yml" ]; then
+          xcodegen generate
+          echo "Generated Xcode project for tracing testapp-darwin"
+          
+          # Build the Xcode project to ensure it compiles
+          if [ -d "testapp-darwin.xcodeproj" ]; then
+            xcodebuild -project testapp-darwin.xcodeproj -scheme App -configuration Debug build
+            echo "Built tracing testapp-darwin project"
+          fi
+        fi
+        cd ../../..
+        
+        # For benchmark projects
+        cd benchmark/benchmark-darwin-xcode
+        if [ -f "projects/collection-benchmark-ios.yml" ]; then
+          xcodegen generate --spec projects/collection-benchmark-ios.yml
+          echo "Generated Xcode project for collection-benchmark-ios"
+          
+          # Build the Xcode project to ensure it compiles
+          if [ -d "collection-benchmark-ios.xcodeproj" ]; then
+            xcodebuild -project collection-benchmark-ios.xcodeproj -scheme testapp-ios -configuration Debug build
+            echo "Built collection-benchmark-ios project"
+          fi
+        fi
+        if [ -f "projects/benchmark-darwin-samples-xcode.yml" ]; then
+          xcodegen generate --spec projects/benchmark-darwin-samples-xcode.yml
+          echo "Generated Xcode project for benchmark-darwin-samples-xcode"
+          
+          # Build the Xcode project to ensure it compiles
+          if [ -d "benchmark-darwin-samples-xcode.xcodeproj" ]; then
+            xcodebuild -project benchmark-darwin-samples-xcode.xcodeproj -scheme testapp-ios -configuration Debug build
+            echo "Built benchmark-darwin-samples-xcode project"
+          fi
+        fi
+        cd ../..
+        
+        echo "Swift build preparation completed successfully"
+
+    - if: matrix.build-mode == 'manual' && matrix.language != 'swift'
       shell: bash
       run: |
         echo 'If you are using a "manual" build mode for one or more of the' \
@@ -101,6 +166,10 @@ jobs:
         echo '  make bootstrap'
         echo '  make release'
         exit 1
+
+    - name: Make gradlew executable
+      if: matrix.language == 'swift'
+      run: chmod +x ./gradlew
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
