@@ -1,5 +1,14 @@
 buildscript {
-    project.ext.supportRootFolder = project.projectDir.getParentFile()
+    // For playground projects, use the workspace root as supportRootFolder
+    if (project.hasProperty('supportRootFolder')) {
+        project.ext.supportRootFolder = new File(project.property('supportRootFolder'))
+    } else if (System.getProperty('supportRootFolder') != null) {
+        project.ext.supportRootFolder = new File(System.getProperty('supportRootFolder'))
+    } else if (System.getenv('SUPPORT_ROOT_FOLDER') != null) {
+        project.ext.supportRootFolder = new File(System.getenv('SUPPORT_ROOT_FOLDER'))
+    } else {
+        project.ext.supportRootFolder = project.projectDir.getParentFile()
+    }
     apply from: "repos.gradle"
     repos.addMavenRepositories(repositories)
 
@@ -16,7 +25,16 @@ buildscript {
     }
 }
 
-ext.supportRootFolder = project.projectDir.getParentFile()
+// For playground projects, use the workspace root as supportRootFolder
+if (project.hasProperty('supportRootFolder')) {
+    ext.supportRootFolder = new File(project.property('supportRootFolder').toString())
+} else if (System.getProperty('supportRootFolder') != null) {
+    ext.supportRootFolder = new File(System.getProperty('supportRootFolder'))
+} else if (System.getenv('SUPPORT_ROOT_FOLDER') != null) {
+    ext.supportRootFolder = new File(System.getenv('SUPPORT_ROOT_FOLDER'))
+} else {
+    ext.supportRootFolder = project.projectDir.getParentFile()
+}
 apply from: "repos.gradle"
 apply plugin: "kotlin"
 

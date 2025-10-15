@@ -21,6 +21,10 @@ if (supportRootFolder == null) {
 }
 // Makes strong assumptions about the project structure.
 def checkoutRoot = supportRootFolder.parentFile.parentFile
+if (checkoutRoot == null) {
+    // For playground projects, use the supportRootFolder directly as checkoutRoot
+    checkoutRoot = supportRootFolder
+}
 
 ext.repos = new Properties()
 ext.repos.checkoutRoot = checkoutRoot.absolutePath
