@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.TextField
@@ -57,9 +59,10 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.KeyboardVisibilityObserver
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -625,6 +628,74 @@ internal class KeyboardInsetsTest {
         }
 
         assertEquals(screenSize.height - keyboardHeight, lastTextFieldFrame.bottom)
+    }
+
+    @Test
+    fun textInsetsInDialogWhenUseSoftwareKeyboardInsetEnabled() = runUIKitInstrumentedTest {
+        var frame: DpRect? = null
+        setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(
+                    usePlatformInsets = false,
+                    useSoftwareKeyboardInset = true,
+                    usePlatformDefaultWidth = false
+                ),
+                content = {
+                    Box(Modifier.fillMaxSize().statusBarsPadding().imePadding()) {
+                        BasicTextField(
+                            value = "",
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .onGloballyPositioned {
+                                    frame = it.boundsInWindow().toDpRect(density)
+                                }
+                                .testTag("TextField")
+                        )
+                    }
+                }
+            )
+        }
+
+        findNodeWithTag("TextField").tap()
+        waitForIdle()
+
+        assertEquals(expected = frame?.bottom, actual = screenSize.height - keyboardHeight)
+    }
+
+    @Test
+    fun textInsetsInDialogWhenUseSoftwareKeyboardInsetDisabled() = runUIKitInstrumentedTest {
+        var frame: DpRect? = null
+        setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(
+                    usePlatformInsets = false,
+                    useSoftwareKeyboardInset = false,
+                    usePlatformDefaultWidth = false
+                ),
+                content = {
+                    Box(Modifier.fillMaxSize().statusBarsPadding().imePadding()) {
+                        BasicTextField(
+                            value = "",
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .onGloballyPositioned {
+                                    frame = it.boundsInWindow().toDpRect(density)
+                                }
+                                .testTag("TextField")
+                        )
+                    }
+                }
+            )
+        }
+
+        findNodeWithTag("TextField").tap()
+        waitForIdle()
+
+        assertEquals(expected = frame?.bottom, actual = screenSize.height - keyboardHeight)
     }
 }
 
