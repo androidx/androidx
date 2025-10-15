@@ -3,6 +3,8 @@ on:
   push:
   pull_request:
 
+permissions: read-all
+
 env:
   # Allow precise monitoring of the save/restore of Gradle User Home by `gradle-build-action`
   # See https://github.com/marketplace/actions/gradle-build-action?version=v2.1.1#cache-debugging-and-analysis

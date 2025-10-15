@@ -4,6 +4,8 @@ on:
     workflows: ["AndroidX Presubmits"]
     types: [requested]
 
+permissions: read-all
+
 jobs:
   ping_androidx_dev:
     if: ${{ !github.event.repository.fork }}

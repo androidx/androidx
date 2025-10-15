@@ -15,9 +15,13 @@ on:
         required: false
         default: ''
         type: string
+
+permissions: read-all
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: "Checkout androidx repo"
         uses: actions/checkout@v4

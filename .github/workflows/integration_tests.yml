@@ -4,10 +4,14 @@ on:
     workflows: ["AndroidX Presubmits"]
     types: [completed]
 
+permissions: read-all
+
 jobs:
   run_integration_tests:
     runs-on: ubuntu-latest
     if: ${{ !github.event.repository.fork && github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
     name: Run integration tests on FTL
     steps:
       - name: Set up JDK 17
