@@ -39,6 +39,7 @@ package androidx.benchmark {
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class ExperimentalConfig {
     ctor public ExperimentalConfig();
     ctor public ExperimentalConfig(optional androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig, optional androidx.benchmark.StartupInsightsConfig? startupInsightsConfig);
+    ctor @BytecodeOnly public ExperimentalConfig(androidx.benchmark.perfetto.PerfettoConfig!, androidx.benchmark.StartupInsightsConfig!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.benchmark.perfetto.PerfettoConfig? getPerfettoConfig();
     method @InaccessibleFromKotlin public androidx.benchmark.StartupInsightsConfig? getStartupInsightsConfig();
     property public androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig;
@@ -57,6 +58,7 @@ package androidx.benchmark {
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class MicrobenchmarkConfig {
     ctor public MicrobenchmarkConfig();
+    ctor @BytecodeOnly public MicrobenchmarkConfig(java.util.List!, boolean, boolean, androidx.benchmark.ProfilerConfig!, Integer!, Integer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public MicrobenchmarkConfig(optional java.util.List<? extends androidx.benchmark.MetricCapture> metrics);
     ctor public MicrobenchmarkConfig(optional java.util.List<? extends androidx.benchmark.MetricCapture> metrics, optional boolean traceAppTagEnabled);
     ctor public MicrobenchmarkConfig(optional java.util.List<? extends androidx.benchmark.MetricCapture> metrics, optional boolean traceAppTagEnabled, optional boolean perfettoSdkTracingEnabled);
@@ -109,6 +111,7 @@ package androidx.benchmark {
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class TimeCapture extends androidx.benchmark.MetricCapture {
     ctor public TimeCapture();
     ctor public TimeCapture(optional String name);
+    ctor @BytecodeOnly public TimeCapture(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void capturePaused();
     method public void captureResumed();
     method public void captureStart(long timeNs);
@@ -144,6 +147,8 @@ package androidx.benchmark.traceprocessor {
   public final class PerfettoTraceKt {
     method @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record(androidx.benchmark.traceprocessor.PerfettoTrace.Companion, String fileLabel, androidx.benchmark.perfetto.PerfettoConfig config, optional String highlightPackage, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record(androidx.benchmark.traceprocessor.PerfettoTrace.Companion, String fileLabel, optional java.util.List<java.lang.String> appTagPackages, optional String? userspaceTracingPackage, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @BytecodeOnly @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record$default(androidx.benchmark.traceprocessor.PerfettoTrace.Companion!, String!, androidx.benchmark.perfetto.PerfettoConfig!, String!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @RequiresApi(23) @androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi public static void record$default(androidx.benchmark.traceprocessor.PerfettoTrace.Companion!, String!, java.util.List!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
 }

@@ -31,7 +31,9 @@ package androidx.wear.compose.foundation {
     method @KotlinOnly public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.compose.ui.text.style.TextOverflow overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
     method @KotlinOnly public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.compose.ui.text.style.TextOverflow overflow);
     method @BytecodeOnly public static void basicCurvedText-q1JGhlM(androidx.wear.compose.foundation.CurvedScope, String, androidx.wear.compose.foundation.CurvedTextStyle, androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.CurvedDirection.Angular?, int);
+    method @BytecodeOnly public static void basicCurvedText-q1JGhlM$default(androidx.wear.compose.foundation.CurvedScope!, String!, androidx.wear.compose.foundation.CurvedTextStyle!, androidx.wear.compose.foundation.CurvedModifier!, androidx.wear.compose.foundation.CurvedDirection.Angular!, int, int, Object!);
     method @BytecodeOnly public static void basicCurvedText-zBu2efk(androidx.wear.compose.foundation.CurvedScope, String, androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.CurvedDirection.Angular?, int, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,androidx.wear.compose.foundation.CurvedTextStyle!>);
+    method @BytecodeOnly public static void basicCurvedText-zBu2efk$default(androidx.wear.compose.foundation.CurvedScope!, String!, androidx.wear.compose.foundation.CurvedModifier!, androidx.wear.compose.foundation.CurvedDirection.Angular!, int, kotlin.jvm.functions.Function2!, int, Object!);
   }
 
   public final class BasicSwipeToDismissBoxKt {
@@ -41,6 +43,7 @@ package androidx.wear.compose.foundation {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void BasicSwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, androidx.wear.compose.foundation.SwipeToDismissBoxState?, Object?, Object?, boolean, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.layout.BoxScope!,? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly public static androidx.compose.ui.Modifier edgeSwipeToDismiss(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.SwipeToDismissBoxState swipeToDismissBoxState, optional androidx.compose.ui.unit.Dp edgeWidth);
     method @BytecodeOnly public static androidx.compose.ui.Modifier edgeSwipeToDismiss-wH6b6FI(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.SwipeToDismissBoxState, float);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! edgeSwipeToDismiss-wH6b6FI$default(androidx.compose.ui.Modifier!, androidx.wear.compose.foundation.SwipeToDismissBoxState!, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.SwipeToDismissBoxState rememberSwipeToDismissBoxState(androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue!,java.lang.Boolean!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.SwipeToDismissBoxState rememberSwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
   }
@@ -96,17 +99,21 @@ package androidx.wear.compose.foundation {
   public final class CurvedBoxKt {
     method @KotlinOnly public static void curvedBox(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
     method @BytecodeOnly public static void curvedBox-wFQxHJU(androidx.wear.compose.foundation.CurvedScope, androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.CurvedAlignment.Radial?, androidx.wear.compose.foundation.CurvedAlignment.Angular?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope!,kotlin.Unit!>);
+    method @BytecodeOnly public static void curvedBox-wFQxHJU$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, androidx.wear.compose.foundation.CurvedAlignment.Radial!, androidx.wear.compose.foundation.CurvedAlignment.Angular!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class CurvedColumnKt {
     method @KotlinOnly public static void curvedColumn(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Radial? radialDirection, optional androidx.wear.compose.foundation.CurvedAlignment.Angular? angularAlignment, kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
     method @BytecodeOnly public static void curvedColumn-6v4VuIY(androidx.wear.compose.foundation.CurvedScope, androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.CurvedDirection.Radial?, androidx.wear.compose.foundation.CurvedAlignment.Angular?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope!,kotlin.Unit!>);
+    method @BytecodeOnly public static void curvedColumn-6v4VuIY$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, androidx.wear.compose.foundation.CurvedDirection.Radial!, androidx.wear.compose.foundation.CurvedAlignment.Angular!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class CurvedComposableKt {
     method @KotlinOnly public static void curvedComposable(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial radialAlignment, optional boolean rotationLocked, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @BytecodeOnly @Deprecated public static void curvedComposable-E6nutXQ(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, float, kotlin.jvm.functions.Function3!);
+    method @BytecodeOnly @Deprecated public static void curvedComposable-E6nutXQ$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, float, kotlin.jvm.functions.Function3!, int, Object!);
     method @BytecodeOnly public static void curvedComposable-y9Iwo_o(androidx.wear.compose.foundation.CurvedScope, androidx.wear.compose.foundation.CurvedModifier, float, boolean, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.BoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void curvedComposable-y9Iwo_o$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, float, boolean, kotlin.jvm.functions.Function3!, int, Object!);
   }
 
   public interface CurvedDirection {
@@ -147,12 +154,17 @@ package androidx.wear.compose.foundation {
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>... colorStops, optional androidx.compose.ui.graphics.StrokeCap cap);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground-dtTnAaA(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color!>, int);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground-dtTnAaA(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float!,androidx.compose.ui.graphics.Color!>![], int);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! angularGradientBackground-dtTnAaA$default(androidx.wear.compose.foundation.CurvedModifier!, java.util.List!, int, int, Object!);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! angularGradientBackground-dtTnAaA$default(androidx.wear.compose.foundation.CurvedModifier!, kotlin.Pair![]!, int, int, Object!);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier background(androidx.wear.compose.foundation.CurvedModifier, androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.StrokeCap cap);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier background-nkY6TQo(androidx.wear.compose.foundation.CurvedModifier, long, int);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! background-nkY6TQo$default(androidx.wear.compose.foundation.CurvedModifier!, long, int, int, Object!);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional androidx.compose.ui.graphics.StrokeCap cap);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>... colorStops, optional androidx.compose.ui.graphics.StrokeCap cap);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground-dtTnAaA(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color!>, int);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground-dtTnAaA(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float!,androidx.compose.ui.graphics.Color!>![], int);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! radialGradientBackground-dtTnAaA$default(androidx.wear.compose.foundation.CurvedModifier!, java.util.List!, int, int, Object!);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! radialGradientBackground-dtTnAaA$default(androidx.wear.compose.foundation.CurvedModifier!, kotlin.Pair![]!, int, int, Object!);
   }
 
   public final class CurvedLayoutKt {
@@ -174,13 +186,17 @@ package androidx.wear.compose.foundation {
     method @KotlinOnly public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional androidx.compose.ui.unit.Dp outer, optional androidx.compose.ui.unit.Dp inner, optional androidx.compose.ui.unit.Dp before, optional androidx.compose.ui.unit.Dp after);
     method @BytecodeOnly public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues-0680j_4(float);
     method @BytecodeOnly public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues-YgX7TsA(float, float);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.ArcPaddingValues! ArcPaddingValues-YgX7TsA$default(float, float, int, Object!);
     method @BytecodeOnly public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues-a9UjIt4(float, float, float, float);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.ArcPaddingValues! ArcPaddingValues-a9UjIt4$default(float, float, float, float, int, Object!);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional androidx.compose.ui.unit.Dp all);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional androidx.compose.ui.unit.Dp radial, optional androidx.compose.ui.unit.Dp angular);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, androidx.compose.ui.unit.Dp outer, androidx.compose.ui.unit.Dp inner, androidx.compose.ui.unit.Dp before, androidx.compose.ui.unit.Dp after);
     method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.ArcPaddingValues paddingValues);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier padding-3ABfNKs(androidx.wear.compose.foundation.CurvedModifier, float);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! padding-3ABfNKs$default(androidx.wear.compose.foundation.CurvedModifier!, float, int, Object!);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier padding-VpY3zN4(androidx.wear.compose.foundation.CurvedModifier, float, float);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! padding-VpY3zN4$default(androidx.wear.compose.foundation.CurvedModifier!, float, float, int, Object!);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier padding-qDBjuR0(androidx.wear.compose.foundation.CurvedModifier, float, float, float, float);
   }
 
@@ -192,6 +208,7 @@ package androidx.wear.compose.foundation {
   public final class CurvedRowKt {
     method @KotlinOnly public static void curvedRow(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedAlignment.Radial? radialAlignment, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> contentBuilder);
     method @BytecodeOnly public static void curvedRow-siNV5iY(androidx.wear.compose.foundation.CurvedScope, androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.CurvedAlignment.Radial?, androidx.wear.compose.foundation.CurvedDirection.Angular?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope!,kotlin.Unit!>);
+    method @BytecodeOnly public static void curvedRow-siNV5iY$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedModifier!, androidx.wear.compose.foundation.CurvedAlignment.Radial!, androidx.wear.compose.foundation.CurvedDirection.Angular!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class CurvedScope {
@@ -222,23 +239,34 @@ package androidx.wear.compose.foundation {
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier size-wH6b6FI(androidx.wear.compose.foundation.CurvedModifier, @FloatRange(from=0.0, to=360.0) float, float);
     method @KotlinOnly public static androidx.wear.compose.foundation.CurvedModifier sizeIn(androidx.wear.compose.foundation.CurvedModifier, optional @FloatRange(from=0.0, to=360.0) float minSweepDegrees, optional @FloatRange(from=0.0, to=360.0) float maxSweepDegrees, optional androidx.compose.ui.unit.Dp minThickness, optional androidx.compose.ui.unit.Dp maxThickness);
     method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier sizeIn-oZzcvok(androidx.wear.compose.foundation.CurvedModifier, @FloatRange(from=0.0, to=360.0) float, @FloatRange(from=0.0, to=360.0) float, float, float);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedModifier! sizeIn-oZzcvok$default(androidx.wear.compose.foundation.CurvedModifier!, float, float, float, float, int, Object!);
   }
 
   public final class CurvedTextStyle {
     ctor public CurvedTextStyle();
     ctor @KotlinOnly public CurvedTextStyle(optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.unit.TextUnit letterSpacing, optional androidx.compose.ui.unit.TextUnit letterSpacingCounterClockwise, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.wear.compose.foundation.CurvedTextStyle.WarpOffset warpOffset);
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
+    ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, byte, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, byte, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public CurvedTextStyle(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public CurvedTextStyle(long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public CurvedTextStyle(long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.wear.compose.foundation.CurvedTextStyle copy(optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.unit.TextUnit letterSpacing, optional androidx.compose.ui.unit.TextUnit letterSpacingCounterClockwise, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.wear.compose.foundation.CurvedTextStyle.WarpOffset warpOffset);
     method @BytecodeOnly @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle! copy-MF-8BNI(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long);
+    method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.CurvedTextStyle! copy-MF-8BNI$default(androidx.wear.compose.foundation.CurvedTextStyle!, long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, int, Object!);
     method @BytecodeOnly public androidx.wear.compose.foundation.CurvedTextStyle copy-cDbMonc(long, long, long, androidx.compose.ui.text.font.FontFamily?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontSynthesis?, long, long, long, byte);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedTextStyle! copy-cDbMonc$default(androidx.wear.compose.foundation.CurvedTextStyle!, long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, byte, int, Object!);
     method @BytecodeOnly @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle! copy-rRnh6Vg(long, long, long);
+    method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.CurvedTextStyle! copy-rRnh6Vg$default(androidx.wear.compose.foundation.CurvedTextStyle!, long, long, long, int, Object!);
     method @BytecodeOnly @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle! copy-xgAEyWg(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!);
+    method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.CurvedTextStyle! copy-xgAEyWg$default(androidx.wear.compose.foundation.CurvedTextStyle!, long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, int, Object!);
     method @BytecodeOnly @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle! copy-zt0DKyk(long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long);
+    method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.CurvedTextStyle! copy-zt0DKyk$default(androidx.wear.compose.foundation.CurvedTextStyle!, long, long, long, androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, long, long, long, int, Object!);
     method @BytecodeOnly public long getBackground-0d7_KjU();
     method @BytecodeOnly public long getColor-0d7_KjU();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontFamily? getFontFamily();
@@ -251,6 +279,7 @@ package androidx.wear.compose.foundation {
     method @BytecodeOnly public long getLineHeight-XSAIIZE();
     method @BytecodeOnly public byte getWarpOffset-5xPYRZc();
     method public androidx.wear.compose.foundation.CurvedTextStyle merge(optional androidx.wear.compose.foundation.CurvedTextStyle? other);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.CurvedTextStyle! merge$default(androidx.wear.compose.foundation.CurvedTextStyle!, androidx.wear.compose.foundation.CurvedTextStyle!, int, Object!);
     method public operator androidx.wear.compose.foundation.CurvedTextStyle plus(androidx.wear.compose.foundation.CurvedTextStyle other);
     property public androidx.compose.ui.graphics.Color background;
     property public androidx.compose.ui.graphics.Color color;
@@ -305,10 +334,13 @@ package androidx.wear.compose.foundation {
   public final class ExpandableKt {
     method public static void expandableButton(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState state, optional Object? key, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly public static void expandableButton(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState, Object?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void expandableButton$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, androidx.wear.compose.foundation.ExpandableState!, Object!, kotlin.jvm.functions.Function2!, int, Object!);
     method public static void expandableItem(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState state, optional Object? key, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> content);
     method @BytecodeOnly public static void expandableItem(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState, Object?, kotlin.jvm.functions.Function3<? super java.lang.Boolean!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void expandableItem$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, androidx.wear.compose.foundation.ExpandableState!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
     method public static void expandableItems(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState state, int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Integer,kotlin.Unit> itemContent);
     method @BytecodeOnly public static void expandableItems(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, androidx.wear.compose.foundation.ExpandableState, int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.compose.foundation.layout.BoxScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void expandableItems$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, androidx.wear.compose.foundation.ExpandableState!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.ExpandableState rememberExpandableState(optional boolean initiallyExpanded, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.ExpandableState rememberExpandableState(boolean, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static <T> androidx.wear.compose.foundation.ExpandableStateMapping<T!> rememberExpandableStateMapping(kotlin.jvm.functions.Function1<? super T!,java.lang.Boolean!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
@@ -465,6 +497,7 @@ package androidx.wear.compose.foundation {
 
   @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
     ctor public SwipeToDismissBoxState();
+    ctor @BytecodeOnly public SwipeToDismissBoxState(androidx.compose.animation.core.AnimationSpec!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.SwipeToDismissValue getCurrentValue();
     method @InaccessibleFromKotlin public float getOffset();
@@ -490,6 +523,7 @@ package androidx.wear.compose.foundation {
 
   @Deprecated @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class SwipeToRevealDefaults {
     method @Deprecated public androidx.wear.compose.foundation.GestureInclusion gestureInclusion(androidx.wear.compose.foundation.RevealState state, optional @FloatRange(from=0.0, to=1.0) float edgeZoneFraction);
+    method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.GestureInclusion! gestureInclusion$default(androidx.wear.compose.foundation.SwipeToRevealDefaults!, androidx.wear.compose.foundation.RevealState!, float, int, Object!);
     method @InaccessibleFromKotlin @Deprecated public androidx.wear.compose.foundation.GestureInclusion getBidirectionalGestureInclusion();
     method @InaccessibleFromKotlin @Deprecated public float getLeftEdgeZoneFraction();
     method @InaccessibleFromKotlin @Deprecated public kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> getPositionalThreshold();
@@ -506,6 +540,7 @@ package androidx.wear.compose.foundation {
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void SwipeToReveal(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.wear.compose.foundation.RevealState?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.wear.compose.foundation.GestureInclusion?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> createRevealAnchors(optional float coveredAnchor, optional float revealingAnchor, optional float revealedAnchor, optional androidx.wear.compose.foundation.RevealDirection revealDirection);
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map<androidx.wear.compose.foundation.RevealValue!,java.lang.Float!> createRevealAnchors-j8aLdyg(float, float, float, int);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map! createRevealAnchors-j8aLdyg$default(float, float, float, int, int, Object!);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional androidx.wear.compose.foundation.RevealValue initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.RevealValue,java.lang.Boolean> confirmValueChange, optional kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> positionalThreshold, optional java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> anchors);
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.wear.compose.foundation.RevealState rememberRevealState-jPjcZH0(int, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealValue!,java.lang.Boolean!>?, kotlin.jvm.functions.Function1<? super java.lang.Float!,java.lang.Float!>?, java.util.Map<androidx.wear.compose.foundation.RevealValue!,java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
   }
@@ -517,10 +552,12 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
     ctor public AutoCenteringParams();
     ctor public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
+    ctor @BytecodeOnly public AutoCenteringParams(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class ScalingLazyColumnDefaults {
     method public androidx.wear.compose.foundation.lazy.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
+    method @BytecodeOnly public static androidx.wear.compose.foundation.lazy.ScalingParams! scalingParams$default(androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults!, float, float, float, float, float, float, androidx.compose.animation.core.Easing!, kotlin.jvm.functions.Function1!, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.ui.unit.Dp snapOffset, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior-uFdPcIQ(androidx.wear.compose.foundation.lazy.ScalingLazyListState, float, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults INSTANCE;
@@ -535,10 +572,14 @@ package androidx.wear.compose.foundation.lazy {
     method @BytecodeOnly public static <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method public static inline <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T![], kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, Object![]!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
+    method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function5<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super java.lang.Integer!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T![], kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function5<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super java.lang.Integer!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void itemsIndexed$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, Object![]!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
+    method @BytecodeOnly public static void itemsIndexed$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {
@@ -575,8 +616,11 @@ package androidx.wear.compose.foundation.lazy {
 
   @androidx.compose.runtime.Stable @androidx.wear.compose.foundation.lazy.ScalingLazyScopeMarker public sealed interface ScalingLazyListItemScope {
     method public androidx.compose.ui.Modifier fillParentMaxHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! fillParentMaxHeight$default(androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!, androidx.compose.ui.Modifier!, float, int, Object!);
     method public androidx.compose.ui.Modifier fillParentMaxSize(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! fillParentMaxSize$default(androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!, androidx.compose.ui.Modifier!, float, int, Object!);
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! fillParentMaxWidth$default(androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!, androidx.compose.ui.Modifier!, float, int, Object!);
   }
 
   public sealed interface ScalingLazyListLayoutInfo {
@@ -609,14 +653,18 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.wear.compose.foundation.lazy.ScalingLazyScopeMarker public sealed interface ScalingLazyListScope {
     method public void item(optional Object? key, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,kotlin.Unit> content);
     method @BytecodeOnly public void item(Object?, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void item$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
     method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.ScalingLazyListScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public ScalingLazyListState();
     ctor public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
+    ctor @BytecodeOnly public ScalingLazyListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCenterItemIndex();
     method @InaccessibleFromKotlin public int getCenterItemScrollOffset();
@@ -624,6 +672,7 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollToItem$default(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property public int centerItemIndex;
@@ -670,12 +719,15 @@ package androidx.wear.compose.foundation.lazy {
   public final class TransformingLazyColumnDslKt {
     method public static inline <T> void items(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void items(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>, kotlin.jvm.functions.Function5<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super java.lang.Integer!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void itemsIndexed$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
   }
 
   @androidx.wear.compose.foundation.lazy.TransformingLazyColumnScopeMarker public sealed interface TransformingLazyColumnItemScope {
     method public androidx.compose.ui.Modifier animateItem(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeInSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? placementSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeOutSpec);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! animateItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!, androidx.compose.ui.Modifier!, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
     method @BytecodeOnly public long getScrollProgress-CyslRjo(androidx.compose.ui.graphics.drawscope.DrawScope);
     method @BytecodeOnly public long getScrollProgress-CyslRjo(androidx.compose.ui.graphics.GraphicsLayerScope);
     method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
@@ -728,8 +780,10 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.wear.compose.foundation.lazy.TransformingLazyColumnScopeMarker public sealed interface TransformingLazyColumnScope {
     method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,kotlin.Unit> content);
     method @BytecodeOnly public void item(Object?, Object?, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void item$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!, Object!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,kotlin.Unit> content);
     method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   @kotlin.DslMarker public @interface TransformingLazyColumnScopeMarker {
@@ -738,15 +792,19 @@ package androidx.wear.compose.foundation.lazy {
   @androidx.compose.runtime.Stable public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public TransformingLazyColumnState();
     ctor public TransformingLazyColumnState(optional int initialAnchorItemIndex, optional int initialAnchorItemScrollOffset);
+    ctor @BytecodeOnly public TransformingLazyColumnState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getAnchorItemIndex();
     method @InaccessibleFromKotlin public int getAnchorItemScrollOffset();
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.lazy.TransformingLazyColumnLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
+    method @BytecodeOnly public static void requestScrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, int, Object!);
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public int anchorItemIndex;
     property public int anchorItemScrollOffset;
     property public boolean canScrollBackward;
@@ -817,8 +875,10 @@ package androidx.wear.compose.foundation.pager {
   }
 
   public final class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor @BytecodeOnly public PagerState(int, float, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, @IntRange(from=1L) kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
     method public suspend Object? animateScrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToPage$default(androidx.wear.compose.foundation.pager.PagerState!, int, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCurrentPage();
     method @InaccessibleFromKotlin public float getCurrentPageOffsetFraction();
@@ -830,6 +890,7 @@ package androidx.wear.compose.foundation.pager {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollToPage$default(androidx.wear.compose.foundation.pager.PagerState!, int, float, kotlin.coroutines.Continuation!, int, Object!);
     property public int currentPage;
     property public float currentPageOffsetFraction;
     property public androidx.compose.foundation.interaction.InteractionSource interactionSource;
@@ -874,6 +935,8 @@ package androidx.wear.compose.foundation.rotary {
   public final class RotaryScrollableKt {
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.Modifier! rotaryScrollable(androidx.compose.ui.Modifier!, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior!, androidx.compose.ui.focus.FocusRequester!, boolean);
     method public static androidx.compose.ui.Modifier rotaryScrollable(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior, androidx.compose.ui.focus.FocusRequester focusRequester, optional boolean reverseDirection, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! rotaryScrollable$default(androidx.compose.ui.Modifier!, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior!, androidx.compose.ui.focus.FocusRequester!, boolean, androidx.compose.foundation.OverscrollEffect!, int, Object!);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.Modifier! rotaryScrollable$default(androidx.compose.ui.Modifier!, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior!, androidx.compose.ui.focus.FocusRequester!, boolean, int, Object!);
   }
 
   public interface RotarySnapLayoutInfoProvider {

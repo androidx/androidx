@@ -33,6 +33,7 @@ package androidx.wear.phone.interactions.authentication {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
     ctor public CodeVerifier();
     ctor public CodeVerifier(optional int byteLength);
+    ctor @BytecodeOnly public CodeVerifier(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public CodeVerifier(String value);
     method @InaccessibleFromKotlin public String getValue();
     property public String value;

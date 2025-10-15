@@ -173,6 +173,7 @@ package androidx.sqlite.db {
 
   public static final class SupportSQLiteOpenHelper.Configuration {
     ctor public SupportSQLiteOpenHelper.Configuration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback, optional boolean useNoBackupDirectory, optional boolean allowDataLossOnRecovery);
+    ctor @BytecodeOnly public SupportSQLiteOpenHelper.Configuration(android.content.Context!, String!, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback!, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
     property public boolean allowDataLossOnRecovery;
     property public androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;

@@ -27,6 +27,8 @@ package androidx.xr.runtime {
     ctor public Config(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation);
     ctor public Config(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence);
     ctor public Config(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.Config.FaceTrackingMode faceTracking);
+    ctor @BytecodeOnly public Config(androidx.xr.runtime.Config.PlaneTrackingMode!, androidx.xr.runtime.Config.HandTrackingMode!, androidx.xr.runtime.Config.HeadTrackingMode!, androidx.xr.runtime.Config.DepthEstimationMode!, androidx.xr.runtime.Config.AnchorPersistenceMode!, androidx.xr.runtime.Config.FaceTrackingMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Config(androidx.xr.runtime.Config.PlaneTrackingMode!, java.util.List!, androidx.xr.runtime.Config.HandTrackingMode!, androidx.xr.runtime.Config.DeviceTrackingMode!, androidx.xr.runtime.Config.DepthEstimationMode!, androidx.xr.runtime.Config.AnchorPersistenceMode!, androidx.xr.runtime.Config.FaceTrackingMode!, androidx.xr.runtime.Config.GeospatialMode!, androidx.xr.runtime.Config.EyeTrackingMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Config(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional java.util.List<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.Config.FaceTrackingMode faceTracking, optional androidx.xr.runtime.Config.GeospatialMode geospatial, optional androidx.xr.runtime.Config.EyeTrackingMode eyeTracking);
     method public androidx.xr.runtime.Config copy();
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking);
@@ -35,6 +37,8 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking);
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation);
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.Config.HandTrackingMode handTracking, optional androidx.xr.runtime.Config.HeadTrackingMode headTracking, optional androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence);
+    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.Config.PlaneTrackingMode!, androidx.xr.runtime.Config.HandTrackingMode!, androidx.xr.runtime.Config.DeviceTrackingMode!, androidx.xr.runtime.Config.DepthEstimationMode!, androidx.xr.runtime.Config.AnchorPersistenceMode!, androidx.xr.runtime.Config.FaceTrackingMode!, androidx.xr.runtime.Config.GeospatialMode!, java.util.List!, androidx.xr.runtime.Config.EyeTrackingMode!, int, Object!);
+    method @BytecodeOnly public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.Config.PlaneTrackingMode!, androidx.xr.runtime.Config.HandTrackingMode!, androidx.xr.runtime.Config.HeadTrackingMode!, androidx.xr.runtime.Config.DepthEstimationMode!, androidx.xr.runtime.Config.AnchorPersistenceMode!, int, Object!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config.AnchorPersistenceMode getAnchorPersistence();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.runtime.AugmentedObjectCategory> getAugmentedObjectCategories();
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config.DepthEstimationMode getDepthEstimation();
@@ -204,6 +208,7 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight);
     method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp);
     method public androidx.xr.runtime.FieldOfView copy(optional float angleLeft, optional float angleRight, optional float angleUp, optional float angleDown);
+    method @BytecodeOnly public static androidx.xr.runtime.FieldOfView! copy$default(androidx.xr.runtime.FieldOfView!, float, float, float, float, int, Object!);
     method @InaccessibleFromKotlin public float getAngleDown();
     method @InaccessibleFromKotlin public float getAngleLeft();
     method @InaccessibleFromKotlin public float getAngleRight();
@@ -229,6 +234,7 @@ package androidx.xr.runtime {
 
   public final class Session {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity);
+    ctor @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity!, java.util.List!, java.util.List!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors, optional java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
@@ -262,6 +268,9 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, androidx.lifecycle.LifecycleOwner lifecycleOwner, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.SessionCreateResult create(android.app.Activity activity, optional kotlin.coroutines.CoroutineContext coroutineContext, optional boolean unscaledGravityAlignedActivitySpace);
+    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.app.Activity!, androidx.lifecycle.LifecycleOwner!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @BytecodeOnly @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.app.Activity!, kotlin.coroutines.CoroutineContext!, boolean, int, Object!);
+    method @BytecodeOnly public static androidx.xr.runtime.SessionCreateResult! create$default(androidx.xr.runtime.Session.Companion!, android.app.Activity!, kotlin.coroutines.CoroutineContext!, int, Object!);
   }
 
   public final class SessionConfigureCalibrationRequired extends androidx.xr.runtime.SessionConfigureResult {
@@ -422,6 +431,7 @@ package androidx.xr.runtime.internal {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GooglePlayServicesLocationLibraryNotLinkedException extends androidx.xr.runtime.internal.LifecycleException {
     ctor public GooglePlayServicesLocationLibraryNotLinkedException();
     ctor public GooglePlayServicesLocationLibraryNotLinkedException(optional Throwable? cause);
+    ctor @BytecodeOnly public GooglePlayServicesLocationLibraryNotLinkedException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface JxrRuntime {
@@ -437,6 +447,7 @@ package androidx.xr.runtime.internal {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LifecycleException extends java.lang.Exception {
     ctor public LifecycleException(String message, optional Throwable? cause);
+    ctor @BytecodeOnly public LifecycleException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface LifecycleManager {
@@ -486,6 +497,7 @@ package androidx.xr.runtime.math {
   public final class FloatSize2d {
     ctor public FloatSize2d();
     ctor public FloatSize2d(optional float width, optional float height);
+    ctor @BytecodeOnly public FloatSize2d(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public operator androidx.xr.runtime.math.FloatSize2d div(float divisor);
     method public operator androidx.xr.runtime.math.FloatSize2d div(int divisor);
     method @InaccessibleFromKotlin public float getHeight();
@@ -493,6 +505,7 @@ package androidx.xr.runtime.math {
     method public operator androidx.xr.runtime.math.FloatSize2d times(float scalar);
     method public operator androidx.xr.runtime.math.FloatSize2d times(int scalar);
     method public androidx.xr.runtime.math.FloatSize3d to3d(optional float depth);
+    method @BytecodeOnly public static androidx.xr.runtime.math.FloatSize3d! to3d$default(androidx.xr.runtime.math.FloatSize2d!, float, int, Object!);
     property public float height;
     property public float width;
   }
@@ -500,6 +513,7 @@ package androidx.xr.runtime.math {
   public final class FloatSize3d {
     ctor public FloatSize3d();
     ctor public FloatSize3d(optional float width, optional float height, optional float depth);
+    ctor @BytecodeOnly public FloatSize3d(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public operator androidx.xr.runtime.math.FloatSize3d div(float divisor);
     method public operator androidx.xr.runtime.math.FloatSize3d div(int divisor);
     method @InaccessibleFromKotlin public float getDepth();
@@ -516,6 +530,7 @@ package androidx.xr.runtime.math {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GeospatialPose {
     ctor public GeospatialPose();
     ctor public GeospatialPose(optional double latitude, optional double longitude, optional double altitude, optional androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);
+    ctor @BytecodeOnly public GeospatialPose(double, double, double, androidx.xr.runtime.math.Quaternion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public double getAltitude();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quaternion getEastUpSouthQuaternion();
     method @InaccessibleFromKotlin public double getLatitude();
@@ -529,6 +544,7 @@ package androidx.xr.runtime.math {
   public final class IntSize2d {
     ctor public IntSize2d();
     ctor public IntSize2d(optional int width, optional int height);
+    ctor @BytecodeOnly public IntSize2d(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getHeight();
     method @InaccessibleFromKotlin public int getWidth();
     property public int height;
@@ -546,6 +562,7 @@ package androidx.xr.runtime.math {
     ctor public Matrix3(androidx.xr.runtime.math.Matrix3 other);
     ctor public Matrix3(float[] dataToCopy);
     method public androidx.xr.runtime.math.Matrix3 copy(optional float[] data);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Matrix3! copy$default(androidx.xr.runtime.math.Matrix3!, float[]!, int, Object!);
     method public static androidx.xr.runtime.math.Matrix3 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
     method public static androidx.xr.runtime.math.Matrix3 fromScale(androidx.xr.runtime.math.Vector3 scale);
     method public static androidx.xr.runtime.math.Matrix3 fromScale(float scale);
@@ -579,6 +596,7 @@ package androidx.xr.runtime.math {
     ctor public Matrix4(androidx.xr.runtime.math.Matrix4 other);
     ctor public Matrix4(float[] dataToCopy);
     method public androidx.xr.runtime.math.Matrix4 copy(optional float[] data);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Matrix4! copy$default(androidx.xr.runtime.math.Matrix4!, float[]!, int, Object!);
     method public static androidx.xr.runtime.math.Matrix4 fromPose(androidx.xr.runtime.math.Pose pose);
     method public static androidx.xr.runtime.math.Matrix4 fromQuaternion(androidx.xr.runtime.math.Quaternion quaternion);
     method public static androidx.xr.runtime.math.Matrix4 fromScale(androidx.xr.runtime.math.Vector3 scale);
@@ -624,10 +642,12 @@ package androidx.xr.runtime.math {
     ctor public Pose(androidx.xr.runtime.math.Pose other);
     ctor public Pose(optional androidx.xr.runtime.math.Vector3 translation);
     ctor public Pose(optional androidx.xr.runtime.math.Vector3 translation, optional androidx.xr.runtime.math.Quaternion rotation);
+    ctor @BytecodeOnly public Pose(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Quaternion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public infix androidx.xr.runtime.math.Pose compose(androidx.xr.runtime.math.Pose other);
     method public androidx.xr.runtime.math.Pose copy();
     method public androidx.xr.runtime.math.Pose copy(optional androidx.xr.runtime.math.Vector3 translation);
     method public androidx.xr.runtime.math.Pose copy(optional androidx.xr.runtime.math.Vector3 translation, optional androidx.xr.runtime.math.Quaternion rotation);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Pose! copy$default(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Quaternion!, int, Object!);
     method public static float distance(androidx.xr.runtime.math.Pose lhs, androidx.xr.runtime.math.Pose rhs);
     method public static androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target);
     method public static androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target, optional androidx.xr.runtime.math.Vector3 up);
@@ -662,6 +682,7 @@ package androidx.xr.runtime.math {
     method public float distance(androidx.xr.runtime.math.Pose lhs, androidx.xr.runtime.math.Pose rhs);
     method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target);
     method public androidx.xr.runtime.math.Pose fromLookAt(androidx.xr.runtime.math.Vector3 eye, androidx.xr.runtime.math.Vector3 target, optional androidx.xr.runtime.math.Vector3 up);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Pose! fromLookAt$default(androidx.xr.runtime.math.Pose.Companion!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, Object!);
     method public androidx.xr.runtime.math.Pose lerp(androidx.xr.runtime.math.Pose start, androidx.xr.runtime.math.Pose end, float ratio);
     property public androidx.xr.runtime.math.Pose Identity;
   }
@@ -673,12 +694,14 @@ package androidx.xr.runtime.math {
     ctor public Quaternion(optional float x, optional float y);
     ctor public Quaternion(optional float x, optional float y, optional float z);
     ctor public Quaternion(optional float x, optional float y, optional float z, optional float w);
+    ctor @BytecodeOnly public Quaternion(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static float angle(androidx.xr.runtime.math.Quaternion start, androidx.xr.runtime.math.Quaternion end);
     method public androidx.xr.runtime.math.Quaternion copy();
     method public androidx.xr.runtime.math.Quaternion copy(optional float x);
     method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y);
     method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y, optional float z);
     method public androidx.xr.runtime.math.Quaternion copy(optional float x, optional float y, optional float z, optional float w);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Quaternion! copy$default(androidx.xr.runtime.math.Quaternion!, float, float, float, float, int, Object!);
     method public operator androidx.xr.runtime.math.Quaternion div(float c);
     method public inline infix float dot(androidx.xr.runtime.math.Quaternion other);
     method public static float dot(androidx.xr.runtime.math.Quaternion lhs, androidx.xr.runtime.math.Quaternion rhs);
@@ -733,6 +756,7 @@ package androidx.xr.runtime.math {
     ctor public Ray();
     ctor public Ray(androidx.xr.runtime.math.Ray other);
     ctor public Ray(optional androidx.xr.runtime.math.Vector3 origin, optional androidx.xr.runtime.math.Vector3 direction);
+    ctor @BytecodeOnly public Ray(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getDirection();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getOrigin();
     property public androidx.xr.runtime.math.Vector3 direction;
@@ -744,12 +768,14 @@ package androidx.xr.runtime.math {
     ctor public Vector2(androidx.xr.runtime.math.Vector2 other);
     ctor public Vector2(optional float x);
     ctor public Vector2(optional float x, optional float y);
+    ctor @BytecodeOnly public Vector2(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.xr.runtime.math.Vector2 abs(androidx.xr.runtime.math.Vector2 vector);
     method public static float angularDistance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
     method public androidx.xr.runtime.math.Vector2 clamp(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
     method public inline androidx.xr.runtime.math.Vector2 copy();
     method public inline androidx.xr.runtime.math.Vector2 copy(optional float x);
     method public inline androidx.xr.runtime.math.Vector2 copy(optional float x, optional float y);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector2! copy$default(androidx.xr.runtime.math.Vector2!, float, float, int, Object!);
     method public inline infix float cross(androidx.xr.runtime.math.Vector2 other);
     method public static float distance(androidx.xr.runtime.math.Vector2 vector1, androidx.xr.runtime.math.Vector2 vector2);
     method public inline operator androidx.xr.runtime.math.Vector2 div(float c);
@@ -798,6 +824,7 @@ package androidx.xr.runtime.math {
     ctor public Vector3(optional float x);
     ctor public Vector3(optional float x, optional float y);
     ctor public Vector3(optional float x, optional float y, optional float z);
+    ctor @BytecodeOnly public Vector3(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.xr.runtime.math.Vector3 abs(androidx.xr.runtime.math.Vector3 vector);
     method public static float angleBetween(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
     method public androidx.xr.runtime.math.Vector3 clamp(androidx.xr.runtime.math.Vector3 min, androidx.xr.runtime.math.Vector3 max);
@@ -805,6 +832,7 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Vector3 copy(optional float x);
     method public androidx.xr.runtime.math.Vector3 copy(optional float x, optional float y);
     method public androidx.xr.runtime.math.Vector3 copy(optional float x, optional float y, optional float z);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector3! copy$default(androidx.xr.runtime.math.Vector3!, float, float, float, int, Object!);
     method public infix androidx.xr.runtime.math.Vector3 cross(androidx.xr.runtime.math.Vector3 other);
     method public static float distance(androidx.xr.runtime.math.Vector3 vector1, androidx.xr.runtime.math.Vector3 vector2);
     method public operator androidx.xr.runtime.math.Vector3 div(float c);
@@ -868,6 +896,7 @@ package androidx.xr.runtime.math {
     ctor public Vector4(optional float x, optional float y);
     ctor public Vector4(optional float x, optional float y, optional float z);
     ctor public Vector4(optional float x, optional float y, optional float z, optional float w);
+    ctor @BytecodeOnly public Vector4(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.xr.runtime.math.Vector4 abs(androidx.xr.runtime.math.Vector4 vector);
     method public static float angleBetween(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
     method public androidx.xr.runtime.math.Vector4 clamp(androidx.xr.runtime.math.Vector4 min, androidx.xr.runtime.math.Vector4 max);
@@ -876,6 +905,7 @@ package androidx.xr.runtime.math {
     method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y);
     method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y, optional float z);
     method public androidx.xr.runtime.math.Vector4 copy(optional float x, optional float y, optional float z, optional float w);
+    method @BytecodeOnly public static androidx.xr.runtime.math.Vector4! copy$default(androidx.xr.runtime.math.Vector4!, float, float, float, float, int, Object!);
     method public static float distance(androidx.xr.runtime.math.Vector4 vector1, androidx.xr.runtime.math.Vector4 vector2);
     method public operator androidx.xr.runtime.math.Vector4 div(float c);
     method public infix float dot(androidx.xr.runtime.math.Vector4 other);

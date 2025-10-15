@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AddedMethod: androidx.wear.phone.interactions.authentication.CodeVerifier#CodeVerifier(int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.wear.phone.interactions.authentication.CodeVerifier(int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.wear.phone.interactions.authentication.OAuthResponse#OAuthResponse(int, android.net.Uri, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.wear.phone.interactions.authentication.OAuthResponse(int,android.net.Uri,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
 RemovedFromKotlin: androidx.wear.phone.interactions.authentication.CodeChallenge#getValue():
     Source breaking change: method androidx.wear.phone.interactions.authentication.CodeChallenge.getValue() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.wear.phone.interactions.authentication.CodeVerifier#getValue():

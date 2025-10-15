@@ -3,6 +3,7 @@ package androidx.privacysandbox.ondevicepersonalization.client {
 
   public final class ExecuteInIsolatedServiceRequest {
     ctor public ExecuteInIsolatedServiceRequest(android.content.ComponentName service, optional android.os.PersistableBundle appParams);
+    ctor @BytecodeOnly public ExecuteInIsolatedServiceRequest(android.content.ComponentName!, android.os.PersistableBundle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public android.os.PersistableBundle getAppParams();
     method @InaccessibleFromKotlin public android.content.ComponentName getService();
     property public android.os.PersistableBundle appParams;

@@ -2,6 +2,7 @@
 package androidx.compose.ui.test.junit4 {
 
   public final class AndroidComposeTestRule<R extends org.junit.rules.TestRule, A extends androidx.activity.ComponentActivity> implements androidx.compose.ui.test.junit4.ComposeContentTestRule {
+    ctor @BytecodeOnly public AndroidComposeTestRule(org.junit.rules.TestRule!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AndroidComposeTestRule(R activityRule, optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     ctor public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
@@ -41,10 +42,14 @@ package androidx.compose.ui.test.junit4 {
     method public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass);
     method public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext);
     method @KotlinOnly public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly public static androidx.compose.ui.test.junit4.AndroidComposeTestRule! createAndroidComposeRule$default(Class!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.ui.test.junit4.AndroidComposeTestRule! createAndroidComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
     method public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule();
     method public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly public static androidx.compose.ui.test.junit4.ComposeContentTestRule! createComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
     method public static androidx.compose.ui.test.junit4.ComposeTestRule createEmptyComposeRule();
     method public static androidx.compose.ui.test.junit4.ComposeTestRule createEmptyComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly public static androidx.compose.ui.test.junit4.ComposeTestRule! createEmptyComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ComposeContentTestRule extends androidx.compose.ui.test.junit4.ComposeTestRule {
@@ -63,10 +68,16 @@ package androidx.compose.ui.test.junit4 {
     method public void waitForIdle();
     method public default void waitUntil(String conditionDescription, optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
     method public void waitUntil(optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
+    method @BytecodeOnly public static void waitUntil$default(androidx.compose.ui.test.junit4.ComposeTestRule!, String!, long, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static void waitUntil$default(androidx.compose.ui.test.junit4.ComposeTestRule!, long, kotlin.jvm.functions.Function0!, int, Object!);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilAtLeastOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilAtLeastOneExists$default(androidx.compose.ui.test.junit4.ComposeTestRule!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilDoesNotExist(androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilDoesNotExist$default(androidx.compose.ui.test.junit4.ComposeTestRule!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilExactlyOneExists(androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilExactlyOneExists$default(androidx.compose.ui.test.junit4.ComposeTestRule!, androidx.compose.ui.test.SemanticsMatcher!, long, int, Object!);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void waitUntilNodeCount(androidx.compose.ui.test.SemanticsMatcher matcher, int count, optional long timeoutMillis);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilNodeCount$default(androidx.compose.ui.test.junit4.ComposeTestRule!, androidx.compose.ui.test.SemanticsMatcher!, int, long, int, Object!);
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.test.MainTestClock mainClock;
   }

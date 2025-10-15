@@ -24,7 +24,9 @@ package androidx.constraintlayout.compose {
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed class BaseKeyFrameScope {
     method protected final <E extends androidx.constraintlayout.compose.NamedPropertyOrValue> kotlin.properties.ObservableProperty<E> addNameOnPropertyChange(E initialValue, optional String? nameOverride);
+    method @BytecodeOnly public static kotlin.properties.ObservableProperty! addNameOnPropertyChange$default(androidx.constraintlayout.compose.BaseKeyFrameScope!, androidx.constraintlayout.compose.NamedPropertyOrValue!, String!, int, Object!);
     method protected final <T> kotlin.properties.ObservableProperty<T> addOnPropertyChange(T initialValue, optional String? nameOverride);
+    method @BytecodeOnly public static kotlin.properties.ObservableProperty! addOnPropertyChange$default(androidx.constraintlayout.compose.BaseKeyFrameScope!, Object!, String!, int, Object!);
   }
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public abstract sealed class BaseKeyFramesScope {
@@ -38,6 +40,8 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor, float, float);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.BaselineAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.BaselineAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class ChainStyle {
@@ -65,8 +69,10 @@ package androidx.constraintlayout.compose {
     method public void centerAround(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor);
     method public void centerAround(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor anchor);
     method public void centerHorizontallyTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other, optional @FloatRange(from=0.0, to=1.0) float bias);
+    method @BytecodeOnly public static void centerHorizontallyTo$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, float, int, Object!);
     method public void centerTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other);
     method public void centerVerticallyTo(androidx.constraintlayout.compose.ConstrainedLayoutReference other, optional @FloatRange(from=0.0, to=1.0) float bias);
+    method @BytecodeOnly public static void centerVerticallyTo$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, float, int, Object!);
     method @KotlinOnly public void circular(androidx.constraintlayout.compose.ConstrainedLayoutReference other, float angle, androidx.compose.ui.unit.Dp distance);
     method @BytecodeOnly public void circular-wH6b6FI(androidx.constraintlayout.compose.ConstrainedLayoutReference, float, float);
     method public void clearConstraints();
@@ -103,7 +109,10 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor start, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor end, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional @FloatRange(from=0.0, to=1.0) float bias);
     method @BytecodeOnly public void linkTo-8ZKsbrE(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float, float, float, @FloatRange(from=0.0, to=1.0) float);
     method @BytecodeOnly public void linkTo-8ZKsbrE(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float, float, float, @FloatRange(from=0.0, to=1.0) float);
+    method @BytecodeOnly public static void linkTo-8ZKsbrE$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, float, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-8ZKsbrE$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, float, float, float, float, float, int, Object!);
     method @BytecodeOnly public void linkTo-R7zmacU(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float, float, float, float, float, float, float, @FloatRange(from=0.0, to=1.0) float, @FloatRange(from=0.0, to=1.0) float);
+    method @BytecodeOnly public static void linkTo-R7zmacU$default(androidx.constraintlayout.compose.ConstrainScope!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, float, float, float, float, float, float, float, float, int, Object!);
     method public void resetDimensions();
     method public void resetTransforms();
     method @InaccessibleFromKotlin public void setAlpha(float);
@@ -179,22 +188,31 @@ package androidx.constraintlayout.compose {
     method public final androidx.constraintlayout.compose.VerticalChainScope constrain(androidx.constraintlayout.compose.VerticalChainReference ref, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.VerticalChainScope,kotlin.Unit> constrainBlock);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteLeftBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createAbsoluteLeftBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createAbsoluteRightBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createAbsoluteRightBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createBottomBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! createBottomBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createColumn(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp spacing, optional float[] weights);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createColumn-lG28NQ4(androidx.constraintlayout.compose.LayoutReference![], float, float[]);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createColumn-lG28NQ4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, float[]!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createEndBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createEndBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp paddingLeft, optional androidx.compose.ui.unit.Dp paddingTop, optional androidx.compose.ui.unit.Dp paddingRight, optional androidx.compose.ui.unit.Dp paddingBottom, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp paddingHorizontal, optional androidx.compose.ui.unit.Dp paddingVertical, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow(androidx.constraintlayout.compose.LayoutReference?... elements, optional boolean flowVertically, optional androidx.compose.ui.unit.Dp verticalGap, optional androidx.compose.ui.unit.Dp horizontalGap, optional int maxElement, optional androidx.compose.ui.unit.Dp padding, optional androidx.constraintlayout.compose.Wrap wrapMode, optional androidx.constraintlayout.compose.VerticalAlign verticalAlign, optional androidx.constraintlayout.compose.HorizontalAlign horizontalAlign, optional float horizontalFlowBias, optional float verticalFlowBias, optional androidx.constraintlayout.compose.FlowStyle verticalStyle, optional androidx.constraintlayout.compose.FlowStyle horizontalStyle);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-6oEtc9w(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-6oEtc9w$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-Fgo90cY(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, float, float, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-Fgo90cY$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, float, float, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createFlow-IkjhEj4(androidx.constraintlayout.compose.LayoutReference![], boolean, float, float, int, float, androidx.constraintlayout.compose.Wrap, androidx.constraintlayout.compose.VerticalAlign, androidx.constraintlayout.compose.HorizontalAlign, float, float, androidx.constraintlayout.compose.FlowStyle, androidx.constraintlayout.compose.FlowStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createFlow-IkjhEj4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, boolean, float, float, int, float, androidx.constraintlayout.compose.Wrap!, androidx.constraintlayout.compose.VerticalAlign!, androidx.constraintlayout.compose.HorizontalAlign!, float, float, androidx.constraintlayout.compose.FlowStyle!, androidx.constraintlayout.compose.FlowStyle!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createGrid(androidx.constraintlayout.compose.LayoutReference... elements, @IntRange(from=1L) int rows, @IntRange(from=1L) int columns, optional boolean isHorizontalArrangement, optional androidx.compose.ui.unit.Dp verticalSpacing, optional androidx.compose.ui.unit.Dp horizontalSpacing, optional float[] rowWeights, optional float[] columnWeights, optional androidx.constraintlayout.compose.Skip[] skips, optional androidx.constraintlayout.compose.Span[] spans, optional androidx.constraintlayout.compose.GridFlag flags);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createGrid-Hu23Yyw(androidx.constraintlayout.compose.LayoutReference![], @IntRange(from=1L) int, @IntRange(from=1L) int, boolean, float, float, float[], float[], androidx.constraintlayout.compose.Skip![], androidx.constraintlayout.compose.Span![], int);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createGrid-Hu23Yyw$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, int, int, boolean, float, float, float[]!, float[]!, androidx.constraintlayout.compose.Skip![]!, androidx.constraintlayout.compose.Span![]!, int, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft(androidx.compose.ui.unit.Dp offset);
     method public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft(float fraction);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createGuidelineFromAbsoluteLeft-0680j_4(float);
@@ -214,13 +232,18 @@ package androidx.constraintlayout.compose {
     method public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop(float fraction);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createGuidelineFromTop-0680j_4(float);
     method public final androidx.constraintlayout.compose.HorizontalChainReference createHorizontalChain(androidx.constraintlayout.compose.LayoutReference[] elements, optional androidx.constraintlayout.compose.ChainStyle chainStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.HorizontalChainReference! createHorizontalChain$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, androidx.constraintlayout.compose.ChainStyle!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createRow(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp spacing, optional float[] weights);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstrainedLayoutReference createRow-lG28NQ4(androidx.constraintlayout.compose.LayoutReference![], float, float[]);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstrainedLayoutReference! createRow-lG28NQ4$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, float[]!, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor createStartBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! createStartBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier(androidx.constraintlayout.compose.LayoutReference... elements, optional androidx.compose.ui.unit.Dp margin);
     method @BytecodeOnly public final androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor createTopBarrier-3ABfNKs(androidx.constraintlayout.compose.LayoutReference![], float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! createTopBarrier-3ABfNKs$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, float, int, Object!);
     method public final androidx.constraintlayout.compose.VerticalChainReference createVerticalChain(androidx.constraintlayout.compose.LayoutReference[] elements, optional androidx.constraintlayout.compose.ChainStyle chainStyle);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.VerticalChainReference! createVerticalChain$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference![]!, androidx.constraintlayout.compose.ChainStyle!, int, Object!);
     method @BytecodeOnly @kotlin.PublishedApi internal final androidx.constraintlayout.core.parser.CLObject getContainerObject();
     method @BytecodeOnly @kotlin.PublishedApi internal final int getHelpersHashCode();
     method @InaccessibleFromKotlin @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> getTasks();
@@ -228,10 +251,13 @@ package androidx.constraintlayout.compose {
     method @BytecodeOnly @kotlin.PublishedApi internal final void setHelpersHashCode(int);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withChainParams-ouYQatA(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withChainParams-ouYQatA$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, float, float, float, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withHorizontalChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp startMargin, optional androidx.compose.ui.unit.Dp endMargin, optional androidx.compose.ui.unit.Dp startGoneMargin, optional androidx.compose.ui.unit.Dp endGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withHorizontalChainParams-YLPp7PM(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withHorizontalChainParams-YLPp7PM$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, int, Object!);
     method @KotlinOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams(androidx.constraintlayout.compose.LayoutReference, optional androidx.compose.ui.unit.Dp topMargin, optional androidx.compose.ui.unit.Dp bottomMargin, optional androidx.compose.ui.unit.Dp topGoneMargin, optional androidx.compose.ui.unit.Dp bottomGoneMargin, optional float weight);
     method @BytecodeOnly public final androidx.constraintlayout.compose.LayoutReference withVerticalChainParams-YLPp7PM(androidx.constraintlayout.compose.LayoutReference, float, float, float, float, float);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.LayoutReference! withVerticalChainParams-YLPp7PM$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope!, androidx.constraintlayout.compose.LayoutReference!, float, float, float, float, float, int, Object!);
     property @kotlin.PublishedApi internal final androidx.constraintlayout.core.parser.CLObject containerObject;
     property @kotlin.PublishedApi internal final int helpersHashCode;
     property @Deprecated protected final java.util.List<kotlin.jvm.functions.Function1<androidx.constraintlayout.compose.State,kotlin.Unit>> tasks;
@@ -242,6 +268,7 @@ package androidx.constraintlayout.compose {
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.BaselineAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component2();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor copy(optional Object id, optional androidx.constraintlayout.compose.LayoutReference reference);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, Object!, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
@@ -249,6 +276,7 @@ package androidx.constraintlayout.compose {
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.HorizontalAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component3();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor copy(optional Object id, optional int index, optional androidx.constraintlayout.compose.LayoutReference reference);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, Object!, int, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
@@ -256,6 +284,7 @@ package androidx.constraintlayout.compose {
   @androidx.compose.runtime.Stable public static final class ConstraintLayoutBaseScope.VerticalAnchor {
     method public androidx.constraintlayout.compose.LayoutReference component3();
     method public androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor copy(optional Object id, optional int index, optional androidx.constraintlayout.compose.LayoutReference reference);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor! copy$default(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, Object!, int, androidx.constraintlayout.compose.LayoutReference!, int, Object!);
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.LayoutReference getReference();
     property public androidx.constraintlayout.compose.LayoutReference reference;
   }
@@ -329,6 +358,7 @@ package androidx.constraintlayout.compose {
     method @InaccessibleFromKotlin public static Object? getConstraintLayoutId(androidx.compose.ui.layout.Measurable);
     method @InaccessibleFromKotlin public static Object? getConstraintLayoutTag(androidx.compose.ui.layout.Measurable);
     method public static androidx.compose.ui.Modifier layoutId(androidx.compose.ui.Modifier, String layoutId, optional String? tag);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! layoutId$default(androidx.compose.ui.Modifier!, String!, String!, int, Object!);
     property public static Object? androidx.compose.ui.layout.Measurable.constraintLayoutId;
     property public static Object? androidx.compose.ui.layout.Measurable.constraintLayoutTag;
   }
@@ -362,6 +392,7 @@ package androidx.constraintlayout.compose {
 
   public final class ConstraintSetRef {
     method public androidx.constraintlayout.compose.ConstraintSetRef copy(optional String name);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! copy$default(androidx.constraintlayout.compose.ConstraintSetRef!, String!, int, Object!);
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker public final class ConstraintSetScope extends androidx.constraintlayout.compose.ConstraintLayoutBaseScope {
@@ -405,6 +436,7 @@ package androidx.constraintlayout.compose {
     ctor @KotlinOnly public DebugFlags(optional boolean showBounds, optional boolean showPaths, optional boolean showKeyPositions);
     method @BytecodeOnly public static androidx.constraintlayout.compose.DebugFlags! box-impl(int);
     method @BytecodeOnly public static int constructor-impl(boolean, boolean, boolean);
+    method @BytecodeOnly public static int constructor-impl$default(boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public static boolean getShowBounds-impl(int);
     method @BytecodeOnly public static boolean getShowKeyPositions-impl(int);
     method @BytecodeOnly public static boolean getShowPaths-impl(int);
@@ -559,6 +591,8 @@ package androidx.constraintlayout.compose {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor, float, float);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.HorizontalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.BaselineAnchor!, float, float, int, Object!);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.HorizontalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.HorizontalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class HorizontalChainReference extends androidx.constraintlayout.compose.LayoutReference {
@@ -586,6 +620,7 @@ package androidx.constraintlayout.compose {
   }
 
   public final class InvalidationStrategy {
+    ctor @BytecodeOnly public InvalidationStrategy(kotlin.jvm.functions.Function3!, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public InvalidationStrategy(optional kotlin.jvm.functions.Function3<? super androidx.constraintlayout.compose.InvalidationStrategySpecification,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.Constraints,java.lang.Boolean>? onIncomingConstraints, kotlin.jvm.functions.Function0<kotlin.Unit>? onObservedStateChange);
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function3<androidx.constraintlayout.compose.InvalidationStrategySpecification,androidx.compose.ui.unit.Constraints,androidx.compose.ui.unit.Constraints,java.lang.Boolean>? getOnIncomingConstraints();
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnObservedStateChange();
@@ -915,8 +950,11 @@ package androidx.constraintlayout.compose {
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class MotionSceneScope {
     method public androidx.constraintlayout.compose.ConstraintSetRef addConstraintSet(androidx.constraintlayout.compose.ConstraintSet constraintSet, optional String? name);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! addConstraintSet$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSet!, String!, int, Object!);
     method public void addTransition(androidx.constraintlayout.compose.Transition transition, optional String? name);
+    method @BytecodeOnly public static void addTransition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.Transition!, String!, int, Object!);
     method public androidx.constraintlayout.compose.ConstraintSetRef constraintSet(optional String? name, optional androidx.constraintlayout.compose.ConstraintSetRef? extendConstraintSet, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.ConstraintSetScope,kotlin.Unit> constraintSetContent);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.ConstraintSetRef! constraintSet$default(androidx.constraintlayout.compose.MotionSceneScope!, String!, androidx.constraintlayout.compose.ConstraintSetRef!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.constraintlayout.compose.ConstrainedLayoutReference createRefFor(Object id);
     method public androidx.constraintlayout.compose.MotionSceneScope.ConstrainedLayoutReferences createRefsFor(java.lang.Object... ids);
     method @KotlinOnly public void customColor(androidx.constraintlayout.compose.ConstrainScope, String name, androidx.compose.ui.graphics.Color value);
@@ -936,9 +974,11 @@ package androidx.constraintlayout.compose {
     method public void customInt(androidx.constraintlayout.compose.ConstrainScope, String name, int value);
     method public void customInt(androidx.constraintlayout.compose.KeyAttributeScope, String name, int value);
     method public void defaultTransition(androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, optional kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
+    method @BytecodeOnly public static void defaultTransition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSetRef!, androidx.constraintlayout.compose.ConstraintSetRef!, kotlin.jvm.functions.Function1!, int, Object!);
     method @InaccessibleFromKotlin public float getStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope);
     method @InaccessibleFromKotlin public void setStaggeredWeight(androidx.constraintlayout.compose.ConstrainScope, float);
     method public void transition(androidx.constraintlayout.compose.ConstraintSetRef from, androidx.constraintlayout.compose.ConstraintSetRef to, optional String? name, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> transitionContent);
+    method @BytecodeOnly public static void transition$default(androidx.constraintlayout.compose.MotionSceneScope!, androidx.constraintlayout.compose.ConstraintSetRef!, androidx.constraintlayout.compose.ConstraintSetRef!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     property public float androidx.constraintlayout.compose.ConstrainScope.staggeredWeight;
   }
 
@@ -967,6 +1007,7 @@ package androidx.constraintlayout.compose {
 
   @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public final class OnSwipe {
     ctor public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference anchor, androidx.constraintlayout.compose.SwipeSide side, androidx.constraintlayout.compose.SwipeDirection direction, optional float dragScale, optional float dragThreshold, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? dragAround, optional androidx.constraintlayout.compose.ConstrainedLayoutReference? limitBoundsTo, optional androidx.constraintlayout.compose.SwipeTouchUp onTouchUp, optional androidx.constraintlayout.compose.SwipeMode mode);
+    ctor @BytecodeOnly public OnSwipe(androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeSide!, androidx.constraintlayout.compose.SwipeDirection!, float, float, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.ConstrainedLayoutReference!, androidx.constraintlayout.compose.SwipeTouchUp!, androidx.constraintlayout.compose.SwipeMode!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference getAnchor();
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeDirection getDirection();
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.ConstrainedLayoutReference? getDragAround();
@@ -1095,7 +1136,9 @@ package androidx.constraintlayout.compose {
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeMode getSpring();
     method @InaccessibleFromKotlin public androidx.constraintlayout.compose.SwipeMode getVelocity();
     method public androidx.constraintlayout.compose.SwipeMode spring(optional float mass, optional float stiffness, optional float damping, optional float threshold, optional androidx.constraintlayout.compose.SpringBoundary boundary);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.SwipeMode! spring$default(androidx.constraintlayout.compose.SwipeMode.Companion!, float, float, float, float, androidx.constraintlayout.compose.SpringBoundary!, int, Object!);
     method public androidx.constraintlayout.compose.SwipeMode velocity(optional float maxVelocity, optional float maxAcceleration);
+    method @BytecodeOnly public static androidx.constraintlayout.compose.SwipeMode! velocity$default(androidx.constraintlayout.compose.SwipeMode.Companion!, float, float, int, Object!);
     property public androidx.constraintlayout.compose.SwipeMode Spring;
     property public androidx.constraintlayout.compose.SwipeMode Velocity;
   }
@@ -1180,6 +1223,7 @@ package androidx.constraintlayout.compose {
 
   public final class TransitionScopeKt {
     method @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition Transition(optional String from, optional String to, kotlin.jvm.functions.Function1<? super androidx.constraintlayout.compose.TransitionScope,kotlin.Unit> content);
+    method @BytecodeOnly @SuppressCompatibility @androidx.constraintlayout.compose.ExperimentalMotionApi public static androidx.constraintlayout.compose.Transition! Transition$default(String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class VerticalAlign {
@@ -1200,6 +1244,7 @@ package androidx.constraintlayout.compose {
   @kotlin.jvm.JvmDefaultWithCompatibility public interface VerticalAnchorable {
     method @KotlinOnly public void linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor anchor, optional androidx.compose.ui.unit.Dp margin, optional androidx.compose.ui.unit.Dp goneMargin);
     method @BytecodeOnly public void linkTo-VpY3zN4(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float);
+    method @BytecodeOnly public static void linkTo-VpY3zN4$default(androidx.constraintlayout.compose.VerticalAnchorable!, androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor!, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class VerticalChainReference extends androidx.constraintlayout.compose.LayoutReference {

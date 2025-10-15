@@ -445,6 +445,7 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseCapabilities {
+    ctor @BytecodeOnly public ExerciseCapabilities(java.util.Map!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseCapabilities(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities);
     ctor public ExerciseCapabilities(java.util.Map<androidx.health.services.client.data.ExerciseType,androidx.health.services.client.data.ExerciseTypeCapabilities> typeToCapabilities, optional java.util.Set<androidx.health.services.client.data.BatchingMode> supportedBatchingModeOverrides);
     method @InaccessibleFromKotlin public java.util.Set<androidx.health.services.client.data.ExerciseType> getAutoPauseAndResumeEnabledExercises();
@@ -459,6 +460,7 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
+    ctor @BytecodeOnly public ExerciseConfig(androidx.health.services.client.data.ExerciseType!, java.util.Set!, boolean, boolean, java.util.List!, android.os.Bundle!, float, androidx.health.services.client.data.ExerciseTypeConfig!, java.util.Set!, java.util.Set!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals);
     ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object?>> exerciseGoals, optional android.os.Bundle exerciseParams);
@@ -842,6 +844,7 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseTypeCapabilities {
+    ctor @BytecodeOnly public ExerciseTypeCapabilities(java.util.Set!, java.util.Map!, java.util.Map!, boolean, java.util.Map!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, optional java.util.Map<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>,? extends androidx.health.services.client.data.ExerciseEventCapabilities> exerciseEventCapabilities);
     ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume, optional java.util.Map<androidx.health.services.client.data.ExerciseEventType<? extends java.lang.Object?>,? extends androidx.health.services.client.data.ExerciseEventCapabilities> exerciseEventCapabilities, optional java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object?,? extends java.lang.Object?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedDebouncedGoals);
@@ -904,6 +907,7 @@ package androidx.health.services.client.data {
   public final class GolfExerciseTypeConfig extends androidx.health.services.client.data.ExerciseTypeConfig {
     ctor public GolfExerciseTypeConfig();
     ctor public GolfExerciseTypeConfig(optional androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo);
+    ctor @BytecodeOnly public GolfExerciseTypeConfig(androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
     property public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;
   }
@@ -1011,6 +1015,7 @@ package androidx.health.services.client.data {
   }
 
   public final class IntervalDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
+    ctor @BytecodeOnly public IntervalDataPoint(androidx.health.services.client.data.DataType!, Object!, java.time.Duration!, java.time.Duration!, android.os.Bundle!, androidx.health.services.client.data.DataPointAccuracy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public IntervalDataPoint(androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> dataType, T value, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle metadata, optional androidx.health.services.client.data.DataPointAccuracy? accuracy);
     method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
     method @InaccessibleFromKotlin public androidx.health.services.client.data.DataType<T,? extends androidx.health.services.client.data.IntervalDataPoint<T>> getDataType();
@@ -1030,6 +1035,7 @@ package androidx.health.services.client.data {
 
   public final class LocationAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
     ctor public LocationAccuracy(@FloatRange(from=0.0) double horizontalPositionErrorMeters, optional @FloatRange(from=0.0) double verticalPositionErrorMeters);
+    ctor @BytecodeOnly public LocationAccuracy(double, double, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public double getHorizontalPositionErrorMeters();
     method @InaccessibleFromKotlin public double getVerticalPositionErrorMeters();
     property public double horizontalPositionErrorMeters;
@@ -1067,6 +1073,7 @@ package androidx.health.services.client.data {
 
   public final class LocationData {
     ctor public LocationData(@FloatRange(from=-90.0, to=90.0) double latitude, @FloatRange(from=-180.0, to=180.0) double longitude, optional double altitude, optional double bearing);
+    ctor @BytecodeOnly public LocationData(double, double, double, double, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public double getAltitude();
     method @InaccessibleFromKotlin public double getBearing();
     method @InaccessibleFromKotlin public double getLatitude();
@@ -1153,6 +1160,7 @@ package androidx.health.services.client.data {
   }
 
   public final class SampleDataPoint<T> extends androidx.health.services.client.data.DataPoint<T> {
+    ctor @BytecodeOnly public SampleDataPoint(androidx.health.services.client.data.DataType!, Object!, java.time.Duration!, android.os.Bundle!, androidx.health.services.client.data.DataPointAccuracy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SampleDataPoint(androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> dataType, T value, java.time.Duration timeDurationFromBoot, optional android.os.Bundle metadata, optional androidx.health.services.client.data.DataPointAccuracy? accuracy);
     method @InaccessibleFromKotlin public androidx.health.services.client.data.DataPointAccuracy? getAccuracy();
     method @InaccessibleFromKotlin public androidx.health.services.client.data.DataType<T,androidx.health.services.client.data.SampleDataPoint<T>> getDataType();

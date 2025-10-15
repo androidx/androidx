@@ -5,6 +5,7 @@ package androidx.lifecycle.testing {
     ctor public TestLifecycleOwner();
     ctor public TestLifecycleOwner(optional androidx.lifecycle.Lifecycle.State initialState);
     ctor public TestLifecycleOwner(optional androidx.lifecycle.Lifecycle.State initialState, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor @BytecodeOnly public TestLifecycleOwner(androidx.lifecycle.Lifecycle.State!, kotlinx.coroutines.CoroutineDispatcher!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getCurrentState();
     method @InaccessibleFromKotlin public androidx.lifecycle.LifecycleRegistry getLifecycle();
     method @InaccessibleFromKotlin public int getObserverCount();

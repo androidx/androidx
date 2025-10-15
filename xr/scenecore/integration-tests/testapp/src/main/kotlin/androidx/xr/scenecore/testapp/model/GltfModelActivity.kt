@@ -98,27 +98,30 @@ class GltfModelActivity : AppCompatActivity() {
     }
 
     private fun setupButtons() {
+        // Create Texture
         findViewById<Button>(R.id.gltf_model_button1_1).setOnClickListener {
             lifecycleScope.launch {
                 patternTexture = Texture.create(session!!, Paths.get("textures", "pattern.png"))
             }
         }
+        // Dispose Texture
         findViewById<Button>(R.id.gltf_model_button1_2).setOnClickListener {
             patternTexture?.close()
             patternTexture = null
         }
-
+        // Create Khronos PBR Material
         findViewById<Button>(R.id.gltf_model_button2_1).setOnClickListener {
             lifecycleScope.launch {
                 khronosPbrMaterial =
                     KhronosPbrMaterial.create(session!!, AlphaMode.ALPHA_MODE_BLEND)
             }
         }
+        // Dispose Khronos PBR Material
         findViewById<Button>(R.id.gltf_model_button2_2).setOnClickListener {
             khronosPbrMaterial?.close()
             khronosPbrMaterial = null
         }
-
+        // Set Base Color Texture
         findViewById<Button>(R.id.gltf_model_button3_1).setOnClickListener {
             val mat = khronosPbrMaterial
             val tex = patternTexture
@@ -128,6 +131,7 @@ class GltfModelActivity : AppCompatActivity() {
                 Log.w(TAG, "Material or Texture not created yet")
             }
         }
+
         findViewById<Slider>(R.id.gltf_model_metallic_slider).addOnChangeListener {
             slider,
             value,
@@ -135,23 +139,27 @@ class GltfModelActivity : AppCompatActivity() {
             khronosPbrMaterial?.setMetallicFactor(value)
         }
 
+        // Create GLTF Model Entity
         findViewById<Button>(R.id.gltf_model_button4_1).setOnClickListener {
-            lifecycleScope.launch {
-                dragonModelEntity =
-                    GltfModelEntity.create(
-                        session!!,
-                        dragonModel,
-                        Pose(translation = DRAGON_TRANSLATION),
-                    )
-                dragonModelEntity?.setScale(DRAGON_SCALE)
-            }
+            dragonModelEntity
+                ?: lifecycleScope.launch {
+                    dragonModelEntity =
+                        GltfModelEntity.create(
+                            session!!,
+                            dragonModel,
+                            Pose(translation = DRAGON_TRANSLATION),
+                        )
+                    dragonModelEntity?.setScale(DRAGON_SCALE)
+                }
         }
+        // Dispose GLTF Model Entity
         findViewById<Button>(R.id.gltf_model_button4_2).setOnClickListener {
             dragonModelEntity?.let {
                 it.dispose()
                 dragonModelEntity = null
             }
         }
+        // Toggle Animation
         findViewById<Button>(R.id.gltf_model_button4_3).setOnClickListener {
             val entity = dragonModelEntity
             if (entity != null) {
@@ -162,7 +170,7 @@ class GltfModelActivity : AppCompatActivity() {
                 }
             }
         }
-
+        // Set Material Override
         findViewById<Button>(R.id.gltf_model_button5_1).setOnClickListener {
             val entity = dragonModelEntity
             val mat = khronosPbrMaterial

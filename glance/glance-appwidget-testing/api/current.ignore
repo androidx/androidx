@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AddedMethod: androidx.glance.appwidget.testing.unit.UnitTestAssertionExtensionsKt#assertHasRunCallbackClickAction$default(androidx.glance.testing.GlanceNodeAssertion, androidx.glance.action.ActionParameters, int, Object):
+    Added method androidx.glance.appwidget.testing.unit.UnitTestAssertionExtensionsKt.assertHasRunCallbackClickAction$default(androidx.glance.testing.GlanceNodeAssertion,androidx.glance.action.ActionParameters,int,Object)
+AddedMethod: androidx.glance.appwidget.testing.unit.UnitTestAssertionExtensionsKt#assertHasStartServiceClickAction$default(androidx.glance.testing.GlanceNodeAssertion, boolean, int, Object):
+    Added method androidx.glance.appwidget.testing.unit.UnitTestAssertionExtensionsKt.assertHasStartServiceClickAction$default(androidx.glance.testing.GlanceNodeAssertion,boolean,int,Object)
+AddedMethod: androidx.glance.appwidget.testing.unit.UnitTestFiltersKt#hasRunCallbackClickAction$default(androidx.glance.action.ActionParameters, int, Object):
+    Added method androidx.glance.appwidget.testing.unit.UnitTestFiltersKt.hasRunCallbackClickAction$default(androidx.glance.action.ActionParameters,int,Object)
+AddedMethod: androidx.glance.appwidget.testing.unit.UnitTestFiltersKt#hasStartServiceAction$default(boolean, int, Object):
+    Added method androidx.glance.appwidget.testing.unit.UnitTestFiltersKt.hasStartServiceAction$default(boolean,int,Object)

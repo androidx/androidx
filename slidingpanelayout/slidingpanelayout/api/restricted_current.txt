@@ -5,6 +5,7 @@ package androidx.slidingpanelayout.widget {
     ctor public SlidingPaneLayout(android.content.Context context);
     ctor public SlidingPaneLayout(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public SlidingPaneLayout(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    ctor @BytecodeOnly public SlidingPaneLayout(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
     method public void addSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
     method protected boolean canScroll(android.view.View v, boolean checkV, int dx, int x, int y);

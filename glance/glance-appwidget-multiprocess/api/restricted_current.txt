@@ -23,6 +23,7 @@ package androidx.glance.appwidget.multiprocess {
   public abstract class MultiProcessGlanceAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public MultiProcessGlanceAppWidget();
     ctor public MultiProcessGlanceAppWidget(optional @LayoutRes int errorUiLayout);
+    ctor @BytecodeOnly public MultiProcessGlanceAppWidget(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.glance.appwidget.multiprocess.MultiProcessConfig? getMultiProcessConfig(android.content.Context context);
   }
 

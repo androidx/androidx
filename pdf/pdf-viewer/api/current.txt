@@ -23,6 +23,7 @@ package androidx.pdf {
 
   public static interface PdfDocument.BitmapSource extends java.io.Closeable {
     method public suspend Object? getBitmap(android.util.Size scaledPageSizePx, optional android.graphics.Rect? tileRegion, kotlin.coroutines.Continuation<? super android.graphics.Bitmap>);
+    method @BytecodeOnly public static Object! getBitmap$default(androidx.pdf.PdfDocument.BitmapSource!, android.util.Size!, android.graphics.Rect!, kotlin.coroutines.Continuation!, int, Object!);
     method @InaccessibleFromKotlin public int getPageNumber();
     property public abstract int pageNumber;
   }
@@ -59,6 +60,8 @@ package androidx.pdf {
   public interface PdfLoader {
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, android.os.ParcelFileDescriptor fileDescriptor, optional String? password, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, optional String? password, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, android.os.ParcelFileDescriptor!, String!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, String!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
   }
 
   public final class PdfPasswordException extends java.lang.SecurityException {
@@ -165,6 +168,7 @@ package androidx.pdf.content {
   public final class SelectionBoundary {
     ctor public SelectionBoundary();
     ctor public SelectionBoundary(optional int index, optional android.graphics.Point? point, optional boolean isRtl);
+    ctor @BytecodeOnly public SelectionBoundary(int, android.graphics.Point!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getIndex();
     method @InaccessibleFromKotlin public android.graphics.Point? getPoint();
     method @InaccessibleFromKotlin public boolean isRtl();
@@ -281,6 +285,7 @@ package androidx.pdf.view {
     ctor public PdfView(android.content.Context context);
     ctor public PdfView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public PdfView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    ctor @BytecodeOnly public PdfView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public final void addOnGestureStateChangedListener(androidx.pdf.view.PdfView.OnGestureStateChangedListener listener);
     method public final void addOnSelectionChangedListener(androidx.pdf.view.PdfView.OnSelectionChangedListener listener);
     method public final void addOnViewportChangedListener(androidx.pdf.view.PdfView.OnViewportChangedListener listener);

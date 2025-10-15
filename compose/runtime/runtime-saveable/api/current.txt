@@ -72,3 +72,11 @@ package androidx.compose.runtime.saveable {
 
 }
 
+package androidx.compose.runtime.saveable.serialization {
+
+  public final class SerializableSaverKt {
+    method @BytecodeOnly public static androidx.compose.runtime.saveable.Saver! serializableSaver$default(androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+  }
+
+}
+

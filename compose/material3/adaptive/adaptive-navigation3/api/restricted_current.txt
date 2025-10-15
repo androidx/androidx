@@ -14,9 +14,12 @@ package androidx.compose.material3.adaptive.navigation3 {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static final class ListDetailSceneStrategy.Companion {
     method public java.util.Map<java.lang.String,java.lang.Object> detailPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! detailPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, int, Object!);
     method public java.util.Map<java.lang.String,java.lang.Object> extraPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! extraPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, int, Object!);
     method public java.util.Map<java.lang.String,java.lang.Object> listPane(optional Object sceneKey, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> detailPlaceholder);
     method @BytecodeOnly public java.util.Map<java.lang.String!,java.lang.Object!> listPane(Object, kotlin.jvm.functions.Function3<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static java.util.Map! listPane$default(androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy.Companion!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
   }
 
   public final class ListDetailSceneStrategyKt {
@@ -38,8 +41,11 @@ package androidx.compose.material3.adaptive.navigation3 {
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static final class SupportingPaneSceneStrategy.Companion {
     method public java.util.Map<java.lang.String,java.lang.Object> extraPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! extraPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
     method public java.util.Map<java.lang.String,java.lang.Object> mainPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! mainPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
     method public java.util.Map<java.lang.String,java.lang.Object> supportingPane(optional Object sceneKey);
+    method @BytecodeOnly public static java.util.Map! supportingPane$default(androidx.compose.material3.adaptive.navigation3.SupportingPaneSceneStrategy.Companion!, Object!, int, Object!);
   }
 
   public final class SupportingPaneSceneStrategyKt {

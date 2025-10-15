@@ -20,6 +20,7 @@ package androidx.wear.tiles.tooling.preview {
   }
 
   public final class TilePreviewData {
+    ctor @BytecodeOnly public TilePreviewData(kotlin.jvm.functions.Function1!, androidx.wear.protolayout.expression.PlatformDataValues!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, optional androidx.wear.protolayout.expression.PlatformDataValues? platformDataValues, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
     ctor public TilePreviewData(optional kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.ResourcesRequest,androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourceRequest, kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);
     ctor public TilePreviewData(kotlin.jvm.functions.Function1<? super androidx.wear.tiles.RequestBuilders.TileRequest,androidx.wear.tiles.TileBuilders.Tile> onTileRequest);

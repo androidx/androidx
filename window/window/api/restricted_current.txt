@@ -409,6 +409,7 @@ package androidx.window.embedding {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayAttributes {
     ctor public OverlayAttributes();
     ctor public OverlayAttributes(optional androidx.window.embedding.EmbeddingBounds bounds);
+    ctor @BytecodeOnly public OverlayAttributes(androidx.window.embedding.EmbeddingBounds!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.window.embedding.EmbeddingBounds getBounds();
     property public androidx.window.embedding.EmbeddingBounds bounds;
   }
@@ -449,6 +450,7 @@ package androidx.window.embedding {
     ctor public OverlayCreateParams();
     ctor public OverlayCreateParams(optional String tag);
     ctor public OverlayCreateParams(optional String tag, optional androidx.window.embedding.OverlayAttributes overlayAttributes);
+    ctor @BytecodeOnly public OverlayCreateParams(String!, androidx.window.embedding.OverlayAttributes!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static String generateOverlayTag();
     method @InaccessibleFromKotlin public androidx.window.embedding.OverlayAttributes getOverlayAttributes();
     method @InaccessibleFromKotlin public String getTag();

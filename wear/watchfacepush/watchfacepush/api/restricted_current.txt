@@ -86,6 +86,7 @@ package androidx.wear.watchfacepush {
 
   public static final class WatchFacePushManager.SetWatchFaceAsActiveException extends java.lang.Exception {
     ctor public WatchFacePushManager.SetWatchFaceAsActiveException(int errorCode, optional Throwable? rootCause);
+    ctor @BytecodeOnly public WatchFacePushManager.SetWatchFaceAsActiveException(int, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
     property public String? message;

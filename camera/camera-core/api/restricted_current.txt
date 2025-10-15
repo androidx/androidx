@@ -482,6 +482,8 @@ package androidx.camera.core {
   public final class ImageCaptureExtKt {
     method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, androidx.camera.core.ImageCapture.OutputFileOptions outputFileOptions, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageCapture.OutputFileResults>);
     method public static suspend Object? takePicture(androidx.camera.core.ImageCapture, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onCaptureStarted, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? onCaptureProcessProgressed, optional kotlin.jvm.functions.Function1<? super android.graphics.Bitmap,kotlin.Unit>? onPostviewBitmapAvailable, kotlin.coroutines.Continuation<? super androidx.camera.core.ImageProxy>);
+    method @BytecodeOnly public static Object! takePicture$default(androidx.camera.core.ImageCapture!, androidx.camera.core.ImageCapture.OutputFileOptions!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! takePicture$default(androidx.camera.core.ImageCapture!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public class ImageCaptureLatencyEstimate {
@@ -650,6 +652,7 @@ package androidx.camera.core {
 
   @SuppressCompatibility @androidx.camera.core.ExperimentalSessionConfig public class SessionConfig {
     ctor public SessionConfig(androidx.camera.core.UseCase... useCases);
+    ctor @BytecodeOnly public SessionConfig(java.util.List!, androidx.camera.core.ViewPort!, java.util.List!, android.util.Range!, java.util.Set!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases);
     ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort);
     ctor public SessionConfig(java.util.List<? extends androidx.camera.core.UseCase> useCases, optional androidx.camera.core.ViewPort? viewPort, optional java.util.List<? extends androidx.camera.core.CameraEffect> effects);
@@ -666,6 +669,7 @@ package androidx.camera.core {
     method @InaccessibleFromKotlin public final androidx.camera.core.ViewPort? getViewPort();
     method public final void setFeatureSelectionListener(androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> listener);
     method public final void setFeatureSelectionListener(optional java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> listener);
+    method @BytecodeOnly public static void setFeatureSelectionListener$default(androidx.camera.core.SessionConfig!, java.util.concurrent.Executor!, androidx.core.util.Consumer!, int, Object!);
     property public final java.util.List<androidx.camera.core.CameraEffect> effects;
     property public final androidx.core.util.Consumer<java.util.Set<androidx.camera.core.featuregroup.GroupableFeature>> featureSelectionListener;
     property public final java.util.concurrent.Executor featureSelectionListenerExecutor;

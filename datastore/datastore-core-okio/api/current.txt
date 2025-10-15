@@ -9,6 +9,7 @@ package androidx.datastore.core.okio {
   }
 
   public final class OkioStorage<T> implements androidx.datastore.core.Storage<T> {
+    ctor @BytecodeOnly public OkioStorage(okio.FileSystem!, androidx.datastore.core.okio.OkioSerializer!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public OkioStorage(okio.FileSystem fileSystem, androidx.datastore.core.okio.OkioSerializer<T> serializer, optional kotlin.jvm.functions.Function2<? super okio.Path,? super okio.FileSystem,? extends androidx.datastore.core.InterProcessCoordinator> coordinatorProducer, kotlin.jvm.functions.Function0<okio.Path> producePath);
     method public androidx.datastore.core.StorageConnection<T> createConnection();
   }

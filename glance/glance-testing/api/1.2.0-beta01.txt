@@ -10,6 +10,7 @@ package androidx.glance.testing {
 
   public final class GlanceNodeAssertion<R, T extends androidx.glance.testing.GlanceNode<R>> {
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assert(androidx.glance.testing.GlanceNodeMatcher<R> matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assert$default(androidx.glance.testing.GlanceNodeAssertion!, androidx.glance.testing.GlanceNodeMatcher!, kotlin.jvm.functions.Function0!, int, Object!);
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertDoesNotExist();
     method public androidx.glance.testing.GlanceNodeAssertion<R,T> assertExists();
     method public androidx.glance.testing.GlanceNodeAssertionCollection<R,T> onChildren();
@@ -53,26 +54,38 @@ package androidx.glance.testing.unit {
   public final class UnitTestAssertionExtensionsKt {
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasContentDescription(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String value, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasContentDescription$default(androidx.glance.testing.GlanceNodeAssertion!, String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasContentDescriptionEqualTo(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String value, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasContentDescriptionEqualTo$default(androidx.glance.testing.GlanceNodeAssertion!, String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasNoClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
     method @KotlinOnly public static inline <reified T extends android.app.Activity> androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasStartActivityClickAction(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion!, android.content.ComponentName!, androidx.glance.action.ActionParameters!, int, Object!);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion!, androidx.glance.action.ActionParameters!, android.os.Bundle!, int, Object!);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasTestTag(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String testTag);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasText(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String text, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasText$default(androidx.glance.testing.GlanceNodeAssertion!, String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode> assertHasTextEqualTo(androidx.glance.testing.GlanceNodeAssertion<androidx.glance.testing.unit.MappedNode,androidx.glance.testing.unit.GlanceMappedNode>, String text, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeAssertion! assertHasTextEqualTo$default(androidx.glance.testing.GlanceNodeAssertion!, String!, boolean, int, Object!);
   }
 
   public final class UnitTestFiltersKt {
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasAnyDescendant(androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> matcher);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasClickAction();
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescription(String value, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasContentDescription$default(String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasContentDescriptionEqualTo(String value, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasContentDescriptionEqualTo$default(String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasNoClickAction();
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(android.content.ComponentName componentName, optional androidx.glance.action.ActionParameters parameters);
     method @KotlinOnly public static inline <reified T extends android.app.Activity> androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasStartActivityClickAction(optional androidx.glance.action.ActionParameters parameters, optional android.os.Bundle? activityOptions);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasStartActivityClickAction$default(android.content.ComponentName!, androidx.glance.action.ActionParameters!, int, Object!);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasStartActivityClickAction$default(androidx.glance.action.ActionParameters!, android.os.Bundle!, int, Object!);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasTestTag(String testTag);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasText(String text, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasText$default(String!, boolean, int, Object!);
     method public static androidx.glance.testing.GlanceNodeMatcher<androidx.glance.testing.unit.MappedNode> hasTextEqualTo(String text, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.glance.testing.GlanceNodeMatcher! hasTextEqualTo$default(String!, boolean, int, Object!);
   }
 
 }

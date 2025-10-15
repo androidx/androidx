@@ -61,6 +61,7 @@ package androidx.biometric {
   public static final class AuthenticationRequest.Biometric.Strength.Class3 extends androidx.biometric.AuthenticationRequest.Biometric.Strength {
     ctor public AuthenticationRequest.Biometric.Strength.Class3();
     ctor public AuthenticationRequest.Biometric.Strength.Class3(optional androidx.biometric.BiometricPrompt.CryptoObject? cryptoObject);
+    ctor @BytecodeOnly public AuthenticationRequest.Biometric.Strength.Class3(androidx.biometric.BiometricPrompt.CryptoObject!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
     property public androidx.biometric.BiometricPrompt.CryptoObject? cryptoObject;
   }
@@ -71,6 +72,7 @@ package androidx.biometric {
   public static final class AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton extends androidx.biometric.AuthenticationRequest.BodyContent {
     ctor @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton();
     ctor @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton(optional String? description);
+    ctor @BytecodeOnly @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDescription();
     property public String? description;
   }
@@ -84,6 +86,7 @@ package androidx.biometric {
   public static final class AuthenticationRequest.BodyContent.VerticalList extends androidx.biometric.AuthenticationRequest.BodyContent {
     ctor public AuthenticationRequest.BodyContent.VerticalList();
     ctor public AuthenticationRequest.BodyContent.VerticalList(optional String? description);
+    ctor @BytecodeOnly public AuthenticationRequest.BodyContent.VerticalList(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AuthenticationRequest.BodyContent.VerticalList(optional String? description, optional java.util.List<? extends androidx.biometric.PromptContentItem> items);
     method @InaccessibleFromKotlin public String? getDescription();
     method @InaccessibleFromKotlin public java.util.List<androidx.biometric.PromptContentItem> getItems();

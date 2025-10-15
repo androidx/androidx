@@ -9,6 +9,7 @@ package androidx.navigation3.scene {
 
   public static final class DialogSceneStrategy.Companion {
     method public java.util.Map<java.lang.String,java.lang.Object> dialog(optional androidx.compose.ui.window.DialogProperties dialogProperties);
+    method @BytecodeOnly public static java.util.Map! dialog$default(androidx.navigation3.scene.DialogSceneStrategy.Companion!, androidx.compose.ui.window.DialogProperties!, int, Object!);
   }
 
   public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {

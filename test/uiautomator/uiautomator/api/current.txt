@@ -5,20 +5,26 @@ package androidx.test.uiautomator {
     method public static android.graphics.Rect boundsInScreen(android.view.accessibility.AccessibilityNodeInfo);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> children(android.view.accessibility.AccessibilityNodeInfo);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> children(android.view.accessibility.AccessibilityNodeInfo, optional kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! children$default(android.view.accessibility.AccessibilityNodeInfo!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> descendants(android.view.accessibility.AccessibilityNodeInfo);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> descendants(android.view.accessibility.AccessibilityNodeInfo, optional kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> filterBlock);
+    method @BytecodeOnly public static java.util.List! descendants$default(android.view.accessibility.AccessibilityNodeInfo!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static boolean isClass(android.view.accessibility.AccessibilityNodeInfo, Class<? extends java.lang.Object?> cls);
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityNodeInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElement$default(android.view.accessibility.AccessibilityNodeInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityNodeInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElementOrNull$default(android.view.accessibility.AccessibilityNodeInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityNodeInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityNodeInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! onElements$default(android.view.accessibility.AccessibilityNodeInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> siblings(android.view.accessibility.AccessibilityNodeInfo);
     method public static java.util.List<android.view.accessibility.AccessibilityNodeInfo> siblings(android.view.accessibility.AccessibilityNodeInfo, optional kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> filterBlock);
+    method @BytecodeOnly public static java.util.List! siblings$default(android.view.accessibility.AccessibilityNodeInfo!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static String? simpleViewResourceName(android.view.accessibility.AccessibilityNodeInfo);
     method public static android.graphics.Bitmap takeScreenshot(android.view.accessibility.AccessibilityNodeInfo);
     method public static String? textAsString(android.view.accessibility.AccessibilityNodeInfo);
@@ -27,28 +33,34 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityNodeInfo, optional long stableTimeoutMs, optional long stableIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityNodeInfo, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityNodeInfo, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs, optional boolean requireStableScreenshot);
+    method @BytecodeOnly public static androidx.test.uiautomator.StableResult! waitForStable$default(android.view.accessibility.AccessibilityNodeInfo!, long, long, long, boolean, int, Object!);
   }
 
   public final class AccessibilityWindowInfoExt {
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityWindowInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElement$default(android.view.accessibility.AccessibilityWindowInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityWindowInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElementOrNull$default(android.view.accessibility.AccessibilityWindowInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityWindowInfo, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! onElements$default(android.view.accessibility.AccessibilityWindowInfo!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static android.graphics.Bitmap takeScreenshot(android.view.accessibility.AccessibilityWindowInfo);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRoot(android.view.accessibility.AccessibilityWindowInfo);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRoot(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRoot(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, optional long sleepIntervalMs);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRoot(android.view.accessibility.AccessibilityWindowInfo, optional long timeoutMs, optional long sleepIntervalMs, optional boolean clearCache);
+    method @BytecodeOnly public static android.view.accessibility.AccessibilityNodeInfo! waitForRoot$default(android.view.accessibility.AccessibilityWindowInfo!, long, long, boolean, int, Object!);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityWindowInfo);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityWindowInfo, optional long stableTimeoutMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityWindowInfo, optional long stableTimeoutMs, optional long stableIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityWindowInfo, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(android.view.accessibility.AccessibilityWindowInfo, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs, optional boolean requireStableScreenshot);
+    method @BytecodeOnly public static androidx.test.uiautomator.StableResult! waitForStable$default(android.view.accessibility.AccessibilityWindowInfo!, long, long, long, boolean, int, Object!);
   }
 
   public class By {
@@ -215,6 +227,7 @@ package androidx.test.uiautomator {
   public final class ElementNotFoundException extends java.lang.Exception {
     ctor public ElementNotFoundException();
     ctor public ElementNotFoundException(optional String? msg);
+    ctor @BytecodeOnly public ElementNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public abstract class EventCondition<U> implements android.app.UiAutomation.AccessibilityEventFilter {
@@ -279,12 +292,15 @@ package androidx.test.uiautomator {
     method public final androidx.test.uiautomator.UiObject2 onElement(kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final androidx.test.uiautomator.UiObject2 onElement(optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final androidx.test.uiautomator.UiObject2 onElement(optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElement$default(androidx.test.uiautomator.UiAutomatorTestScope!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public final androidx.test.uiautomator.UiObject2? onElementOrNull(kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final androidx.test.uiautomator.UiObject2? onElementOrNull(optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final androidx.test.uiautomator.UiObject2? onElementOrNull(optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElementOrNull$default(androidx.test.uiautomator.UiAutomatorTestScope!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public final java.util.List<androidx.test.uiautomator.UiObject2> onElements(kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final java.util.List<androidx.test.uiautomator.UiObject2> onElements(optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public final java.util.List<androidx.test.uiautomator.UiObject2> onElements(optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! onElements$default(androidx.test.uiautomator.UiAutomatorTestScope!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public final boolean pressBack();
     method public final void pressDelete(int count);
     method public final boolean pressEnter();
@@ -297,11 +313,13 @@ package androidx.test.uiautomator {
     method public final void unregisterWatchers();
     method public final boolean waitForAppToBeVisible(String appPackageName);
     method public final boolean waitForAppToBeVisible(String appPackageName, optional long timeoutMs);
+    method @BytecodeOnly public static boolean waitForAppToBeVisible$default(androidx.test.uiautomator.UiAutomatorTestScope!, String!, long, int, Object!);
     method public final androidx.test.uiautomator.StableResult waitForStableInActiveWindow();
     method public final androidx.test.uiautomator.StableResult waitForStableInActiveWindow(optional long stableTimeoutMs);
     method public final androidx.test.uiautomator.StableResult waitForStableInActiveWindow(optional long stableTimeoutMs, optional long stableIntervalMs);
     method public final androidx.test.uiautomator.StableResult waitForStableInActiveWindow(optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs);
     method public final androidx.test.uiautomator.StableResult waitForStableInActiveWindow(optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs, optional boolean requireStableScreenshot);
+    method @BytecodeOnly public static androidx.test.uiautomator.StableResult! waitForStableInActiveWindow$default(androidx.test.uiautomator.UiAutomatorTestScope!, long, long, long, boolean, int, Object!);
     method public final <T> androidx.test.uiautomator.watcher.WatcherRegistration watchFor(androidx.test.uiautomator.watcher.ScopedUiWatcher<T> watcher, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public final java.util.List<android.view.accessibility.AccessibilityNodeInfo> windowRoots();
     method public final java.util.List<android.view.accessibility.AccessibilityWindowInfo> windows();
@@ -413,25 +431,31 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiDevice, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiDevice, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiDevice, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElement$default(androidx.test.uiautomator.UiDevice!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiDevice, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiDevice, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiDevice, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElementOrNull$default(androidx.test.uiautomator.UiDevice!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiDevice, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiDevice, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiDevice, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! onElements$default(androidx.test.uiautomator.UiDevice!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static void pressDelete(androidx.test.uiautomator.UiDevice, int count);
     method public static void type(androidx.test.uiautomator.UiDevice, String text);
     method public static boolean waitForAppToBeVisible(androidx.test.uiautomator.UiDevice, String appPackageName);
     method public static boolean waitForAppToBeVisible(androidx.test.uiautomator.UiDevice, String appPackageName, optional long timeoutMs);
+    method @BytecodeOnly public static boolean waitForAppToBeVisible$default(androidx.test.uiautomator.UiDevice!, String!, long, int, Object!);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRootInActiveWindow(androidx.test.uiautomator.UiDevice);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRootInActiveWindow(androidx.test.uiautomator.UiDevice, optional long timeoutMs);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRootInActiveWindow(androidx.test.uiautomator.UiDevice, optional long timeoutMs, optional long sleepIntervalMs);
     method public static android.view.accessibility.AccessibilityNodeInfo waitForRootInActiveWindow(androidx.test.uiautomator.UiDevice, optional long timeoutMs, optional long sleepIntervalMs, optional boolean clearCache);
+    method @BytecodeOnly public static android.view.accessibility.AccessibilityNodeInfo! waitForRootInActiveWindow$default(androidx.test.uiautomator.UiDevice!, long, long, boolean, int, Object!);
     method public static androidx.test.uiautomator.StableResult waitForStableInActiveWindow(androidx.test.uiautomator.UiDevice);
     method public static androidx.test.uiautomator.StableResult waitForStableInActiveWindow(androidx.test.uiautomator.UiDevice, optional long stableTimeoutMs);
     method public static androidx.test.uiautomator.StableResult waitForStableInActiveWindow(androidx.test.uiautomator.UiDevice, optional long stableTimeoutMs, optional long stableIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStableInActiveWindow(androidx.test.uiautomator.UiDevice, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStableInActiveWindow(androidx.test.uiautomator.UiDevice, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs, optional boolean requireStableScreenshot);
+    method @BytecodeOnly public static androidx.test.uiautomator.StableResult! waitForStableInActiveWindow$default(androidx.test.uiautomator.UiDevice!, long, long, long, boolean, int, Object!);
     method public static java.util.List<android.view.accessibility.AccessibilityWindowInfo> windows(androidx.test.uiautomator.UiDevice);
   }
 
@@ -556,24 +580,30 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiObject2, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiObject2, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 onElement(androidx.test.uiautomator.UiObject2, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElement$default(androidx.test.uiautomator.UiObject2!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiObject2, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiObject2, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2? onElementOrNull(androidx.test.uiautomator.UiObject2, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! onElementOrNull$default(androidx.test.uiautomator.UiObject2!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiObject2, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiObject2, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static java.util.List<androidx.test.uiautomator.UiObject2> onElements(androidx.test.uiautomator.UiObject2, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static java.util.List! onElements$default(androidx.test.uiautomator.UiObject2!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2 scrollToElement(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 scrollToElement(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 scrollToElement(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! scrollToElement$default(androidx.test.uiautomator.UiObject2!, androidx.test.uiautomator.Direction!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static androidx.test.uiautomator.UiObject2 scrollToElementOrNull(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 scrollToElementOrNull(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, optional long timeoutMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
     method public static androidx.test.uiautomator.UiObject2 scrollToElementOrNull(androidx.test.uiautomator.UiObject2, androidx.test.uiautomator.Direction direction, optional long timeoutMs, optional long pollIntervalMs, kotlin.jvm.functions.Function1<? super android.view.accessibility.AccessibilityNodeInfo,java.lang.Boolean> block);
+    method @BytecodeOnly public static androidx.test.uiautomator.UiObject2! scrollToElementOrNull$default(androidx.test.uiautomator.UiObject2!, androidx.test.uiautomator.Direction!, long, long, kotlin.jvm.functions.Function1!, int, Object!);
     method public static android.graphics.Bitmap takeScreenshot(androidx.test.uiautomator.UiObject2);
     method public static androidx.test.uiautomator.StableResult waitForStable(androidx.test.uiautomator.UiObject2);
     method public static androidx.test.uiautomator.StableResult waitForStable(androidx.test.uiautomator.UiObject2, optional long stableTimeoutMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(androidx.test.uiautomator.UiObject2, optional long stableTimeoutMs, optional long stableIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(androidx.test.uiautomator.UiObject2, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs);
     method public static androidx.test.uiautomator.StableResult waitForStable(androidx.test.uiautomator.UiObject2, optional long stableTimeoutMs, optional long stableIntervalMs, optional long stablePollIntervalMs, optional boolean requireStableScreenshot);
+    method @BytecodeOnly public static androidx.test.uiautomator.StableResult! waitForStable$default(androidx.test.uiautomator.UiObject2!, long, long, long, boolean, int, Object!);
   }
 
   public class UiObjectNotFoundException extends java.lang.Exception {
@@ -699,6 +729,8 @@ package androidx.test.uiautomator {
   public final class UtilsKt {
     method public static boolean saveToFile(android.graphics.Bitmap, android.os.ParcelFileDescriptor parcelFileDescriptor, optional android.graphics.Bitmap.CompressFormat compressFormat, optional int quality);
     method public static boolean saveToFile(android.graphics.Bitmap, java.io.File file, optional android.graphics.Bitmap.CompressFormat compressFormat, optional int quality);
+    method @BytecodeOnly public static boolean saveToFile$default(android.graphics.Bitmap!, android.os.ParcelFileDescriptor!, android.graphics.Bitmap.CompressFormat!, int, int, Object!);
+    method @BytecodeOnly public static boolean saveToFile$default(android.graphics.Bitmap!, java.io.File!, android.graphics.Bitmap.CompressFormat!, int, int, Object!);
   }
 
 }

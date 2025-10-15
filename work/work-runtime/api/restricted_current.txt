@@ -89,7 +89,10 @@ package androidx.work {
     ctor public Constraints(androidx.work.Constraints other);
     ctor @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
     ctor @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow);
+    ctor @BytecodeOnly @androidx.room.Ignore public Constraints(androidx.work.NetworkType!, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @RequiresApi(24) @androidx.room.Ignore public Constraints(androidx.work.NetworkType!, boolean, boolean, boolean, boolean, long, long, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @RequiresApi(24) @androidx.room.Ignore public Constraints(optional androidx.work.NetworkType requiredNetworkType, optional boolean requiresCharging, optional boolean requiresDeviceIdle, optional boolean requiresBatteryNotLow, optional boolean requiresStorageNotLow, optional long contentTriggerUpdateDelayMillis, optional long contentTriggerMaxDelayMillis, optional java.util.Set<androidx.work.Constraints.ContentUriTrigger> contentUriTriggers);
+    ctor @BytecodeOnly @androidx.room.Ignore public Constraints(androidx.work.NetworkType!, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin @RequiresApi(24) public long getContentTriggerMaxDelayMillis();
     method @InaccessibleFromKotlin @RequiresApi(24) public long getContentTriggerUpdateDelayMillis();
     method @InaccessibleFromKotlin @RequiresApi(24) public java.util.Set<androidx.work.Constraints.ContentUriTrigger> getContentUriTriggers();
@@ -398,6 +401,7 @@ package androidx.work {
   }
 
   public final class WorkInfo {
+    ctor @BytecodeOnly public WorkInfo(java.util.UUID!, androidx.work.WorkInfo.State!, java.util.Set!, androidx.work.Data!, androidx.work.Data!, int, int, androidx.work.Constraints!, long, androidx.work.WorkInfo.PeriodicityInfo!, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData);
     ctor public WorkInfo(java.util.UUID id, androidx.work.WorkInfo.State state, java.util.Set<java.lang.String> tags, optional androidx.work.Data outputData, optional androidx.work.Data progress);

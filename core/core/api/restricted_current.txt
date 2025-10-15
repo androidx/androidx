@@ -1751,6 +1751,7 @@ package androidx.core.flagging {
   public static final class Flags.Companion {
     method public boolean getBooleanFlagValue(String packageName, String flagName);
     method public boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @BytecodeOnly public static boolean getBooleanFlagValue$default(androidx.core.flagging.Flags.Companion!, String!, String!, boolean, int, Object!);
   }
 
 }

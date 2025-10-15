@@ -1,4 +1,40 @@
 // Baseline format: 1.0
+AddedMethod: androidx.graphics.shapes.CornerRounding#CornerRounding(float, float, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.shapes.CornerRounding(float,float,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.shapes.Cubic#Cubic(float[], int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.graphics.shapes.Cubic(float[],int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.graphics.shapes.Morph#calculateBounds$default(androidx.graphics.shapes.Morph, float[], boolean, int, Object):
+    Added method androidx.graphics.shapes.Morph.calculateBounds$default(androidx.graphics.shapes.Morph,float[],boolean,int,Object)
+AddedMethod: androidx.graphics.shapes.Morph#calculateMaxBounds$default(androidx.graphics.shapes.Morph, float[], int, Object):
+    Added method androidx.graphics.shapes.Morph.calculateMaxBounds$default(androidx.graphics.shapes.Morph,float[],int,Object)
+AddedMethod: androidx.graphics.shapes.Morph#forEachCubic$default(androidx.graphics.shapes.Morph, float, androidx.graphics.shapes.MutableCubic, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.graphics.shapes.Morph.forEachCubic$default(androidx.graphics.shapes.Morph,float,androidx.graphics.shapes.MutableCubic,kotlin.jvm.functions.Function1,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygon#calculateBounds$default(androidx.graphics.shapes.RoundedPolygon, float[], boolean, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygon.calculateBounds$default(androidx.graphics.shapes.RoundedPolygon,float[],boolean,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygon#calculateMaxBounds$default(androidx.graphics.shapes.RoundedPolygon, float[], int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygon.calculateMaxBounds$default(androidx.graphics.shapes.RoundedPolygon,float[],int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(float[], androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(float[],androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(int, float, float, float, androidx.graphics.shapes.CornerRounding, java.util.List, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(int,float,float,float,androidx.graphics.shapes.CornerRounding,java.util.List,int,Object)
+AddedMethod: androidx.graphics.shapes.RoundedPolygonKt#RoundedPolygon$default(java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.RoundedPolygonKt.RoundedPolygon$default(java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#circle$default(androidx.graphics.shapes.RoundedPolygon.Companion, int, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.circle$default(androidx.graphics.shapes.RoundedPolygon.Companion,int,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#pill$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.pill$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#pillStar$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, int, float, androidx.graphics.shapes.CornerRounding, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.pillStar$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,int,float,androidx.graphics.shapes.CornerRounding,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#rectangle$default(androidx.graphics.shapes.RoundedPolygon.Companion, float, float, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.rectangle$default(androidx.graphics.shapes.RoundedPolygon.Companion,float,float,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.ShapesKt#star$default(androidx.graphics.shapes.RoundedPolygon.Companion, int, float, float, androidx.graphics.shapes.CornerRounding, androidx.graphics.shapes.CornerRounding, java.util.List, float, float, int, Object):
+    Added method androidx.graphics.shapes.ShapesKt.star$default(androidx.graphics.shapes.RoundedPolygon.Companion,int,float,float,androidx.graphics.shapes.CornerRounding,androidx.graphics.shapes.CornerRounding,java.util.List,float,float,int,Object)
+AddedMethod: androidx.graphics.shapes.Shapes_androidKt#toPath$default(androidx.graphics.shapes.Morph, float, android.graphics.Path, int, Object):
+    Added method androidx.graphics.shapes.Shapes_androidKt.toPath$default(androidx.graphics.shapes.Morph,float,android.graphics.Path,int,Object)
+AddedMethod: androidx.graphics.shapes.Shapes_androidKt#toPath$default(androidx.graphics.shapes.RoundedPolygon, android.graphics.Path, int, Object):
+    Added method androidx.graphics.shapes.Shapes_androidKt.toPath$default(androidx.graphics.shapes.RoundedPolygon,android.graphics.Path,int,Object)
+
+
 RemovedFromKotlin: androidx.graphics.shapes.CornerRounding#getRadius():
     Source breaking change: method androidx.graphics.shapes.CornerRounding.getRadius() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.graphics.shapes.CornerRounding#getSmoothing():

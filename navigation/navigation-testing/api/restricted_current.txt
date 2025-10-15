@@ -3,6 +3,7 @@ package androidx.navigation.testing {
 
   public final class SavedStateHandleFactoryKt {
     method public static operator androidx.lifecycle.SavedStateHandle invoke(androidx.lifecycle.SavedStateHandle.Companion, Object route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
+    method @BytecodeOnly public static androidx.lifecycle.SavedStateHandle! invoke$default(androidx.lifecycle.SavedStateHandle.Companion!, Object!, java.util.Map!, int, Object!);
   }
 
   public final class TestNavHostController extends androidx.navigation.NavHostController {
@@ -12,6 +13,8 @@ package androidx.navigation.testing {
     method public void setCurrentDestination(@IdRes int destId, optional android.os.Bundle args);
     method public void setCurrentDestination(String destRoute);
     method public void setCurrentDestination(String destRoute, optional android.os.Bundle args);
+    method @BytecodeOnly public static void setCurrentDestination$default(androidx.navigation.testing.TestNavHostController!, int, android.os.Bundle!, int, Object!);
+    method @BytecodeOnly public static void setCurrentDestination$default(androidx.navigation.testing.TestNavHostController!, String!, android.os.Bundle!, int, Object!);
     property public java.util.List<androidx.navigation.NavBackStackEntry> backStack;
   }
 
@@ -19,6 +22,7 @@ package androidx.navigation.testing {
     ctor public TestNavigatorState();
     ctor public TestNavigatorState(optional android.content.Context? context);
     ctor public TestNavigatorState(optional android.content.Context? context, optional kotlinx.coroutines.CoroutineDispatcher coroutineDispatcher);
+    ctor @BytecodeOnly public TestNavigatorState(android.content.Context!, kotlinx.coroutines.CoroutineDispatcher!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.navigation.NavBackStackEntry createBackStackEntry(androidx.navigation.NavDestination destination, android.os.Bundle? arguments);
     method public androidx.navigation.NavBackStackEntry restoreBackStackEntry(androidx.navigation.NavBackStackEntry previouslySavedEntry);
   }

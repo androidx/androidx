@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedMethod: androidx.emoji2.emojipicker.EmojiPickerView#EmojiPickerView(android.content.Context, android.util.AttributeSet, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.emoji2.emojipicker.EmojiPickerView(android.content.Context,android.util.AttributeSet,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
 RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#getEmojiGridColumns():
     Source breaking change: method androidx.emoji2.emojipicker.EmojiPickerView.getEmojiGridColumns() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.emoji2.emojipicker.EmojiPickerView#getEmojiGridRows():

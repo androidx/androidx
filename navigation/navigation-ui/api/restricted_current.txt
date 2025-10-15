@@ -4,6 +4,7 @@ package androidx.navigation.ui {
   public final class ActivityKt {
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method @BytecodeOnly public static void setupActionBarWithNavController$default(androidx.appcompat.app.AppCompatActivity!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
   }
 
   public final class AppBarConfiguration {
@@ -37,6 +38,9 @@ package androidx.navigation.ui {
     method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
     method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
     method public static inline androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, optional androidx.customview.widget.Openable? drawerLayout, optional kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener);
+    method @BytecodeOnly public static androidx.navigation.ui.AppBarConfiguration! AppBarConfiguration$default(android.view.Menu!, androidx.customview.widget.Openable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.ui.AppBarConfiguration! AppBarConfiguration$default(androidx.navigation.NavGraph!, androidx.customview.widget.Openable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.ui.AppBarConfiguration! AppBarConfiguration$default(java.util.Set!, androidx.customview.widget.Openable!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
   public final class BottomNavigationViewKt {
@@ -46,6 +50,7 @@ package androidx.navigation.ui {
   public final class CollapsingToolbarLayoutKt {
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
     method public static void setupWithNavController(com.google.android.material.appbar.CollapsingToolbarLayout, androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method @BytecodeOnly public static void setupWithNavController$default(com.google.android.material.appbar.CollapsingToolbarLayout!, androidx.appcompat.widget.Toolbar!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
   }
 
   public final class MenuItemKt {
@@ -65,6 +70,7 @@ package androidx.navigation.ui {
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
     method public static void setupActionBarWithNavController(androidx.appcompat.app.AppCompatActivity activity, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method @BytecodeOnly public static void setupActionBarWithNavController$default(androidx.appcompat.app.AppCompatActivity!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
     method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController);
     method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.customview.widget.Openable? openableLayout);
     method public static void setupWithNavController(androidx.appcompat.widget.Toolbar toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
@@ -75,6 +81,8 @@ package androidx.navigation.ui {
     method @SuppressCompatibility @androidx.navigation.ui.NavigationUiSaveStateControl public static void setupWithNavController(com.google.android.material.navigation.NavigationBarView navigationBarView, androidx.navigation.NavController navController, boolean saveState);
     method public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController);
     method @SuppressCompatibility @androidx.navigation.ui.NavigationUiSaveStateControl public static void setupWithNavController(com.google.android.material.navigation.NavigationView navigationView, androidx.navigation.NavController navController, boolean saveState);
+    method @BytecodeOnly public static void setupWithNavController$default(androidx.appcompat.widget.Toolbar!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
+    method @BytecodeOnly public static void setupWithNavController$default(com.google.android.material.appbar.CollapsingToolbarLayout!, androidx.appcompat.widget.Toolbar!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
     field public static final androidx.navigation.ui.NavigationUI INSTANCE;
   }
 
@@ -88,6 +96,7 @@ package androidx.navigation.ui {
   public final class ToolbarKt {
     method public static void setupWithNavController(androidx.appcompat.widget.Toolbar, androidx.navigation.NavController navController, androidx.drawerlayout.widget.DrawerLayout? drawerLayout);
     method public static void setupWithNavController(androidx.appcompat.widget.Toolbar, androidx.navigation.NavController navController, optional androidx.navigation.ui.AppBarConfiguration configuration);
+    method @BytecodeOnly public static void setupWithNavController$default(androidx.appcompat.widget.Toolbar!, androidx.navigation.NavController!, androidx.navigation.ui.AppBarConfiguration!, int, Object!);
   }
 
 }

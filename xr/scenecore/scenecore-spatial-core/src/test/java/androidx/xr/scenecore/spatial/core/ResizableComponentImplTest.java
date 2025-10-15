@@ -1857,4 +1857,33 @@ public class ResizableComponentImplTest {
         assertThat(options.getCurrentSize().y).isEqualTo(2.0f);
         assertThat(options.getCurrentSize().z).isEqualTo(3.0f);
     }
+
+    @Test
+    public void resizableComponent_restoresAlphaOnNonResizeEventWhenHidden() {
+        AndroidXrEntity entity = (AndroidXrEntity) createTestEntity();
+        ResizableComponentImpl resizableComponent =
+                new ResizableComponentImpl(
+                        mFakeExecutor, mXrExtensions, MIN_DIMENSIONS, MAX_DIMENSIONS);
+        assertThat(entity.addComponent(resizableComponent)).isTrue();
+        entity.setAlpha(0.9f);
+        ResizeEventListener mockResizeEventListener = mock(ResizeEventListener.class);
+        resizableComponent.addResizeEventListener(directExecutor(), mockResizeEventListener);
+
+        // Start a resize event to hide the content.
+        sendAndProcessReformEvent(
+                entity.getNode(),
+                ShadowReformEvent.create(REFORM_TYPE_RESIZE, REFORM_STATE_START, 0));
+
+        // Verify content is hidden.
+        assertThat(mNodeRepository.getAlpha(entity.getNode())).isEqualTo(0.0f);
+
+        // Send a non-resize event (e.g., move).
+        sendAndProcessReformEvent(
+                entity.getNode(), ShadowReformEvent.create(REFORM_TYPE_MOVE, 0, 0));
+
+        // Verify alpha is restored because a non-resize event was received.
+        assertThat(mNodeRepository.getAlpha(entity.getNode())).isEqualTo(0.9f);
+        // The resize event listener should not be called again for a move event.
+        verify(mockResizeEventListener, times(1)).onResizeEvent(any());
+    }
 }

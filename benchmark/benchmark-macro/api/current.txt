@@ -35,6 +35,7 @@ package androidx.benchmark.macro {
 
   public final class BaselineProfileResult {
     ctor public BaselineProfileResult();
+    ctor @BytecodeOnly public BaselineProfileResult(java.util.List!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BaselineProfileResult(optional java.util.List<java.lang.String> baselineProfiles, optional java.util.List<java.lang.String> startupProfiles);
     method @InaccessibleFromKotlin public java.util.List<java.lang.String> getBaselineProfiles();
     method @InaccessibleFromKotlin public java.util.List<java.lang.String> getStartupProfiles();
@@ -67,6 +68,7 @@ package androidx.benchmark.macro {
     ctor public CompilationMode.Partial();
     ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode);
     ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode, optional @IntRange(from=0L) int warmupIterations);
+    ctor @BytecodeOnly public CompilationMode.Partial(androidx.benchmark.macro.BaselineProfileMode!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.benchmark.macro.BaselineProfileMode getBaselineProfileMode();
     method @InaccessibleFromKotlin public int getWarmupIterations();
     property public androidx.benchmark.macro.BaselineProfileMode baselineProfileMode;
@@ -87,6 +89,7 @@ package androidx.benchmark.macro {
     ctor public FrameTimingMetric();
     ctor @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public FrameTimingMetric(String processNameSuffix);
     ctor @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public FrameTimingMetric(String processNameSuffix, optional String metricNameSuffix);
+    ctor @BytecodeOnly @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public FrameTimingMetric(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class MacrobenchmarkScope extends androidx.test.uiautomator.UiAutomatorTestScope {
@@ -97,11 +100,14 @@ package androidx.benchmark.macro {
     method @InaccessibleFromKotlin public String getPackageName();
     method public void killProcess();
     method @Deprecated public void killProcess(optional boolean useKillAll);
+    method @BytecodeOnly @Deprecated public static void killProcess$default(androidx.benchmark.macro.MacrobenchmarkScope!, boolean, int, Object!);
     method public void pressHome();
     method public void pressHome(optional long delayDurationMs);
+    method @BytecodeOnly public static void pressHome$default(androidx.benchmark.macro.MacrobenchmarkScope!, long, int, Object!);
     method public void startActivityAndWait();
     method public void startActivityAndWait(android.content.Intent intent);
     method public void startActivityAndWait(optional kotlin.jvm.functions.Function1<? super android.content.Intent,kotlin.Unit> block);
+    method @BytecodeOnly public static void startActivityAndWait$default(androidx.benchmark.macro.MacrobenchmarkScope!, kotlin.jvm.functions.Function1!, int, Object!);
     property public Integer? iteration;
     property public String packageName;
   }
@@ -110,11 +116,13 @@ package androidx.benchmark.macro {
     ctor public MemoryCountersMetric();
     ctor public MemoryCountersMetric(optional String processNameSuffix);
     ctor public MemoryCountersMetric(optional String processNameSuffix, optional String metricNameSuffix);
+    ctor @BytecodeOnly public MemoryCountersMetric(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public java.util.List<androidx.benchmark.macro.Metric.Measurement> getMeasurements(androidx.benchmark.macro.Metric.CaptureInfo captureInfo, androidx.benchmark.traceprocessor.TraceProcessor.Session traceSession);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryUsageMetric extends androidx.benchmark.macro.TraceMetric {
     ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode);
+    ctor @BytecodeOnly public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode!, java.util.List!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics);
     ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics, optional String processNameSuffix);
     ctor public MemoryUsageMetric(androidx.benchmark.macro.MemoryUsageMetric.Mode mode, optional java.util.List<? extends androidx.benchmark.macro.MemoryUsageMetric.SubMetric> subMetrics, optional String processNameSuffix, optional String metricNameSuffix);
@@ -139,6 +147,7 @@ package androidx.benchmark.macro {
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class Metric.CaptureInfo {
     ctor public Metric.CaptureInfo(int apiLevel, String targetPackageName, String testPackageName, androidx.benchmark.macro.StartupMode? startupMode, optional Long? artMainlineVersion);
+    ctor @BytecodeOnly public Metric.CaptureInfo(int, String!, String!, androidx.benchmark.macro.StartupMode!, Long!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public static androidx.benchmark.macro.Metric.CaptureInfo forLocalCapture(String targetPackageName, androidx.benchmark.macro.StartupMode? startupMode);
     method @InaccessibleFromKotlin public int getApiLevel();
     method @InaccessibleFromKotlin public Long? getArtMainlineVersion();
@@ -204,7 +213,9 @@ package androidx.benchmark.macro {
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class PowerMetric.Companion {
     method public androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
     method public androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method @BytecodeOnly public static androidx.benchmark.macro.PowerMetric.Type.Energy! Energy$default(androidx.benchmark.macro.PowerMetric.Companion!, java.util.Map!, int, Object!);
     method public androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method @BytecodeOnly public static androidx.benchmark.macro.PowerMetric.Type.Power! Power$default(androidx.benchmark.macro.PowerMetric.Companion!, java.util.Map!, int, Object!);
     method public boolean deviceBatteryHasMinimumCharge();
     method public boolean deviceSupportsHighPrecisionTracking();
   }
@@ -221,11 +232,13 @@ package androidx.benchmark.macro {
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class PowerMetric.Type.Energy extends androidx.benchmark.macro.PowerMetric.Type {
     ctor public PowerMetric.Type.Energy();
+    ctor @BytecodeOnly public PowerMetric.Type.Energy(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PowerMetric.Type.Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> energyCategories);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class PowerMetric.Type.Power extends androidx.benchmark.macro.PowerMetric.Type {
     ctor public PowerMetric.Type.Power();
+    ctor @BytecodeOnly public PowerMetric.Type.Power(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PowerMetric.Type.Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> powerCategories);
   }
 
@@ -247,8 +260,10 @@ package androidx.benchmark.macro {
   public final class TraceProcessorExtensionsKt {
     method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
     method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static Object! runServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, long, kotlin.jvm.functions.Function1!, int, Object!);
     method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion);
     method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs);
+    method @BytecodeOnly @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle! startServer$default(androidx.benchmark.traceprocessor.TraceProcessor.Companion!, long, int, Object!);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class TraceSectionMetric extends androidx.benchmark.macro.Metric {
@@ -256,6 +271,7 @@ package androidx.benchmark.macro {
     ctor public TraceSectionMetric(String sectionName, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode);
     ctor public TraceSectionMetric(String sectionName, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode, optional String label);
     ctor public TraceSectionMetric(String sectionName, optional androidx.benchmark.macro.TraceSectionMetric.Mode mode, optional String label, optional boolean targetPackageOnly);
+    ctor @BytecodeOnly public TraceSectionMetric(String!, androidx.benchmark.macro.TraceSectionMetric.Mode!, String!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public abstract static sealed class TraceSectionMetric.Mode {

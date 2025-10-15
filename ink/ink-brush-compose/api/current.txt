@@ -4,6 +4,7 @@ package androidx.ink.brush.compose {
   public final class BrushExtensions_androidKt {
     method @KotlinOnly @CheckResult public static androidx.ink.brush.Brush copyWithComposeColor(androidx.ink.brush.Brush, androidx.compose.ui.graphics.Color color, optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
     method @BytecodeOnly @CheckResult public static androidx.ink.brush.Brush copyWithComposeColor-iJQMabo(androidx.ink.brush.Brush, long, androidx.ink.brush.BrushFamily, float, float);
+    method @BytecodeOnly @CheckResult public static androidx.ink.brush.Brush! copyWithComposeColor-iJQMabo$default(androidx.ink.brush.Brush!, long, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method @KotlinOnly @CheckResult public static androidx.ink.brush.Brush createWithComposeColor(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily family, androidx.compose.ui.graphics.Color color, float size, float epsilon);
     method @BytecodeOnly @CheckResult public static androidx.ink.brush.Brush createWithComposeColor-XO-JAsU(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily, long, float, float);
     method @BytecodeOnly public static long getComposeColor(androidx.ink.brush.Brush);

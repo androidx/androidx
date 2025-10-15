@@ -43,8 +43,10 @@ package androidx.compose.runtime {
 
   public final class BroadcastFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
     ctor public BroadcastFrameClock();
+    ctor @BytecodeOnly public BroadcastFrameClock(kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public BroadcastFrameClock(optional kotlin.jvm.functions.Function0<kotlin.Unit>? onNewAwaiters);
     method public void cancel(optional java.util.concurrent.CancellationException cancellationException);
+    method @BytecodeOnly public static void cancel$default(androidx.compose.runtime.BroadcastFrameClock!, java.util.concurrent.CancellationException!, int, Object!);
     method @BytecodeOnly public <R> R! fold(R!, kotlin.jvm.functions.Function2<? super R!,? super kotlin.coroutines.CoroutineContext.Element!,? extends R!>);
     method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E!>);
     method @InaccessibleFromKotlin public boolean getHasAwaiters();
@@ -331,6 +333,7 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonSkippableComposable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?>... values, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void CompositionLocalProvider(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>![], kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> defaultFactory);
+    method @BytecodeOnly public static androidx.compose.runtime.ProvidableCompositionLocal! compositionLocalOf$default(androidx.compose.runtime.SnapshotMutationPolicy!, kotlin.jvm.functions.Function0!, int, Object!);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithComputedDefaultOf(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> defaultComputation);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalOf(kotlin.jvm.functions.Function0<? extends T> defaultFactory);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<T> content);
@@ -779,6 +782,7 @@ package androidx.compose.runtime {
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <K, V> androidx.compose.runtime.snapshots.SnapshotStateMap<K,V> mutableStateMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.MutableState<T> mutableStateOf(T value, optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy);
+    method @BytecodeOnly @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableState! mutableStateOf$default(Object!, androidx.compose.runtime.SnapshotMutationPolicy!, int, Object!);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf();
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static <T> androidx.compose.runtime.snapshots.SnapshotStateSet<T> mutableStateSetOf(T... elements);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> neverEqualPolicy();
@@ -913,6 +917,7 @@ package androidx.compose.runtime.collection {
   public final class MutableVectorKt {
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(optional int capacity);
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> MutableVector(int size, kotlin.jvm.functions.Function1<java.lang.Integer,T> init);
+    method @BytecodeOnly public static androidx.compose.runtime.collection.MutableVector! MutableVector$default(int, int, Object!);
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf();
     method @KotlinOnly public static inline <reified T> androidx.compose.runtime.collection.MutableVector<T> mutableVectorOf(T... elements);
   }
@@ -1053,6 +1058,7 @@ package androidx.compose.runtime.snapshots {
     method @InaccessibleFromKotlin public androidx.compose.runtime.snapshots.Snapshot getRoot();
     method public boolean hasPendingChanges();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeNestedMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeNestedMutableSnapshot$default(androidx.compose.runtime.snapshots.MutableSnapshot!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     property public boolean readOnly;
     property public androidx.compose.runtime.snapshots.Snapshot root;
@@ -1074,6 +1080,7 @@ package androidx.compose.runtime.snapshots {
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? makeCurrent();
     method @kotlin.PublishedApi internal void restoreCurrent(androidx.compose.runtime.snapshots.Snapshot? snapshot);
     method public abstract androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.Snapshot! takeNestedSnapshot$default(androidx.compose.runtime.snapshots.Snapshot!, kotlin.jvm.functions.Function1!, int, Object!);
     method public final androidx.compose.runtime.snapshots.Snapshot? unsafeEnter();
     method public final void unsafeLeave(androidx.compose.runtime.snapshots.Snapshot? oldSnapshot);
     property @Deprecated public int id;
@@ -1095,6 +1102,7 @@ package androidx.compose.runtime.snapshots {
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot makeCurrentNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous);
     method public void notifyObjectsInitialized();
     method public <T> T observe(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly public static Object! observe$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public int openSnapshotCount();
     method public androidx.compose.runtime.snapshots.ObserverHandle registerApplyObserver(kotlin.jvm.functions.Function2<? super java.util.Set<?>,? super androidx.compose.runtime.snapshots.Snapshot,kotlin.Unit> observer);
     method public androidx.compose.runtime.snapshots.ObserverHandle registerGlobalWriteObserver(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> observer);
@@ -1103,7 +1111,9 @@ package androidx.compose.runtime.snapshots {
     method @kotlin.PublishedApi internal void restoreNonObservable(androidx.compose.runtime.snapshots.Snapshot? previous, androidx.compose.runtime.snapshots.Snapshot nonObservable, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? observer);
     method public void sendApplyNotifications();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeMutableSnapshot$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
     method public androidx.compose.runtime.snapshots.Snapshot takeSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method @BytecodeOnly public static androidx.compose.runtime.snapshots.Snapshot! takeSnapshot$default(androidx.compose.runtime.snapshots.Snapshot.Companion!, kotlin.jvm.functions.Function1!, int, Object!);
     method public inline <R> R withMutableSnapshot(kotlin.jvm.functions.Function0<? extends R> block);
     method public inline <T> T withoutReadObservation(kotlin.jvm.functions.Function0<? extends T> block);
     property public static int PreexistingSnapshotId;
@@ -1317,6 +1327,7 @@ package androidx.compose.runtime.snapshots.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotInstanceObservers {
     ctor public SnapshotInstanceObservers();
+    ctor @BytecodeOnly public SnapshotInstanceObservers(kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SnapshotInstanceObservers(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getWriteObserver();
@@ -1457,6 +1468,7 @@ package androidx.compose.runtime.tooling {
 
   @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class ParameterSourceInformation {
     ctor public ParameterSourceInformation(int sortedIndex, optional String? name, optional String? inlineClass);
+    ctor @BytecodeOnly public ParameterSourceInformation(int, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getInlineClass();
     method @InaccessibleFromKotlin public String? getName();
     method @InaccessibleFromKotlin public int getSortedIndex();

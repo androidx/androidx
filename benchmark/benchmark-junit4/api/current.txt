@@ -27,10 +27,12 @@ package androidx.benchmark.junit4 {
     ctor public PerfettoTraceRule();
     ctor public PerfettoTraceRule(androidx.benchmark.perfetto.PerfettoConfig config);
     ctor public PerfettoTraceRule(androidx.benchmark.perfetto.PerfettoConfig config, optional boolean enableUserspaceTracing);
+    ctor @BytecodeOnly public PerfettoTraceRule(androidx.benchmark.perfetto.PerfettoConfig!, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PerfettoTraceRule(androidx.benchmark.perfetto.PerfettoConfig config, optional boolean enableUserspaceTracing, optional kotlin.jvm.functions.Function1<? super org.junit.runner.Description,java.lang.String> labelProvider);
     ctor public PerfettoTraceRule(androidx.benchmark.perfetto.PerfettoConfig config, optional boolean enableUserspaceTracing, optional kotlin.jvm.functions.Function1<? super org.junit.runner.Description,java.lang.String> labelProvider, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback);
     ctor public PerfettoTraceRule(optional boolean enableAppTagTracing);
     ctor public PerfettoTraceRule(optional boolean enableAppTagTracing, optional boolean enableUserspaceTracing);
+    ctor @BytecodeOnly public PerfettoTraceRule(boolean, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PerfettoTraceRule(optional boolean enableAppTagTracing, optional boolean enableUserspaceTracing, optional kotlin.jvm.functions.Function1<? super org.junit.runner.Description,java.lang.String> labelProvider);
     ctor public PerfettoTraceRule(optional boolean enableAppTagTracing, optional boolean enableUserspaceTracing, optional kotlin.jvm.functions.Function1<? super org.junit.runner.Description,java.lang.String> labelProvider, optional kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.PerfettoTrace,kotlin.Unit>? traceCallback);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);

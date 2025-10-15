@@ -68,6 +68,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeCameraViewScenePose extends androidx.xr.scenecore.testing.FakeScenePose implements androidx.xr.scenecore.runtime.CameraViewScenePose {
     ctor public FakeCameraViewScenePose();
     ctor public FakeCameraViewScenePose(optional @androidx.xr.scenecore.runtime.CameraViewScenePose.CameraType int cameraType);
+    ctor @BytecodeOnly public FakeCameraViewScenePose(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getCameraType();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.PixelDimensions getDisplayResolutionInPixels();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.CameraViewScenePose.Fov getFov();
@@ -122,6 +123,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeGltfEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.GltfEntity {
     ctor public FakeGltfEntity();
     ctor public FakeGltfEntity(optional androidx.xr.scenecore.runtime.GltfFeature? feature, optional java.util.concurrent.Executor? executor);
+    ctor @BytecodeOnly public FakeGltfEntity(androidx.xr.scenecore.runtime.GltfFeature!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clearMaterialOverride(String nodeName, int primitiveIndex);
     method @InaccessibleFromKotlin public int getAnimationState();
     method @InaccessibleFromKotlin public final String? getCurrentAnimationName();
@@ -202,6 +204,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakePanelEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.PanelEntity {
     ctor public FakePanelEntity();
     ctor public FakePanelEntity(optional android.view.View? view);
+    ctor @BytecodeOnly public FakePanelEntity(android.view.View!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getCornerRadius();
     method public androidx.xr.scenecore.runtime.PerceivedResolutionResult getPerceivedResolution();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Dimensions getSize();
@@ -222,10 +225,12 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakePointerCaptureComponent extends androidx.xr.scenecore.testing.FakeComponent implements androidx.xr.scenecore.runtime.PointerCaptureComponent {
     ctor public FakePointerCaptureComponent();
     ctor public FakePointerCaptureComponent(optional java.util.concurrent.Executor? executor, optional androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener? stateListener);
+    ctor @BytecodeOnly public FakePointerCaptureComponent(java.util.concurrent.Executor!, androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeRenderingRuntime implements androidx.xr.scenecore.runtime.RenderingRuntime {
     ctor public FakeRenderingRuntime(androidx.xr.scenecore.runtime.SceneRuntime sceneRuntime, optional androidx.xr.scenecore.runtime.RenderingEntityFactory entityFactory);
+    ctor @BytecodeOnly public FakeRenderingRuntime(androidx.xr.scenecore.runtime.SceneRuntime!, androidx.xr.scenecore.runtime.RenderingEntityFactory!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.scenecore.runtime.TextureResource? borrowReflectionTexture();
     method public androidx.xr.scenecore.runtime.GltfEntity createGltfEntity(androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.runtime.GltfModelResource loadedGltf, androidx.xr.scenecore.runtime.Entity parentEntity);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.scenecore.runtime.MaterialResource> createKhronosPbrMaterial(androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec spec);
@@ -473,6 +478,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeResizableComponent extends androidx.xr.scenecore.testing.FakeComponent implements androidx.xr.scenecore.runtime.ResizableComponent {
     ctor public FakeResizableComponent();
     ctor public FakeResizableComponent(optional androidx.xr.scenecore.runtime.Dimensions size, optional androidx.xr.scenecore.runtime.Dimensions minimumSize, optional androidx.xr.scenecore.runtime.Dimensions maximumSize, optional boolean isFixedAspectRatioEnabled, optional boolean autoHideContent, optional boolean autoUpdateSize, optional boolean forceShowResizeOverlay);
+    ctor @BytecodeOnly public FakeResizableComponent(androidx.xr.scenecore.runtime.Dimensions!, androidx.xr.scenecore.runtime.Dimensions!, androidx.xr.scenecore.runtime.Dimensions!, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addResizeEventListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.runtime.ResizeEventListener resizeEventListener);
     method @InaccessibleFromKotlin public boolean getAutoHideContent();
     method @InaccessibleFromKotlin public boolean getAutoUpdateSize();
@@ -503,7 +509,9 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeResource implements androidx.xr.scenecore.runtime.ExrImageResource androidx.xr.scenecore.runtime.GltfModelResource androidx.xr.scenecore.runtime.MaterialResource androidx.xr.scenecore.runtime.Resource androidx.xr.scenecore.runtime.TextureResource {
     ctor public FakeResource();
     ctor public FakeResource(optional long token);
+    ctor @BytecodeOnly public FakeResource(long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.scenecore.testing.FakeResource copy(optional long token);
+    method @BytecodeOnly public static androidx.xr.scenecore.testing.FakeResource! copy$default(androidx.xr.scenecore.testing.FakeResource!, long, int, Object!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeScenePose implements androidx.xr.scenecore.runtime.ScenePose {
@@ -524,6 +532,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSceneRuntime implements androidx.xr.scenecore.runtime.RenderingEntityFactory androidx.xr.scenecore.runtime.SceneRuntime {
     ctor public FakeSceneRuntime();
     ctor public FakeSceneRuntime(optional java.util.concurrent.Executor? executor);
+    ctor @BytecodeOnly public FakeSceneRuntime(java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addPerceivedResolutionChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.runtime.PixelDimensions> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.runtime.SpatialCapabilities> listener);
     method public void clearSpatialVisibilityChangedListener();
@@ -700,6 +709,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSubspaceNodeEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.SubspaceNodeEntity {
     ctor public FakeSubspaceNodeEntity();
     ctor public FakeSubspaceNodeEntity(optional androidx.xr.scenecore.runtime.Dimensions size);
+    ctor @BytecodeOnly public FakeSubspaceNodeEntity(androidx.xr.scenecore.runtime.Dimensions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Dimensions getSize();
     method @InaccessibleFromKotlin public void setSize(androidx.xr.scenecore.runtime.Dimensions);
     property public androidx.xr.scenecore.runtime.Dimensions size;
@@ -708,6 +718,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSurfaceEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.SurfaceEntity {
     ctor public FakeSurfaceEntity();
     ctor public FakeSurfaceEntity(optional androidx.xr.scenecore.runtime.SurfaceFeature? feature);
+    ctor @BytecodeOnly public FakeSurfaceEntity(androidx.xr.scenecore.runtime.SurfaceFeature!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.TextureResource? getAuxiliaryAlphaMask();
     method @InaccessibleFromKotlin public int getColorRange();
     method @InaccessibleFromKotlin public int getColorSpace();

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedMethod: androidx.security.state.SecurityPatchState#SecurityPatchState(android.content.Context, java.util.List, androidx.security.state.SecurityStateManagerCompat, String, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.security.state.SecurityPatchState(android.content.Context,java.util.List,androidx.security.state.SecurityStateManagerCompat,String,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel#VersionedSecurityPatchLevel(int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.security.state.SecurityPatchState.VersionedSecurityPatchLevel(int,int,int,int,int,kotlin.jvm.internal.DefaultConstructorMarker)

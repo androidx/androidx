@@ -24,8 +24,10 @@ package androidx.camera.lifecycle {
   @SuppressCompatibility @androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration public static final class LifecycleCameraProvider.Companion {
     method public suspend Object? createInstance(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig, kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
     method public suspend Object? createInstance(android.content.Context context, optional kotlin.coroutines.Continuation<? super androidx.camera.lifecycle.LifecycleCameraProvider>);
+    method @BytecodeOnly public static Object! createInstance$default(androidx.camera.lifecycle.LifecycleCameraProvider.Companion!, android.content.Context!, androidx.camera.core.CameraXConfig!, kotlin.coroutines.Continuation!, int, Object!);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.lifecycle.LifecycleCameraProvider> createInstanceAsync(android.content.Context context, optional androidx.camera.core.CameraXConfig? cameraXConfig);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! createInstanceAsync$default(androidx.camera.lifecycle.LifecycleCameraProvider.Companion!, android.content.Context!, androidx.camera.core.CameraXConfig!, int, Object!);
   }
 
   public final class ProcessCameraProvider implements androidx.camera.core.CameraProvider {

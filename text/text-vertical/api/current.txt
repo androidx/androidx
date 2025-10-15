@@ -4,6 +4,7 @@ package androidx.text.vertical {
   public final class EmphasisSpan extends android.text.style.MetricAffectingSpan {
     ctor public EmphasisSpan();
     ctor public EmphasisSpan(optional int style, optional boolean isFilled, optional float scale);
+    ctor @BytecodeOnly public EmphasisSpan(int, boolean, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getScale();
     method @InaccessibleFromKotlin public int getStyle();
     method @InaccessibleFromKotlin public boolean isFilled();
@@ -37,6 +38,7 @@ package androidx.text.vertical {
   public final class FontShearSpan extends android.text.style.MetricAffectingSpan {
     ctor public FontShearSpan();
     ctor public FontShearSpan(optional float fontShear);
+    ctor @BytecodeOnly public FontShearSpan(float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getFontShear();
     method public void updateDrawState(android.text.TextPaint? p0);
     method public void updateMeasureState(android.text.TextPaint p0);
@@ -98,6 +100,7 @@ package androidx.text.vertical {
     ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint);
     ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint, optional @Px float height);
     ctor public VerticalTextLayout(optional CharSequence text, optional int start, optional int end, optional android.text.TextPaint paint, optional @Px float height, optional int orientation);
+    ctor @BytecodeOnly public VerticalTextLayout(CharSequence!, int, int, android.text.TextPaint!, float, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void draw(android.graphics.Canvas canvas, @Px float x, @Px float y);
     method @InaccessibleFromKotlin @Px public float getWidth();
     method public boolean isVerticalTextSupported();

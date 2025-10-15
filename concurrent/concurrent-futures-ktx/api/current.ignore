@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.concurrent.futures.SuspendToFutureAdapter#launchFuture$default(androidx.concurrent.futures.SuspendToFutureAdapter, kotlin.coroutines.CoroutineContext, boolean, kotlin.jvm.functions.Function2, int, Object):
+    Added method androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture$default(androidx.concurrent.futures.SuspendToFutureAdapter,kotlin.coroutines.CoroutineContext,boolean,kotlin.jvm.functions.Function2,int,Object)

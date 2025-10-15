@@ -54,6 +54,7 @@ package androidx.room3 {
     method @WorkerThread public void addObserver(androidx.room3.InvalidationTracker.Observer observer);
     method public final kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> createFlow(java.lang.String... tables);
     method public final kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> createFlow(String[] tables, optional boolean emitInitialState);
+    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! createFlow$default(androidx.room3.InvalidationTracker!, String![]!, boolean, int, Object!);
     method public final void refreshAsync();
     method public void refreshVersionsAsync();
     method @WorkerThread public void removeObserver(androidx.room3.InvalidationTracker.Observer observer);
@@ -81,8 +82,10 @@ package androidx.room3 {
   public final class Room {
     method public static <T extends androidx.room3.RoomDatabase> androidx.room3.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
     method @KotlinOnly public inline <reified T extends androidx.room3.RoomDatabase> androidx.room3.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, String name, optional kotlin.jvm.functions.Function0<T> factory);
+    method @BytecodeOnly public static androidx.room3.RoomDatabase.Builder! databaseBuilder$default(androidx.room3.Room!, android.content.Context!, String!, kotlin.jvm.functions.Function0!, int, Object!);
     method public static <T extends androidx.room3.RoomDatabase> androidx.room3.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
     method @KotlinOnly public inline <reified T extends androidx.room3.RoomDatabase> androidx.room3.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, optional kotlin.jvm.functions.Function0<T> factory);
+    method @BytecodeOnly public static androidx.room3.RoomDatabase.Builder! inMemoryDatabaseBuilder$default(androidx.room3.Room!, android.content.Context!, kotlin.jvm.functions.Function0!, int, Object!);
     property public static String MASTER_TABLE_NAME;
     field public static final androidx.room3.Room INSTANCE;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
@@ -104,6 +107,7 @@ package androidx.room3 {
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
     method public android.database.Cursor query(String query, Object?[]? args);
+    method @BytecodeOnly public static android.database.Cursor! query$default(androidx.room3.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, android.os.CancellationSignal!, int, Object!);
     method public void runInTransaction(Runnable body);
     method public <V> V runInTransaction(java.util.concurrent.Callable<V> body);
     method @Deprecated public void setTransactionSuccessful();
@@ -199,6 +203,7 @@ package androidx.room3 {
 
   public final class RoomRawQuery {
     ctor public RoomRawQuery(String sql);
+    ctor @BytecodeOnly public RoomRawQuery(String!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public RoomRawQuery(String sql, optional kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,kotlin.Unit> onBindStatement);
     method public kotlin.jvm.functions.Function1<androidx.sqlite.SQLiteStatement,kotlin.Unit> getBindingFunction();
     method @InaccessibleFromKotlin public String getSql();

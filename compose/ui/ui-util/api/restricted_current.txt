@@ -52,6 +52,7 @@ package androidx.compose.ui.util {
     method public static inline <T> void fastForEachIndexed(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
     method public static inline <T> void fastForEachReversed(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action);
     method public static <T> String fastJoinToString(java.util.List<? extends T>, optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.CharSequence>? transform);
+    method @BytecodeOnly public static String! fastJoinToString$default(java.util.List!, CharSequence!, CharSequence!, CharSequence!, int, CharSequence!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static inline <T> T? fastLastOrNull(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public static inline <T, R> java.util.List<R> fastMap(java.util.List<? extends T>, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
     method public static inline <T, R> java.util.List<R> fastMapIndexed(java.util.List<? extends T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends R> transform);

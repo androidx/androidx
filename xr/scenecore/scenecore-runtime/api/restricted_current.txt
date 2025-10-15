@@ -214,6 +214,7 @@ package androidx.xr.scenecore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class InputEvent {
+    ctor @BytecodeOnly public InputEvent(int, int, long, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public InputEvent(int source, int pointerType, long timestamp, androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int action, optional java.util.List<androidx.xr.scenecore.runtime.InputEvent.HitInfo> hitInfoList);
     method @InaccessibleFromKotlin public int getAction();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getDirection();
@@ -790,6 +791,7 @@ package androidx.xr.scenecore.runtime {
     ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.runtime.ExrImageResource? skybox, androidx.xr.scenecore.runtime.GltfModelResource? geometry, optional androidx.xr.scenecore.runtime.MaterialResource? geometryMaterial);
     ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.runtime.ExrImageResource? skybox, androidx.xr.scenecore.runtime.GltfModelResource? geometry, optional androidx.xr.scenecore.runtime.MaterialResource? geometryMaterial, optional String? geometryNodeName);
     ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.runtime.ExrImageResource? skybox, androidx.xr.scenecore.runtime.GltfModelResource? geometry, optional androidx.xr.scenecore.runtime.MaterialResource? geometryMaterial, optional String? geometryNodeName, optional String? geometryAnimationName);
+    ctor @BytecodeOnly public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.runtime.ExrImageResource!, androidx.xr.scenecore.runtime.GltfModelResource!, androidx.xr.scenecore.runtime.MaterialResource!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.GltfModelResource? getGeometry();
     method @InaccessibleFromKotlin public String? getGeometryAnimationName();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.MaterialResource? getGeometryMaterial();

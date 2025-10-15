@@ -1,3 +1,11 @@
 // Baseline format: 1.0
+AddedMethod: androidx.leanback.paging.PagingDataAdapter#PagingDataAdapter(androidx.leanback.widget.Presenter, androidx.recyclerview.widget.DiffUtil.ItemCallback, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.leanback.paging.PagingDataAdapter(androidx.leanback.widget.Presenter,androidx.recyclerview.widget.DiffUtil.ItemCallback,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.leanback.paging.PagingDataAdapter#PagingDataAdapter(androidx.leanback.widget.PresenterSelector, androidx.recyclerview.widget.DiffUtil.ItemCallback, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.leanback.paging.PagingDataAdapter(androidx.leanback.widget.PresenterSelector,androidx.recyclerview.widget.DiffUtil.ItemCallback,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.leanback.paging.PagingDataAdapter#PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.leanback.paging.PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
 RemovedFromKotlin: androidx.leanback.paging.PagingDataAdapter#getLoadStateFlow():
     Source breaking change: method androidx.leanback.paging.PagingDataAdapter.getLoadStateFlow() can no longer be resolved from Kotlin source

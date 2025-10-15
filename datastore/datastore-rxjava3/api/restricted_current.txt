@@ -31,6 +31,7 @@ package androidx.datastore.rxjava3 {
 
   public final class RxDataStoreDelegateKt {
     method public static <T> kotlin.properties.ReadOnlyProperty<android.content.Context,androidx.datastore.rxjava3.RxDataStore<T>> rxDataStore(String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional kotlin.jvm.functions.Function1<? super android.content.Context,? extends java.util.List<? extends androidx.datastore.core.DataMigration<T>>> produceMigrations, optional io.reactivex.rxjava3.core.Scheduler scheduler);
+    method @BytecodeOnly public static kotlin.properties.ReadOnlyProperty! rxDataStore$default(String!, androidx.datastore.core.Serializer!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, kotlin.jvm.functions.Function1!, io.reactivex.rxjava3.core.Scheduler!, int, Object!);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface RxSharedPreferencesMigration<T> {

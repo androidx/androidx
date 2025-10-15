@@ -28,6 +28,7 @@ package androidx.core.uwb {
 
   public final class RangingControleeParameters {
     ctor public RangingControleeParameters(int subSessionId, optional byte[]? subSessionKey);
+    ctor @BytecodeOnly public RangingControleeParameters(int, byte[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getSubSessionId();
     method @InaccessibleFromKotlin public byte[]? getSubSessionKey();
     property public int subSessionId;
@@ -41,6 +42,7 @@ package androidx.core.uwb {
   }
 
   public final class RangingParameters {
+    ctor @BytecodeOnly public RangingParameters(int, int, int, byte[]!, byte[]!, androidx.core.uwb.UwbComplexChannel!, java.util.List!, int, androidx.core.uwb.UwbRangeDataNtfConfig!, long, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType);
     ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType, optional androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig);
     ctor public RangingParameters(int uwbConfigType, int sessionId, int subSessionId, byte[]? sessionKeyInfo, byte[]? subSessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType, optional androidx.core.uwb.UwbRangeDataNtfConfig? uwbRangeDataNtfConfig, optional @IntRange(from=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_1_MILLIS, to=androidx.core.uwb.RangingParameters.RANGING_SLOT_DURATION_2_MILLIS) long slotDurationMillis);

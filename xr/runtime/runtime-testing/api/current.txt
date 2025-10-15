@@ -4,10 +4,13 @@ package androidx.xr.runtime.testing.math {
   public final class MathAssertions {
     method public static void assertPose(androidx.xr.runtime.math.Pose actual, androidx.xr.runtime.math.Pose expected);
     method public static void assertPose(androidx.xr.runtime.math.Pose actual, androidx.xr.runtime.math.Pose expected, optional float epsilon);
+    method @BytecodeOnly public static void assertPose$default(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.Pose!, float, int, Object!);
     method public static void assertRotation(androidx.xr.runtime.math.Quaternion actual, androidx.xr.runtime.math.Quaternion expected);
     method public static void assertRotation(androidx.xr.runtime.math.Quaternion actual, androidx.xr.runtime.math.Quaternion expected, optional float epsilon);
+    method @BytecodeOnly public static void assertRotation$default(androidx.xr.runtime.math.Quaternion!, androidx.xr.runtime.math.Quaternion!, float, int, Object!);
     method public static void assertVector3(androidx.xr.runtime.math.Vector3 actual, androidx.xr.runtime.math.Vector3 expected);
     method public static void assertVector3(androidx.xr.runtime.math.Vector3 actual, androidx.xr.runtime.math.Vector3 expected, optional float epsilon);
+    method @BytecodeOnly public static void assertVector3$default(androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, float, int, Object!);
   }
 
 }

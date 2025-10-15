@@ -11,6 +11,7 @@ package androidx.camera.viewfinder.compose {
   public final class CoordinateTransformerKt {
     method @KotlinOnly public static androidx.camera.viewfinder.compose.MutableCoordinateTransformer MutableCoordinateTransformer(optional androidx.compose.ui.graphics.Matrix matrix);
     method @BytecodeOnly public static androidx.camera.viewfinder.compose.MutableCoordinateTransformer MutableCoordinateTransformer-58bKbWc(float[]);
+    method @BytecodeOnly public static androidx.camera.viewfinder.compose.MutableCoordinateTransformer! MutableCoordinateTransformer-58bKbWc$default(float[]!, int, Object!);
   }
 
   public final class IdentityCoordinateTransformer implements androidx.camera.viewfinder.compose.CoordinateTransformer {

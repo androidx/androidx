@@ -34,6 +34,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 /** Implementation of ResizableComponent. */
@@ -64,6 +65,8 @@ class ResizableComponentImpl implements ResizableComponent {
     private boolean mAutoHideContent = true;
     private boolean mAutoUpdateSize = true;
     private boolean mForceShowResizeOverlay = false;
+
+    private final AtomicBoolean mIsContentHidden = new AtomicBoolean(false);
     private final Dimensions mMinimumValidSize = new Dimensions(0.01f, 0.01f, 0.0f);
 
     /**
@@ -299,8 +302,33 @@ class ResizableComponentImpl implements ResizableComponent {
         ((AndroidXrEntity) mEntity).updateReformOptions();
     }
 
+    private void hideEntityContent() {
+        // Return early if the entity content is already hidden.
+        if (mIsContentHidden.get()) {
+            return;
+        }
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setAlpha(((AndroidXrEntity) mEntity).getNode(), 0f).apply();
+            mIsContentHidden.set(true);
+        }
+    }
+
+    private void restoreEntityContent() {
+        // Return early if the entity content is already visible.
+        if (!mIsContentHidden.get()) {
+            return;
+        }
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setAlpha(((AndroidXrEntity) mEntity).getNode(), mEntity.getAlpha()).apply();
+            mIsContentHidden.set(false);
+        }
+    }
+
     private void reformEventConsumer(ReformEvent reformEvent) {
         if (reformEvent.getType() != ReformEvent.REFORM_TYPE_RESIZE) {
+            if (mIsContentHidden.get()) {
+                restoreEntityContent();
+            }
             return;
         }
         Dimensions newSize =
@@ -318,21 +346,14 @@ class ResizableComponentImpl implements ResizableComponent {
                 (listener, listenerExecutor) ->
                         listenerExecutor.execute(
                                 () -> {
-                                    // Set the alpha to 0 when the resize starts before any app
-                                    // callbacks, and restore when the resize ends after any app
-                                    // callbacks, to hide the entity content while it's being
-                                    // resized.
                                     int reformState = reformEvent.getState();
                                     if (mAutoHideContent
-                                            && reformState == ReformEvent.REFORM_STATE_START) {
-                                        try (NodeTransaction transaction =
-                                                mExtensions.createNodeTransaction()) {
-                                            transaction
-                                                    .setAlpha(
-                                                            ((AndroidXrEntity) mEntity).getNode(),
-                                                            0f)
-                                                    .apply();
-                                        }
+                                            && reformState != ReformEvent.REFORM_STATE_END) {
+                                        // Set the alpha to 0 when the resize is active before any
+                                        // app callbacks, and restore when the resize ends after any
+                                        // app callbacks, to hide the entity content while it's
+                                        // being resized.
+                                        hideEntityContent();
                                     }
                                     listener.onResizeEvent(
                                             new ResizeEvent(
@@ -346,14 +367,7 @@ class ResizableComponentImpl implements ResizableComponent {
                                         // finished resizing when this is called, since the panel
                                         // resize itself is asynchronous, or the app can use this
                                         // callback to schedule resize call on a different thread.
-                                        try (NodeTransaction transaction =
-                                                mExtensions.createNodeTransaction()) {
-                                            transaction
-                                                    .setAlpha(
-                                                            ((AndroidXrEntity) mEntity).getNode(),
-                                                            mEntity.getAlpha())
-                                                    .apply();
-                                        }
+                                        restoreEntityContent();
                                     }
                                 });
         mResizeEventListenerMap.forEach(resizeEventListenerAction);

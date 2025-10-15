@@ -4,8 +4,10 @@ package androidx.core.i18n {
   public final class DateTimeFormatter {
     ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options);
     ctor public DateTimeFormatter(android.content.Context context, androidx.core.i18n.DateTimeFormatterSkeletonOptions options, optional java.util.Locale locale);
+    ctor @BytecodeOnly public DateTimeFormatter(android.content.Context!, androidx.core.i18n.DateTimeFormatterSkeletonOptions!, java.util.Locale!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options);
     ctor public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions options, optional java.util.Locale locale);
+    ctor @BytecodeOnly public DateTimeFormatter(androidx.core.i18n.DateTimeFormatterJdkStyleOptions!, java.util.Locale!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public String format(java.util.Calendar calendar);
     method public String format(java.util.Date date);
     method public String format(long milliseconds);
@@ -95,6 +97,7 @@ package androidx.core.i18n {
   public static final class DateTimeFormatterSkeletonOptions.Builder {
     ctor public DateTimeFormatterSkeletonOptions.Builder();
     ctor public DateTimeFormatterSkeletonOptions.Builder(optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year year, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month month, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay weekDay, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period period, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour hour, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute minute, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second second, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fractionalSecond, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone timezone);
+    ctor @BytecodeOnly public DateTimeFormatterSkeletonOptions.Builder(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond!, androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions build();
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setDay(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setEra(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era);
@@ -345,6 +348,7 @@ package androidx.core.i18n {
     method public String format(android.content.Context context, int id, java.util.Map<java.lang.String,?> namedArguments);
     method public String format(android.content.Context context, String msg, java.util.Map<java.lang.String,?> namedArguments);
     method public String format(android.content.Context context, optional java.util.Locale locale, String msg, java.util.Map<java.lang.String,?> namedArguments);
+    method @BytecodeOnly public static String! format$default(androidx.core.i18n.MessageFormat.Companion!, android.content.Context!, java.util.Locale!, String!, java.util.Map!, int, Object!);
   }
 
 }

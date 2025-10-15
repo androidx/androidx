@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#InProgressStrokesView(android.content.Context, android.util.AttributeSet, int, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.ink.authoring.InProgressStrokesView(android.content.Context,android.util.AttributeSet,int,int,kotlin.jvm.internal.DefaultConstructorMarker)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#addToStroke$default(androidx.ink.authoring.InProgressStrokesView, android.view.MotionEvent, int, android.view.MotionEvent, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.addToStroke$default(androidx.ink.authoring.InProgressStrokesView,android.view.MotionEvent,int,android.view.MotionEvent,int,Object)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#addToStroke$default(androidx.ink.authoring.InProgressStrokesView, android.view.MotionEvent, int, androidx.ink.authoring.InProgressStrokeId, android.view.MotionEvent, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.addToStroke$default(androidx.ink.authoring.InProgressStrokesView,android.view.MotionEvent,int,androidx.ink.authoring.InProgressStrokeId,android.view.MotionEvent,int,Object)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#addToStroke$default(androidx.ink.authoring.InProgressStrokesView, androidx.ink.strokes.StrokeInputBatch, androidx.ink.authoring.InProgressStrokeId, androidx.ink.strokes.StrokeInputBatch, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.addToStroke$default(androidx.ink.authoring.InProgressStrokesView,androidx.ink.strokes.StrokeInputBatch,androidx.ink.authoring.InProgressStrokeId,androidx.ink.strokes.StrokeInputBatch,int,Object)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#cancelStroke$default(androidx.ink.authoring.InProgressStrokesView, androidx.ink.authoring.InProgressStrokeId, android.view.MotionEvent, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.cancelStroke$default(androidx.ink.authoring.InProgressStrokesView,androidx.ink.authoring.InProgressStrokeId,android.view.MotionEvent,int,Object)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#startStroke$default(androidx.ink.authoring.InProgressStrokesView, android.view.MotionEvent, int, androidx.ink.brush.Brush, android.graphics.Matrix, android.graphics.Matrix, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.startStroke$default(androidx.ink.authoring.InProgressStrokesView,android.view.MotionEvent,int,androidx.ink.brush.Brush,android.graphics.Matrix,android.graphics.Matrix,int,Object)
+AddedMethod: androidx.ink.authoring.InProgressStrokesView#startStroke$default(androidx.ink.authoring.InProgressStrokesView, androidx.ink.strokes.StrokeInput, androidx.ink.brush.Brush, android.graphics.Matrix, int, Object):
+    Added method androidx.ink.authoring.InProgressStrokesView.startStroke$default(androidx.ink.authoring.InProgressStrokesView,androidx.ink.strokes.StrokeInput,androidx.ink.brush.Brush,android.graphics.Matrix,int,Object)

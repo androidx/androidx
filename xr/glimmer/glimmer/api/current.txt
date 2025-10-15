@@ -43,9 +43,11 @@ package androidx.xr.glimmer {
   @androidx.compose.runtime.Immutable public final class Colors {
     ctor public Colors();
     ctor @KotlinOnly public Colors(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color positive, optional androidx.compose.ui.graphics.Color negative, optional androidx.compose.ui.graphics.Color surface, optional androidx.compose.ui.graphics.Color outline, optional androidx.compose.ui.graphics.Color outlineVariant);
+    ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.xr.glimmer.Colors copy(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color positive, optional androidx.compose.ui.graphics.Color negative, optional androidx.compose.ui.graphics.Color surface, optional androidx.compose.ui.graphics.Color outline, optional androidx.compose.ui.graphics.Color outlineVariant);
     method @BytecodeOnly public androidx.xr.glimmer.Colors copy-4JmcsL4(long, long, long, long, long, long, long);
+    method @BytecodeOnly public static androidx.xr.glimmer.Colors! copy-4JmcsL4$default(androidx.xr.glimmer.Colors!, long, long, long, long, long, long, long, int, Object!);
     method @BytecodeOnly public long getNegative-0d7_KjU();
     method @BytecodeOnly public long getOutline-0d7_KjU();
     method @BytecodeOnly public long getOutlineVariant-0d7_KjU();
@@ -80,6 +82,7 @@ package androidx.xr.glimmer {
   @androidx.compose.runtime.Immutable public final class DepthLevels {
     ctor public DepthLevels();
     ctor public DepthLevels(optional androidx.xr.glimmer.Depth level1, optional androidx.xr.glimmer.Depth level2, optional androidx.xr.glimmer.Depth level3, optional androidx.xr.glimmer.Depth level4, optional androidx.xr.glimmer.Depth level5);
+    ctor @BytecodeOnly public DepthLevels(androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel1();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel2();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel3();
@@ -95,6 +98,7 @@ package androidx.xr.glimmer {
   @androidx.compose.runtime.Immutable public final class GlimmerTheme {
     ctor public GlimmerTheme();
     ctor public GlimmerTheme(optional androidx.xr.glimmer.Colors colors, optional androidx.xr.glimmer.Typography typography);
+    ctor @BytecodeOnly public GlimmerTheme(androidx.xr.glimmer.Colors!, androidx.xr.glimmer.Typography!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Colors getColors();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthLevels getDepthLevels();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.IconSizes getIconSizes();
@@ -148,9 +152,11 @@ package androidx.xr.glimmer {
   @androidx.compose.runtime.Immutable public final class IconSizes {
     ctor public IconSizes();
     ctor @KotlinOnly public IconSizes(optional androidx.compose.ui.unit.Dp small, optional androidx.compose.ui.unit.Dp medium, optional androidx.compose.ui.unit.Dp large);
+    ctor @BytecodeOnly public IconSizes(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public IconSizes(float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.xr.glimmer.IconSizes copy(optional androidx.compose.ui.unit.Dp small, optional androidx.compose.ui.unit.Dp medium, optional androidx.compose.ui.unit.Dp large);
     method @BytecodeOnly public androidx.xr.glimmer.IconSizes copy-2z7ARbQ(float, float, float);
+    method @BytecodeOnly public static androidx.xr.glimmer.IconSizes! copy-2z7ARbQ$default(androidx.xr.glimmer.IconSizes!, float, float, float, int, Object!);
     method @BytecodeOnly public float getLarge-D9Ej5fM();
     method @BytecodeOnly public float getMedium-D9Ej5fM();
     method @BytecodeOnly public float getSmall-D9Ej5fM();
@@ -161,6 +167,7 @@ package androidx.xr.glimmer {
 
   public final class IndirectTouchGestureKt {
     method public static androidx.compose.ui.Modifier onIndirectTouchGesture(androidx.compose.ui.Modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeForward, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeBackward);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! onIndirectTouchGesture$default(androidx.compose.ui.Modifier!, boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
   public final class ListItemDefaults {
@@ -179,7 +186,9 @@ package androidx.xr.glimmer {
   @androidx.compose.runtime.Immutable public final class Shapes {
     ctor public Shapes();
     ctor public Shapes(optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large);
+    ctor @BytecodeOnly public Shapes(androidx.compose.ui.graphics.Shape!, androidx.compose.ui.graphics.Shape!, androidx.compose.ui.graphics.Shape!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.glimmer.Shapes copy(optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large);
+    method @BytecodeOnly public static androidx.xr.glimmer.Shapes! copy$default(androidx.xr.glimmer.Shapes!, androidx.compose.ui.graphics.Shape!, androidx.compose.ui.graphics.Shape!, androidx.compose.ui.graphics.Shape!, int, Object!);
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getLarge();
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getMedium();
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getSmall();
@@ -234,7 +243,9 @@ package androidx.xr.glimmer {
 
   @androidx.compose.runtime.Immutable public final class Typography {
     ctor public Typography(optional androidx.compose.ui.text.font.FontFamily? defaultFontFamily, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall);
+    ctor @BytecodeOnly public Typography(androidx.compose.ui.text.font.FontFamily!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.glimmer.Typography copy(optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall);
+    method @BytecodeOnly public static androidx.xr.glimmer.Typography! copy$default(androidx.xr.glimmer.Typography!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, androidx.compose.ui.text.TextStyle!, int, Object!);
     method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodyLarge();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodyMedium();
     method @InaccessibleFromKotlin public androidx.compose.ui.text.TextStyle getBodySmall();
@@ -300,14 +311,18 @@ package androidx.xr.glimmer.list {
   public sealed interface ListScope {
     method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListItemScope,kotlin.Unit> content);
     method @BytecodeOnly public void item(Object?, Object?, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.ListItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void item$default(androidx.xr.glimmer.list.ListScope!, Object!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.ListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
     method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.ListItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.ListScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   public final class ListState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public ListState();
     ctor public ListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
+    ctor @BytecodeOnly public ListState(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.xr.glimmer.list.ListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemIndex();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemScrollOffset();
@@ -316,6 +331,7 @@ package androidx.xr.glimmer.list {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollToItem$default(androidx.xr.glimmer.list.ListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
     property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int firstVisibleItemIndex;
@@ -351,19 +367,24 @@ package androidx.xr.glimmer.stack {
   @androidx.compose.runtime.Stable public sealed interface StackScope {
     method public void item(optional Object? key, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.stack.StackItemScope,kotlin.Unit> content);
     method @BytecodeOnly public void item(Object?, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.stack.StackItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void item$default(androidx.xr.glimmer.stack.StackScope!, Object!, kotlin.jvm.functions.Function3!, int, Object!);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.stack.StackItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
     method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.stack.StackItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.stack.StackScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   public final class StackScopeKt {
     method public static inline <T> void items(androidx.xr.glimmer.stack.StackScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.stack.StackItemScope,? super T,kotlin.Unit> itemContent);
     method @BytecodeOnly public static <T> void items(androidx.xr.glimmer.stack.StackScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function1<? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.stack.StackItemScope!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void items$default(androidx.xr.glimmer.stack.StackScope!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public final class StackState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public StackState();
     ctor public StackState(optional @IntRange(from=0L) int initialTopItem);
+    ctor @BytecodeOnly public StackState(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? animateScrollToItem(int item, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToItem$default(androidx.xr.glimmer.stack.StackState!, int, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
     method @InaccessibleFromKotlin public int getTopItem();

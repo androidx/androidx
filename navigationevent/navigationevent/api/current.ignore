@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.navigationevent.NavigationEvent#NavigationEvent(int, float, float, float, long, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.navigationevent.NavigationEvent(int,float,float,float,long,int,kotlin.jvm.internal.DefaultConstructorMarker)

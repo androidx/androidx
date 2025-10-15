@@ -14,6 +14,7 @@ package androidx.fragment.compose {
 
   @androidx.compose.runtime.Stable public final class FragmentState {
     ctor public FragmentState();
+    ctor @BytecodeOnly public FragmentState(androidx.compose.runtime.MutableState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FragmentState(optional androidx.compose.runtime.MutableState<androidx.fragment.app.Fragment.SavedState?> state);
   }
 

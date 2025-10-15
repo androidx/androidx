@@ -11,6 +11,7 @@ package androidx.datastore.core {
 
   public final class CorruptionException extends java.io.IOException {
     ctor public CorruptionException(String message, optional Throwable? cause);
+    ctor @BytecodeOnly public CorruptionException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public interface DataMigration<T> {
@@ -34,10 +35,13 @@ package androidx.datastore.core {
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method @BytecodeOnly public static androidx.datastore.core.DataStore! create$default(androidx.datastore.core.DataStoreFactory!, androidx.datastore.core.Serializer!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, java.util.List!, kotlinx.coroutines.CoroutineScope!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.datastore.core.DataStore! create$default(androidx.datastore.core.DataStoreFactory!, androidx.datastore.core.Storage!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, Object!);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) public <T> androidx.datastore.core.DataStore<T> createInDeviceProtectedStorage(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) public <T> androidx.datastore.core.DataStore<T> createInDeviceProtectedStorage(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) public <T> androidx.datastore.core.DataStore<T> createInDeviceProtectedStorage(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
     method @RequiresApi(android.os.Build.VERSION_CODES.N) public <T> androidx.datastore.core.DataStore<T> createInDeviceProtectedStorage(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.N) public static androidx.datastore.core.DataStore! createInDeviceProtectedStorage$default(androidx.datastore.core.DataStoreFactory!, android.content.Context!, String!, androidx.datastore.core.Serializer!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, Object!);
     field public static final androidx.datastore.core.DataStoreFactory INSTANCE;
   }
 
@@ -46,6 +50,7 @@ package androidx.datastore.core {
   }
 
   public final class FileStorage<T> implements androidx.datastore.core.Storage<T> {
+    ctor @BytecodeOnly public FileStorage(androidx.datastore.core.Serializer!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FileStorage(androidx.datastore.core.Serializer<T> serializer, optional kotlin.jvm.functions.Function1<? super java.io.File,? extends androidx.datastore.core.InterProcessCoordinator> coordinatorProducer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public androidx.datastore.core.StorageConnection<T> createConnection();
   }
@@ -76,6 +81,8 @@ package androidx.datastore.core {
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method @BytecodeOnly public static androidx.datastore.core.DataStore! create$default(androidx.datastore.core.MultiProcessDataStoreFactory!, androidx.datastore.core.Serializer!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, java.util.List!, kotlinx.coroutines.CoroutineScope!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.datastore.core.DataStore! create$default(androidx.datastore.core.MultiProcessDataStoreFactory!, androidx.datastore.core.Storage!, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, Object!);
     field public static final androidx.datastore.core.MultiProcessDataStoreFactory INSTANCE;
   }
 

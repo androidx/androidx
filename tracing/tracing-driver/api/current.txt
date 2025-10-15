@@ -72,18 +72,24 @@ package androidx.tracing.driver {
     method public void beginSection(String name, androidx.tracing.driver.PropagationToken token);
     method public void beginSection(String name, androidx.tracing.driver.PropagationToken token, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock);
     method public void beginSection(String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock);
+    method @BytecodeOnly public static void beginSection$default(androidx.tracing.driver.SliceTrack!, String!, androidx.tracing.driver.PropagationToken!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static void beginSection$default(androidx.tracing.driver.SliceTrack!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     method public void endSection();
     method public final void instant(String name);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public suspend Object? tokenFromCoroutineContext(kotlin.coroutines.Continuation<? super androidx.tracing.driver.PropagationToken>);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public androidx.tracing.driver.PropagationToken? tokenFromThreadContext();
     method public final inline <T> T trace(String name, kotlin.jvm.functions.Function0<? extends T> block);
     method public final inline <T> T trace(String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly public static Object! trace$default(androidx.tracing.driver.SliceTrack!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public final suspend inline <T> Object? traceCoroutine(String name, androidx.tracing.driver.PropagationToken element, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public final suspend inline <T> Object? traceCoroutine(String name, androidx.tracing.driver.PropagationToken element, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
     method public final suspend inline <T> Object? traceCoroutine(String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
     method public final suspend inline <T> Object? traceCoroutine(String name, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method @BytecodeOnly @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public static Object! traceCoroutine$default(androidx.tracing.driver.SliceTrack!, String!, androidx.tracing.driver.PropagationToken!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object! traceCoroutine$default(androidx.tracing.driver.SliceTrack!, String!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public final inline <T> T tracePropagated(String name, androidx.tracing.driver.PropagationToken element, kotlin.jvm.functions.Function0<? extends T> block);
     method @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public final inline <T> T tracePropagated(String name, androidx.tracing.driver.PropagationToken element, optional kotlin.jvm.functions.Function1<? super androidx.tracing.driver.TraceEventScope,kotlin.Unit>? metadataBlock, kotlin.jvm.functions.Function0<? extends T> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.tracing.driver.DelicateTracingApi public static Object! tracePropagated$default(androidx.tracing.driver.SliceTrack!, String!, androidx.tracing.driver.PropagationToken!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
   public class ThreadTrack extends androidx.tracing.driver.SliceTrack {

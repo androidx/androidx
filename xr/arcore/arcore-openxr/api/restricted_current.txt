@@ -4,9 +4,11 @@ package androidx.xr.arcore.openxr {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorState {
     ctor public AnchorState();
     ctor public AnchorState(optional androidx.xr.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose? pose);
+    ctor @BytecodeOnly public AnchorState(androidx.xr.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.runtime.TrackingState component1();
     method public androidx.xr.runtime.math.Pose? component2();
     method public androidx.xr.arcore.openxr.AnchorState copy(optional androidx.xr.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose? pose);
+    method @BytecodeOnly public static androidx.xr.arcore.openxr.AnchorState! copy$default(androidx.xr.arcore.openxr.AnchorState!, androidx.xr.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, int, Object!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public androidx.xr.runtime.math.Pose? pose;
@@ -15,6 +17,7 @@ package androidx.xr.arcore.openxr {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class HandState {
     ctor public HandState();
+    ctor @BytecodeOnly public HandState(androidx.xr.runtime.TrackingState!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HandState(optional androidx.xr.runtime.TrackingState trackingState, optional java.util.List<androidx.xr.runtime.math.Pose> handJoints);
   }
 
@@ -23,6 +26,7 @@ package androidx.xr.arcore.openxr {
     method public androidx.xr.runtime.math.Pose component1();
     method public long component2();
     method public androidx.xr.arcore.openxr.HitData copy(optional androidx.xr.runtime.math.Pose pose, optional long id);
+    method @BytecodeOnly public static androidx.xr.arcore.openxr.HitData! copy$default(androidx.xr.arcore.openxr.HitData!, androidx.xr.runtime.math.Pose!, long, int, Object!);
     method @InaccessibleFromKotlin public long getId();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
     property public long id;
@@ -227,9 +231,11 @@ package androidx.xr.arcore.openxr {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) internal final class ViewCameraState {
     ctor public ViewCameraState();
     ctor public ViewCameraState(optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.runtime.FieldOfView fieldOfView);
+    ctor @BytecodeOnly public ViewCameraState(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.FieldOfView!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.xr.runtime.math.Pose component1();
     method public androidx.xr.runtime.FieldOfView component2();
     method public androidx.xr.arcore.openxr.ViewCameraState copy(optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.runtime.FieldOfView fieldOfView);
+    method @BytecodeOnly public static androidx.xr.arcore.openxr.ViewCameraState! copy$default(androidx.xr.arcore.openxr.ViewCameraState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.FieldOfView!, int, Object!);
     method internal boolean equals(Object? other);
     method @InaccessibleFromKotlin public androidx.xr.runtime.FieldOfView getFieldOfView();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();

@@ -9,6 +9,8 @@ package androidx.compose.ui.tooling.data {
   public final class CompositionDataTreeKt {
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T, R> java.util.List<R> makeTree(java.util.Set<? extends androidx.compose.runtime.tooling.CompositionData>, kotlin.jvm.functions.Function1<? super androidx.compose.runtime.tooling.CompositionInstance,kotlin.Unit> prepareResult, kotlin.jvm.functions.Function4<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? super java.util.List<? extends R>,? extends T?> createNode, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionInstance,? super T?,? super java.util.List<? extends androidx.compose.runtime.tooling.CompositionInstance>,? extends R?> createResult, optional androidx.compose.ui.tooling.data.ContextCache cache);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> java.util.List<T> makeTree(java.util.Set<? extends androidx.compose.runtime.tooling.CompositionData>, kotlin.jvm.functions.Function4<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? super java.util.List<? extends T>,? extends T?> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List! makeTree$default(java.util.Set!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, kotlin.jvm.functions.Function3!, androidx.compose.ui.tooling.data.ContextCache!, int, Object!);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List! makeTree$default(java.util.Set!, kotlin.jvm.functions.Function4!, androidx.compose.ui.tooling.data.ContextCache!, int, Object!);
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class ContextCache {
@@ -44,6 +46,7 @@ package androidx.compose.ui.tooling.data {
     method public Object? component1();
     method public Object? component2();
     method public androidx.compose.ui.tooling.data.JoinedKey copy(optional Object? left, optional Object? right);
+    method @BytecodeOnly public static androidx.compose.ui.tooling.data.JoinedKey! copy$default(androidx.compose.ui.tooling.data.JoinedKey!, Object!, Object!, int, Object!);
     method @InaccessibleFromKotlin public Object? getLeft();
     method @InaccessibleFromKotlin public Object? getRight();
     property public Object? left;
@@ -67,6 +70,7 @@ package androidx.compose.ui.tooling.data {
     method public String? component6();
     method public boolean component7();
     method public androidx.compose.ui.tooling.data.ParameterInformation copy(optional String name, optional Object? value, optional boolean fromDefault, optional boolean static, optional boolean compared, optional String? inlineClass, optional boolean stable);
+    method @BytecodeOnly public static androidx.compose.ui.tooling.data.ParameterInformation! copy$default(androidx.compose.ui.tooling.data.ParameterInformation!, String!, Object!, boolean, boolean, boolean, String!, boolean, int, Object!);
     method @InaccessibleFromKotlin public boolean getCompared();
     method @InaccessibleFromKotlin public boolean getFromDefault();
     method @InaccessibleFromKotlin public String? getInlineClass();
@@ -86,8 +90,10 @@ package androidx.compose.ui.tooling.data {
   public final class SlotTreeKt {
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static androidx.compose.ui.tooling.data.Group asTree(androidx.compose.runtime.tooling.CompositionData);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> findParameters(androidx.compose.runtime.tooling.CompositionGroup, optional androidx.compose.ui.tooling.data.ContextCache? cache);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static java.util.List! findParameters$default(androidx.compose.runtime.tooling.CompositionGroup!, androidx.compose.ui.tooling.data.ContextCache!, int, Object!);
     method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? getPosition(androidx.compose.ui.tooling.data.Group);
     method @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static <T> T? mapTree(androidx.compose.runtime.tooling.CompositionData, kotlin.jvm.functions.Function3<? super androidx.compose.runtime.tooling.CompositionGroup,? super androidx.compose.ui.tooling.data.SourceContext,? super java.util.List<? extends T>,? extends T?> factory, optional androidx.compose.ui.tooling.data.ContextCache cache);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static Object! mapTree$default(androidx.compose.runtime.tooling.CompositionData!, kotlin.jvm.functions.Function3!, androidx.compose.ui.tooling.data.ContextCache!, int, Object!);
     property @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public static String? androidx.compose.ui.tooling.data.Group.position;
   }
 
@@ -114,6 +120,7 @@ package androidx.compose.ui.tooling.data {
     method public String? component4();
     method public int component5();
     method public androidx.compose.ui.tooling.data.SourceLocation copy(optional int lineNumber, optional int offset, optional int length, optional String? sourceFile, optional int packageHash);
+    method @BytecodeOnly public static androidx.compose.ui.tooling.data.SourceLocation! copy$default(androidx.compose.ui.tooling.data.SourceLocation!, int, int, int, String!, int, int, Object!);
     method @InaccessibleFromKotlin public int getLength();
     method @InaccessibleFromKotlin public int getLineNumber();
     method @InaccessibleFromKotlin public int getOffset();

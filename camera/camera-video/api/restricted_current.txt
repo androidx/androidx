@@ -54,6 +54,7 @@ package androidx.camera.video {
   }
 
   @SuppressCompatibility public final class HighSpeedVideoSessionConfig extends androidx.camera.core.SessionConfig {
+    ctor @BytecodeOnly public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture!, androidx.camera.core.Preview!, android.util.Range!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview);
     ctor public HighSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, optional androidx.camera.core.Preview? preview, optional android.util.Range<java.lang.Integer> frameRateRange);
@@ -108,6 +109,7 @@ package androidx.camera.video {
     method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor listenerExecutor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent> listener);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled(optional boolean initialMuted);
+    method @BytecodeOnly @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public static androidx.camera.video.PendingRecording! withAudioEnabled$default(androidx.camera.video.PendingRecording!, boolean, int, Object!);
   }
 
   public class Quality {

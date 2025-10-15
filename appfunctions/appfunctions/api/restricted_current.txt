@@ -6,10 +6,12 @@ package androidx.appfunctions {
 
   public final class AppFunctionAppUnknownException extends androidx.appfunctions.AppFunctionAppException {
     ctor public AppFunctionAppUnknownException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionAppUnknownException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionCancelledException extends androidx.appfunctions.AppFunctionSystemException {
     ctor public AppFunctionCancelledException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionCancelledException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public interface AppFunctionContext {
@@ -87,18 +89,22 @@ package androidx.appfunctions {
 
   public final class AppFunctionDeniedException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionDeniedException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionDeniedException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionDisabledException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionDisabledException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionDisabledException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionElementAlreadyExistsException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionElementAlreadyExistsException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionElementAlreadyExistsException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionElementNotFoundException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionElementNotFoundException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionElementNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public abstract class AppFunctionException extends java.lang.Exception {
@@ -112,6 +118,7 @@ package androidx.appfunctions {
 
   public final class AppFunctionFunctionNotFoundException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionFunctionNotFoundException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionFunctionNotFoundException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionIntValueConstraint {
@@ -122,10 +129,12 @@ package androidx.appfunctions {
 
   public final class AppFunctionInvalidArgumentException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionInvalidArgumentException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionInvalidArgumentException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionLimitExceededException extends androidx.appfunctions.AppFunctionRequestException {
     ctor public AppFunctionLimitExceededException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionLimitExceededException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionManagerCompat {
@@ -150,10 +159,12 @@ package androidx.appfunctions {
 
   public final class AppFunctionNotSupportedException extends androidx.appfunctions.AppFunctionAppException {
     ctor public AppFunctionNotSupportedException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionNotSupportedException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionPermissionRequiredException extends androidx.appfunctions.AppFunctionAppException {
     ctor public AppFunctionPermissionRequiredException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionPermissionRequiredException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public abstract class AppFunctionRequestException extends androidx.appfunctions.AppFunctionException {
@@ -171,6 +182,7 @@ package androidx.appfunctions {
 
   public final class AppFunctionSearchSpec {
     ctor public AppFunctionSearchSpec();
+    ctor @BytecodeOnly public AppFunctionSearchSpec(java.util.Set!, String!, String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory);
     ctor public AppFunctionSearchSpec(optional java.util.Set<java.lang.String>? packageNames, optional String? schemaCategory, optional String? schemaName);
@@ -208,10 +220,12 @@ package androidx.appfunctions {
 
   public final class AppFunctionSystemUnknownException extends androidx.appfunctions.AppFunctionSystemException {
     ctor public AppFunctionSystemUnknownException(optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionSystemUnknownException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionUnknownException extends androidx.appfunctions.AppFunctionException {
     ctor public AppFunctionUnknownException(int errorCode, optional String? errorMessage);
+    ctor @BytecodeOnly public AppFunctionUnknownException(int, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getErrorCode();
     property public int errorCode;
   }
@@ -271,6 +285,7 @@ package androidx.appfunctions {
 package androidx.appfunctions.metadata {
 
   public final class AppFunctionAllOfTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
+    ctor @BytecodeOnly public AppFunctionAllOfTypeMetadata(java.util.List!, String!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionAllOfTypeMetadata(java.util.List<? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> matchAll, String? qualifiedName, boolean isNullable);
     ctor public AppFunctionAllOfTypeMetadata(java.util.List<? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> matchAll, String? qualifiedName, boolean isNullable, optional String description);
     method @InaccessibleFromKotlin public java.util.List<androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> getMatchAll();
@@ -286,6 +301,7 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionAppMetadata {
     ctor public AppFunctionAppMetadata();
     ctor public AppFunctionAppMetadata(optional String description, optional String displayDescription);
+    ctor @BytecodeOnly public AppFunctionAppMetadata(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public String getDisplayDescription();
     property public String description;
@@ -295,6 +311,7 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionArrayTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionArrayTypeMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata itemType, boolean isNullable);
     ctor public AppFunctionArrayTypeMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata itemType, boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionArrayTypeMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata getItemType();
     property public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata itemType;
     field public static final androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata.Companion Companion;
@@ -306,15 +323,18 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionBooleanTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionBooleanTypeMetadata(boolean isNullable);
     ctor public AppFunctionBooleanTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionBooleanTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionBytesTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionBytesTypeMetadata(boolean isNullable);
     ctor public AppFunctionBytesTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionBytesTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionComponentsMetadata {
     ctor public AppFunctionComponentsMetadata();
+    ctor @BytecodeOnly public AppFunctionComponentsMetadata(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionComponentsMetadata(optional java.util.Map<java.lang.String,? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> dataTypes);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> getDataTypes();
     property public java.util.Map<java.lang.String,androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> dataTypes;
@@ -334,16 +354,19 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionDoubleTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionDoubleTypeMetadata(boolean isNullable);
     ctor public AppFunctionDoubleTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionDoubleTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionFloatTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionFloatTypeMetadata(boolean isNullable);
     ctor public AppFunctionFloatTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionFloatTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionIntTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionIntTypeMetadata(boolean isNullable);
     ctor public AppFunctionIntTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionIntTypeMetadata(boolean, String!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionIntTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.Integer>? enumValues);
     method @InaccessibleFromKotlin public java.util.Set<java.lang.Integer>? getEnumValues();
     property public java.util.Set<java.lang.Integer>? enumValues;
@@ -352,9 +375,11 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionLongTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionLongTypeMetadata(boolean isNullable);
     ctor public AppFunctionLongTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionLongTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionMetadata {
+    ctor @BytecodeOnly public AppFunctionMetadata(String!, String!, boolean, androidx.appfunctions.metadata.AppFunctionSchemaMetadata!, java.util.List!, androidx.appfunctions.metadata.AppFunctionResponseMetadata!, androidx.appfunctions.metadata.AppFunctionComponentsMetadata!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response);
     ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, optional androidx.appfunctions.metadata.AppFunctionComponentsMetadata components);
     ctor public AppFunctionMetadata(String id, String packageName, boolean isEnabled, androidx.appfunctions.metadata.AppFunctionSchemaMetadata? schema, java.util.List<androidx.appfunctions.metadata.AppFunctionParameterMetadata> parameters, androidx.appfunctions.metadata.AppFunctionResponseMetadata response, optional androidx.appfunctions.metadata.AppFunctionComponentsMetadata components, optional String description);
@@ -377,6 +402,7 @@ package androidx.appfunctions.metadata {
   }
 
   public final class AppFunctionObjectTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
+    ctor @BytecodeOnly public AppFunctionObjectTypeMetadata(java.util.Map!, java.util.List!, String!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionObjectTypeMetadata(java.util.Map<java.lang.String,? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> properties, java.util.List<java.lang.String> required, String? qualifiedName, boolean isNullable);
     ctor public AppFunctionObjectTypeMetadata(java.util.Map<java.lang.String,? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> properties, java.util.List<java.lang.String> required, String? qualifiedName, boolean isNullable, optional String description);
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> getProperties();
@@ -392,6 +418,7 @@ package androidx.appfunctions.metadata {
   }
 
   public final class AppFunctionOneOfTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
+    ctor @BytecodeOnly public AppFunctionOneOfTypeMetadata(java.util.List!, String!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionOneOfTypeMetadata(java.util.List<? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> matchOneOf, String qualifiedName, boolean isNullable);
     ctor public AppFunctionOneOfTypeMetadata(java.util.List<? extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> matchOneOf, String qualifiedName, boolean isNullable, optional String description);
     method @InaccessibleFromKotlin public java.util.List<androidx.appfunctions.metadata.AppFunctionDataTypeMetadata> getMatchOneOf();
@@ -416,6 +443,7 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionParameterMetadata {
     ctor public AppFunctionParameterMetadata(String name, boolean isRequired, androidx.appfunctions.metadata.AppFunctionDataTypeMetadata dataType);
     ctor public AppFunctionParameterMetadata(String name, boolean isRequired, androidx.appfunctions.metadata.AppFunctionDataTypeMetadata dataType, optional String description);
+    ctor @BytecodeOnly public AppFunctionParameterMetadata(String!, boolean, androidx.appfunctions.metadata.AppFunctionDataTypeMetadata!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata getDataType();
     method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public String getName();
@@ -429,11 +457,13 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionPendingIntentTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionPendingIntentTypeMetadata(boolean isNullable);
     ctor public AppFunctionPendingIntentTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionPendingIntentTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public final class AppFunctionReferenceTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionReferenceTypeMetadata(String referenceDataType, boolean isNullable);
     ctor public AppFunctionReferenceTypeMetadata(String referenceDataType, boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionReferenceTypeMetadata(String!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getReferenceDataType();
     property public String referenceDataType;
     field public static final androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata.Companion Companion;
@@ -445,6 +475,7 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionResponseMetadata {
     ctor public AppFunctionResponseMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata valueType);
     ctor public AppFunctionResponseMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata valueType, optional String description);
+    ctor @BytecodeOnly public AppFunctionResponseMetadata(androidx.appfunctions.metadata.AppFunctionDataTypeMetadata!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getDescription();
     method @InaccessibleFromKotlin public androidx.appfunctions.metadata.AppFunctionDataTypeMetadata getValueType();
     property public String description;
@@ -464,6 +495,7 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionStringTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionStringTypeMetadata(boolean isNullable);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionStringTypeMetadata(boolean, String!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues);
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String>? getEnumValues();
     property public java.util.Set<java.lang.String>? enumValues;
@@ -473,6 +505,7 @@ package androidx.appfunctions.metadata {
     ctor public AppFunctionUnitTypeMetadata();
     ctor public AppFunctionUnitTypeMetadata(optional boolean isNullable);
     ctor public AppFunctionUnitTypeMetadata(optional boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionUnitTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
 }

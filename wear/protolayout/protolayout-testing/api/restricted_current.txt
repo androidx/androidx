@@ -12,6 +12,7 @@ package androidx.wear.protolayout.testing {
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableWidth);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableWidth, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableHeight);
+    method @BytecodeOnly public static androidx.wear.protolayout.testing.LayoutElementMatcher! hasClickable$default(androidx.wear.protolayout.ActionBuilders.Action!, String!, float, float, int, Object!);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasColor(@ColorInt int argb);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasContentDescription(String value);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasContentDescription(kotlin.text.Regex pattern);
@@ -23,6 +24,7 @@ package androidx.wear.protolayout.testing {
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value, optional boolean subString);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value, optional boolean subString, optional boolean ignoreCase);
+    method @BytecodeOnly public static androidx.wear.protolayout.testing.LayoutElementMatcher! hasText$default(String!, boolean, boolean, int, Object!);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasTopLeftCorner(float xRadiusDp, float yRadiusDp);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasTopRightCorner(float xRadiusDp, float yRadiusDp);
     method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension width);

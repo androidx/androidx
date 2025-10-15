@@ -179,6 +179,7 @@ package androidx.camera.testing.imagecapture {
     method public androidx.camera.testing.imagecapture.CaptureResult failedResult();
     method public androidx.camera.testing.imagecapture.CaptureResult successfulResult();
     method public androidx.camera.testing.imagecapture.CaptureResult successfulResult(optional androidx.camera.testing.fakes.FakeCameraCaptureResult fakeCameraCaptureResult);
+    method @BytecodeOnly public static androidx.camera.testing.imagecapture.CaptureResult! successfulResult$default(androidx.camera.testing.imagecapture.CaptureResult.Companion!, androidx.camera.testing.fakes.FakeCameraCaptureResult!, int, Object!);
     property public static int CAPTURE_STATUS_CANCELLED;
     property public static int CAPTURE_STATUS_FAILED;
     property public static int CAPTURE_STATUS_SUCCESSFUL;

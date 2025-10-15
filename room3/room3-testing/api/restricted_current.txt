@@ -2,10 +2,12 @@
 package androidx.room3.testing {
 
   public class MigrationTestHelper extends org.junit.rules.TestWatcher {
+    ctor @BytecodeOnly public MigrationTestHelper(android.app.Instrumentation!, java.io.File!, androidx.sqlite.SQLiteDriver!, kotlin.reflect.KClass!, kotlin.jvm.functions.Function0!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public MigrationTestHelper(android.app.Instrumentation instrumentation, java.io.File file, androidx.sqlite.SQLiteDriver driver, kotlin.reflect.KClass<? extends androidx.room3.RoomDatabase> databaseClass, optional kotlin.jvm.functions.Function0<? extends androidx.room3.RoomDatabase> databaseFactory, optional java.util.List<? extends androidx.room3.migration.AutoMigrationSpec> autoMigrationSpecs);
     method public void closeWhenFinished(androidx.room3.RoomDatabase db);
     method public final androidx.sqlite.SQLiteConnection createDatabase(int version);
     method public final androidx.sqlite.SQLiteConnection runMigrationsAndValidate(int version, optional java.util.List<? extends androidx.room3.migration.Migration> migrations);
+    method @BytecodeOnly public static androidx.sqlite.SQLiteConnection! runMigrationsAndValidate$default(androidx.room3.testing.MigrationTestHelper!, int, java.util.List!, int, Object!);
   }
 
 }

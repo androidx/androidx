@@ -3,6 +3,7 @@ package androidx.photopicker.compose {
 
   @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public abstract class AbstractEmbeddedPhotoPickerState implements androidx.photopicker.compose.EmbeddedPhotoPickerState {
     ctor public AbstractEmbeddedPhotoPickerState();
+    ctor @BytecodeOnly public AbstractEmbeddedPhotoPickerState(boolean, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AbstractEmbeddedPhotoPickerState(optional boolean isExpanded, optional java.util.Set<? extends android.net.Uri> media);
     method public final suspend Object? deselectUris(java.util.List<? extends android.net.Uri> uris, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public final int getDisplayId();

@@ -29,31 +29,37 @@ package androidx.xr.arcore.runtime {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AnchorException extends java.lang.Exception {
     ctor public AnchorException(String message, optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorInvalidUuidException extends androidx.xr.arcore.runtime.AnchorException {
     ctor public AnchorInvalidUuidException();
     ctor public AnchorInvalidUuidException(optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorInvalidUuidException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorNotAuthorizedException extends androidx.xr.arcore.runtime.AnchorException {
     ctor public AnchorNotAuthorizedException();
     ctor public AnchorNotAuthorizedException(optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorNotAuthorizedException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorNotTrackingException extends androidx.xr.arcore.runtime.AnchorException {
     ctor public AnchorNotTrackingException();
     ctor public AnchorNotTrackingException(optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorNotTrackingException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorResourcesExhaustedException extends androidx.xr.arcore.runtime.AnchorException {
     ctor public AnchorResourcesExhaustedException();
     ctor public AnchorResourcesExhaustedException(optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorResourcesExhaustedException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorUnsupportedLocationException extends androidx.xr.arcore.runtime.AnchorException {
     ctor public AnchorUnsupportedLocationException();
     ctor public AnchorUnsupportedLocationException(optional Throwable? cause);
+    ctor @BytecodeOnly public AnchorUnsupportedLocationException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ArDevice {
@@ -184,11 +190,13 @@ package androidx.xr.arcore.runtime {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GeospatialPoseException extends java.lang.Exception {
     ctor public GeospatialPoseException(String message, optional Throwable? cause);
+    ctor @BytecodeOnly public GeospatialPoseException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GeospatialPoseNotTrackingException extends androidx.xr.arcore.runtime.GeospatialPoseException {
     ctor public GeospatialPoseNotTrackingException();
     ctor public GeospatialPoseNotTrackingException(optional Throwable? cause);
+    ctor @BytecodeOnly public GeospatialPoseNotTrackingException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Hand {

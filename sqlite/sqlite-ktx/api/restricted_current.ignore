@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.sqlite.db.SupportSQLiteDatabaseKt#transaction$default(androidx.sqlite.db.SupportSQLiteDatabase, boolean, kotlin.jvm.functions.Function1, int, Object):
+    Added method androidx.sqlite.db.SupportSQLiteDatabaseKt.transaction$default(androidx.sqlite.db.SupportSQLiteDatabase,boolean,kotlin.jvm.functions.Function1,int,Object)

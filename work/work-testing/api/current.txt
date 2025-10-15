@@ -32,6 +32,7 @@ package androidx.work.testing {
 
   public final class TestListenableWorkerBuilderKt {
     method @KotlinOnly public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
+    method @BytecodeOnly public static androidx.work.testing.TestListenableWorkerBuilder! TestListenableWorkerBuilder$default(android.content.Context!, androidx.work.Data!, java.util.List!, int, java.util.List!, java.util.List!, int, Object!);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W!> {
@@ -41,6 +42,7 @@ package androidx.work.testing {
 
   public final class TestWorkerBuilderKt {
     method @KotlinOnly public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
+    method @BytecodeOnly public static androidx.work.testing.TestWorkerBuilder! TestWorkerBuilder$default(android.content.Context!, java.util.concurrent.Executor!, androidx.work.Data!, java.util.List!, int, java.util.List!, java.util.List!, int, Object!);
   }
 
   public final class WorkManagerTestInitHelper {

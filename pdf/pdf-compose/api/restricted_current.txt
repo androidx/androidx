@@ -7,8 +7,10 @@ package androidx.pdf.compose {
 
   public static final class FastScrollConfiguration.Companion {
     method public androidx.pdf.compose.FastScrollConfiguration withDrawableAndDimensionIds(optional @DrawableRes int fastScrollPageIndicatorBackgroundDrawableRes, optional @DrawableRes int fastScrollVerticalThumbDrawableRes, optional @DimenRes int fastScrollPageIndicatorMarginEndRes, optional @DimenRes int fastScrollVerticalThumbMarginEndRes);
+    method @BytecodeOnly public static androidx.pdf.compose.FastScrollConfiguration! withDrawableAndDimensionIds$default(androidx.pdf.compose.FastScrollConfiguration.Companion!, int, int, int, int, int, Object!);
     method @KotlinOnly public androidx.pdf.compose.FastScrollConfiguration withDrawableIdsAndDp(optional @DrawableRes int fastScrollPageIndicatorBackgroundDrawableRes, optional @DrawableRes int fastScrollVerticalThumbDrawableRes, optional androidx.compose.ui.unit.Dp fastScrollPageIndicatorMarginEnd, optional androidx.compose.ui.unit.Dp fastScrollVerticalThumbMarginEnd);
     method @BytecodeOnly public androidx.pdf.compose.FastScrollConfiguration withDrawableIdsAndDp-4j6BHR0(@DrawableRes int, @DrawableRes int, float, float);
+    method @BytecodeOnly public static androidx.pdf.compose.FastScrollConfiguration! withDrawableIdsAndDp-4j6BHR0$default(androidx.pdf.compose.FastScrollConfiguration.Companion!, int, int, float, float, int, Object!);
   }
 
   public final class PdfSelectionMenuBuilderScope {

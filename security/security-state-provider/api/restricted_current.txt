@@ -24,6 +24,7 @@ package androidx.security.state.provider {
 
   public final class UpdateInfoManager {
     ctor public UpdateInfoManager(android.content.Context context, optional androidx.security.state.SecurityPatchState? customSecurityState);
+    ctor @BytecodeOnly public UpdateInfoManager(android.content.Context!, androidx.security.state.SecurityPatchState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void registerUpdate(androidx.security.state.provider.UpdateInfo updateInfo);
     method public void unregisterUpdate(androidx.security.state.provider.UpdateInfo updateInfo);
   }

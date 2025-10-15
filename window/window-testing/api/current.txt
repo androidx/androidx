@@ -24,6 +24,7 @@ package androidx.window.testing.embedding {
     method @InaccessibleFromKotlin public static androidx.window.embedding.ActivityStack createTestActivityStack();
     method @InaccessibleFromKotlin public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess);
     method @InaccessibleFromKotlin public static androidx.window.embedding.ActivityStack createTestActivityStack(optional java.util.List<? extends android.app.Activity> activitiesInProcess, optional boolean isEmpty);
+    method @BytecodeOnly public static androidx.window.embedding.ActivityStack! createTestActivityStack$default(java.util.List!, boolean, int, Object!);
   }
 
   public final class TestSplitAttributesCalculatorParams {
@@ -34,6 +35,7 @@ package androidx.window.testing.embedding {
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes);
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied);
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitAttributesCalculatorParams createTestSplitAttributesCalculatorParams(androidx.window.layout.WindowMetrics parentWindowMetrics, optional android.content.res.Configuration parentConfiguration, optional androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo, optional androidx.window.embedding.SplitAttributes defaultSplitAttributes, optional boolean areDefaultConstraintsSatisfied, optional String? splitRuleTag);
+    method @BytecodeOnly public static androidx.window.embedding.SplitAttributesCalculatorParams! createTestSplitAttributesCalculatorParams$default(androidx.window.layout.WindowMetrics!, android.content.res.Configuration!, androidx.window.layout.WindowLayoutInfo!, androidx.window.embedding.SplitAttributes!, boolean, String!, int, Object!);
   }
 
   public final class TestSplitInfo {
@@ -42,6 +44,7 @@ package androidx.window.testing.embedding {
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack);
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack);
     method @InaccessibleFromKotlin public static androidx.window.embedding.SplitInfo createTestSplitInfo(optional androidx.window.embedding.ActivityStack primaryActivityStack, optional androidx.window.embedding.ActivityStack secondActivityStack, optional androidx.window.embedding.SplitAttributes splitAttributes);
+    method @BytecodeOnly public static androidx.window.embedding.SplitInfo! createTestSplitInfo$default(androidx.window.embedding.ActivityStack!, androidx.window.embedding.ActivityStack!, androidx.window.embedding.SplitAttributes!, int, Object!);
   }
 
 }
@@ -61,6 +64,8 @@ package androidx.window.testing.layout {
     method @InaccessibleFromKotlin public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional @IntRange(from=-1L) int center, optional int size);
     method @InaccessibleFromKotlin public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional @IntRange(from=-1L) int center, optional int size, optional androidx.window.layout.FoldingFeature.State state);
     method @InaccessibleFromKotlin public static androidx.window.layout.FoldingFeature createFoldingFeature(android.graphics.Rect windowBounds, optional @IntRange(from=-1L) int center, optional int size, optional androidx.window.layout.FoldingFeature.State state, optional androidx.window.layout.FoldingFeature.Orientation orientation);
+    method @BytecodeOnly public static androidx.window.layout.FoldingFeature! createFoldingFeature$default(android.app.Activity!, int, int, androidx.window.layout.FoldingFeature.State!, androidx.window.layout.FoldingFeature.Orientation!, int, Object!);
+    method @BytecodeOnly public static androidx.window.layout.FoldingFeature! createFoldingFeature$default(android.graphics.Rect!, int, int, androidx.window.layout.FoldingFeature.State!, androidx.window.layout.FoldingFeature.Orientation!, int, Object!);
   }
 
   public final class FoldingFeatureTestingConstants {
@@ -79,6 +84,7 @@ package androidx.window.testing.layout {
     method @KotlinOnly public static androidx.window.layout.WindowLayoutInfo TestWindowLayoutInfo(optional java.util.List<androidx.window.layout.DisplayFeature> displayFeatures);
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo();
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowLayoutInfo createWindowLayoutInfo(optional java.util.List<? extends androidx.window.layout.DisplayFeature> displayFeatures);
+    method @BytecodeOnly public static androidx.window.layout.WindowLayoutInfo! createWindowLayoutInfo$default(java.util.List!, int, Object!);
   }
 
   public final class WindowMetricsCalculatorRule implements org.junit.rules.TestRule {
@@ -95,6 +101,8 @@ package androidx.window.testing.layout {
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowMetrics createWindowMetrics(android.graphics.Rect bounds, optional float density);
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowMetrics createWindowMetrics(int left, int top, int right, int bottom);
     method @InaccessibleFromKotlin public static androidx.window.layout.WindowMetrics createWindowMetrics(int left, int top, int right, int bottom, optional float density);
+    method @BytecodeOnly public static androidx.window.layout.WindowMetrics! createWindowMetrics$default(android.graphics.Rect!, float, int, Object!);
+    method @BytecodeOnly public static androidx.window.layout.WindowMetrics! createWindowMetrics$default(int, int, int, int, float, int, Object!);
   }
 
 }

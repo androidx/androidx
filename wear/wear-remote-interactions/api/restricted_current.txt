@@ -4,11 +4,13 @@ package androidx.wear.remote.interactions {
   public final class RemoteActivityHelper {
     ctor public RemoteActivityHelper(android.content.Context context);
     ctor public RemoteActivityHelper(android.content.Context context, optional java.util.concurrent.Executor executor);
+    ctor @BytecodeOnly public RemoteActivityHelper(android.content.Context!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<java.lang.Integer> getAvailabilityStatus();
     method public static android.content.Intent? getTargetIntent(android.content.Intent intent);
     method public static String? getTargetNodeId(android.content.Intent intent);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
+    method @BytecodeOnly public static com.google.common.util.concurrent.ListenableFuture! startRemoteActivity$default(androidx.wear.remote.interactions.RemoteActivityHelper!, android.content.Intent!, String!, int, Object!);
     property public kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
     field public static final String ACTION_REMOTE_INTENT = "com.google.android.wearable.intent.action.REMOTE_INTENT";
     field public static final androidx.wear.remote.interactions.RemoteActivityHelper.Companion Companion;

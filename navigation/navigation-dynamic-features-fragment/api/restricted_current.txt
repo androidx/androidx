@@ -34,6 +34,9 @@ package androidx.navigation.dynamicfeatures.fragment {
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method @BytecodeOnly public static void fragment$default(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder!, String!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static void fragment$default(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder!, java.util.Map!, int, Object!);
+    method @BytecodeOnly public static void fragment$default(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
@@ -47,6 +50,7 @@ package androidx.navigation.dynamicfeatures.fragment {
   public static final class DynamicNavHostFragment.Companion {
     method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
     method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method @BytecodeOnly public static androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment! create$default(androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment.Companion!, int, android.os.Bundle!, int, Object!);
   }
 
 }

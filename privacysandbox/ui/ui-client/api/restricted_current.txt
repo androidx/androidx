@@ -18,8 +18,10 @@ package androidx.privacysandbox.ui.client.view {
   public final class SandboxedSdkView extends android.view.ViewGroup {
     ctor public SandboxedSdkView(android.content.Context context);
     ctor public SandboxedSdkView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor @BytecodeOnly public SandboxedSdkView(android.content.Context!, android.util.AttributeSet!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @SuppressCompatibility @androidx.privacysandbox.ui.core.ExperimentalFeatures.ChangingContentUiZOrderApi public void orderProviderUiAboveClientUi(boolean providerUiOnTop);
     method public void preserveSessionOnWindowDetachment(optional boolean preserveSessionOnWindowDetachment);
+    method @BytecodeOnly public static void preserveSessionOnWindowDetachment$default(androidx.privacysandbox.ui.client.view.SandboxedSdkView!, boolean, int, Object!);
     method public void setAdapter(androidx.privacysandbox.ui.core.SandboxedUiAdapter? sandboxedUiAdapter);
     method public void setEventListener(androidx.privacysandbox.ui.client.view.SandboxedSdkViewEventListener? eventListener);
   }
@@ -33,6 +35,7 @@ package androidx.privacysandbox.ui.client.view {
   @SuppressCompatibility @androidx.privacysandbox.ui.core.ExperimentalFeatures.SharedUiPresentationApi public final class SharedUiAsset {
     ctor public SharedUiAsset(android.view.View view, String assetId);
     ctor public SharedUiAsset(android.view.View view, String assetId, optional androidx.privacysandbox.ui.core.SandboxedUiAdapter? sandboxedUiAdapter);
+    ctor @BytecodeOnly public SharedUiAsset(android.view.View!, String!, androidx.privacysandbox.ui.core.SandboxedUiAdapter!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String getAssetId();
     method @InaccessibleFromKotlin public androidx.privacysandbox.ui.core.SandboxedUiAdapter? getSandboxedUiAdapter();
     method @InaccessibleFromKotlin public android.view.View getView();
@@ -44,6 +47,7 @@ package androidx.privacysandbox.ui.client.view {
   @SuppressCompatibility @androidx.privacysandbox.ui.core.ExperimentalFeatures.SharedUiPresentationApi public final class SharedUiContainer extends android.view.ViewGroup {
     ctor public SharedUiContainer(android.content.Context context);
     ctor public SharedUiContainer(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor @BytecodeOnly public SharedUiContainer(android.content.Context!, android.util.AttributeSet!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public boolean registerSharedUiAsset(androidx.privacysandbox.ui.client.view.SharedUiAsset sharedUiAsset);
     method public void setAdapter(androidx.privacysandbox.ui.core.SharedUiAdapter? sharedUiAdapter);
     method public boolean unregisterSharedUiAsset(android.view.View view);

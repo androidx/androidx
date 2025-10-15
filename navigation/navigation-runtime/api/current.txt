@@ -84,10 +84,12 @@ package androidx.navigation {
     method @Deprecated public static inline void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
     method public static inline void activity(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
     method @KotlinOnly public static inline <reified T> void activity(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method @BytecodeOnly public static void activity$default(androidx.navigation.NavGraphBuilder!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class ActivityNavigatorExtrasKt {
     method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(optional androidx.core.app.ActivityOptionsCompat? activityOptions, optional int flags);
+    method @BytecodeOnly public static androidx.navigation.ActivityNavigator.Extras! ActivityNavigatorExtras$default(androidx.core.app.ActivityOptionsCompat!, int, int, Object!);
   }
 
   public class NavController {
@@ -137,6 +139,8 @@ package androidx.navigation {
     method @MainThread public final <T> void navigate(T route, optional androidx.navigation.NavOptions? navOptions);
     method @MainThread public final <T> void navigate(T route, optional androidx.navigation.NavOptions? navOptions, optional androidx.navigation.Navigator.Extras? navigatorExtras);
     method @MainThread public final <T> void navigate(T route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
+    method @BytecodeOnly @MainThread public static void navigate$default(androidx.navigation.NavController!, Object!, androidx.navigation.NavOptions!, androidx.navigation.Navigator.Extras!, int, Object!);
+    method @BytecodeOnly @MainThread public static void navigate$default(androidx.navigation.NavController!, String!, androidx.navigation.NavOptions!, androidx.navigation.Navigator.Extras!, int, Object!);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
     method @BytecodeOnly @MainThread public final <T> boolean popBackStack(boolean);
@@ -149,6 +153,10 @@ package androidx.navigation {
     method @MainThread public final <T> boolean popBackStack(kotlin.reflect.KClass<T> route, boolean inclusive, optional boolean saveState);
     method @MainThread public final <T> boolean popBackStack(T route, boolean inclusive);
     method @MainThread public final <T> boolean popBackStack(T route, boolean inclusive, optional boolean saveState);
+    method @BytecodeOnly public static boolean popBackStack$default(androidx.navigation.NavController!, boolean, boolean, int, Object!);
+    method @BytecodeOnly @MainThread public static boolean popBackStack$default(androidx.navigation.NavController!, Object!, boolean, boolean, int, Object!);
+    method @BytecodeOnly @MainThread public static boolean popBackStack$default(androidx.navigation.NavController!, String!, boolean, boolean, int, Object!);
+    method @BytecodeOnly @MainThread public static boolean popBackStack$default(androidx.navigation.NavController!, kotlin.reflect.KClass!, boolean, boolean, int, Object!);
     method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
     method @CallSuper public void restoreState(android.os.Bundle? navState);
     method @CallSuper public android.os.Bundle? saveState();
@@ -182,6 +190,10 @@ package androidx.navigation {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, Object startDestination, optional kotlin.reflect.KClass<? extends java.lang.Object?>? route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, kotlin.reflect.KClass<? extends java.lang.Object?> startDestination, optional kotlin.reflect.KClass<? extends java.lang.Object?>? route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method @BytecodeOnly @Deprecated public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavController!, int, int, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavController!, Object!, kotlin.reflect.KClass!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavController!, String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavController!, kotlin.reflect.KClass!, kotlin.reflect.KClass!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class NavDeepLinkBuilder {
@@ -190,6 +202,8 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder addDestination(@IdRes int destId, optional android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder addDestination(String route);
     method public androidx.navigation.NavDeepLinkBuilder addDestination(String route, optional android.os.Bundle? args);
+    method @BytecodeOnly public static androidx.navigation.NavDeepLinkBuilder! addDestination$default(androidx.navigation.NavDeepLinkBuilder!, int, android.os.Bundle!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavDeepLinkBuilder! addDestination$default(androidx.navigation.NavDeepLinkBuilder!, String!, android.os.Bundle!, int, Object!);
     method public android.app.PendingIntent createPendingIntent();
     method public androidx.core.app.TaskStackBuilder createTaskStackBuilder();
     method public androidx.navigation.NavDeepLinkBuilder setArguments(android.os.Bundle? args);
@@ -199,6 +213,8 @@ package androidx.navigation {
     method public androidx.navigation.NavDeepLinkBuilder setDestination(@IdRes int destId, optional android.os.Bundle? args);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute);
     method public androidx.navigation.NavDeepLinkBuilder setDestination(String destRoute, optional android.os.Bundle? args);
+    method @BytecodeOnly public static androidx.navigation.NavDeepLinkBuilder! setDestination$default(androidx.navigation.NavDeepLinkBuilder!, int, android.os.Bundle!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavDeepLinkBuilder! setDestination$default(androidx.navigation.NavDeepLinkBuilder!, String!, android.os.Bundle!, int, Object!);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(androidx.navigation.NavGraph navGraph);
     method public androidx.navigation.NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId);
   }
@@ -224,6 +240,10 @@ package androidx.navigation {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, Object startDestination, optional kotlin.reflect.KClass<? extends java.lang.Object?>? route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, kotlin.reflect.KClass<? extends java.lang.Object?> startDestination, optional kotlin.reflect.KClass<? extends java.lang.Object?>? route, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method @BytecodeOnly @Deprecated public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavHost!, int, int, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavHost!, Object!, kotlin.reflect.KClass!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavHost!, String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static androidx.navigation.NavGraph! createGraph$default(androidx.navigation.NavHost!, kotlin.reflect.KClass!, kotlin.reflect.KClass!, java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class NavInflater {
@@ -239,6 +259,7 @@ package androidx.navigation {
     method public static android.view.View.OnClickListener createNavigateOnClickListener(androidx.navigation.NavDirections directions);
     method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int resId);
     method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int resId, optional android.os.Bundle? args);
+    method @BytecodeOnly public static android.view.View.OnClickListener! createNavigateOnClickListener$default(int, android.os.Bundle!, int, Object!);
     method public static androidx.navigation.NavController findNavController(android.app.Activity activity, @IdRes int viewId);
     method public static androidx.navigation.NavController findNavController(android.view.View view);
     method public static void setViewNavController(android.view.View view, androidx.navigation.NavController? controller);

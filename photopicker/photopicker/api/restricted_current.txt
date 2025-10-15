@@ -6,6 +6,7 @@ package androidx.photopicker {
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
     ctor public EmbeddedPhotoPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr, optional int defStyleRes);
+    ctor @BytecodeOnly public EmbeddedPhotoPickerView(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addEmbeddedPhotoPickerStateChangeListener(androidx.photopicker.EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener listener);
     method public void removeEmbeddedPhotoPickerStateChangeListener(androidx.photopicker.EmbeddedPhotoPickerView.EmbeddedPhotoPickerStateChangeListener listener);
     method public void setEmbeddedPhotoPickerFeatureInfo(android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo featureInfo);

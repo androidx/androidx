@@ -26,7 +26,6 @@ import android.content.pm.ResolveInfo
 import android.os.IBinder
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.GeospatialMode
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.coroutines.CoroutineContext
@@ -125,8 +124,8 @@ internal constructor(
                         println("ProjectedManager: onServiceConnected called")
                         val service = IProjectedPerceptionService.Stub.asInterface(binder)
                         perceptionManager.xrResources.service = service
-                        val config = perceptionManager.xrResources.config
-                        val enableVps = config.geospatial != GeospatialMode.DISABLED
+                        // TODO: b/452091636 - how do config and enableVps work?
+                        val enableVps = true
                         // TODO: b/445567556 - Pass the API key to the service.
                         service.start(enableVps, "" /* api key */)
 

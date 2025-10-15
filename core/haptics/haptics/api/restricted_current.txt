@@ -6,6 +6,7 @@ package androidx.core.haptics {
     ctor @RequiresApi(android.os.Build.VERSION_CODES.R) public HapticAttributes(android.os.VibrationAttributes attrs);
     ctor public HapticAttributes(int usage);
     ctor public HapticAttributes(int usage, optional int flags);
+    ctor @BytecodeOnly public HapticAttributes(int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getFlags();
     method @InaccessibleFromKotlin public int getUsage();
     property public int flags;
@@ -68,6 +69,7 @@ package androidx.core.haptics.device {
 
   public final class HapticCompositionProfile {
     ctor public HapticCompositionProfile();
+    ctor @BytecodeOnly public HapticCompositionProfile(java.util.Set!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HapticCompositionProfile(optional java.util.Set<java.lang.Integer> supportedPrimitiveTypesHint);
     ctor public HapticCompositionProfile(optional java.util.Set<java.lang.Integer> supportedPrimitiveTypesHint, optional java.util.Map<java.lang.Integer,java.lang.Long>? primitiveDurationMillisMapHint);
     method public long getPrimitiveDurationMillis(int primitiveType);
@@ -80,6 +82,7 @@ package androidx.core.haptics.device {
   public final class HapticDeviceProfile {
     ctor public HapticDeviceProfile();
     ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint);
+    ctor @BytecodeOnly public HapticDeviceProfile(boolean, java.util.Set!, androidx.core.haptics.device.HapticCompositionProfile!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint, optional java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffectsHint);
     ctor public HapticDeviceProfile(optional boolean amplitudeControlSupportHint, optional java.util.Set<androidx.core.haptics.signal.PredefinedEffectSignal> hardwareOptimizedPredefinedEffectsHint, optional androidx.core.haptics.device.HapticCompositionProfile compositionProfile);
     method @InaccessibleFromKotlin public androidx.core.haptics.device.HapticCompositionProfile getCompositionProfile();
@@ -136,23 +139,31 @@ package androidx.core.haptics.signal {
   public static final class CompositionSignal.Companion {
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom click(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! click$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal compositionOf(androidx.core.haptics.signal.CompositionSignal.Atom... atoms);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom lowTick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! lowTick$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.core.haptics.signal.CompositionSignal.OffAtom off(java.time.Duration duration);
     method public androidx.core.haptics.signal.CompositionSignal.OffAtom off(long durationMillis);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickFall(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! quickFall$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom quickRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! quickRise$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom slowRise(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! slowRise$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom spin(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! spin$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom thud(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! thud$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick();
     method public androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom tick(optional @FloatRange(from=0.0, to=1.0) float amplitudeScale);
+    method @BytecodeOnly public static androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom! tick$default(androidx.core.haptics.signal.CompositionSignal.Companion!, float, int, Object!);
   }
 
   public static final class CompositionSignal.OffAtom extends androidx.core.haptics.signal.CompositionSignal.Atom {

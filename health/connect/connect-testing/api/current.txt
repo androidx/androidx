@@ -5,11 +5,13 @@ package androidx.health.connect.client.testing {
     method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult();
     method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins);
     method public static androidx.health.connect.client.aggregate.AggregationResult AggregationResult(optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOrigins, optional java.util.Map<androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Object>,?> metrics);
+    method @BytecodeOnly public static androidx.health.connect.client.aggregate.AggregationResult! AggregationResult$default(java.util.Set!, java.util.Map!, int, Object!);
   }
 
   public final class FakeHealthConnectClient implements androidx.health.connect.client.HealthConnectClient {
     ctor public FakeHealthConnectClient();
     ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock, optional androidx.health.connect.client.PermissionController permissionController);
+    ctor @BytecodeOnly public FakeHealthConnectClient(String!, java.time.Clock!, androidx.health.connect.client.PermissionController!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
     method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
     method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
@@ -41,6 +43,7 @@ package androidx.health.connect.client.testing {
 
   public final class FakeHealthConnectClientOverrides {
     ctor public FakeHealthConnectClientOverrides();
+    ctor @BytecodeOnly public FakeHealthConnectClientOverrides(androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, androidx.health.connect.client.testing.stubs.Stub!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FakeHealthConnectClientOverrides(optional androidx.health.connect.client.testing.stubs.Stub<? super java.lang.String,androidx.health.connect.client.response.ChangesResponse>? getChanges, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.ChangesTokenRequest,java.lang.String>? getChangesToken, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.ReadRecordsRequest<? extends java.lang.Object?>,? extends androidx.health.connect.client.response.ReadRecordsResponse<? extends java.lang.Object?>>? readRecords, optional androidx.health.connect.client.testing.stubs.Stub<? super java.lang.String,? extends androidx.health.connect.client.response.ReadRecordResponse<? extends java.lang.Object?>>? readRecord, optional androidx.health.connect.client.testing.stubs.Stub<? super java.util.List<? extends java.lang.Object?>,androidx.health.connect.client.response.InsertRecordsResponse>? insertRecords, optional androidx.health.connect.client.testing.stubs.Stub? updateRecords, optional androidx.health.connect.client.testing.stubs.Stub? deleteRecords, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? aggregate, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateGroupByDurationRequest,? extends java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>? aggregateGroupByDuration, optional androidx.health.connect.client.testing.stubs.Stub<? super androidx.health.connect.client.request.AggregateGroupByPeriodRequest,? extends java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>? aggregateGroupByPeriod);
     method @InaccessibleFromKotlin public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateRequest,androidx.health.connect.client.aggregate.AggregationResult>? getAggregate();
     method @InaccessibleFromKotlin public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.AggregateGroupByDurationRequest,java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>? getAggregateGroupByDuration();
@@ -77,6 +80,7 @@ package androidx.health.connect.client.testing {
   public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
     ctor public FakePermissionController();
     ctor public FakePermissionController(optional boolean grantAll);
+    ctor @BytecodeOnly public FakePermissionController(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<java.lang.String>>);
     method public void grantPermission(String permission);
     method public void grantPermissions(java.util.Set<java.lang.String> permission);
@@ -90,6 +94,7 @@ package androidx.health.connect.client.testing {
     method public static androidx.health.connect.client.records.metadata.Metadata populatedWithTestValues(androidx.health.connect.client.records.metadata.Metadata, optional String id);
     method public static androidx.health.connect.client.records.metadata.Metadata populatedWithTestValues(androidx.health.connect.client.records.metadata.Metadata, optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin);
     method public static androidx.health.connect.client.records.metadata.Metadata populatedWithTestValues(androidx.health.connect.client.records.metadata.Metadata, optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime);
+    method @BytecodeOnly public static androidx.health.connect.client.records.metadata.Metadata! populatedWithTestValues$default(androidx.health.connect.client.records.metadata.Metadata!, String!, androidx.health.connect.client.records.metadata.DataOrigin!, java.time.Instant!, int, Object!);
   }
 
 }
@@ -98,6 +103,7 @@ package androidx.health.connect.client.testing.stubs {
 
   public final class MutableStub<T, R> implements androidx.health.connect.client.testing.stubs.Stub<T,R> {
     ctor public MutableStub();
+    ctor @BytecodeOnly public MutableStub(kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public MutableStub(optional kotlin.jvm.functions.Function1<? super T,? extends R?> defaultHandler);
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<T,R?> getDefaultHandler();
     method public R? next(T request);
@@ -123,6 +129,7 @@ package androidx.health.connect.client.testing.stubs {
     method public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue);
     method public static inline <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(optional Iterable<? extends R> queue, optional kotlin.jvm.functions.Function0<? extends R?> defaultHandler);
     method public static <R> androidx.health.connect.client.testing.stubs.Stub<java.lang.Object?,R> stub(R? default);
+    method @BytecodeOnly public static androidx.health.connect.client.testing.stubs.Stub! stub$default(Iterable!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
 }

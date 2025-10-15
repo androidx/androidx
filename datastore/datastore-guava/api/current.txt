@@ -24,6 +24,7 @@ package androidx.datastore.guava {
     method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore);
     method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, java.util.concurrent.Executor executor);
     method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method @BytecodeOnly public static androidx.datastore.guava.GuavaDataStore! from$default(androidx.datastore.guava.GuavaDataStore.Companion!, androidx.datastore.core.DataStore!, kotlin.coroutines.CoroutineContext!, int, Object!);
   }
 
 }

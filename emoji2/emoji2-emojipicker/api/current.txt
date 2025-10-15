@@ -5,6 +5,7 @@ package androidx.emoji2.emojipicker {
     ctor public EmojiPickerView(android.content.Context context);
     ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public EmojiPickerView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor @BytecodeOnly public EmojiPickerView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getEmojiGridColumns();
     method @InaccessibleFromKotlin public float getEmojiGridRows();
     method @InaccessibleFromKotlin public void setEmojiGridColumns(int);

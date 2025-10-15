@@ -13,6 +13,7 @@ package androidx.ink.authoring {
     ctor public InProgressStrokesView(android.content.Context context);
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
+    ctor @BytecodeOnly public InProgressStrokesView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void addFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
     method public boolean addToStroke(android.view.MotionEvent event, int pointerId);
     method public boolean addToStroke(android.view.MotionEvent event, int pointerId, optional android.view.MotionEvent? prediction);
@@ -20,9 +21,13 @@ package androidx.ink.authoring {
     method public void addToStroke(android.view.MotionEvent event, int pointerId, androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? prediction);
     method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId);
     method public void addToStroke(androidx.ink.strokes.StrokeInputBatch inputs, androidx.ink.authoring.InProgressStrokeId strokeId, optional androidx.ink.strokes.StrokeInputBatch prediction);
+    method @BytecodeOnly public static boolean addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
+    method @BytecodeOnly public static void addToStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.strokes.StrokeInputBatch!, androidx.ink.authoring.InProgressStrokeId!, androidx.ink.strokes.StrokeInputBatch!, int, Object!);
     method public boolean cancelStroke(android.view.MotionEvent event, int pointerId);
     method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId);
     method public void cancelStroke(androidx.ink.authoring.InProgressStrokeId strokeId, optional android.view.MotionEvent? event);
+    method @BytecodeOnly public static void cancelStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.authoring.InProgressStrokeId!, android.view.MotionEvent!, int, Object!);
     method public void cancelUnfinishedStrokes();
     method public void clearFinishedStrokesListeners();
     method public void eagerInit();
@@ -46,6 +51,8 @@ package androidx.ink.authoring {
     method public androidx.ink.authoring.InProgressStrokeId startStroke(android.view.MotionEvent event, int pointerId, androidx.ink.brush.Brush brush, optional android.graphics.Matrix motionEventToWorldTransform, optional android.graphics.Matrix strokeToWorldTransform);
     method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush);
     method public androidx.ink.authoring.InProgressStrokeId startStroke(androidx.ink.strokes.StrokeInput input, androidx.ink.brush.Brush brush, optional android.graphics.Matrix strokeToViewTransform);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startStroke$default(androidx.ink.authoring.InProgressStrokesView!, android.view.MotionEvent!, int, androidx.ink.brush.Brush!, android.graphics.Matrix!, android.graphics.Matrix!, int, Object!);
+    method @BytecodeOnly public static androidx.ink.authoring.InProgressStrokeId! startStroke$default(androidx.ink.authoring.InProgressStrokesView!, androidx.ink.strokes.StrokeInput!, androidx.ink.brush.Brush!, android.graphics.Matrix!, int, Object!);
     property @VisibleForTesting public androidx.test.espresso.idling.CountingIdlingResource? inProgressStrokeCounter;
     property public android.graphics.Path? maskPath;
     property public android.graphics.Matrix motionEventToViewTransform;

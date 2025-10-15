@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedMethod: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration#Configuration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker):
+    Added constructor androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Callback,boolean,boolean,int,kotlin.jvm.internal.DefaultConstructorMarker)
+
+
 RemovedFromKotlin: androidx.sqlite.SQLiteDriver#hasConnectionPool():
     Source breaking change: method androidx.sqlite.SQLiteDriver.hasConnectionPool() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.sqlite.db.SimpleSQLiteQuery#getArgCount():

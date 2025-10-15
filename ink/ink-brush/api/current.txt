@@ -8,14 +8,17 @@ package androidx.ink.brush {
     method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family);
     method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size);
     method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float epsilon);
+    method @BytecodeOnly public static androidx.ink.brush.Brush! copy$default(androidx.ink.brush.Brush!, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb);
     method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family);
     method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size);
     method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float epsilon);
+    method @BytecodeOnly public static androidx.ink.brush.Brush! copyWithColorIntArgb$default(androidx.ink.brush.Brush!, int, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong);
     method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family);
     method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size);
     method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size, optional @FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float epsilon);
+    method @BytecodeOnly public static androidx.ink.brush.Brush! copyWithColorLong$default(androidx.ink.brush.Brush!, long, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method public static androidx.ink.brush.Brush createWithColorIntArgb(androidx.ink.brush.BrushFamily family, @ColorInt int colorIntArgb, float size, float epsilon);
     method public static androidx.ink.brush.Brush createWithColorLong(androidx.ink.brush.BrushFamily family, @ColorLong long colorLong, float size, float epsilon);
     method protected void finalize();
@@ -60,6 +63,7 @@ package androidx.ink.brush {
 
   public final class BrushUtil {
     method @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush copyWithAndroidColor(androidx.ink.brush.Brush, android.graphics.Color color, optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
+    method @BytecodeOnly @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush! copyWithAndroidColor$default(androidx.ink.brush.Brush!, android.graphics.Color!, androidx.ink.brush.BrushFamily!, float, float, int, Object!);
     method @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Color createAndroidColor(androidx.ink.brush.Brush);
     method @KotlinOnly @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush createBrushWithAndroidColor(androidx.ink.brush.BrushFamily family, android.graphics.Color color, float size, float epsilon);
     method @CheckResult @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.ink.brush.Brush createWithAndroidColor(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily family, android.graphics.Color color, float size, float epsilon);
@@ -101,17 +105,22 @@ package androidx.ink.brush {
   public final class StockBrushes {
     method public static androidx.ink.brush.BrushFamily dashedLine();
     method public static androidx.ink.brush.BrushFamily dashedLine(optional androidx.ink.brush.StockBrushes.DashedLineVersion version);
+    method @BytecodeOnly public static androidx.ink.brush.BrushFamily! dashedLine$default(androidx.ink.brush.StockBrushes.DashedLineVersion!, int, Object!);
     method public static androidx.ink.brush.BrushFamily emojiHighlighter(String clientTextureId);
     method public static androidx.ink.brush.BrushFamily emojiHighlighter(String clientTextureId, optional boolean showMiniEmojiTrail);
     method public static androidx.ink.brush.BrushFamily emojiHighlighter(String clientTextureId, optional boolean showMiniEmojiTrail, optional androidx.ink.brush.SelfOverlap selfOverlap);
     method public static androidx.ink.brush.BrushFamily emojiHighlighter(String clientTextureId, optional boolean showMiniEmojiTrail, optional androidx.ink.brush.SelfOverlap selfOverlap, optional androidx.ink.brush.StockBrushes.EmojiHighlighterVersion version);
+    method @BytecodeOnly public static androidx.ink.brush.BrushFamily! emojiHighlighter$default(String!, boolean, androidx.ink.brush.SelfOverlap!, androidx.ink.brush.StockBrushes.EmojiHighlighterVersion!, int, Object!);
     method public static androidx.ink.brush.BrushFamily highlighter();
     method public static androidx.ink.brush.BrushFamily highlighter(optional androidx.ink.brush.SelfOverlap selfOverlap);
     method public static androidx.ink.brush.BrushFamily highlighter(optional androidx.ink.brush.SelfOverlap selfOverlap, optional androidx.ink.brush.StockBrushes.HighlighterVersion version);
+    method @BytecodeOnly public static androidx.ink.brush.BrushFamily! highlighter$default(androidx.ink.brush.SelfOverlap!, androidx.ink.brush.StockBrushes.HighlighterVersion!, int, Object!);
     method public static androidx.ink.brush.BrushFamily marker();
     method public static androidx.ink.brush.BrushFamily marker(optional androidx.ink.brush.StockBrushes.MarkerVersion version);
+    method @BytecodeOnly public static androidx.ink.brush.BrushFamily! marker$default(androidx.ink.brush.StockBrushes.MarkerVersion!, int, Object!);
     method public static androidx.ink.brush.BrushFamily pressurePen();
     method public static androidx.ink.brush.BrushFamily pressurePen(optional androidx.ink.brush.StockBrushes.PressurePenVersion version);
+    method @BytecodeOnly public static androidx.ink.brush.BrushFamily! pressurePen$default(androidx.ink.brush.StockBrushes.PressurePenVersion!, int, Object!);
     field public static final androidx.ink.brush.StockBrushes INSTANCE;
   }
 

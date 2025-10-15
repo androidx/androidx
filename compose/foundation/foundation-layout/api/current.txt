@@ -5,11 +5,15 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFrom(androidx.compose.ui.Modifier, androidx.compose.ui.layout.AlignmentLine alignmentLine, optional androidx.compose.ui.unit.Dp before, optional androidx.compose.ui.unit.Dp after);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFrom(androidx.compose.ui.Modifier, androidx.compose.ui.layout.AlignmentLine alignmentLine, optional androidx.compose.ui.unit.TextUnit before, optional androidx.compose.ui.unit.TextUnit after);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFrom-4j6BHR0(androidx.compose.ui.Modifier, androidx.compose.ui.layout.AlignmentLine, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! paddingFrom-4j6BHR0$default(androidx.compose.ui.Modifier!, androidx.compose.ui.layout.AlignmentLine!, float, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFrom-Y_r0B1c(androidx.compose.ui.Modifier, androidx.compose.ui.layout.AlignmentLine, long, long);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! paddingFrom-Y_r0B1c$default(androidx.compose.ui.Modifier!, androidx.compose.ui.layout.AlignmentLine!, long, long, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFromBaseline(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp bottom);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFromBaseline(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.TextUnit top, optional androidx.compose.ui.unit.TextUnit bottom);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFromBaseline-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! paddingFromBaseline-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier paddingFromBaseline-wCyjxdI(androidx.compose.ui.Modifier, long, long);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! paddingFromBaseline-wCyjxdI$default(androidx.compose.ui.Modifier!, long, long, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public final class Arrangement {
@@ -81,6 +85,7 @@ package androidx.compose.foundation.layout {
 
   public final class AspectRatioKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier aspectRatio(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float ratio, optional boolean matchHeightConstraintsFirst);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! aspectRatio$default(androidx.compose.ui.Modifier!, float, boolean, int, Object!);
   }
 
   public final class BoxKt {
@@ -123,6 +128,7 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, androidx.compose.ui.layout.VerticalAlignmentLine alignmentLine);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, optional boolean fill);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! weight$default(androidx.compose.foundation.layout.ColumnScope!, androidx.compose.ui.Modifier!, float, boolean, int, Object!);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class ComposeFoundationLayoutFlags {
@@ -149,6 +155,7 @@ package androidx.compose.foundation.layout {
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
     method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier! fillMaxColumnWidth$default(androidx.compose.foundation.layout.ContextualFlowColumnScope!, androidx.compose.ui.Modifier!, float, int, Object!);
     method @InaccessibleFromKotlin @Deprecated public int getIndexInLine();
     method @InaccessibleFromKotlin @Deprecated public int getLineIndex();
     method @BytecodeOnly @Deprecated public float getMaxHeightInLine-D9Ej5fM();
@@ -186,6 +193,7 @@ package androidx.compose.foundation.layout {
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.RowScope {
     method @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier! fillMaxRowHeight$default(androidx.compose.foundation.layout.ContextualFlowRowScope!, androidx.compose.ui.Modifier!, float, int, Object!);
     method @InaccessibleFromKotlin @Deprecated public int getIndexInLine();
     method @InaccessibleFromKotlin @Deprecated public int getLineIndex();
     method @BytecodeOnly @Deprecated public float getMaxHeight-D9Ej5fM();
@@ -223,6 +231,7 @@ package androidx.compose.foundation.layout {
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier! fillMaxColumnWidth$default(androidx.compose.foundation.layout.FlowColumnScope!, androidx.compose.ui.Modifier!, float, int, Object!);
   }
 
   public final class FlowLayoutKt {
@@ -263,6 +272,7 @@ package androidx.compose.foundation.layout {
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Stable public interface FlowRowScope extends androidx.compose.foundation.layout.RowScope {
     method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public static androidx.compose.ui.Modifier! fillMaxRowHeight$default(androidx.compose.foundation.layout.FlowRowScope!, androidx.compose.ui.Modifier!, float, int, Object!);
   }
 
   public final class IntrinsicKt {
@@ -283,6 +293,7 @@ package androidx.compose.foundation.layout {
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class MutableWindowInsets implements androidx.compose.foundation.layout.WindowInsets {
     ctor public MutableWindowInsets();
     ctor public MutableWindowInsets(optional androidx.compose.foundation.layout.WindowInsets initialInsets);
+    ctor @BytecodeOnly public MutableWindowInsets(androidx.compose.foundation.layout.WindowInsets!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getBottom(androidx.compose.ui.unit.Density density);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.WindowInsets getInsets();
     method public int getLeft(androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
@@ -296,9 +307,11 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absoluteOffset(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp x, optional androidx.compose.ui.unit.Dp y);
     method public static androidx.compose.ui.Modifier absoluteOffset(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.unit.IntOffset> offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absoluteOffset-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! absoluteOffset-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier offset(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp x, optional androidx.compose.ui.unit.Dp y);
     method public static androidx.compose.ui.Modifier offset(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.unit.IntOffset> offset);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier offset-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! offset-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
   }
 
   public final class PaddingKt {
@@ -307,9 +320,12 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues PaddingValues(optional androidx.compose.ui.unit.Dp start, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp end, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues PaddingValues-0680j_4(float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues PaddingValues-YgX7TsA(float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues! PaddingValues-YgX7TsA$default(float, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues PaddingValues-a9UjIt4(float, float, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.PaddingValues! PaddingValues-a9UjIt4$default(float, float, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absolutePadding(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier absolutePadding-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! absolutePadding-qDBjuR0$default(androidx.compose.ui.Modifier!, float, float, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
@@ -320,7 +336,9 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp start, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp end, optional androidx.compose.ui.unit.Dp bottom);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! padding-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! padding-qDBjuR0$default(androidx.compose.ui.Modifier!, float, float, float, float, int, Object!);
   }
 
   @androidx.compose.runtime.Stable public interface PaddingValues {
@@ -338,6 +356,7 @@ package androidx.compose.foundation.layout {
   @androidx.compose.runtime.Immutable public static final class PaddingValues.Absolute implements androidx.compose.foundation.layout.PaddingValues {
     ctor public PaddingValues.Absolute();
     ctor @KotlinOnly public PaddingValues.Absolute(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
+    ctor @BytecodeOnly public PaddingValues.Absolute(float, float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public PaddingValues.Absolute(float, float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.compose.ui.unit.Dp calculateBottomPadding();
     method @BytecodeOnly public float calculateBottomPadding-D9Ej5fM();
@@ -365,6 +384,7 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignBy(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier alignByBaseline(androidx.compose.ui.Modifier);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier weight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, fromInclusive=false) float weight, optional boolean fill);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! weight$default(androidx.compose.foundation.layout.RowScope!, androidx.compose.ui.Modifier!, float, boolean, int, Object!);
   }
 
   public final class RulerAlignmentKt {
@@ -375,17 +395,23 @@ package androidx.compose.foundation.layout {
   public final class SizeKt {
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier defaultMinSize(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp minWidth, optional androidx.compose.ui.unit.Dp minHeight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier defaultMinSize-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! defaultMinSize-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! fillMaxHeight$default(androidx.compose.ui.Modifier!, float, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxSize(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! fillMaxSize$default(androidx.compose.ui.Modifier!, float, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! fillMaxWidth$default(androidx.compose.ui.Modifier!, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier heightIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp min, optional androidx.compose.ui.unit.Dp max);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier heightIn-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! heightIn-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeight(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp height);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeight-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeightIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp min, optional androidx.compose.ui.unit.Dp max);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredHeightIn-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! requiredHeightIn-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSize(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp size);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSize(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSize(androidx.compose.ui.Modifier, androidx.compose.ui.unit.DpSize size);
@@ -394,10 +420,12 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSize-VpY3zN4(androidx.compose.ui.Modifier, float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSizeIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp minWidth, optional androidx.compose.ui.unit.Dp minHeight, optional androidx.compose.ui.unit.Dp maxWidth, optional androidx.compose.ui.unit.Dp maxHeight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredSizeIn-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! requiredSizeIn-qDBjuR0$default(androidx.compose.ui.Modifier!, float, float, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredWidth(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp width);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredWidth-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredWidthIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp min, optional androidx.compose.ui.unit.Dp max);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier requiredWidthIn-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! requiredWidthIn-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier size(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp size);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier size(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp width, androidx.compose.ui.unit.Dp height);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier size(androidx.compose.ui.Modifier, androidx.compose.ui.unit.DpSize size);
@@ -406,13 +434,18 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier size-VpY3zN4(androidx.compose.ui.Modifier, float, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier sizeIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp minWidth, optional androidx.compose.ui.unit.Dp minHeight, optional androidx.compose.ui.unit.Dp maxWidth, optional androidx.compose.ui.unit.Dp maxHeight);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier sizeIn-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! sizeIn-qDBjuR0$default(androidx.compose.ui.Modifier!, float, float, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier width(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp width);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier width-3ABfNKs(androidx.compose.ui.Modifier, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier widthIn(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp min, optional androidx.compose.ui.unit.Dp max);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier widthIn-VpY3zN4(androidx.compose.ui.Modifier, float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! widthIn-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier wrapContentHeight(androidx.compose.ui.Modifier, optional androidx.compose.ui.Alignment.Vertical align, optional boolean unbounded);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! wrapContentHeight$default(androidx.compose.ui.Modifier!, androidx.compose.ui.Alignment.Vertical!, boolean, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier wrapContentSize(androidx.compose.ui.Modifier, optional androidx.compose.ui.Alignment align, optional boolean unbounded);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! wrapContentSize$default(androidx.compose.ui.Modifier!, androidx.compose.ui.Alignment!, boolean, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier wrapContentWidth(androidx.compose.ui.Modifier, optional androidx.compose.ui.Alignment.Horizontal align, optional boolean unbounded);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! wrapContentWidth$default(androidx.compose.ui.Modifier!, androidx.compose.ui.Alignment.Horizontal!, boolean, int, Object!);
   }
 
   public final class SpacerKt {
@@ -439,7 +472,9 @@ package androidx.compose.foundation.layout {
     method public static androidx.compose.foundation.layout.WindowInsets WindowInsets();
     method @KotlinOnly public static androidx.compose.foundation.layout.WindowInsets WindowInsets(optional androidx.compose.ui.unit.Dp left, optional androidx.compose.ui.unit.Dp top, optional androidx.compose.ui.unit.Dp right, optional androidx.compose.ui.unit.Dp bottom);
     method public static androidx.compose.foundation.layout.WindowInsets WindowInsets(optional int left, optional int top, optional int right, optional int bottom);
+    method @BytecodeOnly public static androidx.compose.foundation.layout.WindowInsets! WindowInsets$default(int, int, int, int, int, Object!);
     method @BytecodeOnly public static androidx.compose.foundation.layout.WindowInsets WindowInsets-a9UjIt4(float, float, float, float);
+    method @BytecodeOnly public static androidx.compose.foundation.layout.WindowInsets! WindowInsets-a9UjIt4$default(float, float, float, float, int, Object!);
     method public static androidx.compose.foundation.layout.WindowInsets add(androidx.compose.foundation.layout.WindowInsets, androidx.compose.foundation.layout.WindowInsets insets);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.foundation.layout.PaddingValues asPaddingValues(androidx.compose.foundation.layout.WindowInsets);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static androidx.compose.foundation.layout.PaddingValues asPaddingValues(androidx.compose.foundation.layout.WindowInsets, androidx.compose.runtime.Composer?, int);

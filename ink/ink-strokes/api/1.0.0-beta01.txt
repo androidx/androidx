@@ -29,6 +29,7 @@ package androidx.ink.strokes {
     method public androidx.ink.strokes.MutableStrokeInputBatch populateInputs(androidx.ink.strokes.MutableStrokeInputBatch out);
     method public androidx.ink.strokes.MutableStrokeInputBatch populateInputs(androidx.ink.strokes.MutableStrokeInputBatch out, optional @IntRange(from=0L) int from);
     method public androidx.ink.strokes.MutableStrokeInputBatch populateInputs(androidx.ink.strokes.MutableStrokeInputBatch out, optional @IntRange(from=0L) int from, optional @IntRange(from=0L) int to);
+    method @BytecodeOnly public static androidx.ink.strokes.MutableStrokeInputBatch! populateInputs$default(androidx.ink.strokes.InProgressStroke!, androidx.ink.strokes.MutableStrokeInputBatch!, int, int, int, Object!);
     method public androidx.ink.geometry.BoxAccumulator populateMeshBounds(@IntRange(from=0L) int coatIndex, androidx.ink.geometry.BoxAccumulator outMeshBounds);
     method public androidx.ink.geometry.MutableVec populateOutlinePosition(@IntRange(from=0L) int coatIndex, @IntRange(from=0L) int outlineIndex, @IntRange(from=0L) int outlineVertexIndex, androidx.ink.geometry.MutableVec outPosition);
     method public androidx.ink.geometry.BoxAccumulator populateUpdatedRegion(androidx.ink.geometry.BoxAccumulator outUpdatedRegion);
@@ -37,6 +38,7 @@ package androidx.ink.strokes {
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public void start(androidx.ink.brush.Brush brush, int noiseSeed);
     method public androidx.ink.strokes.Stroke toImmutable();
     method public void updateShape(optional long currentElapsedTimeMillis);
+    method @BytecodeOnly public static void updateShape$default(androidx.ink.strokes.InProgressStroke!, long, int, Object!);
     property public androidx.ink.brush.Brush? brush;
     field public static final androidx.ink.strokes.InProgressStroke.Companion Companion;
   }
@@ -58,6 +60,7 @@ package androidx.ink.strokes {
     method public androidx.ink.strokes.MutableStrokeInputBatch add(androidx.ink.strokes.StrokeInput input);
     method public androidx.ink.strokes.MutableStrokeInputBatch add(androidx.ink.strokes.StrokeInputBatch inputBatch);
     method public androidx.ink.strokes.MutableStrokeInputBatch add(java.util.Collection<androidx.ink.strokes.StrokeInput> inputs);
+    method @BytecodeOnly public static androidx.ink.strokes.MutableStrokeInputBatch! add$default(androidx.ink.strokes.MutableStrokeInputBatch!, androidx.ink.brush.InputToolType!, float, float, long, float, float, float, float, int, Object!);
     method public void clear();
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public void setNoiseSeed(int seed);
   }
@@ -104,6 +107,7 @@ package androidx.ink.strokes {
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure);
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians);
     method public void update(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians, optional float orientationRadians);
+    method @BytecodeOnly public static void update$default(androidx.ink.strokes.StrokeInput!, float, float, long, androidx.ink.brush.InputToolType!, float, float, float, float, int, Object!);
     property public long elapsedTimeMillis;
     property public boolean hasOrientation;
     property public boolean hasPressure;
@@ -129,6 +133,7 @@ package androidx.ink.strokes {
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure);
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians);
     method @VisibleForTesting public androidx.ink.strokes.StrokeInput create(float x, float y, @IntRange(from=0L) long elapsedTimeMillis, optional androidx.ink.brush.InputToolType toolType, optional float strokeUnitLengthCm, optional float pressure, optional float tiltRadians, optional float orientationRadians);
+    method @BytecodeOnly @VisibleForTesting public static androidx.ink.strokes.StrokeInput! create$default(androidx.ink.strokes.StrokeInput.Companion!, float, float, long, androidx.ink.brush.InputToolType!, float, float, float, float, int, Object!);
     property public static float NO_ORIENTATION;
     property public static float NO_PRESSURE;
     property public static float NO_STROKE_UNIT_LENGTH;

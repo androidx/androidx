@@ -45,7 +45,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":compose:material3:adaptive:adaptive-navigation"))
-                api(project(":navigation3:navigation3-ui"))
+                api("androidx.navigation3:navigation3-ui:1.0.0-alpha11")
                 implementation(project(":navigationevent:navigationevent-compose"))
             }
         }

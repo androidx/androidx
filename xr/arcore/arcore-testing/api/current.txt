@@ -4,6 +4,7 @@ package androidx.xr.arcore.testing {
   public final class FakeLifecycleManager {
     ctor public FakeLifecycleManager();
     ctor public FakeLifecycleManager(optional boolean hasCreatePermission);
+    ctor @BytecodeOnly public FakeLifecycleManager(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void allowOneMoreCallToUpdate();
     method public void configure(androidx.xr.runtime.Config config);
     method public void create();
@@ -108,6 +109,7 @@ package androidx.xr.arcore.testing {
 
   public final class FakeRuntimeAugmentedObject {
     ctor public FakeRuntimeAugmentedObject();
+    ctor @BytecodeOnly public FakeRuntimeAugmentedObject(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize3d!, androidx.xr.runtime.AugmentedObjectCategory!, androidx.xr.runtime.TrackingState!, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FakeRuntimeAugmentedObject(optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize3d extents, optional androidx.xr.runtime.AugmentedObjectCategory category, optional androidx.xr.runtime.TrackingState trackingState, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
     method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);
@@ -130,6 +132,7 @@ package androidx.xr.arcore.testing {
   public final class FakeRuntimeDepthMap {
     ctor public FakeRuntimeDepthMap();
     ctor public FakeRuntimeDepthMap(optional int width, optional int height, optional java.nio.FloatBuffer? rawDepthMap, optional java.nio.ByteBuffer? rawConfidenceMap, optional java.nio.FloatBuffer? smoothDepthMap, optional java.nio.ByteBuffer? smoothConfidenceMap);
+    ctor @BytecodeOnly public FakeRuntimeDepthMap(int, int, java.nio.FloatBuffer!, java.nio.ByteBuffer!, java.nio.FloatBuffer!, java.nio.ByteBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getHeight();
     method @InaccessibleFromKotlin public java.nio.ByteBuffer? getRawConfidenceMap();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer? getRawDepthMap();
@@ -153,6 +156,7 @@ package androidx.xr.arcore.testing {
   public final class FakeRuntimeFace {
     ctor public FakeRuntimeFace();
     ctor public FakeRuntimeFace(optional androidx.xr.runtime.TrackingState trackingState, optional boolean isValid, optional float[] blendShapeValues, optional float[] confidenceValues);
+    ctor @BytecodeOnly public FakeRuntimeFace(androidx.xr.runtime.TrackingState!, boolean, float[]!, float[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float[] getBlendShapeValues();
     method @InaccessibleFromKotlin public float[] getConfidenceValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
@@ -170,6 +174,7 @@ package androidx.xr.arcore.testing {
   public final class FakeRuntimeHand {
     ctor public FakeRuntimeHand();
     ctor public FakeRuntimeHand(optional androidx.xr.runtime.TrackingState trackingState, optional java.nio.FloatBuffer handJointsBuffer);
+    ctor @BytecodeOnly public FakeRuntimeHand(androidx.xr.runtime.TrackingState!, java.nio.FloatBuffer!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public java.nio.FloatBuffer getHandJointsBuffer();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public void setHandJointsBuffer(java.nio.FloatBuffer);
@@ -184,6 +189,7 @@ package androidx.xr.arcore.testing {
 
   public final class FakeRuntimePlane {
     ctor public FakeRuntimePlane();
+    ctor @BytecodeOnly public FakeRuntimePlane(androidx.xr.arcore.runtime.Plane.Type!, androidx.xr.arcore.runtime.Plane.Label!, androidx.xr.runtime.TrackingState!, androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize2d!, java.util.List!, androidx.xr.arcore.runtime.Plane!, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FakeRuntimePlane(optional androidx.xr.arcore.runtime.Plane.Type type, optional androidx.xr.arcore.runtime.Plane.Label label, optional androidx.xr.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize2d extents, optional java.util.List<androidx.xr.runtime.math.Vector2> vertices, optional androidx.xr.arcore.runtime.Plane? subsumedBy, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
     method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);

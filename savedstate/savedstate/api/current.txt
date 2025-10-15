@@ -5,6 +5,8 @@ package androidx.savedstate {
     method public static inline <T> T read(android.os.Bundle, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateReader,? extends T> block);
     method public static inline android.os.Bundle savedState(android.os.Bundle initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
     method public static inline android.os.Bundle savedState(optional java.util.Map<java.lang.String,? extends java.lang.Object?> initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
+    method @BytecodeOnly public static android.os.Bundle! savedState$default(android.os.Bundle!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @BytecodeOnly public static android.os.Bundle! savedState$default(java.util.Map!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static inline <T> T write(android.os.Bundle, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,? extends T> block);
   }
 
@@ -324,6 +326,7 @@ package androidx.savedstate.serialization {
   public final class SavedStateConfigurationKt {
     method public static androidx.savedstate.serialization.SavedStateConfiguration SavedStateConfiguration(optional androidx.savedstate.serialization.SavedStateConfiguration from, kotlin.jvm.functions.Function1<? super androidx.savedstate.serialization.SavedStateConfiguration.Builder,kotlin.Unit> builderAction);
     method public static androidx.savedstate.serialization.SavedStateConfiguration SavedStateConfiguration(kotlin.jvm.functions.Function1<? super androidx.savedstate.serialization.SavedStateConfiguration.Builder,kotlin.Unit> builderAction);
+    method @BytecodeOnly public static androidx.savedstate.serialization.SavedStateConfiguration! SavedStateConfiguration$default(androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public final class SavedStateDecoderKt {
@@ -331,8 +334,12 @@ package androidx.savedstate.serialization {
     method @BytecodeOnly @Deprecated public static Object! decodeFromSavedState(kotlinx.serialization.DeserializationStrategy!, android.os.Bundle!);
     method @BytecodeOnly @Deprecated public static Object! decodeFromSavedState(kotlinx.serialization.DeserializationStrategy!, android.os.Bundle!, androidx.savedstate.serialization.SavedStateConfiguration!);
     method @KotlinOnly public static <T> T decodeFromSavedState(kotlinx.serialization.DeserializationStrategy<T> deserializer, android.os.Bundle savedState, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static Object! decodeFromSavedState$default(android.os.Bundle!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+    method @BytecodeOnly @Deprecated public static Object! decodeFromSavedState$default(kotlinx.serialization.DeserializationStrategy!, android.os.Bundle!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
     method @InaccessibleFromKotlin public static <T> T decodeFromSavedStateNullable(kotlinx.serialization.DeserializationStrategy<? extends T> deserializer, android.os.Bundle savedState);
     method @InaccessibleFromKotlin public static <T> T decodeFromSavedStateNullable(kotlinx.serialization.DeserializationStrategy<? extends T> deserializer, android.os.Bundle savedState, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static Object! decodeFromSavedStateNullable$default(android.os.Bundle!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+    method @BytecodeOnly public static Object! decodeFromSavedStateNullable$default(kotlinx.serialization.DeserializationStrategy!, android.os.Bundle!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
   }
 
   public final class SavedStateEncoderKt {
@@ -340,15 +347,23 @@ package androidx.savedstate.serialization {
     method @BytecodeOnly @Deprecated public static android.os.Bundle! encodeToSavedState(kotlinx.serialization.SerializationStrategy!, Object!, androidx.savedstate.serialization.SavedStateConfiguration!);
     method @KotlinOnly public static <T> android.os.Bundle encodeToSavedState(kotlinx.serialization.SerializationStrategy<T> serializer, T value, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
     method @KotlinOnly public static inline <reified T> android.os.Bundle encodeToSavedState(T value, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static android.os.Bundle! encodeToSavedState$default(Object!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+    method @BytecodeOnly @Deprecated public static android.os.Bundle! encodeToSavedState$default(kotlinx.serialization.SerializationStrategy!, Object!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
     method @InaccessibleFromKotlin public static <T> android.os.Bundle encodeToSavedStateNullable(kotlinx.serialization.SerializationStrategy<? super T> serializer, T value);
     method @InaccessibleFromKotlin public static <T> android.os.Bundle encodeToSavedStateNullable(kotlinx.serialization.SerializationStrategy<? super T> serializer, T value, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static android.os.Bundle! encodeToSavedStateNullable$default(Object!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+    method @BytecodeOnly public static android.os.Bundle! encodeToSavedStateNullable$default(kotlinx.serialization.SerializationStrategy!, Object!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
   }
 
   public final class SavedStateRegistryOwnerDelegateKt {
     method @KotlinOnly public static inline <reified T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> saved(androidx.savedstate.SavedStateRegistryOwner, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<T> init);
     method @BytecodeOnly @Deprecated public static kotlin.properties.ReadWriteProperty! saved(androidx.savedstate.SavedStateRegistryOwner!, kotlinx.serialization.KSerializer!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!);
     method @KotlinOnly public static <T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> saved(androidx.savedstate.SavedStateRegistryOwner, kotlinx.serialization.KSerializer<T> serializer, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<T> init);
+    method @BytecodeOnly public static kotlin.properties.ReadWriteProperty! saved$default(androidx.savedstate.SavedStateRegistryOwner!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly @Deprecated public static kotlin.properties.ReadWriteProperty! saved$default(androidx.savedstate.SavedStateRegistryOwner!, kotlinx.serialization.KSerializer!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!, int, Object!);
     method @InaccessibleFromKotlin public static <T> kotlin.properties.ReadWriteProperty<java.lang.Object?,T> savedNullable(androidx.savedstate.SavedStateRegistryOwner, kotlinx.serialization.KSerializer<T> serializer, optional String? key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly public static kotlin.properties.ReadWriteProperty! savedNullable$default(androidx.savedstate.SavedStateRegistryOwner!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static kotlin.properties.ReadWriteProperty! savedNullable$default(androidx.savedstate.SavedStateRegistryOwner!, kotlinx.serialization.KSerializer!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
 }

@@ -1,27 +1,3 @@
 // Baseline format: 1.0
-RemovedFromBytecode: androidx.activity.compose.ActivityResultRegistryKt#rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, kotlin.jvm.functions.Function1<? super O,kotlin.Unit>):
-    Binary breaking change: method androidx.activity.compose.ActivityResultRegistryKt.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>,kotlin.jvm.functions.Function1<O,kotlin.Unit>) has been removed from bytecode
-RemovedFromBytecode: androidx.activity.compose.BackHandlerKt#BackHandler(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Binary breaking change: method androidx.activity.compose.BackHandlerKt.BackHandler(boolean,kotlin.jvm.functions.Function0<kotlin.Unit>) has been removed from bytecode
-RemovedFromBytecode: androidx.activity.compose.PredictiveBackHandlerKt#PredictiveBackHandler(boolean, kotlin.jvm.functions.Function2<kotlinx.coroutines.flow.Flow<androidx.activity.BackEventCompat>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?>):
-    Binary breaking change: method androidx.activity.compose.PredictiveBackHandlerKt.PredictiveBackHandler(boolean,kotlin.jvm.functions.Function2<kotlinx.coroutines.flow.Flow<androidx.activity.BackEventCompat>,kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) has been removed from bytecode
-RemovedFromBytecode: androidx.activity.compose.ReportDrawnKt#ReportDrawn():
-    Binary breaking change: method androidx.activity.compose.ReportDrawnKt.ReportDrawn() has been removed from bytecode
-RemovedFromBytecode: androidx.activity.compose.ReportDrawnKt#ReportDrawnAfter(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>):
-    Binary breaking change: method androidx.activity.compose.ReportDrawnKt.ReportDrawnAfter(kotlin.jvm.functions.Function1<kotlin.coroutines.Continuation<? super kotlin.Unit>,?>) has been removed from bytecode
-RemovedFromBytecode: androidx.activity.compose.ReportDrawnKt#ReportDrawnWhen(kotlin.jvm.functions.Function0<java.lang.Boolean>):
-    Binary breaking change: method androidx.activity.compose.ReportDrawnKt.ReportDrawnWhen(kotlin.jvm.functions.Function0<java.lang.Boolean>) has been removed from bytecode
-
-
-RemovedFromKotlin: androidx.activity.compose.LocalActivityKt#getLocalActivity():
-    Source breaking change: method androidx.activity.compose.LocalActivityKt.getLocalActivity() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.activity.compose.ManagedActivityResultLauncher#getContract():
-    Source breaking change: method androidx.activity.compose.ManagedActivityResultLauncher.getContract() can no longer be resolved from Kotlin source
-
-
-RemovedMethod: androidx.activity.compose.LocalActivityResultRegistryOwner#getCurrent():
-    Binary breaking change: Removed method androidx.activity.compose.LocalActivityResultRegistryOwner.getCurrent()
-RemovedMethod: androidx.activity.compose.LocalFullyDrawnReporterOwner#getCurrent():
-    Binary breaking change: Removed method androidx.activity.compose.LocalFullyDrawnReporterOwner.getCurrent()
-RemovedMethod: androidx.activity.compose.LocalOnBackPressedDispatcherOwner#getCurrent():
-    Binary breaking change: Removed method androidx.activity.compose.LocalOnBackPressedDispatcherOwner.getCurrent()
+AddedMethod: androidx.activity.compose.ComponentActivityKt#setContent$default(androidx.activity.ComponentActivity, androidx.compose.runtime.CompositionContext, kotlin.jvm.functions.Function2, int, Object):
+    Added method androidx.activity.compose.ComponentActivityKt.setContent$default(androidx.activity.ComponentActivity,androidx.compose.runtime.CompositionContext,kotlin.jvm.functions.Function2,int,Object)

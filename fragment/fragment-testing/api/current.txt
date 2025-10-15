@@ -31,6 +31,7 @@ package androidx.fragment.app.testing {
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launch$default(androidx.fragment.app.testing.FragmentScenario.Companion!, Class!, android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, androidx.fragment.app.FragmentFactory!, int, Object!);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, androidx.fragment.app.FragmentFactory? factory);
@@ -38,6 +39,7 @@ package androidx.fragment.app.testing {
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, android.os.Bundle? fragmentArgs, @StyleRes int themeResId, androidx.fragment.app.FragmentFactory? factory);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState);
     method public <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F> fragmentClass, optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchInContainer$default(androidx.fragment.app.testing.FragmentScenario.Companion!, Class!, android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, androidx.fragment.app.FragmentFactory!, int, Object!);
   }
 
   public static fun interface FragmentScenario.FragmentAction<F extends androidx.fragment.app.Fragment> {
@@ -47,8 +49,16 @@ package androidx.fragment.app.testing {
   public final class FragmentScenarioKt {
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragment(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, kotlin.jvm.functions.Function0<F> instantiate);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragment$default(android.os.Bundle!, int, androidx.fragment.app.FragmentFactory!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragment$default(android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, androidx.fragment.app.FragmentFactory!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragment$default(android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragment$default(android.os.Bundle!, int, kotlin.jvm.functions.Function0!, int, Object!);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, optional androidx.fragment.app.FragmentFactory? factory);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchFragmentInContainer(optional android.os.Bundle? fragmentArgs, optional @StyleRes int themeResId, optional androidx.lifecycle.Lifecycle.State initialState, kotlin.jvm.functions.Function0<F> instantiate);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragmentInContainer$default(android.os.Bundle!, int, androidx.fragment.app.FragmentFactory!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragmentInContainer$default(android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, androidx.fragment.app.FragmentFactory!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragmentInContainer$default(android.os.Bundle!, int, androidx.lifecycle.Lifecycle.State!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.fragment.app.testing.FragmentScenario! launchFragmentInContainer$default(android.os.Bundle!, int, kotlin.jvm.functions.Function0!, int, Object!);
     method @KotlinOnly public static inline <reified F extends androidx.fragment.app.Fragment, T> T withFragment(androidx.fragment.app.testing.FragmentScenario<F>, kotlin.jvm.functions.Function1<F,T> block);
   }
 

@@ -7,7 +7,9 @@ package androidx.tracing.perfetto.handshake {
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart();
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent);
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingColdStart(optional boolean persistent, optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
+    method @BytecodeOnly public static androidx.tracing.perfetto.handshake.protocol.Response! enableTracingColdStart$default(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake!, boolean, androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource!, int, Object!);
     method public androidx.tracing.perfetto.handshake.protocol.Response enableTracingImmediate(optional androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource? librarySource);
+    method @BytecodeOnly public static androidx.tracing.perfetto.handshake.protocol.Response! enableTracingImmediate$default(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake!, androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource!, int, Object!);
   }
 
   public abstract static sealed class PerfettoSdkHandshake.LibrarySource {

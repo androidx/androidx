@@ -4,6 +4,7 @@ package androidx.wear.compose.navigation {
   public final class NavGraphBuilderKt {
     method public static void composable(androidx.navigation.NavGraphBuilder, String route, optional java.util.List<androidx.navigation.NamedNavArgument> arguments, optional java.util.List<androidx.navigation.NavDeepLink> deepLinks, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
     method @BytecodeOnly public static void composable(androidx.navigation.NavGraphBuilder, String, java.util.List<androidx.navigation.NamedNavArgument!>, java.util.List<androidx.navigation.NavDeepLink!>, kotlin.jvm.functions.Function3<? super androidx.navigation.NavBackStackEntry!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void composable$default(androidx.navigation.NavGraphBuilder!, String!, java.util.List!, java.util.List!, kotlin.jvm.functions.Function3!, int, Object!);
   }
 
   public final class SwipeDismissableNavHostControllerKt {
