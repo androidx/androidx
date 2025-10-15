@@ -2,10 +2,10 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "9.0.0-alpha08"
+androidGradlePlugin = "8.7.2"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "32.0.0-alpha08"
+androidLint = "31.8.2"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
 androidStudio = "2025.2.1.3"
@@ -26,10 +26,10 @@ androidxTestExtJunit = "1.3.0"
 androidxTestExtTruth = "1.7.0"
 annotationVersion = "1.7.0"
 atomicFu = "0.27.0"
-autoService = "1.0-rc6"
+autoService = "1.2.2"
 autoValue = "1.6.3"
 binaryCompatibilityValidator = "0.16.2"
-builder = "8.6.0-alpha05"
+builder = "8.6.0"
 byteBuddy = "1.14.9"
 asm = "9.7"
 cmake = "3.22.1"
@@ -61,14 +61,14 @@ kotlinCoroutines = "1.9.0"
 kotlinNativeUtils = "1.9.24"
 kotlinSerialization = "1.7.3"
 kotlinToolingCore = "1.9.24"
-ksp = "2.2.0-RC-2.0.1"
+ksp = "2.2.0-1.0.25"
 ktfmt = "0.54"
 # Version format is: 1.KOTLIN_MAJOR_VERSION.0.KTFMT_VERSION
 # When updated, the id and checksum in StudioTask needs to be updated too
 ktfmtIdeaPlugin = "1.2.0.54"
 leakcanary = "2.13"
 media3 = "1.4.1"
-metalava = "1.0.0-alpha13"
+metalava = "1.0.0"
 mockito = "2.25.0"
 moshi = "1.13.0"
 node = "22.0.0"
@@ -83,7 +83,7 @@ xmlApis = "1.4.01"
 yarn = "1.22.17"
 
 [libraries]
-agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
+agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8" }
 androidAccessibilityFramework = { module = "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework", version = { strictly = "2.1" } }
 androidGradlePluginApi = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
 androidGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
@@ -154,7 +154,7 @@ findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
 freemarker = { module = "org.freemarker:freemarker", version = "2.3.31"}
 googlejavaformat = { module = "com.google.googlejavaformat:google-java-format", version = "1.22.0" }
-googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11.0-beta-1" }
+googletest = { module = "com.android.ndk.thirdparty:googletest", version = "1.11.0" }
 hamcrestCore = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrestCore" }
 hiltAndroid = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hiltAndroidTesting = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
@@ -267,7 +267,7 @@ playServicesBasement = { module = "com.google.android.gms:play-services-basement
 playServicesBlockstore = {module = "com.google.android.gms:play-services-auth-blockstore", version = "16.4.0"}
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.0.0"}
-playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha08"}
+playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0"}
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
@@ -276,7 +276,7 @@ protobufLite = { module = "com.google.protobuf:protobuf-javalite", version.ref =
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofitConverterWire = { module = "com.squareup.retrofit2:converter-wire", version.ref = "retrofit" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.16-beta-1" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.16" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 sdklib = { module = "com.android.tools:sdklib", version.ref = "androidLint" }
