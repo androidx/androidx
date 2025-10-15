@@ -35,5 +35,10 @@ function rawGithubUrl(url: string): string {
 }
 
 function isGitHub(url: string): boolean {
-  return url.startsWith("https://github.com")
+  try {
+    const { hostname, protocol } = new URL(url);
+    return protocol === "https:" && hostname === "github.com";
+  } catch (e) {
+    return false;
+  }
 }
