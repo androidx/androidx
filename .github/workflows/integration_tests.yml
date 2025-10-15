@@ -14,8 +14,13 @@ jobs:
       contents: write
     name: Run integration tests on FTL
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@91d3aa4956ec4a53e477c4907347b5e3481be8c9 # v2.5.1
         with:
           java-version: '17'
           distribution: 'zulu'
@@ -23,7 +28,7 @@ jobs:
         run: echo "output-dir=$(readlink -f .)/outputs" >> $GITHUB_OUTPUT
         id: dirs
       - id: run_tests
-        uses: androidX/androidx-ci-action@dist-latest
+        uses: androidX/androidx-ci-action@c3f0801d73b29d0988ed4b377c487a2bdddced60 # dist-latest
         with:
           target-run-id: ${{ github.event.workflow_run.id }}
           gcp-token: ${{ secrets.GCP_SA_KEY }}
@@ -35,7 +40,7 @@ jobs:
           device-specs: Pixel2.arm:30
           use-test-config-files: true
           test-suite-tags: androidx_unit_tests
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: outputs
@@ -45,6 +50,11 @@ jobs:
     needs: [run_integration_tests]
     if: ${{ !github.event.repository.fork && always() }} # always() is required so that this job will run irrespective of status of upstream 'run_integration_test' job.
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Parse workflow status
         id: workflow-status
         run: |
@@ -58,7 +68,7 @@ jobs:
           fi
 
       - name: Result WebHook
-        uses: androidx/github-workflow-webhook-action@main
+        uses: androidx/github-workflow-webhook-action@49581a4a073d1fc14a4c2a6317a03c882047e227 # main
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}

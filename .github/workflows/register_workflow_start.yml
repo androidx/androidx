@@ -12,8 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     name: "Start webhook"
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: "Ping AndroidX hook"
-        uses: androidx/github-workflow-webhook-action@main
+        uses: androidx/github-workflow-webhook-action@49581a4a073d1fc14a4c2a6317a03c882047e227 # main
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
