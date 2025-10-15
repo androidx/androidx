@@ -12,6 +12,7 @@ on:
 jobs:
   find-kgp-version:
     runs-on: ubuntu-latest
+    permissions: none
 
     outputs:
       kgpVersion: ${{ steps.version.outputs.kgpVersion }}
