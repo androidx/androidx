@@ -23,6 +23,22 @@ import { transformUrl } from './url-transforms';
 
 const CHROME_LAUNCH_ARGS = ['--enable-dom-distiller'];
 
+// Only allow requests to these hostnames (add more as required)
+const ALLOWED_HOSTNAMES = [
+  "github.com",
+  "raw.githubusercontent.com",
+  // add more allowed domains as needed
+];
+function isAllowedHost(requestUrl: string): boolean {
+  try {
+    const { hostname } = new URL(requestUrl);
+    return ALLOWED_HOSTNAMES.includes(hostname);
+  } catch (e) {
+    log(`Failed to parse URL in host check: ${requestUrl}`);
+    return false;
+  }
+}
+
 // A list of DOM Node types that are usually not useful in the context
 // of fetching text content from the page.
 type BannedNames = {
@@ -39,6 +55,10 @@ export async function handleRequest(request: Request, response: Response) {
       log(`Handling license request for ${url}`);
       if (!isValidProtocol(url)) {
         response.status(400).send('Invalid request.');
+        return;
+      }
+      if (!isAllowedHost(url)) {
+        response.status(400).send('Host not allowed.');
         return;
       }
 
