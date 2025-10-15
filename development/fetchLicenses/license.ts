@@ -98,6 +98,13 @@ async function handleLicenseRequest(url: string, enableLocalDebugging: boolean =
   if (url !== transformed) {
     log(`Transformed request url to ${transformed}`);
   }
+  // Validate the transformed URL to prevent SSRF
+  if (!isValidProtocol(transformed)) {
+    throw new Error('Invalid protocol in transformed URL');
+  }
+  if (!isAllowedHost(transformed)) {
+    throw new Error('Transformed URL host not allowed.');
+  }
   const browser = await puppeteer.launch({
     args: CHROME_LAUNCH_ARGS,
     devtools: enableLocalDebugging,
