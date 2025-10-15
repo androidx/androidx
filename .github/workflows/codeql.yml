@@ -13,9 +13,7 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "androidx-main" ]
   pull_request:
-    branches: [ "androidx-main" ]
   schedule:
     - cron: '42 18 * * 0'
 

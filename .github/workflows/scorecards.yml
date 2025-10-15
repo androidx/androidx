@@ -12,7 +12,6 @@ on:
   schedule:
     - cron: '23 2 * * 3'
   push:
-    branches: [ "androidx-main" ]
 
 # Declare default permissions as read only.
 permissions: read-all
