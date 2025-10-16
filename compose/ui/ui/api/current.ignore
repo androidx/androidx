@@ -15,14 +15,6 @@ AddedAbstractMethod: androidx.compose.ui.hapticfeedback.HapticFeedback#performHa
     Source breaking change: Added method androidx.compose.ui.hapticfeedback.HapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType)
 AddedAbstractMethod: androidx.compose.ui.input.InputModeManager#requestInputMode(androidx.compose.ui.input.InputMode):
     Source breaking change: Added method androidx.compose.ui.input.InputModeManager.requestInputMode(androidx.compose.ui.input.InputMode)
-AddedAbstractMethod: androidx.compose.ui.input.indirect.IndirectTouchEvent#getChanges():
-    Binary breaking change: Added method androidx.compose.ui.input.indirect.IndirectTouchEvent.getChanges()
-AddedAbstractMethod: androidx.compose.ui.input.indirect.IndirectTouchEvent#getPrimaryDirectionalMotionAxis-ifgRr6E():
-    Binary breaking change: Added method androidx.compose.ui.input.indirect.IndirectTouchEvent.getPrimaryDirectionalMotionAxis-ifgRr6E()
-AddedAbstractMethod: androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode#onCancelIndirectTouchInput():
-    Binary breaking change: Added method androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode.onCancelIndirectTouchInput()
-AddedAbstractMethod: androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode#onIndirectTouchEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent, androidx.compose.ui.input.pointer.PointerEventPass):
-    Binary breaking change: Added method androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode.onIndirectTouchEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent,androidx.compose.ui.input.pointer.PointerEventPass)
 AddedAbstractMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onKeyEvent(androidx.compose.ui.input.key.KeyEvent):
     Source breaking change: Added method androidx.compose.ui.input.key.KeyInputModifierNode.onKeyEvent(androidx.compose.ui.input.key.KeyEvent)
 AddedAbstractMethod: androidx.compose.ui.input.key.KeyInputModifierNode#onPreKeyEvent(androidx.compose.ui.input.key.KeyEvent):
@@ -127,6 +119,8 @@ ParameterNameChange: androidx.compose.ui.FrameRateKt#preferredFrameRate(androidx
     Source breaking change: Attempted to change parameter name from frameRateCategory to frameRate in method androidx.compose.ui.FrameRateKt.preferredFrameRate
 
 
+RemovedClass: androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent_androidKt:
+    Binary breaking change: Removed class androidx.compose.ui.input.indirect.AndroidIndirectTouchEvent_androidKt
 RemovedClass: androidx.compose.ui.input.indirect.IndirectTouchInputModifierKt:
     Binary breaking change: Removed class androidx.compose.ui.input.indirect.IndirectTouchInputModifierKt
 

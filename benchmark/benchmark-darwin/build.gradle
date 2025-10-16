@@ -8,7 +8,6 @@
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
@@ -20,8 +19,6 @@ androidXMultiplatform {
     ios {
         binaries.framework {
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
             xcf.add(it)
         }
     }

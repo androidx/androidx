@@ -421,9 +421,9 @@ abstract interface androidx.compose.ui.hapticfeedback/HapticFeedback { // androi
     abstract fun performHapticFeedback(androidx.compose.ui.hapticfeedback/HapticFeedbackType) // androidx.compose.ui.hapticfeedback/HapticFeedback.performHapticFeedback|performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType){}[0]
 }
 
-abstract interface androidx.compose.ui.input.indirect/IndirectTouchInputModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.input.indirect/IndirectTouchInputModifierNode|null[0]
-    abstract fun onCancelIndirectTouchInput() // androidx.compose.ui.input.indirect/IndirectTouchInputModifierNode.onCancelIndirectTouchInput|onCancelIndirectTouchInput(){}[0]
-    abstract fun onIndirectTouchEvent(androidx.compose.ui.input.indirect/IndirectTouchEvent, androidx.compose.ui.input.pointer/PointerEventPass) // androidx.compose.ui.input.indirect/IndirectTouchInputModifierNode.onIndirectTouchEvent|onIndirectTouchEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent;androidx.compose.ui.input.pointer.PointerEventPass){}[0]
+abstract interface androidx.compose.ui.input.indirect/IndirectPointerInputModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.input.indirect/IndirectPointerInputModifierNode|null[0]
+    abstract fun onCancelIndirectPointerInput() // androidx.compose.ui.input.indirect/IndirectPointerInputModifierNode.onCancelIndirectPointerInput|onCancelIndirectPointerInput(){}[0]
+    abstract fun onIndirectPointerEvent(androidx.compose.ui.input.indirect/IndirectPointerEvent, androidx.compose.ui.input.pointer/PointerEventPass) // androidx.compose.ui.input.indirect/IndirectPointerInputModifierNode.onIndirectPointerEvent|onIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent;androidx.compose.ui.input.pointer.PointerEventPass){}[0]
 }
 
 abstract interface androidx.compose.ui.input.key/KeyInputModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.input.key/KeyInputModifierNode|null[0]
@@ -910,6 +910,7 @@ abstract interface androidx.compose.ui.node/RootForTest { // androidx.compose.ui
     abstract fun sendKeyEvent(androidx.compose.ui.input.key/KeyEvent): kotlin/Boolean // androidx.compose.ui.node/RootForTest.sendKeyEvent|sendKeyEvent(androidx.compose.ui.input.key.KeyEvent){}[0]
     open fun forceAccessibilityForTesting(kotlin/Boolean) // androidx.compose.ui.node/RootForTest.forceAccessibilityForTesting|forceAccessibilityForTesting(kotlin.Boolean){}[0]
     open fun measureAndLayoutForTest() // androidx.compose.ui.node/RootForTest.measureAndLayoutForTest|measureAndLayoutForTest(){}[0]
+    open fun sendIndirectPointerEvent(androidx.compose.ui.input.indirect/IndirectPointerEvent): kotlin/Boolean // androidx.compose.ui.node/RootForTest.sendIndirectPointerEvent|sendIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent){}[0]
     open fun setAccessibilityEventBatchIntervalMillis(kotlin/Long) // androidx.compose.ui.node/RootForTest.setAccessibilityEventBatchIntervalMillis|setAccessibilityEventBatchIntervalMillis(kotlin.Long){}[0]
     open fun setUncaughtExceptionHandler(androidx.compose.ui.node/RootForTest.UncaughtExceptionHandler?) // androidx.compose.ui.node/RootForTest.setUncaughtExceptionHandler|setUncaughtExceptionHandler(androidx.compose.ui.node.RootForTest.UncaughtExceptionHandler?){}[0]
 
@@ -1250,13 +1251,13 @@ sealed interface androidx.compose.ui.focus/FocusTargetModifierNode : androidx.co
     abstract fun requestFocus(androidx.compose.ui.focus/FocusDirection = ...): kotlin/Boolean // androidx.compose.ui.focus/FocusTargetModifierNode.requestFocus|requestFocus(androidx.compose.ui.focus.FocusDirection){}[0]
 }
 
-sealed interface androidx.compose.ui.input.indirect/IndirectTouchEvent { // androidx.compose.ui.input.indirect/IndirectTouchEvent|null[0]
-    abstract val changes // androidx.compose.ui.input.indirect/IndirectTouchEvent.changes|{}changes[0]
-        abstract fun <get-changes>(): kotlin.collections/List<androidx.compose.ui.input.indirect/IndirectPointerInputChange> // androidx.compose.ui.input.indirect/IndirectTouchEvent.changes.<get-changes>|<get-changes>(){}[0]
-    abstract val primaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectTouchEvent.primaryDirectionalMotionAxis|{}primaryDirectionalMotionAxis[0]
-        abstract fun <get-primaryDirectionalMotionAxis>(): androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectTouchEvent.primaryDirectionalMotionAxis.<get-primaryDirectionalMotionAxis>|<get-primaryDirectionalMotionAxis>(){}[0]
-    abstract val type // androidx.compose.ui.input.indirect/IndirectTouchEvent.type|{}type[0]
-        abstract fun <get-type>(): androidx.compose.ui.input.indirect/IndirectTouchEventType // androidx.compose.ui.input.indirect/IndirectTouchEvent.type.<get-type>|<get-type>(){}[0]
+sealed interface androidx.compose.ui.input.indirect/IndirectPointerEvent { // androidx.compose.ui.input.indirect/IndirectPointerEvent|null[0]
+    abstract val changes // androidx.compose.ui.input.indirect/IndirectPointerEvent.changes|{}changes[0]
+        abstract fun <get-changes>(): kotlin.collections/List<androidx.compose.ui.input.indirect/IndirectPointerInputChange> // androidx.compose.ui.input.indirect/IndirectPointerEvent.changes.<get-changes>|<get-changes>(){}[0]
+    abstract val primaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectPointerEvent.primaryDirectionalMotionAxis|{}primaryDirectionalMotionAxis[0]
+        abstract fun <get-primaryDirectionalMotionAxis>(): androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectPointerEvent.primaryDirectionalMotionAxis.<get-primaryDirectionalMotionAxis>|<get-primaryDirectionalMotionAxis>(){}[0]
+    abstract val type // androidx.compose.ui.input.indirect/IndirectPointerEvent.type|{}type[0]
+        abstract fun <get-type>(): androidx.compose.ui.input.indirect/IndirectPointerEventType // androidx.compose.ui.input.indirect/IndirectPointerEvent.type.<get-type>|<get-type>(){}[0]
 }
 
 sealed interface androidx.compose.ui.input.pointer/SuspendingPointerInputModifierNode : androidx.compose.ui.node/PointerInputModifierNode { // androidx.compose.ui.input.pointer/SuspendingPointerInputModifierNode|null[0]
@@ -2472,35 +2473,35 @@ final value class androidx.compose.ui.hapticfeedback/HapticFeedbackType { // and
     }
 }
 
-final value class androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis { // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis|null[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.toString|toString(){}[0]
+final value class androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis { // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.toString|toString(){}[0]
 
-    final object Companion { // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion|null[0]
-        final val None // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.None|{}None[0]
-            final fun <get-None>(): androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.None.<get-None>|<get-None>(){}[0]
-        final val X // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.X|{}X[0]
-            final fun <get-X>(): androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.X.<get-X>|<get-X>(){}[0]
-        final val Y // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.Y|{}Y[0]
-            final fun <get-Y>(): androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectTouchEventPrimaryDirectionalMotionAxis.Companion.Y.<get-Y>|<get-Y>(){}[0]
+    final object Companion { // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion|null[0]
+        final val None // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.None|{}None[0]
+            final fun <get-None>(): androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.None.<get-None>|<get-None>(){}[0]
+        final val X // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.X|{}X[0]
+            final fun <get-X>(): androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.X.<get-X>|<get-X>(){}[0]
+        final val Y // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.Y|{}Y[0]
+            final fun <get-Y>(): androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis // androidx.compose.ui.input.indirect/IndirectPointerEventPrimaryDirectionalMotionAxis.Companion.Y.<get-Y>|<get-Y>(){}[0]
     }
 }
 
-final value class androidx.compose.ui.input.indirect/IndirectTouchEventType { // androidx.compose.ui.input.indirect/IndirectTouchEventType|null[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.indirect/IndirectTouchEventType.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.compose.ui.input.indirect/IndirectTouchEventType.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.compose.ui.input.indirect/IndirectTouchEventType.toString|toString(){}[0]
+final value class androidx.compose.ui.input.indirect/IndirectPointerEventType { // androidx.compose.ui.input.indirect/IndirectPointerEventType|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.input.indirect/IndirectPointerEventType.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.input.indirect/IndirectPointerEventType.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.input.indirect/IndirectPointerEventType.toString|toString(){}[0]
 
-    final object Companion { // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion|null[0]
-        final val Move // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Move|{}Move[0]
-            final fun <get-Move>(): androidx.compose.ui.input.indirect/IndirectTouchEventType // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Move.<get-Move>|<get-Move>(){}[0]
-        final val Press // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Press|{}Press[0]
-            final fun <get-Press>(): androidx.compose.ui.input.indirect/IndirectTouchEventType // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Press.<get-Press>|<get-Press>(){}[0]
-        final val Release // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Release|{}Release[0]
-            final fun <get-Release>(): androidx.compose.ui.input.indirect/IndirectTouchEventType // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Release.<get-Release>|<get-Release>(){}[0]
-        final val Unknown // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Unknown|{}Unknown[0]
-            final fun <get-Unknown>(): androidx.compose.ui.input.indirect/IndirectTouchEventType // androidx.compose.ui.input.indirect/IndirectTouchEventType.Companion.Unknown.<get-Unknown>|<get-Unknown>(){}[0]
+    final object Companion { // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion|null[0]
+        final val Move // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Move|{}Move[0]
+            final fun <get-Move>(): androidx.compose.ui.input.indirect/IndirectPointerEventType // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Move.<get-Move>|<get-Move>(){}[0]
+        final val Press // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Press|{}Press[0]
+            final fun <get-Press>(): androidx.compose.ui.input.indirect/IndirectPointerEventType // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Press.<get-Press>|<get-Press>(){}[0]
+        final val Release // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Release|{}Release[0]
+            final fun <get-Release>(): androidx.compose.ui.input.indirect/IndirectPointerEventType // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Release.<get-Release>|<get-Release>(){}[0]
+        final val Unknown // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Unknown|{}Unknown[0]
+            final fun <get-Unknown>(): androidx.compose.ui.input.indirect/IndirectPointerEventType // androidx.compose.ui.input.indirect/IndirectPointerEventType.Companion.Unknown.<get-Unknown>|<get-Unknown>(){}[0]
     }
 }
 

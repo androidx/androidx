@@ -1,6 +1,19 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
+  public final class ActiveWearWidgetHandle {
+    method @InaccessibleFromKotlin public int getContainerType();
+    method @InaccessibleFromKotlin public int getInstanceId();
+    method @InaccessibleFromKotlin public android.content.ComponentName getProvider();
+    property public int containerType;
+    property public int instanceId;
+    property public android.content.ComponentName provider;
+    field public static final androidx.glance.wear.ActiveWearWidgetHandle.Companion Companion;
+  }
+
+  public static final class ActiveWearWidgetHandle.Companion {
+  }
+
   public final class ContainerInfo {
     method @InaccessibleFromKotlin public String? getDescription();
     method @InaccessibleFromKotlin public String? getLabel();

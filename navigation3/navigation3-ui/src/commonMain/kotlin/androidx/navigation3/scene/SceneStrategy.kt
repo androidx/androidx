@@ -77,11 +77,17 @@ public fun interface SceneStrategy<T : Any> {
      * Chains this [SceneStrategy] with another [sceneStrategy] to return a combined
      * [SceneStrategy].
      */
-    public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> =
-        object : SceneStrategy<T> {
-            override fun SceneStrategyScope<T>.calculateScene(
-                entries: List<NavEntry<T>>
-            ): Scene<T>? =
-                calculateScene(entries) ?: with(sceneStrategy) { calculateScene(entries) }
+    public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> {
+        val firstStrategy = this
+        return SceneStrategy { entries ->
+            with(firstStrategy) {
+                // with original scene strategy
+                calculateScene(entries)
+            }
+                ?: with(sceneStrategy) {
+                    // the chained scene strategy
+                    calculateScene(entries)
+                }
         }
+    }
 }

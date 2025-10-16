@@ -26,7 +26,6 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +38,7 @@ class AlphaTest {
 
     @Test
     fun alpha_shouldBeAppliedToEntity() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(0.5f)) { Text(text = "Panel") }
             }
@@ -57,7 +56,7 @@ class AlphaTest {
 
     @Test
     fun alpha_multiple_shouldBeMultipliedThenAppliedToEntity() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(0.5f).alpha(0.5f)) {
                     Text(text = "Panel")
@@ -77,7 +76,7 @@ class AlphaTest {
 
     @Test
     fun alpha_negative_shouldBeClampedToZero() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(-1f)) { Text(text = "Panel") }
             }
@@ -95,7 +94,7 @@ class AlphaTest {
 
     @Test
     fun alpha_greaterThanOne_shouldBeClampedToOne() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(1.1f)) { Text(text = "Panel") }
             }
@@ -115,7 +114,7 @@ class AlphaTest {
     fun alpha_updatesWhenValueChanges() {
         var alpha by mutableStateOf(0.1f)
 
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(alpha)) {
                     Text(text = "Panel")
@@ -146,7 +145,7 @@ class AlphaTest {
 
     @Test
     fun alpha_multiple_valuesShouldBeClampedThenMultiplied() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").alpha(3f).alpha(0.1f)) {
                     Text(text = "Panel")

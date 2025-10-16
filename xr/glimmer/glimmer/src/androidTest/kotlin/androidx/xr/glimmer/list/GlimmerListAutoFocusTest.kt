@@ -35,9 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEventType
-import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEventType
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalFocusManager
@@ -140,7 +140,7 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
     }
 
     @Test
-    fun indirectTouch_movesAutoFocus() {
+    fun indirectPointer_movesAutoFocus() {
         rule.setAutoFocusContent { FocusableTestList(itemsCount = 100) }
 
         val swipe = with(rule.density) { ItemHeight.toPx() * 5.5f }
@@ -151,29 +151,29 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
     }
 
     @Test
-    fun nonScrollableList_doesNotConsumed_indirectTouchEvents() {
+    fun nonScrollableList_doesNotConsumed_indirectPointerEvents() {
         var downEventReceivedByParentWasConsumed = false
         var moveEventReceivedByParentWasConsumed = false
         var upEventReceivedByParentWasConsumed = false
         rule.setAutoFocusContent {
             Box(
                 Modifier.elementFor(
-                    IndirectTouchInputNode(
+                    IndirectPointerInputNode(
                         onEvent = {
-                            indirectTouchEvent: IndirectTouchEvent,
+                            indirectPointerEvent: IndirectPointerEvent,
                             pointerEventPass: PointerEventPass ->
                             if (pointerEventPass == PointerEventPass.Main) {
                                 val indirectConsumed =
-                                    indirectTouchEvent.changes.fastAny { it.isConsumed }
+                                    indirectPointerEvent.changes.fastAny { it.isConsumed }
 
-                                when (indirectTouchEvent.type) {
-                                    IndirectTouchEventType.Press -> {
+                                when (indirectPointerEvent.type) {
+                                    IndirectPointerEventType.Press -> {
                                         downEventReceivedByParentWasConsumed = indirectConsumed
                                     }
-                                    IndirectTouchEventType.Move -> {
+                                    IndirectPointerEventType.Move -> {
                                         moveEventReceivedByParentWasConsumed = indirectConsumed
                                     }
-                                    IndirectTouchEventType.Release -> {
+                                    IndirectPointerEventType.Release -> {
                                         // Check 'Release' since 'Press' is always propagated.
                                         upEventReceivedByParentWasConsumed = indirectConsumed
                                     }
@@ -204,22 +204,22 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
         rule.setAutoFocusContent {
             Box(
                 Modifier.elementFor(
-                    IndirectTouchInputNode(
+                    IndirectPointerInputNode(
                         onEvent = {
-                            indirectTouchEvent: IndirectTouchEvent,
+                            indirectPointerEvent: IndirectPointerEvent,
                             pointerEventPass: PointerEventPass ->
                             if (pointerEventPass == PointerEventPass.Main) {
                                 val indirectConsumed =
-                                    indirectTouchEvent.changes.fastAny { it.isConsumed }
+                                    indirectPointerEvent.changes.fastAny { it.isConsumed }
 
-                                when (indirectTouchEvent.type) {
-                                    IndirectTouchEventType.Press -> {
+                                when (indirectPointerEvent.type) {
+                                    IndirectPointerEventType.Press -> {
                                         downEventReceivedByParentWasConsumed = indirectConsumed
                                     }
-                                    IndirectTouchEventType.Move -> {
+                                    IndirectPointerEventType.Move -> {
                                         moveEventReceivedByParentWasConsumed = indirectConsumed
                                     }
-                                    IndirectTouchEventType.Release -> {
+                                    IndirectPointerEventType.Release -> {
                                         // Check 'Release' since 'Press' is always propagated.
                                         upEventReceivedByParentWasConsumed = indirectConsumed
                                     }
@@ -487,13 +487,14 @@ internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<M
     override fun update(node: Modifier.Node) {}
 }
 
-internal class IndirectTouchInputNode(var onEvent: (IndirectTouchEvent, PointerEventPass) -> Unit) :
-    IndirectTouchInputModifierNode, Modifier.Node() {
-    override fun onIndirectTouchEvent(event: IndirectTouchEvent, pass: PointerEventPass) {
+internal class IndirectPointerInputNode(
+    var onEvent: (IndirectPointerEvent, PointerEventPass) -> Unit
+) : IndirectPointerInputModifierNode, Modifier.Node() {
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         onEvent(event, pass)
     }
 
-    override fun onCancelIndirectTouchInput() {}
+    override fun onCancelIndirectPointerInput() {}
 }
 
 private val ItemWidth: Dp = 100.dp

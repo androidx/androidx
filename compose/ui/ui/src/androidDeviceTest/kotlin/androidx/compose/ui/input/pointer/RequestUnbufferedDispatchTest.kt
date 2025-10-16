@@ -18,17 +18,18 @@ package androidx.compose.ui.input.pointer
 
 import android.app.Instrumentation
 import android.os.SystemClock
+import android.view.Choreographer
 import android.view.InputDevice
 import android.view.MotionEvent
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
@@ -44,9 +45,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +57,8 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RequestUnbufferedDispatchTest {
-    @get:Rule val rule = createComposeRule()
+    val dispatcher = StandardTestDispatcher()
+    @get:Rule val rule = createComposeRule(dispatcher)
 
     @Test
     fun checkMotionEventsAreBatchedWhenBuffered() {
@@ -67,32 +67,16 @@ class RequestUnbufferedDispatchTest {
         val iterations = 1000
         val frameIndexToPointerEvents = mutableMapOf<Int, MutableList<PointerEvent>>()
         frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-        var frameCountingJob: Job? = null
 
         rule.setContent {
             density = LocalDensity.current
-            val coroutineScope = rememberCoroutineScope()
-
             Spacer(
                 modifier =
                     Modifier.fillMaxSize().testTag("PointerInput").pointerInput(Unit) {
                         awaitPointerEventScope {
                             while (true) {
                                 val pointerEvent = awaitPointerEvent()
-                                if (pointerEvent.type == PointerEventType.Press) {
-                                    frameCountingJob =
-                                        coroutineScope.launch {
-                                            while (true) {
-                                                awaitFrame()
-                                                framesDuringMotionEventInjection++
-                                                frameIndexToPointerEvents[
-                                                    framesDuringMotionEventInjection] =
-                                                    mutableListOf()
-                                            }
-                                        }
-                                } else if (pointerEvent.type == PointerEventType.Release) {
-                                    frameCountingJob?.cancel()
-                                } else {
+                                if (pointerEvent.type == PointerEventType.Move) {
                                     frameIndexToPointerEvents
                                         .getValue(framesDuringMotionEventInjection)
                                         .add(pointerEvent)
@@ -111,10 +95,25 @@ class RequestUnbufferedDispatchTest {
             }
         val radius = with(density) { 16.dp.toPx() }
 
-        injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+        val frameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    framesDuringMotionEventInjection++
+                    frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
+                    dispatcher.scheduler.runCurrent()
+                    Choreographer.getInstance().postFrameCallback(this)
+                }
+            }
 
-        assertTrue(
-            frameIndexToPointerEvents.values.maxOf { it.size } == 1,
+        rule.runOnUiThread { Choreographer.getInstance().postFrameCallback(frameCallback) }
+
+        rule.injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+
+        rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
+
+        assertEquals(
+            1,
+            frameIndexToPointerEvents.values.maxOf { it.size },
             "Expected to see exactly one pointer event per frame",
         )
     }
@@ -126,12 +125,10 @@ class RequestUnbufferedDispatchTest {
         val iterations = 1000
         val frameIndexToPointerEvents = mutableMapOf<Int, MutableList<PointerEvent>>()
         frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-        var frameCountingJob: Job? = null
 
         rule.setContent {
             density = LocalDensity.current
             val containingView = LocalView.current
-            val coroutineScope = rememberCoroutineScope()
 
             Spacer(
                 modifier =
@@ -141,20 +138,7 @@ class RequestUnbufferedDispatchTest {
                             awaitPointerEventScope {
                                 while (true) {
                                     val pointerEvent = awaitPointerEvent()
-                                    if (pointerEvent.type == PointerEventType.Press) {
-                                        frameCountingJob =
-                                            coroutineScope.launch {
-                                                while (true) {
-                                                    awaitFrame()
-                                                    framesDuringMotionEventInjection++
-                                                    frameIndexToPointerEvents[
-                                                        framesDuringMotionEventInjection] =
-                                                        mutableListOf()
-                                                }
-                                            }
-                                    } else if (pointerEvent.type == PointerEventType.Release) {
-                                        frameCountingJob?.cancel()
-                                    } else {
+                                    if (pointerEvent.type == PointerEventType.Move) {
                                         frameIndexToPointerEvents
                                             .getValue(framesDuringMotionEventInjection)
                                             .add(pointerEvent)
@@ -177,7 +161,21 @@ class RequestUnbufferedDispatchTest {
             }
         val radius = with(density) { 16.dp.toPx() }
 
-        injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+        val frameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    framesDuringMotionEventInjection++
+                    frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
+                    dispatcher.scheduler.runCurrent()
+                    Choreographer.getInstance().postFrameCallback(this)
+                }
+            }
+
+        rule.runOnUiThread { Choreographer.getInstance().postFrameCallback(frameCallback) }
+
+        rule.injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+
+        rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
 
         assertTrue(
             frameIndexToPointerEvents.values.maxOf { it.size } > 1,
@@ -203,12 +201,10 @@ class RequestUnbufferedDispatchTest {
         val iterations = 1000
         val frameIndexToPointerEvents = mutableMapOf<Int, MutableList<PointerEvent>>()
         frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
-        var frameCountingJob: Job? = null
 
         rule.setContent {
             density = LocalDensity.current
             val containingView = LocalView.current
-            val coroutineScope = rememberCoroutineScope()
 
             Spacer(
                 modifier =
@@ -225,20 +221,7 @@ class RequestUnbufferedDispatchTest {
                                     isFirstPointerEvent = false
                                 }
 
-                                if (pointerEvent.type == PointerEventType.Press) {
-                                    frameCountingJob =
-                                        coroutineScope.launch {
-                                            while (true) {
-                                                awaitFrame()
-                                                framesDuringMotionEventInjection++
-                                                frameIndexToPointerEvents[
-                                                    framesDuringMotionEventInjection] =
-                                                    mutableListOf()
-                                            }
-                                        }
-                                } else if (pointerEvent.type == PointerEventType.Release) {
-                                    frameCountingJob?.cancel()
-                                } else {
+                                if (pointerEvent.type == PointerEventType.Move) {
                                     frameIndexToPointerEvents
                                         .getValue(framesDuringMotionEventInjection)
                                         .add(pointerEvent)
@@ -257,7 +240,21 @@ class RequestUnbufferedDispatchTest {
             }
         val radius = with(density) { 16.dp.toPx() }
 
-        injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+        val frameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    framesDuringMotionEventInjection++
+                    frameIndexToPointerEvents[framesDuringMotionEventInjection] = mutableListOf()
+                    dispatcher.scheduler.runCurrent()
+                    Choreographer.getInstance().postFrameCallback(this)
+                }
+            }
+
+        rule.runOnUiThread { Choreographer.getInstance().postFrameCallback(frameCallback) }
+
+        rule.injectCircleTraceEvents(pointerInputCenterCoordinates, radius, iterations)
+
+        rule.runOnUiThread { Choreographer.getInstance().removeFrameCallback(frameCallback) }
 
         assertTrue(
             frameIndexToPointerEvents.values.maxOf { it.size } > 1,
@@ -282,46 +279,63 @@ class RequestUnbufferedDispatchTest {
  * in a circle, and then an up. All motion events are emitted as fast as possible so that buffering
  * would apply in normal use.
  */
-private fun injectCircleTraceEvents(center: Offset, radius: Float, iterations: Int) {
+private fun ComposeTestRule.injectCircleTraceEvents(
+    center: Offset,
+    radius: Float,
+    iterations: Int,
+) {
     val downTime = SystemClock.uptimeMillis()
 
     val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-    instrumentation.sendPointerSync(
-        downTime,
-        MotionEvent.ACTION_DOWN,
-        getCoordinatesAroundCircle(center = center, radius = radius, angle = 0f),
+    instrumentation.sendPointer(
+        downTime = downTime,
+        action = MotionEvent.ACTION_DOWN,
+        screenOffset = getCoordinatesAroundCircle(center = center, radius = radius, angle = 0f),
+        sync = true,
+        eventTime = SystemClock.uptimeMillis(),
     )
+    waitForIdle()
     repeat(iterations) { index ->
-        instrumentation.sendPointerSync(
-            downTime,
-            MotionEvent.ACTION_MOVE,
-            getCoordinatesAroundCircle(
-                center = center,
-                radius = radius,
-                angle = lerp(0f, 2f * PI.toFloat(), (index + 1).toFloat() / iterations),
-            ),
+        // We're using Thread.sleep(1) to ensure that each injected move has a different event time
+        // Note that this is sleeping for 1 millisecond, not 1 second.
+        @Suppress("BanThreadSleep") Thread.sleep(1)
+        instrumentation.sendPointer(
+            downTime = downTime,
+            action = MotionEvent.ACTION_MOVE,
+            screenOffset =
+                getCoordinatesAroundCircle(
+                    center = center,
+                    radius = radius,
+                    angle = lerp(0f, 2f * PI.toFloat(), (index + 1).toFloat() / iterations),
+                ),
+            sync = false,
+            eventTime = SystemClock.uptimeMillis(),
         )
     }
-    instrumentation.sendPointerSync(
-        downTime,
-        MotionEvent.ACTION_UP,
-        getCoordinatesAroundCircle(center = center, radius = radius, angle = 0f),
+    waitForIdle()
+    instrumentation.sendPointer(
+        downTime = downTime,
+        action = MotionEvent.ACTION_UP,
+        screenOffset = getCoordinatesAroundCircle(center = center, radius = radius, angle = 0f),
+        sync = true,
+        eventTime = SystemClock.uptimeMillis(),
     )
 }
 
 private fun getCoordinatesAroundCircle(center: Offset, radius: Float, angle: Float) =
     center + Offset(cos(angle), sin(angle)) * radius
 
-private fun Instrumentation.sendPointerSync(
+private fun Instrumentation.sendPointer(
     downTime: Long,
     action: Int,
     screenOffset: Offset,
-    eventTime: Long = SystemClock.uptimeMillis(),
+    sync: Boolean,
+    eventTime: Long,
 ) {
     MotionEvent.obtain(downTime, eventTime, action, screenOffset.x, screenOffset.y, 0).run {
         source = InputDevice.SOURCE_STYLUS
-        sendPointerSync(this)
+        uiAutomation.injectInputEvent(this, sync)
         recycle()
     }
 }

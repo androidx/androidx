@@ -70,7 +70,6 @@ import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.AnchorPolicy
-import androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi
 import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
@@ -467,7 +466,6 @@ class SpatialCompose : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalSubspaceVolumeApi::class)
     @Composable
     fun XyzArrows(modifier: SubspaceModifier = SubspaceModifier) {
         val session = LocalSession.current ?: return

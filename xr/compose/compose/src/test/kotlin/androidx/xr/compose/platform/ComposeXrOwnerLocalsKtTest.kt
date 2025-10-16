@@ -23,6 +23,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.createFakeSession
+import androidx.xr.compose.testing.session
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import org.junit.Rule
@@ -47,62 +48,30 @@ class ComposeXrOwnerLocalsKtTest {
 
     @Test
     fun composeXrOwnerLocals_activityContext_returnsNonNull() {
-        composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalSessionFactory provides { createFakeSession(composeTestRule.activity) },
-                LocalIsXrEnabled provides true,
-            ) {
-                assertThat(LocalComposeXrOwners.current).isNotNull()
-            }
-        }
-    }
+        composeTestRule.session = createFakeSession(composeTestRule.activity)
 
-    @Test
-    fun composeXrOwnerLocals_nonXr_returnsNull() {
-        composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalSessionFactory provides { createFakeSession(composeTestRule.activity) },
-                LocalIsXrEnabled provides false,
-            ) {
-                assertThat(LocalComposeXrOwners.current).isNull()
-            }
-        }
+        composeTestRule.setContent { assertThat(LocalComposeXrOwners.current).isNotNull() }
     }
 
     @Test
     fun composeXrOwnerLocals_sessionCannotBeCreated_returnsNull() {
-        composeTestRule.setContent {
-            CompositionLocalProvider(
-                LocalSessionFactory provides { null },
-                LocalIsXrEnabled provides true,
-            ) {
-                assertThat(LocalComposeXrOwners.current).isNull()
-            }
-        }
+        composeTestRule.activity.window.decorView.setTag(
+            androidx.xr.compose.R.id.compose_xr_session_factory,
+            { null },
+        )
+
+        composeTestRule.setContent { assertThat(LocalComposeXrOwners.current).isNull() }
     }
 
     @Test
     fun getOrCreateXrOwnerLocals_isClearedAndRecreated_onActivityRecreation() {
-        val sessionFactory = { createFakeSession(composeTestRule.activity) }
-
         // Phase 1: Create the initial instance in the first activity.
         val activity1 = composeTestRule.activity
         val decorView1 = activity1.window.decorView
-        val locals1 =
-            assertNotNull(
-                decorView1.getOrCreateXrOwnerLocals(
-                    activity = activity1,
-                    sessionFactory = sessionFactory,
-                )
-            )
-        val locals2 =
-            assertNotNull(
-                decorView1.getOrCreateXrOwnerLocals(
-                    activity = activity1,
-                    sessionFactory = sessionFactory,
-                )
-            )
+        val locals1 = assertNotNull(decorView1.getOrCreateXrOwnerLocals(activity1))
+        val locals2 = assertNotNull(decorView1.getOrCreateXrOwnerLocals(activity1))
         assertThat(locals1).isSameInstanceAs(locals2)
+        assertThat(locals1.session).isSameInstanceAs(locals2.session)
 
         // Phase 2: Recreate the activity. This destroys the old activity and its
         // lifecycle, which should trigger our observer to clear the cache.
@@ -110,7 +79,7 @@ class ComposeXrOwnerLocalsKtTest {
         composeTestRule.activityRule.scenario.recreate()
 
         // Verify that the cache has been cleared.
-        assertThat(decorView1.getXrOwnerLocals()).isNull()
+        assertThat(decorView1.getTag(androidx.xr.compose.R.id.compose_xr_owner_locals)).isNull()
 
         // Phase 3: Verify that a new, distinct instance is created for the new activity.
         val activity2 = composeTestRule.activity
@@ -120,13 +89,8 @@ class ComposeXrOwnerLocalsKtTest {
         assertThat(activity2).isNotSameInstanceAs(activity1)
 
         val decorView2 = activity2.window.decorView
-        val locals3 =
-            assertNotNull(
-                decorView2.getOrCreateXrOwnerLocals(
-                    activity = activity2,
-                    sessionFactory = sessionFactory,
-                )
-            )
+        val locals3 = assertNotNull(decorView2.getOrCreateXrOwnerLocals(activity2))
         assertThat(locals3).isNotSameInstanceAs(locals1)
+        assertThat(locals3.session).isNotSameInstanceAs(locals1.session)
     }
 }

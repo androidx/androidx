@@ -21,9 +21,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import kotlinx.coroutines.flow.map
@@ -47,7 +49,11 @@ fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(
 @JvmName("currentWindowDpSize")
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun currentWindowDpSizeDeprecated(): DpSize = LocalWindowInfo.current.containerDpSize
+fun currentWindowDpSizeDeprecated(): DpSize =
+    // Workaround (b/358626778): Directly using WindowInfo.containerDpSize breaks tests based on
+    //   DeviceConfigurationOverride.ForcedSize. Those clients need to migrate to
+    //   DeviceConfigurationOverride.WindowSize when its available.
+    with(LocalDensity.current) { LocalWindowInfo.current.containerSize.toSize().toDpSize() }
 
 /**
  * Returns and automatically update the current window size. It's a convenient function of getting

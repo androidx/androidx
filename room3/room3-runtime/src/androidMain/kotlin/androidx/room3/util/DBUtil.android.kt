@@ -165,9 +165,8 @@ internal actual suspend fun RoomDatabase.getCoroutineContext(
  *   missing permissions.
  * @see [User Version Number](https://www.sqlite.org/fileformat.html.user_version_number).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Throws(IOException::class)
-public fun readVersion(databaseFile: File): Int {
+internal fun readVersion(databaseFile: File): Int {
     FileInputStream(databaseFile).channel.use { input ->
         val buffer = ByteBuffer.allocate(4)
         input.tryLock(60, 4, true)

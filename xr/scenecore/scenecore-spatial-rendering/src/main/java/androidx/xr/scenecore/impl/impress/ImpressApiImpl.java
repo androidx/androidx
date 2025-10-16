@@ -139,20 +139,26 @@ public final class ImpressApiImpl implements ImpressApi {
     }
 
     @Override
-    public void setup(@NonNull View view) {
+    public void setup(@Nullable View view) {
         mView = view;
-        nSetup(getViewNativeHandle(view));
+        if (mView != null) {
+            nSetup(getViewNativeHandle(view));
+        }
         mResourceManager = new BindingsResourceManager(new Handler(Looper.getMainLooper()));
     }
 
     @Override
     public void onResume() {
-        mView.onResume();
+        if (mView != null) {
+            mView.onResume();
+        }
     }
 
     @Override
     public void onPause() {
-        mView.onPause();
+        if (mView != null) {
+            mView.onPause();
+        }
     }
 
     @Override
@@ -468,18 +474,13 @@ public final class ImpressApiImpl implements ImpressApi {
         float[] center = new float[3];
         float[] halfExtents = new float[3];
         nGetGltfModelLocalBounds(
-                getViewNativeHandle(mView),
-                impressNode.getHandle(),
-                center,
-                halfExtents
-        );
+                getViewNativeHandle(mView), impressNode.getHandle(), center, halfExtents);
 
         return BoundingBox.fromCenterAndHalfExtents(
                 // center
                 new Vector3(center[0], center[1], center[2]),
                 // halfExtents
-                new FloatSize3d(halfExtents[0], halfExtents[1], halfExtents[2])
-        );
+                new FloatSize3d(halfExtents[0], halfExtents[1], halfExtents[2]));
     }
 
     @Override
@@ -1410,10 +1411,7 @@ public final class ImpressApiImpl implements ImpressApi {
     private static native void nStopGltfModelAnimation(long view, int impressNode);
 
     private static native void nGetGltfModelLocalBounds(
-            long view,
-            int impressNode,
-            float[] outCenter,
-            float[] outHalfExtent);
+            long view, int impressNode, float[] outCenter, float[] outHalfExtent);
 
     private static native int nCreateImpressNode(long view);
 

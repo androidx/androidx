@@ -41,7 +41,6 @@ import androidx.xr.compose.subspace.layout.onPointSourceParamsAvailable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -70,7 +69,7 @@ class SubspaceModifierNodeChainTest {
                     executionCounter += 1
                 }
             )
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
@@ -98,7 +97,7 @@ class SubspaceModifierNodeChainTest {
                     executionCounter += 1
                 }
             )
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
@@ -124,7 +123,7 @@ class SubspaceModifierNodeChainTest {
                     executionCounter += 1
                 }
             )
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace { SpatialPanel(modifier = modifier.value) { Box {} } }
         }
 
@@ -145,7 +144,7 @@ class SubspaceModifierNodeChainTest {
 
     @Test
     fun nodeChain_statefulModifierNodesAreReused() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 var count by remember { mutableStateOf(100) }
                 SpatialPanel(SubspaceModifier.count(count = count)) {

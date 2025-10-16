@@ -77,7 +77,7 @@ class SelectionStateManagerTest {
                 testScope,
                 handleTouchTargetSizePx = HANDLE_TOUCH_TARGET_PX,
                 errorFlow,
-                pageMetadataLoader = null,
+                pageLayoutManager = null,
                 pageManager = null,
             )
     }

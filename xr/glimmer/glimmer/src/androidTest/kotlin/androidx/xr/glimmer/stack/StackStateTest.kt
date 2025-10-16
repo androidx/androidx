@@ -16,23 +16,31 @@
 
 package androidx.xr.glimmer.stack
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,10 +48,11 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.performIndirectSwipe
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +77,6 @@ class StackStateTest {
         assertThat(state.lastScrolledForward).isFalse()
         assertThat(state.lastScrolledBackward).isFalse()
         assertThat(state.layoutInfoInternal.viewportSize).isEqualTo(IntSize.Zero)
-        assertThat(state.layoutInfoInternal.maxItemSize).isEqualTo(IntSize.Zero)
     }
 
     @Test
@@ -89,7 +97,7 @@ class StackStateTest {
     fun scrollToItem_whenNotAttachedToStack_completesWithoutError() = runTest {
         val state = StackState()
 
-        state.scrollToItem(5)
+        runOnUiThread { state.scrollToItem(5) }
         // Test succeeds if no exception is thrown.
     }
 
@@ -102,11 +110,11 @@ class StackStateTest {
     }
 
     @Test
-    fun scroll_whenNotAttachedToStack_completesWithoutErrorAndDoesNotExecuteBlock() {
+    fun scroll_whenNotAttachedToStack_completesWithoutErrorAndDoesNotExecuteBlock() = runTest {
         val state = StackState()
 
         var blockExecuted = false
-        runBlocking {
+        runOnUiThread {
             state.scroll(MutatePriority.Default) {
                 blockExecuted = true
                 scrollBy(100f)
@@ -117,15 +125,64 @@ class StackStateTest {
     }
 
     @Test
+    fun topItem_scrollForward_updatesToNextWhenTopItemLeavesViewport() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(itemHeight * 0.1f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(itemHeight * 0.4f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(itemHeight * 0.4f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(itemHeight * 0.1f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(1) }
+    }
+
+    @Test
+    fun topItem_scrollBackward_updatesToPreviousWhenPreviousItemEntersViewport() = runTest {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        runOnUiThread { state.scrollToItem(1) }
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(1) }
+
+        state.dispatchRawDelta(-itemHeight * 0.1f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(-itemHeight * 0.4f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(-itemHeight * 0.4f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+
+        state.dispatchRawDelta(-itemHeight * 0.1f)
+        rule.runOnIdle { assertThat(state.topItem).isEqualTo(0) }
+    }
+
+    @Test
     fun scrollToItem_displaysTargetItem() = runTest {
         val state = StackState()
         rule.setContent {
             VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
         }
 
-        state.scrollToItem(3)
+        runOnUiThread { state.scrollToItem(3) }
 
-        rule.onNodeWithText("Item 3").assertIsDisplayed()
+        rule.onNodeWithTag("Item 3").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(3)
     }
 
@@ -140,12 +197,12 @@ class StackStateTest {
 
         scope.launch { state.animateScrollToItem(3) }
 
-        rule.onNodeWithText("Item 3").assertIsDisplayed()
+        rule.onNodeWithTag("Item 3").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(3)
     }
 
     @Test
-    fun scroll_forwardAlmostItemHeight_displaysNextItem() = runTest {
+    fun scroll_forwardThenBackward_displaysNextThenPreviousItem() = runTest {
         var itemHeight = 0
         val state = StackState()
         rule.setContent {
@@ -154,33 +211,13 @@ class StackStateTest {
             }
         }
 
-        state.scroll(MutatePriority.Default) {
-            scrollBy(itemHeight * 0.9f) // Scroll to "Item 1" (9/10th of the item height)
-        }
-
-        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        runOnUiThread { state.scroll(MutatePriority.Default) { scrollBy(itemHeight.toFloat()) } }
+        rule.onNodeWithTag("Item 1").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(1)
-        assertThat(state.topItemOffsetFraction).isWithin(0.01f).of(-0.1f)
-    }
 
-    @Test
-    fun scroll_backwardAlmostItemHeight_displaysPreviousItem() = runTest {
-        var itemHeight = 0
-        val state = StackState()
-        rule.setContent {
-            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
-                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
-            }
-        }
-
-        state.scroll(MutatePriority.Default) {
-            scrollBy(itemHeight.toFloat()) // Scroll to "Item 1"
-            scrollBy(-(itemHeight * 0.9f)) // Scroll to "Item 0" (9/10th of the item height)
-        }
-
-        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        runOnUiThread { state.scroll(MutatePriority.Default) { scrollBy(-itemHeight.toFloat()) } }
+        rule.onNodeWithTag("Item 0").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(0)
-        assertThat(state.topItemOffsetFraction).isWithin(0.01f).of(0.1f)
     }
 
     @Test
@@ -195,7 +232,8 @@ class StackStateTest {
 
         rule.runOnIdle { state.dispatchRawDelta(itemHeight * 0.1f) }
 
-        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        rule.onNodeWithTag("Item 0").assertIsDisplayed()
+        rule.onNodeWithTag("Item 1").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isWithin(0.01f).of(0.1f)
     }
@@ -209,16 +247,17 @@ class StackStateTest {
                 items(5) { index -> StackItem("Item $index") { itemHeight = it } }
             }
         }
-        state.scrollToItem(3)
-        rule.onNodeWithText("Item 3").assertIsDisplayed()
+        runOnUiThread { state.scrollToItem(3) }
+        rule.onNodeWithTag("Item 3").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(3)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
 
         rule.runOnIdle { state.dispatchRawDelta(-(itemHeight * 0.1f)) }
 
-        rule.onNodeWithText("Item 3").assertIsDisplayed()
-        assertThat(state.topItem).isEqualTo(3)
-        assertThat(state.topItemOffsetFraction).isWithin(0.01f).of(-0.1f)
+        rule.onNodeWithTag("Item 2").assertIsDisplayed()
+        rule.onNodeWithTag("Item 3").assertIsDisplayed()
+        assertThat(state.topItem).isEqualTo(2)
+        assertThat(state.topItemOffsetFraction).isWithin(0.01f).of(0.9f)
     }
 
     @Test
@@ -255,7 +294,7 @@ class StackStateTest {
         assertThat(state.canScrollForward).isTrue()
         assertThat(state.canScrollBackward).isFalse()
 
-        state.scrollToItem(2)
+        runOnUiThread { state.scrollToItem(2) }
 
         rule.waitForIdle()
 
@@ -263,7 +302,7 @@ class StackStateTest {
         assertThat(state.canScrollForward).isTrue()
         assertThat(state.canScrollBackward).isTrue()
 
-        state.scrollToItem(4)
+        runOnUiThread { state.scrollToItem(4) }
 
         rule.waitForIdle()
 
@@ -313,7 +352,7 @@ class StackStateTest {
     }
 
     @Test
-    fun layoutInfo_sizesAreCorrect() {
+    fun layoutInfo_viewportSizeIsCorrect() {
         val state = StackState()
         rule.setContentWithInitialFocus {
             VerticalStack(modifier = Modifier.size(100.dp), state = state) {
@@ -325,19 +364,243 @@ class StackStateTest {
         with(rule.density) {
             assertThat(state.layoutInfoInternal.viewportSize)
                 .isEqualTo(IntSize(width = 100.dp.roundToPx(), height = 100.dp.roundToPx()))
-            assertThat(state.layoutInfoInternal.maxItemSize)
-                .isEqualTo(
-                    IntSize(
-                        width = 100.dp.roundToPx(),
-                        height = 100.dp.roundToPx() - RevealAreaSize.roundToPx(),
-                    )
-                )
+        }
+    }
+
+    @Test
+    fun scrollForward_updatesMeasuredItemHeights() = runTest {
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        val itemHeights = listOf(10.dp, 20.dp, 30.dp, 40.dp, 50.dp)
+        rule.setContent {
+            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
+                items(5) { index -> StackItem("Item $index", Modifier.height(itemHeights[index])) }
+            }
+        }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+
+        runOnUiThread { state.scrollToItem(2) }
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(40.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(50.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun scrollForwardInProgress_updatesMeasuredItemHeights() {
+        lateinit var scope: CoroutineScope
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        val itemHeights = listOf(10.dp, 20.dp, 30.dp, 40.dp, 50.dp)
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
+                items(5) { index -> StackItem("Item $index", Modifier.height(itemHeights[index])) }
+            }
+        }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+        rule.mainClock.autoAdvance = false
+        scope.launch { state.animateScrollToItem(1, animationSpec = tween(durationMillis = 500)) }
+
+        rule.mainClock.advanceTimeBy(100) // Advance the clock partway through the animation
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(40.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun scrollBackward_updatesMeasuredItemHeights() = runTest {
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        val itemHeights = listOf(10.dp, 20.dp, 30.dp, 40.dp, 50.dp)
+        rule.setContent {
+            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
+                items(5) { index -> StackItem("Item $index", Modifier.height(itemHeights[index])) }
+            }
+        }
+        runOnUiThread { state.scrollToItem(4) }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(50.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(0)
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(0)
+        }
+
+        runOnUiThread { state.scrollToItem(1) }
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(40.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun scrollBackwardInProgress_updatesMeasuredItemHeights() = runTest {
+        lateinit var scope: CoroutineScope
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        val itemHeights = listOf(10.dp, 20.dp, 30.dp, 40.dp, 50.dp)
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
+                items(5) { index -> StackItem("Item $index", Modifier.height(itemHeights[index])) }
+            }
+        }
+        runOnUiThread { state.scrollToItem(2) }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(40.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(50.dp.roundToPx())
+        }
+        rule.mainClock.autoAdvance = false
+        scope.launch { state.animateScrollToItem(1, animationSpec = tween(durationMillis = 500)) }
+
+        rule.mainClock.advanceTimeBy(100) // Advance the clock partway through the animation
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(40.dp.roundToPx())
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(40.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun itemHeightsChange_updatesMeasuredItemHeights() {
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        var itemHeights by mutableStateOf(listOf(10.dp, 20.dp, 30.dp))
+        rule.setContent {
+            VerticalStack(modifier = Modifier.size(100.dp), state = state) {
+                items(3) { index -> StackItem("Item $index", Modifier.height(itemHeights[index])) }
+            }
+        }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+
+        rule.runOnIdle { itemHeights = listOf(30.dp, 20.dp, 10.dp) }
+
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(10.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun itemInserted_withKeys_updatesMeasuredItemHeights() {
+        data class TestItem(val key: Int, val height: Dp)
+        val items = mutableStateListOf(TestItem(0, 10.dp), TestItem(2, 30.dp))
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        rule.setContent {
+            VerticalStack(modifier = Modifier.size(100.dp).testTag("stack"), state = state) {
+                items(items, key = { it.key }) { item ->
+                    StackItem("Item ${item.key}", Modifier.height(item.height))
+                }
+            }
+        }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(0)
+        }
+
+        rule.runOnIdle { items.add(1, TestItem(1, 20.dp)) }
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+    }
+
+    @Test
+    fun itemRemoved_withKeys_updatesMeasuredItemHeights() {
+        data class TestItem(val key: Int, val height: Dp)
+        val items = mutableStateListOf(TestItem(0, 10.dp), TestItem(1, 20.dp), TestItem(2, 30.dp))
+        val state = StackState()
+        val layoutInfo = state.layoutInfoInternal
+        rule.setContent {
+            VerticalStack(modifier = Modifier.size(100.dp).testTag("stack"), state = state) {
+                items(items, key = { it.key }) { item ->
+                    StackItem("Item ${item.key}", Modifier.height(item.height))
+                }
+            }
+        }
+        rule.waitForIdle()
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(20.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(30.dp.roundToPx())
+        }
+
+        rule.runOnIdle { items.removeAt(1) }
+        rule.waitForIdle()
+
+        with(rule.density) {
+            assertThat(layoutInfo.measuredTopItemHeight).isEqualTo(10.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextItemHeight).isEqualTo(30.dp.roundToPx())
+            assertThat(layoutInfo.measuredNextNextItemHeight).isEqualTo(0)
         }
     }
 
     @Composable
-    private fun StackItem(text: String, onHeightChanged: (Int) -> Unit = {}) {
-        Box(Modifier.onSizeChanged { onHeightChanged(it.height) }.fillMaxSize().focusTarget()) {
+    private fun StackItem(
+        text: String,
+        modifier: Modifier = Modifier,
+        onHeightChanged: (Int) -> Unit = {},
+    ) {
+        Box(
+            modifier
+                .onSizeChanged { onHeightChanged(it.height) }
+                .fillMaxSize()
+                .focusTarget()
+                .testTag(text)
+        ) {
             Text(text)
         }
     }
@@ -354,5 +617,9 @@ class StackStateTest {
     private fun requestFocus() {
         rule.runOnIdle { focusRequester.requestFocus() }
         rule.waitForIdle()
+    }
+
+    suspend fun runOnUiThread(action: suspend () -> Unit) {
+        withContext(Dispatchers.Main) { action() }
     }
 }

@@ -23,9 +23,6 @@ import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.internal.StreamUseCaseUtil
 import androidx.camera.camera2.pipe.OutputStream
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
@@ -179,17 +176,6 @@ public class SessionConfigAdapter(
         return mapping
     }
 
-    private fun getStreamUseCaseForContainerClass(kClass: Class<*>?): Long {
-        return when (kClass) {
-            ImageAnalysis::class.java -> OutputStream.StreamUseCase.PREVIEW.value
-            Preview::class.java -> OutputStream.StreamUseCase.PREVIEW.value
-            ImageCapture::class.java -> OutputStream.StreamUseCase.STILL_CAPTURE.value
-            MediaCodec::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
-            StreamSharing::class.java -> OutputStream.StreamUseCase.VIDEO_RECORD.value
-            else -> OutputStream.StreamUseCase.DEFAULT.value
-        }
-    }
-
     /**
      * Determines the appropriate [OutputStream.StreamUseHint] value based on the provided container
      * class.
@@ -215,10 +201,6 @@ public class SessionConfigAdapter(
     }
 
     public companion object {
-        public fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
-            return Camera2ImplConfig(implementationOptions)
-        }
-
         public fun UseCase.getSessionConfig(isPrimary: Boolean): SessionConfig {
             return if (isPrimary) sessionConfig else secondarySessionConfig
         }

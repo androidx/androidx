@@ -148,7 +148,7 @@ package androidx.compose.ui {
     property @Deprecated public boolean isFocusActionExitsTouchModeEnabled;
     property public boolean isGraphicsLayerShapeSemanticsEnabled;
     property public boolean isIgnoreInvalidPrevFocusRectEnabled;
-    property public boolean isIndirectTouchNavigationGestureDetectorEnabled;
+    property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isNestedScrollInteropIntegerPropagationEnabled;
     property @Deprecated public boolean isNoPinningInFocusRestorationEnabled;
@@ -168,7 +168,7 @@ package androidx.compose.ui {
     field @Deprecated public static boolean isFocusActionExitsTouchModeEnabled;
     field public static boolean isGraphicsLayerShapeSemanticsEnabled;
     field public static boolean isIgnoreInvalidPrevFocusRectEnabled;
-    field public static boolean isIndirectTouchNavigationGestureDetectorEnabled;
+    field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isNestedScrollInteropIntegerPropagationEnabled;
     field @Deprecated public static boolean isNoPinningInFocusRestorationEnabled;
@@ -1484,12 +1484,53 @@ package androidx.compose.ui.input {
 
 package androidx.compose.ui.input.indirect {
 
-  public final class AndroidIndirectTouchEvent_androidKt {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectTouchTypeApi public static androidx.compose.ui.input.indirect.IndirectTouchEvent IndirectTouchEvent(android.view.MotionEvent motionEvent, optional androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis primaryDirectionalMotionAxis, optional android.view.MotionEvent? previousMotionEvent);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectTouchTypeApi public static androidx.compose.ui.input.indirect.IndirectTouchEvent IndirectTouchEvent-PlSnKCs(android.view.MotionEvent, int, android.view.MotionEvent?);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectTouchTypeApi public static androidx.compose.ui.input.indirect.IndirectTouchEvent! IndirectTouchEvent-PlSnKCs$default(android.view.MotionEvent!, int, android.view.MotionEvent!, int, Object!);
-    method @InaccessibleFromKotlin public static android.view.MotionEvent getNativeEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent);
-    property public static android.view.MotionEvent androidx.compose.ui.input.indirect.IndirectTouchEvent.nativeEvent;
+  public final class AndroidIndirectPointerEvent_androidKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectPointerApi public static androidx.compose.ui.input.indirect.IndirectPointerEvent IndirectPointerEvent(android.view.MotionEvent motionEvent, optional androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis primaryDirectionalMotionAxis, optional android.view.MotionEvent? previousMotionEvent);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectPointerApi public static androidx.compose.ui.input.indirect.IndirectPointerEvent IndirectPointerEvent-eAXfkT4(android.view.MotionEvent, int, android.view.MotionEvent?);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectPointerApi public static androidx.compose.ui.input.indirect.IndirectPointerEvent! IndirectPointerEvent-eAXfkT4$default(android.view.MotionEvent!, int, android.view.MotionEvent!, int, Object!);
+    method @InaccessibleFromKotlin public static android.view.MotionEvent getNativeEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent);
+    property public static android.view.MotionEvent androidx.compose.ui.input.indirect.IndirectPointerEvent.nativeEvent;
+  }
+
+  public sealed interface IndirectPointerEvent {
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.input.indirect.IndirectPointerInputChange> getChanges();
+    method @BytecodeOnly public int getPrimaryDirectionalMotionAxis-nZO2Niw();
+    method @BytecodeOnly public int getType-4ZHQPSE();
+    property public abstract java.util.List<androidx.compose.ui.input.indirect.IndirectPointerInputChange> changes;
+    property public abstract androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis primaryDirectionalMotionAxis;
+    property public abstract androidx.compose.ui.input.indirect.IndirectPointerEventType type;
+  }
+
+  @kotlin.jvm.JvmInline public final value class IndirectPointerEventPrimaryDirectionalMotionAxis {
+    method @BytecodeOnly public static androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis.Companion Companion;
+  }
+
+  public static final class IndirectPointerEventPrimaryDirectionalMotionAxis.Companion {
+    method @BytecodeOnly public int getNone-nZO2Niw();
+    method @BytecodeOnly public int getX-nZO2Niw();
+    method @BytecodeOnly public int getY-nZO2Niw();
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis None;
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis X;
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis Y;
+  }
+
+  @kotlin.jvm.JvmInline public final value class IndirectPointerEventType {
+    method @BytecodeOnly public static androidx.compose.ui.input.indirect.IndirectPointerEventType! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.compose.ui.input.indirect.IndirectPointerEventType.Companion Companion;
+  }
+
+  public static final class IndirectPointerEventType.Companion {
+    method @BytecodeOnly public int getMove-4ZHQPSE();
+    method @BytecodeOnly public int getPress-4ZHQPSE();
+    method @BytecodeOnly public int getRelease-4ZHQPSE();
+    method @BytecodeOnly public int getUnknown-4ZHQPSE();
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventType Move;
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventType Press;
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventType Release;
+    property public androidx.compose.ui.input.indirect.IndirectPointerEventType Unknown;
   }
 
   public final class IndirectPointerInputChange {
@@ -1516,50 +1557,9 @@ package androidx.compose.ui.input.indirect {
     property public long uptimeMillis;
   }
 
-  public sealed interface IndirectTouchEvent {
-    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.input.indirect.IndirectPointerInputChange> getChanges();
-    method @BytecodeOnly public int getPrimaryDirectionalMotionAxis-ifgRr6E();
-    method @BytecodeOnly public int getType-LxEHWp8();
-    property public abstract java.util.List<androidx.compose.ui.input.indirect.IndirectPointerInputChange> changes;
-    property public abstract androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis primaryDirectionalMotionAxis;
-    property public abstract androidx.compose.ui.input.indirect.IndirectTouchEventType type;
-  }
-
-  @kotlin.jvm.JvmInline public final value class IndirectTouchEventPrimaryDirectionalMotionAxis {
-    method @BytecodeOnly public static androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis.Companion Companion;
-  }
-
-  public static final class IndirectTouchEventPrimaryDirectionalMotionAxis.Companion {
-    method @BytecodeOnly public int getNone-ifgRr6E();
-    method @BytecodeOnly public int getX-ifgRr6E();
-    method @BytecodeOnly public int getY-ifgRr6E();
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis None;
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis X;
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis Y;
-  }
-
-  @kotlin.jvm.JvmInline public final value class IndirectTouchEventType {
-    method @BytecodeOnly public static androidx.compose.ui.input.indirect.IndirectTouchEventType! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.compose.ui.input.indirect.IndirectTouchEventType.Companion Companion;
-  }
-
-  public static final class IndirectTouchEventType.Companion {
-    method @BytecodeOnly public int getMove-LxEHWp8();
-    method @BytecodeOnly public int getPress-LxEHWp8();
-    method @BytecodeOnly public int getRelease-LxEHWp8();
-    method @BytecodeOnly public int getUnknown-LxEHWp8();
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventType Move;
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventType Press;
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventType Release;
-    property public androidx.compose.ui.input.indirect.IndirectTouchEventType Unknown;
-  }
-
-  public interface IndirectTouchInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
-    method public void onCancelIndirectTouchInput();
-    method public void onIndirectTouchEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent event, androidx.compose.ui.input.pointer.PointerEventPass pass);
+  public interface IndirectPointerInputModifierNode extends androidx.compose.ui.node.DelegatableNode {
+    method public void onCancelIndirectPointerInput();
+    method public void onIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent event, androidx.compose.ui.input.pointer.PointerEventPass pass);
   }
 
 }
@@ -3680,7 +3680,7 @@ package androidx.compose.ui.node {
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.input.TextInputService getTextInputService();
     method public default void measureAndLayoutForTest();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectTouchTypeApi public default boolean sendIndirectTouchEvent(androidx.compose.ui.input.indirect.IndirectTouchEvent indirectTouchEvent);
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalIndirectPointerApi public default boolean sendIndirectPointerEvent(androidx.compose.ui.input.indirect.IndirectPointerEvent indirectPointerEvent);
     method @KotlinOnly public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent keyEvent);
     method @BytecodeOnly public boolean sendKeyEvent-ZmokQxo(android.view.KeyEvent);
     method public default void setAccessibilityEventBatchIntervalMillis(long intervalMillis);

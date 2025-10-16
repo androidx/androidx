@@ -268,6 +268,10 @@ interface ComposeContentTestRule : ComposeTestRule {
  * androidTest/AndroidManifest.xml). If your Android test requires a specific Activity to be
  * launched, see [createAndroidComposeRule].
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 expect fun createComposeRule(): ComposeContentTestRule
 
 /**

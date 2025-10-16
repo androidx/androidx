@@ -211,7 +211,7 @@ public class FakeImpressApiImpl implements ImpressApi {
     }
 
     @Override
-    public void setup(@NonNull View view) {}
+    public void setup(@Nullable View view) {}
 
     @Override
     public void onResume() {}

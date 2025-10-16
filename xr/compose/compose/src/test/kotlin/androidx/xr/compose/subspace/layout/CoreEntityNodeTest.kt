@@ -24,7 +24,6 @@ import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.scenecore.PanelEntity
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -77,7 +76,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_alpha_shouldBeApplied() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -94,7 +93,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_alpha_shouldAppendExisting() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -113,7 +112,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_alpha_shouldAppendExistingWithGap() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -133,7 +132,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_alpha_shouldClampAppendedResult() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -152,7 +151,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_scale_shouldBeApplied() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -169,7 +168,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_scale_shouldAppendExisting() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },
@@ -188,7 +187,7 @@ class CoreEntityNodeTest {
 
     @Test
     fun coreEntityNode_scale_shouldAppendExistingWithGap() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialAndroidViewPanel(
                     factory = { View(it) },

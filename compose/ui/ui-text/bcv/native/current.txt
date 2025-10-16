@@ -1448,15 +1448,12 @@ final value class androidx.compose.ui.text.input/KeyboardType { // androidx.comp
 final value class androidx.compose.ui.text.style/BaselineShift { // androidx.compose.ui.text.style/BaselineShift|null[0]
     constructor <init>(kotlin/Float) // androidx.compose.ui.text.style/BaselineShift.<init>|<init>(kotlin.Float){}[0]
 
-    final val isSpecified // androidx.compose.ui.text.style/BaselineShift.isSpecified|{}isSpecified[0]
-        final fun <get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/BaselineShift.isSpecified.<get-isSpecified>|<get-isSpecified>(){}[0]
     final val multiplier // androidx.compose.ui.text.style/BaselineShift.multiplier|{}multiplier[0]
         final fun <get-multiplier>(): kotlin/Float // androidx.compose.ui.text.style/BaselineShift.multiplier.<get-multiplier>|<get-multiplier>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.style/BaselineShift.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.text.style/BaselineShift.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.text.style/BaselineShift.toString|toString(){}[0]
-    final inline fun takeOrElse(kotlin/Function0<androidx.compose.ui.text.style/BaselineShift>): androidx.compose.ui.text.style/BaselineShift // androidx.compose.ui.text.style/BaselineShift.takeOrElse|takeOrElse(kotlin.Function0<androidx.compose.ui.text.style.BaselineShift>){}[0]
 
     final object Companion { // androidx.compose.ui.text.style/BaselineShift.Companion|null[0]
         final val None // androidx.compose.ui.text.style/BaselineShift.Companion.None|{}None[0]
@@ -1471,8 +1468,6 @@ final value class androidx.compose.ui.text.style/BaselineShift { // androidx.com
 }
 
 final value class androidx.compose.ui.text.style/Hyphens { // androidx.compose.ui.text.style/Hyphens|null[0]
-    final val isSpecified // androidx.compose.ui.text.style/Hyphens.isSpecified|{}isSpecified[0]
-        final fun <get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/Hyphens.isSpecified.<get-isSpecified>|<get-isSpecified>(){}[0]
     final val value // androidx.compose.ui.text.style/Hyphens.value|{}value[0]
         final fun <get-value>(): kotlin/Int // androidx.compose.ui.text.style/Hyphens.value.<get-value>|<get-value>(){}[0]
 
@@ -1510,8 +1505,6 @@ final value class androidx.compose.ui.text.style/LineBreak { // androidx.compose
 }
 
 final value class androidx.compose.ui.text.style/TextAlign { // androidx.compose.ui.text.style/TextAlign|null[0]
-    final val isSpecified // androidx.compose.ui.text.style/TextAlign.isSpecified|{}isSpecified[0]
-        final fun <get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/TextAlign.isSpecified.<get-isSpecified>|<get-isSpecified>(){}[0]
     final val value // androidx.compose.ui.text.style/TextAlign.value|{}value[0]
         final fun <get-value>(): kotlin/Int // androidx.compose.ui.text.style/TextAlign.value.<get-value>|<get-value>(){}[0]
 
@@ -1541,8 +1534,6 @@ final value class androidx.compose.ui.text.style/TextAlign { // androidx.compose
 }
 
 final value class androidx.compose.ui.text.style/TextDirection { // androidx.compose.ui.text.style/TextDirection|null[0]
-    final val isSpecified // androidx.compose.ui.text.style/TextDirection.isSpecified|{}isSpecified[0]
-        final fun <get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/TextDirection.isSpecified.<get-isSpecified>|<get-isSpecified>(){}[0]
     final val value // androidx.compose.ui.text.style/TextDirection.value|{}value[0]
         final fun <get-value>(): kotlin/Int // androidx.compose.ui.text.style/TextDirection.value.<get-value>|<get-value>(){}[0]
 
@@ -1787,8 +1778,16 @@ final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextFore
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextGeometricTransform$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextGeometricTransform$stableprop|#static{}androidx_compose_ui_text_style_TextGeometricTransform$stableprop[0]
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextIndent$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextIndent$stableprop|#static{}androidx_compose_ui_text_style_TextIndent$stableprop[0]
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextMotion$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextMotion$stableprop|#static{}androidx_compose_ui_text_style_TextMotion$stableprop[0]
+final val androidx.compose.ui.text.style/isSpecified // androidx.compose.ui.text.style/isSpecified|@androidx.compose.ui.text.style.BaselineShift{}isSpecified[0]
+    final inline fun (androidx.compose.ui.text.style/BaselineShift).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.text.style.BaselineShift(){}[0]
+final val androidx.compose.ui.text.style/isSpecified // androidx.compose.ui.text.style/isSpecified|@androidx.compose.ui.text.style.Hyphens{}isSpecified[0]
+    final inline fun (androidx.compose.ui.text.style/Hyphens).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.text.style.Hyphens(){}[0]
 final val androidx.compose.ui.text.style/isSpecified // androidx.compose.ui.text.style/isSpecified|@androidx.compose.ui.text.style.LineBreak{}isSpecified[0]
     final inline fun (androidx.compose.ui.text.style/LineBreak).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.text.style.LineBreak(){}[0]
+final val androidx.compose.ui.text.style/isSpecified // androidx.compose.ui.text.style/isSpecified|@androidx.compose.ui.text.style.TextAlign{}isSpecified[0]
+    final inline fun (androidx.compose.ui.text.style/TextAlign).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.text.style.TextAlign(){}[0]
+final val androidx.compose.ui.text.style/isSpecified // androidx.compose.ui.text.style/isSpecified|@androidx.compose.ui.text.style.TextDirection{}isSpecified[0]
+    final inline fun (androidx.compose.ui.text.style/TextDirection).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.text.style/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.text.style.TextDirection(){}[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString$stableprop|#static{}androidx_compose_ui_text_AnnotatedString$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Builder$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop[0]
@@ -1953,6 +1952,10 @@ final fun androidx.compose.ui.text/lerp(androidx.compose.ui.text/PlatformSpanSty
 final fun androidx.compose.ui.text/lerp(androidx.compose.ui.text/SpanStyle, androidx.compose.ui.text/SpanStyle, kotlin/Float): androidx.compose.ui.text/SpanStyle // androidx.compose.ui.text/lerp|lerp(androidx.compose.ui.text.SpanStyle;androidx.compose.ui.text.SpanStyle;kotlin.Float){}[0]
 final fun androidx.compose.ui.text/lerp(androidx.compose.ui.text/TextStyle, androidx.compose.ui.text/TextStyle, kotlin/Float): androidx.compose.ui.text/TextStyle // androidx.compose.ui.text/lerp|lerp(androidx.compose.ui.text.TextStyle;androidx.compose.ui.text.TextStyle;kotlin.Float){}[0]
 final fun androidx.compose.ui.text/resolveDefaults(androidx.compose.ui.text/TextStyle, androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.text/TextStyle // androidx.compose.ui.text/resolveDefaults|resolveDefaults(androidx.compose.ui.text.TextStyle;androidx.compose.ui.unit.LayoutDirection){}[0]
+final inline fun (androidx.compose.ui.text.style/BaselineShift).androidx.compose.ui.text.style/takeOrElse(kotlin/Function0<androidx.compose.ui.text.style/BaselineShift>): androidx.compose.ui.text.style/BaselineShift // androidx.compose.ui.text.style/takeOrElse|takeOrElse@androidx.compose.ui.text.style.BaselineShift(kotlin.Function0<androidx.compose.ui.text.style.BaselineShift>){}[0]
+final inline fun (androidx.compose.ui.text.style/Hyphens).androidx.compose.ui.text.style/takeOrElse(kotlin/Function0<androidx.compose.ui.text.style/Hyphens>): androidx.compose.ui.text.style/Hyphens // androidx.compose.ui.text.style/takeOrElse|takeOrElse@androidx.compose.ui.text.style.Hyphens(kotlin.Function0<androidx.compose.ui.text.style.Hyphens>){}[0]
+final inline fun (androidx.compose.ui.text.style/TextAlign).androidx.compose.ui.text.style/takeOrElse(kotlin/Function0<androidx.compose.ui.text.style/TextAlign>): androidx.compose.ui.text.style/TextAlign // androidx.compose.ui.text.style/takeOrElse|takeOrElse@androidx.compose.ui.text.style.TextAlign(kotlin.Function0<androidx.compose.ui.text.style.TextAlign>){}[0]
+final inline fun (androidx.compose.ui.text.style/TextDirection).androidx.compose.ui.text.style/takeOrElse(kotlin/Function0<androidx.compose.ui.text.style/TextDirection>): androidx.compose.ui.text.style/TextDirection // androidx.compose.ui.text.style/takeOrElse|takeOrElse@androidx.compose.ui.text.style.TextDirection(kotlin.Function0<androidx.compose.ui.text.style.TextDirection>){}[0]
 final inline fun <#A: kotlin/Any> (androidx.compose.ui.text/AnnotatedString.Builder).androidx.compose.ui.text/withAnnotation(androidx.compose.ui.text/TtsAnnotation, crossinline kotlin/Function1<androidx.compose.ui.text/AnnotatedString.Builder, #A>): #A // androidx.compose.ui.text/withAnnotation|withAnnotation@androidx.compose.ui.text.AnnotatedString.Builder(androidx.compose.ui.text.TtsAnnotation;kotlin.Function1<androidx.compose.ui.text.AnnotatedString.Builder,0:0>){0§<kotlin.Any>}[0]
 final inline fun <#A: kotlin/Any> (androidx.compose.ui.text/AnnotatedString.Builder).androidx.compose.ui.text/withAnnotation(kotlin/String, kotlin/String, crossinline kotlin/Function1<androidx.compose.ui.text/AnnotatedString.Builder, #A>): #A // androidx.compose.ui.text/withAnnotation|withAnnotation@androidx.compose.ui.text.AnnotatedString.Builder(kotlin.String;kotlin.String;kotlin.Function1<androidx.compose.ui.text.AnnotatedString.Builder,0:0>){0§<kotlin.Any>}[0]
 final inline fun <#A: kotlin/Any> (androidx.compose.ui.text/AnnotatedString.Builder).androidx.compose.ui.text/withLink(androidx.compose.ui.text/LinkAnnotation, kotlin/Function1<androidx.compose.ui.text/AnnotatedString.Builder, #A>): #A // androidx.compose.ui.text/withLink|withLink@androidx.compose.ui.text.AnnotatedString.Builder(androidx.compose.ui.text.LinkAnnotation;kotlin.Function1<androidx.compose.ui.text.AnnotatedString.Builder,0:0>){0§<kotlin.Any>}[0]

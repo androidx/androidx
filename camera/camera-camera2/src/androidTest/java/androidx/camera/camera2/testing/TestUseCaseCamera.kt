@@ -32,6 +32,7 @@ import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.UseCaseCameraConfig
 import androidx.camera.camera2.config.UseCaseGraphConfig
 import androidx.camera.camera2.impl.CameraCallbackMap
+import androidx.camera.camera2.impl.CameraGraphConfigProvider
 import androidx.camera.camera2.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.impl.CapturePipeline
 import androidx.camera.camera2.impl.ComboRequestListener
@@ -39,7 +40,6 @@ import androidx.camera.camera2.impl.UseCaseCamera
 import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseCameraRequestControlImpl
 import androidx.camera.camera2.impl.UseCaseCameraState
-import androidx.camera.camera2.impl.UseCaseManager.Companion.createCameraGraphConfig
 import androidx.camera.camera2.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.impl.toMap
@@ -47,7 +47,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
-import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
@@ -56,7 +55,6 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.testing.impl.FakeCameraCapturePipeline
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.Deferred
@@ -95,34 +93,42 @@ class TestUseCaseCamera(
     val useCaseCameraGraphConfig: UseCaseGraphConfig
 
     init {
-        val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
-        val cameraGraphConfig =
-            createCameraGraphConfig(
-                sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
-                    when (sessionConfig.sessionType) {
-                        SESSION_REGULAR -> OperatingMode.NORMAL
-                        SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
-                        else -> OperatingMode.custom(sessionConfig.sessionType)
-                    }
-                } ?: OperatingMode.NORMAL,
-                sessionConfigAdapter.getValidSessionConfigOrNull(),
-                streamConfigMap,
-                callbackMap,
-                requestListener,
-                cameraConfig.cameraId,
-                cameraQuirks,
-                ZslControlNoOpImpl(),
-                NoOpTemplateParamsOverride,
-                cameraMetadata,
+        val configProvider =
+            CameraGraphConfigProvider(
+                callbackMap = callbackMap,
+                requestListener = requestListener,
+                cameraConfig = cameraConfig,
+                cameraQuirks = cameraQuirks,
+                zslControl = ZslControlNoOpImpl(),
+                templateParamsOverride = NoOpTemplateParamsOverride,
+                cameraMetadata = cameraMetadata,
+            )
+
+        val creationResult =
+            configProvider.create(
+                operatingMode =
+                    sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
+                        when (sessionConfig.sessionType) {
+                            SESSION_REGULAR -> OperatingMode.NORMAL
+                            SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
+                            else -> OperatingMode.custom(sessionConfig.sessionType)
+                        }
+                    } ?: OperatingMode.NORMAL,
+                sessionConfig = sessionConfigAdapter.getValidSessionConfigOrNull(),
                 surfaceToStreamUseCaseMap = sessionConfigAdapter.surfaceToStreamUseCaseMap,
                 surfaceToStreamUseHintMap = sessionConfigAdapter.surfaceToStreamUseHintMap,
             )
-        val cameraGraph = cameraPipe.createCameraGraph(cameraGraphConfig)
+        val cameraGraph = cameraPipe.createCameraGraph(creationResult.config)
 
         useCaseCameraGraphConfig =
-            UseCaseCameraConfig(useCases, sessionConfigAdapter, cameraGraph, streamConfigMap)
+            UseCaseCameraConfig(
+                    useCases,
+                    sessionConfigAdapter,
+                    cameraGraph,
+                    creationResult.streamConfigMap,
+                )
                 .provideUseCaseGraphConfig(
                     useCaseSurfaceManager = useCaseSurfaceManager,
                     cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository(),

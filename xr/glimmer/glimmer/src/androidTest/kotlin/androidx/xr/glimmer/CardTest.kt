@@ -40,7 +40,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalIndirectTouchTypeApi
+import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
@@ -50,8 +50,8 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -91,7 +91,7 @@ import org.junit.runner.RunWith
 // The expected min sdk is 35, but we test on 33 for wider device coverage (some APIs are not
 // available below 33)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalIndirectTouchTypeApi::class)
+@OptIn(ExperimentalIndirectPointerApi::class)
 class CardTest {
     @get:Rule(0) val rule = createComposeRule(StandardTestDispatcher())
 
@@ -340,11 +340,12 @@ class CardTest {
         down.source = SOURCE_TOUCH_NAVIGATION
         rule
             .onNodeWithTag("card")
-            .performIndirectTouchEvent(
+            .performIndirectPointerEvent(
                 rule,
-                IndirectTouchEvent(
+                IndirectPointerEvent(
                     motionEvent = down,
-                    primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                    primaryDirectionalMotionAxis =
+                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
                 ),
             )
 
@@ -365,11 +366,12 @@ class CardTest {
         up.source = SOURCE_TOUCH_NAVIGATION
         rule
             .onNodeWithTag("card")
-            .performIndirectTouchEvent(
+            .performIndirectPointerEvent(
                 rule,
-                IndirectTouchEvent(
+                IndirectPointerEvent(
                     motionEvent = up,
-                    primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                    primaryDirectionalMotionAxis =
+                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
                     previousMotionEvent = down,
                 ),
             )

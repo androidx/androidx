@@ -37,7 +37,6 @@ import androidx.xr.compose.testing.assertXPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertYPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertZPositionInRootIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import androidx.xr.runtime.math.Quaternion
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +50,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_internalElementsAreLaidOutProperly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.testTag("row1").width(10.dp)) {
                     // This column will get the first 7dp
@@ -85,7 +84,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRow_internalElementsAreAligned() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(
                     SubspaceModifier.testTag("row1").size(20.dp),
@@ -120,7 +119,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRow_internalElementsAreAligned_withModifier() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(
                     SubspaceModifier.testTag("row1").size(20.dp),
@@ -149,7 +148,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialColumn_internalElementsAreAligned() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialColumn(
                     SubspaceModifier.testTag("column1").size(20.dp),
@@ -184,7 +183,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialColumn_internalElementsAreAligned_withModifier() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialColumn(
                     SubspaceModifier.testTag("column1").size(20.dp),
@@ -211,7 +210,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_twoWeightBasedChildren_internalElementsAreLaidOutProperly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.testTag("row1").width(1000.dp)) {
                     // 25% width (250dp)
@@ -245,7 +244,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_oneFixedAndTwoWeightBasedChildren_internalElementsAreLaidOutProperly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.testTag("row1").width(1000.dp)) {
                     // 250dp fixed width
@@ -288,12 +287,11 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_weightCalculationRemainderIsAppliedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 // 200dp row, 7 children:
                 // 200 / 7 = 28.57, which gets rounded to 29dp.
-                // 29 * 7 = 203dp, so the first 3 children should have 1dp removed from each of
-                // them.
+                // 29 * 7 = 203dp, so the first 3 children should have 1dp removed from each of them
                 SpatialRow(SubspaceModifier.testTag("row1").width(200.dp)) {
                     // 28dp (1dp remainder removed)
                     SpatialColumn(SubspaceModifier.testTag("column1").weight(1f)) {
@@ -378,7 +376,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_negativeCurvatureIsIgnored() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialCurvedRow(
                     SubspaceModifier.testTag("row1").width(500.dp),
@@ -410,7 +408,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_zeroCurvatureIsIgnored() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialCurvedRow(
                     SubspaceModifier.testTag("row1").width(500.dp),
@@ -443,7 +441,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_positiveCurvatureCreatesCurvature() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialCurvedRow(
                     SubspaceModifier.testTag("row1").width(500.dp),
@@ -476,7 +474,7 @@ class SpatialRowColumnTest {
 
     @Test
     fun spatialRowColumn_zOffsetIsRespected() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialCurvedRow(
                     SubspaceModifier.testTag("row1").width(500.dp).offset(0.dp, 0.dp, -50.dp),

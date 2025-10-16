@@ -21,16 +21,10 @@
     <string name="discard_changes_dialog_message" msgid="1531057581600971330">"നിങ്ങൾ വരുത്തിയ മാറ്റങ്ങൾ സംരക്ഷിച്ചില്ല."</string>
     <string name="keep_editing_button" msgid="1452730992602657656">"എഡിറ്റ് ചെയ്യുന്നത് തുടരുക"</string>
     <string name="discard_button" msgid="8907718452026370630">"നിരസിക്കുക"</string>
-    <!-- no translation found for annotation_pen_button_content_desc (2505660264801773100) -->
-    <skip />
-    <!-- no translation found for annotation_highlighter_button_content_desc (1162019976938296458) -->
-    <skip />
-    <!-- no translation found for annotation_eraser_button_content_desc (7325793170289162803) -->
-    <skip />
-    <!-- no translation found for annotation_undo_button_content_desc (479267370046825819) -->
-    <skip />
-    <!-- no translation found for annotation_redo_button_content_desc (3758120724922767367) -->
-    <skip />
-    <!-- no translation found for annotation_toggle_annotation_button_content_desc (7425032497404166935) -->
-    <skip />
+    <string name="annotation_pen_button_content_desc" msgid="2505660264801773100">"പെൻ"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="1162019976938296458">"ഹൈലൈറ്റർ"</string>
+    <string name="annotation_eraser_button_content_desc" msgid="7325793170289162803">"ഇറേസർ"</string>
+    <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"പഴയപടിയാക്കുക"</string>
+    <string name="annotation_redo_button_content_desc" msgid="3758120724922767367">"വീണ്ടും ചെയ്യുക"</string>
+    <string name="annotation_toggle_annotation_button_content_desc" msgid="7425032497404166935">"കുറിപ്പ് ടോഗിൾ ചെയ്യുക"</string>
 </resources>

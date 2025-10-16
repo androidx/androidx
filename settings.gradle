@@ -38,7 +38,7 @@ buildscript {
         if (agpOverride != null) {
             classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
         } else {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:9.0.0-alpha08")
+            classpath("com.android.settings:com.android.settings.gradle.plugin:9.0.0-alpha10")
         }
         // set guava version to be compatible with Depdendency analysis gradle plugin
         classpath("com.google.guava:guava:33.3.1-jre")
@@ -616,6 +616,7 @@ includeProject(":compose:material3:material3:material3-samples", "compose/materi
 includeProject(":compose:remote:integration-tests:demos", [BuildType.MAIN])
 includeProject(":compose:remote:integration-tests:player-view-demos", [BuildType.MAIN])
 includeProject(":compose:remote:remote-core", [BuildType.MAIN])
+includeProject(":compose:remote:remote-core-testutils", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation-compose", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation-core", [BuildType.MAIN])
 includeProject(":compose:remote:remote-creation", [BuildType.MAIN])
@@ -624,7 +625,6 @@ includeProject(":compose:remote:remote-player-view", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-compose", [BuildType.MAIN])
 includeProject(":compose:remote:remote-player-compose-testutils", [BuildType.MAIN])
 includeProject(":compose:remote:wear:wear-material3", [BuildType.MAIN])
-includeProject(":compose:remote:test-utils", [BuildType.MAIN])
 includeProject(":compose:runtime:runtime", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:runtime:runtime-annotation", [BuildType.COMPOSE, BuildType.KMP])
 includeProject(":compose:runtime:runtime-annotation:runtime-annotation-samples", "compose/runtime/runtime-annotation/samples", [BuildType.COMPOSE])

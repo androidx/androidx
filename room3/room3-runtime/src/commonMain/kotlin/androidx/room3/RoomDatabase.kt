@@ -81,7 +81,8 @@ constructor() {
      * @return A new connection manager
      */
     internal fun createConnectionManager(
-        configuration: DatabaseConfiguration
+        configuration: DatabaseConfiguration,
+        openDelegate: RoomOpenDelegate,
     ): RoomConnectionManager
 
     /**

@@ -99,8 +99,8 @@ public inline fun Context.withStyledAttributes(
  * [BroadcastReceiver] to view/modify the current result values.
  *
  * [onReceive] runs on the provided [scheduler] thread, or the main thread if it's null. This means
- * there's it can continue running even after [receiveBroadcasts] is cancelled. To propagate
- * cancellation, consider using [receiveBroadcastsAsync].
+ * it can continue running even after [receiveBroadcasts] is cancelled. To propagate cancellation,
+ * consider using [receiveBroadcastsAsync].
  *
  * If you wish to process broadcasts asynchronously (and concurrently), consider using
  * [receiveBroadcastsAsync], or manually use [BroadcastReceiver.goAsync].

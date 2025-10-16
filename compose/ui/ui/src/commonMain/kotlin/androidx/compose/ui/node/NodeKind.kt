@@ -26,7 +26,7 @@ import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.invalidateFocusEvent
 import androidx.compose.ui.focus.invalidateFocusProperties
-import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
@@ -156,8 +156,8 @@ internal object Nodes {
         get() = NodeKind<UnplacedAwareModifierNode>(0b1 shl 20)
 
     @JvmStatic
-    inline val IndirectTouchInput
-        get() = NodeKind<IndirectTouchInputModifierNode>(0b1 shl 21)
+    inline val IndirectPointerInput
+        get() = NodeKind<IndirectPointerInputModifierNode>(0b1 shl 21)
 
     @JvmStatic
     inline val OnPlaced
@@ -285,8 +285,8 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is UnplacedAwareModifierNode) {
             mask = mask or Nodes.Unplaced
         }
-        if (node is IndirectTouchInputModifierNode) {
-            mask = mask or Nodes.IndirectTouchInput
+        if (node is IndirectPointerInputModifierNode) {
+            mask = mask or Nodes.IndirectPointerInput
         }
         if (node is BeyondBoundsLayoutProviderModifierNode) {
             mask = mask or Nodes.BeyondBoundsLayout

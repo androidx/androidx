@@ -23,6 +23,7 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
@@ -43,6 +44,10 @@ import androidx.navigation3.scene.SceneStrategyScope
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the list-detail scaffold should arrange its
  *   panes.
+ * @param adaptStrategies adaptation strategies of each pane, which denotes how each pane should be
+ *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
+ *   to use [ListDetailPaneScaffoldDefaults.adaptStrategies] as a default, but custom
+ *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
  * @sample androidx.compose.material3.adaptive.samples.ListDetailWithNavigation3Sample
  */
 @ExperimentalMaterial3AdaptiveApi
@@ -51,11 +56,14 @@ public fun <T : Any> rememberListDetailSceneStrategy(
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilScaffoldValueChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        ListDetailPaneScaffoldDefaults.adaptStrategies(),
 ): ListDetailSceneStrategy<T> {
-    return remember(backNavigationBehavior, directive) {
+    return remember(backNavigationBehavior, directive, adaptStrategies) {
         ListDetailSceneStrategy(
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
+            adaptStrategies = adaptStrategies,
         )
     }
 }
@@ -71,12 +79,17 @@ public fun <T : Any> rememberListDetailSceneStrategy(
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the list-detail scaffold should arrange its
  *   panes.
+ * @param adaptStrategies adaptation strategies of each pane, which denotes how each pane should be
+ *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
+ *   to use [ListDetailPaneScaffoldDefaults.adaptStrategies] as a default, but custom
+ *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
  * @sample androidx.compose.material3.adaptive.samples.ListDetailWithNavigation3Sample
  */
 @ExperimentalMaterial3AdaptiveApi
 public class ListDetailSceneStrategy<T : Any>(
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
+    public val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
 ) : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
@@ -122,7 +135,7 @@ public class ListDetailSceneStrategy<T : Any>(
                 onBack = onBack,
                 backNavBehavior = backNavigationBehavior,
                 directive = directive,
-                adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
+                adaptStrategies = adaptStrategies,
                 allEntries = entries,
                 scaffoldEntries = scaffoldEntries,
                 scaffoldEntryIndices = scaffoldEntryIndices,

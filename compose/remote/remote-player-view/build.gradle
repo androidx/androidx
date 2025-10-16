@@ -48,7 +48,7 @@ dependencies {
     testImplementation(libs.junit)
 
     androidTestImplementation(project(":compose:remote:remote-creation"))
-    androidTestImplementation(project(":compose:remote:test-utils"))
+    androidTestImplementation(project(":compose:remote:remote-core-testutils"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.activity:activity:1.7.2")

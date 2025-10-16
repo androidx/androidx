@@ -135,10 +135,11 @@ internal class RememberEventDispatcher() : RememberManager {
             }
             val abandoning = abandoning ?: return
             abandoning.add(instance.wrapped)
-        }
-        val ignoreSet = ignoreLeavingSet
-        if (ignoreSet == null || instance !in ignoreSet) {
-            recordLeaving(instance)
+        } else {
+            val ignoreSet = ignoreLeavingSet
+            if (ignoreSet == null || instance !in ignoreSet) {
+                recordLeaving(instance)
+            }
         }
     }
 

@@ -223,6 +223,14 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionSystemUnknownException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  @androidx.appfunctions.AppFunctionSerializable(isDescribedByKdoc=true) public final class AppFunctionTextResource {
+    ctor public AppFunctionTextResource(String mimeType, String content);
+    method @InaccessibleFromKotlin public String getContent();
+    method @InaccessibleFromKotlin public String getMimeType();
+    property public String content;
+    property public String mimeType;
+  }
+
   public final class AppFunctionUnknownException extends androidx.appfunctions.AppFunctionException {
     ctor public AppFunctionUnknownException(int errorCode, optional String? errorMessage);
     ctor @BytecodeOnly public AppFunctionUnknownException(int, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

@@ -17,6 +17,7 @@
 package androidx.xr.glimmer.stack
 
 import androidx.annotation.IntRange
+import androidx.collection.MutableIntIntMap
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatePriority
@@ -26,13 +27,16 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntSize
+import androidx.xr.glimmer.stack.StackState.Companion.Saver
 
 /**
  * Creates and remembers a [StackState] for a [VerticalStack].
@@ -86,15 +90,43 @@ public class StackState(@IntRange(from = 0) initialTopItem: Int = 0) : Scrollabl
 
     /** The index of the item that's currently at the top of the stack, defaults to 0. */
     public val topItem: Int
-        get() = pagerState.currentPage
+        get() = topItemState.value
 
     /**
-     * The offset of the top item as a fraction of the stack item container size. This value ranges
-     * between -0.5 and 0.5 and indicates how much the item is offset from the snapped position. A
-     * value of 0.0 indicates that the item is perfectly snapped to the center.
+     * Backing state for [topItem] derived from [PagerState.currentPage] and
+     * [PagerState.currentPageOffsetFraction].
+     *
+     * In Stack, an item is considered the top of the stack item until it completely moves off the
+     * viewport (when scrolling forward), or until the previous item enters the viewport (when
+     * scrolling backward).
+     */
+    internal val topItemState = derivedStateOf {
+        if (pagerState.currentPageOffsetFraction >= 0) pagerState.currentPage
+        else pagerState.currentPage - 1
+    }
+
+    /**
+     * The offset of the top item as a fraction of the stack item container size. The value
+     * indicates how much the item is offset from the snapped position. This value ranges between
+     * 0.0 (snapped position) and 1.0 (lower bound of the top item is at the top of the viewport).
      */
     public val topItemOffsetFraction: Float
-        get() = pagerState.currentPageOffsetFraction
+        @FrequentlyChangingValue
+        get() {
+            // In Pager, [PagerState.currentPage] changes to the next page when the current page
+            // scrolls more than half way off the viewport, which is also when
+            // [PagerState.currentPageOffsetFraction] reaches 0.5. Similarly, when scrolling back,
+            // the [PagerState.currentPage] switches to the previous page when
+            // [PagerState.currentPageOffsetFraction] reaches -0.5. In other words, the current
+            // page's offset fraction ranges between -0.5 and 0.5. In Stack, an item is considered
+            // the top of the stack item until it completely moves off the viewport when scrolling
+            // forward, or until the previous item enters the viewport when scrolling backward. In
+            // other words, the top item's offset fraction ranges between 0 (at the snapped
+            // position) to 1.0 (at the top of the viewport).
+            val currentPageOffsetFraction = pagerState.currentPageOffsetFraction
+            return if (currentPageOffsetFraction >= 0) currentPageOffsetFraction
+            else currentPageOffsetFraction + 1f
+        }
 
     /**
      * [InteractionSource] that's used to dispatch drag events when this stack is being dragged. To
@@ -107,7 +139,8 @@ public class StackState(@IntRange(from = 0) initialTopItem: Int = 0) : Scrollabl
      * Contains useful information about the currently displayed layout of this stack. The
      * information is available after the first measure pass.
      */
-    internal val layoutInfoInternal = StackLayoutInfoImpl(pagerState)
+    // TODO(b/446933128): when making layoutInfo public, consider making it a State.
+    internal val layoutInfoInternal = StackLayoutInfoImpl(pagerState, topItemState)
 
     /**
      * Scroll (jump immediately) to a given [item] index.
@@ -186,23 +219,31 @@ public class StackState(@IntRange(from = 0) initialTopItem: Int = 0) : Scrollabl
  */
 @Stable
 internal sealed interface StackLayoutInfo {
-    // TODO(b/446933128): decide what properties should be exposed as public
+    // TODO(b/446933128): decide what properties should be exposed as public States.
 }
 
 /** The default implementation of [StackLayoutInfo]. */
-internal class StackLayoutInfoImpl internal constructor(private val pagerState: PagerState) :
+internal class StackLayoutInfoImpl
+internal constructor(private val pagerState: PagerState, private val topItemState: State<Int>) :
     StackLayoutInfo {
 
+    /** The overall size of this stack's viewport. */
     internal val viewportSize: IntSize
-        get() = viewportSizeState.value
-
-    /** The backing state for [viewportSize]. */
-    internal val viewportSizeState = mutableStateOf(IntSize.Zero)
-
-    /**
-     * The maximum size of a stack item in pixels, which is based on the viewport size of the
-     * underlying pager.
-     */
-    internal val maxItemSize: IntSize
         get() = pagerState.layoutInfo.viewportSize
+
+    /** The measured height of the top of the stack item. */
+    internal val measuredTopItemHeight: Int
+        get() = measuredHeights.getOrDefault(topItemState.value, defaultValue = 0)
+
+    /** The measured height of the item following the top of the stack item. */
+    internal val measuredNextItemHeight: Int
+        get() = measuredHeights.getOrDefault(topItemState.value + 1, defaultValue = 0)
+
+    /** The measured height of the item following the next item in the stack. */
+    internal val measuredNextNextItemHeight: Int
+        get() = measuredHeights.getOrDefault(topItemState.value + 2, defaultValue = 0)
+
+    /** The backing storage for measured item heights keyed by item index. */
+    // TODO(b/446933128): remove this once PageInfo exposes page sizes.
+    internal val measuredHeights: MutableIntIntMap = MutableIntIntMap()
 }

@@ -22,7 +22,6 @@ import androidx.room3.deferredTransaction
 import androidx.room3.immediateTransaction
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
-import androidx.room3.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.coroutines.ContinuationInterceptor
@@ -242,57 +241,6 @@ class CompatibilityModeTest : TestDatabaseTest() {
             transactor.immediateTransaction {
                 database.booksDao().executeTransaction {
                     database.booksDao().insertPublisher("p1", "pub1")
-                }
-            }
-        }
-        assertThat(database.booksDao().getPublishersSuspend()).hasSize(1)
-    }
-
-    @Test
-    fun transaction_extensionFunction_nestedTransaction() = runTest {
-        database.useWriterConnection { transactor ->
-            transactor.immediateTransaction {
-                database.withTransaction { database.booksDao().insertPublisher("p1", "pub1") }
-            }
-        }
-        assertThat(database.booksDao().getPublishersSuspend()).hasSize(1)
-    }
-
-    @Test
-    fun transaction_extensionFunction_nestedTransaction_withContext() = runTest {
-        database.useWriterConnection { transactor ->
-            transactor.immediateTransaction {
-                val ctx = newSingleThreadContext("TestThread")
-                withContext(ctx) {
-                    database.withTransaction { database.booksDao().insertPublisher("p1", "pub1") }
-                }
-                ctx.close()
-            }
-        }
-        assertThat(database.booksDao().getPublishersSuspend()).hasSize(1)
-    }
-
-    @Test
-    fun transaction_extensionFunction_nestedTransaction_reverse() = runTest {
-        database.withTransaction {
-            database.useWriterConnection { transactor ->
-                transactor.immediateTransaction {
-                    database.booksDao().insertPublisher("p1", "pub1")
-                }
-            }
-        }
-        assertThat(database.booksDao().getPublishersSuspend()).hasSize(1)
-    }
-
-    @Test
-    fun transaction_extensionFunction_nestedTransaction_reverse_withContext() = runTest {
-        database.withTransaction {
-            val ctx = newSingleThreadContext("TestThread")
-            withContext(ctx) {
-                database.useWriterConnection { transactor ->
-                    transactor.immediateTransaction {
-                        database.booksDao().insertPublisher("p1", "pub1")
-                    }
                 }
             }
         }

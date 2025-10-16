@@ -46,7 +46,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.indirect.IndirectTouchEventPrimaryDirectionalMotionAxis
+import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
@@ -175,7 +175,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchDrag_worksOnBothOrientations_primaryXAxis() {
+    fun draggable_indirectPointerDrag_worksOnBothOrientations_primaryXAxis() {
         var total = 0f
         var orientation by mutableStateOf(Orientation.Horizontal)
         setDraggableContent(enableInitialFocus = true) {
@@ -188,7 +188,7 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadStart, 0f),
                 Offset(TouchPadEnd, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -197,7 +197,7 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadEnd, 0f),
                 Offset(TouchPadStart, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
 
@@ -212,7 +212,7 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadStart, 0f),
                 Offset(TouchPadEnd, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -221,13 +221,13 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadEnd, 0f),
                 Offset(TouchPadStart, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
     @Test
-    fun draggable_indirectTouchDrag_worksOnBothOrientations_primaryYAxis() {
+    fun draggable_indirectPointerDrag_worksOnBothOrientations_primaryYAxis() {
         var total = 0f
         var orientation by mutableStateOf(Orientation.Horizontal)
         setDraggableContent(enableInitialFocus = true) {
@@ -240,7 +240,7 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadStart),
                 Offset(0f, TouchPadEnd),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.Y,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -249,7 +249,7 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadEnd),
                 Offset(0f, TouchPadStart),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.Y,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
 
@@ -264,7 +264,7 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadStart),
                 Offset(0f, TouchPadEnd),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.Y,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -273,13 +273,13 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadEnd),
                 Offset(0f, TouchPadStart),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.Y,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.Y,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
     @Test
-    fun draggable_indirectTouchDrag_worksOnBothOrientations_noPrimaryAxis() {
+    fun draggable_indirectPointerDrag_worksOnBothOrientations_noPrimaryAxis() {
         var total = 0f
         var orientation by mutableStateOf(Orientation.Horizontal)
         setDraggableContent(enableInitialFocus = true) {
@@ -292,7 +292,7 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadStart, 0f),
                 Offset(TouchPadEnd, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -301,7 +301,7 @@ class DraggableTest {
                 rule,
                 Offset(TouchPadEnd, 0f),
                 Offset(TouchPadStart, 0f),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
 
@@ -316,7 +316,7 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadStart),
                 Offset(0f, TouchPadEnd),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None,
             )
         rule.runOnIdle { assertThat(total).isGreaterThan(0) }
         rule
@@ -325,13 +325,13 @@ class DraggableTest {
                 rule,
                 Offset(0f, TouchPadEnd),
                 Offset(0f, TouchPadStart),
-                primaryDirectionalMotionAxis = IndirectTouchEventPrimaryDirectionalMotionAxis.None,
+                primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None,
             )
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
     @Test
-    fun draggable_indirectTouchDrag_notFocused_shouldNotReceiveEvents() {
+    fun draggable_indirectPointerDrag_notFocused_shouldNotReceiveEvents() {
         var total = 0f
         var orientation by mutableStateOf(Orientation.Horizontal)
         setDraggableContent(enableInitialFocus = false) {
@@ -407,7 +407,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchDrag_startStop() {
+    fun draggable_indirectPointerDrag_startStop() {
         var startTrigger = 0
         var stopTrigger = 0
         setDraggableContent(enableInitialFocus = true) {
@@ -430,7 +430,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchDrag_shouldResetOnOrientationChanged() {
+    fun draggable_indirectPointerDrag_shouldResetOnOrientationChanged() {
         var startTrigger = 0
         var stopTrigger = 0
         var orientation by mutableStateOf(Orientation.Horizontal)
@@ -497,7 +497,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchEvent_disabledWontCallLambda() {
+    fun draggable_indirectPointerEvent_disabledWontCallLambda() {
         var total = 0f
         val enabled = mutableStateOf(true)
         setDraggableContent(enableInitialFocus = true) {
@@ -536,7 +536,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchEvent_velocityProxy() {
+    fun draggable_indirectPointerEvent_velocityProxy() {
         var velocityTriggered = 0f
         setDraggableContent(enableInitialFocus = true) {
             Modifier.draggable(
@@ -592,7 +592,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouchCancel_callsDragStop() {
+    fun draggable_indirectPointerCancel_callsDragStop() {
         var total = 0f
         var dragStopped = 0
         setDraggableContent(enableInitialFocus = true) {
@@ -604,7 +604,7 @@ class DraggableTest {
                 total += it
             }
         }
-        rule.onNodeWithTag(draggableBoxTag).sendIndirectTouchCancelEvent(rule)
+        rule.onNodeWithTag(draggableBoxTag).sendIndirectPointerCancelEvent(rule)
 
         rule.runOnIdle {
             assertThat(total).isGreaterThan(0f)
@@ -860,7 +860,7 @@ class DraggableTest {
         }
 
     @Test
-    fun draggable_resumesNormally_whenInterruptedWithHigherPriority_indirectTouch() =
+    fun draggable_resumesNormally_whenInterruptedWithHigherPriority_indirectPointer() =
         runTest(testDispatcher) {
             var total = 0f
             var dragStopped = 0f
@@ -883,21 +883,21 @@ class DraggableTest {
             val downEvent =
                 rule
                     .onNodeWithTag(draggableBoxTag)
-                    .sendIndirectTouchPressEvent(rule, currentTime, currentValue)
+                    .sendIndirectPointerPressEvent(rule, currentTime, currentValue)
             currentTime += 16L
             currentValue += stepSize
 
             val (newCurrentTime, newCurrentValue, lastMove) =
                 rule
                     .onNodeWithTag(draggableBoxTag)
-                    .sendIndirectTouchMoveEvents(
+                    .sendIndirectPointerMoveEvents(
                         rule,
                         5,
                         currentTime,
                         currentValue,
                         16L,
                         stepSize,
-                        IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                        IndirectPointerEventPrimaryDirectionalMotionAxis.X,
                         previousEvent = downEvent,
                     )
 
@@ -915,7 +915,7 @@ class DraggableTest {
 
             rule
                 .onNodeWithTag(draggableBoxTag)
-                .sendIndirectTouchReleaseEvent(
+                .sendIndirectPointerReleaseEvent(
                     rule,
                     newCurrentTime,
                     newCurrentValue,
@@ -1001,7 +1001,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_interactionSource_withIndirectTouches() {
+    fun draggable_interactionSource_withIndirectPointers() {
         val interactionSource = MutableInteractionSource()
 
         var scope: CoroutineScope? = null
@@ -1024,21 +1024,21 @@ class DraggableTest {
         val downEvent =
             rule
                 .onNodeWithTag(draggableBoxTag)
-                .sendIndirectTouchPressEvent(rule, currentTime, currentValue)
+                .sendIndirectPointerPressEvent(rule, currentTime, currentValue)
         currentTime += 16L
         currentValue += stepSize
 
         val (newCurrentTime, newCurrentValue, lastMove) =
             rule
                 .onNodeWithTag(draggableBoxTag)
-                .sendIndirectTouchMoveEvents(
+                .sendIndirectPointerMoveEvents(
                     rule,
                     5,
                     currentTime,
                     currentValue,
                     16L,
                     stepSize,
-                    IndirectTouchEventPrimaryDirectionalMotionAxis.X,
+                    IndirectPointerEventPrimaryDirectionalMotionAxis.X,
                     previousEvent = downEvent,
                 )
 
@@ -1049,7 +1049,7 @@ class DraggableTest {
 
         rule
             .onNodeWithTag(draggableBoxTag)
-            .sendIndirectTouchReleaseEvent(
+            .sendIndirectPointerReleaseEvent(
                 rule,
                 newCurrentTime,
                 newCurrentValue,
@@ -1194,7 +1194,7 @@ class DraggableTest {
     }
 
     @Test
-    fun draggable_indirectTouch_velocityIsLimitedByViewConfiguration() {
+    fun draggable_indirectPointer_velocityIsLimitedByViewConfiguration() {
         var latestVelocity = 0f
         val maxVelocity = 10f
 
@@ -1681,7 +1681,7 @@ class DraggableTest {
     }
 
     @Test
-    fun assertDraggableCallbackOrder_usingIndirectTouch() {
+    fun assertDraggableCallbackOrder_usingIndirectPointer() {
         var onStartCalled = false
         val draggableController = DraggableState { assertTrue { onStartCalled } }
 

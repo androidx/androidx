@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -533,19 +534,27 @@ class SliderTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(interactions).hasSize(1)
-            Truth.assertThat(interactions.first()).isInstanceOf(DragInteraction.Start::class.java)
+            Truth.assertThat(interactions).hasSize(3)
+            Truth.assertThat(interactions[1]).isInstanceOf(DragInteraction.Start::class.java)
+            Truth.assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            Truth.assertThat(interactions[2]).isInstanceOf(PressInteraction.Cancel::class.java)
+            Truth.assertThat((interactions[2] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions.first())
         }
 
         // Dispose
         rule.runOnIdle { emitSlider = false }
 
         rule.runOnIdle {
-            Truth.assertThat(interactions).hasSize(2)
-            Truth.assertThat(interactions.first()).isInstanceOf(DragInteraction.Start::class.java)
-            Truth.assertThat(interactions[1]).isInstanceOf(DragInteraction.Cancel::class.java)
-            Truth.assertThat((interactions[1] as DragInteraction.Cancel).start)
-                .isEqualTo(interactions[0])
+            Truth.assertThat(interactions).hasSize(4)
+            Truth.assertThat(interactions[1]).isInstanceOf(DragInteraction.Start::class.java)
+            Truth.assertThat(interactions[3]).isInstanceOf(DragInteraction.Cancel::class.java)
+            Truth.assertThat((interactions[3] as DragInteraction.Cancel).start)
+                .isEqualTo(interactions[1])
+            Truth.assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            Truth.assertThat(interactions[2]).isInstanceOf(PressInteraction.Cancel::class.java)
+            Truth.assertThat((interactions[2] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions.first())
         }
     }
 

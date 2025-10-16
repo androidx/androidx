@@ -34,8 +34,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
-import androidx.compose.ui.input.indirect.IndirectTouchInputModifierNode
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
@@ -386,7 +386,7 @@ internal abstract class DragGestureNode(
 ) :
     DelegatingNode(),
     PointerInputModifierNode,
-    IndirectTouchInputModifierNode,
+    IndirectPointerInputModifierNode,
     CompositionLocalConsumerModifierNode {
 
     var canDrag = canDrag
@@ -432,7 +432,7 @@ internal abstract class DragGestureNode(
     private var velocityTracker: VelocityTracker? = null
     private var previousPositionOnScreen = Offset.Unspecified
     private var touchSlopDetector: TouchSlopDetector? = null
-    private var indirectTouchInputDragCycleDetector: IndirectTouchInputDragCycleDetector? = null
+    private var indirectPointerInputDragCycleDetector: IndirectPointerInputDragCycleDetector? = null
 
     /**
      * Accumulated position offset of this [Modifier.Node] that happened during a drag cycle. This
@@ -547,17 +547,17 @@ internal abstract class DragGestureNode(
         }
     }
 
-    override fun onIndirectTouchEvent(event: IndirectTouchEvent, pass: PointerEventPass) {
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         if (enabled) {
-            if (indirectTouchInputDragCycleDetector == null) {
-                indirectTouchInputDragCycleDetector = IndirectTouchInputDragCycleDetector(this)
+            if (indirectPointerInputDragCycleDetector == null) {
+                indirectPointerInputDragCycleDetector = IndirectPointerInputDragCycleDetector(this)
             }
-            indirectTouchInputDragCycleDetector?.processIndirectPointerInputEvent(event, pass)
+            indirectPointerInputDragCycleDetector?.processIndirectPointerInputEvent(event, pass)
         }
     }
 
-    override fun onCancelIndirectTouchInput() {
-        indirectTouchInputDragCycleDetector?.resetDragDetectionState()
+    override fun onCancelIndirectPointerInput() {
+        indirectPointerInputDragCycleDetector?.resetDragDetectionState()
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -595,7 +595,7 @@ internal abstract class DragGestureNode(
                     )
                 suspendingPointerInputVelocityTracker.resetTracking()
                 channel?.trySend(
-                    DragStopped(velocity.toValidVelocity(), isIndirectTouchEvent = false)
+                    DragStopped(velocity.toValidVelocity(), isIndirectPointerEvent = false)
                 )
             }
 
@@ -616,7 +616,7 @@ internal abstract class DragGestureNode(
                         event = change,
                         offset = nodeOffset,
                     )
-                    channel?.trySend(DragDelta(delta, isIndirectTouchEvent = false))
+                    channel?.trySend(DragDelta(delta, isIndirectPointerEvent = false))
                 }
 
             coroutineScope {
@@ -667,7 +667,7 @@ internal abstract class DragGestureNode(
             interactionSource?.emit(DragInteraction.Cancel(interaction))
             dragInteraction = null
         }
-        onDragStopped(DragStopped(Velocity.Zero, isIndirectTouchEvent = false))
+        onDragStopped(DragStopped(Velocity.Zero, isIndirectPointerEvent = false))
     }
 
     fun disposeInteractionSource() {
@@ -693,7 +693,7 @@ internal abstract class DragGestureNode(
                 disposeInteractionSource()
                 pointerInputNode?.let { undelegate(it) }
                 pointerInputNode = null
-                indirectTouchInputDragCycleDetector = null
+                indirectPointerInputDragCycleDetector = null
             }
             resetPointerInputHandling = true
         }
@@ -710,7 +710,7 @@ internal abstract class DragGestureNode(
         if (resetPointerInputHandling) {
             if (isNonSuspendingPointerInputInDraggableEnabled && isListeningForPointerInputEvents)
                 resetDragDetectionState()
-            indirectTouchInputDragCycleDetector?.resetDragDetectionState()
+            indirectPointerInputDragCycleDetector?.resetDragDetectionState()
             pointerInputNode?.resetPointerInputHandler()
         }
     }
@@ -1097,11 +1097,11 @@ private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableSta
 internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
 
-    class DragStopped(val velocity: Velocity, val isIndirectTouchEvent: Boolean) : DragEvent()
+    class DragStopped(val velocity: Velocity, val isIndirectPointerEvent: Boolean) : DragEvent()
 
     object DragCancelled : DragEvent()
 
-    class DragDelta(val delta: Offset, val isIndirectTouchEvent: Boolean) : DragEvent()
+    class DragDelta(val delta: Offset, val isIndirectPointerEvent: Boolean) : DragEvent()
 }
 
 internal fun Offset.toFloat(orientation: Orientation) =

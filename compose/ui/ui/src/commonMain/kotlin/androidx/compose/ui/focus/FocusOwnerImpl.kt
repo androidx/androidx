@@ -36,7 +36,7 @@ import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.indirect.IndirectTouchEvent
+import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
@@ -424,52 +424,52 @@ internal class FocusOwnerImpl(
         return false
     }
 
-    override fun dispatchIndirectTouchEvent(event: IndirectTouchEvent): Boolean {
+    override fun dispatchIndirectPointerEvent(event: IndirectPointerEvent): Boolean {
         if (focusInvalidationManager.hasPendingInvalidation()) {
             // Ignoring this to unblock b/379289347.
             println(
-                "$FocusWarning: Dispatching indirect touch event while the focus system is invalidated."
+                "$FocusWarning: Dispatching indirect pointer event while the focus system is invalidated."
             )
             return false
         }
 
-        val focusedIndirectTouchInputNode =
-            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectTouchInput)
+        val focusedIndirectPointerInputNode =
+            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
 
-        focusedIndirectTouchInputNode?.let { node ->
-            val ancestors = node.ancestors(Nodes.IndirectTouchInput)
+        focusedIndirectPointerInputNode?.let { node ->
+            val ancestors = node.ancestors(Nodes.IndirectPointerInput)
 
             // Initial pass (tunneling)
             ancestors?.fastForEachReversed {
-                it.onIndirectTouchEvent(event, PointerEventPass.Initial)
+                it.onIndirectPointerEvent(event, PointerEventPass.Initial)
             }
-            node.onIndirectTouchEvent(event, PointerEventPass.Initial)
+            node.onIndirectPointerEvent(event, PointerEventPass.Initial)
 
             // Main pass (bubbling)
-            node.onIndirectTouchEvent(event, PointerEventPass.Main)
-            ancestors?.fastForEach { it.onIndirectTouchEvent(event, PointerEventPass.Main) }
+            node.onIndirectPointerEvent(event, PointerEventPass.Main)
+            ancestors?.fastForEach { it.onIndirectPointerEvent(event, PointerEventPass.Main) }
 
             // Final pass (tunneling)
             ancestors?.fastForEachReversed {
-                it.onIndirectTouchEvent(event, PointerEventPass.Final)
+                it.onIndirectPointerEvent(event, PointerEventPass.Final)
             }
-            node.onIndirectTouchEvent(event, PointerEventPass.Final)
+            node.onIndirectPointerEvent(event, PointerEventPass.Final)
         }
 
         val isConsumed = event.changes.fastAny { it.isConsumed }
         return isConsumed
     }
 
-    override fun dispatchIndirectTouchCancel() {
-        val focusedIndirectTouchInputNode =
-            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectTouchInput)
+    override fun dispatchIndirectPointerCancel() {
+        val focusedIndirectPointerInputNode =
+            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
 
-        focusedIndirectTouchInputNode?.let { node ->
-            val ancestors = node.ancestors(Nodes.IndirectTouchInput)
+        focusedIndirectPointerInputNode?.let { node ->
+            val ancestors = node.ancestors(Nodes.IndirectPointerInput)
 
             // Triggers cancel from main focused node to highest ancestor (bubbling)
-            node.onCancelIndirectTouchInput()
-            ancestors?.fastForEach { it.onCancelIndirectTouchInput() }
+            node.onCancelIndirectPointerInput()
+            ancestors?.fastForEach { it.onCancelIndirectPointerInput() }
         }
     }
 

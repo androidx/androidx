@@ -19,7 +19,7 @@ package androidx.pdf.view
 import androidx.annotation.IntDef
 import androidx.pdf.PdfPoint
 import androidx.pdf.util.ZoomUtils
-import androidx.pdf.view.layout.PageMetadataLoader
+import androidx.pdf.view.layout.PageLayoutManager
 import kotlin.math.roundToInt
 
 internal class PdfViewScroller(private val pdfView: PdfView) {
@@ -27,7 +27,7 @@ internal class PdfViewScroller(private val pdfView: PdfView) {
     fun scrollToPage(pageNum: Int, onScrollDeferred: (DeferredScrollTarget) -> Unit) {
         with(pdfView) {
             val localPageLayoutManager =
-                getPageLayoutManagerOrThrow(pageMetadataLoader, "scrollToPage")
+                getPageLayoutManagerOrThrow(pageLayoutManager, "scrollToPage")
             require(pageNum < (pdfDocument?.pageCount ?: Int.MIN_VALUE)) {
                 "Page $pageNum not in document"
             }
@@ -48,7 +48,7 @@ internal class PdfViewScroller(private val pdfView: PdfView) {
     ) {
         with(pdfView) {
             val localPageLayoutManager =
-                getPageLayoutManagerOrThrow(pageMetadataLoader, "scrollToPosition")
+                getPageLayoutManagerOrThrow(pageLayoutManager, "scrollToPosition")
 
             if (position.pageNum >= (pdfDocument?.pageCount ?: Int.MIN_VALUE)) {
                 return
@@ -66,7 +66,7 @@ internal class PdfViewScroller(private val pdfView: PdfView) {
     private fun gotoPage(pageNum: Int) {
         with(pdfView) {
             val localPageLayoutManager =
-                getPageLayoutManagerOrThrow(pageMetadataLoader, "scrollToPage")
+                getPageLayoutManagerOrThrow(pageLayoutManager, "scrollToPage")
 
             check(pageNum <= localPageLayoutManager.reach) { "Can't gotoPage that's not laid out" }
 
@@ -95,7 +95,7 @@ internal class PdfViewScroller(private val pdfView: PdfView) {
     private fun gotoPoint(position: PdfPoint, @ScrollAlignmentDef alignment: Int) {
         with(pdfView) {
             val localPageLayoutManager =
-                getPageLayoutManagerOrThrow(pageMetadataLoader, "scrollToPage")
+                getPageLayoutManagerOrThrow(pageLayoutManager, "scrollToPage")
 
             check(position.pageNum <= localPageLayoutManager.reach) {
                 "Can't gotoPoint on page that's not laid out"
@@ -125,10 +125,10 @@ internal class PdfViewScroller(private val pdfView: PdfView) {
     }
 
     private fun getPageLayoutManagerOrThrow(
-        pageMetadataLoader: PageMetadataLoader?,
+        pageLayoutManager: PageLayoutManager?,
         operationName: String,
-    ): PageMetadataLoader {
-        return pageMetadataLoader
+    ): PageLayoutManager {
+        return pageLayoutManager
             ?: throw IllegalStateException("Can't $operationName without PdfDocument")
     }
 }

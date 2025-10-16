@@ -1730,7 +1730,7 @@ object SearchBarDefaults {
             lineLimits = lineLimits,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError = false)),
-            keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Search),
+            keyboardOptions = keyboardOptions.merge(KeyboardOptions(imeAction = ImeAction.Search)),
             onKeyboardAction = { onSearch(textFieldState.text.toString()) },
             interactionSource = interactionSource,
             inputTransformation = inputTransformation,

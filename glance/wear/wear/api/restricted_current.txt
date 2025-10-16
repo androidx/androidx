@@ -1,15 +1,6 @@
 // Signature format: 4.0
 package androidx.glance.wear {
 
-  public final class ActiveWearWidgetHandle {
-    method @InaccessibleFromKotlin public int getContainerType();
-    method @InaccessibleFromKotlin public int getInstanceId();
-    method @InaccessibleFromKotlin public android.content.ComponentName getProvider();
-    property public int containerType;
-    property public int instanceId;
-    property public android.content.ComponentName provider;
-  }
-
   public abstract class GlanceWearWidget {
     ctor public GlanceWearWidget();
     method @MainThread public suspend Object? onActivated(android.content.Context context, androidx.glance.wear.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);

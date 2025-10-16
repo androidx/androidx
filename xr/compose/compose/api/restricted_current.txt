@@ -17,12 +17,9 @@ package androidx.xr.compose.platform {
     field public static final androidx.xr.compose.platform.Logger INSTANCE;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SceneManager implements java.lang.AutoCloseable {
-    method public void close();
-    method public java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> getAllRootSubspaceSemanticsNodes();
-    method public int getSceneCount();
-    method public void start();
-    method public void stop();
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SceneManager {
+    method public java.util.List<androidx.xr.compose.subspace.node.SubspaceSemanticsInfo> getAllRootSubspaceSemanticsNodes(android.content.Context context);
+    method public int getSceneCount(android.content.Context context);
     field public static final androidx.xr.compose.platform.SceneManager INSTANCE;
   }
 
@@ -241,9 +238,6 @@ package androidx.xr.compose.subspace {
   public abstract class DragPolicy {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSubspaceVolumeApi {
-  }
-
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalUserSubspaceApi public final class LockDimensions {
     ctor public LockDimensions();
     ctor public LockDimensions(optional boolean isTranslationXTracked, optional boolean isTranslationYTracked, optional boolean isTranslationZTracked, optional boolean isRotationXTracked, optional boolean isRotationYTracked, optional boolean isRotationZTracked);
@@ -457,82 +451,6 @@ package androidx.xr.compose.subspace {
     property public androidx.xr.compose.subspace.SurfaceProtection Protected;
   }
 
-  public final class VolumeKt {
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi @androidx.xr.compose.subspace.SubspaceComposable public static void Volume(androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function1<? super androidx.xr.scenecore.Entity!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi @androidx.xr.compose.subspace.SubspaceComposable public static void Volume(optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, kotlin.jvm.functions.Function1<androidx.xr.scenecore.Entity,kotlin.Unit> onVolumeEntity);
-  }
-
-}
-
-package androidx.xr.compose.subspace.animation {
-
-  public final class AnimatedSpatialVisibilityKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void AnimatedSpatialVisibility(androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean> visibleState, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional androidx.xr.compose.subspace.animation.SpatialEnterTransition enter, optional androidx.xr.compose.subspace.animation.SpatialExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void AnimatedSpatialVisibility(androidx.compose.animation.core.MutableTransitionState<java.lang.Boolean!>, androidx.xr.compose.subspace.layout.SubspaceModifier?, androidx.xr.compose.subspace.animation.SpatialEnterTransition?, androidx.xr.compose.subspace.animation.SpatialExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static <T> void AnimatedSpatialVisibility(androidx.compose.animation.core.Transition<T!>, kotlin.jvm.functions.Function1<? super T!,java.lang.Boolean!>, androidx.xr.compose.subspace.layout.SubspaceModifier?, androidx.xr.compose.subspace.animation.SpatialEnterTransition?, androidx.xr.compose.subspace.animation.SpatialExitTransition?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static <T> void AnimatedSpatialVisibility(androidx.compose.animation.core.Transition<T>, kotlin.jvm.functions.Function1<T,java.lang.Boolean> visible, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional androidx.xr.compose.subspace.animation.SpatialEnterTransition enter, optional androidx.xr.compose.subspace.animation.SpatialExitTransition exit, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope,kotlin.Unit> content);
-    method @KotlinOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void AnimatedSpatialVisibility(boolean visible, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional androidx.xr.compose.subspace.animation.SpatialEnterTransition enter, optional androidx.xr.compose.subspace.animation.SpatialExitTransition exit, optional String label, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope,kotlin.Unit> content);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.xr.compose.subspace.SubspaceComposable public static void AnimatedSpatialVisibility(boolean, androidx.xr.compose.subspace.layout.SubspaceModifier?, androidx.xr.compose.subspace.animation.SpatialEnterTransition?, androidx.xr.compose.subspace.animation.SpatialExitTransition?, String?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.animation.AnimatedSpatialVisibilityScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  public sealed interface AnimatedSpatialVisibilityScope extends androidx.compose.animation.AnimatedVisibilityScope {
-    method @KotlinOnly @androidx.compose.runtime.Composable public default androidx.xr.compose.subspace.layout.SubspaceModifier animateEnterExit(androidx.xr.compose.subspace.layout.SubspaceModifier, optional androidx.xr.compose.subspace.animation.SpatialEnterTransition enter, optional androidx.xr.compose.subspace.animation.SpatialExitTransition exit);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public default androidx.xr.compose.subspace.layout.SubspaceModifier animateEnterExit(androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.animation.SpatialEnterTransition, androidx.xr.compose.subspace.animation.SpatialExitTransition, androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public default androidx.xr.compose.subspace.layout.SubspaceModifier! animateEnterExit(androidx.xr.compose.subspace.layout.SubspaceModifier!, androidx.xr.compose.subspace.animation.SpatialEnterTransition!, androidx.xr.compose.subspace.animation.SpatialExitTransition!, androidx.compose.runtime.Composer!, int, int);
-  }
-
-  public abstract sealed class SpatialEnterTransition {
-    method @androidx.compose.runtime.Stable public final operator androidx.xr.compose.subspace.animation.SpatialEnterTransition plus(androidx.xr.compose.subspace.animation.SpatialEnterTransition enter);
-    field public static final androidx.xr.compose.subspace.animation.SpatialEnterTransition.Companion Companion;
-  }
-
-  public static final class SpatialEnterTransition.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.SpatialEnterTransition getNone();
-    property public androidx.xr.compose.subspace.animation.SpatialEnterTransition None;
-  }
-
-  public abstract sealed class SpatialExitTransition {
-    method @androidx.compose.runtime.Stable public final operator androidx.xr.compose.subspace.animation.SpatialExitTransition plus(androidx.xr.compose.subspace.animation.SpatialExitTransition exit);
-    field public static final androidx.xr.compose.subspace.animation.SpatialExitTransition.Companion Companion;
-  }
-
-  public static final class SpatialExitTransition.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.SpatialExitTransition getNone();
-    property public androidx.xr.compose.subspace.animation.SpatialExitTransition None;
-  }
-
-  public final class SpatialTransitionDefaults {
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.SpatialEnterTransition getDefaultEnter();
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.SpatialExitTransition getDefaultExit();
-    property public androidx.xr.compose.subspace.animation.SpatialEnterTransition DefaultEnter;
-    property public androidx.xr.compose.subspace.animation.SpatialExitTransition DefaultExit;
-    field public static final androidx.xr.compose.subspace.animation.SpatialTransitionDefaults INSTANCE;
-  }
-
-  public final class SpatialTransitions {
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialEnterTransition fadeIn(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float initialAlpha);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialEnterTransition! fadeIn$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, float, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialExitTransition fadeOut(optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, optional float targetAlpha);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialExitTransition! fadeOut$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, float, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialEnterTransition slideIn(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super androidx.xr.compose.unit.IntVolumeSize,androidx.xr.compose.unit.IntVolumeOffset> initialOffset);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialEnterTransition! slideIn$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialEnterTransition slideInDepth(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> initialOffsetZ);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialEnterTransition! slideInDepth$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialEnterTransition slideInHorizontally(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> initialOffsetX);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialEnterTransition! slideInHorizontally$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialEnterTransition slideInVertically(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> initialOffsetY);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialEnterTransition! slideInVertically$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialExitTransition slideOut(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super androidx.xr.compose.unit.IntVolumeSize,androidx.xr.compose.unit.IntVolumeOffset> targetOffset);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialExitTransition! slideOut$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialExitTransition slideOutDepth(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> targetOffsetZ);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialExitTransition! slideOutDepth$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialExitTransition slideOutHorizontally(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> targetOffsetX);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialExitTransition! slideOutHorizontally$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    method @androidx.compose.runtime.Stable public androidx.xr.compose.subspace.animation.SpatialExitTransition slideOutVertically(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.xr.compose.unit.IntVolumeOffset> animationSpec, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Integer,java.lang.Integer> targetOffsetY);
-    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.xr.compose.subspace.animation.SpatialExitTransition! slideOutVertically$default(androidx.xr.compose.subspace.animation.SpatialTransitions!, androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function2!, int, Object!);
-    field public static final androidx.xr.compose.subspace.animation.SpatialTransitions INSTANCE;
-  }
-
 }
 
 package androidx.xr.compose.subspace.layout {
@@ -553,10 +471,6 @@ package androidx.xr.compose.subspace.layout {
 
   public final class GravityAlignedKt {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier gravityAligned(androidx.xr.compose.subspace.layout.SubspaceModifier);
-  }
-
-  public final class LayoutModifierKt {
-    method public static androidx.xr.compose.subspace.layout.SubspaceModifier layout(androidx.xr.compose.subspace.layout.SubspaceModifier, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.layout.SubspaceMeasureScope,? super androidx.xr.compose.subspace.layout.SubspaceMeasurable,? super androidx.xr.compose.unit.VolumeConstraints,? extends androidx.xr.compose.subspace.layout.SubspaceMeasureResult> measure);
   }
 
   public final class OffsetKt {
@@ -1210,22 +1124,6 @@ package androidx.xr.compose.unit {
   public static final class DpVolumeSize.Companion {
     method @InaccessibleFromKotlin public androidx.xr.compose.unit.DpVolumeSize getZero();
     property public androidx.xr.compose.unit.DpVolumeSize Zero;
-  }
-
-  @androidx.compose.runtime.Immutable public final class IntVolumeOffset {
-    ctor public IntVolumeOffset(int x, int y, int z);
-    method @InaccessibleFromKotlin public int getX();
-    method @InaccessibleFromKotlin public int getY();
-    method @InaccessibleFromKotlin public int getZ();
-    property public int x;
-    property public int y;
-    property public int z;
-    field public static final androidx.xr.compose.unit.IntVolumeOffset.Companion Companion;
-  }
-
-  public static final class IntVolumeOffset.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.unit.IntVolumeOffset getZero();
-    property public androidx.xr.compose.unit.IntVolumeOffset Zero;
   }
 
   public final class IntVolumeSize {

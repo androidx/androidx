@@ -16,22 +16,34 @@
 
 package androidx.xr.compose.material3
 
-import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
 import androidx.compose.material3.adaptive.layout.AnimatedPaneOverride
 import androidx.compose.material3.adaptive.layout.AnimatedPaneOverrideScope
 import androidx.compose.material3.adaptive.layout.AnimatedPaneScope
-import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.PaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneScaffoldValue
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.runtime.Composable
-import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.animation.AnimatedSpatialVisibility
-import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.fillMaxHeight
-import androidx.xr.compose.subspace.layout.width
+import androidx.compose.ui.Modifier
+
+@OptIn(
+    ExperimentalMaterial3AdaptiveComponentOverrideApi::class,
+    ExperimentalMaterial3AdaptiveApi::class,
+)
+@Composable
+private fun <S : PaneScaffoldRole, T : PaneScaffoldValue<S>> Pane(
+    scope: ExtendedPaneScaffoldPaneScope<S, T>,
+    modifier: Modifier,
+    content: @Composable (AnimatedPaneScope.() -> Unit),
+) {
+    with(scope) {
+        scaffoldStateTransition.AnimatedVisibility(visible = { true }, modifier = modifier) {
+            AnimatedPaneScope.create(this).content()
+        }
+    }
+}
 
 @OptIn(
     ExperimentalMaterial3AdaptiveComponentOverrideApi::class,
@@ -40,29 +52,8 @@ import androidx.xr.compose.subspace.layout.width
 @ExperimentalMaterial3XrApi
 internal object XrAnimatedPaneOverride : AnimatedPaneOverride {
     @Composable
-    override fun <
-        Role : PaneScaffoldRole,
-        ScaffoldValue : PaneScaffoldValue<Role>,
-    > AnimatedPaneOverrideScope<Role, ScaffoldValue>.AnimatedPane() {
-        // TODO(kmost): No way to convert between Enter/ExitTransition and
-        //  SpatialEnter/ExitTransition, so for now we cannot respect those scope properties.
-
-        val state = MutableTransitionState(false)
-        state.targetState =
-            scope.scaffoldStateTransition.targetState[scope.paneRole] != PaneAdaptedValue.Hidden
-
-        AnimatedSpatialVisibility(visibleState = state) {
-            val width =
-                when (scope.paneRole as ThreePaneScaffoldRole) {
-                    ThreePaneScaffoldRole.Primary -> XrThreePaneScaffoldTokens.PrimaryPanePanelWidth
-                    ThreePaneScaffoldRole.Secondary ->
-                        XrThreePaneScaffoldTokens.SecondaryPanePanelWidth
-                    ThreePaneScaffoldRole.Tertiary ->
-                        XrThreePaneScaffoldTokens.TertiaryPanePanelWidth
-                }
-            SpatialPanel(SubspaceModifier.width(width).fillMaxHeight()) {
-                AnimatedPaneScope.create(this).content()
-            }
-        }
+    override fun <S : PaneScaffoldRole, T : PaneScaffoldValue<S>> AnimatedPaneOverrideScope<S, T>
+        .AnimatedPane() {
+        Pane(scope, modifier, content)
     }
 }

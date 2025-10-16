@@ -92,21 +92,22 @@ class VerticalStackTest {
     }
 
     @Test
-    fun multipleItems_displaysFirstItem() {
+    fun multipleItems_displaysFirstTwoItems() {
         val state = StackState()
         rule.setContent {
             VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
         }
 
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
         rule.onNodeWithText("Item 5").assertDoesNotExist()
         assertThat(state.topItem).isEqualTo(0)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
     }
 
     @Test
-    fun multipleItems_customInitialTopItem_displaysRequestedItem() {
+    fun multipleItems_customInitialTopItem_displaysRequestedAndNextItems() {
         val state = StackState(initialTopItem = 1)
         rule.setContent {
             VerticalStack(state = state) { items(5) { index -> StackItem("Item $index") } }
@@ -114,7 +115,8 @@ class VerticalStackTest {
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
-        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
         assertThat(state.topItemOffsetFraction).isEqualTo(0f)
     }
@@ -159,7 +161,7 @@ class VerticalStackTest {
     }
 
     @Test
-    fun swipeUp_pointerInput_displaysOnlyNextItem() {
+    fun swipeUp_pointerInput_displaysOnlyNextTwoItems() {
         var itemHeight = 0
         val state = StackState()
         rule.setContent {
@@ -168,7 +170,8 @@ class VerticalStackTest {
             }
         }
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
 
         rule.onNodeWithText("Item 0").performTouchInput {
             swipe(
@@ -179,11 +182,13 @@ class VerticalStackTest {
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
     }
 
     @Test
-    fun swipeForward_displaysOnlyNextItem() {
+    fun swipeForward_displaysOnlyNextTwoItems() {
         var itemHeight = 0
         val state = StackState()
         rule.setContentWithInitialFocus {
@@ -192,13 +197,61 @@ class VerticalStackTest {
             }
         }
         rule.onNodeWithText("Item 0").assertIsDisplayed()
-        rule.onNodeWithText("Item 1").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
 
         requestFocusAndPerformIndirectSwipe(itemHeight)
 
         rule.onNodeWithText("Item 0").assertIsNotDisplayed()
         rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
         assertThat(state.topItem).isEqualTo(1)
+    }
+
+    @Test
+    fun swipeForward_almostItemHeight_snapsToNextItem() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+
+        requestFocusAndPerformIndirectSwipe((itemHeight * 0.9f).toInt())
+
+        rule.onNodeWithText("Item 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
+        assertThat(state.topItem).isEqualTo(1)
+    }
+
+    @Test
+    fun swipeBackward_almostItemHeight_snapsToPreviousItem() {
+        var itemHeight = 0
+        val state = StackState()
+        rule.setContentWithInitialFocus {
+            VerticalStack(state = state) {
+                items(5) { index -> StackItem("Item $index") { itemHeight = it } }
+            }
+        }
+        requestFocusAndPerformIndirectSwipe(itemHeight)
+        rule.onNodeWithText("Item 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsDisplayed()
+        rule.onNodeWithText("Item 3").assertIsNotDisplayed()
+
+        requestFocusAndPerformIndirectSwipe(-(itemHeight * 0.9f).toInt())
+
+        rule.onNodeWithText("Item 0").assertIsDisplayed()
+        rule.onNodeWithText("Item 1").assertIsDisplayed()
+        rule.onNodeWithText("Item 2").assertIsNotDisplayed()
+        assertThat(state.topItem).isEqualTo(0)
     }
 
     @Test
@@ -246,14 +299,16 @@ class VerticalStackTest {
         }
         rule.onNodeWithText("First").assertIsDisplayed()
         assertThat(state.topItem).isEqualTo(0)
-        rule.onNodeWithText("Middle 0").assertIsNotDisplayed()
+        rule.onNodeWithText("Middle 0").assertIsDisplayed()
+        rule.onNodeWithText("Middle 1").assertIsNotDisplayed()
 
         repeat(6) { index ->
             requestFocusAndPerformIndirectSwipe(itemHeight)
 
             rule.onNodeWithText("Middle $index").assertIsDisplayed()
+            rule.onNodeWithText("Middle ${(index + 1).coerceAtMost(5)}").assertIsDisplayed()
             assertThat(state.topItem).isEqualTo(index + 1)
-            rule.onNodeWithText("Middle ${index + 1}").assertIsNotDisplayed()
+            rule.onNodeWithText("Middle ${index + 2}").assertIsNotDisplayed()
         }
 
         requestFocusAndPerformIndirectSwipe(itemHeight)

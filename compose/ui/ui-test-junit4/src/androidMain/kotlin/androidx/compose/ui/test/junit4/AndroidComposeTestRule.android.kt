@@ -43,6 +43,10 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 @SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>()
@@ -66,6 +70,10 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 @SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
@@ -122,6 +130,10 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
@@ -173,6 +185,10 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  * A typical use case on Android is when the test needs to launch an Activity (the compose host)
  * after one or more dependencies have been injected.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced with same function, but with effectContext",
+)
 fun createEmptyComposeRule(): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },

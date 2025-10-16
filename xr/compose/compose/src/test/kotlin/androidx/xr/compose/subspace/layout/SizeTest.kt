@@ -29,7 +29,6 @@ import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +41,7 @@ class SizeTest {
 
     @Test
     fun size_individualModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").width(20.dp).height(20.dp).depth(20.dp)
@@ -61,7 +60,7 @@ class SizeTest {
 
     @Test
     fun size_combinedModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) { Text(text = "Panel") }
             }
@@ -76,7 +75,7 @@ class SizeTest {
 
     @Test
     fun size_combinedModifier_panelsRespectParentSizeConstraints() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(10.dp)) {
                     SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) {
@@ -95,7 +94,7 @@ class SizeTest {
 
     @Test
     fun size_individualRequiredModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -117,7 +116,7 @@ class SizeTest {
 
     @Test
     fun size_combinedRequiredModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
                     Text(text = "Panel")
@@ -134,7 +133,7 @@ class SizeTest {
 
     @Test
     fun size_combinedRequiredModifier_panelsOverrideParentSizeConstraints() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(10.dp)) {
                     SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
@@ -153,7 +152,7 @@ class SizeTest {
 
     @Test
     fun size_individualFillModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(20.dp)) {
                     SpatialPanel(
@@ -177,7 +176,7 @@ class SizeTest {
 
     @Test
     fun size_individualFillModifiersWithFraction_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(20.dp)) {
                     SpatialPanel(
@@ -201,7 +200,7 @@ class SizeTest {
 
     @Test
     fun size_combinedFillModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(20.dp)) {
                     SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize()) {
@@ -220,7 +219,7 @@ class SizeTest {
 
     @Test
     fun size_combinedFillModifierWithFraction_panelsAreSizedCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialRow(SubspaceModifier.size(20.dp)) {
                     SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize(0.5f)) {
@@ -239,7 +238,7 @@ class SizeTest {
 
     @Test
     fun sizeIn_respectsUpperBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -258,7 +257,7 @@ class SizeTest {
 
     @Test
     fun sizeIn_respectsLowerBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -277,7 +276,7 @@ class SizeTest {
 
     @Test
     fun sizeIn_contentWithinBounds_isUnchanged() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -292,7 +291,7 @@ class SizeTest {
 
     @Test
     fun sizeIn_respectsStricterParentMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.size(30.dp)) {
                     SpatialPanel(
@@ -313,7 +312,7 @@ class SizeTest {
 
     @Test
     fun widthIn_respectsUpperBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").widthIn(max = 40.dp).width(50.dp)) {}
             }
@@ -324,7 +323,7 @@ class SizeTest {
 
     @Test
     fun widthIn_respectsLowerBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").widthIn(min = 10.dp).width(5.dp)) {}
             }
@@ -335,7 +334,7 @@ class SizeTest {
 
     @Test
     fun widthIn_contentWithinBounds_isUnchanged() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").widthIn(min = 10.dp, max = 40.dp).width(25.dp)
@@ -348,7 +347,7 @@ class SizeTest {
 
     @Test
     fun widthIn_respectsStricterParentMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.width(30.dp)) {
                     SpatialPanel(
@@ -363,7 +362,7 @@ class SizeTest {
 
     @Test
     fun widthIn_respectsStricterModifierMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.width(50.dp)) {
                     SpatialPanel(
@@ -378,7 +377,7 @@ class SizeTest {
 
     @Test
     fun heightIn_respectsUpperBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").heightIn(max = 40.dp).height(50.dp)
@@ -391,7 +390,7 @@ class SizeTest {
 
     @Test
     fun heightIn_respectsLowerBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").heightIn(min = 10.dp).height(5.dp)
@@ -404,7 +403,7 @@ class SizeTest {
 
     @Test
     fun heightIn_contentWithinBounds_isUnchanged() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -419,7 +418,7 @@ class SizeTest {
 
     @Test
     fun heightIn_respectsStricterParentMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.height(30.dp)) {
                     SpatialPanel(
@@ -434,7 +433,7 @@ class SizeTest {
 
     @Test
     fun heightIn_respectsStricterModifierMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.height(50.dp)) {
                     SpatialPanel(
@@ -449,7 +448,7 @@ class SizeTest {
 
     @Test
     fun depthIn_respectsUpperBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").depthIn(max = 40.dp).depth(50.dp)) {}
             }
@@ -460,7 +459,7 @@ class SizeTest {
 
     @Test
     fun depthIn_respectsLowerBounds() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").depthIn(min = 10.dp).depth(5.dp)) {}
             }
@@ -471,7 +470,7 @@ class SizeTest {
 
     @Test
     fun depthIn_contentWithinBounds_isUnchanged() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel").depthIn(min = 10.dp, max = 40.dp).depth(25.dp)
@@ -484,7 +483,7 @@ class SizeTest {
 
     @Test
     fun depthIn_respectsStricterParentMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.depth(30.dp)) {
                     SpatialPanel(
@@ -499,7 +498,7 @@ class SizeTest {
 
     @Test
     fun depthIn_respectsStricterModifierMaxConstraint() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             ApplicationSubspace {
                 SpatialRow(SubspaceModifier.depth(50.dp)) {
                     SpatialPanel(

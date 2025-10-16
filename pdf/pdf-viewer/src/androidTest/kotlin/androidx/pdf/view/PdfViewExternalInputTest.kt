@@ -200,7 +200,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             0,
                             pdfView.getVisibleAreaInContentCoords(),
                         )
@@ -252,7 +252,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             1,
                             pdfView.getVisibleAreaInContentCoords(),
                         )
@@ -349,7 +349,7 @@ class PdfViewExternalInputTest {
                 .check { view, _ ->
                     val pdfView = view as PdfView
                     val pageRect =
-                        pdfView.pageMetadataLoader?.getPageLocation(
+                        pdfView.pageLayoutManager?.getPageLocation(
                             1,
                             pdfView.getVisibleAreaInContentCoords(),
                         )

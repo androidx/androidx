@@ -18,10 +18,12 @@ package androidx.room3.coroutines
 
 import androidx.kruth.assertThat
 import androidx.room3.Room
+import androidx.room3.RoomOpenDelegate
 import androidx.room3.test.TestDatabase
 import androidx.room3.test.TestDatabase_Impl
 import androidx.room3.test.createDefaultConfiguration
 import androidx.room3.useReaderConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.driver.AndroidSQLiteDriver
@@ -41,7 +43,8 @@ class PassthroughConnectionPoolTest {
             TestDatabase_Impl()
                 .createConnectionManager(
                     createDefaultConfiguration(instrumentation)
-                        .copy(sqliteOpenHelperFactory = FrameworkSQLiteOpenHelperFactory())
+                        .copy(sqliteOpenHelperFactory = FrameworkSQLiteOpenHelperFactory()),
+                    TestOpenDelegate(),
                 )
         assertThat(connectionManager.connectionPool).isInstanceOf<PassthroughConnectionPool>()
     }
@@ -52,7 +55,8 @@ class PassthroughConnectionPoolTest {
             TestDatabase_Impl()
                 .createConnectionManager(
                     createDefaultConfiguration(instrumentation)
-                        .copy(sqliteDriver = AndroidSQLiteDriver())
+                        .copy(sqliteDriver = AndroidSQLiteDriver()),
+                    TestOpenDelegate(),
                 )
         assertThat(connectionManager.connectionPool).isInstanceOf<PassthroughConnectionPool>()
     }
@@ -64,7 +68,8 @@ class PassthroughConnectionPoolTest {
         val connectionManager =
             TestDatabase_Impl()
                 .createConnectionManager(
-                    createDefaultConfiguration(instrumentation).copy(sqliteDriver = myDriver)
+                    createDefaultConfiguration(instrumentation).copy(sqliteDriver = myDriver),
+                    TestOpenDelegate(),
                 )
         assertThat(connectionManager.connectionPool).isInstanceOf<PassthroughConnectionPool>()
     }
@@ -84,5 +89,23 @@ class PassthroughConnectionPoolTest {
             }
         val connectionTwo = db.useReaderConnection { it }
         assertThat(connectionOne).isNotSameInstanceAs(connectionTwo)
+    }
+
+    private class TestOpenDelegate : RoomOpenDelegate(1, "", "") {
+        override fun onCreate(connection: SQLiteConnection) {}
+
+        override fun onPreMigrate(connection: SQLiteConnection) {}
+
+        override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
+            return ValidationResult(true, null)
+        }
+
+        override fun onPostMigrate(connection: SQLiteConnection) {}
+
+        override fun onOpen(connection: SQLiteConnection) {}
+
+        override fun createAllTables(connection: SQLiteConnection) {}
+
+        override fun dropAllTables(connection: SQLiteConnection) {}
     }
 }

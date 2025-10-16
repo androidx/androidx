@@ -22,7 +22,7 @@ import androidx.xr.glimmer.samples.ColorsSample
 import androidx.xr.glimmer.samples.DepthLevelsSample
 import androidx.xr.glimmer.samples.IconSampleUsage
 import androidx.xr.glimmer.samples.ListItemSampleUsage
-import androidx.xr.glimmer.samples.OnIndirectTouchGestureSampleUsage
+import androidx.xr.glimmer.samples.OnIndirectPointerGestureSampleUsage
 import androidx.xr.glimmer.samples.ShapesSample
 import androidx.xr.glimmer.samples.SurfaceSampleUsage
 import androidx.xr.glimmer.samples.TitleChipSampleUsage
@@ -45,7 +45,7 @@ val Demos =
             DemoCategory("Focus", FocusDemos),
             DemoCategory("List", ListDemos),
             ComposableDemo("VerticalStack") { VerticalStackDemo() },
-            ComposableDemo("Gesture") { OnIndirectTouchGestureSampleUsage() },
+            ComposableDemo("Gesture") { OnIndirectPointerGestureSampleUsage() },
             ComposableDemo("Settings") { DemoSettings() },
         ),
     )

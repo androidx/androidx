@@ -28,7 +28,6 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import kotlin.test.assertFailsWith
 import org.junit.Rule
 import org.junit.Test
@@ -42,7 +41,7 @@ class PaddingTest {
 
     @Test
     fun padding_settingValuesIndependentlySizesCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -71,7 +70,7 @@ class PaddingTest {
 
     @Test
     fun padding_settingDirectionalValuesSizesCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(
                     SubspaceModifier.testTag("panel")
@@ -93,7 +92,7 @@ class PaddingTest {
 
     @Test
     fun padding_settingAllValuesSizesCorrectly() {
-        composeTestRule.setContentWithCompatibilityForXr {
+        composeTestRule.setContent {
             Subspace {
                 SpatialPanel(SubspaceModifier.testTag("panel").size(100.dp).padding(all = 20.dp)) {
                     Text(text = "Panel")
@@ -112,7 +111,7 @@ class PaddingTest {
     @Test
     fun padding_negativePaddingThrowsException() {
         assertFailsWith<IllegalArgumentException> {
-            composeTestRule.setContentWithCompatibilityForXr {
+            composeTestRule.setContent {
                 Subspace {
                     SpatialPanel(
                         SubspaceModifier.testTag("panel").size(100.dp).padding(top = -20.dp)

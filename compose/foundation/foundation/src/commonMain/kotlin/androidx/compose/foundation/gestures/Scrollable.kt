@@ -369,13 +369,13 @@ internal class ScrollableNode(
         with(scrollingLogic) {
             scroll(scrollPriority = MutatePriority.UserInput) {
                 forEachDelta {
-                    // Indirect Touch Events should be reverted to account for the reverse we
+                    // Indirect pointer Events should be reverted to account for the reverse we
                     // do in Scrollable. Regular touchscreen events are inverted in scrollable, but
-                    // that shouldn't happen for indirect touch events, so we cancel the reverse
+                    // that shouldn't happen for indirect pointer events, so we cancel the reverse
                     // here.
-                    val invertIndirectTouch = if (it.isIndirectTouchEvent) -1f else 1f
+                    val invertIndirectPointer = if (it.isIndirectPointerEvent) -1f else 1f
                     scrollByWithOverscroll(
-                        it.delta.singleAxisOffset() * invertIndirectTouch,
+                        it.delta.singleAxisOffset() * invertIndirectPointer,
                         source = UserInput,
                     )
                 }
@@ -387,13 +387,13 @@ internal class ScrollableNode(
 
     override fun onDragStopped(event: DragEvent.DragStopped) {
         nestedScrollDispatcher.coroutineScope.launch {
-            // Indirect Touch Events should be reverted to account for the reverse we
+            // Indirect pointer Events should be reverted to account for the reverse we
             // do in Scrollable. Regular touchscreen events are inverted in scrollable, but
-            // that shouldn't happen for indirect touch events, so we cancel the reverse
+            // that shouldn't happen for indirect pointer events, so we cancel the reverse
             // here.
-            val invertIndirectTouch = if (event.isIndirectTouchEvent) -1f else 1f
+            val invertIndirectPointer = if (event.isIndirectPointerEvent) -1f else 1f
             scrollingLogic.onScrollStopped(
-                event.velocity * invertIndirectTouch,
+                event.velocity * invertIndirectPointer,
                 isMouseWheel = false,
             )
         }

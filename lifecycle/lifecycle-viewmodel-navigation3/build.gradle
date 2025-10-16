@@ -66,7 +66,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(commonMain)
             dependencies {
-                api("androidx.activity:activity-compose:1.12.0-alpha06")
+                api(project(":activity:activity-compose"))
             }
         }
 

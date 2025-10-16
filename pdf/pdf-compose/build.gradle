@@ -42,8 +42,8 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:$compose_version")
     implementation("androidx.compose.runtime:runtime-saveable:$compose_version")
 
-    androidTestImplementation("androidx.compose.ui:ui-test:$compose_version")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_version")
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
@@ -60,9 +60,6 @@ android {
         minSdk = 31
         compileSdk = 36
         compileSdkExtension = 19
-    }
-    lint {
-        disable += "ComposeTestRuleDispatcher"
     }
 }
 

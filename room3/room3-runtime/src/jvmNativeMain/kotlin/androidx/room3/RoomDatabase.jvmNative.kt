@@ -85,7 +85,8 @@ actual constructor() {
      * @throws IllegalArgumentException if initialization fails.
      */
     internal actual fun init(configuration: DatabaseConfiguration) {
-        connectionManager = createConnectionManager(configuration)
+        val openDelegate = createOpenDelegate() as RoomOpenDelegate
+        connectionManager = createConnectionManager(configuration, openDelegate)
         internalTracker = createInvalidationTracker()
         val parentJob = checkNotNull(configuration.queryCoroutineContext)[Job]
         coroutineScope =
@@ -102,12 +103,13 @@ actual constructor() {
      * @return A new connection manager
      */
     internal actual fun createConnectionManager(
-        configuration: DatabaseConfiguration
+        configuration: DatabaseConfiguration,
+        openDelegate: RoomOpenDelegate,
     ): RoomConnectionManager =
         RoomConnectionManager(
             configuration = configuration,
             sqliteDriver = checkNotNull(configuration.sqliteDriver),
-            openDelegate = createOpenDelegate() as RoomOpenDelegate,
+            openDelegate = openDelegate,
             callbacks = configuration.callbacks ?: emptyList(),
         )
 

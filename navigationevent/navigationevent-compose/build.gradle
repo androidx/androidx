@@ -36,7 +36,6 @@ androidXMultiplatform {
     androidLibrary {
         compileSdk = 36
         namespace = "androidx.navigationevent.compose"
-        lint.disable += "ComposeTestRuleDispatcher"
     }
     jvmStubs()
     linuxX64Stubs()
@@ -77,9 +76,9 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation("androidx.compose.material:material:1.9.2")
-                implementation("androidx.compose.ui:ui-test:1.9.2")
-                implementation("androidx.compose.ui:ui-test-junit4:1.9.2")
-                implementation("androidx.compose.ui:ui-test-manifest:1.9.2")
+                implementation(project(":compose:ui:ui-test"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-manifest"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)

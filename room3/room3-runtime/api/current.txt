@@ -180,6 +180,7 @@ package androidx.room3 {
   public abstract static class RoomDatabase.PrepackagedDatabaseCallback {
     ctor public RoomDatabase.PrepackagedDatabaseCallback();
     method public void onOpenPrepackagedDatabase(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void onOpenPrepackagedDatabase(androidx.sqlite.SQLiteConnection connection);
   }
 
   public static fun interface RoomDatabase.QueryCallback {
@@ -194,7 +195,6 @@ package androidx.room3 {
     method public static suspend <R> Object? useReaderConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? useWriterConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withReadTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend <R> Object? withTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withWriteTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 

@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.datastore:datastore-core>
+abstract interface <#A: kotlin/Any?> androidx.datastore.core/CorruptionHandler { // androidx.datastore.core/CorruptionHandler|null[0]
+    abstract suspend fun handleCorruption(androidx.datastore.core/CorruptionException): #A // androidx.datastore.core/CorruptionHandler.handleCorruption|handleCorruption(androidx.datastore.core.CorruptionException){}[0]
+}
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/CurrentDataProviderStore : androidx.datastore.core/DataStore<#A> { // androidx.datastore.core/CurrentDataProviderStore|null[0]
     abstract suspend fun currentData(): #A // androidx.datastore.core/CurrentDataProviderStore.currentData|currentData(){}[0]
 }

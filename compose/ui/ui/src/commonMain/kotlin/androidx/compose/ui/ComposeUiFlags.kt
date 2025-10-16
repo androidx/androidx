@@ -158,10 +158,10 @@ object ComposeUiFlags {
      */
     @Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
 
-    /** Flag for enabling indirect touch event navigation gestures in Compose. */
+    /** Flag for enabling indirect pointer event navigation gestures in Compose. */
     @Suppress("MutableBareField")
     @JvmField
-    var isIndirectTouchNavigationGestureDetectorEnabled: Boolean = true
+    var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
 
     /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
     @Suppress("MutableBareField") @JvmField var isGraphicsLayerShapeSemanticsEnabled: Boolean = true

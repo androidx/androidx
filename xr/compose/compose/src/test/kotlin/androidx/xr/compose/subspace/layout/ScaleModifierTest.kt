@@ -27,7 +27,6 @@ import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setContentWithCompatibilityForXr
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -43,9 +42,7 @@ class ScaleModifierTest {
 
     @Test
     fun scale_modifierAppliedToEntity() {
-        composeTestRule.setContentWithCompatibilityForXr {
-            Subspace { PanelContent("panel", 0.5f) }
-        }
+        composeTestRule.setContent { Subspace { PanelContent("panel", 0.5f) } }
 
         val panelNode = assertSingleNode("panel")
         assertEquals(0.5f, panelNode.scale)
@@ -54,9 +51,7 @@ class ScaleModifierTest {
     @Test
     fun negativeScale_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            composeTestRule.setContentWithCompatibilityForXr {
-                Subspace { PanelContent("panel", -0.5f) }
-            }
+            composeTestRule.setContent { Subspace { PanelContent("panel", -0.5f) } }
         }
     }
 

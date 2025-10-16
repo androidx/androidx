@@ -111,7 +111,7 @@ package androidx.xr.scenecore.impl.impress {
     method public void setTransmissionFactorOnKhronosPbrMaterial(long, float);
     method public void setTransmissionTextureOnKhronosPbrMaterial(long, long, androidx.xr.scenecore.runtime.TextureSampler);
     method public void setTransmissionUvTransformOnKhronosPbrMaterial(long, float, float, float, float, float, float, float, float, float);
-    method public void setup(com.google.ar.imp.view.View);
+    method public void setup(com.google.ar.imp.view.View?);
     method public void stopGltfModelAnimation(androidx.xr.scenecore.impl.impress.ImpressNode);
   }
 
@@ -436,7 +436,7 @@ package androidx.xr.scenecore.impl.impress {
     method public void setTransmissionFactorOnKhronosPbrMaterial(long, float);
     method public void setTransmissionTextureOnKhronosPbrMaterial(long, long, androidx.xr.scenecore.runtime.TextureSampler);
     method public void setTransmissionUvTransformOnKhronosPbrMaterial(long, float, float, float, float, float, float, float, float, float);
-    method public void setup(com.google.ar.imp.view.View);
+    method public void setup(com.google.ar.imp.view.View?);
     method public void stopGltfModelAnimation(androidx.xr.scenecore.impl.impress.ImpressNode);
   }
 
