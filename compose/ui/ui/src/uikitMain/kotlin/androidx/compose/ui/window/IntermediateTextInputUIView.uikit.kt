@@ -196,7 +196,9 @@ internal class IntermediateTextInputUIView(
      * @param withText A string to replace the text in range.
      */
     override fun replaceRange(range: UITextRange, withText: String) {
-        input?.replaceRange(range.toTextRange(), withText)
+        input?.withBatch {
+            input?.replaceRange(range.toTextRange(), withText)
+        }
     }
 
     override fun setSelectedTextRange(selectedTextRange: UITextRange?) {
