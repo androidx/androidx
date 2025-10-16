@@ -10,3 +10,38 @@ updates:
     schedule:
     
       interval: "weekly"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /development/benchmarks-chrome-extension
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /development/fetchLicenses
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /development/plot-benchmarks
+    schedule:
+      interval: daily
+
+  - package-ecosystem: pip
+    directory: /development/project-creator
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /kotlin-js-store/wasm
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /kotlin-js-store
+    schedule:
+      interval: daily
