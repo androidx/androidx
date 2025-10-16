@@ -33,7 +33,7 @@ internal fun CValue<CGPoint>.asDpOffset(): DpOffset = useContents { asDpOffset()
 internal fun DpOffset.asCGPoint() = CGPointMake(x.value.toDouble(), y.value.toDouble())
 
 internal fun CGSize.asDpSize(): DpSize = DpSize(width.dp, height.dp)
-internal fun DpSize.asCGSize() = CGSizeMake(width.value.toDouble(), width.value.toDouble())
+internal fun DpSize.asCGSize() = CGSizeMake(width.value.toDouble(), height.value.toDouble())
 
 internal fun CGRect.asDpRect(): DpRect = DpRect(origin.asDpOffset(), size.asDpSize())
 internal fun CValue<CGRect>.asDpRect() = useContents { asDpRect() }
