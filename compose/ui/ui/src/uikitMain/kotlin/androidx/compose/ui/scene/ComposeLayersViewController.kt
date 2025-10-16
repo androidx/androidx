@@ -103,7 +103,7 @@ internal class ComposeLayersViewController(
         }
 
     private fun show() {
-        windowContext.setWindowContainer(window)
+        windowContext.window = window
         window.rootViewController = this
         window.windowLevel = UIWindowLevelAlert + 1
         window.setHidden(false)
@@ -130,6 +130,7 @@ internal class ComposeLayersViewController(
         hide()
         rootView.updateMetalView(metalView = null)
         referenceWindow = null
+        windowContext.dispose()
     }
 
     fun attach(layer: UIKitComposeSceneLayer) {

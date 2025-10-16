@@ -18,45 +18,44 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.asCGPoint
-import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpRect
 import androidx.compose.ui.unit.asDpSize
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toDpOffset
-import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.SceneActiveStateListener
 import kotlin.time.Duration
 import kotlinx.cinterop.useContents
 import platform.UIKit.UIView
+import platform.UIKit.UIWindow
 
 /**
  * Tracking a state of window.
  */
 internal class PlatformWindowContext {
-    private val _windowInfo = WindowInfoImpl().apply {
-        isWindowFocused = true
+    private val _windowInfo = WindowInfoImpl()
+
+    private val sceneFocusObserver = SceneActiveStateListener(getScene = { window?.windowScene }) {
+        _windowInfo.isWindowFocused = it
     }
 
     val windowInfo: WindowInfo get() = _windowInfo
 
     /**
-     * A container used for additional layers and as reference for window coordinate space.
+     * A window used to calculate the coordinate space and track the active state of the window
+     * scene.
      */
-    private var windowContainer: UIView? = null
-
-    fun setWindowContainer(windowContainer: UIView) {
-        this.windowContainer = windowContainer
-
-        updateWindowContainerSize()
-    }
+    var window: UIWindow? = null
+        set(value) {
+            field = value
+            _windowInfo.isWindowFocused = sceneFocusObserver.isSceneActive
+            updateWindowContainerSize()
+        }
 
     private var isAnimating = false
     fun prepareAndGetSizeTransitionAnimation(): suspend (Duration) -> Unit {
@@ -86,7 +85,7 @@ internal class PlatformWindowContext {
     }
 
     private val currentWindowContainerSize: Size? get() {
-        val windowContainer = windowContainer ?: return null
+        val windowContainer = window ?: return null
 
         return windowContainer.bounds.useContents {
             with(windowContainer.density) {
@@ -96,7 +95,7 @@ internal class PlatformWindowContext {
     }
 
     fun convertLocalToWindowPosition(container: UIView, localPosition: Offset): Offset {
-        val windowContainer = windowContainer ?: return localPosition
+        val windowContainer = window ?: return localPosition
         return convertPoint(
             point = localPosition,
             fromView = container,
@@ -105,7 +104,7 @@ internal class PlatformWindowContext {
     }
 
     fun convertWindowToLocalPosition(container: UIView, positionInWindow: Offset): Offset {
-        val windowContainer = windowContainer ?: return positionInWindow
+        val windowContainer = window ?: return positionInWindow
         return convertPoint(
             point = positionInWindow,
             fromView = windowContainer,
@@ -147,31 +146,6 @@ internal class PlatformWindowContext {
         }
     }
 
-    /**
-     * Converts the given [boundsInWindow] from the coordinate space of the container window to [toView] space.
-     */
-    fun convertWindowRect(boundsInWindow: Rect, toView: UIView): Rect {
-        val windowContainer = windowContainer ?: return boundsInWindow
-        return convertRect(
-            rect = boundsInWindow,
-            fromView = windowContainer,
-            toView = toView
-        )
-    }
-
-    private fun convertRect(rect: Rect, fromView: UIView, toView: UIView): Rect {
-        return if (fromView != toView) {
-            val density = fromView.density
-
-            fromView.convertRect(
-                rect = rect.toDpRect(density).asCGRect(),
-                toView = toView,
-            ).asDpRect().toRect(density)
-        } else {
-            rect
-        }
-    }
-
     private fun convertPoint(point: Offset, fromView: UIView, toView: UIView): Offset {
         return if (fromView != toView) {
             val density = fromView.density
@@ -184,5 +158,10 @@ internal class PlatformWindowContext {
         } else {
             point
         }
+    }
+
+    fun dispose() {
+        window = null
+        sceneFocusObserver.dispose()
     }
 }

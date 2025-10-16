@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ObjCAction
 import platform.Foundation.NSNotification
 import platform.Foundation.NSNotificationCenter
@@ -57,6 +58,7 @@ internal class SceneForegroundStateListener(
         )
     }
 
+    @OptIn(BetaInteropApi::class)
     @ObjCAction
     fun sceneWillEnterForeground(notification: NSNotification) {
         if (notification.`object` == getScene()) {
@@ -64,6 +66,7 @@ internal class SceneForegroundStateListener(
         }
     }
 
+    @OptIn(BetaInteropApi::class)
     @ObjCAction
     fun sceneDidEnterBackground(notification: NSNotification) {
         if (notification.`object` == getScene()) {

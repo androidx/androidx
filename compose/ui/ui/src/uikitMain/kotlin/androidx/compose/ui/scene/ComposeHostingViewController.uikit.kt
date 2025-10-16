@@ -206,12 +206,12 @@ internal class ComposeHostingViewController(
         navigationEventInput.onDidMoveToWindow(window, rootView)
         interfaceOrientationObserver.windowScene = window?.windowScene
 
-        val windowContainer = window ?: return
+        window ?: return
 
         updateInterfaceOrientationState()
 
         layersHolder?.layersViewController?.referenceWindow = view.window
-        windowContext.setWindowContainer(windowContainer)
+        windowContext.window = window
         updateMotionSpeed()
         lifecycleDelegate.windowScene = window.windowScene
     }
@@ -374,6 +374,8 @@ internal class ComposeHostingViewController(
         layersHolder = null
 
         interfaceOrientationObserver.isObservingEnabled = false
+
+        windowContext.dispose()
     }
 
     @OptIn(NativeRuntimeApi::class)
