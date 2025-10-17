@@ -37,7 +37,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.Lifecycle
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
@@ -113,6 +115,7 @@ private class ComposeWindow(
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
             val sizeInPx = IntSize(width, height)
             _windowInfo.containerSize = sizeInPx
+            _windowInfo.containerDpSize = sizeInPx.toSize().toDpSize(scene.density)
             scene.size = sizeInPx // TODO: Move it out from onRender to avoid extra invalidation
             scene.render(canvas.asComposeCanvas(), nanoTime)
         }

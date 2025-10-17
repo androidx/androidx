@@ -24,8 +24,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.roundToIntSize
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.asDpOffset
+import androidx.compose.ui.window.asDpSize
 import androidx.compose.ui.window.density
+import androidx.compose.ui.window.sizeInPx
 import java.awt.Component
 import java.awt.Container
 import java.awt.Frame
@@ -60,18 +66,16 @@ internal class PlatformWindowContext {
         _windowContainer = windowContainer
     }
 
-    fun setContainerSize(size: Size) {
-        _windowInfo.containerSize = IntSize(
-            width = size.width.roundToInt(),
-            height = size.height.roundToInt()
-        )
+    fun setContainerSizeFromComponent(component: Component) {
+        _windowInfo.containerSize = component.sizeInPx.roundToIntSize()
+        _windowInfo.containerDpSize = component.size.asDpSize()
     }
 
     fun convertLocalToWindowPosition(container: Component, localPosition: Offset) =
-        localPosition + offsetInWindow(container).toOffset(container.density)
+        localPosition + offsetInWindow(container).asDpOffset().toOffset(container.density)
 
     fun convertWindowToLocalPosition(container: Component, positionInWindow: Offset) =
-        positionInWindow - offsetInWindow(container).toOffset(container.density)
+        positionInWindow - offsetInWindow(container).asDpOffset().toOffset(container.density)
 
     /**
      * If the [component]'s location on screen is undefined, returns [Offset.Unspecified]; otherwise
@@ -86,7 +90,7 @@ internal class PlatformWindowContext {
         val frame = SwingUtilities.getWindowAncestor(component) as? Frame
         if ((frame != null) && (frame.state == Frame.ICONIFIED)) return Offset.Unspecified
 
-        return block(component.locationOnScreen.toOffset(component.density))
+        return block(component.locationOnScreen.asDpOffset().toOffset(component.density))
     }
 
     fun convertLocalToScreenPosition(container: Component, localPosition: Offset): Offset {
@@ -115,12 +119,4 @@ internal class PlatformWindowContext {
             Point(0, 0)
         }
     }
-}
-
-internal fun Point.toOffset(density: Density): Offset {
-    val scale = density.density
-    return Offset(
-        x = x * scale,
-        y = y * scale
-    )
 }

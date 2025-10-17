@@ -60,7 +60,7 @@ internal class WindowComposeSceneLayer(
 
     private val windowContext = PlatformWindowContext().also {
         it.isWindowTransparent = true
-        it.setContainerSize(windowContainer.sizeInPx)
+        it.setContainerSizeFromComponent(windowContainer)
     }
 
     private val layerWindow = JDialog(parentWindow).also {
@@ -161,7 +161,7 @@ internal class WindowComposeSceneLayer(
     }
 
     override fun onWindowContainerSizeChanged() {
-        windowContext.setContainerSize(windowContainer.sizeInPx)
+        windowContext.setContainerSizeFromComponent(windowContainer)
 
         // Update compose constrains based on main window size
         mediator?.sceneBoundsInPx = Rect(

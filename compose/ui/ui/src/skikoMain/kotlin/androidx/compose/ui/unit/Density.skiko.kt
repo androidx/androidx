@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Stable
@@ -47,31 +49,33 @@ internal fun DpOffset.toOffset(density: Density): Offset = with(density) {
 }
 
 /**
- * Convert a [Rect] to a [DpRect].
+ * Converts a [Rect] to a [DpRect].
  */
 @Stable
-internal fun Rect.toDpRect(density: Density): DpRect = with(density) {
+internal inline fun Rect.toDpRect(density: Density): DpRect = with(density) {
     DpRect(
         origin = topLeft.toDpOffset(density),
         size = size.toDpSize()
     )
 }
 
-/**
- * Convert a [DpRect] to a [Rect].
- */
+/** Convert a [DpRect] to a [Rect]. */
+// Preventing more copies, keep for discoverability
 @Stable
-internal fun DpRect.toRect(density: Density): Rect = with(density) {
-    Rect(
-        offset = DpOffset(left, top).toOffset(density),
-        size = size.toSize()
-    )
+internal inline fun DpRect.toRect(density: Density): Rect = with(density) {
+    toRect()
 }
 
-/**
- * Convert a [Size] to a [DpSize]
- */
+/** Convert a [Size] to a [DpSize]. */
+// Preventing more copies, keep for discoverability
 @Stable
-internal fun Size.toDpSize(density: Density): DpSize = with(density) {
-    DpSize(width.toDp(), height.toDp())
+internal inline fun Size.toDpSize(density: Density): DpSize = with(density) {
+   toDpSize()
+}
+
+/** Convert a [DpSize] to a [Size]. */
+// Preventing more copies, keep for discoverability
+@Stable
+internal inline fun DpSize.toSize(density: Density): Size = with(density) {
+   toSize()
 }

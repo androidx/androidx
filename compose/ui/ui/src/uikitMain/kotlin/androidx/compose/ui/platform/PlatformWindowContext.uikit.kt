@@ -18,13 +18,14 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.unit.asCGPoint
 import androidx.compose.ui.unit.asDpOffset
-import androidx.compose.ui.unit.asDpSize
+import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.roundToIntSize
+import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
@@ -60,15 +61,27 @@ internal class PlatformWindowContext {
     private var isAnimating = false
     fun prepareAndGetSizeTransitionAnimation(): suspend (Duration) -> Unit {
         isAnimating = true
-        val initialSize = _windowInfo.containerSize.toSize()
+        val initialSize = _windowInfo.containerSize
+        val initialDpSize = _windowInfo.containerDpSize
 
-        return { duration ->
+        return Animation@ { duration ->
             try {
-                if (initialSize != currentWindowContainerSize) {
-                    withAnimationProgress(duration) { progress ->
-                        val size = currentWindowContainerSize ?: initialSize
-                        _windowInfo.containerSize =
-                            lerp(initialSize, size, progress).roundToIntSize()
+                val windowContainer = window ?: return@Animation
+                val size = windowContainer.bounds.asDpRect().size
+                val sizeInPx = size.toSize(windowContainer.density).roundToIntSize()
+                if (initialSize == sizeInPx) {
+                    return@Animation
+                }
+                withAnimationProgress(duration) { progress ->
+                    val windowContainer = window
+                    if (windowContainer != null) {
+                        val currentSize = windowContainer.bounds.asDpRect().size
+                        val currentSizeInPx = size.toSize(windowContainer.density).roundToIntSize()
+                        _windowInfo.containerSize = lerp(initialSize.toSize(), currentSizeInPx.toSize(), progress).roundToIntSize()
+                        _windowInfo.containerDpSize = lerp(initialDpSize, currentSize, progress)
+                    } else {
+                        _windowInfo.containerSize = initialSize
+                        _windowInfo.containerDpSize = initialDpSize
                     }
                 }
             } finally {
@@ -81,17 +94,11 @@ internal class PlatformWindowContext {
     fun updateWindowContainerSize() {
         if (isAnimating) return
 
-        _windowInfo.containerSize = currentWindowContainerSize?.roundToIntSize() ?: return
-    }
-
-    private val currentWindowContainerSize: Size? get() {
-        val windowContainer = window ?: return null
-
-        return windowContainer.bounds.useContents {
-            with(windowContainer.density) {
-                size.asDpSize().toSize()
-            }
-        }
+        val windowContainer = window ?: return
+        val size = windowContainer.bounds.asDpRect().size
+        val sizeInPx = size.toSize(windowContainer.density).roundToIntSize()
+        _windowInfo.containerSize = sizeInPx
+        _windowInfo.containerDpSize = size
     }
 
     fun convertLocalToWindowPosition(container: UIView, localPosition: Offset): Offset {

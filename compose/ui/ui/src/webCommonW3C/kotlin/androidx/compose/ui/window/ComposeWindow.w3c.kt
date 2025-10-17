@@ -58,10 +58,13 @@ import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropViewGroup
 import androidx.compose.ui.viewinterop.LocalInteropContainer
@@ -429,7 +432,9 @@ internal class ComposeWindow(
 
                     rememberCoroutineScope().launch {
                         state.sizeFlow().collect { size ->
-                            this@ComposeWindow.resize(size)
+                            // Convert to proper type: IntSize was exposed to public API with meaning of DPs.
+                            val boxSize = DpSize(size.width.dp, size.height.dp)
+                            this@ComposeWindow.resize(boxSize)
                         }
                     }
                 }
@@ -442,26 +447,23 @@ internal class ComposeWindow(
         )
     }
 
-    fun resize(boxSize: IntSize) {
-        val scale = density.density
+    private fun resize(boxSize: DpSize) {
+        val sizeInPx = boxSize.toSize(density).toIntSize()
 
-        val width = (boxSize.width * scale).toInt()
-        val height = (boxSize.height * scale).toInt()
-
-        canvas.width = width
-        canvas.height = height
+        canvas.width = sizeInPx.width
+        canvas.height = sizeInPx.height
 
         // Scale canvas to allow high DPI rendering as suggested in
         // https://www.khronos.org/webgl/wiki/HandlingHighDPI.
-        canvas.style.width = "${boxSize.width}px"
-        canvas.style.height = "${boxSize.height}px"
+        canvas.style.width = "${boxSize.width.value}px"
+        canvas.style.height = "${boxSize.height.value}px"
 
-        val containerSize = IntSize(width, height)
-        _windowInfo.containerSize = containerSize
+        _windowInfo.containerSize = sizeInPx
+        _windowInfo.containerDpSize = boxSize
 
         // TODO: Align with Container/Mediator architecture
         skiaLayer.attachTo(canvas)
-        scene.size = containerSize
+        scene.size = sizeInPx
         skiaLayer.needRedraw()
     }
 

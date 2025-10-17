@@ -35,6 +35,8 @@ import androidx.compose.ui.scene.ComposeSceneDragAndDropNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.window.asDpOffset
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Image
@@ -86,16 +88,7 @@ internal class AwtDragAndDropManager(
     private val density: Density
         get() = rootContainer.density
 
-    private val scale: Float
-        get() = density.density
-
-    private fun Point.toOffset(): Offset {
-        val scale = this@AwtDragAndDropManager.scale
-        return Offset(
-            x = x * scale,
-            y = y * scale
-        )
-    }
+    private fun Point.toOffset() = asDpOffset().toOffset(density)
 
     override val isRequestDragAndDropTransferRequired: Boolean
         get() = true

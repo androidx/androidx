@@ -29,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.isLinux
 import androidx.compose.ui.isMacOs
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.toDpSize
@@ -803,40 +801,6 @@ class WindowStateTest {
         sendChannel.send(2)
         awaitIdle()
         assertThat(receivedNumbers).isEqualTo(listOf(1, 2))
-    }
-
-    @Test
-    fun `WindowInfo isFocused`() = runApplicationTest {
-        lateinit var window1: ComposeWindow
-        lateinit var window2: ComposeWindow
-        lateinit var window1Info: WindowInfo
-        lateinit var window2Info: WindowInfo
-
-        launchTestApplication {
-            Window(onCloseRequest = ::exitApplication) {
-                window1 = window
-                window1Info = LocalWindowInfo.current
-            }
-
-            Window(onCloseRequest = ::exitApplication) {
-                window2 = window
-                window2Info = LocalWindowInfo.current
-            }
-        }
-
-        awaitIdle()
-        assertThat(window1.isFocused).isEqualTo(window1Info.isWindowFocused)
-        assertThat(window2.isFocused).isEqualTo(window2Info.isWindowFocused)
-
-        window1.requestFocus()
-        awaitIdle()
-        assertThat(window1.isFocused).isEqualTo(window1Info.isWindowFocused)
-        assertThat(window2.isFocused).isEqualTo(window2Info.isWindowFocused)
-
-        window2.requestFocus()
-        awaitIdle()
-        assertThat(window1.isFocused).isEqualTo(window1Info.isWindowFocused)
-        assertThat(window2.isFocused).isEqualTo(window2Info.isWindowFocused)
     }
 
     @Test

@@ -46,7 +46,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
-import androidx.compose.ui.window.sizeInPx
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -288,7 +287,7 @@ internal class ComposeContainer(
     private fun onWindowContainerSizeChanged() {
         if (!container.isDisplayable) return
 
-        windowContext.setContainerSize(windowContainer.sizeInPx)
+        windowContext.setContainerSizeFromComponent(windowContainer)
         mediator.onContainerSizeChanged()
         layers.fastForEach(DesktopComposeSceneLayer::onWindowContainerSizeChanged)
 

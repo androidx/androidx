@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toDpSize
+import androidx.compose.ui.unit.toSize
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmName
 import kotlin.time.Duration
@@ -153,6 +155,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     private val _windowInfo = WindowInfoImpl().apply {
         isWindowFocused = true
         containerSize = imageSize
+        containerDpSize = imageSize.toSize().toDpSize(density)
     }
 
     private val _platformContext = object : PlatformContext by PlatformContext.Empty,

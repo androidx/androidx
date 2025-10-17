@@ -37,7 +37,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.window.asDpOffset
 import java.awt.Color
 import java.awt.Cursor
 import java.awt.Dimension
@@ -213,9 +214,8 @@ internal class ComposeAccessible(
             return bar
         }
 
-        private fun Point.toComposeOffset() = with(density) {
-            Offset(x.dp.toPx(), y.dp.toPx())
-        }
+        private fun Point.toComposeOffset() =
+            asDpOffset().toOffset(density)
 
         private fun Dp.toAwtPx() =
             if (value.isInfinite()) Constraints.Infinity else value.roundToInt()

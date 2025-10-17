@@ -17,8 +17,10 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import platform.Foundation.NSNotificationCenter
@@ -70,5 +72,21 @@ class PlatformWindowContextTest {
         waitForIdle()
 
         assertTrue(isDialogWindowFocused)
+    }
+
+    @Test
+    fun testWindowContainerSizeIsSet() = runUIKitInstrumentedTest {
+        lateinit var windowInfo: WindowInfo
+        setContent {
+            windowInfo = LocalWindowInfo.current
+        }
+
+        val containerSize = windowInfo.containerSize
+        assertTrue(containerSize.width > 0)
+        assertTrue(containerSize.height > 0)
+
+        val containerDpSize = windowInfo.containerDpSize
+        assertTrue(containerDpSize.width > 0.dp)
+        assertTrue(containerDpSize.height > 0.dp)
     }
 }

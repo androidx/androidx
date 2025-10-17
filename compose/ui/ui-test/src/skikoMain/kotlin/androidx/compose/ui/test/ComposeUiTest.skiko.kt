@@ -39,7 +39,9 @@ import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.Lifecycle
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -475,9 +477,11 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         override val isWindowFocused: Boolean
             get() = true
 
-        @ExperimentalComposeUiApi
         override val containerSize: IntSize
             get() = size
+
+        override val containerDpSize: DpSize
+            get() = with(density) { size.toSize().toDpSize() }
     }
 
     private inner class TestDragAndDropManager : PlatformDragAndDropManager {
