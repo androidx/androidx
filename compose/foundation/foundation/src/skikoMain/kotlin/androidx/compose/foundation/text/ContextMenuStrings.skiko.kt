@@ -35,20 +35,24 @@ internal actual value class ContextMenuStrings actual constructor(actual val val
     }
 }
 
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: ContextMenuStrings): String {
-    return getLocalizedString(string)
-}
-
-internal fun getLocalizedString(string: ContextMenuStrings): String {
-    val locale = Locale.current
-
+private fun getTranslation(string: ContextMenuStrings, locale: Locale): String {
     val tag = localeTag(language = locale.language, region = locale.region)
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)
     }
     return translation[string] ?: error("Missing translation for $string")
+}
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: ContextMenuStrings): String {
+    val locale = Locale.current
+    return getTranslation(string, locale)
+}
+
+internal fun getLocalizedString(string: ContextMenuStrings): String {
+    val locale = Locale.current
+    return getTranslation(string, locale)
 }
 
 /**

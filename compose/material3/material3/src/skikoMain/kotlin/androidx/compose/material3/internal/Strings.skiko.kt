@@ -122,10 +122,7 @@ internal actual fun formatString(string: String, vararg formatArgs: Any?): Strin
     return result
 }
 
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings): String {
-    val locale = Locale.current
+private fun getTranslation(string: Strings, locale: Locale): String {
     val tag = localeTag(language = locale.language, region = locale.region)
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)
@@ -135,8 +132,17 @@ internal actual fun getString(string: Strings): String {
 
 @Composable
 @ReadOnlyComposable
-internal actual fun getString(string: Strings, vararg formatArgs: Any): String =
-    formatString(getString(string), *formatArgs)
+internal actual fun getString(string: Strings): String {
+    val locale = Locale.current
+    return getTranslation(string, locale)
+}
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
+    val locale = Locale.current
+    return formatString(getTranslation(string, locale), *formatArgs)
+}
 
 /**
  * A single translation; should contain all the [Strings].

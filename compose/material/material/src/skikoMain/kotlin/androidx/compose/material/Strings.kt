@@ -22,15 +22,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.intl.Locale
 
-@Composable
-@ReadOnlyComposable
-internal actual fun getString(string: Strings): String {
-    val locale = Locale.current
+private fun getTranslation(string: Strings, locale: Locale): String {
     val tag = localeTag(language = locale.language, region = locale.region)
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)
     }
     return translation[string] ?: error("Missing translation for $string")
+}
+
+@Composable
+@ReadOnlyComposable
+internal actual fun getString(string: Strings): String {
+    val locale = Locale.current
+    return getTranslation(string, locale)
 }
 
 /**

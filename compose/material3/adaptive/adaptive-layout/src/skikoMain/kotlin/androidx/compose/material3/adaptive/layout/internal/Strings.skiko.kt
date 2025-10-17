@@ -61,7 +61,7 @@ internal fun String.format(vararg formatArgs: Any?): String {
     return result
 }
 
-private fun getString(string: Strings, locale: Locale): String {
+private fun getTranslation(string: Strings, locale: Locale): String {
     val tag = localeTag(language = locale.language, region = locale.region)
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)
@@ -73,19 +73,19 @@ private fun getString(string: Strings, locale: Locale): String {
 @ReadOnlyComposable
 internal actual fun getString(string: Strings): String {
     val locale = Locale.current
-    return getString(string, locale)
+    return getTranslation(string, locale)
 }
 
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
     val locale = Locale.current
-    return getString(string, locale).format(*formatArgs)
+    return getTranslation(string, locale).format(*formatArgs)
 }
 
 internal actual fun CompositionLocalConsumerModifierNode.getString(string: Strings): String {
     val locale = Locale.current
-    return getString(string, locale)
+    return getTranslation(string, locale)
 }
 
 internal actual fun CompositionLocalConsumerModifierNode.getString(
@@ -93,7 +93,7 @@ internal actual fun CompositionLocalConsumerModifierNode.getString(
     vararg formatArgs: Any
 ): String {
     val locale = Locale.current
-    return getString(string, locale).format(*formatArgs)
+    return getTranslation(string, locale).format(*formatArgs)
 }
 
 /**
