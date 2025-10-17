@@ -223,8 +223,8 @@ class DesktopPopupTest {
                 owner?.navigationEventDispatcher?.addInput(navEventInput)
             }
             Popup(
-                focusable = true,
                 onDismissRequest = { onDismissRequestCallCount++ },
+                properties = PopupProperties(focusable = true),
                 onKeyEvent = { false }
             ) {
                 Box(Modifier)
@@ -241,8 +241,8 @@ class DesktopPopupTest {
         var onKeyEventCallCount = 0
         rule.setContent {
             Popup(
-                focusable = true,
                 onDismissRequest = { onDismissRequestCallCount++ },
+                properties = PopupProperties(focusable = true),
                 onKeyEvent = {
                     onKeyEventCallCount++
                     true

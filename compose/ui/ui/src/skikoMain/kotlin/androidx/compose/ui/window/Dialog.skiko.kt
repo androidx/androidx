@@ -24,14 +24,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalInternalNavigationEventDispatcherOwner
 import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
@@ -70,7 +68,7 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
  * @property scrimColor Color of background fill.
  */
 @Immutable
-actual class DialogProperties @ExperimentalComposeUiApi constructor(
+actual class DialogProperties constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = true,

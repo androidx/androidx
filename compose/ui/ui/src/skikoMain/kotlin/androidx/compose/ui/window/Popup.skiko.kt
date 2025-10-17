@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
@@ -75,7 +74,7 @@ import androidx.compose.ui.unit.round
  * platform insets.
  */
 @Immutable
-actual class PopupProperties @ExperimentalComposeUiApi constructor(
+actual class PopupProperties constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
@@ -147,12 +146,13 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
  * @param content The content to be displayed inside the popup.
  */
 @Deprecated(
-    "Replaced by Popup with properties parameter",
-    ReplaceWith(
+    message = "Replaced by Popup with properties parameter",
+    replaceWith = ReplaceWith(
         "Popup(alignment, offset, onDismissRequest, " +
             "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
             "onPreviewKeyEvent, onKeyEvent, content)"
-    )
+    ),
+    level = DeprecationLevel.ERROR,
 )
 @Composable
 fun Popup(
@@ -199,12 +199,13 @@ fun Popup(
  * @param content The content to be displayed inside the popup.
  */
 @Deprecated(
-    "Replaced by Popup with properties parameter",
-    ReplaceWith(
+    message = "Replaced by Popup with properties parameter",
+    replaceWith = ReplaceWith(
         "Popup(popupPositionProvider, onDismissRequest, " +
             "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
             "onPreviewKeyEvent, onKeyEvent, content)"
-    )
+    ),
+    level = DeprecationLevel.ERROR,
 )
 @Composable
 fun Popup(

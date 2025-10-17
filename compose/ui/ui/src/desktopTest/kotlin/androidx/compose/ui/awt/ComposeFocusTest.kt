@@ -35,6 +35,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.performClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.google.common.truth.Truth.assertThat
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -47,7 +48,6 @@ import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 import kotlin.random.Random
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.delay
@@ -434,7 +434,9 @@ class ComposeFocusTest {
                 Column(Modifier.fillMaxSize()) {
                     composeButton1.Button()
                     composeButton2.Button()
-                    Popup(focusable = true) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                    ) {
                         composeButton3.Button()
                         composeButton4.Button()
                     }
@@ -466,7 +468,9 @@ class ComposeFocusTest {
                         Column(Modifier.fillMaxSize()) {
                             composeButton1.Button()
                             composeButton2.Button()
-                            Popup(focusable = true) {
+                            Popup(
+                                properties = PopupProperties(focusable = true),
+                            ) {
                                 composeButton3.Button()
                                 composeButton4.Button()
                             }
@@ -498,7 +502,9 @@ class ComposeFocusTest {
                 Column(Modifier.fillMaxSize()) {
                     composeButton1.Button()
                     composeButton2.Button()
-                    Popup(focusable = true) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                    ) {
                         Column(Modifier.fillMaxSize()) {
                             composeButton3.Button()
                             SwingPanel(
@@ -543,7 +549,9 @@ class ComposeFocusTest {
                             }
                         }
                     )
-                    Popup(focusable = true) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                    ) {
                         Column(Modifier.fillMaxSize()) {
                             composeButton3.Button()
                             composeButton4.Button()
@@ -572,7 +580,9 @@ class ComposeFocusTest {
                 Column(Modifier.fillMaxSize()) {
                     composeButton1.Button()
                     composeButton2.Button()
-                    Popup(focusable = true) {
+                    Popup(
+                        properties = PopupProperties(focusable = true),
+                    ) {
                         Column(Modifier.fillMaxSize()) {
                             composeButton3.Button()
                             composeButton4.Button()

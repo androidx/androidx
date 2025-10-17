@@ -77,7 +77,10 @@ class ApplicationAccessibilityTest {
                         popupContentSize: IntSize
                     ): IntOffset = IntOffset(0, 25)
                 }
-                Popup(position, focusable = false) {
+                Popup(
+                    popupPositionProvider = position,
+                    properties = PopupProperties(focusable = false)
+                ) {
                     Button(
                         onClick = {},
                         modifier = Modifier.size(100.dp)
