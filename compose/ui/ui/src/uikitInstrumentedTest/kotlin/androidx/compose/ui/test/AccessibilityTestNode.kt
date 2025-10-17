@@ -331,14 +331,22 @@ internal fun UIKitInstrumentedTest.assertAccessibilityTree(
 }
 
 internal fun UIKitInstrumentedTest.findNodeWithTag(tag: String) = findNodeWithTagOrNull(tag)
-    ?: fail("Unable to find node with identifier: $tag")
+    ?: run {
+        println("Actual accessibility tree:")
+        println(getAccessibilityTree().printTree())
+        fail("Unable to find node with identifier: $tag")
+    }
 
 internal fun UIKitInstrumentedTest.findNodeWithTagOrNull(tag: String) = firstNodeOrNull {
     it.identifier == tag
 }
 
 internal fun UIKitInstrumentedTest.findNodeWithLabel(label: String) = findNodeWithLabelOrNull(label)
-    ?: fail("Unable to find node with label: $label")
+    ?: run {
+        println("Actual accessibility tree:")
+        println(getAccessibilityTree().printTree())
+        fail("Unable to find node with label: $label")
+    }
 
 internal fun UIKitInstrumentedTest.findNodeWithLabelOrNull(label: String) = firstNodeOrNull {
     it.label == label

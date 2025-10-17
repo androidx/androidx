@@ -45,6 +45,8 @@ jobs:
   compose-ios-tests:
     runs-on: macos-15-xlarge
     name: Compose iOS Tests
+    env:
+      GRADLE_OPTS: -Xmx12g -Dorg.gradle.daemon=false
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -65,6 +67,86 @@ jobs:
         uses: test-summary/action@v2
         with:
           paths: "out/**/build/test-results/**/TEST-*.xml"
+        if: always()
+
+  compose-ios-utils-tests:
+    runs-on: macos-15-xlarge
+    name: Compose iOS Utils Tests
+    env:
+      GRADLE_OPTS: -Xmx12g -Dorg.gradle.daemon=false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Run iOS Utils Tests
+        timeout-minutes: 15
+        shell: bash
+        working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
+        run: |
+          xcodebuild test \
+            -resultBundlePath TestResults.xcresult \
+            -scheme CMPUIKitUtilsTests \
+            -project CMPUIKitUtils.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16'
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: TestResults-${{ github.run_number }}.xcresult
+          path: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils/TestResults.xcresult
+
+  compose-ios-instrumented-tests:
+    runs-on: macos-15-xlarge
+    name: Compose iOS Instrumented Tests
+    env:
+      GRADLE_OPTS: -Xmx12g -Dorg.gradle.daemon=false
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Prerequisites
+        uses: ./.github/actions/setup-prerequisites
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Configure Simulator
+        run: |
+          xcrun simctl list devices
+
+          # Boot a test simulator
+          xcrun simctl boot "iPhone 16"
+
+          # Write the accessibility flags inside the Simulator:
+          xcrun simctl spawn booted defaults write com.apple.Accessibility AccessibilityEnabled -bool true
+          xcrun simctl spawn booted defaults write com.apple.Accessibility ApplicationAccessibilityEnabled -bool true
+          xcrun simctl spawn booted defaults write com.apple.Accessibility AutomationEnabled -bool true
+
+          # Restart SpringBoard (so system services pick up the change)
+          xcrun simctl spawn booted launchctl stop com.apple.SpringBoard
+          xcrun simctl shutdown all
+
+      - name: Run iOS Instrumented Tests
+        timeout-minutes: 30
+        shell: bash
+        working-directory: compose/ui/ui/src/uikitInstrumentedTest/launcher
+        run: |
+          xcodebuild test \
+            -scheme Launcher \
+            -project Launcher.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16'
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "**/reports/junit.xml"
         if: always()
 
   compose-web-chrome-tests:
