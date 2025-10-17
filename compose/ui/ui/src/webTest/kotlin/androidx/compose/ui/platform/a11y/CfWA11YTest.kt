@@ -46,6 +46,7 @@ import org.w3c.dom.get
 
 class CfWA11YTest : OnCanvasTests {
 
+    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun a11yButtonClick() = runApplicationTest {
         var clickCounter = 0
