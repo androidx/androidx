@@ -55,6 +55,11 @@ internal class ProgressBackEventHandler(
 
     override fun onBackCompleted() {
         coroutineScope.launch {
+            if (progressChannel == null) {
+                // it was an instant back event (Esc click)
+                // we need to start a new progress event stream
+                onBackStarted(NavigationEvent())
+            }
             progressChannel?.close()
             progressChannel = null
         }
