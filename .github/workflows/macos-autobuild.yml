@@ -1,0 +1,41 @@
+name: macOS Autobuild
+
+on:
+  schedule:
+    - cron: "0 4 * * *" # Daily at 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build on macOS (${{ matrix.project }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [collection, sqlite]
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Run build
+        uses: ./.github/actions/build-single-project
+        with:
+          project: ${{ matrix.project }}
+          project-root: playground-projects/${{ matrix.project }}-playground
+          gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          gradle-cache-password: ${{ secrets.GRADLE_BUILD_CACHE_PASSWORD }}
+          gradle-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          gradle-flags: >
+            -Dorg.gradle.internal.http.connectionTimeout=60000
+            -Dorg.gradle.internal.http.socketTimeout=60000
+            -Dorg.gradle.internal.repository.max.retries=20
+            -Dorg.gradle.internal.repository.initial.backoff=500
+            --stacktrace
