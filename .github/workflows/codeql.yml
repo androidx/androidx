@@ -88,7 +88,7 @@ jobs:
       uses: github/codeql-action/init@755f44910c12a3d7ca0d8c6e42c048b3362f7cec # v3.30.8
       with:
         languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+        build-mode: ${{ matrix['build-mode'] }}
         # If you wish to specify custom queries, you can do so here or in a config file.
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
@@ -102,7 +102,7 @@ jobs:
     # to build your code.
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual' && matrix.language == 'swift'
+    - if: ${{ matrix['build-mode'] == 'manual' && matrix.language == 'swift' }}
       shell: bash
       run: |
         echo "Building Swift projects with manual build steps..."
@@ -163,7 +163,7 @@ jobs:
         
         echo "Swift build preparation completed successfully"
 
-    - if: matrix.build-mode == 'manual' && matrix.language != 'swift'
+    - if: ${{ matrix['build-mode'] == 'manual' && matrix.language != 'swift' }}
       shell: bash
       run: |
         echo 'If you are using a "manual" build mode for one or more of the' \
@@ -181,3 +181,26 @@ jobs:
       uses: github/codeql-action/analyze@755f44910c12a3d7ca0d8c6e42c048b3362f7cec # v3.30.8
       with:
         category: "/language:${{matrix.language}}"
+
+    - name: Add failure summary to job summary
+      if: ${{ failure() }}
+      shell: bash
+      run: |
+        {
+          echo "## CodeQL Advanced: Analysis failed";
+          echo "";
+          echo "**Language**: ${{ matrix.language }}";
+          echo "**Build mode**: ${{ matrix['build-mode'] }}";
+          echo "**Runner OS**: ${{ runner.os }}";
+          echo "";
+          echo "### What likely happened";
+          echo "- For compiled languages, the autobuild may not have detected your build."
+          echo "- Required toolchains or dependencies may be missing on the runner.";
+          echo "";
+          echo "### Next steps";
+          echo "- Review logs for the 'Initialize CodeQL' and 'Perform CodeQL Analysis' steps.";
+          echo "- If autobuild failed, set 'build-mode' to 'manual' for this language and add explicit build steps in the workflow.";
+          echo "- See the docs for customizing builds for compiled languages: https://gh.io/codeql-code-scanning-for-compiled-languages";
+          echo "";
+          echo "Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}";
+        } >> "$GITHUB_STEP_SUMMARY"
