@@ -32,7 +32,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.handwriting.stylusHandwriting
 import androidx.compose.foundation.text.input.internal.CoreTextFieldSemanticsModifier
 import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
-import androidx.compose.foundation.text.input.internal.legacyTextInputServiceAdapterAndService
+import androidx.compose.foundation.text.input.internal.createLegacyPlatformTextInputServiceAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.OffsetProvider
 import androidx.compose.foundation.text.selection.SelectedTextType
@@ -209,8 +209,10 @@ internal fun CoreTextField(
     textScrollerPosition: TextFieldScrollerPosition? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
-    val (legacyTextInputServiceAdapter, textInputService) =
-        legacyTextInputServiceAdapterAndService()
+    val legacyTextInputServiceAdapter = remember { createLegacyPlatformTextInputServiceAdapter() }
+    val textInputService: TextInputService = remember {
+        TextInputService(legacyTextInputServiceAdapter)
+    }
 
     // CompositionLocals
     val density = LocalDensity.current
