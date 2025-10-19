@@ -83,6 +83,10 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Make gradlew executable
+      if: matrix.language == 'swift'
+      run: chmod +x ./gradlew
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@755f44910c12a3d7ca0d8c6e42c048b3362f7cec # v3.30.8
@@ -173,9 +177,7 @@ jobs:
         echo '  make release'
         exit 1
 
-    - name: Make gradlew executable
-      if: matrix.language == 'swift'
-      run: chmod +x ./gradlew
+    
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@755f44910c12a3d7ca0d8c6e42c048b3362f7cec # v3.30.8
