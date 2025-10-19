@@ -29,14 +29,61 @@ const ALLOWED_HOSTNAMES = [
   "raw.githubusercontent.com",
   // add more allowed domains as needed
 ];
+// Import punycode for normalizing potential Unicode hostnames
+import * as punycode from 'punycode/';
+
+/**
+ * Returns true if the hostname is a public (non-private, non-loopback) domain and explicitly in our allowlist.
+ */
 function isAllowedHost(requestUrl: string): boolean {
   try {
     const { hostname } = new URL(requestUrl);
-    return ALLOWED_HOSTNAMES.includes(hostname);
+    // Normalize hostname for Unicode/domain tricks
+    const normalizedHostname = punycode.toASCII(hostname).toLowerCase();
+
+    // Block IP addresses (especially local, private, loopback)
+    if (isIpAddress(normalizedHostname)) {
+      log(`IP address not allowed in host check: ${normalizedHostname}`);
+      return false;
+    }
+
+    // Strict comparison: only allow exactly the listed domains
+    return ALLOWED_HOSTNAMES.some(allowed => normalizedHostname === allowed);
   } catch (e) {
     log(`Failed to parse URL in host check: ${requestUrl}`);
     return false;
   }
+}
+
+/**
+ * Returns true if the input string is an IPv4 or IPv6 address.
+ */
+function isIpAddress(host: string): boolean {
+  // Matches IPv4 addresses
+  if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host)) {
+    // Check for private ranges
+    const parts = host.split('.').map(Number);
+    if (
+      parts[0] === 10 || // 10.0.0.0/8
+      (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) || // 172.16.0.0 - 172.31.255.255
+      (parts[0] === 192 && parts[1] === 168) || // 192.168.0.0/16
+      parts[0] === 127 // 127.0.0.1/8 loopback
+    ) {
+      return true;
+    }
+    return false;
+  }
+  // Matches IPv6 addresses (incl. ::1 loopback or fc00::/7 unique local)
+  if (/^[a-f0-9:]+$/i.test(host)) {
+    if (
+      host === '::1' || // loopback 
+      host.startsWith('fc') || host.startsWith('fd') // unique local
+    ) {
+      return true;
+    }
+    return false;
+  }
+  return false;
 }
 
 // A list of DOM Node types that are usually not useful in the context
