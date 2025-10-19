@@ -57,7 +57,7 @@ jobs:
         - language: python
           build-mode: none
         - language: swift
-          build-mode: autobuild
+          build-mode: manual
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
@@ -89,44 +89,70 @@ jobs:
         # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-    # If the analyze step fails for one of the languages you are analyzing with
-    # "We were unable to automatically build your code", modify the matrix above
-    # to set the build mode to "manual" for that language. Then modify this step
-    # to build your code.
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - name: Run manual build steps
-      if: matrix.build-mode == 'manual'
+    # Ensure Java is available and Gradle wrapper is executable for Swift manual builds
+    - name: Setup Java (Swift manual build)
+      if: ${{ matrix.language == 'swift' && matrix.build-mode == 'manual' }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Make gradlew executable (Swift manual build)
+      if: ${{ matrix.language == 'swift' && matrix.build-mode == 'manual' }}
+      run: chmod +x ./gradlew
+
+    # Manual build for Swift on macOS to avoid CodeQL autobuild using `swift build`
+    - name: Manual Swift build
+      if: ${{ matrix.language == 'swift' && matrix.build-mode == 'manual' }}
       shell: bash
       run: |
-        echo 'If you are using a "manual" build mode for one or more of the' \
-          'languages you are analyzing, replace this with the commands to build' \
-          'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
+        echo "Building Swift projects with manual steps..."
+        # Install XcodeGen if not present
+        if ! command -v xcodegen &> /dev/null; then
+          brew update
+          brew install xcodegen
+        fi
+
+        # Build required XCFrameworks used by Xcode projects
+        ./gradlew :tracing:tracing:embedAndSignAppleFrameworkForXcode --no-daemon
+        ./gradlew :benchmark:benchmark-darwin:assembleAndroidXDarwinBenchmarksReleaseXCFramework --no-daemon
+
+        # Generate and build tracing test app Xcode project
+        pushd tracing/integration-tests/testapp-darwin
+        if [ -f "xcodegen.yml" ]; then
+          xcodegen generate
+          if [ -d "testapp-darwin.xcodeproj" ]; then
+            xcodebuild -project testapp-darwin.xcodeproj -scheme App -configuration Debug build
+          fi
+        fi
+        popd
+
+        # Optionally generate and build benchmark Xcode projects (best-effort)
+        pushd benchmark/benchmark-darwin-xcode || exit 0
+        if [ -f "projects/collection-benchmark-ios.yml" ]; then
+          xcodegen generate --spec projects/collection-benchmark-ios.yml
+          if [ -d "collection-benchmark-ios.xcodeproj" ]; then
+            xcodebuild -project collection-benchmark-ios.xcodeproj -scheme testapp-ios -configuration Debug build
+          fi
+        fi
+        if [ -f "projects/benchmark-darwin-samples-xcode.yml" ]; then
+          xcodegen generate --spec projects/benchmark-darwin-samples-xcode.yml
+          if [ -d "benchmark-darwin-samples-xcode.xcodeproj" ]; then
+            xcodebuild -project benchmark-darwin-samples-xcode.xcodeproj -scheme testapp-ios -configuration Debug build
+          fi
+        fi
+        popd
+
+        echo "Swift manual build steps completed"
+
+    # Generic placeholder for other manual build languages (not used here)
+    - name: Run manual build steps (generic)
+      if: ${{ matrix.build-mode == 'manual' && matrix.language != 'swift' }}
+      shell: bash
+      run: |
+        echo 'Replace this with manual build commands for your language.'
         exit 1
 
-
-            - name: Download a Build Artifact
-  uses: actions/download-artifact@v5.0.0
-  with:
-    # Name of the artifact to download. If unspecified, all artifacts for the run are downloaded.
-    name: # optional
-    # IDs of the artifacts to download, comma-separated. Either inputs `artifact-ids` or `name` can be used, but not both.
-    artifact-ids: # optional
-    # Destination path. Supports basic tilde expansion. Defaults to $GITHUB_WORKSPACE
-    path: # optional
-    # A glob pattern matching the artifacts that should be downloaded. Ignored if name is specified.
-    pattern: # optional
-    # When multiple artifacts are matched, this changes the behavior of the destination directories. If true, the downloaded artifacts will be in the same directory specified by path. If false, the downloaded artifacts will be extracted into individual named directories within the specified path.
-    merge-multiple: # optional, default is false
-    # The GitHub token used to authenticate with the GitHub API. This is required when downloading artifacts from a different repository or from a different workflow run. If this is not specified, the action will attempt to download artifacts from the current repository and the current workflow run.
-    github-token: # optional
-    # The repository owner and the repository name joined together by "/". If github-token is specified, this is the repository that artifacts will be downloaded from.
-    repository: # optional, default is ${{ github.repository }}
-    # The id of the workflow run where the desired download artifact was uploaded from. If github-token is specified, this is the run that artifacts will be downloaded from.
-    run-id: # optional, default is ${{ github.run_id }}
-          
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
       with:
