@@ -41,6 +41,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.composeButton
 import androidx.compose.ui.input.pointer.composeButtons
+import androidx.compose.ui.navigationevent.BackNavigationEventInput
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.PlatformContext
@@ -201,6 +202,8 @@ internal class ComposeWindow(
     @VisibleForTesting
     internal val archComponentsOwner = DefaultArchitectureComponentsOwner()
 
+    private val navigationEventInput = BackNavigationEventInput()
+
     private val canvasEvents = EventTargetListener(canvas)
 
     private var keyboardModeState: KeyboardModeState = KeyboardModeState.Hardware
@@ -328,7 +331,9 @@ internal class ComposeWindow(
     }
 
     private fun processKeyboardEvent(keyboardEvent: KeyboardEvent) {
-        val processed = scene.sendKeyEvent(keyboardEvent.toComposeEvent())
+        val keyEvent = keyboardEvent.toComposeEvent()
+        val processed = scene.sendKeyEvent(keyEvent) ||
+            navigationEventInput.onKeyEvent(keyEvent)
         if (processed) keyboardEvent.preventDefault()
     }
 
@@ -445,6 +450,8 @@ internal class ComposeWindow(
             if (document.hasFocus()) Lifecycle.Event.ON_RESUME
             else Lifecycle.Event.ON_START
         )
+        archComponentsOwner.navigationEventDispatcherOwner
+            .navigationEventDispatcher.addInput(navigationEventInput)
     }
 
     private fun resize(boxSize: DpSize) {
@@ -472,6 +479,8 @@ internal class ComposeWindow(
         check(!isDisposed)
         archComponentsOwner.lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         archComponentsOwner.viewModelStore.clear()
+        archComponentsOwner.navigationEventDispatcherOwner
+            .navigationEventDispatcher.removeInput(navigationEventInput)
 
         scene.close()
         skiaLayer.detach()

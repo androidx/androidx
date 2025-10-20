@@ -42,7 +42,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.navigationevent.DesktopNavigationEventInput
+import androidx.compose.ui.navigationevent.BackNavigationEventInput
 import androidx.compose.ui.platform.AwtDragAndDropManager
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.DelegateRootForTestListener
@@ -141,7 +141,7 @@ internal class ComposeSceneMediator(
         semanticsOwnerListener.accessibilityControllers
     }
 
-    private val navigationEventInput = DesktopNavigationEventInput()
+    private val navigationEventInput = BackNavigationEventInput()
 
     private val platformComponent = DesktopPlatformComponent()
     private val textInputService = DesktopTextInputService(platformComponent)

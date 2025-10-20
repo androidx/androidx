@@ -55,7 +55,7 @@ import platform.darwin.NSObject
 internal class UIKitNavigationEventInput(
     private val density: Density,
     private val getTopLeftOffsetInWindow: () -> IntOffset
-) : NavigationEventInput() {
+) : BackNavigationEventInput() {
     companion object {
         private const val BACK_GESTURE_SCREEN_SIZE = 0.3
         private const val BACK_GESTURE_VELOCITY = 100
@@ -113,15 +113,6 @@ internal class UIKitNavigationEventInput(
     private fun removeGestureListeners() {
         leftEdgePanGestureRecognizer.view?.removeGestureRecognizer(leftEdgePanGestureRecognizer)
         rightEdgePanGestureRecognizer.view?.removeGestureRecognizer(rightEdgePanGestureRecognizer)
-    }
-
-    fun onKeyEvent(event: KeyEvent): Boolean {
-        if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-            dispatchOnBackCompleted()
-            return true
-        } else {
-            return false
-        }
     }
 
     @OptIn(BetaInteropApi::class, ExperimentalComposeUiApi::class)
