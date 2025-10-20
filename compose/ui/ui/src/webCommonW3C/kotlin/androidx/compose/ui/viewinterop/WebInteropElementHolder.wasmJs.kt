@@ -34,17 +34,12 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
     factory: () -> T,
     interopContainer: InteropContainer,
     private val interopWrapper: HTMLElement,
-    compositeKeyHashCode: CompositeKeyHashCode
+    compositeKeyHashCode: CompositeKeyHashCode,
 ) : TypedInteropViewHolder<T>(
     factory = factory,
     interopContainer = interopContainer,
     group = InteropViewGroup(interopWrapper),
     compositeKeyHashCode = compositeKeyHashCode,
-    measurePolicy = MeasurePolicy { _, constraints ->
-        layout(constraints.minWidth, constraints.minHeight) {
-            // No-op, no children are expected
-        }
-    }
 ) {
     constructor(
         factory: () -> T,
@@ -69,6 +64,12 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
     private var isHidden: Boolean = false
 
     protected abstract var userComponentRect: String
+
+    override val measurePolicy: MeasurePolicy = MeasurePolicy { _, constraints ->
+        layout(constraints.minWidth, constraints.minHeight) {
+            // No-op, no children are expected
+        }
+    }
 
     private fun Rect.round(density: Density): IntRect {
         val left = floor(left / density.density).toInt()

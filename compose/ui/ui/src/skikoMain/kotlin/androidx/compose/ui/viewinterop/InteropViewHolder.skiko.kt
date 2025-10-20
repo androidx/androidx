@@ -37,7 +37,6 @@ internal abstract class InteropViewHolder(
     val container: InteropContainer,
     open val group: InteropViewGroup,
     private val compositeKeyHashCode: CompositeKeyHashCode,
-    measurePolicy: MeasurePolicy
 ) : InteropViewFactoryHolder() {
     private var onModifierChanged: (() -> Unit)? = null
 
@@ -62,6 +61,8 @@ internal abstract class InteropViewHolder(
                 onModifierChanged?.invoke()
             }
         }
+
+    protected abstract val measurePolicy: MeasurePolicy
 
     private var hasUpdateBlock = false
 

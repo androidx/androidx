@@ -5182,6 +5182,9 @@ final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitI
 final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop|#static{}androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop|#static{}androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop|#static{}androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop[0]
 
 // Targets: [ios]
@@ -5375,6 +5378,9 @@ final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitI
 
 // Targets: [ios]
 final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop_getter(): kotlin/Int // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop_getter|androidx_compose_ui_viewinterop_UIKitInteropViewHolder$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop_getter(): kotlin/Int // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop_getter|androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.window/ComposeUIViewController(kotlin/Function1<androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration, kotlin/Unit> = ..., kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>): platform.UIKit/UIViewController // androidx.compose.ui.window/ComposeUIViewController|ComposeUIViewController(kotlin.Function1<androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration,kotlin.Unit>;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]

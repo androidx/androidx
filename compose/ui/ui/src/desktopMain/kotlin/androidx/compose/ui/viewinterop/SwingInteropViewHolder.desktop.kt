@@ -48,13 +48,12 @@ internal class SwingInteropViewHolder<T : Component>(
     override val group: SwingInteropViewGroup,
     focusSwitcher: InteropFocusSwitcher,
     compositeKeyHashCode: CompositeKeyHashCode,
-    measurePolicy: MeasurePolicy
+    override val measurePolicy: MeasurePolicy,
 ) : TypedInteropViewHolder<T>(
     factory = factory,
     interopContainer = container,
     group = group,
     compositeKeyHashCode = compositeKeyHashCode,
-    measurePolicy = measurePolicy
 ), ClipRectangle {
 
     private var clipBounds: IntRect? = null

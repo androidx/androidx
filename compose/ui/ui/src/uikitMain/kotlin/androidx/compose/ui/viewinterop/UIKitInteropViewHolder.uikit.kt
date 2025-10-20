@@ -17,6 +17,7 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.CompositeKeyHashCode
+import androidx.compose.ui.layout.MeasurePolicy
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.UIKit.UIView
@@ -30,12 +31,14 @@ internal class UIKitInteropViewHolder<T : UIView>(
     factory,
     interopContainer,
     properties,
-    compositeKeyHashCode
+    compositeKeyHashCode,
 ) {
     init {
         // Group will be placed to hierarchy in [InteropContainer.placeInteropView]
         group.addSubview(interopView)
     }
+
+    override val measurePolicy: MeasurePolicy = UIKitInteropViewMeasurePolicy(interopView)
 
     override var userComponentCGRect: CValue<CGRect>
         get() = interopView.frame
