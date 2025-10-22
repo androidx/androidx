@@ -66,7 +66,7 @@ final class <#A: kotlin/Any> androidx.navigation3.scene/SceneState { // androidx
 }
 
 final class <#A: kotlin/Any> androidx.navigation3.scene/SceneStrategyScope { // androidx.navigation3.scene/SceneStrategyScope|null[0]
-    constructor <init>(kotlin/Function0<kotlin/Unit> = ...) // androidx.navigation3.scene/SceneStrategyScope.<init>|<init>(kotlin.Function0<kotlin.Unit>){}[0]
+    constructor <init>() // androidx.navigation3.scene/SceneStrategyScope.<init>|<init>(){}[0]
 
     final val onBack // androidx.navigation3.scene/SceneStrategyScope.onBack|{}onBack[0]
         final fun <get-onBack>(): kotlin/Function0<kotlin/Unit> // androidx.navigation3.scene/SceneStrategyScope.onBack.<get-onBack>|<get-onBack>(){}[0]
