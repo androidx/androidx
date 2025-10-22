@@ -19,15 +19,20 @@ package androidx.compose.material3.adaptive.layout
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.Density
@@ -194,6 +199,35 @@ sealed interface PaneScaffoldScope {
     ): Modifier
 
     /**
+     * This modifier specifies the associated pane's margins according to the provided [RectRulers]
+     * as insets. Note that if multiple inset rulers are provided, the scaffold will decide the
+     * actual margins by taking the union of these insets - i.e. the one creating the largest
+     * margins will be used.
+     *
+     * @param insets the insets the pane wants to respect.
+     */
+    @ExperimentalMaterial3AdaptiveApi
+    @Composable
+    fun Modifier.paneMargins(vararg insets: RectRulers): Modifier
+
+    /**
+     * This modifier specifies the associated pane's margins according to specified fixed margins
+     * and the provided [RectRulers] as insets, if any. Note that the scaffold will decide the
+     * actual margins by taking the union of the fixed margins and the provided insets - i.e. the
+     * one creating the largest margins will be used.
+     *
+     * @param fixedMargins fixed margins to use for the pane; note that the margins will only be
+     *   applied against the pane scaffold's bounds - for example if the scaffold is showing a
+     *   dual-pane layout, in common situations, the spacer size between two panes won't be decided
+     *   by either the left pane's right margin or the right pane's left margin, instead,
+     *   [PaneScaffoldDirective.horizontalPartitionSpacerSize] will be used.
+     * @param insets the insets the pane wants to respect.
+     */
+    @ExperimentalMaterial3AdaptiveApi
+    @Composable
+    fun Modifier.paneMargins(fixedMargins: PaddingValues, vararg insets: RectRulers): Modifier
+
+    /**
      * The saveable state holder to save pane states across their visibility life-cycles. The
      * default pane implementations like [AnimatedPane] are supposed to use it to store states.
      */
@@ -269,6 +303,16 @@ internal abstract class PaneScaffoldScopeImpl(
         require(proportion >= 0f && proportion <= 1f) { "invalid width proportion" }
         return this.then(PreferredHeightElement(PreferredSize(proportion = proportion)))
     }
+
+    @Composable
+    override fun Modifier.paneMargins(vararg insets: RectRulers): Modifier =
+        paneMargins(PaddingValues(), insets.toList())
+
+    @Composable
+    override fun Modifier.paneMargins(
+        fixedMargins: PaddingValues,
+        vararg insets: RectRulers,
+    ): Modifier = paneMargins(fixedMargins, insets.toList())
 }
 
 internal data class PreferredSize(val dp: Dp = Dp.Unspecified, val proportion: Float = Float.NaN) {
@@ -353,6 +397,47 @@ private class PreferredHeightNode(var height: PreferredSize) :
         }
 }
 
+@Composable
+private fun Modifier.paneMargins(fixedMargins: PaddingValues, insets: List<RectRulers>) =
+    this.then(
+        PaneMarginsElement(
+            PaneMarginsImpl(
+                fixedMargins,
+                insets,
+                LocalDensity.current,
+                LocalLayoutDirection.current,
+            )
+        )
+    )
+
+private data class PaneMarginsElement(val paneMargins: PaneMargins) :
+    ModifierNodeElement<PaneMarginsNode>() {
+    private val inspectorInfo = debugInspectorInfo {
+        name = "paneMargins"
+        properties["paneMargins"] = paneMargins
+    }
+
+    override fun create(): PaneMarginsNode {
+        return PaneMarginsNode(paneMargins)
+    }
+
+    override fun update(node: PaneMarginsNode) {
+        node.paneMargins = paneMargins
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+}
+
+private class PaneMarginsNode(var paneMargins: PaneMargins) :
+    ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {
+            it.paneMargins = paneMargins
+        }
+}
+
 internal fun Modifier.animatedPane(): Modifier {
     return this.then(AnimatedPaneElement)
 }
@@ -417,6 +502,9 @@ sealed interface PaneScaffoldParentData {
      */
     val preferredHeight: Dp
 
+    /** The margins that should be applied to the pane. */
+    val paneMargins: PaneMargins
+
     /**
      * The preferred width of the pane as a proportion to the overall scaffold width, represented as
      * a float value ranging from 0 to 1. It is supposed to be set via
@@ -451,7 +539,7 @@ sealed interface PaneScaffoldParentData {
 internal data class PaneScaffoldParentDataImpl(
     var preferredWidthInternal: PreferredSize = PreferredSize.Unspecified,
     var preferredHeightInternal: PreferredSize = PreferredSize.Unspecified,
-    var paneMargins: PaneMargins = PaneMargins.Unspecified,
+    override var paneMargins: PaneMargins = PaneMargins.Unspecified,
     override var isAnimatedPane: Boolean = false,
     override var minTouchTargetSize: Dp = Dp.Unspecified,
 ) : PaneScaffoldParentData {

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -68,7 +69,7 @@ class SupportingPaneSceneStrategyTest {
                 rememberSupportingPaneSceneStrategy<TestKey>(
                     directive = PaneScaffoldDirective.Default
                 )
-            scene = strategy.calculateScene(listOf(nonSupportingPaneEntry, mainEntry)) {}
+            scene = strategy.calculateScene(listOf(nonSupportingPaneEntry, mainEntry))
         }
 
         composeRule.waitForIdle()
@@ -84,7 +85,7 @@ class SupportingPaneSceneStrategyTest {
                 rememberSupportingPaneSceneStrategy<TestKey>(
                     directive = MockDualVerticalPaneScaffoldDirective
                 )
-            scene = strategy.calculateScene(entries) {}
+            scene = strategy.calculateScene(entries)
         }
 
         composeRule.waitForIdle()
@@ -100,7 +101,7 @@ class SupportingPaneSceneStrategyTest {
                 rememberSupportingPaneSceneStrategy<TestKey>(
                     directive = MockDualPaneScaffoldDirective
                 )
-            scene = strategy.calculateScene(entries) {}
+            scene = strategy.calculateScene(entries)
         }
 
         composeRule.waitForIdle()
@@ -115,7 +116,7 @@ class SupportingPaneSceneStrategyTest {
                 rememberSupportingPaneSceneStrategy<TestKey>(
                     directive = MockDualPaneScaffoldDirective
                 )
-            scene = strategy.calculateScene(listOf(nonSupportingPaneEntry, mainEntry)) {}
+            scene = strategy.calculateScene(listOf(nonSupportingPaneEntry, mainEntry))
         }
 
         composeRule.waitForIdle()
@@ -131,9 +132,7 @@ class SupportingPaneSceneStrategyTest {
                     directive = MockDualPaneScaffoldDirective
                 )
             scene =
-                strategy.calculateScene(
-                    listOf(mainEntry, nonSupportingPaneEntry, supportingEntry)
-                ) {}
+                strategy.calculateScene(listOf(mainEntry, nonSupportingPaneEntry, supportingEntry))
         }
 
         composeRule.waitForIdle()
@@ -154,7 +153,7 @@ class SupportingPaneSceneStrategyTest {
                 rememberSupportingPaneSceneStrategy<TestKey>(
                     directive = MockDualPaneScaffoldDirective
                 )
-            scene = strategy.calculateScene(listOf(mainEntry1, mainEntry2)) {}
+            scene = strategy.calculateScene(listOf(mainEntry1, mainEntry2))
         }
 
         composeRule.waitForIdle()
@@ -268,11 +267,10 @@ private val supportingEntry: NavEntry<TestKey> =
 
 private val nonSupportingPaneEntry: NavEntry<TestKey> = NavEntry(HomeKey) {}
 
-private val MockDualPaneScaffoldDirective =
-    PaneScaffoldDirective.Default.copy(
-        maxHorizontalPartitions = 2,
-        horizontalPartitionSpacerSize = 16.dp,
-    )
-
 private val MockDualVerticalPaneScaffoldDirective =
     PaneScaffoldDirective.Default.copy(maxVerticalPartitions = 2)
+
+private val EmptySceneStrategyScope = SceneStrategyScope<TestKey> {}
+
+private fun SupportingPaneSceneStrategy<TestKey>.calculateScene(entries: List<NavEntry<TestKey>>) =
+    with(this) { EmptySceneStrategyScope.calculateScene(entries) }

@@ -66,7 +66,9 @@ private fun getTranslation(string: Strings, locale: Locale): String {
     val translation = translationByLocaleTag.getOrPut(tag) {
         findTranslation(locale)
     }
-    return translation[string] ?: error("Missing translation for $string")
+    return translation[string]
+        ?: Translations.en()[string] // There are a few missing translations in AOSP, so use EN as backup
+        ?: error("Missing translation for $string")
 }
 
 @Composable

@@ -29,6 +29,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -84,6 +85,8 @@ import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneSca
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -105,8 +108,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
@@ -411,7 +419,7 @@ fun <T> levitateAsDialogSample(): ThreePaneScaffoldNavigator<T> {
 @Preview
 @Sampled
 @Composable
-fun NavigableListDetailPaneScaffoldSample() {
+fun ListDetailWithNavigation2Sample() {
     val welcomeRoute = "welcome"
     val listDetailRoute = "listdetail"
 
@@ -539,6 +547,77 @@ fun NavigableListDetailPaneScaffoldSample() {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ListDetailWithNavigation3Sample() {
+    val backStack = rememberNavBackStack(HomeKey)
+    val sceneStrategy = rememberListDetailSceneStrategy<Any>()
+
+    val items = listOf("Item 1", "Item 2", "Item 3")
+    val extraItems = listOf("Extra 1", "Extra 2", "Extra 3")
+
+    val selectedIndex =
+        backStack.lastOrNull()?.let {
+            when (it) {
+                is DetailKey -> it.index
+                is ExtraKey -> it.index
+                else -> null
+            }
+        }
+
+    NavDisplay(
+        backStack = backStack,
+        modifier = Modifier.fillMaxSize(),
+        sceneStrategy = sceneStrategy,
+        entryProvider =
+            entryProvider {
+                entry<HomeKey> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Button(
+                            onClick = { if (backStack.last() != ListKey) backStack.add(ListKey) }
+                        ) {
+                            Text("Go to list")
+                        }
+                    }
+                }
+
+                entry<ListKey>(
+                    metadata =
+                        ListDetailSceneStrategy.listPane(
+                            detailPlaceholder = {
+                                DetailPaneContent(selectedItem = null, onShowExtra = {})
+                            }
+                        )
+                ) {
+                    ListPaneContent(
+                        items = items,
+                        selectedIndex = selectedIndex,
+                        onItemClick = { index ->
+                            val dest = DetailKey(index)
+                            if (backStack.last() != dest) backStack.add(dest)
+                        },
+                    )
+                }
+
+                entry<DetailKey>(metadata = ListDetailSceneStrategy.detailPane()) {
+                    DetailPaneContent(
+                        selectedItem = selectedIndex?.let { items[it] },
+                        onShowExtra = {
+                            val dest = ExtraKey(selectedIndex!!)
+                            if (backStack.last() != dest) backStack.add(dest)
+                        },
+                    )
+                }
+
+                entry<ExtraKey>(metadata = ListDetailSceneStrategy.extraPane()) {
+                    ExtraPaneContent(item = extraItems[selectedIndex!!])
+                }
+            },
+    )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun ThreePaneScaffoldNavigator<*>.isExpanded(role: ThreePaneScaffoldRole) =
     scaffoldValue[role] == PaneAdaptedValue.Expanded
 
@@ -558,6 +637,14 @@ private data class NavItemData(val index: Int, val showExtra: Boolean = false) :
         override fun newArray(size: Int): Array<NavItemData?> = arrayOfNulls(size)
     }
 }
+
+@Serializable private data object HomeKey : NavKey
+
+@Serializable private data object ListKey : NavKey
+
+@Serializable private data class DetailKey(val index: Int) : NavKey
+
+@Serializable private data class ExtraKey(val index: Int) : NavKey
 
 @Composable
 private fun ListCard(
@@ -632,6 +719,27 @@ private fun ListPaneContent(
     }
 }
 
+@Composable
+private fun ListPaneContent(
+    items: List<String>,
+    selectedIndex: Int?,
+    onItemClick: (index: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items.forEachIndexed { index, item ->
+            ListCard(
+                title = item,
+                isSelected = index == selectedIndex,
+                onClick = { onItemClick(index) },
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun DetailPaneContent(
@@ -679,6 +787,35 @@ private fun DetailPaneContent(
             ) {
                 Text("Show extra")
             }
+        }
+    }
+}
+
+@Composable
+private fun DetailPaneContent(
+    selectedItem: String?,
+    onShowExtra: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val title: String
+    val description: String
+    if (selectedItem == null) {
+        title = "No item selected"
+        description = "Select an item from the list."
+    } else {
+        title = selectedItem
+        description = "This is a description about $selectedItem."
+    }
+
+    BasicScreen(
+        modifier = modifier,
+        title = title,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        backButton = {},
+    ) {
+        Text(description)
+        if (selectedItem != null) {
+            Button(onClick = onShowExtra) { Text("Show extra") }
         }
     }
 }
@@ -762,6 +899,18 @@ private fun ExtraPaneContent(
                 onClick = { coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) } },
             )
         },
+    ) {
+        Text("This is extra content about $item.")
+    }
+}
+
+@Composable
+private fun ExtraPaneContent(item: String, modifier: Modifier = Modifier) {
+    BasicScreen(
+        modifier = modifier,
+        title = item,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        backButton = {},
     ) {
         Text("This is extra content about $item.")
     }

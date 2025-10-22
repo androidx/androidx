@@ -617,14 +617,14 @@ private class ThreePaneContentMeasurePolicy(
             // absolute position values.
             placeHiddenPanes(hiddenPanes)
 
-            expandedPanes.fastForEach { with(it) { doMeasureAndPlace() } }
-            reflowedPanes.fastForEach { with(it) { doMeasureAndPlace() } }
+            expandedPanes.fastForEach { with(it) { doMeasureAndPlace(outerBounds) } }
+            reflowedPanes.fastForEach { with(it) { doMeasureAndPlace(outerBounds) } }
             dragHandle?.apply { doMeasureAndPlace() }
             scrimMeasurable?.apply {
                 measure(Constraints.fixed(outerBounds.width, outerBounds.height)).place(0, 0)
             }
-            levitatedPanes.fastForEach { with(it) { doMeasureAndPlace() } }
-            hiddenPanes.fastForEach { with(it) { doMeasureAndPlace() } }
+            levitatedPanes.fastForEach { with(it) { doMeasureAndPlace(outerBounds) } }
+            hiddenPanes.fastForEach { with(it) { doMeasureAndPlace(outerBounds) } }
         }
     }
 
@@ -998,8 +998,7 @@ private class PaneMeasurable(
             defaultPreferredHeight
         }
 
-    // TODO(conradchen): uncomment it when we can expose PaneMargins
-    // val margins: PaneMargins = data.paneMargins
+    val margins: PaneMargins = data.paneMargins
 
     val isAnimatedPane = data.isAnimatedPane
 
@@ -1029,10 +1028,22 @@ private class PaneMeasurable(
 
     var measuredBounds: IntRect? = null
 
-    fun Placeable.PlacementScope.doMeasureAndPlace() =
+    fun Placeable.PlacementScope.doMeasureAndPlace(scaffoldBounds: IntRect) {
+        measuredBounds?.apply {
+            with(margins) {
+                measuredBounds =
+                    copy(
+                        left = getPaneLeft(left),
+                        top = getPaneTop(top),
+                        right = getPaneRight(right, scaffoldBounds.width),
+                        bottom = getPaneBottom(bottom, scaffoldBounds.height),
+                    )
+            }
+        }
         measurable
             .measure(Constraints.fixed(measuredWidth, measuredHeight))
             .place(placedPositionX, placedPositionY, zIndex)
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

@@ -17,100 +17,26 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.HorizontalRuler
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.VerticalRuler
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ParentDataModifierNode
-import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
 
-// TODO(conradchen): move the modifier declarations to PaneScaffoldPaneScope when we can publish it.
 /**
- * This modifier specifies the associated pane's margins according to the provided
- * [WindowInsetsRulers]. Note that if multiple window inset rulers are provided, the scaffold will
- * decide the actual margins by taking the union of these insets - i.e. the one creating the largest
- * margins will be used.
+ * Represents the margins of a pane within a pane scaffold.
  *
- * @param windowInsets the window insets the pane wants to respect.
- */
-@ExperimentalMaterial3AdaptiveApi
-@Composable
-internal fun Modifier.paneMargins(vararg windowInsets: WindowInsetsRulers) =
-    paneMargins(PaddingValues(), windowInsets.toList())
-
-// TODO(conradchen): move the modifier declarations to PaneScaffoldPaneScope when we can publish it.
-/**
- * This modifier specifies the associated pane's margins according to specified fixed margins and
- * the provided [WindowInsetsRulers], if any. Note that the scaffold will decide the actual margins
- * by taking the union of the fixed margins and the provided insets - i.e. the one creating the
- * largest margins will be used.
+ * Note that the margins are specified as offsets from the edges of the scaffold. To specify the
+ * internal spacer size please do it via [PaneScaffoldDirective.horizontalPartitionSpacerSize] and
+ * [PaneScaffoldDirective.verticalPartitionSpacerSize].
  *
- * @param fixedMargins fixed margins to use for the pane.
- * @param windowInsets the window insets the pane wants to respect.
+ * This is typically set by the [paneMargins] modifier.
+ *
+ * @see paneMargins
  */
-@ExperimentalMaterial3AdaptiveApi
-@Composable
-internal fun Modifier.paneMargins(
-    fixedMargins: PaddingValues,
-    vararg windowInsets: WindowInsetsRulers,
-) = paneMargins(fixedMargins, windowInsets.toList())
-
-@Composable
-private fun Modifier.paneMargins(
-    fixedMargins: PaddingValues,
-    windowInsets: List<WindowInsetsRulers>,
-) =
-    this.then(
-        PaneMarginsElement(
-            PaneMarginsImpl(
-                fixedMargins,
-                windowInsets,
-                LocalDensity.current,
-                LocalLayoutDirection.current,
-            )
-        )
-    )
-
-private data class PaneMarginsElement(val paneMargins: PaneMargins) :
-    ModifierNodeElement<PaneMarginsNode>() {
-    private val inspectorInfo = debugInspectorInfo {
-        name = "paneMargins"
-        properties["paneMargins"] = paneMargins
-    }
-
-    override fun create(): PaneMarginsNode {
-        return PaneMarginsNode(paneMargins)
-    }
-
-    override fun update(node: PaneMarginsNode) {
-        node.paneMargins = paneMargins
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        inspectorInfo()
-    }
-}
-
-private class PaneMarginsNode(var paneMargins: PaneMargins) :
-    ParentDataModifierNode, Modifier.Node() {
-    override fun Density.modifyParentData(parentData: Any?) =
-        ((parentData as? PaneScaffoldParentDataImpl) ?: PaneScaffoldParentDataImpl()).also {
-            it.paneMargins = paneMargins
-        }
-}
-
 @Immutable
-internal interface PaneMargins {
+sealed interface PaneMargins {
     fun Placeable.PlacementScope.getPaneLeft(measuredLeft: Int) = measuredLeft
 
     fun Placeable.PlacementScope.getPaneTop(measuredTop: Int) = measuredTop
@@ -120,15 +46,23 @@ internal interface PaneMargins {
     fun Placeable.PlacementScope.getPaneBottom(measuredBottom: Int, parentBottom: Int) =
         measuredBottom
 
+    private class Unspecified : PaneMargins
+
     companion object {
-        val Unspecified = object : PaneMargins {}
+        /**
+         * Represents no margins being set.
+         *
+         * When set to [Unspecified], the pane's position will not be affected by margins. The edges
+         * of the pane may touch the edges of the scaffold.
+         */
+        val Unspecified: PaneMargins = Unspecified()
     }
 }
 
 @Immutable
 internal class PaneMarginsImpl(
     fixedMargins: PaddingValues = PaddingValues(),
-    windowInsets: List<WindowInsetsRulers>,
+    insets: List<RectRulers>,
     density: Density,
     layoutDirection: LayoutDirection,
 ) : PaneMargins {
@@ -139,7 +73,7 @@ internal class PaneMarginsImpl(
         with(density) { fixedMargins.calculateRightPadding(layoutDirection).roundToPx() }
     private val fixedMarginBottom =
         with(density) { fixedMargins.calculateBottomPadding().roundToPx() }
-    private val rulers = windowInsets
+    private val rulers = insets
 
     override fun Placeable.PlacementScope.getPaneLeft(measuredLeft: Int): Int =
         maxOf(
@@ -171,12 +105,4 @@ internal class PaneMarginsImpl(
             parentBottom - fixedMarginBottom,
             rulers.minOfOrNull { it.bottom.current(Float.MAX_VALUE).roundToInt() } ?: parentBottom,
         )
-}
-
-// TODO(conradchen): Move to use the foundation definition when it's available
-internal class WindowInsetsRulers {
-    val left = VerticalRuler()
-    val top = HorizontalRuler()
-    val right = VerticalRuler()
-    val bottom = HorizontalRuler()
 }
