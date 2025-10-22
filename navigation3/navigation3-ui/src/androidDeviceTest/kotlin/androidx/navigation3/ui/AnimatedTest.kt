@@ -27,6 +27,8 @@ import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -59,13 +61,14 @@ import androidx.test.filters.LargeTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AnimatedTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun testNavigateAnimations() {
@@ -1268,6 +1271,46 @@ class AnimatedTest {
         composeTestRule.onNodeWithText(first).assertIsDisplayed()
         assertThat(firstLifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         composeTestRule.onNodeWithText(second).assertDoesNotExist()
+    }
+
+    @Test
+    fun testSwapStack() {
+        val testDuration = 300
+        val backStack1 = mutableStateListOf(first)
+        val backStack2 = mutableStateListOf(second)
+
+        val backStackState = mutableStateOf(1)
+
+        composeTestRule.setContent {
+            NavDisplay(backStack = if (backStackState.value == 1) backStack1 else backStack2) {
+                when (it) {
+                    first -> NavEntry(first) { RedBox(first) }
+                    second ->
+                        NavEntry(
+                            key = second,
+                            metadata =
+                                NavDisplay.transitionSpec {
+                                    slideInHorizontally(tween(testDuration)) { it / 2 } togetherWith
+                                        slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                },
+                        ) {
+                            BlueBox(second)
+                        }
+                    else -> error("Invalid key passed")
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.runOnIdle { backStackState.value = 2 }
+
+        composeTestRule.mainClock.advanceTimeBy((testDuration / 2).toLong())
+
+        composeTestRule.onNodeWithText(first).assertIsDisplayed()
+        composeTestRule.onNodeWithText(second).assertIsDisplayed()
     }
 }
 

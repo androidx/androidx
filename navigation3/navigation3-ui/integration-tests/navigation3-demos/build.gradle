@@ -32,7 +32,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:runtime:runtime"))

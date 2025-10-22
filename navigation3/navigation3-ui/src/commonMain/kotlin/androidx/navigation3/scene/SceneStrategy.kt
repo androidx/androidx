@@ -16,6 +16,7 @@
 
 package androidx.navigation3.scene
 
+import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavEntry
 
 /**
@@ -23,7 +24,9 @@ import androidx.navigation3.runtime.NavEntry
  *
  * This Scope should be provided to the [SceneStrategy.calculateScene] function to create Scenes.
  */
-public class SceneStrategyScope<T : Any>(
+@Immutable
+public class SceneStrategyScope<T : Any>
+internal constructor(
     /**
      * A callback that should be connected to any internal handling of system back done by the
      * returned [Scene].
@@ -35,8 +38,19 @@ public class SceneStrategyScope<T : Any>(
      *
      * @sample androidx.navigation3.scene.samples.SceneStrategyOnBackSample
      */
-    public val onBack: () -> Unit = {}
-)
+    public val onBack: () -> Unit
+) {
+    /**
+     * Construct a [SceneStrategyScope] suitable for calling [SceneStrategy.calculateScene] in
+     * isolation.
+     *
+     * For more complicated cases, such as ones where you want to test if [onBack] is called
+     * correctly, use [rememberSceneState], which will construct its own internal
+     * [SceneStrategyScope] suitable for a Scene that closely mirror real scenarios and be passed to
+     * [androidx.navigation3.ui.NavDisplay].
+     */
+    public constructor() : this(onBack = {})
+}
 
 /**
  * A strategy that tries to calculate a [Scene] given a list of [NavEntry].
@@ -44,6 +58,7 @@ public class SceneStrategyScope<T : Any>(
  * If the list of [NavEntry] does not result in a [Scene] for this strategy, `null` will be returned
  * instead to delegate to another strategy.
  */
+@Immutable
 public fun interface SceneStrategy<T : Any> {
     /**
      * Given a [SceneStrategyScope], calculate whether this [SceneStrategy] should take on the task
@@ -62,11 +77,17 @@ public fun interface SceneStrategy<T : Any> {
      * Chains this [SceneStrategy] with another [sceneStrategy] to return a combined
      * [SceneStrategy].
      */
-    public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> =
-        object : SceneStrategy<T> {
-            override fun SceneStrategyScope<T>.calculateScene(
-                entries: List<NavEntry<T>>
-            ): Scene<T>? =
-                calculateScene(entries) ?: with(sceneStrategy) { calculateScene(entries) }
+    public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> {
+        val firstStrategy = this
+        return SceneStrategy { entries ->
+            with(firstStrategy) {
+                // with original scene strategy
+                calculateScene(entries)
+            }
+                ?: with(sceneStrategy) {
+                    // the chained scene strategy
+                    calculateScene(entries)
+                }
         }
+    }
 }

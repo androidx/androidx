@@ -31,6 +31,7 @@ import kotlin.collections.plusAssign
  * @param entries all of the entries that are associated with this state
  * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
  * @param onBack a callback for handling system back press.
+ * @sample androidx.navigation3.scene.samples.SceneStateSample
  */
 @Composable
 public fun <T : Any> rememberSceneState(

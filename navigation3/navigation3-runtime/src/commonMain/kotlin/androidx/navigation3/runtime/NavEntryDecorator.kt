@@ -17,6 +17,7 @@
 package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 
 /**
  * Decorate the [NavEntry]s that are integrated with a [rememberDecoratedNavEntries].
@@ -80,6 +81,7 @@ import androidx.compose.runtime.Composable
  *   [NavEntry.content].)
  * @see NavEntry.contentKey
  */
+@Immutable
 public open class NavEntryDecorator<T : Any>(
     internal val onPop: (key: Any) -> Unit = {},
     internal val decorate: @Composable (entry: NavEntry<T>) -> Unit,

@@ -9,6 +9,7 @@ package androidx.navigation3.scene {
 
   public static final class DialogSceneStrategy.Companion {
     method public java.util.Map<java.lang.String,java.lang.Object> dialog(optional androidx.compose.ui.window.DialogProperties dialogProperties);
+    method @BytecodeOnly public static java.util.Map! dialog$default(androidx.navigation3.scene.DialogSceneStrategy.Companion!, androidx.compose.ui.window.DialogProperties!, int, Object!);
   }
 
   public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {
@@ -16,7 +17,7 @@ package androidx.navigation3.scene {
     property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> overlaidEntries;
   }
 
-  public interface Scene<T> {
+  @androidx.compose.runtime.Immutable public interface Scene<T> {
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
     method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getEntries();
     method @InaccessibleFromKotlin public Object getKey();
@@ -29,7 +30,7 @@ package androidx.navigation3.scene {
     property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> previousEntries;
   }
 
-  public final class SceneInfo<T> extends androidx.navigationevent.NavigationEventInfo {
+  @androidx.compose.runtime.Immutable public final class SceneInfo<T> extends androidx.navigationevent.NavigationEventInfo {
     ctor public SceneInfo(androidx.navigation3.scene.Scene<T> scene);
     method @InaccessibleFromKotlin public androidx.navigation3.scene.Scene<T> getScene();
     property public androidx.navigation3.scene.Scene<T> scene;
@@ -51,14 +52,13 @@ package androidx.navigation3.scene {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.scene.SceneState<T!> rememberSceneState(java.util.List<androidx.navigation3.runtime.NavEntry<T!>!>, androidx.navigation3.scene.SceneStrategy<T!>, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
   }
 
-  public fun interface SceneStrategy<T> {
+  @androidx.compose.runtime.Immutable public fun interface SceneStrategy<T> {
     method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
     method public default infix androidx.navigation3.scene.SceneStrategy<T> then(androidx.navigation3.scene.SceneStrategy<T> sceneStrategy);
   }
 
-  public final class SceneStrategyScope<T> {
+  @androidx.compose.runtime.Immutable public final class SceneStrategyScope<T> {
     ctor public SceneStrategyScope();
-    ctor public SceneStrategyScope(optional kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit> getOnBack();
     property public kotlin.jvm.functions.Function0<kotlin.Unit> onBack;
   }

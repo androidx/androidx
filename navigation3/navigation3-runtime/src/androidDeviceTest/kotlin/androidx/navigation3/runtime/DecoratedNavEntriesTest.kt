@@ -28,13 +28,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class DecoratedNavEntriesTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun decoratedEntriesRemembered() {
