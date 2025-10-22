@@ -170,6 +170,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -1541,6 +1542,56 @@ object SearchBarDefaults {
             disabledContainerColor = disabledContainerColor,
         )
 
+    @Deprecated(
+        message =
+            "Maintained for binary compatibility. Use version with keyboardOptions and lineLimits params instead.",
+        level = HIDDEN,
+    )
+    @ExperimentalMaterial3Api
+    @Composable
+    fun InputField(
+        textFieldState: TextFieldState,
+        searchBarState: SearchBarState,
+        onSearch: (String) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        readOnly: Boolean = false,
+        textStyle: TextStyle = LocalTextStyle.current,
+        placeholder: @Composable (() -> Unit)? = null,
+        leadingIcon: @Composable (() -> Unit)? = null,
+        trailingIcon: @Composable (() -> Unit)? = null,
+        prefix: @Composable (() -> Unit)? = null,
+        suffix: @Composable (() -> Unit)? = null,
+        inputTransformation: InputTransformation? = null,
+        outputTransformation: OutputTransformation? = null,
+        scrollState: ScrollState = rememberScrollState(),
+        shape: Shape = inputFieldShape,
+        colors: TextFieldColors = inputFieldColors(),
+        interactionSource: MutableInteractionSource? = null,
+    ) =
+        InputField(
+            textFieldState = textFieldState,
+            searchBarState = searchBarState,
+            onSearch = onSearch,
+            modifier = modifier,
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = textStyle,
+            placeholder = placeholder,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            prefix = prefix,
+            suffix = suffix,
+            inputTransformation = inputTransformation,
+            outputTransformation = outputTransformation,
+            keyboardOptions = KeyboardOptions.Default,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            scrollState = scrollState,
+            shape = shape,
+            colors = colors,
+            interactionSource = interactionSource,
+        )
+
     /**
      * A text field to input a query in a search bar.
      *
@@ -1575,6 +1626,12 @@ object SearchBarDefaults {
      *   edit. The transformation will not immediately affect the current [textFieldState].
      * @param outputTransformation optional [OutputTransformation] that transforms how the contents
      *   of the text field are presented.
+     * @param keyboardOptions software keyboard options that contains configuration such as
+     *   [KeyboardType]. Note that the [ImeAction] will always be overwritten with
+     *   [ImeAction.Search].
+     * @param lineLimits whether the text field should be [TextFieldLineLimits.SingleLine], scroll
+     *   horizontally, and ignore newlines; or [TextFieldLineLimits.MultiLine] and grow and scroll
+     *   vertically.
      * @param scrollState scroll state that manages the horizontal scroll of the input field.
      * @param shape the shape of the input field.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this input
@@ -1601,6 +1658,8 @@ object SearchBarDefaults {
         suffix: @Composable (() -> Unit)? = null,
         inputTransformation: InputTransformation? = null,
         outputTransformation: OutputTransformation? = null,
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
         scrollState: ScrollState = rememberScrollState(),
         shape: Shape = inputFieldShape,
         colors: TextFieldColors = inputFieldColors(),
@@ -1668,10 +1727,10 @@ object SearchBarDefaults {
                     },
             enabled = enabled,
             readOnly = readOnly,
-            lineLimits = TextFieldLineLimits.SingleLine,
+            lineLimits = lineLimits,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError = false)),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardOptions = keyboardOptions.merge(KeyboardOptions(imeAction = ImeAction.Search)),
             onKeyboardAction = { onSearch(textFieldState.text.toString()) },
             interactionSource = interactionSource,
             inputTransformation = inputTransformation,
@@ -1681,7 +1740,7 @@ object SearchBarDefaults {
                 TextFieldDefaults.decorator(
                     state = textFieldState,
                     enabled = enabled,
-                    lineLimits = TextFieldLineLimits.SingleLine,
+                    lineLimits = lineLimits,
                     outputTransformation = outputTransformation,
                     interactionSource = interactionSource,
                     placeholder = placeholder,
@@ -2335,16 +2394,25 @@ internal fun AppBarWithSearchColors.appBarContainerColor(colorTransitionFraction
             "SearchBar(\n" +
                 "    inputField = {\n" +
                 "        SearchBarDefaults.InputField(\n" +
-                "            query = query,\n" +
-                "            onQueryChange = onQueryChange,\n" +
+                "            textFieldState = textFieldState,\n" +
+                "            searchBarState = searchBarState,\n" +
                 "            onSearch = onSearch,\n" +
-                "            expanded = active,\n" +
-                "            onExpandedChange = onActiveChange,\n" +
+                "            modifier = modifier,\n" +
                 "            enabled = enabled,\n" +
+                "            readOnly = readOnly,\n" +
+                "            textStyle = textStyle,\n" +
                 "            placeholder = placeholder,\n" +
                 "            leadingIcon = leadingIcon,\n" +
                 "            trailingIcon = trailingIcon,\n" +
-                "            colors = colors.inputFieldColors,\n" +
+                "            prefix = prefix,\n" +
+                "            suffix = suffix,\n" +
+                "            inputTransformation = inputTransformation,\n" +
+                "            outputTransformation = outputTransformation,\n" +
+                "            keyboardOptions = keyboardOptions,\n" +
+                "            lineLimits = lineLimits,\n" +
+                "            scrollState = scrollState,\n" +
+                "            shape = shape,\n" +
+                "            colors = colors,\n" +
                 "            interactionSource = interactionSource,\n" +
                 "        )\n" +
                 "    },\n" +
@@ -2417,16 +2485,25 @@ fun SearchBar(
             "DockedSearchBar(\n" +
                 "    inputField = {\n" +
                 "        SearchBarDefaults.InputField(\n" +
-                "            query = query,\n" +
-                "            onQueryChange = onQueryChange,\n" +
+                "            textFieldState = textFieldState,\n" +
+                "            searchBarState = searchBarState,\n" +
                 "            onSearch = onSearch,\n" +
-                "            expanded = active,\n" +
-                "            onExpandedChange = onActiveChange,\n" +
+                "            modifier = modifier,\n" +
                 "            enabled = enabled,\n" +
+                "            readOnly = readOnly,\n" +
+                "            textStyle = textStyle,\n" +
                 "            placeholder = placeholder,\n" +
                 "            leadingIcon = leadingIcon,\n" +
                 "            trailingIcon = trailingIcon,\n" +
-                "            colors = colors.inputFieldColors,\n" +
+                "            prefix = prefix,\n" +
+                "            suffix = suffix,\n" +
+                "            inputTransformation = inputTransformation,\n" +
+                "            outputTransformation = outputTransformation,\n" +
+                "            keyboardOptions = keyboardOptions,\n" +
+                "            lineLimits = lineLimits,\n" +
+                "            scrollState = scrollState,\n" +
+                "            shape = shape,\n" +
+                "            colors = colors,\n" +
                 "            interactionSource = interactionSource,\n" +
                 "        )\n" +
                 "    },\n" +
@@ -2527,6 +2604,7 @@ internal fun SearchBarImpl(
                             }
                         addRoundRect(RoundRect(size.toRect(), CornerRadius(radius)))
                     }
+
                 useFullScreenShape -> defaultFullScreenShape
                 else -> shape
             }
@@ -3133,12 +3211,14 @@ private const val LayoutIdSearchContent = "Content"
 internal val SearchBarAsTopBarPadding = 8.dp
 private val AppBarWithSearchHorizontalPadding = 4.dp
 internal val AppBarWithSearchVerticalPadding = 4.dp
+
 @OptIn(ExperimentalMaterial3Api::class) private val SearchBarCornerRadius: Dp = InputFieldHeight / 2
 internal val DockedExpandedTableMinHeight: Dp = 240.dp
 private const val DockedExpandedTableMaxHeightScreenRatio: Float = 2f / 3f
 internal val SearchBarMinWidth: Dp = 360.dp
 private val SearchBarMaxWidth: Dp = 720.dp
 internal val SearchBarVerticalPadding: Dp = 8.dp
+
 // Search bar has 16dp padding between icons and start/end, while by default text field has 12dp.
 private val SearchBarIconOffsetX: Dp = 4.dp
 private const val SearchBarPredictiveBackMinScale: Float = 9f / 10f

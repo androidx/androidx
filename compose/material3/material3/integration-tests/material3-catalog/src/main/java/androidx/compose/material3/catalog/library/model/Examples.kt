@@ -24,8 +24,10 @@ import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSui
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog
-import androidx.compose.material3.adaptive.samples.NavigableListDetailPaneScaffoldSample
+import androidx.compose.material3.adaptive.samples.ListDetailWithNavigation2Sample
+import androidx.compose.material3.adaptive.samples.ListDetailWithNavigation3Sample
 import androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSample
+import androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
 import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.AdaptiveSampleSourceUrl
 import androidx.compose.material3.catalog.library.util.SampleSourceUrl
@@ -323,20 +325,36 @@ val AdaptiveExamples =
             ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog()
         },
         Example(
-            name = "NavigableListDetailPaneScaffoldSample",
-            description = AdaptiveExampleDescription,
-            sourceUrl = AdaptiveExampleSourceUrl,
-            isExpressive = false,
-        ) {
-            NavigableListDetailPaneScaffoldSample()
-        },
-        Example(
             name = "SupportingPaneScaffoldSample",
             description = AdaptiveExampleDescription,
             sourceUrl = AdaptiveExampleSourceUrl,
             isExpressive = false,
         ) {
             SupportingPaneScaffoldSample()
+        },
+        Example(
+            name = "SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet",
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet()
+        },
+        Example(
+            name = "ListDetailWithNavigation2Sample",
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            ListDetailWithNavigation2Sample()
+        },
+        Example(
+            name = "ListDetailWithNavigation3Sample",
+            description = AdaptiveExampleDescription,
+            sourceUrl = AdaptiveExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            ListDetailWithNavigation3Sample()
         },
     )
 
@@ -1876,7 +1894,7 @@ val SearchBarExamples =
             name = "DockedSearchBarScaffoldSample",
             description = SearchBarExampleDescription,
             sourceUrl = SearchBarExampleSourceUrl,
-            isExpressive = false,
+            isExpressive = true,
         ) {
             DockedSearchBarScaffoldSample()
         },

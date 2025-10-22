@@ -33,10 +33,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -49,8 +51,10 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -555,6 +559,48 @@ class TooltipTest {
         }
 
         rule.waitForIdle()
+        assertThat(state.isVisible).isFalse()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun plainTooltip_escapeKey_dismissesTooltip() {
+        lateinit var state: TooltipState
+        val focusRequester = FocusRequester()
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            state = rememberTooltipState()
+            Column {
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip(content = {}) },
+                    state = state,
+                ) {
+                    Box(
+                        Modifier.size(30.dp)
+                            .testTag(AnchorTestTag)
+                            .focusRequester(focusRequester)
+                            .focusTarget()
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // First focus on tooltip.
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+        assertThat(state.isVisible).isTrue()
+
+        // Press ESC.
+        rule.onNodeWithTag(AnchorTestTag, true).performKeyInput { pressKey(Key.Escape) }
+        rule.waitForIdle()
+
+        // Assert tooltip dismissed.
         assertThat(state.isVisible).isFalse()
     }
 
