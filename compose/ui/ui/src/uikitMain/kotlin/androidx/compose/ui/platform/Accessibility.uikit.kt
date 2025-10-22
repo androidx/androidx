@@ -313,6 +313,8 @@ private sealed interface AccessibilityNode {
         override fun didBecomeFocused() {
             mediator.scrollToAccessibilityElement(key)
             mediator.keyboardFocusedElementKey = key
+
+            semanticsNode.config.getOrNull(SemanticsActions.RequestFocus)?.action?.invoke()
         }
 
         override fun didResignFocused() {

@@ -245,8 +245,10 @@ internal class UIKitTextInputService(
     }
 
     private fun handleEscape(event: KeyEvent): Boolean {
-        return if (sessionEditProcessor != null && event.type == KeyEventType.KeyUp) {
-            focusManager()?.releaseFocus()
+        return if (sessionEditProcessor != null) {
+            if (event.type == KeyEventType.KeyDown) {
+                focusManager()?.releaseFocus()
+            }
             true
         } else {
             false
