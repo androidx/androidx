@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
 
 /**
  * Creates and remembers a [SupportingPaneSceneStrategy].
@@ -71,8 +72,8 @@ public class SupportingPaneSceneStrategy<T : Any>(
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
 ) : SceneStrategy<T> {
-    @Composable
-    override fun calculateScene(entries: List<NavEntry<T>>, onBack: () -> Unit): Scene<T>? {
+
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
         val lastPaneMetadata = getPaneMetadata(entries.last()) ?: return null
         val sceneKey = lastPaneMetadata.sceneKey
 

@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.Ruler
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -419,9 +420,9 @@ private val MockLayoutDirection = LayoutDirection.Ltr
 private const val MockLayoutWidth = 1280
 private const val MockLayoutHeight = 1024
 
-private val MockWindowInsetRulers1 = WindowInsetsRulers()
-private val MockWindowInsetRulers2 = WindowInsetsRulers()
-private val MockWindowInsetRulers3 = WindowInsetsRulers()
+private val MockWindowInsetRulers1 = RectRulers()
+private val MockWindowInsetRulers2 = RectRulers()
+private val MockWindowInsetRulers3 = RectRulers()
 
 private class MockPlacementScope(
     val mockInset1Left: Int = 0,

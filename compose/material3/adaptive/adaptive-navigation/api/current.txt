@@ -16,7 +16,7 @@ package androidx.compose.material3.adaptive.navigation {
     field public static final androidx.compose.material3.adaptive.navigation.BackNavigationBehavior.Companion Companion;
   }
 
-  public static final class BackNavigationBehavior.Companion {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static final class BackNavigationBehavior.Companion {
     method @BytecodeOnly public String getPopLatest-pSECbL4();
     method @BytecodeOnly public String getPopUntilContentChange-pSECbL4();
     method @BytecodeOnly public String getPopUntilCurrentDestinationChange-pSECbL4();

@@ -52,7 +52,7 @@
         errorLine1="                    initialAnchoredIndex = initialAnchoredIndexState.value,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="            initialAnchoredIndexState.value = 0"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="                    initialAnchoredIndex = initialAnchoredIndexState.value,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="                    initialAnchoredIndex = initialAnchoredIndexState.value,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="            initialAnchoredIndexState.value = 0"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="                    initialAnchoredIndex = initialAnchoredIndexState.value,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="            anchorsState.removeAt(initialAnchoredIndexState.value)"
         errorLine2="                                                            ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="                    initialAnchoredIndex = initialAnchoredIndexState.value,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="            initialAnchoredIndexState.value = 1"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionStateTest.kt"/>
     </issue>
 
 </issues>
