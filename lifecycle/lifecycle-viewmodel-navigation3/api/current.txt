@@ -5,10 +5,10 @@ package androidx.lifecycle.viewmodel.navigation3 {
     ctor public ViewModelStoreNavEntryDecorator(androidx.lifecycle.ViewModelStore viewModelStore, kotlin.jvm.functions.Function0<java.lang.Boolean> removeViewModelStoreOnPop);
   }
 
-  public final class ViewModelStoreNavEntryDecoratorDefault {
+  public final class ViewModelStoreNavEntryDecoratorDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function0<java.lang.Boolean> removeViewModelStoreOnPop();
     method @BytecodeOnly @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function0<java.lang.Boolean!> removeViewModelStoreOnPop(androidx.compose.runtime.Composer?, int);
-    field public static final androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorDefault INSTANCE;
+    field public static final androidx.lifecycle.viewmodel.navigation3.ViewModelStoreNavEntryDecoratorDefaults INSTANCE;
   }
 
   public final class ViewModelStoreNavEntryDecoratorKt {

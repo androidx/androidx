@@ -61,7 +61,7 @@ public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         },
     removeViewModelStoreOnPop: () -> Boolean =
-        ViewModelStoreNavEntryDecoratorDefault.removeViewModelStoreOnPop(),
+        ViewModelStoreNavEntryDecoratorDefaults.removeViewModelStoreOnPop(),
 ): ViewModelStoreNavEntryDecorator<T> {
     val currentRemoveViewModelStoreOnPop = rememberUpdatedState(removeViewModelStoreOnPop)
     return remember(viewModelStoreOwner, currentRemoveViewModelStoreOnPop) {
@@ -151,7 +151,7 @@ private class EntryViewModel : ViewModel() {
 }
 
 /** Holds the default functions for the [ViewModelStoreNavEntryDecorator]. */
-public expect object ViewModelStoreNavEntryDecoratorDefault {
+public expect object ViewModelStoreNavEntryDecoratorDefaults {
     /**
      * Controls whether the [ViewModelStoreNavEntryDecorator] should clear the ViewModelStore scoped
      * to a [NavEntry] when [NavEntryDecorator.onPop] is invoked for that [NavEntry]'s

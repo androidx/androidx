@@ -3,6 +3,7 @@ package androidx.lifecycle {
 
   public final class FlowExtKt {
     method public static <T> kotlinx.coroutines.flow.Flow<T> flowWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState);
+    method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! flowWithLifecycle$default(kotlinx.coroutines.flow.Flow!, androidx.lifecycle.Lifecycle!, androidx.lifecycle.Lifecycle.State!, int, Object!);
   }
 
   public final class LifecycleDestroyedException extends java.util.concurrent.CancellationException {

@@ -27,6 +27,7 @@ import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +37,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class LifecycleOwnerTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun rememberLifecycleOwner_whenComposed_thenReturnsNewLifecycleOwner() = runTest {
@@ -246,5 +247,22 @@ class LifecycleOwnerTest {
         parentLifecycleOwner.currentState = State.DESTROYED
         rule.awaitIdle()
         assertThat(childLifecycle.currentState).isEqualTo(State.DESTROYED)
+    }
+
+    @Test
+    fun rememberLifecycleOwner_whenOnDestroyWhileInitialized_ignoresEvent() = runTest {
+        lateinit var childOwner: LifecycleOwner
+        var inComposition by mutableStateOf(true)
+
+        rule.setContent {
+            if (inComposition) {
+                childOwner = rememberLifecycleOwner(parent = null, maxLifecycle = State.INITIALIZED)
+            }
+        }
+
+        inComposition = false
+        rule.awaitIdle()
+
+        assertThat(childOwner.lifecycle.currentState).isEqualTo(State.INITIALIZED)
     }
 }

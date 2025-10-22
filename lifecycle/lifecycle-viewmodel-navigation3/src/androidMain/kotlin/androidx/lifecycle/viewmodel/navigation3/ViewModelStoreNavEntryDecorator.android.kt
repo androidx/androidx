@@ -22,7 +22,7 @@ package androidx.lifecycle.viewmodel.navigation3
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 
-public actual object ViewModelStoreNavEntryDecoratorDefault {
+public actual object ViewModelStoreNavEntryDecoratorDefaults {
     @Composable
     @Suppress("PairedRegistration")
     public actual fun removeViewModelStoreOnPop(): () -> Boolean {
