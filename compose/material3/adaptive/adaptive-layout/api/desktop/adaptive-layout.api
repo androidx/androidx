@@ -245,6 +245,18 @@ public final class androidx/compose/material3/adaptive/layout/PaneKt {
 	public static final fun getLocalAnimatedPaneOverride ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
+public abstract interface class androidx/compose/material3/adaptive/layout/PaneMargins {
+	public static final field Companion Landroidx/compose/material3/adaptive/layout/PaneMargins$Companion;
+	public fun getPaneBottom (Landroidx/compose/ui/layout/Placeable$PlacementScope;II)I
+	public fun getPaneLeft (Landroidx/compose/ui/layout/Placeable$PlacementScope;I)I
+	public fun getPaneRight (Landroidx/compose/ui/layout/Placeable$PlacementScope;II)I
+	public fun getPaneTop (Landroidx/compose/ui/layout/Placeable$PlacementScope;I)I
+}
+
+public final class androidx/compose/material3/adaptive/layout/PaneMargins$Companion {
+	public final fun getUnspecified ()Landroidx/compose/material3/adaptive/layout/PaneMargins;
+}
+
 public abstract interface class androidx/compose/material3/adaptive/layout/PaneMotion {
 	public static final field Companion Landroidx/compose/material3/adaptive/layout/PaneMotion$Companion;
 	public abstract fun getType-havYhsk ()I
@@ -372,6 +384,7 @@ public abstract interface class androidx/compose/material3/adaptive/layout/PaneS
 
 public abstract interface class androidx/compose/material3/adaptive/layout/PaneScaffoldParentData {
 	public abstract fun getMinTouchTargetSize-D9Ej5fM ()F
+	public abstract fun getPaneMargins ()Landroidx/compose/material3/adaptive/layout/PaneMargins;
 	public abstract fun getPreferredHeight-D9Ej5fM ()F
 	public abstract fun getPreferredHeightInProportion ()F
 	public abstract fun getPreferredWidth-D9Ej5fM ()F
@@ -386,6 +399,8 @@ public abstract interface class androidx/compose/material3/adaptive/layout/PaneS
 	public abstract fun getSaveableStateHolder ()Landroidx/compose/runtime/saveable/SaveableStateHolder;
 	public abstract fun paneExpansionDraggable-TDGSqEk (Landroidx/compose/ui/Modifier;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;FLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun paneExpansionDraggable-TDGSqEk$default (Landroidx/compose/material3/adaptive/layout/PaneScaffoldScope;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;FLandroidx/compose/foundation/interaction/MutableInteractionSource;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public abstract fun paneMargins (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;[Landroidx/compose/ui/layout/RectRulers;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/Modifier;
+	public abstract fun paneMargins (Landroidx/compose/ui/Modifier;[Landroidx/compose/ui/layout/RectRulers;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/Modifier;
 	public abstract fun preferredHeight (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
 	public abstract fun preferredHeight-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
 	public abstract fun preferredWidth (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
