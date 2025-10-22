@@ -23,6 +23,8 @@ import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXTRA_LARGE_LOWER_BOUND
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 
 /**
@@ -72,15 +74,13 @@ private object DpWidthSizeClasses {
      * size, any window width which is at least this value and less than [ExtraLarge] will be
      * considered [Large].
      */
-    // TODO(conradchen): Move to window-core definition when it goes to 1.5 stable
-    val Large = 1200.dp
+    val Large = WIDTH_DP_LARGE_LOWER_BOUND.dp
 
     /**
      * The lower bound for the Extra-Large width size class. With the [DefaultV2] definition of the
      * width size, any window width which is at least this value will be considered [ExtraLarge].
      */
-    // TODO(conradchen): Move to window-core definition when it goes to 1.5 stable
-    val ExtraLarge = 1600.dp
+    val ExtraLarge = WIDTH_DP_EXTRA_LARGE_LOWER_BOUND.dp
 
     /**
      * The default set of supported width size classes that only contains [Compact], [Medium], and

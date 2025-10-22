@@ -17,11 +17,14 @@
 package androidx.compose.material3.adaptive
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -55,7 +58,7 @@ class CurrentWindowAdaptiveInfoTest {
         composeRule.setContent {
             CompositionLocalProvider(
                 LocalDensity provides MockDensity,
-                LocalWindowInfo provides MockWindowInfo(mockWindowSize),
+                LocalWindowInfo provides MockWindowInfo(mockWindowSize, MockDensity),
             ) {
                 actualAdaptiveInfo = currentWindowAdaptiveInfo()
             }
@@ -91,7 +94,7 @@ class CurrentWindowAdaptiveInfoTest {
         composeRule.setContent {
             CompositionLocalProvider(
                 LocalDensity provides MockDensity,
-                LocalWindowInfo provides MockWindowInfo(mockWindowSize),
+                LocalWindowInfo provides MockWindowInfo(mockWindowSize, MockDensity),
             ) {
                 actualAdaptiveInfo = currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true)
             }
@@ -144,4 +147,16 @@ class CurrentWindowAdaptiveInfoTest {
 
         private val MockDensity = Density(1f, 1f)
     }
+}
+
+internal class MockWindowInfo(
+    private val mockWindowSize: State<IntSize>,
+    private val mockDensity: Density,
+) : WindowInfo {
+    override val isWindowFocused: Boolean = false
+    override val containerSize: IntSize
+        get() = mockWindowSize.value
+
+    override val containerDpSize: DpSize
+        get() = with(mockDensity) { mockWindowSize.value.toSize().toDpSize() }
 }

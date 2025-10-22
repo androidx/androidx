@@ -121,7 +121,7 @@ fun calculateThreePaneScaffoldValue(
     // Only levitate a pane when it is the current destination
     currentDestination?.apply {
         (adaptStrategies[pane] as? AdaptStrategy.Levitate)?.apply {
-            setAdaptedValue(pane, PaneAdaptedValue.Levitated(alignment, scrim))
+            setAdaptedValue(pane, PaneAdaptedValue.Levitated(alignment, scrim, dragToResizeState))
         }
     }
 
