@@ -11,6 +11,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static long constructor-impl(long);
     method @KotlinOnly public androidx.compose.ui.geometry.CornerRadius copy(optional float x, optional float y);
     method @BytecodeOnly public static long copy-OHQCggk(long, float, float);
+    method @BytecodeOnly public static long copy-OHQCggk$default(long, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.CornerRadius div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-Bz7bX_o(long, float);
     method @InaccessibleFromKotlin public long getPackedValue();
@@ -43,6 +44,7 @@ package androidx.compose.ui.geometry {
   public final class CornerRadiusKt {
     method @KotlinOnly @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.CornerRadius CornerRadius(float x, optional float y);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long CornerRadius(float, float);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static long CornerRadius$default(float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.CornerRadius lerp(androidx.compose.ui.geometry.CornerRadius start, androidx.compose.ui.geometry.CornerRadius stop, float fraction);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long lerp-3Ry4LBc(long, long, float);
   }
@@ -128,6 +130,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static long constructor-impl(long);
     method @KotlinOnly public androidx.compose.ui.geometry.Offset copy(optional float x, optional float y);
     method @BytecodeOnly public static long copy-dBAh8RU(long, float, float);
+    method @BytecodeOnly public static long copy-dBAh8RU$default(long, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.Offset div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-tuRUvjQ(long, float);
     method @KotlinOnly @androidx.compose.runtime.Stable public float getDistance();
@@ -189,6 +192,7 @@ package androidx.compose.ui.geometry {
     method @KotlinOnly public operator boolean contains(androidx.compose.ui.geometry.Offset offset);
     method @BytecodeOnly public boolean contains-k-4lQ0M(long);
     method public androidx.compose.ui.geometry.Rect copy(optional float left, optional float top, optional float right, optional float bottom);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.Rect! copy$default(androidx.compose.ui.geometry.Rect!, float, float, float, float, int, Object!);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect deflate(float delta);
     method @InaccessibleFromKotlin public float getBottom();
     method @BytecodeOnly public long getBottomCenter-F1C5BW0();
@@ -259,6 +263,7 @@ package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable public final class RoundRect {
     ctor @KotlinOnly public RoundRect(float left, float top, float right, float bottom, optional androidx.compose.ui.geometry.CornerRadius topLeftCornerRadius, optional androidx.compose.ui.geometry.CornerRadius topRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomLeftCornerRadius);
+    ctor @BytecodeOnly public RoundRect(float, float, float, float, long, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RoundRect(float, float, float, float, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public float component1();
     method public float component2();
@@ -276,6 +281,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public boolean contains-k-4lQ0M(long);
     method @KotlinOnly public androidx.compose.ui.geometry.RoundRect copy(optional float left, optional float top, optional float right, optional float bottom, optional androidx.compose.ui.geometry.CornerRadius topLeftCornerRadius, optional androidx.compose.ui.geometry.CornerRadius topRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomRightCornerRadius, optional androidx.compose.ui.geometry.CornerRadius bottomLeftCornerRadius);
     method @BytecodeOnly public androidx.compose.ui.geometry.RoundRect copy-MDFrsts(float, float, float, float, long, long, long, long);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect! copy-MDFrsts$default(androidx.compose.ui.geometry.RoundRect!, float, float, float, float, long, long, long, long, int, Object!);
     method @InaccessibleFromKotlin public float getBottom();
     method @BytecodeOnly public long getBottomLeftCornerRadius-kKHJgLs();
     method @BytecodeOnly public long getBottomRightCornerRadius-kKHJgLs();
@@ -312,6 +318,7 @@ package androidx.compose.ui.geometry {
     method @KotlinOnly public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, androidx.compose.ui.geometry.CornerRadius cornerRadius);
     method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-ZAM2FJo(androidx.compose.ui.geometry.Rect, long, long, long, long);
+    method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect! RoundRect-ZAM2FJo$default(androidx.compose.ui.geometry.Rect!, long, long, long, long, int, Object!);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-gG7oq9Y(float, float, float, float, long);
     method @BytecodeOnly public static androidx.compose.ui.geometry.RoundRect RoundRect-sniSvfs(androidx.compose.ui.geometry.Rect, long);
     method @InaccessibleFromKotlin public static androidx.compose.ui.geometry.Rect getBoundingRect(androidx.compose.ui.geometry.RoundRect);
@@ -351,6 +358,7 @@ package androidx.compose.ui.geometry {
     method @BytecodeOnly public static long constructor-impl(long);
     method @KotlinOnly public androidx.compose.ui.geometry.Size copy(optional float width, optional float height);
     method @BytecodeOnly public static long copy-xjbvk4A(long, float, float);
+    method @BytecodeOnly public static long copy-xjbvk4A$default(long, float, float, int, Object!);
     method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.geometry.Size div(float operand);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-7Ah8Wj8(long, float);
     method @BytecodeOnly public static float getHeight-impl(long);

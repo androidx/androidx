@@ -20,6 +20,7 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.ExperimentalTextApi
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -31,14 +32,14 @@ class HyphensTest {
     fun equals_returns_false_for_different_hyphens() {
         val hyphens = Hyphens.Auto
         val otherHyphens = Hyphens.None
-        assertThat(hyphens.equals(otherHyphens)).isFalse()
+        assertThat(hyphens).isNotEqualTo(otherHyphens)
     }
 
     @Test
     fun equals_returns_true_for_same_hyphens() {
         val hyphens = Hyphens.Auto
         val otherHyphens = Hyphens.Auto
-        assertThat(hyphens.equals(otherHyphens)).isTrue()
+        assertThat(hyphens).isEqualTo(otherHyphens)
     }
 
     @Test
@@ -53,5 +54,33 @@ class HyphensTest {
         val hyphens = Hyphens.Auto
         val otherHyphens = Hyphens.Auto
         assertThat(hyphens.hashCode()).isEqualTo(otherHyphens.hashCode())
+    }
+
+    @Test
+    fun isSpecified_returns_true_for_specified_hyphens() {
+        assertThat(Hyphens.Auto.isSpecified).isTrue()
+        assertThat(Hyphens.None.isSpecified).isTrue()
+        assertThat(Hyphens.Unspecified.isSpecified).isFalse()
+    }
+
+    @Test
+    fun valueOf_throws_unknown_value() {
+        assertFailsWith<IllegalArgumentException> { Hyphens.valueOf(-1) }
+
+        assertFailsWith<IllegalArgumentException> { Hyphens.valueOf(3) }
+    }
+
+    @Test
+    fun valueOf_reconstructs_hyphens() {
+        assertThat(Hyphens.valueOf(Hyphens.None.value)).isEqualTo(Hyphens.None)
+        assertThat(Hyphens.valueOf(Hyphens.Auto.value)).isEqualTo(Hyphens.Auto)
+        assertThat(Hyphens.valueOf(Hyphens.Unspecified.value)).isEqualTo(Hyphens.Unspecified)
+    }
+
+    @Test
+    fun takeOrElse_returns_this_if_isSpecified() {
+        assertThat(Hyphens.None.takeOrElse { Hyphens.Auto }).isEqualTo(Hyphens.None)
+        assertThat(Hyphens.Auto.takeOrElse { Hyphens.None }).isEqualTo(Hyphens.Auto)
+        assertThat(Hyphens.Unspecified.takeOrElse { Hyphens.Auto }).isEqualTo(Hyphens.Auto)
     }
 }

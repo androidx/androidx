@@ -22,18 +22,22 @@ import androidx.compose.foundation.background
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteSolidColor
 import androidx.compose.remote.creation.compose.capture.shaders.solidColor
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return if (brush is RemoteSolidColor) {
-            androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(brush.color.toArgb())
+            val r = brush.color.red.id
+            val g = brush.color.green.id
+            val b = brush.color.blue.id
+            val a = brush.color.alpha.id
+            androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(r, g, b, a)
         } else {
             // TODO specify
             androidx.compose.remote.creation.modifiers.BackgroundModifier(
@@ -50,6 +54,9 @@ public data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.El
 }
 
 public fun RemoteModifier.background(color: Color): RemoteModifier =
+    this.then(BackgroundModifier(RemoteBrush.solidColor(color)))
+
+public fun RemoteModifier.background(color: RemoteColor): RemoteModifier =
     this.then(BackgroundModifier(RemoteBrush.solidColor(color)))
 
 public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =

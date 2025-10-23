@@ -821,6 +821,7 @@ internal class TextFieldDecoratorModifierNode(
                         },
                         stylusHandwritingTrigger = stylusHandwritingTrigger,
                         viewConfiguration = currentValueOf(LocalViewConfiguration),
+                        updateTouchMode = { textFieldSelectionState.isInTouchMode = it },
                     )
                 }
             }
@@ -887,4 +888,5 @@ internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     updateSelectionState: (() -> Unit)? = null,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>? = null,
     viewConfiguration: ViewConfiguration? = null,
+    updateTouchMode: (Boolean) -> Unit,
 ): Nothing

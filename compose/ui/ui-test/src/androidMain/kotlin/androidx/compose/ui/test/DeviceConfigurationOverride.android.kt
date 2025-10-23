@@ -421,6 +421,7 @@ fun DeviceConfigurationOverride.Companion.WindowInsets(
                  * method.
                  */
                 @Deprecated("Deprecated in Java")
+                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override fun requestFitSystemWindows() {
                     dispatchApplyWindowInsets(WindowInsets(currentWindowInsets.toWindowInsets()!!))
                 }

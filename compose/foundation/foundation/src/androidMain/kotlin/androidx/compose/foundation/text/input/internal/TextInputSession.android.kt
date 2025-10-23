@@ -61,4 +61,6 @@ internal interface TextInputSession : ImeEditCommandScope {
         gesture: PreviewableHandwritingGesture,
         cancellationSignal: CancellationSignal?,
     ): Boolean
+
+    fun updateTouchMode(isInTouchMode: Boolean)
 }

@@ -23,7 +23,7 @@ import androidx.collection.intObjectMapOf
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.InternalComposeUiApi
@@ -388,7 +388,7 @@ class ModifierLocalConsumerEntityTest {
         override val focusOwner: FocusOwner
             get() = TODO("Not yet implemented")
 
-        override val retainScope: RetainScope
+        override val retainedValuesStore: RetainedValuesStore
             get() = TODO("Not yet implemented")
 
         override val windowInfo: WindowInfo

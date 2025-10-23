@@ -74,13 +74,15 @@ import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
 import androidx.compose.ui.text.android.style.getEllipsizedRightPadding
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.style.LineHeightStyle
+import kotlin.concurrent.getOrSet
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-/** We swap canvas delegates, and can share the wrapper. */
-private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
+/** We swap canvas delegates, and can share the wrapper on the current thread. */
+@VisibleForTesting
+internal val SharedTextAndroidCanvas: ThreadLocal<TextAndroidCanvas> = ThreadLocal()
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -813,9 +815,9 @@ constructor(
             canvas.translate(0f, topPadding.toFloat())
         }
 
-        with(SharedTextAndroidCanvas) {
-            setCanvas(canvas)
-            layout.draw(this)
+        val threadSharedTextAndroidCanvas = SharedTextAndroidCanvas.getOrSet { TextAndroidCanvas() }
+        threadSharedTextAndroidCanvas.withCanvas(canvas) { clipFixedCanvas ->
+            layout.draw(clipFixedCanvas)
         }
 
         if (topPadding != 0) {

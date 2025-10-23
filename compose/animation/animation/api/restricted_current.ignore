@@ -3,6 +3,8 @@ AddedAbstractMethod: androidx.compose.animation.AnimatedContentTransitionScope#s
     Source breaking change: Added method androidx.compose.animation.AnimatedContentTransitionScope.slideIntoContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>,kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer>)
 AddedAbstractMethod: androidx.compose.animation.AnimatedContentTransitionScope#slideOutOfContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>, kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer>):
     Source breaking change: Added method androidx.compose.animation.AnimatedContentTransitionScope.slideOutOfContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>,kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer>)
+AddedAbstractMethod: androidx.compose.animation.BoundsTransform#createAnimationSpec(androidx.compose.ui.geometry.Rect, androidx.compose.ui.geometry.Rect):
+    Binary breaking change: Added method androidx.compose.animation.BoundsTransform.createAnimationSpec(androidx.compose.ui.geometry.Rect,androidx.compose.ui.geometry.Rect)
 AddedAbstractMethod: androidx.compose.animation.SharedTransitionScope#renderInSharedTransitionScopeOverlay(androidx.compose.ui.Modifier, float, kotlin.jvm.functions.Function0<java.lang.Boolean>):
     Binary breaking change: Added method androidx.compose.animation.SharedTransitionScope.renderInSharedTransitionScopeOverlay(androidx.compose.ui.Modifier,float,kotlin.jvm.functions.Function0<java.lang.Boolean>)
 AddedAbstractMethod: androidx.compose.animation.SharedTransitionScope#sharedBounds(androidx.compose.ui.Modifier, androidx.compose.animation.SharedTransitionScope.SharedContentState, androidx.compose.animation.AnimatedVisibilityScope, androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition, androidx.compose.animation.BoundsTransform, androidx.compose.animation.SharedTransitionScope.ResizeMode, androidx.compose.animation.SharedTransitionScope.PlaceholderSize, boolean, float, androidx.compose.animation.SharedTransitionScope.OverlayClip):
@@ -81,8 +83,6 @@ RemovedFromKotlin: androidx.compose.animation.ExitTransition.Companion#getNone()
     Source breaking change: method androidx.compose.animation.ExitTransition.Companion.getNone() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.SizeTransform#getClip():
     Source breaking change: method androidx.compose.animation.SizeTransform.getClip() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.compose.animation.SplineBasedFloatDecayAnimationSpec#getAbsVelocityThreshold():
-    Source breaking change: method androidx.compose.animation.SplineBasedFloatDecayAnimationSpec.getAbsVelocityThreshold() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt#splineBasedDecay(androidx.compose.ui.unit.Density):
     Source breaking change: method androidx.compose.animation.SplineBasedFloatDecayAnimationSpec_androidKt.splineBasedDecay(androidx.compose.ui.unit.Density) can no longer be resolved from Kotlin source
 

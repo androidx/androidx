@@ -22,7 +22,7 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.view.TestUtils.createDocument
 import androidx.test.espresso.Espresso.onView
@@ -76,7 +76,7 @@ class PlayerScreenshotTest {
     fun showCircle() {
         val androidContext = AndroidRemoteContext()
 
-        val remoteComposeDocument: RemoteComposeDocument =
+        val remoteComposeDocument: RemoteDocument =
             createDocument(androidContext) { rcDoc ->
                 rcDoc.root {
                     rcDoc.box(

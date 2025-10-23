@@ -30,6 +30,7 @@ import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
@@ -51,10 +52,14 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     private static final int MAX_FLOAT_LEN = 200;
     int mShaderTextId; // the actual text of a shader
     int mShaderID; // allows shaders to be referenced by number
-    @Nullable HashMap<String, float[]> mUniformRawFloatMap = null;
-    @Nullable HashMap<String, float[]> mUniformFloatMap = null;
-    @Nullable HashMap<String, int[]> mUniformIntMap;
-    @Nullable HashMap<String, Integer> mUniformBitmapMap = null;
+    @Nullable
+    HashMap<String, float[]> mUniformRawFloatMap = null;
+    @Nullable
+    HashMap<String, float[]> mUniformFloatMap = null;
+    @Nullable
+    HashMap<String, int[]> mUniformIntMap;
+    @Nullable
+    HashMap<String, Integer> mUniformBitmapMap = null;
     private boolean mShaderValid = false;
 
     public ShaderData(
@@ -185,10 +190,20 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
             float[] out = null;
             for (int i = 0; i < value.length; i++) {
                 if (Float.isNaN(value[i])) {
+                    float[] dynamicValues = null;
+                    CollectionsAccess collectionsAccess = context.getCollectionsAccess();
+                    if (collectionsAccess != null) {
+                        dynamicValues = collectionsAccess
+                                .getDynamicFloats(Utils.idFromNan(value[i]));
+                    }
                     if (out == null) { // need to copy
                         out = Arrays.copyOf(value, value.length);
                     }
-                    out[i] = context.getFloat(Utils.idFromNan(value[i]));
+                    if (dynamicValues == null) {
+                        out[i] = context.getFloat(Utils.idFromNan(value[i]));
+                    } else {
+                        out[i] = value[i];
+                    }
                 }
             }
             mUniformFloatMap.put(name, out == null ? value : out);
@@ -232,12 +247,12 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer buffer to write into
-     * @param shaderID id of shader
+     * @param buffer       buffer to write into
+     * @param shaderID     id of shader
      * @param shaderTextId id of text of shader
-     * @param floatMap the map of float uniforms
-     * @param intMap the map of int uniforms
-     * @param bitmapMap the map of bitmap uniforms
+     * @param floatMap     the map of float uniforms
+     * @param intMap       the map of int uniforms
+     * @param bitmapMap    the map of bitmap uniforms
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -291,7 +306,7 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

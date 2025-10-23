@@ -180,7 +180,7 @@ private fun getLongPressHandlerModifier(
                 var dragTotalDistance = Offset.Zero
                 var dragBeginOffset = Offset.Zero
 
-                override fun onStart(startPoint: Offset) {
+                override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                     currentManager.draggingHandle = Handle.SelectionEnd
                     currentManager.currentDragPosition = startPoint
 
@@ -229,7 +229,7 @@ private fun getLongPressHandlerModifier(
             }
 
         detectDragGesturesAfterLongPress(
-            onDragStart = { longTapActionsObserver.onStart(it) },
+            onDragStart = { longTapActionsObserver.onStart(it, SelectionAdjustment.None) },
             onDrag = { _, delta -> longTapActionsObserver.onDrag(delta = delta) },
             onDragCancel = { longTapActionsObserver.onCancel() },
             onDragEnd = { longTapActionsObserver.onStop() }

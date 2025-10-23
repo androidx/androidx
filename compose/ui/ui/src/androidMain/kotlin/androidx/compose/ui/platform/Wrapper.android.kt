@@ -32,7 +32,7 @@ import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.R
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.UiApplier
-import androidx.compose.ui.platform.LifecycleRetainScopeOwner.FrameEndScheduler
+import androidx.compose.ui.platform.LifecycleRetainedValuesStoreOwner.FrameEndScheduler
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner

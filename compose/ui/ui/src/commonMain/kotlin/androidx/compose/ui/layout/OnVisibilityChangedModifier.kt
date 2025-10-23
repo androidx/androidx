@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.UnplacedStateAwareModifierNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.spatial.RelativeLayoutBounds
@@ -169,7 +169,7 @@ internal class OnVisibilityChangedNode(
     var minFractionVisible: Float,
     viewportBounds: LayoutBoundsHolder?,
     var callback: (Boolean) -> Unit,
-) : Modifier.Node(), ObserverModifierNode, UnplacedStateAwareModifierNode {
+) : Modifier.Node(), ObserverModifierNode, UnplacedAwareModifierNode {
     var viewportBounds: LayoutBoundsHolder? = viewportBounds
         set(value) {
             field = value

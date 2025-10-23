@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+<issues format="6" by="lint 9.0.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha10)" variant="all" version="9.0.0-alpha10">
 
     <issue
         id="NewApi"
@@ -746,15 +746,6 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/player/core/platform/AndroidPaintContext.java"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class ThreadUtil {"
-        errorLine2="             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/player/core/platform/ThreadUtil.java"/>
     </issue>
 
 </issues>

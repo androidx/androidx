@@ -23,9 +23,11 @@ import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.Profiles
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
@@ -35,7 +37,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.test.R
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -64,11 +66,10 @@ class RecordingCanvasTest {
 
     private val creationState =
         RemoteComposeCreationState(
-            AndroidxPlatformServices(),
-            1f,
+            AndroidxRcPlatformServices(),
             Size(WIDTH.toFloat(), HEIGHT.toFloat()),
             CoreDocument.DOCUMENT_API_LEVEL,
-            Profiles.PROFILE_ANDROIDX,
+            RcProfiles.PROFILE_ANDROIDX,
         )
 
     private val recordingCanvas =
@@ -284,6 +285,95 @@ class RecordingCanvasTest {
 
         assertThat(paintCopy.remoteColor).isEqualTo(paint.remoteColor)
         assertThat(paintCopy.remoteColorFilter).isEqualTo(paint.remoteColorFilter)
+    }
+
+    @Test
+    fun drawToOffscreenBitmap() {
+        recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLACK })
+        recordingCanvas.drawRect(
+            20,
+            20,
+            WIDTH - 20,
+            HEIGHT - 20,
+            Paint().apply { color = Color.YELLOW },
+        )
+        val bitmap =
+            recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.BLACK) {
+                recordingCanvas.drawOval(
+                    20,
+                    20,
+                    WIDTH - 20,
+                    HEIGHT - 20,
+                    Paint().apply { color = Color.RED },
+                )
+                recordingCanvas.drawText(
+                    "HI",
+                    20,
+                    HEIGHT - 50,
+                    Paint().apply {
+                        textSize = 380f
+                        typeface = Typeface.DEFAULT_BOLD
+                        blendMode = BlendMode.CLEAR
+                    },
+                )
+            }
+        val rect = Rect(0, 0, WIDTH, HEIGHT)
+        recordingCanvas.drawBitmap(
+            bitmap,
+            rect,
+            rect,
+            Paint().apply { blendMode = BlendMode.SRC_OVER },
+        )
+
+        val document = constructDocument()
+        assertScreenshot(document, "offscreenBitmap")
+    }
+
+    @Test
+    fun drawToOffscreenBitmap_nested() {
+        recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLACK })
+
+        // Create the outer offscreen bitmap.
+        val outerBitmap =
+            recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.TRANSPARENT) {
+                // Draw a blue background on the outer bitmap.
+                recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLUE })
+
+                recordingCanvas.save()
+
+                // Create the inner (nested) offscreen bitmap.
+                val innerBitmap =
+                    recordingCanvas.drawToOffscreenBitmap(
+                        WIDTH / 2,
+                        HEIGHT / 2,
+                        Color.TRANSPARENT,
+                    ) {
+                        // Draw a red circle in the inner bitmap.
+                        recordingCanvas.drawOval(
+                            0f,
+                            0f,
+                            (WIDTH / 2).toFloat(),
+                            (HEIGHT / 2).toFloat(),
+                            Paint().apply { color = Color.RED },
+                        )
+                    }
+
+                // Draw the inner bitmap onto the outer bitmap. This tests that the canvas context
+                // was restored correctly to the outer bitmap's canvas.
+                val innerRect = Rect(0, 0, WIDTH / 2, HEIGHT / 2)
+                val dstRect = Rect(100, 100, 100 + WIDTH / 2, 100 + HEIGHT / 2)
+                recordingCanvas.drawBitmap(innerBitmap, innerRect, dstRect, Paint())
+
+                // This restore isn't strictly needed, but if we're drawing to the wrong canvas it
+                // will lead to an exception.
+                recordingCanvas.restore()
+            }
+
+        val outerRect = Rect(0, 0, WIDTH, HEIGHT)
+        recordingCanvas.drawBitmap(outerBitmap, outerRect, outerRect, Paint())
+
+        val document = constructDocument()
+        assertScreenshot(document, "offscreenBitmap_nested")
     }
 
     private fun constructDocument() =

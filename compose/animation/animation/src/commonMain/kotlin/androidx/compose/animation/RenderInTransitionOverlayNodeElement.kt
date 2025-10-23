@@ -26,12 +26,18 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Constraints
 
 internal class RenderInTransitionOverlayNodeElement(
     var sharedTransitionScope: SharedTransitionScopeImpl,
@@ -77,11 +83,38 @@ internal class RenderInTransitionOverlayNode(
     var sharedScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     zIndexInOverlay: Float,
-) : Modifier.Node(), DrawModifierNode, ModifierLocalModifierNode {
+) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, ModifierLocalModifierNode {
     var zIndexInOverlay by mutableFloatStateOf(zIndexInOverlay)
 
     val parentState: SharedElementEntry?
         get() = ModifierLocalSharedElementInternalState.current
+
+    /**
+     * Both enabled and positionInOverlay below are mutated during approach placement. Once they are
+     * updated during the layout phase, they will explicitly trigger invalidation of drawing for
+     * both the SharedTransition overlay as well as the RenderInTransitionOverlayNode. In other
+     * words, the state observation only needs to happen during placement, the drawing stage will be
+     * invalidated **in the same frame** as needed. Therefore, both the enabled and
+     * positionInOverlay properties are intentionally defined as non-snapshot states, as they are
+     * not meant to be observed.
+     */
+    private var enabled: Boolean = false
+        set(value) {
+            if (value != field) {
+                this@RenderInTransitionOverlayNode.sharedScope.invalidateOverlay?.invoke()
+                invalidateDraw()
+                field = value
+            }
+        }
+
+    private var positionInOverlay: Offset = Offset.Zero
+        set(value) {
+            if (value != field) {
+                this@RenderInTransitionOverlayNode.sharedScope.invalidateOverlay?.invoke()
+                invalidateDraw()
+                field = value
+            }
+        }
 
     private inner class LayerWithRenderer(val layer: GraphicsLayer) : LayerRenderer {
         override val parentState: SharedElementEntry?
@@ -91,15 +124,38 @@ internal class RenderInTransitionOverlayNode(
             get() = this@RenderInTransitionOverlayNode.zIndexInOverlay
 
         override fun drawInOverlay(drawScope: DrawScope) {
-            if (renderInOverlay()) {
+            if (enabled) {
                 with(drawScope) {
-                    val (x, y) =
-                        sharedScope.root.localPositionOf(
-                            this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
-                            Offset.Zero,
-                        )
-                    translate(x, y) { drawLayer(layer) }
+                    translate(positionInOverlay.x, positionInOverlay.y) { drawLayer(layer) }
                 }
+            }
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        return measurable.measure(constraints).run {
+            layout(width, height) {
+                if (!isLookingAhead) {
+                    if (renderInOverlay()) {
+                        // Access coordinates from the PlacementScope to ensure position changes
+                        // while `renderInOverlay` is enabled triggers changes in the position
+                        // in overlay, and invalidations in drawing.
+                        coordinates?.let {
+                            enabled = true
+                            positionInOverlay =
+                                sharedScope.root.localPositionOf(
+                                    this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
+                                    Offset.Zero,
+                                )
+                        }
+                    } else {
+                        enabled = false
+                    }
+                }
+                place(0, 0)
             }
         }
     }
@@ -109,7 +165,7 @@ internal class RenderInTransitionOverlayNode(
     override fun ContentDrawScope.draw() {
         val layer = requireNotNull(layer) { "Error: layer never initialized" }
         layer.record { this@draw.drawContent() }
-        if (!renderInOverlay()) {
+        if (!enabled) {
             drawLayer(layer)
         }
     }

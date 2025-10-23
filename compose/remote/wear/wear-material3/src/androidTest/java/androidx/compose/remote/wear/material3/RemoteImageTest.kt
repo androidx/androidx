@@ -26,9 +26,9 @@ import androidx.compose.remote.creation.compose.state.rememberRemoteBitmap
 import androidx.compose.remote.creation.compose.state.rememberRemoteBitmapValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloatValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
+import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
-import androidx.compose.remote.test.screenshot.TargetPlayer
-import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.wear.material3.test.R
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp

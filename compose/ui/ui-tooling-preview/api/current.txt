@@ -76,6 +76,10 @@ package androidx.compose.ui.tooling.preview {
     property public static String TABLET;
     property public static String TV_1080p;
     property public static String TV_720p;
+    property @Deprecated public static String WEAR_OS_LARGE_ROUND;
+    property @Deprecated public static String WEAR_OS_RECT;
+    property @Deprecated public static String WEAR_OS_SMALL_ROUND;
+    property @Deprecated public static String WEAR_OS_SQUARE;
     field public static final String AUTOMOTIVE_1024p = "id:automotive_1024p_landscape";
     field public static final String DEFAULT = "";
     field public static final String DESKTOP = "spec:width=1920dp,height=1080dp,dpi=160";

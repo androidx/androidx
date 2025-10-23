@@ -29,7 +29,7 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
 import androidx.compose.remote.core.PaintContext
-import androidx.compose.remote.core.Platform
+import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.core.operations.ClipPath
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
@@ -239,7 +239,7 @@ internal class ComposePaintContext(
         maxLines: Int,
         maxWidth: Float,
         flags: Int,
-    ): Platform.ComputedTextLayout? {
+    ): RcPlatformServices.ComputedTextLayout? {
         val str = getText(textId)
         if (str == null) {
             return null
@@ -309,7 +309,7 @@ internal class ComposePaintContext(
         nativeCanvas().drawText(textToPaint, x, y, paint.asFrameworkPaint())
     }
 
-    override fun drawComplexText(computedTextLayout: Platform.ComputedTextLayout?) {
+    override fun drawComplexText(computedTextLayout: RcPlatformServices.ComputedTextLayout?) {
         if (computedTextLayout == null) {
             return
         }

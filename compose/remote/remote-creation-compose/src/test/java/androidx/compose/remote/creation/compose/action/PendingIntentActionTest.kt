@@ -19,13 +19,13 @@ package androidx.compose.remote.creation.compose.action
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Profiles.PROFILE_ANDROIDX
+import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.PendingIntentAction.Companion.ACTION_NAME
 import androidx.compose.remote.creation.compose.capture.PendingIntentAwareWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -48,11 +48,7 @@ class PendingIntentActionTest {
     @Test
     fun toRemoteAction_withDefaultRemoteComposeWriter_throws() {
         val creationState =
-            RemoteComposeCreationState(
-                platform = AndroidxPlatformServices(),
-                density = 1f,
-                size = Size(1f, 1f),
-            )
+            RemoteComposeCreationState(platform = AndroidxRcPlatformServices(), size = Size(1f, 1f))
         val testAction = PendingIntentAction(creationState, testPendingIntent)
 
         assertThrows(IllegalStateException::class.java) { testAction.toRemoteAction() }
@@ -63,7 +59,6 @@ class PendingIntentActionTest {
         val pendingIntents: MutableList<PendingIntent> = mutableListOf()
         val creationState =
             RemoteComposeCreationState(
-                density = 1f,
                 size = Size(1f, 1f),
                 profile = PendingIntentAwareProfile(pendingIntents),
             )
@@ -82,7 +77,7 @@ private class PendingIntentAwareProfile(val pendingIntents: MutableList<PendingI
     Profile(
         CoreDocument.DOCUMENT_API_LEVEL,
         PROFILE_ANDROIDX,
-        AndroidxPlatformServices(),
+        AndroidxRcPlatformServices(),
         { width, height, contentDescription, profile ->
             object :
                 RemoteComposeWriter(

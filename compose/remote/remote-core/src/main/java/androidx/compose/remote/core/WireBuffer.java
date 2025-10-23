@@ -290,7 +290,7 @@ public class WireBuffer {
 
     /**
      * Read a byte buffer limited to max size. bytes are encoded as 4 byte length followed by length
-     * bytes index is increased by 4 + number of bytes Throw an exception if the read excedes the
+     * bytes index is increased by 4 + number of bytes Throw an exception if the read exceeds the
      * max size. This is the preferred form of read buffer.
      *
      * @return byte array

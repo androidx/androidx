@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime
 
-import kotlin.Unit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -28,7 +27,11 @@ internal actual suspend fun TestResult.awaitCompletion() {
     suspendCancellableCoroutine { cont: CancellableContinuation<Unit> ->
         then(
             onFulfilled = { cont.resume(Unit) },
-            onRejected = { cont.resumeWithException(it.unsafeCast()) },
+            onRejected = {
+                cont.resumeWithException(
+                    it.toThrowableOrNull() ?: error("Unexpected non-Kotlin exception $it")
+                )
+            },
         )
     }
 }

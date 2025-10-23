@@ -156,6 +156,13 @@ public class RFloat : Number {
         )
     }
 
+    public operator fun plus(v: Number): RFloat {
+        if (v is RFloat) {
+            return plus(v)
+        }
+        return plus(v.toFloat())
+    }
+
     public operator fun minus(v: Float): RFloat {
         return RFloat(writer, floatArrayOf(*toArray(this), v, AnimatedFloatExpression.SUB))
     }
@@ -165,6 +172,13 @@ public class RFloat : Number {
             writer,
             floatArrayOf(*toArray(this), *toArray(v), AnimatedFloatExpression.SUB),
         )
+    }
+
+    public operator fun minus(v: Number): RFloat {
+        if (v is RFloat) {
+            return minus(v)
+        }
+        return minus(v.toFloat())
     }
 
     public operator fun times(v: Float): RFloat {
@@ -517,6 +531,6 @@ public fun RemoteComposeWriter.animationTime(): RFloat {
 }
 
 /** The time in seconds relative to animation 0 at start of running */
-public fun RemoteComposeWriter.deltTime(): RFloat {
+public fun RemoteComposeWriter.deltaTime(): RFloat {
     return RFloat(this, FLOAT_ANIMATION_DELTA_TIME)
 }

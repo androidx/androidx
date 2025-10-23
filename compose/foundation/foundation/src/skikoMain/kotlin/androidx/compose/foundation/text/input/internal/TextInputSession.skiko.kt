@@ -50,7 +50,8 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
     onImeAction: ((ImeAction) -> Unit)?,
     updateSelectionState: (() -> Unit)?,
     stylusHandwritingTrigger: MutableSharedFlow<Unit>?,
-    viewConfiguration: ViewConfiguration?
+    viewConfiguration: ViewConfiguration?,
+    updateTouchMode: (Boolean) -> Unit,
 ): Nothing {
     val editProcessor = EditProcessor()
     fun onEditCommand(commands: List<EditCommand>) {

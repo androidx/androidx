@@ -22,8 +22,8 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.creation.platform.AndroidxPlatformServices
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidPaintContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.test.filters.SdkSuppress
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith
 class TextLayoutTest() {
     @get:Rule val name = TestName()
 
-    val mPlatform = AndroidxPlatformServices()
+    val mPlatform = AndroidxRcPlatformServices()
 
     val context =
         AndroidRemoteContext().apply {
@@ -48,7 +48,7 @@ class TextLayoutTest() {
     fun baseTest(writer: RemoteComposeWriter) {
         val buffer = writer.buffer()
         val bufferSize = writer.bufferSize()
-        val doc = RemoteComposeDocument(ByteArrayInputStream(buffer, 0, bufferSize))
+        val doc = RemoteDocument(ByteArrayInputStream(buffer, 0, bufferSize))
 
         val canvas = Canvas(Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888))
 

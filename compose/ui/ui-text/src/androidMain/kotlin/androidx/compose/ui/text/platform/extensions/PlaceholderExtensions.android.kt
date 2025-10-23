@@ -53,7 +53,7 @@ private fun Spannable.setPlaceholder(
                 widthUnit = width.spanUnit,
                 height = height.value,
                 heightUnit = height.spanUnit,
-                pxPerSp = density.fontScale * density.density,
+                density = density,
                 verticalAlign = placeholderVerticalAlign.spanVerticalAlign,
             )
         },

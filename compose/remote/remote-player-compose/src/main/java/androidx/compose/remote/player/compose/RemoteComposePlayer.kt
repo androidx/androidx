@@ -22,7 +22,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.player.compose.context.ComposePaintContext
 import androidx.compose.remote.player.compose.context.ComposeRemoteContext
-import androidx.compose.remote.player.core.RemoteComposeDocument
+import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
 import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
 import androidx.compose.remote.player.core.platform.BitmapLoader
@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import java.time.Clock
 
 /**
- * This is a player for a [RemoteComposeDocument].
+ * This is a player for a [androidx.compose.remote.player.core.RemoteDocument].
  *
  * <p>It displays the document as well as providing the integration with the Android system (e.g.
  * passing sensor values, etc.). It also exposes player APIs that allows to control how the document
@@ -55,7 +55,7 @@ import java.time.Clock
  */
 @Composable
 internal fun RemoteComposePlayer(
-    document: RemoteComposeDocument,
+    document: RemoteDocument,
     modifier: Modifier = Modifier,
     theme: Int = -1,
     debugMode: Int = 0,

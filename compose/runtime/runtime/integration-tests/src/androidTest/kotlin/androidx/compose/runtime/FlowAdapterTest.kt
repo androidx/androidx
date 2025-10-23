@@ -25,6 +25,7 @@ import kotlin.test.assertNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FlowAdapterTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun weReceiveSubmittedValue() {

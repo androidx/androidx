@@ -71,8 +71,7 @@ fun SharedElementInPagerDemo() {
                         modifier = Modifier.onPlaced { coords = it },
                         isEnabled = {
                             coords?.let {
-                                val scopeCoords =
-                                    it.lookaheadScopeCoordinates(this@SharedTransitionLayout)
+                                val scopeCoords = lookaheadScopeCoordinates(it)
                                 val (w, h) = scopeCoords.size
                                 val positionInScope = scopeCoords.localPositionOf(it)
                                 positionInScope.x >= 0 &&

@@ -367,7 +367,7 @@ internal class ThrottledCallbacks {
     ): Long {
         var newMinDeadline = minDeadline
         if (entry.debounceMillis > 0 && entry.lastUninvokedFireMillis > 0) {
-            if (currentMillis - entry.lastUninvokedFireMillis > entry.debounceMillis) {
+            if (currentMillis - entry.lastUninvokedFireMillis >= entry.debounceMillis) {
                 entry.lastInvokeMillis = currentMillis
                 entry.lastUninvokedFireMillis = -1
                 val topLeft = entry.topLeft

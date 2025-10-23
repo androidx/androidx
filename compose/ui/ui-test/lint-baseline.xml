@@ -25,7 +25,7 @@
         errorLine1="            setContent { rememberCoroutineScope().launch { withFrameNanos {} } }"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="    private fun rowModifier(): Modifier ="
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="    private fun columnModifier(): Modifier ="
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="    private fun rowModifier(scrollState: ScrollState): Modifier ="
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="    private fun columnModifier(scrollState: ScrollState): Modifier ="
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
     </issue>
 
     <issue

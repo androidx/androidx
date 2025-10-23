@@ -30,8 +30,8 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.FallbackCreationState
-import androidx.compose.remote.creation.profile.PlatformProfile
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -268,10 +268,10 @@ public fun RemoteComposeExecution(
     content: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
-    val platform = LocalPlatform.current
+    val platform = LocalRcPlatformServices.current
 
     val remoteComposeCreationState = remember {
-        RemoteComposeCreationState(platform, density.density, size, apiLevel, profiles)
+        RemoteComposeCreationState(platform, size, apiLevel, profiles)
     }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
         FallbackCreationState.state = remoteComposeCreationState
@@ -289,9 +289,7 @@ public fun RemoteComposeExecution(
 ) {
     val density = LocalDensity.current
 
-    val remoteComposeCreationState = remember {
-        RemoteComposeCreationState(density.density, size, profile)
-    }
+    val remoteComposeCreationState = remember { RemoteComposeCreationState(size, profile) }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
         FallbackCreationState.state = remoteComposeCreationState
         captureComposeView.setRemoteComposeState(remoteComposeCreationState)
@@ -304,7 +302,7 @@ public fun RemoteComposeExecution(
  */
 @Composable
 public fun RememberRemoteDocumentInline(
-    profile: Profile = PlatformProfile.ANDROIDX,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
     onDocument: (CoreDocument) -> Unit,
     content: @RemoteComposable @Composable () -> Unit,
 ) {

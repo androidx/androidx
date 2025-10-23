@@ -912,7 +912,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 showToolbar = false
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
                 draggingHandle ?: return
 
                 val selection = selection!!

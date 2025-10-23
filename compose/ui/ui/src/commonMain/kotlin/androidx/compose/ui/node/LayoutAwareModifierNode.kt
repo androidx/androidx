@@ -44,8 +44,8 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * If you only need to access the current [LayoutCoordinates] at a single point in time from
      * outside this method, use [requireLayoutCoordinates].
      *
-     * @see UnplacedStateAwareModifierNode if you need to also be notified when the node is not
-     *   placed anymore.
+     * @see UnplacedAwareModifierNode if you need to also be notified when the node is not placed
+     *   anymore.
      */
     fun onPlaced(coordinates: LayoutCoordinates) {}
 
@@ -57,8 +57,5 @@ interface LayoutAwareModifierNode : DelegatableNode {
 }
 
 // TODO remove after usages on other platforms are migrated to the new name.
-@Deprecated(
-    "Was renamed to UnplacedStateAwareModifierNode",
-    ReplaceWith("UnplacedStateAwareModifierNode"),
-)
-internal interface OnUnplacedModifierNode : UnplacedStateAwareModifierNode
+@Deprecated("Was renamed to UnplacedAwareModifierNode", ReplaceWith("UnplacedAwareModifierNode"))
+internal interface OnUnplacedModifierNode : UnplacedAwareModifierNode

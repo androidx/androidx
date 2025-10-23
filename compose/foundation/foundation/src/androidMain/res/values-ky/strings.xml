@@ -19,5 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="tooltip_description" msgid="3765533235322692011">"калкып чыгуучу кеңеш"</string>
     <string name="tooltip_label" msgid="3124740595719787496">"калкып чыгуучу кеңешти көрсөтүү"</string>
-    <string name="androidx_compose_foundation_autofill" msgid="389117264260014992">"Автотолтуруу функиясы"</string>
+    <string name="androidx_compose_foundation_autofill" msgid="8719607706653693137">"Автотолтуруу"</string>
 </resources>

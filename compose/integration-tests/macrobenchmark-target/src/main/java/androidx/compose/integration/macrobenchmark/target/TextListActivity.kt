@@ -54,13 +54,13 @@ class TextListActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @OptIn(ExperimentalComposeUiApi::class)
+        ContentCaptureManager.isEnabled = false
         val wordCount = intent.getIntExtra(BenchmarkConfig.WordCount, 8)
         val wordLength = intent.getIntExtra(BenchmarkConfig.WordLength, 4)
         val textCount = intent.getIntExtra(BenchmarkConfig.TextCount, 3)
         val styled = intent.getBooleanExtra(BenchmarkConfig.Styled, false)
         val prefetch = intent.getBooleanExtra(BenchmarkConfig.Prefetch, false)
-        val enableContentCapture =
-            intent.getBooleanExtra(BenchmarkConfig.EnableContentCapture, false)
         val randomTextGenerator = RandomTextGenerator()
 
         val items =
@@ -87,11 +87,6 @@ class TextListActivity : ComponentActivity() {
             } else {
                 null
             }
-
-        if (!enableContentCapture) {
-            @OptIn(ExperimentalComposeUiApi::class)
-            ContentCaptureManager.isEnabled = false
-        }
 
         setContent {
             CompositionLocalProvider(LocalBackgroundTextMeasurementExecutor provides executor) {

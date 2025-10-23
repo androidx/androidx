@@ -194,6 +194,8 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
              */
             var dragTotalDistance = Offset.Zero
 
+            var selectionAdjustmentMode = SelectionAdjustment.None
+
             override fun onDown(point: Offset) {
                 // Not supported for long-press-drag.
             }
@@ -202,14 +204,15 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
                 // Nothing to do.
             }
 
-            override fun onStart(startPoint: Offset) {
+            override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
+                selectionAdjustmentMode = selectionAdjustment
                 layoutCoordinates()?.let {
                     if (!it.isAttached) return
 
                     notifySelectionUpdateStart(
                         layoutCoordinates = it,
                         startPosition = startPoint,
-                        adjustment = SelectionAdjustment.Word,
+                        adjustment = selectionAdjustmentMode,
                         isInTouchMode = true,
                     )
 
@@ -241,7 +244,7 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
                             previousPosition = lastPosition,
                             newPosition = newPosition,
                             isStartHandle = false,
-                            adjustment = SelectionAdjustment.Word,
+                            adjustment = selectionAdjustmentMode,
                             isInTouchMode = true,
                         )
                     if (consumed) {

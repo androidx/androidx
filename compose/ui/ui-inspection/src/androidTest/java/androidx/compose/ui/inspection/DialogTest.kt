@@ -28,6 +28,7 @@ import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -36,7 +37,7 @@ import org.junit.rules.RuleChain
 
 @LargeTest
 class DialogTest {
-    private val rule = createAndroidComposeRule<DialogTestActivity>()
+    private val rule = createAndroidComposeRule<DialogTestActivity>(StandardTestDispatcher())
 
     @get:Rule val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 

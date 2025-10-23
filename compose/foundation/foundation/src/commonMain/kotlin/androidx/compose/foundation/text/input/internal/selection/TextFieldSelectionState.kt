@@ -704,12 +704,14 @@ internal class TextFieldSelectionState(
 
     /**
      * Includes:
-     * * Touch
+     * * Taps from touchscreen, stylus;
      *     * Long press selects the pressed word and then detects drags to continue selecting words.
      *     * Double tap selects the current word and immediately detects drags to continue selecting
      *       words.
-     *     * Subsequent quick taps still act as a double tap.
-     * * Mouse
+     *     * Triple tap selects the current paragraph and immediately detects drags to continue
+     *       selecting paragraphs.
+     *     * Subsequent quick taps still act as a triple tap.
+     * * Clicks from mouse, touchpad;
      *     * Clicks immediately start a selection and begins detecting drags:
      *         * 1 -> click creates collapsed selection (places cursor) drags select individual chars.
      *         * 2 -> click selects current word, drags select words.
@@ -875,6 +877,7 @@ internal class TextFieldSelectionState(
         private var dragTotalDistance: Offset = Offset.Zero
         private var actingHandle: Handle = Handle.SelectionEnd // start with a placeholder.
         private var isLongPressSelectionOnly = true
+        private var selectionAdjustmentMode: SelectionAdjustment = SelectionAdjustment.None
 
         private fun onDragStop() {
             // Only execute clear-up if drag was actually ongoing.
@@ -885,6 +888,7 @@ internal class TextFieldSelectionState(
                 dragBeginPosition = Offset.Unspecified
                 dragTotalDistance = Offset.Zero
                 previousRawDragOffset = -1
+                selectionAdjustmentMode = SelectionAdjustment.None
 
                 directDragGestureInitiator = InputType.None
                 requestFocus()
@@ -902,7 +906,7 @@ internal class TextFieldSelectionState(
 
         override fun onCancel() = onDragStop()
 
-        override fun onStart(startPoint: Offset) {
+        override fun onStart(startPoint: Offset, selectionAdjustment: SelectionAdjustment) {
             if (!enabled) return
             logDebug { "Touch.onDragStart after longPress at $startPoint" }
             // this gesture detector is applied on the decoration box. We do not need to
@@ -916,6 +920,7 @@ internal class TextFieldSelectionState(
             dragTotalDistance = Offset.Zero
             previousRawDragOffset = -1
             isLongPressSelectionOnly = true
+            selectionAdjustmentMode = selectionAdjustment
 
             if (textLayoutState.layoutResult == null) return
 
@@ -940,7 +945,7 @@ internal class TextFieldSelectionState(
                         startOffset = offset,
                         endOffset = offset,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.Word,
+                        adjustment = selectionAdjustmentMode,
                     )
                 textFieldState.selectCharsIn(newSelection)
                 updateTextToolbarState(Selection)
@@ -986,7 +991,7 @@ internal class TextFieldSelectionState(
                         // start and end is in the same end padding, keep the collapsed selection
                         SelectionAdjustment.None
                     } else {
-                        SelectionAdjustment.Word
+                        selectionAdjustmentMode
                     }
             } else {
                 startOffset =
@@ -1007,7 +1012,7 @@ internal class TextFieldSelectionState(
                     return
                 }
 
-                adjustment = SelectionAdjustment.Word
+                adjustment = selectionAdjustmentMode
                 updateTextToolbarState(Selection)
             }
 

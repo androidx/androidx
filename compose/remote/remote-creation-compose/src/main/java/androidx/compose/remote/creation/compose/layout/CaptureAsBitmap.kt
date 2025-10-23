@@ -81,6 +81,7 @@ public fun CaptureAsBitmap(
     } else {
         val bitmapWidth = bitmap.value!!.width
         val bitmapHeight = bitmap.value!!.height
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         RemoteBox(modifier = RemoteModifier.width(bitmapWidth).height(bitmapHeight)) {
             Image(
                 modifier = androidx.compose.ui.Modifier,

@@ -49,7 +49,7 @@ public class FloatToStringTest {
 
     /** */
     @Test
-    public void testNegitiveStringConversions() {
+    public void testNegativeStringConversions() {
         String str;
         str = StringUtils.floatToString(-2.02f, 1, 2, (char) 0, '0');
         assertEquals("\"-2.02\"", "\"" + str + "\"");

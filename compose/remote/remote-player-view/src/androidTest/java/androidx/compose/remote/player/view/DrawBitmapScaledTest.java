@@ -31,7 +31,7 @@ import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.Log;
 
-import androidx.compose.remote.player.core.RemoteComposeDocument;
+import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.compose.remote.player.view.test.R;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -90,7 +90,7 @@ public class DrawBitmapScaledTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
         rc_player.setDocument(doc);
         Bitmap remoteBitmap = TestUtils.docToBitmap(mTw, mTh, appContext, doc);
         assertNotNull(remoteBitmap);
@@ -136,7 +136,7 @@ public class DrawBitmapScaledTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 
@@ -224,7 +224,7 @@ public class DrawBitmapScaledTest {
         }
         assertEquals("not equals", expected, result);
 
-        RemoteComposeDocument doc = TestUtils.createDocument(debugContext, cb);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
 
         rc_player.setDocument(doc);
 

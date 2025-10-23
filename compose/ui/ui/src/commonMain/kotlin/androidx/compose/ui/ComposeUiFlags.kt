@@ -158,16 +158,16 @@ object ComposeUiFlags {
      */
     @Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
 
-    /** Flag for enabling indirect touch event navigation gestures in Compose. */
+    /** Flag for enabling indirect pointer event navigation gestures in Compose. */
     @Suppress("MutableBareField")
     @JvmField
-    var isIndirectTouchNavigationGestureDetectorEnabled: Boolean = true
+    var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
+
+    /** Flag enables optimized focus change dispatching logic. */
+    @Suppress("MutableBareField") @JvmField var isOptimizedFocusEventDispatchEnabled: Boolean = true
 
     /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
     @Suppress("MutableBareField") @JvmField var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
-
-    /** Flag for enabling the performance optimization for content capture. */
-    @Suppress("MutableBareField") @JvmField var isContentCaptureOptimizationEnabled: Boolean = false
 
     /**
      * Flag for enabling nested scroll interop fix for propagating integers, this fixes an issue
@@ -196,4 +196,13 @@ object ComposeUiFlags {
      * avoiding floating content at the top and bottom of the UI.
      */
     @Suppress("MutableBareField") @JvmField var isScrollCaptureCenteringEnabled: Boolean = true
+
+    /**
+     * Enable performance optimization where coordinates calculations like
+     * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] are using the cached offsets we
+     * already have in RectManager, instead of traversing the whole tree on each call.
+     */
+    @Suppress("MutableBareField")
+    @JvmField
+    var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
 }

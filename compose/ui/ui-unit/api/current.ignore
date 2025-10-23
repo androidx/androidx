@@ -109,8 +109,6 @@ RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#fixedWidth(i
     Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.fixedWidth(int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.Constraints.Companion#restrictConstraints(int, int, int, int, boolean):
     Binary breaking change: method androidx.compose.ui.unit.Constraints.Companion.restrictConstraints(int,int,int,int,boolean) has been removed from bytecode
-RemovedFromBytecode: androidx.compose.ui.unit.ConstraintsKt#Constraints(int, int, int, int):
-    Binary breaking change: method androidx.compose.ui.unit.ConstraintsKt.Constraints(int,int,int,int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.Density#toDp(float):
     Binary breaking change: method androidx.compose.ui.unit.Density.toDp(float) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.Density#toDp(int):
@@ -157,8 +155,6 @@ RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#times(float):
     Binary breaking change: method androidx.compose.ui.unit.IntOffset.times(float) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.IntOffset#unaryMinus():
     Binary breaking change: method androidx.compose.ui.unit.IntOffset.unaryMinus() has been removed from bytecode
-RemovedFromBytecode: androidx.compose.ui.unit.IntOffsetKt#IntOffset(int, int):
-    Binary breaking change: method androidx.compose.ui.unit.IntOffsetKt.IntOffset(int,int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.IntSize#component1():
     Binary breaking change: method androidx.compose.ui.unit.IntSize.component1() has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.IntSize#component2():
@@ -167,8 +163,6 @@ RemovedFromBytecode: androidx.compose.ui.unit.IntSize#div(int):
     Binary breaking change: method androidx.compose.ui.unit.IntSize.div(int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.IntSize#times(int):
     Binary breaking change: method androidx.compose.ui.unit.IntSize.times(int) has been removed from bytecode
-RemovedFromBytecode: androidx.compose.ui.unit.IntSizeKt#IntSize(int, int):
-    Binary breaking change: method androidx.compose.ui.unit.IntSizeKt.IntSize(int,int) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#div(double):
     Binary breaking change: method androidx.compose.ui.unit.TextUnit.div(double) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.TextUnit#div(float):
@@ -197,8 +191,6 @@ RemovedFromBytecode: androidx.compose.ui.unit.Velocity#times(float):
     Binary breaking change: method androidx.compose.ui.unit.Velocity.times(float) has been removed from bytecode
 RemovedFromBytecode: androidx.compose.ui.unit.Velocity#unaryMinus():
     Binary breaking change: method androidx.compose.ui.unit.Velocity.unaryMinus() has been removed from bytecode
-RemovedFromBytecode: androidx.compose.ui.unit.VelocityKt#Velocity(float, float):
-    Binary breaking change: method androidx.compose.ui.unit.VelocityKt.Velocity(float,float) has been removed from bytecode
 
 
 RemovedFromKotlin: androidx.compose.ui.unit.ConstraintsKt#Constraints(int, int, int, int):

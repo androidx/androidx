@@ -1,14 +1,1 @@
 // Signature format: 4.0
-package androidx.compose.remote.player.view {
-
-  public class RemoteComposePlayer extends android.widget.FrameLayout {
-    ctor public RemoteComposePlayer(android.content.Context);
-    ctor public RemoteComposePlayer(android.content.Context, android.util.AttributeSet?);
-    ctor public RemoteComposePlayer(android.content.Context, android.util.AttributeSet?, int);
-    method public androidx.compose.remote.player.core.RemoteComposeDocument getDocument();
-    method public androidx.compose.remote.player.core.state.StateUpdater getStateUpdater();
-    method public void setDocument(androidx.compose.remote.player.core.RemoteComposeDocument);
-  }
-
-}
-

@@ -1226,7 +1226,7 @@ private class EnterExitTransitionModifierNode(
 private val DefaultSizeAnimationSpec =
     spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntSize.VisibilityThreshold)
 
-private data class EnterExitTransitionElement(
+private class EnterExitTransitionElement(
     val transition: Transition<EnterExitState>,
     var sizeAnimation: Transition<EnterExitState>.DeferredAnimation<IntSize, AnimationVector2D>?,
     var offsetAnimation:
@@ -1269,5 +1269,23 @@ private data class EnterExitTransitionElement(
         properties["enter"] = enter
         properties["exit"] = exit
         properties["graphicsLayerBlock"] = graphicsLayerBlock
+    }
+
+    override fun hashCode(): Int {
+        return ((((((transition.hashCode() * 31 + sizeAnimation.hashCode()) * 31 +
+            offsetAnimation.hashCode()) * 31 + slideAnimation.hashCode()) * 31 + enter.hashCode()) *
+            31 + exit.hashCode()) * 31 + isEnabled.hashCode()) * 31 + graphicsLayerBlock.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other is EnterExitTransitionElement &&
+            other.transition == transition &&
+            other.sizeAnimation == sizeAnimation &&
+            other.offsetAnimation == offsetAnimation &&
+            other.slideAnimation == slideAnimation &&
+            other.enter == enter &&
+            other.exit == exit &&
+            other.isEnabled === isEnabled &&
+            other.graphicsLayerBlock == graphicsLayerBlock
     }
 }

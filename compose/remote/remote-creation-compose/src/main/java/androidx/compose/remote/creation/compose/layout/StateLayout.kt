@@ -174,6 +174,7 @@ public fun StateLayout(
     val captureMode = LocalRemoteComposeCreationState.current
     if (captureMode is NoRemoteCompose) {
         val currentState = stateMachine.currentState
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         Box(
             modifier.toComposeUi(),
             contentAlignment = boxAlignment(horizontalAlignment, verticalArrangement),
@@ -181,6 +182,7 @@ public fun StateLayout(
             content(currentState.value)
         }
     } else {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         Box(
             RemoteComposeStateLayoutModifier(
                     modifier,

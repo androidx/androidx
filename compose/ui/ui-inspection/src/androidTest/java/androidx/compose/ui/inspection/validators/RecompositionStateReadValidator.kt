@@ -16,21 +16,13 @@
 
 package androidx.compose.ui.inspection.validators
 
-import android.util.Log
-import androidx.compose.ui.inspection.LOG_TAG
 import androidx.compose.ui.inspection.util.toMap
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetRecompositionStateReadResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter.Type
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.RecompositionStateRead
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.RecompositionStateReadEvent
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRead
-
-// Add a fudge value for line comparisons to avoid frequent test failures from
-// changed code.
-// For failures with this validator: disable the test and assign a bug to jlauridsen@
-private const val LINE_FUDGE_VALUE = 50
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateReadGroup
 
 // A pattern for matching a line from a stacktrace.
 // Can be used to extract className, methodName, fileName and line number.
@@ -45,22 +37,12 @@ internal fun validate(
     block: MultiRecompositionStateReadValidator.() -> Unit = {},
 ) {
     assertThat(reads.anchorHash).isEqualTo(anchorHash)
-    validate(reads.stringsList.toMap(), listOf(reads.read), block)
-}
-
-/** Validate a DSL for a [RecompositionStateReadEvent]. */
-internal fun validate(
-    event: RecompositionStateReadEvent,
-    anchorHash: Int,
-    block: MultiRecompositionStateReadValidator.() -> Unit = {},
-) {
-    assertThat(event.anchorHash).isEqualTo(anchorHash)
-    validate(event.stringsList.toMap(), event.readList, block)
+    validate(reads.stringsList.toMap(), reads.readList, block)
 }
 
 private fun validate(
     strings: Map<Int, String>,
-    reads: List<RecompositionStateRead>,
+    reads: List<StateReadGroup>,
     block: MultiRecompositionStateReadValidator.() -> Unit = {},
 ) {
     val map = reads.associate { it.recompositionNumber to it.readList }
@@ -80,7 +62,7 @@ private fun validate(
     }
 }
 
-/** Validator of a DSL for [GetRecompositionStateReadResponse] and [RecompositionStateReadEvent]. */
+/** Validator of a DSL for [GetRecompositionStateReadResponse]. */
 internal class MultiRecompositionStateReadValidator(
     private val strings: Map<Int, String>,
     private val reads: Map<Int, List<StateRead>>,
@@ -131,10 +113,7 @@ internal class MultiRecompositionStateReadValidator(
     }
 }
 
-/**
- * Validator of a DSL of state reads from either a [GetRecompositionStateReadResponse] or a
- * [RecompositionStateReadEvent].
- */
+/** Validator of a DSL of state reads from a [GetRecompositionStateReadResponse]. */
 internal class RecompositionStateReadValidator(
     private val strings: Map<Int, String>,
     private val reads: List<StateRead>,
@@ -173,10 +152,7 @@ internal class RecompositionStateReadValidator(
     }
 }
 
-/**
- * Validator of a DSL of a single state read from either a [GetRecompositionStateReadResponse] or a
- * [RecompositionStateReadEvent].
- */
+/** Validator of a DSL of state reads from a [GetRecompositionStateReadResponse]. */
 internal class StateReadValidator(
     private val strings: Map<Int, String>,
     private val read: StateRead,
@@ -226,17 +202,10 @@ internal class StateReadValidator(
             val expectedClass = match.groupValues[1]
             val expectedMethod = match.groupValues[2]
             val expectedFile = match.groupValues[3]
-            val expectedLine = match.groupValues[4].toInt()
             val actual = stackTraces[traceIndex++]
             assertIsMatch(line, strings[actual.declaringClass], expectedClass)
             assertIsMatch(line, strings[actual.methodName], expectedMethod)
             assertIsMatch(line, strings[actual.fileName], expectedFile)
-            assertThat(actual.lineNumber)
-                .isIn(expectedLine - LINE_FUDGE_VALUE..expectedLine + LINE_FUDGE_VALUE)
-            if (actual.lineNumber != expectedLine) {
-                // Warning: without failing the test:
-                Log.w(LOG_TAG, Exception("Expected: $expectedLine was: ${actual.lineNumber}"))
-            }
         }
         if (traceIndex < stackTraces.size) {
             error("Only $traceIndex stack trace lines of ${stackTraces.size} are accounted for.")

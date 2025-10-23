@@ -17,7 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.collection.IntObjectMap
-import androidx.compose.runtime.retain.RetainScope
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -214,7 +214,7 @@ class DepthSortedSetTest {
         override val semanticsOwner: SemanticsOwner get() = throw IllegalStateException()
         override val focusOwner: FocusOwner get() = throw IllegalStateException()
         override val windowInfo: WindowInfo get() = throw IllegalStateException()
-        override val retainScope: RetainScope get() = throw IllegalStateException()
+        override val retainedValuesStore: RetainedValuesStore get() = throw IllegalStateException()
         override val rectManager: RectManager get() = throw IllegalStateException()
         @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
         override val fontLoader: Font.ResourceLoader get() = throw IllegalStateException()

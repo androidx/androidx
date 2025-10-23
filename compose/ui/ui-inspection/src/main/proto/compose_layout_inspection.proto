@@ -216,7 +216,7 @@ message ParameterGroup {
 }
 
 // The StateReads for a single recomposition.
-message RecompositionStateRead {
+message StateReadGroup {
     // The recomposition these state reads belong to.
     // For example first, second etc recomposition of a composable
     int32 recomposition_number = 1;
@@ -275,23 +275,17 @@ message StateReadSettings {
 
   // The agent should start recording State Reads for all composable.
   message All {
-      // Limit the number of recompositions that state reads are kept for each
-      // composable. Older data is silently discarded. The default is 20.
-      int32 max_recompositions = 3;
+      // Limit the number of state reads kept on the device. The default is 5000.
+      int32 max_state_reads = 1;
   }
 
   // The agent should start recording State Reads for the specified composable.
   message ById {
+      // Limit the number of state reads kept on the device. The default is 5000.
+      int32 max_state_reads = 1;
+
       // The anchor hash of the composable to observe recompose state reads for.
-      repeated sint32 composable_to_observe = 1;
-
-      // Limit the number of recompositions that state reads are kept for each
-      // composable. Older data is sent to Studio via an event. The default is 20.
-      int32 max_recompositions = 2;
-
-      // Send state reads that are discarded because of max_recompositions as
-      // events.
-      bool send_discarded_events = 3;
+      repeated sint32 composable_to_observe = 2;
   }
 }
 
@@ -406,13 +400,18 @@ message UpdateSettingsResponse {
   repeated StateReadSettings.Kind supported_state_read_kind = 4;
 }
 
-// Get recomposition state reads for a single composable and recomposition.
+// Get recomposition state reads for a composable and a range of recompositions.
 message GetRecompositionStateReadCommand {
-    // The anchor hash of the composable to retrieve state reads for
-    // or start tracking state reads for.
+    // The anchor hash of the composable to retrieve state reads for.
     sint32 anchor_hash = 1;
-    // Specifies the recomposition number to retrieve state reads for.
-    int32 recomposition_number = 2;
+    // Specifies the lower recomposition number of the range to retrieve state reads for.
+    int32 recomposition_number_start = 2;
+    // Specifies the upper recomposition number of the range to retrieve state reads for.
+    int32 recomposition_number_end = 3;
+    // If false: return state reads for the specified range of recompositions only.
+    // If true: include extra recompositions after recomposition_number_end if any of the
+    // recompositions in the specified range doesn't have state reads.
+    bool include_extra = 4;
 }
 
 // State reads for a single composable as a response to GetRecompositionStateReadCommand.
@@ -421,10 +420,9 @@ message GetRecompositionStateReadResponse {
     sint32 anchor_hash = 1;
     // The string table for the state reads.
     repeated StringEntry strings = 2;
-    // The state reads for a recomposition.
-    RecompositionStateRead read = 3;
-    // The first recomposition of this composable with state reads on the device.
-    sint32 first_recomposition = 4;
+    // The groups of state reads for the requested recompositions. If the specific recompositions
+    // were not found return the closest recompositions in the specified search direction.
+    repeated StateReadGroup read = 3;
 }
 
 message Command {
@@ -448,22 +446,5 @@ message Response {
     GetRecompositionStateReadResponse get_recomposition_state_read_response = 6;
 
     UnknownCommandResponse unknown_command_response = 100;
-  }
-}
-
-// ======= EVENTS =======
-
-// An event with 1 or more recompositions with state reads.
-message RecompositionStateReadEvent {
-    // The anchor hash of the composable which the state reads is for.
-    sint32 anchor_hash = 1;
-    repeated StringEntry strings = 2;
-    // The state reads per recomposition.
-    repeated RecompositionStateRead read = 3;
-}
-
-message Event {
-  oneof specialized {
-    RecompositionStateReadEvent state_read_event = 1;
   }
 }

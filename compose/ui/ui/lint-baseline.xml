@@ -7,7 +7,7 @@
         errorLine1="            rule.runOnUiThread { Thread.sleep(sleepTime) }"
         errorLine2="                                        ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
     </issue>
 
     <issue
@@ -16,7 +16,7 @@
         errorLine1="        if (callback != other.callback) return false"
         errorLine2="                     ~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/OnGlobalLayoutListenerTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnGlobalLayoutListenerTest.kt"/>
     </issue>
 
     <issue
@@ -25,7 +25,7 @@
         errorLine1="                if (onRemeasured != other.onRemeasured) return false"
         errorLine2="                                 ~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
     </issue>
 
     <issue
@@ -34,7 +34,7 @@
         errorLine1="                if (onPlaced != other.onPlaced) return false"
         errorLine2="                             ~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/OnSizeChangedTest.kt"/>
     </issue>
 
     <issue
@@ -43,7 +43,7 @@
         errorLine1="internal fun ReverseMeasureLayout(modifier: Modifier, vararg contents: @Composable () -> Unit) ="
         errorLine2="                                                             ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeUtils.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeUtils.kt"/>
     </issue>
 
     <issue
@@ -52,7 +52,7 @@
         errorLine1="        detachedFromParentLookaheadPlacmeentItemContent: @Composable () -> Unit"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/SubcomposeLayoutTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/SubcomposeLayoutTest.kt"/>
     </issue>
 
     <issue
@@ -61,7 +61,7 @@
         errorLine1="private fun Wrapper(body: @Composable () -> Unit) {"
         errorLine2="                    ~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/platform/WrapperTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/platform/WrapperTest.kt"/>
     </issue>
 
     <issue
@@ -70,7 +70,7 @@
         errorLine1="    content: @Composable @UiComposable () -> Unit,"
         errorLine2="    ~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
     </issue>
 
     <issue
@@ -79,7 +79,7 @@
         errorLine1="    private fun createUi() {"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/TraversableModifierNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/TraversableModifierNodeTest.kt"/>
     </issue>
 
     <issue
@@ -88,7 +88,7 @@
         errorLine1="    private fun VectorMirror(size: Int): VectorPainter {"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
     </issue>
 
     <issue
@@ -97,7 +97,7 @@
         errorLine1="        private val staticLocalInt = staticCompositionLocalOf { 0 }"
         errorLine2="                    ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
     </issue>
 
     <issue
@@ -106,7 +106,7 @@
         errorLine1="val SomeLocal = compositionLocalOf&lt;Int> { error(&quot;unprovided value&quot;) }"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
     </issue>
 
     <issue
@@ -115,7 +115,7 @@
         errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
     </issue>
 
     <issue
@@ -124,7 +124,7 @@
         errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
     </issue>
 
     <issue
@@ -133,7 +133,7 @@
         errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
     </issue>
 
     <issue
@@ -142,7 +142,7 @@
         errorLine1="        val locale = LocaleList(&quot;en_US&quot;)"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/AndroidAccessibilityTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidAccessibilityTest.kt"/>
     </issue>
 
     <issue
@@ -151,7 +151,7 @@
         errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("
         errorLine2="                                                   ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
     </issue>
 
     <issue
@@ -160,7 +160,7 @@
         errorLine1="inline fun &lt;reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) ="
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
     </issue>
 
     <issue
@@ -187,7 +187,7 @@
         errorLine1="private fun createModifier("
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/modifier/ModifierNodeReuseAndDeactivationTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/ModifierNodeReuseAndDeactivationTest.kt"/>
     </issue>
 
     <issue
@@ -196,7 +196,7 @@
         errorLine1="fun modifierOf(vararg modifiers: Modifier): Modifier {"
         errorLine2="    ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -205,7 +205,7 @@
         errorLine1="fun modifierOf(vararg nodes: Modifier.Node): Modifier {"
         errorLine2="    ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -214,7 +214,7 @@
         errorLine1="fun reusableModifier(name: String): Modifier.Element ="
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -223,7 +223,7 @@
         errorLine1="fun modifierA(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -232,7 +232,7 @@
         errorLine1="fun modifierB(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -241,7 +241,7 @@
         errorLine1="fun modifierC(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -250,7 +250,7 @@
         errorLine1="fun modifierD(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -259,7 +259,7 @@
         errorLine1="fun managedModifier(name: String, params: Any? = null): ModifierNodeElement&lt;*> ="
         errorLine2="    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -268,7 +268,7 @@
         errorLine1="internal fun elementFor(key1: Any? = null, instance: Modifier.Node) ="
         errorLine2="             ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
     </issue>
 
     <issue
@@ -277,7 +277,7 @@
         errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("
         errorLine2="                                                   ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/CompositionLocalConsumerModifierNodeTest.kt"/>
     </issue>
 
     <issue
@@ -286,7 +286,7 @@
         errorLine1="inline fun &lt;reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) ="
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
     </issue>
 
     <issue
@@ -304,7 +304,7 @@
         errorLine1="fun reusableModifier(name: String): Modifier.Element ="
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -313,7 +313,7 @@
         errorLine1="fun modifierA(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -322,7 +322,7 @@
         errorLine1="fun modifierB(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -331,7 +331,7 @@
         errorLine1="fun modifierC(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -340,7 +340,7 @@
         errorLine1="fun modifierD(params: Any? = null): Modifier.Element {"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -349,7 +349,7 @@
         errorLine1="fun managedModifier(name: String, params: Any? = null): ModifierNodeElement&lt;*> ="
         errorLine2="    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/node/NodeChainTester.kt"/>
     </issue>
 
     <issue
@@ -358,7 +358,7 @@
         errorLine1="internal fun elementFor(key1: Any? = null, instance: Modifier.Node) ="
         errorLine2="             ~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/TestUtils.kt"/>
     </issue>
 
     <issue
@@ -367,7 +367,7 @@
         errorLine1="    private fun Modifier.trackMainPassPlacement(block: () -> Unit) ="
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/LookaheadScopeTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/LookaheadScopeTest.kt"/>
     </issue>
 
     <issue
@@ -376,7 +376,7 @@
         errorLine1="    modifier: Modifier = Modifier,"
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
     </issue>
 
     <issue
@@ -385,7 +385,7 @@
         errorLine1="fun FocusableComponent(tag: String? = null, modifier: Modifier = Modifier) {"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/focus/FocusTestUtils.kt"/>
     </issue>
 
     <issue
@@ -394,7 +394,7 @@
         errorLine1="        modifier: Modifier = Modifier,"
         errorLine2="        ~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/layout/ResizingComposeViewTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/layout/ResizingComposeViewTest.kt"/>
     </issue>
 
     <issue
@@ -403,7 +403,7 @@
         errorLine1="                            awaitPointerEventScope {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/PointerInputDensityTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/PointerInputDensityTest.kt"/>
     </issue>
 
     <issue
@@ -412,7 +412,7 @@
         errorLine1="                            awaitPointerEventScope {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/PointerInputViewConfigurationTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/PointerInputViewConfigurationTest.kt"/>
     </issue>
 
     <issue
@@ -421,7 +421,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -430,7 +430,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -439,7 +439,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -448,7 +448,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -457,7 +457,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -466,7 +466,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -475,7 +475,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -484,7 +484,7 @@
         errorLine1="            awaitPointerEventScope {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -493,7 +493,7 @@
         errorLine1="                            awaitPointerEventScope { events += awaitPointerEvent() }"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -502,7 +502,7 @@
         errorLine1="                            awaitPointerEventScope { events += awaitPointerEvent() }"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/SuspendingPointerInputFilterTest.kt"/>
     </issue>
 
     <issue
@@ -772,7 +772,7 @@
         errorLine1="            state.value"
         errorLine2="                  ~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
+            file="src/androidDeviceTest/kotlin/androidx/compose/ui/graphics/vector/VectorTest.kt"/>
     </issue>
 
     <issue

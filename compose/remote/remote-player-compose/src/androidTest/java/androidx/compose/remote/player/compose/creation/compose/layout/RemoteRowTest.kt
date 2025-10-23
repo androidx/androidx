@@ -31,14 +31,13 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.test.screenshot.TargetPlayer
-import androidx.compose.remote.test.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.screenshot.matchers.MSSIMMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +51,6 @@ class RemoteRowComposeTest {
     val composeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            matcher = MSSIMMatcher(threshold = 0.999),
             targetPlayer = TargetPlayer.Compose,
         )
 
@@ -70,7 +68,6 @@ class RemoteRowViewTest {
     val composeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            matcher = MSSIMMatcher(threshold = 0.999),
             targetPlayer = TargetPlayer.View,
         )
 

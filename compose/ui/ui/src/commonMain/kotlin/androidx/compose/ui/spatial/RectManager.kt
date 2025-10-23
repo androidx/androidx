@@ -36,7 +36,6 @@ import androidx.compose.ui.postDelayed
 import androidx.compose.ui.removePost
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
@@ -126,6 +125,9 @@ internal class RectManager(
         // this gets called frequently, but we might need to schedule it more often to ensure that
         // debounced callbacks get fired
         throttledCallbacks.triggerDebounced(currentTime)
+        if (throttledCallbacks.minDebounceDeadline > 0) {
+            scheduleDebounceCallback(ensureSomethingScheduled = true)
+        }
     }
 
     fun scheduleDebounceCallback(ensureSomethingScheduled: Boolean) {
@@ -283,12 +285,11 @@ internal class RectManager(
 
     private fun recalculateOffsetFromRoot(layoutNode: LayoutNode) {
         val outer = layoutNode.outerCoordinator
-        var position = outer.applyLayerTransformation(IntOffset.Zero)
-        if (!position.isSet) {
+
+        if (outer.hasPositionalLayerTransformations()) {
             layoutNode.offsetFromRoot = IntOffset.Max
             return
         }
-        position += outer.position
         val parent = layoutNode.parent
         layoutNode.offsetFromRoot =
             if (parent != null) {
@@ -315,12 +316,12 @@ internal class RectManager(
                     if (!parentOuterInnerOffset.isSet) {
                         IntOffset.Max
                     } else {
-                        parentOffset + parentOuterInnerOffset + position
+                        parentOffset + parentOuterInnerOffset + outer.position
                     }
                 }
             } else {
                 // root
-                position
+                outer.position
             }
     }
 
@@ -410,20 +411,8 @@ internal class RectManager(
         }
     }
 
-    private fun NodeCoordinator.applyLayerTransformation(position: IntOffset): IntOffset {
-        val layer = layer
-        if (layer != null) {
-            val matrix = layer.underlyingMatrix
-            val analysis = matrix.analyzeComponents()
-            if (!analysis.isIdentity) {
-                if (analysis.hasNonTranslationComponents) {
-                    return IntOffset.Max
-                }
-                return matrix.map(position.toOffset()).round()
-            }
-        }
-        return position
-    }
+    private fun NodeCoordinator.hasPositionalLayerTransformations() =
+        layer?.underlyingMatrix?.isIdentity() == false
 
     /**
      * @return combined offset for all coordinators not including the outer one, the outer offset is
@@ -436,8 +425,7 @@ internal class RectManager(
         var coordinator: NodeCoordinator? = innerCoordinator
         while (coordinator != null) {
             if (coordinator === terminator) break
-            position = coordinator.applyLayerTransformation(position)
-            if (position == IntOffset.Max) {
+            if (coordinator.hasPositionalLayerTransformations()) {
                 return IntOffset.Max
             }
             position += coordinator.position

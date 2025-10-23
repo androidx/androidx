@@ -103,11 +103,13 @@ fun DynamicallyEnableSharedElementsDemo() {
 
                 fun config() =
                     if (accountForAnimation) {
-                        SharedContentConfig {
-                            listOfEnabledStatePairs.contains(
-                                animatedContentTransition.currentState to
-                                    animatedContentTransition.targetState
-                            )
+                        object : SharedTransitionScope.SharedContentConfig {
+                            override val SharedTransitionScope.SharedContentState.isEnabled: Boolean
+                                get() =
+                                    listOfEnabledStatePairs.contains(
+                                        animatedContentTransition.currentState to
+                                            animatedContentTransition.targetState
+                                    )
                         }
                     } else {
                         object : SharedTransitionScope.SharedContentConfig {

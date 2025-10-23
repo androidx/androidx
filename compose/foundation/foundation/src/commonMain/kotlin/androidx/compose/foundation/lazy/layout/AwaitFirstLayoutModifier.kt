@@ -18,37 +18,25 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
-import androidx.compose.ui.util.fastForEach
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.CompletableDeferred
 
 /**
  * Internal modifier which allows to delay some interactions (e.g. scroll) until layout is ready.
  */
 internal class AwaitFirstLayoutModifier : OnGloballyPositionedModifier {
     private var wasPositioned = false
-    private val continuations = mutableListOf<Continuation<Unit>>()
+    private val lock = CompletableDeferred(Unit)
 
     suspend fun waitForFirstLayout() {
         if (!wasPositioned) {
-            var continuation: Continuation<Unit>? = null
-            try {
-                suspendCancellableCoroutine<Unit> {
-                    continuation = it
-                    continuations.add(it)
-                }
-            } finally {
-                continuations.remove(continuation)
-            }
+            lock.await()
         }
     }
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         if (!wasPositioned) {
             wasPositioned = true
-            continuations.fastForEach { it.resume(Unit) }
-            continuations.clear()
+            lock.complete(Unit)
         }
     }
 }

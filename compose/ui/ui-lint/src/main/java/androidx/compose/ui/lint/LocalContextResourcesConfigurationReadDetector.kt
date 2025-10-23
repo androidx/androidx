@@ -31,7 +31,6 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -39,6 +38,7 @@ import com.android.tools.lint.detector.api.UastLintUtils.Companion.tryResolveUDe
 import com.intellij.psi.PsiMember
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
@@ -80,7 +80,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                         node,
                         context.getNameLocation(node),
                         "Reading Configuration using $LocalContextCurrentResourcesConfiguration",
-                        LintFix.create()
+                        fix()
                             .replace()
                             .name("Replace with $LocalConfigurationCurrent")
                             .all()
@@ -122,8 +122,9 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                 val selector = node.selector.skipParenthesizedExprDown()
                 val configurationCall = selector.isCallToGetConfiguration()
                 val resourcesCall = selector.isCallToGetResources()
-                val contextGetResourceValueCall = selector.isContextGetResourceValueCall()
-                if (!configurationCall && !resourcesCall && !contextGetResourceValueCall) return
+                val contextGetResourceValueCallName = selector.getContextGetResourceValueCallName()
+                if (!configurationCall && !resourcesCall && contextGetResourceValueCallName == null)
+                    return
 
                 // Either the expression with resources when the selector is resources.configuration
                 // or the expression with context when the selector is
@@ -188,12 +189,89 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                             // report after we analyze the file, to avoid double reporting as
                             // mentioned above
                             contextResourcesCalls.add(node)
-                        } else if (contextGetResourceValueCall) {
+                        } else if (contextGetResourceValueCallName != null) {
+                            val selectorCallExpression = selector.sourcePsi as? KtCallExpression
+                            // Text of the call's value arguments
+                            val valueArgumentText = selectorCallExpression?.valueArgumentList?.text
+                            // Whole text of the node
+                            val nodeText = node.sourcePsi?.text
+                            val textToReplace =
+                                if (valueArgumentText != null && nodeText != null) {
+                                    nodeText.substringBefore(valueArgumentText)
+                                } else null
+                            val replaceWith =
+                                textToReplace?.let {
+                                    when (contextGetResourceValueCallName) {
+                                        ContextGetString -> {
+                                            fix()
+                                                .replace()
+                                                .name("Replace with stringResource")
+                                                .text(textToReplace)
+                                                .with("stringResource")
+                                                .imports("$ComposeUiResPackage.stringResource")
+                                                .autoFix()
+                                                .build()
+                                        }
+
+                                        ContextGetColor -> {
+                                            fix()
+                                                .replace()
+                                                .name("Replace with colorResource")
+                                                .text(textToReplace)
+                                                .with("colorResource")
+                                                .imports("$ComposeUiResPackage.colorResource")
+                                                .autoFix()
+                                                .build()
+                                        }
+
+                                        ContextGetDrawable -> {
+                                            fix()
+                                                .alternatives(
+                                                    fix()
+                                                        .replace()
+                                                        .name("Replace with painterResource")
+                                                        .text(textToReplace)
+                                                        .with("painterResource")
+                                                        .imports(
+                                                            "$ComposeUiResPackage.painterResource"
+                                                        )
+                                                        .autoFix()
+                                                        .build(),
+                                                    fix()
+                                                        .replace()
+                                                        .name(
+                                                            "Replace with ImageBitmap.imageResource"
+                                                        )
+                                                        .text(textToReplace)
+                                                        .with("ImageBitmap.imageResource")
+                                                        .imports(
+                                                            "$ComposeUiResPackage.imageResource"
+                                                        )
+                                                        .autoFix()
+                                                        .build(),
+                                                    fix()
+                                                        .replace()
+                                                        .name(
+                                                            "Replace with ImageVector.vectorResource"
+                                                        )
+                                                        .text(textToReplace)
+                                                        .with("ImageVector.vectorResource")
+                                                        .imports(
+                                                            "$ComposeUiResPackage.vectorResource"
+                                                        )
+                                                        .autoFix()
+                                                        .build(),
+                                                )
+                                        }
+                                        else -> null
+                                    }
+                                }
                             context.report(
                                 LocalContextGetResourceValueCall,
                                 node,
                                 context.getNameLocation(node),
                                 "Querying resource values using $LocalContextCurrent",
+                                replaceWith,
                             )
                         }
                     }
@@ -246,7 +324,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                         resourcesCall,
                         context.getNameLocation(resourcesCall),
                         "Reading Resources using $LocalContextCurrentResources",
-                        LintFix.create()
+                        fix()
                             .replace()
                             .name("Replace with $LocalResourcesCurrent")
                             .all()
@@ -323,12 +401,19 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
         return resolved.name == "getResources" && resolved.isInPackageName(ContentPackage)
     }
 
-    private fun UElement.isContextGetResourceValueCall(): Boolean {
-        val expression = (this as? UCallExpression) ?: return false
-        if (expression.receiverType?.inheritsFrom(ContextName) != true) return false
-        val resolved = expression.resolve() ?: return false
-        return ContextGetResourceValueMethods.any { resolved.name == it } &&
-            resolved.isInPackageName(ContentPackage)
+    /**
+     * @return the method name if this is a call to one of the resource value methods in
+     *   [ContextGetResourceValueMethods], else null
+     */
+    private fun UElement.getContextGetResourceValueCallName(): String? {
+        val expression = (this as? UCallExpression) ?: return null
+        if (expression.receiverType?.inheritsFrom(ContextName) != true) return null
+        val resolved = expression.resolve() ?: return null
+        return if (resolved.isInPackageName(ContentPackage)) {
+            ContextGetResourceValueMethods.firstOrNull { resolved.name == it }
+        } else {
+            null
+        }
     }
 
     /**
@@ -361,8 +446,20 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
             "LocalContext.current.resources.configuration"
         private const val LocalResourcesCurrent = "LocalResources.current"
         private const val LocalConfigurationCurrent = "LocalConfiguration.current"
+        private const val ContextGetText = "getText"
+        private const val ContextGetString = "getString"
+        private const val ContextGetColor = "getColor"
+        private const val ContextGetDrawable = "getDrawable"
+        private const val ContextGetColorStateList = "getColorStateList"
+        private const val ComposeUiResPackage = "androidx.compose.ui.res"
         private val ContextGetResourceValueMethods =
-            listOf("getText", "getString", "getColor", "getDrawable", "getColorStateList")
+            listOf(
+                ContextGetText,
+                ContextGetString,
+                ContextGetColor,
+                ContextGetDrawable,
+                ContextGetColorStateList,
+            )
         private val ContentPackage = Package("android.content")
         private val ResPackage = Package("android.content.res")
         private val ContextName = Name(ContentPackage, "Context")
@@ -389,7 +486,14 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
             Issue.create(
                 "LocalContextGetResourceValueCall",
                 "Querying resource properties using $LocalContextCurrent",
-                "Changes to the Configuration object will not cause $LocalContextCurrent reads to be invalidated, so calls to APIs such as Context.getString() will not be updated when the Configuration changes, and so stale values might be used. Instead, use $LocalResourcesCurrent and query properties from Resources directly - this will invalidate callers when the Configuration changes, to ensure that these calls reflect the latest values.",
+                "Changes to the Configuration object will not cause " +
+                    "$LocalContextCurrent reads to be invalidated, so calls to APIs such as " +
+                    "Context.getString() will not be updated when the Configuration changes, " +
+                    "and so stale values might be used. Instead, you can use Compose APIs such " +
+                    "as stringResource, colorResource, and painterResource - or " +
+                    "$LocalResourcesCurrent and query properties from Resources directly. Using " +
+                    "these APIs will invalidate callers when the Configuration changes, to " +
+                    "ensure that these calls reflect the latest values.",
                 Category.CORRECTNESS,
                 3,
                 Severity.ERROR,

@@ -240,7 +240,10 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                     if (
                         child.placeOrder == androidx.compose.ui.node.LayoutNode.NotPlacedPlaceOrder
                     ) {
-                        if (child.layoutDelegate.detachedFromParentLookaheadPlacement) {
+                        if (
+                            child.layoutDelegate.detachedFromParentLookaheadPlacement ||
+                                child.isOutMostLookaheadRoot
+                        ) {
                             // Child's lookahead placement is dependent on the approach
                             // placement
                             child.lookaheadPassDelegate!!.markNodeAndSubtreeAsNotPlaced(
@@ -610,6 +613,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 notifyChildrenUsingCoordinatesWhilePlacing()
             }
 
+            lookaheadPassDelegate?.onApproachPlacement()
             // This can actually be called as soon as LookaheadMeasure is done, but devs may expect
             // certain placement results (e.g. LayoutCoordinates) to be valid when lookahead
             // placement

@@ -80,6 +80,7 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -169,6 +170,11 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
     override fun onAttach() {
         super.onAttach()
         observeReads(sharedScope.observeAnimatingBlock)
+        sharedScope.invalidateOverlay = { invalidateDraw() }
+    }
+
+    override fun onDetach() {
+        sharedScope.invalidateOverlay = null
     }
 
     var sharedScope: SharedTransitionScopeImpl = sharedScope
@@ -223,7 +229,10 @@ public fun interface BoundsTransform {
      * Returns a [FiniteAnimationSpec] for animating the bounds from [initialBounds] to
      * [targetBounds].
      */
-    public fun transform(initialBounds: Rect, targetBounds: Rect): FiniteAnimationSpec<Rect>
+    public fun createAnimationSpec(
+        initialBounds: Rect,
+        targetBounds: Rect,
+    ): FiniteAnimationSpec<Rect>
 }
 
 /**
@@ -354,19 +363,6 @@ public interface SharedTransitionScope : LookaheadScope {
                 contentScale: ContentScale = ContentScale.FillWidth,
                 alignment: Alignment = Center,
             ): ResizeMode = ScaleToBoundsCached(contentScale, alignment)
-
-            @Deprecated(
-                "ScaleToBounds has been renamed to scaleToBounds",
-                ReplaceWith(
-                    "scaleToBounds(contentScale, alignment)",
-                    "androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds",
-                    "androidx.compose.animation.SharedTransitionScope.ResizeMode",
-                ),
-            )
-            public fun ScaleToBounds(
-                contentScale: ContentScale = ContentScale.FillWidth,
-                alignment: Alignment = Center,
-            ): ResizeMode = scaleToBounds()
         }
     }
 
@@ -792,12 +788,21 @@ public interface SharedTransitionScope : LookaheadScope {
      * Creates and remembers a [SharedContentState] with a given [key] and a given
      * [SharedContentConfig].
      *
+     * @sample androidx.compose.animation.samples.SharedBoundsSample
+     * @param key will be used to match a shared element against others in the same
+     *   [SharedTransitionScope].
+     */
+    @Composable
+    public fun rememberSharedContentState(key: Any): SharedContentState =
+        rememberSharedContentState(key, SharedTransitionDefaults.SharedContentConfig)
+
+    /**
+     * Creates and remembers a [SharedContentState] with a given [key] and a given
+     * [SharedContentConfig].
+     *
      * [config] defines whether the shared element is enabled or disabled, and the alternative
      * target bounds if the shared element is disposed amid animation (e.g., scrolled out of the
-     * viewport and subsequently disposed). By default, the shared element is enabled and the
-     * alternative target bounds are not defined. Hence the default behavior is to stop the
-     * animation when the target shared element (i.e. shared element in the incoming/target content)
-     * is removed.
+     * viewport and subsequently disposed).
      *
      * @param key will be used to match a shared element against others in the same
      *   [SharedTransitionScope].
@@ -810,7 +815,7 @@ public interface SharedTransitionScope : LookaheadScope {
     @Composable
     public fun rememberSharedContentState(
         key: Any,
-        config: SharedContentConfig = SharedTransitionDefaults.SharedContentConfig,
+        config: SharedContentConfig,
     ): SharedContentState {
         // Add default impl here to allow for a custom impl of SharedTransitionScope.
         return remember(key) { SharedContentState(key, config) }.also { it.config = config }
@@ -959,32 +964,6 @@ public interface SharedTransitionScope : LookaheadScope {
     }
 
     /**
-     * [SharedContentConfig] is a factory method that takes a lambda that can dynamically toggle a
-     * shared element between enabled and disabled state, and returns a [SharedContentConfig]
-     * object.
-     *
-     * **Important**: If the shared element is already in-flight for the layout that this
-     * [SharedContentConfig] applies to, the on-going animation will be honored even if [isEnabled]
-     * returns false. This is to ensure a continuous experience out-of-the-box by avoiding
-     * accidentally removing in-flight animations. If, however, it is desired to disable the shared
-     * element while the animation is running, consider implementing interface [SharedContentConfig]
-     * and overriding [SharedContentConfig#shouldKeepEnabledForOngoingAnimation].
-     *
-     * @param isEnabled A lambda that returns a boolean indicating whether the shared element is
-     *   enabled.
-     * @sample androidx.compose.animation.samples.DynamicallyEnabledSharedElementInPagerSample
-     * @sample androidx.compose.animation.samples.DynamicallyEnableSharedElementsSample
-     */
-    public fun SharedContentConfig(
-        isEnabled: SharedContentState.() -> Boolean
-    ): SharedContentConfig {
-        return object : SharedContentConfig {
-            override val SharedContentState.isEnabled: Boolean
-                get() = isEnabled()
-        }
-    }
-
-    /**
      * [SharedContentConfig] is a factory method that returns an [SharedContentConfig] object with
      * default implementations for all the functions and properties defined in the
      * [SharedContentConfig] interface. More specifically, the returned
@@ -1007,6 +986,7 @@ internal class SharedTransitionScopeImpl
 internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: CoroutineScope) :
     SharedTransitionScope, LookaheadScope by lookaheadScope {
 
+    var invalidateOverlay: (() -> Unit)? = null
     override var isTransitionActive: Boolean by mutableStateOf(false)
         private set
 

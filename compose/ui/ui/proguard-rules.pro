@@ -30,7 +30,7 @@
 # Users can create Modifier.Node instances that implement multiple Modifier.Node interfaces,
 # so we cannot tell whether two modifier.node instances are of the same type without using
 # reflection to determine the class type. See b/265188224 for more context.
--keep,allowshrinking class * extends androidx.compose.ui.node.ModifierNodeElement
+-keep,allowobfuscation,allowshrinking class * extends androidx.compose.ui.node.ModifierNodeElement
 
 # Keep all the functions created to throw an exception. We don't want these functions to be
 # inlined in any way, which R8 will do by default. The whole point of these functions is to

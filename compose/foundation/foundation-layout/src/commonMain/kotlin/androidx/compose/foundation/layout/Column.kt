@@ -354,6 +354,7 @@ interface ColumnScope {
     @Stable fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int): Modifier
 }
 
+@PublishedApi
 internal object ColumnScopeInstance : ColumnScope {
     @Stable
     override fun Modifier.weight(weight: Float, fill: Boolean): Modifier {

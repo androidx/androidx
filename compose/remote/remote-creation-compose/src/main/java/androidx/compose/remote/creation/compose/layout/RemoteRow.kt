@@ -88,6 +88,7 @@ public fun RemoteRow(
     val scope = remember { RemoteRowScope() }
 
     if (captureMode is NoRemoteCompose) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Row(
             modifier.toComposeUi(),
             horizontalArrangement = horizontalArrangement.toComposeUi(),
@@ -108,6 +109,7 @@ public fun RemoteRow(
             composeModifiers = composeModifiers.then(Modifier.wrapContentSize(unbounded = true))
         }
 
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Row(
             composeModifiers,
             horizontalArrangement = horizontalArrangement.toComposeUi(),

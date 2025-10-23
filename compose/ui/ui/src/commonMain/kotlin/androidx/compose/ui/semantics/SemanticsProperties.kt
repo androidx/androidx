@@ -378,7 +378,11 @@ object SemanticsActions {
     val RequestFocus = ActionPropertyKey<() -> Boolean>("RequestFocus")
 
     /** @see SemanticsPropertyReceiver.customActions */
-    val CustomActions = AccessibilityKey<List<CustomAccessibilityAction>>("CustomActions")
+    val CustomActions =
+        AccessibilityKey<List<CustomAccessibilityAction>>(
+            name = "CustomActions",
+            mergePolicy = { parentValue, childValue -> parentValue.orEmpty() + childValue },
+        )
 
     /** @see SemanticsPropertyReceiver.pageUp */
     val PageUp = ActionPropertyKey<() -> Boolean>("PageUp")

@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
@@ -29,6 +30,7 @@ import android.graphics.RectF
 import android.graphics.Region
 import android.graphics.Typeface
 import android.os.Build
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ConditionalOperations
@@ -79,10 +81,10 @@ import androidx.compose.ui.graphics.asAndroidPath
  * - the way paint instances are used in normal android views begs for a post-process pass in origmi
  *   to identify reuse (eg if cycling between 3-4 different paint objects, we should identify this
  *   instead of serializing the deltas). On the flip side, this might not be as critical/useful in a
- *   compose perspective (are paint objecs reused this way?)
+ *   compose perspective (are paint objects reused this way?)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
+public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
 
     private var lastStyleOrdinal: Int = -1
     private var typeface: Int = -1
@@ -109,6 +111,7 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
 
     public val tempCanvas: Canvas = Canvas()
     public var saveCounter: Int = 0
+    private var currentDrawToBitmapId = 0
 
     /**
      * Forces the next `usePaint` call to send all Paint attributes, regardless of changes. This is
@@ -1421,7 +1424,52 @@ public class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
         forceSendingPaint(true)
         drawCommands()
+        forceSendingPaint(true)
         document.endConditionalOperations()
+    }
+
+    /**
+     * Instructs the player to draw [drawCommands] into an offscreen [RemoteBitmap] created with the
+     * specified [width] & [height]. The offscreen bitmap will be cleared with [clearColor] before
+     * any [drawCommands] are processed.
+     *
+     * @param width The width in pixels for the created offscreen bitmap.
+     * @param height The height in pixels for the created offscreen bitmap.
+     * @param clearColor If non-null the color the created offecreen bitmap will be cleared with.
+     * @param drawCommands The commands the player will execute in the offscreen buffer.
+     * @return The [RemoteBitmap] the [drawCommands] were drawn into.
+     */
+    public fun drawToOffscreenBitmap(
+        width: Int,
+        height: Int,
+        @ColorInt clearColor: Int,
+        drawCommands: () -> Unit,
+    ): RemoteBitmap {
+        val bitmapId = document.createBitmap(width, height)
+        if (clearColor != Color.BLACK) {
+            document.drawOnBitmap(bitmapId, 0, clearColor)
+        } else {
+            document.drawOnBitmap(bitmapId, 1, 0)
+        }
+
+        forceSendingPaint(true)
+        val lastDrawToBitmapId = currentDrawToBitmapId
+        currentDrawToBitmapId = bitmapId
+        drawCommands()
+        currentDrawToBitmapId = lastDrawToBitmapId
+        forceSendingPaint(true)
+        // Switch back to the previous canvas without clearing it.
+        document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+
+        return object : RemoteBitmap(creationState, null) {
+            public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
+                bitmapId
+
+            public override val value: Bitmap
+                get() {
+                    throw UnsupportedOperationException()
+                }
+        }
     }
 
     public companion object {

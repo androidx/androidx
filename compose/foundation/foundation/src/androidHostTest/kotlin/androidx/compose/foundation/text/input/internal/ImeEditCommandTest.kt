@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.TextRange
 
@@ -24,9 +25,14 @@ internal open class ImeEditCommandTest {
     protected var transformedState = TransformedTextFieldState(state)
     protected var imeScope: ImeEditCommandScope = DefaultImeEditCommandScope(transformedState)
 
-    protected fun initialize(text: String, selection: TextRange) {
+    protected fun initialize(
+        text: String,
+        selection: TextRange,
+        outputTransformation: OutputTransformation? = null,
+    ) {
         state = TextFieldState(text, selection)
-        transformedState = TransformedTextFieldState(state)
+        transformedState =
+            TransformedTextFieldState(state, outputTransformation = outputTransformation)
         imeScope = DefaultImeEditCommandScope(transformedState)
     }
 }

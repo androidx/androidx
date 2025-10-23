@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.launch
 
@@ -85,7 +86,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
     val momentumAnimationOffset: () -> Offset = {
         if (!animationSpecFinalized && scope.isTransitionActive && momentumAnimation.isRunning) {
             enabledEntries
-                .firstOrNull { it.target }
+                .fastFirstOrNull { it.target }
                 ?.let {
                     val targetSpec = it.boundsAnimation.animationSpec
                     // New target animation acquired. Finalize the animation spec for the momentum

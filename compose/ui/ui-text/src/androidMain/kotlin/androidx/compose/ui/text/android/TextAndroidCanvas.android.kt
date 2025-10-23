@@ -34,6 +34,8 @@ import android.graphics.fonts.Font
 import android.graphics.text.MeasuredText
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.text.internal.checkPreconditionNotNull
 
 /**
  * This is a wrapper around Android Canvas that we get from
@@ -42,11 +44,20 @@ import androidx.annotation.RequiresApi
  */
 @Suppress("DEPRECATION")
 internal class TextAndroidCanvas : Canvas() {
-    /** Original canvas object to which this class delegates its method calls */
-    private lateinit var nativeCanvas: Canvas
 
-    fun setCanvas(canvas: Canvas) {
-        nativeCanvas = canvas
+    /** Original canvas object to which this class delegates its method calls */
+    @VisibleForTesting internal var _nativeCanvas: Canvas? = null
+    private val nativeCanvas: Canvas
+        get() =
+            checkPreconditionNotNull(_nativeCanvas) { "Text drawing wrapper is missing a Canvas!" }
+
+    inline fun withCanvas(canvas: Canvas, block: (Canvas) -> Unit) {
+        _nativeCanvas = canvas
+        try {
+            block(this)
+        } finally {
+            _nativeCanvas = null
+        }
     }
 
     /**

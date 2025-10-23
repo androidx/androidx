@@ -41,112 +41,78 @@ public interface PaintChanges {
 
     /**
      * Set the size of text
-     *
-     * @param size
      */
     void setTextSize(float size);
 
     /**
      * Set the width of lines
-     *
-     * @param width
      */
     void setStrokeWidth(float width);
 
     /**
      * Set the color to use
-     *
-     * @param color
      */
     void setColor(int color);
 
     /**
      * Set the Stroke Cap
-     *
-     * @param cap
      */
     void setStrokeCap(int cap);
 
     /**
      * Set the Stroke style FILL and/or STROKE
-     *
-     * @param style
      */
     void setStyle(int style);
 
     /**
      * Set the id of the shader to use
-     *
-     * @param shader
      */
     void setShader(int shader);
 
     /**
      * Set the way image is interpolated
-     *
-     * @param quality
      */
     void setImageFilterQuality(int quality);
 
     /**
      * Set the alpha to draw under
-     *
-     * @param a
      */
     void setAlpha(float a);
 
     /**
      * Set the Stroke Miter
-     *
-     * @param miter
      */
     void setStrokeMiter(float miter);
 
     /**
      * Set the Stroke Join
-     *
-     * @param join
      */
     void setStrokeJoin(int join);
 
     /**
      * Should bitmaps be interpolated
-     *
-     * @param filter
      */
     void setFilterBitmap(boolean filter);
 
     /**
      * Set the blend mode can be porterduff + others
-     *
-     * @param mode
      */
     void setBlendMode(int mode);
 
     /**
      * Set the AntiAlias. Typically true Set to off when you need pixilated look (e.g. QR codes)
-     *
-     * @param aa
      */
     void setAntiAlias(boolean aa);
 
     /**
      * Clear some sub set of the settings
-     *
-     * @param mask
      */
     void clear(long mask);
 
     /**
      * Set a linear gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming
-     * @param startX
-     * @param startY
-     * @param endX
-     * @param endY
-     * @param tileMode
      */
     void setLinearGradient(
             int @NonNull [] colorsArray,
@@ -160,12 +126,7 @@ public interface PaintChanges {
     /**
      * Set a radial gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming
-     * @param centerX
-     * @param centerY
-     * @param radius
-     * @param tileMode
      */
     void setRadialGradient(
             int @NonNull [] colorsArray,
@@ -178,10 +139,7 @@ public interface PaintChanges {
     /**
      * Set a sweep gradient fill
      *
-     * @param colorsArray
      * @param stopsArray // todo: standardize naming to either "positions" or "stops"
-     * @param centerX
-     * @param centerY
      */
     void setSweepGradient(
             int @NonNull [] colorsArray,
@@ -191,9 +149,6 @@ public interface PaintChanges {
 
     /**
      * Set Color filter mod
-     *
-     * @param color
-     * @param mode
      */
     void setColorFilter(int color, int mode);
 
@@ -201,8 +156,8 @@ public interface PaintChanges {
      * Set TypeFace 0,1,2
      *
      * @param fontType the type of font 0,1,or 2
-     * @param weight the weight of the font
-     * @param italic if the font is italic
+     * @param weight   the weight of the font
+     * @param italic   if the font is italic
      */
     void setTypeFace(int fontType, int weight, boolean italic);
 
@@ -215,15 +170,15 @@ public interface PaintChanges {
 
     /**
      * @param fontType String to be looked up in system
-     * @param weight the weight of the font
-     * @param italic if the font is italic
+     * @param weight   the weight of the font
+     * @param italic   if the font is italic
      */
     void setTypeFace(@NonNull String fontType, int weight, boolean italic);
 
     /**
      * Set the font variation axes
      *
-     * @param tags tags
+     * @param tags   tags
      * @param values values
      */
     void setFontVariationAxes(@NonNull String[] tags, float @NonNull [] values);
@@ -231,12 +186,20 @@ public interface PaintChanges {
     /**
      * Set the texture shader
      *
-     * @param bitmapId the id of the bitmap to use
-     * @param tileX The tiling mode for x to draw the bitmap in.
-     * @param tileY The tiling mode for y to draw the bitmap in.
-     * @param filterMode the filter mode to be used when sampling from this shader.
+     * @param bitmapId      the id of the bitmap to use
+     * @param tileX         The tiling mode for x to draw the bitmap in.
+     * @param tileY         The tiling mode for y to draw the bitmap in.
+     * @param filterMode    the filter mode to be used when sampling from this shader.
      * @param maxAnisotropy The Anisotropy value to use for filtering. Must be greater than 0.
      */
     void setTextureShader(
             int bitmapId, short tileX, short tileY, short filterMode, short maxAnisotropy);
+
+
+    /**
+     * Set the path effect
+     *
+     * @param pathEffect the path effect to be used
+     */
+    void setPathEffect(float @Nullable [] pathEffect);
 }

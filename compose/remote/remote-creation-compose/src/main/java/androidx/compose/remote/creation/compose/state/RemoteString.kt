@@ -806,7 +806,7 @@ public fun rememberRemoteString(
     content: () -> String,
 ): MutableRemoteString {
     val state = LocalRemoteComposeCreationState.current
-    return remember {
+    return rememberNamedState(name, domain) {
         val string = content()
         val id = state.document.textCreateId(string)
         state.document.setStringName(id, "$domain:$name")

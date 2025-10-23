@@ -37,13 +37,11 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rememberRemoteDpValue
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.MaterialTheme
 
 /**
  * A remote composable that displays a [RemoteBitmap] styled as an avatar.
@@ -202,11 +200,11 @@ public object ImageDefaults {
 
     @Composable public fun avatarShape(): RoundedCornerShape = RoundedCornerShape(AVATAR_SIZE_DP)
 
+    @Suppress("RestrictedApiAndroidX")
     @RemoteComposable
     @Composable
     public fun backgroundOverlayColor(): RemoteColor {
-        val color = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
-        return remember { RemoteColor(color.toArgb()) }
+        return RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.6f.rf)
     }
 
     @Composable

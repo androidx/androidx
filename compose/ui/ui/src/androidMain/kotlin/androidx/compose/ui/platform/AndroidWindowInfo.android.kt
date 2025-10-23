@@ -16,6 +16,11 @@
 
 package androidx.compose.ui.platform
 
+import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.content.ContextWrapper
+import android.inputmethodservice.InputMethodService
 import android.view.View
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -26,6 +31,8 @@ import androidx.compose.ui.platform.WindowInfoImpl.Companion.GlobalKeyboardModif
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 import androidx.window.layout.WindowMetricsCalculator
 
@@ -79,11 +86,23 @@ internal class LazyWindowInfo : WindowInfo {
 
 internal fun calculateWindowSize(view: View): DerivedSize {
     val context = view.context
-    val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(context)
-    return DerivedSize.fromPxSize(
-        IntSize(metrics.bounds.width(), metrics.bounds.height()),
-        Density(context),
-    )
+    val unwrapped = tryUnwrapContext(context)
+    return if (unwrapped != null) {
+        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(unwrapped)
+        DerivedSize.fromPxSize(
+            IntSize(metrics.bounds.width(), metrics.bounds.height()),
+            Density(unwrapped),
+        )
+    } else {
+        // Fallback behavior for views created with an unsupported context, try to get some value
+        // instead of crashing
+        val configuration = context.resources.configuration
+        val density = Density(context)
+        DerivedSize.fromDpSize(
+            dpSize = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp),
+            density = density,
+        )
+    }
 }
 
 internal class DerivedSize(val pxSize: IntSize, val dpSize: DpSize) {
@@ -92,6 +111,9 @@ internal class DerivedSize(val pxSize: IntSize, val dpSize: DpSize) {
 
         fun fromPxSize(pxSize: IntSize, density: Density) =
             DerivedSize(pxSize, with(density) { pxSize.toSize().toDpSize() })
+
+        fun fromDpSize(dpSize: DpSize, density: Density) =
+            DerivedSize(with(density) { dpSize.toSize().toIntSize() }, dpSize)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -109,4 +131,32 @@ internal class DerivedSize(val pxSize: IntSize, val dpSize: DpSize) {
         result = 31 * result + dpSize.hashCode()
         return result
     }
+}
+
+/**
+ * Return the base context from a context wrapper, or null if a supported context could not be
+ * found. Forked from androidx.window.layout.util.ContextCompatHelper#unwrapContext to work around
+ * b/449386176 and b/449389108
+ */
+private fun tryUnwrapContext(context: Context): Context? {
+    var iterator = context
+
+    while (iterator is ContextWrapper) {
+        if (iterator is Activity) {
+            // Activities are always ContextWrappers
+            return iterator
+        } else if (iterator is InputMethodService) {
+            // InputMethodService are always ContextWrappers
+            return iterator
+        } else if (iterator is Application) {
+            // Applications are always ContextWrappers
+            return iterator
+        } else if (iterator.baseContext == null) {
+            return null
+        }
+
+        iterator = iterator.baseContext
+    }
+
+    return null
 }

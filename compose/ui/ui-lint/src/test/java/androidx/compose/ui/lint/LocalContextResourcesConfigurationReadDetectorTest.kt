@@ -188,19 +188,55 @@ src/test/test.kt:10: Warning: Reading Resources using LocalContext.current.resou
             .expectFixDiffs(
                 """
 Autofix for src/test/test.kt line 11: Replace with LocalConfiguration.current:
-@@ -5 +5
--                 import androidx.compose.ui.platform.LocalContext
-+                 import androidx.compose.ui.platform.LocalConfiguration
-+ import androidx.compose.ui.platform.LocalContext
-@@ -11 +12
--                     LocalContext.current.resources.configuration
-+                     LocalConfiguration.current
+@@ -5 +5,2 @@
+-                import androidx.compose.ui.platform.LocalContext
++                import androidx.compose.ui.platform.LocalConfiguration
++import androidx.compose.ui.platform.LocalContext
+@@ -11 +12 @@
+-                    LocalContext.current.resources.configuration
++                    LocalConfiguration.current
+Autofix for src/test/test.kt line 14: Replace with stringResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.stringResource
+@@ -14 +15 @@
+-                    LocalContext.current.getString(-1)
++                    stringResource(-1)
+Autofix for src/test/test.kt line 15: Replace with stringResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.stringResource
+@@ -15 +16 @@
+-                    LocalContext.current.getString(-1, Any())
++                    stringResource(-1, Any())
+Autofix for src/test/test.kt line 16: Replace with colorResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.colorResource
+@@ -16 +17 @@
+-                    LocalContext.current.getColor(-1)
++                    colorResource(-1)
+Autofix for src/test/test.kt line 17: Replace with painterResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.painterResource
+@@ -17 +18 @@
+-                    LocalContext.current.getDrawable(-1)
++                    painterResource(-1)
+Autofix for src/test/test.kt line 17: Replace with ImageBitmap.imageResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.imageResource
+@@ -17 +18 @@
+-                    LocalContext.current.getDrawable(-1)
++                    ImageBitmap.imageResource(-1)
+Autofix for src/test/test.kt line 17: Replace with ImageVector.vectorResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.vectorResource
+@@ -17 +18 @@
+-                    LocalContext.current.getDrawable(-1)
++                    ImageVector.vectorResource(-1)
 Autofix for src/test/test.kt line 9: Replace with LocalResources.current:
-@@ -6 +6
-+ import androidx.compose.ui.platform.LocalResources
-@@ -9 +10
--                     LocalContext.current.resources
-+                     LocalResources.current
+@@ -5,0 +6 @@
++import androidx.compose.ui.platform.LocalResources
+@@ -9 +10 @@
+-                    LocalContext.current.resources
++                    LocalResources.current
                 """
             )
     }
@@ -297,6 +333,46 @@ src/test/test.kt:29: Warning: Reading Resources using LocalContext.current.resou
                               ~~~~~~~~~~~~~~~~~
 9 errors, 1 warning
             """
+            )
+            .expectFixDiffs(
+                """
+Autofix for src/test/test.kt line 36: Replace with stringResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.stringResource
+@@ -36 +37 @@
+-                    context.getString(-1)
++                    stringResource(-1)
+Autofix for src/test/test.kt line 37: Replace with stringResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.stringResource
+@@ -37 +38 @@
+-                    context.getString(-1, Any())
++                    stringResource(-1, Any())
+Autofix for src/test/test.kt line 38: Replace with colorResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.colorResource
+@@ -38 +39 @@
+-                    context.getColor(-1)
++                    colorResource(-1)
+Autofix for src/test/test.kt line 39: Replace with painterResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.painterResource
+@@ -39 +40 @@
+-                    context.getDrawable(-1)
++                    painterResource(-1)
+Autofix for src/test/test.kt line 39: Replace with ImageBitmap.imageResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.imageResource
+@@ -39 +40 @@
+-                    context.getDrawable(-1)
++                    ImageBitmap.imageResource(-1)
+Autofix for src/test/test.kt line 39: Replace with ImageVector.vectorResource:
+@@ -5,0 +6 @@
++import androidx.compose.ui.res.vectorResource
+@@ -39 +40 @@
+-                    context.getDrawable(-1)
++                    ImageVector.vectorResource(-1)
+                """
             )
     }
 

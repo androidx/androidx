@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.text.contextmenu.modifier
 
-import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuData
 import androidx.compose.foundation.text.contextmenu.provider.LocalTextContextMenuToolbarProvider
 import androidx.compose.foundation.text.contextmenu.provider.TextContextMenuDataProvider
@@ -46,15 +46,26 @@ private const val ToolbarRequesterNotInitialized = "ToolbarRequester is not init
  */
 internal abstract class ToolbarRequester {
     internal var toolbarHandlerNode: TextContextMenuToolbarHandlerNode? = null
+    internal var toolbarHandlerState: ToolbarHandlerState = ToolbarHandlerState.Uninitialized
 
-    internal fun requireNode(): TextContextMenuToolbarHandlerNode =
-        checkPreconditionNotNull(toolbarHandlerNode) { ToolbarRequesterNotInitialized }
+    internal fun requireInitialized(): TextContextMenuToolbarHandlerNode? {
+        checkPrecondition(toolbarHandlerState != ToolbarHandlerState.Uninitialized) {
+            ToolbarRequesterNotInitialized
+        }
+        return toolbarHandlerNode
+    }
 
     /** Shows the toolbar. */
     abstract fun show()
 
     /** Hides the toolbar. */
     abstract fun hide()
+}
+
+internal enum class ToolbarHandlerState {
+    Uninitialized,
+    Detached,
+    Attached,
 }
 
 /**
@@ -65,7 +76,7 @@ internal abstract class ToolbarRequester {
 internal class ToolbarRequesterImpl : ToolbarRequester() {
 
     override fun show() {
-        requireNode().show()
+        requireInitialized()?.show()
     }
 
     override fun hide() {
@@ -164,14 +175,22 @@ internal class TextContextMenuToolbarHandlerNode(
         requester.toolbarHandlerNode = null
         requester = toolbarRequester
         requester.toolbarHandlerNode = this
+        requester.toolbarHandlerState =
+            if (isAttached) {
+                ToolbarHandlerState.Attached
+            } else {
+                ToolbarHandlerState.Detached
+            }
     }
 
     override fun onAttach() {
         super.onAttach()
+        requester.toolbarHandlerState = ToolbarHandlerState.Attached
         requester.toolbarHandlerNode = this
     }
 
     override fun onDetach() {
+        requester.toolbarHandlerState = ToolbarHandlerState.Detached
         requester.toolbarHandlerNode = null
         super.onDetach()
     }

@@ -105,6 +105,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.getAllUncoveredSemanticsNodesToIntObjectMap
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.isAccessibilityIgnoredLink
 import androidx.compose.ui.semantics.isHidden
 import androidx.compose.ui.semantics.isImportantForAccessibility
 import androidx.compose.ui.semantics.subtreeSortedByGeometryGrouping
@@ -347,7 +348,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 currentSemanticsNodesInvalidated = false
                 field =
                     view.semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
-                        customRootNodeId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+                        customRootNodeId = AccessibilityNodeProviderCompat.HOST_VIEW_ID,
+                        shouldIgnoreNode = { it.isAccessibilityIgnoredLink },
                     )
                 if (isEnabled) {
                     setTraversalValues(field, idToBeforeMap, idToAfterMap, view.context.resources)
@@ -2104,7 +2106,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // Links in text nodes are semantics children. But for Android accessibility support
             // we don't publish them to the accessibility services because they are exposed
             // as UrlSpan/ClickableSpan spans instead
-            if (semanticsNode.config.contains(SemanticsProperties.LinkTestMarker)) {
+            if (semanticsNode.isAccessibilityIgnoredLink) {
                 continue
             }
 

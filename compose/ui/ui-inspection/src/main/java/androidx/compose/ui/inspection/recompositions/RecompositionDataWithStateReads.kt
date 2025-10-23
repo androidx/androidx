@@ -18,19 +18,13 @@ package androidx.compose.ui.inspection.recompositions
 
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
-import androidx.collection.emptyIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 
 /** The state reads stored per @Composable. */
 class RecompositionDataWithStateReads : RecompositionData() {
     // The state reads per recomposition count starting with 1
     private var observed: MutableIntObjectMap<ObservedStateReads>? = null
-    var firstObserved = -1
-        private set
-
-    // Number of recompositions with state reads
-    val recompositionsWithObservations: Int
-        get() = observed?.size ?: 0
+    private var firstObserved = -1
 
     override fun incrementCount() {
         // The invalidations for the previous recomposition are no longer needed,
@@ -41,14 +35,16 @@ class RecompositionDataWithStateReads : RecompositionData() {
     }
 
     // Add an observed state read for the current recomposition:
-    fun addStateRead(value: Any?, trace: Exception) {
-        if (!lastCountWasSkipped && count > 0) {
-            val reads = addObservedStateReads(count)
-            reads.addStateRead(value, trace)
-            if (firstObserved < 0) {
-                firstObserved = count
-            }
+    fun addStateRead(value: Any?, trace: Exception): ObservedStateReads? {
+        if (lastCountWasSkipped || count <= 0) {
+            return null
         }
+        val reads = addObservedStateReads(count)
+        reads.addStateRead(value, trace)
+        if (firstObserved < 0) {
+            firstObserved = count
+        }
+        return reads
     }
 
     // Add an observed state variable invalidation for the next upcoming recomposition:
@@ -57,40 +53,82 @@ class RecompositionDataWithStateReads : RecompositionData() {
         reads.addInvalidation(value)
     }
 
-    fun discardExcessStateReads(max: Int) {
-        val observed = this.observed ?: return
-        while (max > 0 && recompositionsWithObservations > max) {
-            observed.remove(firstObserved++)
+    fun remove(recomposition: Int) {
+        val removed = observed?.remove(recomposition)
+        if (removed != null && recomposition == firstObserved) {
+            firstObserved = findNext(recomposition + 1)
         }
     }
 
-    // Return the state reads for the specified recomposition:
-    fun getReads(recomposition: Int, remove: Boolean): ObservedStateReads? {
-        if (!remove) {
-            return observed?.get(recomposition)
+    /**
+     * Get the state reads from the specified range of recompositions as [ObservedReadResult] and
+     * remove them from the [observed] state reads. Note: there may be recompositions without state
+     * reads in the [observed] map.
+     *
+     * @param recompositionNumberStart the lower bounds of the recomposition range
+     * @param recompositionNumberEnd the upper bounds of the recomposition range
+     * @param includeExtra include extra state reads after recompositionNumberEnd if state reads are
+     *   missing from the requested range
+     */
+    fun getReadsAndRemove(
+        recompositionNumberStart: Int,
+        recompositionNumberEnd: Int,
+        includeExtra: Boolean,
+    ): List<ObservedReadResult> {
+        if (observed?.isNotEmpty() != true) {
+            return emptyList()
         }
-        val reads = observed?.remove(recomposition)
-        if (firstObserved == recomposition) {
-            firstObserved = if (recompositionsWithObservations > 0) firstObserved + 1 else -1
+        val result = mutableListOf<ObservedReadResult>()
+        val actual = maxOf(firstObserved, recompositionNumberStart)
+        val max = if (includeExtra) count else minOf(recompositionNumberEnd, count)
+        var found = removeNextStateRead(actual, max)
+        found?.let { result.add(it) }
+        val rangeSize = recompositionNumberEnd - recompositionNumberStart + 1
+        while (found != null && result.size < rangeSize) {
+            found = removeNextStateRead(found.recomposition + 1, max)
+            found?.let { result.add(it) }
         }
-        return reads
-    }
-
-    // Return all state reads up to and including [upToRecomposition], and remove them:
-    fun getAndRemoveReads(upToRecomposition: Int): IntObjectMap<ObservedStateReads> {
-        val result = observed ?: return emptyIntObjectMap()
-        val newObserved = mutableIntObjectMapOf<ObservedStateReads>()
-        for (recomposition in upToRecomposition + 1..count + 1) {
-            result.remove(recomposition)?.let { newObserved.put(recomposition, it) }
+        if (result.isNotEmpty()) {
+            if (result.first().recomposition == firstObserved) {
+                firstObserved = findNext(result.last().recomposition + 1)
+            }
         }
-        observed = newObserved
-        firstObserved = if (recompositionsWithObservations > 0) upToRecomposition + 1 else -1
         return result
     }
 
-    fun clearStateReads() {
+    private fun findNext(start: Int): Int {
+        val existing = observed ?: return -1
+        var actual = start
+        while (!existing.contains(actual) && actual <= count) {
+            actual++
+        }
+        return if (actual <= count) actual else -1
+    }
+
+    // Remove the first recomposition found by going up from [start] but not exceeding [max]
+    private fun removeNextStateRead(start: Int, max: Int): ObservedReadResult? {
+        if (start > max) {
+            return null
+        }
+        val existing = observed ?: return null
+        var actual = start
+        var stateRead = existing.remove(actual)
+        while (stateRead == null && actual < max) {
+            stateRead = existing.remove(++actual)
+        }
+        if (actual == count) {
+            // If this the most recent recomposition, there may still be state reads
+            // being recorded, make a copy:
+            stateRead = stateRead?.copy()
+        }
+        return stateRead?.let { ObservedReadResult(actual, it.reads) }
+    }
+
+    fun clearStateReads(): IntObjectMap<ObservedStateReads>? {
+        val result = observed
         observed = null
         firstObserved = -1
+        return result
     }
 
     private fun addObservedStateReads(recomposition: Int): ObservedStateReads {

@@ -94,6 +94,7 @@ public fun RemoteCollapsibleColumn(
     val scope = remember { RemoteCollapsibleColumnScope() }
 
     if (captureMode is NoRemoteCompose) {
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Column(
             modifier.toComposeUi(),
             horizontalAlignment = horizontalAlignment.toComposeUi(),
@@ -110,6 +111,7 @@ public fun RemoteCollapsibleColumn(
                 )
                 .then(modifier.toComposeUiLayout())
         composeModifiers = composeModifiers.then(Modifier.wrapContentSize(unbounded = true))
+        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         androidx.compose.foundation.layout.Column(
             composeModifiers,
             horizontalAlignment = horizontalAlignment.toComposeUi(),

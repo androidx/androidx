@@ -119,7 +119,12 @@ fun SharedTransitionScope.CatItem(
                     sharedContentState =
                         rememberSharedContentState(
                             key = "${cat.name}-bounds",
-                            config = SharedContentConfig(isEnabled),
+                            config =
+                                object : SharedTransitionScope.SharedContentConfig {
+                                    override val SharedTransitionScope.SharedContentState.isEnabled:
+                                        Boolean
+                                        get() = isEnabled()
+                                },
                         ),
                     boundsTransform = boundsTransition,
                     animatedVisibilityScope = scope,
@@ -132,7 +137,15 @@ fun SharedTransitionScope.CatItem(
             cat = cat,
             modifier =
                 Modifier.sharedElement(
-                    rememberSharedContentState(key = cat.name, SharedContentConfig(isEnabled)),
+                    rememberSharedContentState(
+                        key = cat.name,
+                        config =
+                            object : SharedTransitionScope.SharedContentConfig {
+                                override val SharedTransitionScope.SharedContentState.isEnabled:
+                                    Boolean
+                                    get() = isEnabled()
+                            },
+                    ),
                     animatedVisibilityScope = scope,
                     boundsTransform = boundsTransition,
                 ),

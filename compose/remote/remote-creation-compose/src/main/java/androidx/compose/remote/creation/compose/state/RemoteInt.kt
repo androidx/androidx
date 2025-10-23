@@ -896,7 +896,7 @@ public fun rememberRemoteIntValue(
     value: () -> Int,
 ): MutableRemoteInt {
     val state = LocalRemoteComposeCreationState.current
-    return remember(name) {
+    return rememberNamedState(name, domain) {
         val initial = value()
         // TODO either store with an id and reference, or use directly
         val id = state.document.addInteger(initial)
@@ -937,11 +937,13 @@ public fun rememberRemoteInt(
     content: () -> RemoteInt,
 ): RemoteIntExpression {
     val state = LocalRemoteComposeCreationState.current
-    val remoteInt = content()
-    state.document.setStringName(remoteInt.getIdForCreationState(state), "$domain:$name")
-    return remember {
+    return rememberNamedState(name, domain) {
+
         // Since this is named, its value can be change, so it's not const.
         RemoteIntExpression(constantValue = null) { creationState ->
+            val remoteInt = content()
+            state.document.setStringName(remoteInt.getIdForCreationState(state), "$domain:$name")
+
             longArrayOf(remoteInt.getLongIdForCreationState(creationState))
         }
     }
