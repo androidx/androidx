@@ -221,12 +221,6 @@ internal class ComposeWindow(
                 get() = scene.rootDragAndDropNode
         }
 
-        private fun getCanvasCoordinates(): Pair<Double, Double> {
-            return canvas.getBoundingClientRect().let {
-                it.left to it.top
-            }
-        }
-
         @Suppress("RedundantOverride")
         override fun convertLocalToWindowPosition(localPosition: Offset): Offset {
             // TODO (o.karpovich): Currently, CfW uses AttachedComposeSceneLayer, so

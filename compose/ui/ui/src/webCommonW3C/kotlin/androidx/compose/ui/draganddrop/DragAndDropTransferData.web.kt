@@ -10,8 +10,8 @@ import org.w3c.dom.DataTransfer
 actual class DragAndDropTransferData(internal val nativeTransferData: DataTransfer? = null)
 
 /**
- * While we'll definitely benefit from  (even partial) commonization of transfer data
- * it's actually should be properly designed and coordinated throughout all teams, so now
+ * While we'll definitely benefit from (even partial) commonization of transfer data,
+ * it actually should be properly designed and coordinated throughout all teams, so now
  * the recommended way is to just pass/access native DataTransfer if needed
  */
 @ExperimentalComposeUiApi
