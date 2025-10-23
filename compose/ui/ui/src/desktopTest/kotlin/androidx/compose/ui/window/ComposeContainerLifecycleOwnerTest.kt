@@ -22,239 +22,220 @@ import androidx.compose.ui.scene.ComposeContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import java.time.Duration
+import java.awt.Frame
+import java.awt.Window
+import java.awt.event.WindowEvent
+import java.awt.event.WindowStateListener
 import javax.swing.JFrame
 import javax.swing.JLayeredPane
-import javax.swing.SwingUtilities
-import kotlin.test.Ignore
-import kotlin.test.assertFailsWith
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.time.withTimeout
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ComposeContainerLifecycleOwnerTest {
-    @Ignore // TODO https://youtrack.jetbrains.com/issue/CMP-8957
     @Test
-    fun allEvents() = runTest {
-        val window = JFrame().apply {
-            isVisible = false
-        }
-        val allEvents = ChannelEventObserver()
-        val pane = TestComposePanel(window, allEvents)
+    fun allEvents() = runApplicationTest {
+        val window = JFrame()
+        try {
+            val allEvents = ChannelEventObserver()
+            val pane = TestComposePanel(window, allEvents)
+            window.contentPane.add(pane)
 
-        // initial state for a not-yet-shown window
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_CREATE)
+            // initial state for a not-yet-shown window
+            allEvents.waitFor(Lifecycle.Event.ON_CREATE)
 
-        // show window
-        SwingUtilities.invokeAndWait {
-            window.isVisible = true
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_START)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
+            // show window
+            window.showAndMoveToFront()
+            allEvents.waitFor(Lifecycle.Event.ON_START)
+            allEvents.waitFor(Lifecycle.Event.ON_RESUME)
 
-        // show another window, the window under test looses focus
-        val anotherWindow = JFrame().apply {
-            isVisible = true
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_PAUSE)
+            // show another window, the window under test loses focus
+            val anotherWindow = JFrame()
+            try {
+                anotherWindow.showAndMoveToFront()
 
-        // another window is closed, the window under test regains focus
-        anotherWindow.dispose()
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
+                allEvents.waitFor(Lifecycle.Event.ON_PAUSE)
 
-        // cannot check window minimization/restoration on CI as we are running in Xvfb without a window manager
-        // so disabling this check for now
-        /*
-        // minimize window
-        SwingUtilities.invokeAndWait {
-            val toolkit = Toolkit.getDefaultToolkit()
-            println("Toolkit ${toolkit::class.qualifiedName} is ICONIFIED supported ${toolkit.isFrameStateSupported(Frame.ICONIFIED)}")
-            window.extendedState = Frame.ICONIFIED
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_PAUSE)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_STOP)
+                // another window is closed, the window under test regains focus
+                anotherWindow.isVisible = false
+                window.toFront()
+                allEvents.waitFor(Lifecycle.Event.ON_RESUME)
+            } finally {
+                anotherWindow.dispose()
+            }
 
-        // restore window
-        SwingUtilities.invokeAndWait {
-            window.extendedState = Frame.NORMAL
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_START)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
-        */
+            if (window.toolkit.isFrameStateSupported(Frame.ICONIFIED)) {
+                // minimize window
+                if (window.setExtendedStateSucceeds(Frame.ICONIFIED)) {
+                    allEvents.waitFor(Lifecycle.Event.ON_PAUSE)
+                    allEvents.waitFor(Lifecycle.Event.ON_STOP)
 
-        // close window
-        SwingUtilities.invokeAndWait {
+                    // restore window
+                    window.extendedState = Frame.NORMAL
+                    allEvents.waitFor(Lifecycle.Event.ON_START)
+                    allEvents.waitFor(Lifecycle.Event.ON_RESUME)
+                } else {
+                    println("Setting ICONIFIED window state failed")
+                }
+            } else {
+                println("ICONIFIED window state not supported")
+            }
+
+            // close window
             pane.container.dispose()
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_PAUSE)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_STOP)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_DESTROY)
-        assertFailsWith<ClosedReceiveChannelException> {
-            allEvents.receiveOrTimeout()
+            allEvents.waitFor(Lifecycle.Event.ON_PAUSE)
+            allEvents.waitFor(Lifecycle.Event.ON_STOP)
+            allEvents.waitFor(Lifecycle.Event.ON_DESTROY)
+
+            // no more events
+            assertTrue(allEvents.tryReceive().isFailure)
+        } finally {
+            window.dispose()
         }
     }
 
     @Test
-    fun detachAndReattach() = runTest {
+    fun detachAndReattach() = runApplicationTest {
         val window = JFrame()
-        val allEvents = ChannelEventObserver()
-        val pane = TestComposePanel(window, allEvents)
+        try {
+            val allEvents = ChannelEventObserver()
+            val pane = TestComposePanel(window, allEvents)
+            window.contentPane.add(pane)
 
-        // initial state
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_CREATE)
+            // initial state
+            allEvents.waitFor(Lifecycle.Event.ON_CREATE)
 
-        SwingUtilities.invokeAndWait {
-            window.isVisible = true
+            window.showAndMoveToFront()
+            allEvents.waitFor(Lifecycle.Event.ON_START)
+            allEvents.waitFor(Lifecycle.Event.ON_RESUME)
+
+            window.contentPane.remove(pane)
+            allEvents.waitFor(Lifecycle.Event.ON_PAUSE)
+            allEvents.waitFor(Lifecycle.Event.ON_STOP)
+
+            window.contentPane.add(pane)
+            allEvents.waitFor(Lifecycle.Event.ON_START)
+            allEvents.waitFor(Lifecycle.Event.ON_RESUME)
+
+            // no more events
+            assertTrue(allEvents.tryReceive().isFailure)
+        } finally {
+            window.dispose()
         }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_START)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
-
-        SwingUtilities.invokeAndWait {
-            window.remove(pane)
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_PAUSE)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_STOP)
-
-        SwingUtilities.invokeAndWait {
-            window.add(pane)
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_START)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
-
-        // no more events
-        assertTrue(allEvents.tryReceive().isFailure)
     }
 
     @Test
-    fun windowDeiconifiedWithoutAddNotify() = runTest {
+    fun windowDeiconifiedWithoutAddNotify() = runApplicationTest {
+        val window = JFrame()
+        try {
+            val pane = JLayeredPane()
+            val allEvents = ChannelEventObserver()
+            val container = ComposeContainer(
+                container = pane,
+                skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+                window = window,
+            )
+            container.lifecycle.addObserver(allEvents)
+            window.contentPane.add(pane)
+
+            // initial state
+            allEvents.waitFor(Lifecycle.Event.ON_CREATE)
+
+            window.state = JFrame.NORMAL
+
+            // no more events
+            assertTrue(allEvents.tryReceive().isFailure)
+        } finally {
+            window.dispose()
+        }
+    }
+
+    @Test
+    fun windowFocusedWithoutAddNotify() = runApplicationTest {
+        val window = JFrame()
+        try {
+            val pane = JLayeredPane()
+            val allEvents = ChannelEventObserver()
+            val container = ComposeContainer(
+                container = pane,
+                skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+                window = window,
+            )
+            container.lifecycle.addObserver(allEvents)
+            window.contentPane.add(pane)
+
+            // initial state
+            allEvents.waitFor(Lifecycle.Event.ON_CREATE)
+
+            window.showAndMoveToFront()
+
+            // no more events
+            assertTrue(allEvents.tryReceive().isFailure)
+        } finally {
+            window.dispose()
+        }
+    }
+
+    @Test
+    fun lateAddNotify() = runApplicationTest {
         val window = JFrame()
         val pane = JLayeredPane()
         val allEvents = ChannelEventObserver()
-        var container: ComposeContainer? = null
-        SwingUtilities.invokeAndWait {
-            container = ComposeContainer(
-                container = pane,
-                skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-                window = window,
-            ).also {
-                it.lifecycle.addObserver(allEvents)
-            }
-            window.add(pane)
-        }
+        val container = ComposeContainer(
+            container = pane,
+            skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+            window = window,
+        )
+        container.lifecycle.addObserver(allEvents)
+        window.contentPane.add(pane)
 
         // initial state
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_CREATE)
+        allEvents.waitFor(Lifecycle.Event.ON_CREATE)
 
-        SwingUtilities.invokeAndWait {
-            window.state = JFrame.NORMAL
-        }
-
-        // no more events
-        assertTrue(allEvents.tryReceive().isFailure)
-    }
-
-    @Test
-    fun windowFocusedWithoutAddNotify() = runTest {
-        val window = JFrame().apply {
-            isVisible = false
-        }
-        val pane = JLayeredPane()
-        val allEvents = ChannelEventObserver()
-        var container: ComposeContainer? = null
-        SwingUtilities.invokeAndWait {
-            container = ComposeContainer(
-                container = pane,
-                skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-                window = window,
-            ).also {
-                it.lifecycle.addObserver(allEvents)
-            }
-            window.add(pane)
-        }
-
-        // initial state
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_CREATE)
-
-        SwingUtilities.invokeAndWait {
-            window.isVisible = true
-        }
-
-        // no more events
-        assertTrue(allEvents.tryReceive().isFailure)
-    }
-
-    @Test
-    fun lateAddNotify() = runTest {
-        val window = JFrame().apply {
-            isVisible = false
-        }
-        val pane = JLayeredPane()
-        val allEvents = ChannelEventObserver()
-        var container: ComposeContainer? = null
-        SwingUtilities.invokeAndWait {
-            container = ComposeContainer(
-                container = pane,
-                skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-                window = window,
-            ).also {
-                it.lifecycle.addObserver(allEvents)
-            }
-            window.add(pane)
-        }
-
-        // initial state
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_CREATE)
-
-        SwingUtilities.invokeAndWait {
-            window.isVisible = true
-            window.state = JFrame.NORMAL
-        }
+        window.showAndMoveToFront()
+        window.state = JFrame.NORMAL
 
         // no events yet
         assertTrue(allEvents.tryReceive().isFailure)
 
         // addNotify arrives after various window events
-        SwingUtilities.invokeAndWait {
-            container!!.addNotify()
-        }
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_START)
-        assertThat(allEvents.receiveOrTimeout()).isEqualTo(Lifecycle.Event.ON_RESUME)
+        container.addNotify()
+        allEvents.waitFor(Lifecycle.Event.ON_START)
+        allEvents.waitFor(Lifecycle.Event.ON_RESUME)
 
         // no more events
         assertTrue(allEvents.tryReceive().isFailure)
+
+        window.dispose()
     }
 
     private class ChannelEventObserver: LifecycleEventObserver, Channel<Lifecycle.Event> by Channel(capacity = 8) {
         override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-            runBlocking {
-                send(event)
-                if (event == Lifecycle.Event.ON_DESTROY) {
-                    close()
-                }
+            trySendBlocking(event)
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                close()
             }
         }
     }
 
     private class TestComposePanel(window: JFrame, observer: LifecycleEventObserver) : JLayeredPane() {
-        lateinit var container: ComposeContainer
+        val container: ComposeContainer = ComposeContainer(
+            container = this,
+            skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+            window = window,
+        )
 
         init {
-            SwingUtilities.invokeAndWait {
-                container = ComposeContainer(
-                    container = this,
-                    skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-                    window = window,
-                )
-                container.lifecycle.addObserver(observer)
-                window.add(this)
-            }
+            container.lifecycle.addObserver(observer)
+            isFocusable = true
         }
 
         override fun addNotify() {
@@ -268,11 +249,41 @@ class ComposeContainerLifecycleOwnerTest {
         }
     }
 
-    private suspend fun <E> Channel<E>.receiveOrTimeout(timeout: Duration = Duration.ofSeconds(1)): E {
-        return withContext(Dispatchers.Default) {
-            withTimeout(timeout) {
-                receive()
+    private fun Window.showAndMoveToFront() {
+        isVisible = true
+        toFront()
+    }
+
+    private suspend fun JFrame.setExtendedStateSucceeds(state: Int): Boolean =
+        withTimeoutOrNull(1.seconds) {
+            val actualNewState = suspendCancellableCoroutine { cont ->
+                extendedState = state
+                addWindowStateListener(object: WindowStateListener {
+                    override fun windowStateChanged(e: WindowEvent) {
+                        removeWindowStateListener(this)
+                        cont.resume(
+                            value = e.newState,
+                            onCancellation = { _, _, _ -> }
+                        )
+                    }
+                })
             }
+            return@withTimeoutOrNull actualNewState == state
+        } ?: false
+
+    // Some window managers (on Linux) generate unexpected events, such as iconification when the
+    // window is first made visible. This means it's not possible to check for the expected stream
+    // of events exactly. Instead, we skip unexpected events, waiting for the next expected one.
+    private suspend fun <E> Channel<E>.waitFor(value: E, timeout: Duration = 1.seconds) {
+        withContext(Dispatchers.Default) {
+            var lastReceived: E? = null
+            withTimeoutOrNull(timeout) {
+                while (true) {
+                    lastReceived = receive()
+                    if (lastReceived == value) break
+                }
+            }
+            assertThat(lastReceived).isEqualTo(value)
         }
     }
 }

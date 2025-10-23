@@ -35,6 +35,10 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
+import java.awt.Window
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 
 internal fun runApplicationTest(
@@ -133,9 +137,14 @@ internal class WindowTestScope(
 
     fun launchTestWindowApplication(
         state: WindowState = WindowState(),
+        undecorated: Boolean = false,
         content: @Composable FrameWindowScope.() -> Unit
     ) = launchTestApplication {
-       Window(onCloseRequest = ::exitApplication, state = state) {
+       Window(
+           onCloseRequest = ::exitApplication,
+           state = state,
+           undecorated = undecorated
+       ) {
            this@WindowTestScope.window = window
            content()
        }
@@ -177,5 +186,17 @@ internal class WindowTestScope(
         }
 
         exceptionHandler.throwIfCaught()
+    }
+}
+
+suspend fun Window.waitForFocusGain() {
+    if (isFocused) return
+    suspendCancellableCoroutine { cont ->
+        addWindowFocusListener(object: WindowAdapter() {
+            override fun windowGainedFocus(e: WindowEvent) {
+                removeWindowFocusListener(this)
+                cont.resume(Unit) { _, _, _ -> }
+            }
+        })
     }
 }

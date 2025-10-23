@@ -48,10 +48,12 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.WindowTestScope
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
+import androidx.compose.ui.window.waitForFocusGain
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import org.junit.experimental.theories.DataPoint
@@ -61,31 +63,30 @@ open class BaseWindowTextFieldTest {
         textFieldKind: TextFieldKind<S>,
         name: String,
         body: suspend S.() -> Unit
-    ) = runApplicationTest(
-        hasAnimations = true,
-        animationsDelayMillis = 100
-    ) {
+    ) = runApplicationTest {
         var scope: S? = null
-        launchTestApplication {
-            Window(onCloseRequest = ::exitApplication) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (scope == null) {
-                        scope = textFieldKind.createScope(this@runApplicationTest, window)
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("$name ($scope)")
-                        Box(Modifier.border(1.dp, Color.Black).padding(8.dp)) {
-                            scope!!.TextField()
-                        }
+        launchTestWindowApplication(
+            state = WindowState(position = WindowPosition(200.dp, 200.dp)),
+            undecorated = true
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (scope == null) {
+                    scope = textFieldKind.createScope(this@runApplicationTest, window)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("$name ($scope)")
+                    Box(Modifier.border(1.dp, Color.Black).padding(8.dp)) {
+                        scope.TextField()
                     }
                 }
             }
         }
 
         awaitIdle()
+        window.waitForFocusGain()
         scope!!.body()
     }
 
@@ -96,9 +97,7 @@ open class BaseWindowTextFieldTest {
         abstract val text: String
         abstract val selection: TextRange
         abstract val composition: TextRange?
-
-        var textLayoutResult: TextLayoutResult? = null
-            protected set
+        abstract val textLayoutResult: TextLayoutResult?
 
         var textBoundingBox: Rect = Rect.Zero
             protected set
@@ -124,7 +123,8 @@ open class BaseWindowTextFieldTest {
             assertThat(this.composition).isEqualTo(composition)
         }
 
-        fun clickBeforeIndex(index: Int) {
+        suspend fun clickBeforeIndex(index: Int) {
+            awaitIdle() // To get the latest textLayoutResult
             val localLocation = textLayoutResult!!.let {
                 if (index == text.length)
                     it.getBoundingBox(index-1).centerRight
@@ -166,6 +166,9 @@ open class BaseWindowTextFieldTest {
         override val composition: TextRange?
             get() = textFieldValue.composition
 
+        override var textLayoutResult: TextLayoutResult? = null
+            protected set
+
         override fun toString() = "TextField1"
     }
 
@@ -184,6 +187,10 @@ open class BaseWindowTextFieldTest {
 
         override val composition: TextRange?
             get() = textFieldState.composition
+
+        protected var textLayoutResultGetter: (() -> TextLayoutResult?)? = null
+        override val textLayoutResult: TextLayoutResult?
+            get() = textLayoutResultGetter?.invoke()
     }
 
     internal abstract class SecureTextFieldScope(
@@ -240,7 +247,7 @@ open class BaseWindowTextFieldTest {
                     BasicTextField(
                         state = textFieldState,
                         inputTransformation = inputTransformation,
-                        onTextLayout = { textLayoutResult = it() },
+                        onTextLayout = { textLayoutResultGetter = it },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .onPlaced {
@@ -268,7 +275,7 @@ open class BaseWindowTextFieldTest {
                     BasicSecureTextField(
                         state = textFieldState,
                         textObfuscationMode = textObfuscationMode,
-                        onTextLayout = { textLayoutResult = it() },
+                        onTextLayout = { textLayoutResultGetter = it },
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .onPlaced {

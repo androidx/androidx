@@ -588,12 +588,9 @@ class WindowTest {
         assertThat(isWindowEffectEnded).isTrue()
     }
 
-    @Ignore("flaky") // TODO https://youtrack.jetbrains.com/issue/CMP-8957
     @Test
-    fun `undecorated resizable window with unspecified size`() = runApplicationTest(
-        useDelay = true
-    ) {
-        var window: ComposeWindow? = null
+    fun `undecorated resizable window with unspecified size`() = runApplicationTest {
+        lateinit var window: ComposeWindow
 
         launchTestApplication {
             Window(
@@ -608,8 +605,9 @@ class WindowTest {
         }
 
         awaitIdle()
-        assertEquals(32, window?.width)
-        assertEquals(32, window?.height)
+        window.renderImmediately()
+        assertEquals(32, window.width)
+        assertEquals(32, window.height)
     }
 
     @Test

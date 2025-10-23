@@ -51,13 +51,11 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.sendCharTypedEvents
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.sendMouseWheelEvent
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.ThrowUncaughtExceptionRule
@@ -65,6 +63,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.runApplicationTest
+import androidx.compose.ui.window.waitForFocusGain
 import androidx.savedstate.SavedState
 import com.google.common.truth.Truth.assertThat
 import java.awt.BorderLayout
@@ -668,7 +667,12 @@ class ComposePanelTest {
         val composePanel = ComposePanel()
         var isTextFieldFocused = false
         composePanel.setContent {
-            TextField(rememberTextFieldState(), Modifier.onFocusChanged { isTextFieldFocused = it.isFocused })
+            TextField(
+                state = rememberTextFieldState(),
+                Modifier.onFocusChanged {
+                    isTextFieldFocused = it.isFocused
+                }
+            )
         }
 
         val window = JFrame()
@@ -676,6 +680,8 @@ class ComposePanelTest {
             window.size = Dimension(200, 200)
             window.contentPane.add(composePanel, BorderLayout.CENTER)
             window.isVisible = true
+            window.toFront()
+            window.waitForFocusGain()
 
             awaitIdle()
 
