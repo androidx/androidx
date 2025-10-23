@@ -22,24 +22,30 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
+import androidx.build.AndroidXComposePlugin
+import androidx.build.Publish
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.compose.material3.adaptive.navigation3"
-    }
-    jvmStubs()
-    linuxX64Stubs()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+androidXComposeMultiplatform {
+    android()
+    desktop()
+    darwin()
+    js()
+    wasm()
+}
 
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -47,6 +53,7 @@ androidXMultiplatform {
                 api(project(":compose:material3:adaptive:adaptive-navigation"))
                 api(project(":navigation3:navigation3-ui"))
                 implementation(project(":navigationevent:navigationevent-compose"))
+                implementation("androidx.collection:collection:1.5.0")
             }
         }
 
@@ -55,8 +62,9 @@ androidXMultiplatform {
             }
         }
 
+        jvmMain.dependsOn(commonMain)
         androidMain {
-            dependsOn(commonMain)
+            dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
                 implementation("androidx.activity:activity-compose:1.10.1")
@@ -79,20 +87,31 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        desktopMain {
+            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonJvmMain)
+        webMain.dependsOn(nonJvmMain)
 
-        linuxx64StubsMain {
-            dependsOn(nonAndroidMain)
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+            }
         }
     }
 }
 
+android {
+    namespace = "androidx.compose.material3.adaptive.navigation3"
+}
+
 androidx {
     name = "Material Adaptive"
-    mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE_NAV3
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2025"
     description = "Compose Material Design Adaptive Library"
 }

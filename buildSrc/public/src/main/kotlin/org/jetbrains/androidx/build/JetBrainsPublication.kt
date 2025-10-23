@@ -90,6 +90,7 @@ object JetBrainsPublication {
             ComposeComponent(":compose:material3:adaptive:adaptive"),
             ComposeComponent(":compose:material3:adaptive:adaptive-layout"),
             ComposeComponent(":compose:material3:adaptive:adaptive-navigation"),
+            ComposeComponent(":compose:material3:adaptive:adaptive-navigation3"),
         ),
         "LIFECYCLE" to listOf(
             ComposeComponent(

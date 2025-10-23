@@ -1,0 +1,63 @@
+public final class androidx/compose/material3/adaptive/navigation3/ComposableSingletons$ListDetailSceneStrategyKt {
+	public static final field INSTANCE Landroidx/compose/material3/adaptive/navigation3/ComposableSingletons$ListDetailSceneStrategyKt;
+	public fun <init> ()V
+	public final fun getLambda$1388680934$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$239843482$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/ComposableSingletons$ThreePaneScaffoldSceneKt {
+	public static final field INSTANCE Landroidx/compose/material3/adaptive/navigation3/ComposableSingletons$ThreePaneScaffoldSceneKt;
+	public fun <init> ()V
+	public final fun getLambda$-1834699219$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$-827776530$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
+	public final fun getLambda$1316828981$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy : androidx/navigation3/scene/SceneStrategy {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Ljava/util/List;)Landroidx/navigation3/scene/Scene;
+	public final fun getAdaptStrategies ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;
+	public final fun getBackNavigationBehavior-pSECbL4 ()Ljava/lang/String;
+	public final fun getDirective ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion {
+	public final fun detailPane (Ljava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun detailPane$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun extraPane (Ljava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun extraPane$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun listPane (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/util/Map;
+	public static synthetic fun listPane$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Ljava/util/Map;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategyKt {
+	public static final fun rememberListDetailSceneStrategy-Bh82XIE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
+	public static final synthetic fun rememberListDetailSceneStrategy-jRFdvxE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy : androidx/navigation3/scene/SceneStrategy {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;
+	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Ljava/util/List;)Landroidx/navigation3/scene/Scene;
+	public final fun getAdaptStrategies ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;
+	public final fun getBackNavigationBehavior-pSECbL4 ()Ljava/lang/String;
+	public final fun getDirective ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion {
+	public final fun extraPane (Ljava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun extraPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun mainPane (Ljava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun mainPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun supportingPane (Ljava/lang/Object;)Ljava/util/Map;
+	public static synthetic fun supportingPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategyKt {
+	public static final fun rememberSupportingPaneSceneStrategy-Bh82XIE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
+	public static final synthetic fun rememberSupportingPaneSceneStrategy-jRFdvxE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
+}
+
