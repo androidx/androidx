@@ -365,4 +365,17 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      */
     val renderApi: GraphicsApi
         get() = _composeContainer?.renderApi ?: GraphicsApi.UNKNOWN
+
+    /**
+     * Renders the panel's content synchronously.
+     *
+     * This doesn't need to be used in most cases, as the content will be rendered as needed
+     * automatically. It can, however, be used to force the rendering sooner than it normally would
+     * occur. Specifically, it allows rendering the content after the window has been made
+     * displayable, but before it has been shown, to avoid a brief flicker.
+     */
+    @ExperimentalComposeUiApi
+    fun renderImmediately() {
+        _composeContainer?.renderImmediately()
+    }
 }

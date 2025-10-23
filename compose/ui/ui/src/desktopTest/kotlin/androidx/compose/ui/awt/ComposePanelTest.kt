@@ -525,6 +525,9 @@ class ComposePanelTest {
             window.contentPane.add(composePanel)
             awaitIdle()
 
+            // Needed to complete the addition of SwingInteropContainer
+            composePanel.renderImmediately()
+
             assertEquals(2, jPanels.size)
             assertFalse(composePanel.isAncestorOf(jPanels[0]))
             assertTrue(composePanel.isAncestorOf(jPanels[1]))
