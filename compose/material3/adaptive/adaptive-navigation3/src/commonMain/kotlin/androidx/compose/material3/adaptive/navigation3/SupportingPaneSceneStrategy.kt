@@ -19,9 +19,11 @@ package androidx.compose.material3.adaptive.navigation3
 import androidx.collection.mutableIntListOf
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
@@ -40,6 +42,10 @@ import androidx.navigation3.scene.SceneStrategyScope
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the supporting-pane scaffold should arrange
  *   its panes.
+ * @param adaptStrategies adaptation strategies of each pane, which denotes how each pane should be
+ *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
+ *   to use [SupportingPaneScaffoldDefaults.adaptStrategies] as a default, but custom
+ *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -47,11 +53,14 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilScaffoldValueChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    adaptStrategies: ThreePaneScaffoldAdaptStrategies =
+        SupportingPaneScaffoldDefaults.adaptStrategies(),
 ): SupportingPaneSceneStrategy<T> {
-    return remember(backNavigationBehavior, directive) {
+    return remember(backNavigationBehavior, directive, adaptStrategies) {
         SupportingPaneSceneStrategy(
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
+            adaptStrategies = adaptStrategies,
         )
     }
 }
@@ -66,11 +75,16 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
  * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the scaffold should arrange its panes.
+ * @param adaptStrategies adaptation strategies of each pane, which denotes how each pane should be
+ *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
+ *   to use [SupportingPaneScaffoldDefaults.adaptStrategies] as a default, but custom
+ *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
  */
 @ExperimentalMaterial3AdaptiveApi
 public class SupportingPaneSceneStrategy<T : Any>(
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
+    public val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
 ) : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
@@ -111,7 +125,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
                 onBack = onBack,
                 backNavBehavior = backNavigationBehavior,
                 directive = directive,
-                adaptStrategies = SupportingPaneScaffoldDefaults.adaptStrategies(),
+                adaptStrategies = adaptStrategies,
                 allEntries = entries,
                 scaffoldEntries = scaffoldEntries,
                 scaffoldEntryIndices = scaffoldEntryIndices,

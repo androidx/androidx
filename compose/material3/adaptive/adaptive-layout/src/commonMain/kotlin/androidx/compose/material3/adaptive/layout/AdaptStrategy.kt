@@ -92,8 +92,14 @@ sealed interface AdaptStrategy {
      *   underlying layout and emphasize the levitated pane; by default it will be `null` and no
      *   scrim will show; to display a scrim, we recommend to use [LevitatedPaneScrim] as a default
      *   implementation.
+     * @param dragToResizeState the optional state to enable the levitated pane to be resizable by
+     *   dragging; it will be used to store and control current dragging; see
+     *   [rememberDragToResizeState] for more details about how to implement the drag-to-resize
+     *   behavior.
+     * @sample androidx.compose.material3.adaptive.samples.levitateAsBottomSheetSample
      * @sample androidx.compose.material3.adaptive.samples.levitateAsDialogSample
      * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog
+     * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
      * @see [onlyIf] and [onlyIfSinglePane] for finer control over when the pane should be
      *   levitated.
      */
@@ -101,7 +107,18 @@ sealed interface AdaptStrategy {
     class Levitate(
         internal val alignment: Alignment = Alignment.Center,
         internal val scrim: (@Composable () -> Unit)? = null,
+        internal val dragToResizeState: DragToResizeState? = null,
     ) : AdaptStrategy {
+
+        @Deprecated(
+            message = "Keep the old constructor for binary compatibility",
+            level = DeprecationLevel.HIDDEN,
+        )
+        constructor(
+            alignment: Alignment = Alignment.Center,
+            scrim: (@Composable () -> Unit)? = null,
+        ) : this(alignment, scrim, null)
+
         override fun toString() = "AdaptStrategy[Levitate, alignment=$alignment, scrim=$scrim]"
 
         override fun equals(other: Any?): Boolean {
@@ -109,12 +126,14 @@ sealed interface AdaptStrategy {
             if (other !is Levitate) return false
             if (alignment != other.alignment) return false
             if (scrim !== other.scrim) return false
+            if (dragToResizeState !== other.dragToResizeState) return false
             return true
         }
 
         override fun hashCode(): Int {
             var result = alignment.hashCode()
             result = 31 * result + scrim.hashCode()
+            result = 31 * result + dragToResizeState.hashCode()
             return result
         }
 

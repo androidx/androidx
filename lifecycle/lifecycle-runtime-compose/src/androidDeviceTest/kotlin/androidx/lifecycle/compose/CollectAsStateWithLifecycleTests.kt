@@ -28,169 +28,187 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
 
 @OptIn(ExperimentalTestApi::class)
 class CollectAsStateWithLifecycleTests {
 
     @Test
-    fun test_flowState_getsInitialValue() = runComposeUiTest {
-        val _sharedFlow = MutableSharedFlow<String>()
-        val flow: Flow<String> = _sharedFlow
+    fun test_flowState_getsInitialValue() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val _sharedFlow = MutableSharedFlow<String>()
+            val flow: Flow<String> = _sharedFlow
 
-        var realValue: String? = null
-        setContent {
-            withLifecycleOwner { realValue = flow.collectAsStateWithLifecycle("0").value }
-        }
-
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-    }
-
-    @Test
-    fun test_stateFlowState_getsInitialValue() = runComposeUiTest {
-        val stateFlow: StateFlow<String> = MutableStateFlow("0")
-
-        var realValue: String? = null
-        setContent {
-            withLifecycleOwner { realValue = stateFlow.collectAsStateWithLifecycle().value }
-        }
-
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-    }
-
-    @Test
-    fun test_flowState_getsSubsequentFlowEmissions() = runComposeUiTest {
-        val _sharedFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
-        val flow: Flow<String> = _sharedFlow
-
-        var realValue: String? = null
-        setContent {
-            withLifecycleOwner(Lifecycle.State.RESUMED) {
-                realValue = flow.collectAsStateWithLifecycle("0").value
+            var realValue: String? = null
+            setContent {
+                withLifecycleOwner { realValue = flow.collectAsStateWithLifecycle("0").value }
             }
+
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
         }
 
-        assertThat(_sharedFlow.tryEmit("1")).isTrue()
-        runOnIdle { assertThat(realValue).isEqualTo("1") }
-    }
-
     @Test
-    fun test_stateFlowState_getsSubsequentFlowEmissions() = runComposeUiTest {
-        val stateFlow = MutableStateFlow("0")
+    fun test_stateFlowState_getsInitialValue() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val stateFlow: StateFlow<String> = MutableStateFlow("0")
 
-        var realValue: String? = null
-        setContent {
-            withLifecycleOwner(Lifecycle.State.RESUMED) {
-                realValue = stateFlow.collectAsStateWithLifecycle().value
+            var realValue: String? = null
+            setContent {
+                withLifecycleOwner { realValue = stateFlow.collectAsStateWithLifecycle().value }
             }
+
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
         }
-
-        stateFlow.value = "1"
-
-        runOnIdle { assertThat(realValue).isEqualTo("1") }
-    }
 
     @Test
-    fun test_flowState_doesNotGetEmissionsBelowMinState() = runComposeUiTest {
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
-        val _stateFlow = MutableStateFlow("initialValue")
-        val flow: Flow<String> = _stateFlow
+    fun test_flowState_getsSubsequentFlowEmissions() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val _sharedFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+            val flow: Flow<String> = _sharedFlow
 
-        var realValue: String? = null
-        setContent {
-            realValue =
-                flow
-                    .collectAsStateWithLifecycle(
-                        initialValue = "0",
-                        lifecycle = lifecycleOwner.lifecycle,
-                    )
-                    .value
+            var realValue: String? = null
+            setContent {
+                withLifecycleOwner(Lifecycle.State.RESUMED) {
+                    realValue = flow.collectAsStateWithLifecycle("0").value
+                }
+            }
+
+            assertThat(_sharedFlow.tryEmit("1")).isTrue()
+            runOnIdle { assertThat(realValue).isEqualTo("1") }
         }
-
-        _stateFlow.value = "1"
-        _stateFlow.value = "2"
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-    }
 
     @Test
-    fun test_stateFlowState_doesNotGetEmissionsBelowMinState() = runComposeUiTest {
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
-        val stateFlow = MutableStateFlow("0")
+    fun test_stateFlowState_getsSubsequentFlowEmissions() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val stateFlow = MutableStateFlow("0")
 
-        var realValue: String? = null
-        setContent {
-            realValue =
-                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
+            var realValue: String? = null
+            setContent {
+                withLifecycleOwner(Lifecycle.State.RESUMED) {
+                    realValue = stateFlow.collectAsStateWithLifecycle().value
+                }
+            }
+
+            stateFlow.value = "1"
+
+            runOnIdle { assertThat(realValue).isEqualTo("1") }
         }
-
-        stateFlow.value = "1"
-        stateFlow.value = "2"
-
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-    }
 
     @Test
-    fun test_flowState_getsEmissionsWhenAboveMinState() = runComposeUiTest {
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
-        val _sharedFlow = MutableSharedFlow<String>(extraBufferCapacity = 2)
-        val flow: Flow<String> = _sharedFlow
+    fun test_flowState_doesNotGetEmissionsBelowMinState() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+            val _stateFlow = MutableStateFlow("initialValue")
+            val flow: Flow<String> = _stateFlow
 
-        var realValue: String? = null
-        setContent {
-            realValue =
-                flow
-                    .collectAsStateWithLifecycle(
-                        initialValue = "0",
-                        lifecycle = lifecycleOwner.lifecycle,
-                    )
-                    .value
+            var realValue: String? = null
+            setContent {
+                realValue =
+                    flow
+                        .collectAsStateWithLifecycle(
+                            initialValue = "0",
+                            lifecycle = lifecycleOwner.lifecycle,
+                        )
+                        .value
+            }
+
+            _stateFlow.value = "1"
+            _stateFlow.value = "2"
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
         }
-
-        assertThat(_sharedFlow.tryEmit("1")).isTrue()
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-
-        lifecycleOwner.currentState = Lifecycle.State.RESUMED
-        assertThat(_sharedFlow.tryEmit("2"))
-        runOnIdle { assertThat(realValue).isEqualTo("2") }
-    }
 
     @Test
-    fun test_stateFlowState_getsEmissionsWhenAboveMinState() = runComposeUiTest {
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
-        val stateFlow = MutableStateFlow("0")
+    fun test_stateFlowState_doesNotGetEmissionsBelowMinState() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+            val stateFlow = MutableStateFlow("0")
 
-        var realValue: String? = null
-        setContent {
-            realValue =
-                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
+            var realValue: String? = null
+            setContent {
+                realValue =
+                    stateFlow
+                        .collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle)
+                        .value
+            }
+
+            stateFlow.value = "1"
+            stateFlow.value = "2"
+
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
         }
-
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
-
-        stateFlow.value = "1"
-        stateFlow.value = "2"
-
-        runOnIdle { assertThat(realValue).isEqualTo("2") }
-    }
 
     @Test
-    fun test_stateFlowState_getsLastEmissionWhenLifecycleIsAboveMin() = runComposeUiTest {
-        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
-        val stateFlow = MutableStateFlow("0")
+    fun test_flowState_getsEmissionsWhenAboveMinState() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+            val _sharedFlow = MutableSharedFlow<String>(extraBufferCapacity = 2)
+            val flow: Flow<String> = _sharedFlow
 
-        var realValue: String? = null
-        setContent {
-            realValue =
-                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
+            var realValue: String? = null
+            setContent {
+                realValue =
+                    flow
+                        .collectAsStateWithLifecycle(
+                            initialValue = "0",
+                            lifecycle = lifecycleOwner.lifecycle,
+                        )
+                        .value
+            }
+
+            assertThat(_sharedFlow.tryEmit("1")).isTrue()
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
+
+            lifecycleOwner.currentState = Lifecycle.State.RESUMED
+            // To start the flow collector after the lifecycle change.
+            awaitIdle()
+            assertThat(_sharedFlow.tryEmit("2"))
+            runOnIdle { assertThat(realValue).isEqualTo("2") }
         }
 
-        runOnIdle { assertThat(realValue).isEqualTo("0") }
+    @Test
+    fun test_stateFlowState_getsEmissionsWhenAboveMinState() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+            val stateFlow = MutableStateFlow("0")
 
-        stateFlow.value = "1"
-        stateFlow.value = "2"
-        lifecycleOwner.currentState = Lifecycle.State.RESUMED
+            var realValue: String? = null
+            setContent {
+                realValue =
+                    stateFlow
+                        .collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle)
+                        .value
+            }
 
-        runOnIdle { assertThat(realValue).isEqualTo("2") }
-    }
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
+
+            stateFlow.value = "1"
+            stateFlow.value = "2"
+
+            runOnIdle { assertThat(realValue).isEqualTo("2") }
+        }
+
+    @Test
+    fun test_stateFlowState_getsLastEmissionWhenLifecycleIsAboveMin() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
+            val stateFlow = MutableStateFlow("0")
+
+            var realValue: String? = null
+            setContent {
+                realValue =
+                    stateFlow
+                        .collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle)
+                        .value
+            }
+
+            runOnIdle { assertThat(realValue).isEqualTo("0") }
+
+            stateFlow.value = "1"
+            stateFlow.value = "2"
+            lifecycleOwner.currentState = Lifecycle.State.RESUMED
+
+            runOnIdle { assertThat(realValue).isEqualTo("2") }
+        }
 
     @Composable
     private fun withLifecycleOwner(

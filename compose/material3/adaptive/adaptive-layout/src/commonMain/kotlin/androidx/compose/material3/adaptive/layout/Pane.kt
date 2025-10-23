@@ -22,7 +22,10 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
 import androidx.compose.material3.adaptive.layout.DefaultAnimatedPaneOverride.AnimatedPane
@@ -36,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
@@ -59,24 +63,32 @@ import androidx.compose.ui.unit.dp
  * @param exitTransition The [ExitTransition] used to animate the pane out.
  * @param boundsAnimationSpec The [FiniteAnimationSpec] used to animate the bounds of the pane when
  *   the pane is keeping showing but changing its size and/or position.
+ * @param dragToResizeHandle The optional handle which will shown when the pane is levitated and
+ *   drag-to-resizable; the handle will be draggable and clickable to resize the pane freely or
+ *   among collapsed, partially expanded, and expanded states. See [rememberDragToResizeState] for
+ *   more details about how to implement the drag-to-resize behavior.
  * @param content The content of the [AnimatedPane]. Also see [AnimatedPaneScope].
  *
  * See usage samples at:
  *
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog
+ * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
  */
 @OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun <
-    Role : PaneScaffoldRole,
-    ScaffoldValue : PaneScaffoldValue<Role>,
-> ExtendedPaneScaffoldPaneScope<Role, ScaffoldValue>.AnimatedPane(
+    RoleT : PaneScaffoldRole,
+    ScaffoldValueT : PaneScaffoldValue<RoleT>,
+> ExtendedPaneScaffoldPaneScope<RoleT, ScaffoldValueT>.AnimatedPane(
     modifier: Modifier = Modifier,
     enterTransition: EnterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
     exitTransition: ExitTransition = motionDataProvider.calculateDefaultExitTransition(paneRole),
     boundsAnimationSpec: FiniteAnimationSpec<IntRect> = PaneMotionDefaults.AnimationSpec,
+    dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)? = null,
     content: (@Composable AnimatedPaneScope.() -> Unit),
 ) {
     with(LocalAnimatedPaneOverride.current) {
@@ -86,11 +98,51 @@ fun <
                 enterTransition = enterTransition,
                 exitTransition = exitTransition,
                 boundsAnimationSpec = boundsAnimationSpec,
+                dragToResizeHandle = dragToResizeHandle,
                 content = content,
             )
             .AnimatedPane()
     }
 }
+
+/**
+ * The root composable of pane contents in a [ThreePaneScaffold] that supports default motions
+ * during pane switching. It's recommended to use this composable to wrap your own contents when
+ * passing them into pane parameters of the scaffold functions, therefore your panes can have a nice
+ * default animation for free.
+ *
+ * @param modifier The modifier applied to the [AnimatedPane].
+ * @param enterTransition The [EnterTransition] used to animate the pane in.
+ * @param exitTransition The [ExitTransition] used to animate the pane out.
+ * @param boundsAnimationSpec The [FiniteAnimationSpec] used to animate the bounds of the pane when
+ *   the pane is keeping showing but changing its size and/or position.
+ * @param content The content of the [AnimatedPane]. Also see [AnimatedPaneScope].
+ *
+ * See usage samples at:
+ *
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
+ * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPaneLevitatedAsDialog
+ * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSample
+ * @sample androidx.compose.material3.adaptive.samples.SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet
+ */
+@Deprecated(
+    message = "Keep the old function for binary compatibility",
+    level = DeprecationLevel.HIDDEN,
+)
+@OptIn(ExperimentalMaterial3AdaptiveComponentOverrideApi::class)
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun <
+    RoleT : PaneScaffoldRole,
+    ScaffoldValueT : PaneScaffoldValue<RoleT>,
+> ExtendedPaneScaffoldPaneScope<RoleT, ScaffoldValueT>.AnimatedPane(
+    modifier: Modifier = Modifier,
+    enterTransition: EnterTransition = motionDataProvider.calculateDefaultEnterTransition(paneRole),
+    exitTransition: ExitTransition = motionDataProvider.calculateDefaultExitTransition(paneRole),
+    boundsAnimationSpec: FiniteAnimationSpec<IntRect> = PaneMotionDefaults.AnimationSpec,
+    content: (@Composable AnimatedPaneScope.() -> Unit),
+) = AnimatedPane(modifier, enterTransition, exitTransition, boundsAnimationSpec, null, content)
 
 /**
  * This override provides the default behavior of the [AnimatedPane] component.
@@ -117,7 +169,9 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
             scaffoldStateTransition.AnimatedVisibility(
                 visible = { value: ScaffoldValue -> value[paneRole] != PaneAdaptedValue.Hidden },
                 modifier =
-                    modifier
+                    // The size modifiers have to be applied at this level so the scaffold can read
+                    // them from the parent data.
+                    extractPaneScaffoldSizeModifiers(modifier)
                         .animatedPane()
                         .animateBounds(
                             animateFraction = motionProgress,
@@ -128,19 +182,33 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                         )
                         .focusRequester(focusRequesters[paneRole]!!)
                         .focusableInWholeTree(isInteractable, paneRole)
-                        .then(
-                            if (paneValue is PaneAdaptedValue.Levitated) {
-                                Modifier.shadow(AnimatedPaneDefaults.ShadowElevation)
-                            } else {
-                                Modifier
-                            }
-                        )
+                        .levitatedProperties(paneValue, dragToResizeHandle != null)
                         .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
                 enter = enterTransition,
                 exit = exitTransition,
             ) {
                 scope.saveableStateHolder.SaveableStateProvider(paneRole.toString()) {
-                    AnimatedPaneScope.create(this).content()
+                    Column(modifier = modifier) {
+                        if (
+                            paneValue is PaneAdaptedValue.Levitated &&
+                                paneValue.dragToResizeState != null &&
+                                dragToResizeHandle != null
+                        ) {
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .dragToResize(
+                                            state = paneValue.dragToResizeState,
+                                            showIndication = true,
+                                        ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                dragToResizeHandle(paneValue.dragToResizeState)
+                            }
+                        }
+                        AnimatedPaneScope.create(this@AnimatedVisibility).content()
+                    }
                 }
             }
 
@@ -203,6 +271,10 @@ interface AnimatedPaneOverride {
  * @param exitTransition The [ExitTransition] used to animate the pane out.
  * @param boundsAnimationSpec The [FiniteAnimationSpec] used to animate the bounds of the pane when
  *   the pane is keeping showing but changing its size and/or position.
+ * @param dragToResizeHandle The optional handle which will shown when the pane is levitated and
+ *   drag-to-resizable; the handle will be draggable and clickable to resize the pane freely or
+ *   among collapsed, partially expanded, and expanded states. See [rememberDragToResizeState] for
+ *   more details about how to implement the drag-to-resize behavior.
  * @param content The content of the [AnimatedPane]. Also see [AnimatedPaneScope].
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -215,6 +287,7 @@ internal constructor(
     val enterTransition: EnterTransition,
     val exitTransition: ExitTransition,
     val boundsAnimationSpec: FiniteAnimationSpec<IntRect>,
+    val dragToResizeHandle: (@Composable (DragToResizeState) -> Unit)?,
     val content: (@Composable AnimatedPaneScope.() -> Unit),
 )
 
@@ -261,4 +334,23 @@ private fun PaneScaffoldRole.paneTitle() =
             ThreePaneScaffoldRole.Tertiary -> Strings.defaultPaneTitleTertiary
             else -> null
         }
+    }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun Modifier.levitatedProperties(
+    paneValue: PaneAdaptedValue,
+    hasDragHandle: Boolean,
+): Modifier =
+    if (paneValue !is PaneAdaptedValue.Levitated) {
+        this
+    } else {
+        this.shadow(AnimatedPaneDefaults.ShadowElevation)
+            .then(
+                if (paneValue.dragToResizeState != null && !hasDragHandle) {
+                    // Make the whole pane draggable if no drag handle is provided.
+                    Modifier.dragToResize(paneValue.dragToResizeState, showIndication = false)
+                } else {
+                    Modifier
+                }
+            )
     }

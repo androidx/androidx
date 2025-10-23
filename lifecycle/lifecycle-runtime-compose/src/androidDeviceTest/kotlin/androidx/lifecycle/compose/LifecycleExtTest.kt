@@ -22,6 +22,7 @@ import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlin.test.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalTestApi::class)
@@ -32,21 +33,22 @@ class LifecycleExtTest {
         TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher())
 
     @Test
-    fun lifecycleCollectAsState() = runComposeUiTest {
-        val lifecycle = lifecycleOwner.lifecycle
-        assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+    fun lifecycleCollectAsState() =
+        runComposeUiTest(StandardTestDispatcher()) {
+            val lifecycle = lifecycleOwner.lifecycle
+            assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
-        var realStateValue: Lifecycle.State? = null
-        setContent { realStateValue = lifecycle.currentStateAsState().value }
+            var realStateValue: Lifecycle.State? = null
+            setContent { realStateValue = lifecycle.currentStateAsState().value }
 
-        runOnIdle { assertThat(realStateValue).isEqualTo(Lifecycle.State.INITIALIZED) }
+            runOnIdle { assertThat(realStateValue).isEqualTo(Lifecycle.State.INITIALIZED) }
 
-        // TODO(b/280362188): commenting this portion out until bug is fixed
-        /*
-        lifecycleOwner.currentState = Lifecycle.State.RESUMED
-        runOnIdle {
-            assertThat(realStateValue).isEqualTo(Lifecycle.State.RESUMED)
+            // TODO(b/280362188): commenting this portion out until bug is fixed
+            /*
+            lifecycleOwner.currentState = Lifecycle.State.RESUMED
+            runOnIdle {
+                assertThat(realStateValue).isEqualTo(Lifecycle.State.RESUMED)
+            }
+            */
         }
-        */
-    }
 }

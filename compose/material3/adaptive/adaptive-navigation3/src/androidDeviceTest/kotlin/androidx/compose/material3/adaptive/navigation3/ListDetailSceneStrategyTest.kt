@@ -361,7 +361,5 @@ private val detailEntry: NavEntry<TestKey> =
 
 private val nonListDetailEntry: NavEntry<TestKey> = NavEntry(HomeKey) {}
 
-private val EmptySceneStrategyScope = SceneStrategyScope<TestKey> {}
-
 private fun ListDetailSceneStrategy<TestKey>.calculateScene(entries: List<NavEntry<TestKey>>) =
-    with(this) { EmptySceneStrategyScope.calculateScene(entries) }
+    with(this) { SceneStrategyScope<TestKey>().calculateScene(entries) }

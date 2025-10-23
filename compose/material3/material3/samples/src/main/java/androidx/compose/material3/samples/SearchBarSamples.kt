@@ -57,10 +57,16 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -259,41 +265,25 @@ fun DockedSearchBarScaffoldSample() {
     val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
+    val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()
 
+    var inputFieldWidth by remember { mutableIntStateOf(0) }
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
-                modifier = Modifier,
+                modifier = Modifier.onSizeChanged { inputFieldWidth = it.width },
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search...")
-                },
-                leadingIcon = {
-                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        TooltipBox(
-                            positionProvider =
-                                TooltipDefaults.rememberTooltipPositionProvider(
-                                    TooltipAnchorPosition.Above
-                                ),
-                            tooltip = { PlainTooltip { Text("Back") } },
-                            state = rememberTooltipState(),
-                        ) {
-                            IconButton(
-                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back",
-                                )
-                            }
-                        }
-                    } else {
-                        Icon(Icons.Default.Search, contentDescription = null)
+                    if (searchBarState.currentValue == SearchBarValue.Collapsed) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
+                            text = "Search",
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
             )
         }
 
@@ -304,14 +294,49 @@ fun DockedSearchBarScaffoldSample() {
                 scrollBehavior = scrollBehavior,
                 state = searchBarState,
                 inputField = inputField,
-                colors =
-                    SearchBarDefaults.appBarWithSearchColors(
-                        scrolledSearchBarContainerColor = Color.Unspecified,
-                        appBarContainerColor = Color.Transparent,
-                        scrolledAppBarContainerColor = Color.Unspecified,
-                    ),
+                navigationIcon = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    }
+                },
+                actions = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Account") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = "Account",
+                            )
+                        }
+                    }
+                },
+                colors = appBarWithSearchColors,
             )
-            ExpandedDockedSearchBar(state = searchBarState, inputField = inputField) {
+            ExpandedDockedSearchBar(
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                        val placeable =
+                            measurable.measure(constraints.copy(maxWidth = inputFieldWidth))
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                    },
+                state = searchBarState,
+                inputField = inputField,
+            ) {
                 SampleSearchResults(
                     onResultClick = { result ->
                         textFieldState.setTextAndPlaceCursorAtEnd(result)

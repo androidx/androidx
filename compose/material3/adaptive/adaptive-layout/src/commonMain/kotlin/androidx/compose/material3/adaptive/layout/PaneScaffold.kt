@@ -438,6 +438,22 @@ private class PaneMarginsNode(var paneMargins: PaneMargins) :
         }
 }
 
+@Suppress("ModifierFactoryExtensionFunction") // This is not a modifier factory function
+internal fun extractPaneScaffoldSizeModifiers(original: Modifier): Modifier {
+    var result: Modifier = Modifier
+    original.all { element ->
+        if (
+            element is PreferredWidthElement ||
+                element is PreferredHeightElement ||
+                element is PaneMarginsElement
+        ) {
+            result = result.then(element)
+        }
+        true
+    }
+    return result
+}
+
 internal fun Modifier.animatedPane(): Modifier {
     return this.then(AnimatedPaneElement)
 }

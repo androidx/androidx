@@ -19,14 +19,17 @@ package androidx.compose.material3.adaptive.layout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.adaptive.currentWindowSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 
 internal fun ComposeContentTestRule.setContentWithSimulatedSize(
@@ -36,11 +39,27 @@ internal fun ComposeContentTestRule.setContentWithSimulatedSize(
 ) {
     setContent {
         val currentDensity = LocalDensity.current
-        val windowSize = with(currentDensity) { currentWindowSize().toSize().toDpSize() }
+        val windowInfo = LocalWindowInfo.current
+        val windowSize = windowInfo.containerDpSize
 
         val simulatedDensity = Density(currentDensity.density * (windowSize.width / simulatedWidth))
-        CompositionLocalProvider(LocalDensity provides simulatedDensity) {
+        CompositionLocalProvider(
+            LocalDensity provides simulatedDensity,
+            LocalWindowInfo provides MockWindowInfo(windowInfo.containerSize, simulatedDensity),
+        ) {
             Box(Modifier.fillMaxWidth().height(simulatedHeight)) { content() }
         }
     }
+}
+
+internal class MockWindowInfo(
+    private val mockWindowSize: IntSize,
+    private val mockDensity: Density,
+) : WindowInfo {
+    override val isWindowFocused: Boolean = false
+    override val containerSize: IntSize
+        get() = mockWindowSize
+
+    override val containerDpSize: DpSize
+        get() = with(mockDensity) { mockWindowSize.toSize().toDpSize() }
 }

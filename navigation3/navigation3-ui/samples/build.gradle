@@ -36,7 +36,6 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.activity:activity-compose:1.10.0")
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))

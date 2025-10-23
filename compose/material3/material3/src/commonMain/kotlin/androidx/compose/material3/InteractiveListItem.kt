@@ -25,6 +25,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -32,6 +33,8 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.FloatProducer
@@ -71,6 +74,7 @@ import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -81,11 +85,48 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.takeOrElse
 
-/** TODO: docs */
+/**
+ * [Material Design list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [ListItem] handles click events, calling its [onClick] lambda to trigger an
+ * action. See other overloads for handling single-selection, multi-selection, or no interaction
+ * handling.
+ *
+ * @param onClick called when this list item is clicked.
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. See
+ *   [InteractiveListItemDefaults.shapes].
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-internal fun ClickableListItem(
+internal fun ListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -93,6 +134,7 @@ internal fun ClickableListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -109,6 +151,7 @@ internal fun ClickableListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = false,
         applySemantics = {},
@@ -123,10 +166,46 @@ internal fun ClickableListItem(
     )
 }
 
-/** TODO: docs */
+/**
+ * [Material Design list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [ListItem] represents a single-selection item, analogous to a [RadioButton]. See
+ * other overloads for handling general click actions, multi-selection, or no interaction handling.
+ *
+ * @param selected whether or not this list item is selected.
+ * @param onClick called when this list item is clicked.
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. See
+ *   [InteractiveListItemDefaults.shapes].
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-internal fun SelectableListItem(
+internal fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -135,6 +214,7 @@ internal fun SelectableListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -151,6 +231,7 @@ internal fun SelectableListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = selected,
         applySemantics = { this.selected = selected },
@@ -165,10 +246,47 @@ internal fun SelectableListItem(
     )
 }
 
-/** TODO: docs */
+/**
+ * [Material Design list item](https://m3.material.io/components/lists/overview)
+ *
+ * Lists are continuous, vertical indexes of text or images.
+ *
+ * This overload of [ListItem] represents a multi-selection (toggleable) item, analogous to a
+ * [Checkbox]. See other overloads for handling general click actions, single-selection, or no
+ * interaction handling.
+ *
+ * @param checked whether this list item is toggled on or off.
+ * @param onCheckedChange called when this toggleable list item is clicked.
+ * @param modifier the [Modifier] to be applied to this list item.
+ * @param enabled controls the enabled state of this list item. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param leadingContent the leading content of this list item, such as an icon or avatar.
+ * @param trailingContent the trailing content of this list item, such as a checkbox, switch, or
+ *   icon.
+ * @param overlineContent the content displayed above the main content of the list item.
+ * @param supportingContent the content displayed below the main content of the list item.
+ * @param verticalAlignment the vertical alignment of children within the list item, after
+ *   accounting for [contentPadding].
+ * @param onLongClick called when this list item is long clicked (long-pressed).
+ * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action.
+ * @param shapes the [InteractiveListItemShapes] that this list item will use to morph between
+ *   depending on the user's interaction with the list item. See
+ *   [InteractiveListItemDefaults.shapes].
+ * @param colors the [InteractiveListItemColors] that will be used to resolve the colors used for
+ *   this list item in different states. See [InteractiveListItemDefaults.colors].
+ * @param elevation the [InteractiveListItemElevation] used to resolve the elevation for this list
+ *   item in different states. See [InteractiveListItemDefaults.elevation].
+ * @param contentPadding the padding to be applied to the content of this list item.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this list item. You can use this to change the list item's
+ *   appearance or preview the list item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the main content of this list item. Also known as the headline content.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-internal fun ToggleableListItem(
+internal fun ListItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -177,6 +295,7 @@ internal fun ToggleableListItem(
     trailingContent: @Composable (() -> Unit)? = null,
     overlineContent: @Composable (() -> Unit)? = null,
     supportingContent: @Composable (() -> Unit)? = null,
+    verticalAlignment: Alignment.Vertical = InteractiveListItemDefaults.verticalAlignment(),
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     shapes: InteractiveListItemShapes = InteractiveListItemDefaults.shapes(),
@@ -193,6 +312,7 @@ internal fun ToggleableListItem(
         trailingContent = trailingContent,
         overlineContent = overlineContent,
         supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
         enabled = enabled,
         selected = checked,
         applySemantics = { toggleableState = ToggleableState(checked) },
@@ -207,7 +327,45 @@ internal fun ToggleableListItem(
     )
 }
 
-/** TODO: docs */
+/**
+ * Represents the colors of a list item in different states.
+ *
+ * @param containerColor the container color of the list item.
+ * @param contentColor the content color of the list item.
+ * @param leadingContentColor the color of the leading content of the list item.
+ * @param trailingContentColor the color of the trailing content of the list item.
+ * @param overlineContentColor the color of the overline content of the list item.
+ * @param supportingContentColor the color of the supporting content of the list item.
+ * @param disabledContainerColor the container color of the list item when disabled.
+ * @param disabledContentColor the content color of the list item when disabled.
+ * @param disabledLeadingContentColor the color of the leading content of the list item when
+ *   disabled.
+ * @param disabledTrailingContentColor the color of the trailing content of the list item when
+ *   disabled.
+ * @param disabledOverlineContentColor the color of the overline content of the list item when
+ *   disabled.
+ * @param disabledSupportingContentColor the color of the supporting content of the list item when
+ *   disabled.
+ * @param selectedContainerColor the container color of the list item when selected.
+ * @param selectedContentColor the content color of the list item when selected.
+ * @param selectedLeadingContentColor the color of the leading content of the list item when
+ *   selected.
+ * @param selectedTrailingContentColor the color of the trailing content of the list item when
+ *   selected.
+ * @param selectedOverlineContentColor the color of the overline content of the list item when
+ *   selected.
+ * @param selectedSupportingContentColor the color of the supporting content of the list item when
+ *   selected.
+ * @param draggedContainerColor the container color of the list item when dragged.
+ * @param draggedContentColor the content color of the list item when dragged.
+ * @param draggedLeadingContentColor the color of the leading content of the list item when dragged.
+ * @param draggedTrailingContentColor the color of the trailing content of the list item when
+ *   dragged.
+ * @param draggedOverlineContentColor the color of the overline content of the list item when
+ *   dragged.
+ * @param draggedSupportingContentColor the color of the supporting content of the list item when
+ *   dragged.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Immutable
 internal class InteractiveListItemColors(
@@ -240,7 +398,13 @@ internal class InteractiveListItemColors(
     val draggedOverlineContentColor: Color,
     val draggedSupportingContentColor: Color,
 ) {
-    /** TODO: docs */
+    /**
+     * Returns the container color of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun containerColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledContainerColor
@@ -249,7 +413,13 @@ internal class InteractiveListItemColors(
             else -> containerColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns the content color of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun contentColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledContentColor
@@ -258,7 +428,13 @@ internal class InteractiveListItemColors(
             else -> contentColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns the color of the leading content of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun leadingContentColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledLeadingContentColor
@@ -267,7 +443,13 @@ internal class InteractiveListItemColors(
             else -> leadingContentColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns the color of the trailing content of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun trailingContentColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledTrailingContentColor
@@ -276,7 +458,13 @@ internal class InteractiveListItemColors(
             else -> trailingContentColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns the color of the overline content of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun overlineContentColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledOverlineContentColor
@@ -285,7 +473,13 @@ internal class InteractiveListItemColors(
             else -> overlineContentColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns the color of the supporting content of the list item based on the current state.
+     *
+     * @param enabled whether the list item is enabled.
+     * @param selected whether the list item is selected.
+     * @param dragged whether the list item is dragged.
+     */
     fun supportingContentColor(enabled: Boolean, selected: Boolean, dragged: Boolean): Color =
         when {
             !enabled -> disabledSupportingContentColor
@@ -294,7 +488,10 @@ internal class InteractiveListItemColors(
             else -> supportingContentColor
         }
 
-    /** TODO: docs */
+    /**
+     * Returns a copy of this [InteractiveListItemColors], optionally overriding some of the values.
+     * This uses [Color.Unspecified] to mean “use the value from the source”.
+     */
     fun copy(
         // default
         containerColor: Color = this.containerColor,
@@ -429,7 +626,16 @@ internal class InteractiveListItemColors(
     }
 }
 
-/** TODO: docs */
+/**
+ * Represents the shapes of a list item in different states.
+ *
+ * @param shape the default shape of the list item.
+ * @param selectedShape the shape of the list item when selected.
+ * @param pressedShape the shape of the list item when pressed.
+ * @param focusedShape the shape of the list item when focused.
+ * @param hoveredShape the shape of the list item when hovered.
+ * @param draggedShape the shape of the list item when dragged.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Immutable
 internal class InteractiveListItemShapes(
@@ -440,6 +646,9 @@ internal class InteractiveListItemShapes(
     val hoveredShape: Shape,
     val draggedShape: Shape,
 ) {
+    /**
+     * Returns a copy of this [InteractiveListItemShapes], optionally overriding some of the values.
+     */
     fun copy(
         shape: Shape? = this.shape,
         selectedShape: Shape? = this.selectedShape,
@@ -514,13 +723,19 @@ private fun InteractiveListItemShapes.shapeForInteraction(
             else -> shape
         }
 
-    if (hasRoundedCornerShapes)
+    if (hasRoundedCornerShapes) {
         return key(this) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    }
 
     return shape
 }
 
-/** TODO: docs */
+/**
+ * Represents the elevation of a list item in different states.
+ *
+ * @param elevation the default elevation of the list item.
+ * @param draggedElevation the elevation of the list item when dragged.
+ */
 @ExperimentalMaterial3ExpressiveApi
 @Immutable
 internal class InteractiveListItemElevation(val elevation: Dp, val draggedElevation: Dp) {
@@ -541,11 +756,11 @@ internal class InteractiveListItemElevation(val elevation: Dp, val draggedElevat
     }
 }
 
-/** TODO: docs */
+/** Contains the default values for interactive [ListItem]s. */
 @ExperimentalMaterial3ExpressiveApi
 @Immutable
 internal object InteractiveListItemDefaults {
-    /** TODO: docs */
+    /** The default padding applied to all content within a list item. */
     val ContentPadding: PaddingValues =
         PaddingValues(
             start = InteractiveListStartPadding,
@@ -554,13 +769,51 @@ internal object InteractiveListItemDefaults {
             bottom = InteractiveListBottomPadding,
         )
 
-    /** TODO: docs */
+    /**
+     * Creates an [InteractiveListItemColors] that represents the default colors for an interactive
+     * [ListItem] in different states.
+     */
     @Composable
     fun colors(): InteractiveListItemColors {
         return MaterialTheme.colorScheme.defaultInteractiveListItemColors
     }
 
-    /** TODO: docs */
+    /**
+     * Creates an [InteractiveListItemColors] that represents the default colors for an interactive
+     * [ListItem] in different states.
+     *
+     * @param containerColor the container color of the list item.
+     * @param contentColor the content color of the list item.
+     * @param leadingContentColor the leading content color of the list item.
+     * @param trailingContentColor the trailing content color of the list item.
+     * @param overlineContentColor the overline content color of the list item.
+     * @param supportingContentColor the supporting content color of the list item.
+     * @param disabledContainerColor the container color of the list item when disabled.
+     * @param disabledContentColor the content color of the list item when disabled.
+     * @param disabledLeadingContentColor the leading content color of the list item when disabled.
+     * @param disabledTrailingContentColor the trailing content color of the list item when
+     *   disabled.
+     * @param disabledOverlineContentColor the overline content color of the list item when
+     *   disabled.
+     * @param disabledSupportingContentColor the supporting content color of the list item when
+     *   disabled.
+     * @param selectedContainerColor the container color of the list item when selected.
+     * @param selectedContentColor the content color of the list item when selected.
+     * @param selectedLeadingContentColor the leading content color of the list item when selected.
+     * @param selectedTrailingContentColor the trailing content color of the list item when
+     *   selected.
+     * @param selectedOverlineContentColor the overline content color of the list item when
+     *   selected.
+     * @param selectedSupportingContentColor the supporting content color of the list item when
+     *   selected.
+     * @param draggedContainerColor the container color of the list item when dragged.
+     * @param draggedContentColor the content color of the list item when dragged.
+     * @param draggedLeadingContentColor the leading content color of the list item when dragged.
+     * @param draggedTrailingContentColor the trailing content color of the list item when dragged.
+     * @param draggedOverlineContentColor the overline content color of the list item when dragged.
+     * @param draggedSupportingContentColor the supporting content color of the list item when
+     *   dragged.
+     */
     @Composable
     fun colors(
         // default
@@ -671,7 +924,25 @@ internal object InteractiveListItemDefaults {
                     .also { defaultInteractiveListItemColorsCached = it }
         }
 
-    /** TODO: docs */
+    /**
+     * Creates an [InteractiveListItemShapes] that represents the default shapes for an interactive
+     * [ListItem] in different states.
+     */
+    // TODO: account for first/last item in list shape changing
+    @Composable
+    fun shapes(): InteractiveListItemShapes = MaterialTheme.shapes.defaultInteractiveListItemShapes
+
+    /**
+     * Creates an [InteractiveListItemShapes] that represents the default shapes for an interactive
+     * [ListItem] in different states.
+     *
+     * @param shape the default shape of the list item.
+     * @param selectedShape the shape of the list item when selected.
+     * @param pressedShape the shape of the list item when pressed.
+     * @param focusedShape the shape of the list item when focused.
+     * @param hoveredShape the shape of the list item when hovered.
+     * @param draggedShape the shape of the list item when dragged.
+     */
     // TODO: account for first/last item in list shape changing
     @Composable
     fun shapes(
@@ -706,27 +977,63 @@ internal object InteractiveListItemDefaults {
                     .also { defaultInteractiveListItemShapesCached = it }
         }
 
-    /** TODO: docs */
+    /**
+     * Creates an [InteractiveListItemElevation] that represents the elevation for an interactive
+     * [ListItem] in different states.
+     *
+     * @param elevation the default elevation of the list item.
+     * @param draggedElevation the elevation of the list item when dragged.
+     */
     // TODO: load tokens from component file
     fun elevation(
         elevation: Dp = ElevationTokens.Level0,
         draggedElevation: Dp = ElevationTokens.Level4,
     ): InteractiveListItemElevation =
         InteractiveListItemElevation(elevation = elevation, draggedElevation = draggedElevation)
+
+    /**
+     * Returns the default vertical alignment of children content within a [ListItem]. This is
+     * equivalent to [Alignment.CenterVertically] for shorter items and [Alignment.Top] for taller
+     * items.
+     */
+    @Composable
+    fun verticalAlignment(): Alignment.Vertical {
+        val density = LocalDensity.current
+        return remember(density) {
+            Alignment.Vertical { size, space ->
+                val breakpoint =
+                    with(density) { InteractiveListVerticalAlignmentBreakpoint.roundToPx() }
+                val baseAlignment =
+                    if (size < breakpoint) {
+                        Alignment.CenterVertically
+                    } else {
+                        Alignment.Top
+                    }
+                baseAlignment.align(size, space)
+            }
+        }
+    }
 }
 
 @Composable
 private fun LeadingDecorator(
+    startPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(end = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = startPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -735,16 +1042,23 @@ private fun LeadingDecorator(
 
 @Composable
 private fun TrailingDecorator(
+    endPadding: Dp,
     color: Color,
     textStyle: TypographyKeyTokens,
     content: (@Composable () -> Unit)?,
 ) {
     if (content != null) {
         Box(Modifier.padding(start = InteractiveListInternalSpacing)) {
-            // TODO: perhaps also turn off MICS enforcement
+            val horizontalPadding = endPadding + InteractiveListInternalSpacing
+            // Padding contributes to content's touch target, so we can reduce enforcement value
+            val mics =
+                (LocalMinimumInteractiveComponentSize.current.takeOrElse { 0.dp } -
+                        horizontalPadding)
+                    .coerceAtLeast(0.dp)
             ProvideContentColorTextStyle(
                 contentColor = color,
                 textStyle = textStyle.value,
+                LocalMinimumInteractiveComponentSize provides mics,
                 content = content,
             )
         }
@@ -868,6 +1182,7 @@ private fun InteractiveListItem(
     trailingContent: @Composable (() -> Unit)?,
     overlineContent: @Composable (() -> Unit)?,
     supportingContent: @Composable (() -> Unit)?,
+    verticalAlignment: Alignment.Vertical,
     enabled: Boolean,
     selected: Boolean,
     applySemantics: SemanticsPropertyReceiver.() -> Unit,
@@ -972,9 +1287,10 @@ private fun InteractiveListItem(
     val targetElevation = if (dragged.value) elevation.draggedElevation else elevation.elevation
     val shadowElevation = animateDpAsState(targetElevation, elevationAnimationSpec)
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
-        Box(
+        InteractiveListItemLayout(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
@@ -995,59 +1311,53 @@ private fun InteractiveListItem(
                         onLongClickLabel = onLongClickLabel,
                         onClick = onClick,
                     )
-        ) {
-            val alignmentBreakpoint =
-                (InteractiveListVerticalAlignmentBreakpoint -
-                        contentPadding.calculateTopPadding() -
-                        contentPadding.calculateBottomPadding())
-                    .coerceAtLeast(0.dp)
-            InteractiveListItemLayout(
-                modifier = Modifier.padding(contentPadding),
-                alignmentBreakpoint = alignmentBreakpoint,
-                leading = {
-                    LeadingDecorator(
-                        color = leadingColor,
-                        textStyle = leadingTextStyle,
-                        content = leadingContent,
-                    )
-                },
-                trailing = {
-                    TrailingDecorator(
-                        color = trailingColor,
-                        textStyle = trailingTextStyle,
-                        content = trailingContent,
-                    )
-                },
-                overline = {
-                    OverlineDecorator(
-                        color = overlineColor,
-                        textStyle = overlineTextStyle,
-                        content = overlineContent,
-                    )
-                },
-                supporting = {
-                    SupportingDecorator(
-                        color = supportingColor,
-                        textStyle = supportingTextStyle,
-                        content = supportingContent,
-                    )
-                },
-                content = {
-                    ContentDecorator(
-                        color = contentColor,
-                        textStyle = contentTextStyle,
-                        content = content,
-                    )
-                },
-            )
-        }
+                    .padding(contentPadding),
+            verticalAlignment = verticalAlignment,
+            leading = {
+                LeadingDecorator(
+                    startPadding = contentPadding.calculateStartPadding(layoutDirection),
+                    color = leadingColor,
+                    textStyle = leadingTextStyle,
+                    content = leadingContent,
+                )
+            },
+            trailing = {
+                TrailingDecorator(
+                    endPadding = contentPadding.calculateEndPadding(layoutDirection),
+                    color = trailingColor,
+                    textStyle = trailingTextStyle,
+                    content = trailingContent,
+                )
+            },
+            overline = {
+                OverlineDecorator(
+                    color = overlineColor,
+                    textStyle = overlineTextStyle,
+                    content = overlineContent,
+                )
+            },
+            supporting = {
+                SupportingDecorator(
+                    color = supportingColor,
+                    textStyle = supportingTextStyle,
+                    content = supportingContent,
+                )
+            },
+            content = {
+                ContentDecorator(
+                    color = contentColor,
+                    textStyle = contentTextStyle,
+                    content = content,
+                )
+            },
+        )
     }
 }
 
 @Composable
 private fun InteractiveListItemLayout(
     modifier: Modifier,
-    alignmentBreakpoint: Dp,
+    verticalAlignment: Alignment.Vertical,
     leading: @Composable () -> Unit,
     trailing: @Composable () -> Unit,
     overline: @Composable () -> Unit,
@@ -1055,7 +1365,9 @@ private fun InteractiveListItemLayout(
     content: @Composable () -> Unit,
 ) {
     val measurePolicy =
-        remember(alignmentBreakpoint) { InteractiveListItemMeasurePolicy(alignmentBreakpoint) }
+        remember(verticalAlignment) {
+            InteractiveListItemMeasurePolicy(verticalAlignment = verticalAlignment)
+        }
     Layout(
         modifier = modifier,
         contents = listOf(leading, trailing, overline, supporting, content),
@@ -1063,7 +1375,7 @@ private fun InteractiveListItemLayout(
     )
 }
 
-private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
+private class InteractiveListItemMeasurePolicy(val verticalAlignment: Alignment.Vertical) :
     MultiContentMeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
@@ -1248,13 +1560,6 @@ private class InteractiveListItemMeasurePolicy(val alignmentBreakpoint: Dp) :
         supportingPlaceable: Placeable?,
     ): MeasureResult {
         return layout(width, height) {
-            val verticalAlignment =
-                if (height > alignmentBreakpoint.roundToPx()) {
-                    Alignment.Top
-                } else {
-                    Alignment.CenterVertically
-                }
-
             leadingPlaceable?.placeRelative(
                 x = 0,
                 y = verticalAlignment.align(leadingPlaceable.height, height),
@@ -1330,4 +1635,5 @@ internal val InteractiveListDisabledOpacity = 0.38f
  * How tall a list item needs to be before internal content is top-aligned instead of
  * center-aligned.
  */
-internal val InteractiveListVerticalAlignmentBreakpoint = 80.dp
+internal val InteractiveListVerticalAlignmentBreakpoint =
+    80.dp - InteractiveListTopPadding - InteractiveListBottomPadding

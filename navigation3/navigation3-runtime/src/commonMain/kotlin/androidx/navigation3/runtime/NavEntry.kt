@@ -17,6 +17,7 @@
 package androidx.navigation3.runtime
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 
 /**
  * Entry maintains and stores the key and the content represented by that key. Entries should be
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
  * @param metadata provides information to the display
  * @param content content for this entry to be displayed when this entry is active
  */
+@Immutable
 public class NavEntry<T : Any>(
     private val key: T,
     public val contentKey: Any = defaultContentKey(key),

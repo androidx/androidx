@@ -60,8 +60,6 @@ public abstract interface class androidx/navigation3/scene/SceneStrategy {
 public final class androidx/navigation3/scene/SceneStrategyScope {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (Lkotlin/jvm/functions/Function0;)V
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getOnBack ()Lkotlin/jvm/functions/Function0;
 }
 

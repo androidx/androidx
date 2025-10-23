@@ -318,7 +318,10 @@ private fun WideNavigationRailLayout(
                         val itemsPlaceables =
                             if (itemsCount > 0) mutableListOf<Placeable>() else null
                         val itemMaxWidthConstraint =
-                            if (expanded) looseConstraints.maxWidth else actualMinWidth
+                            (if (expanded) looseConstraints.maxWidth else actualMinWidth)
+                                .coerceAtLeast(minimumA11ySize.roundToPx())
+                        val itemMaxHeightConstraint =
+                            looseConstraints.maxHeight.coerceAtLeast(itemMinHeight.roundToPx())
                         var expandedItemMaxWidth = 0
                         if (itemsPlaceables != null) {
                             itemsMeasurables.fastMap {
@@ -331,7 +334,7 @@ private fun WideNavigationRailLayout(
                                                     minWidth = minimumA11ySize.roundToPx(),
                                                     minHeight = itemMinHeight.roundToPx(),
                                                     maxWidth = itemMaxWidthConstraint,
-                                                    maxHeight = looseConstraints.maxHeight,
+                                                    maxHeight = itemMaxHeightConstraint,
                                                 )
                                             )
                                     )

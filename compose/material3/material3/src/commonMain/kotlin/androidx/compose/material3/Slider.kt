@@ -2718,13 +2718,28 @@ private fun Modifier.sliderTapModifier(
 ) =
     if (enabled) {
         pointerInput(state, interactionSource) {
-            detectTapGestures(
-                onPress = { state.onPress(it) },
-                onTap = {
-                    state.dispatchRawDelta(0f)
-                    state.gestureEndAction()
-                },
-            )
+            coroutineScope {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = PressInteraction.Press(offset)
+                        interactionSource.tryEmit(press)
+                        state.onPress(offset)
+                        val success = tryAwaitRelease()
+                        val release =
+                            if (success) {
+                                PressInteraction.Release(press)
+                            } else {
+                                PressInteraction.Cancel(press)
+                            }
+                        // Emit the release or cancel interaction
+                        interactionSource.tryEmit(release)
+                    },
+                    onTap = {
+                        state.dispatchRawDelta(0f)
+                        state.gestureEndAction()
+                    },
+                )
+            }
         }
     } else {
         this
@@ -2746,11 +2761,20 @@ private fun Modifier.rangeSliderPressDragModifier(
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
 
+                    val posX =
+                        if (state.isRtl) state.totalWidth - down.position.x else down.position.x
+                    val compare = rangeSliderLogic.compareOffsets(posX)
+                    val draggingStart =
+                        if (compare != 0) compare < 0 else state.rawOffsetStart > posX
+
+                    val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
+                    val press = PressInteraction.Press(down.position)
+                    launch { interactionSource.emit(press) }
+
                     var drag: PointerInputChange?
                     var overSlop = Offset.Zero
                     val pointerSlop = viewConfiguration.pointerSlop(down.type)
 
-                    // Check if we've moved enough to be considered a drag interaction
                     do {
                         drag = awaitPointerEvent().changes.firstOrNull()
                         if (drag != null) {
@@ -2762,20 +2786,14 @@ private fun Modifier.rangeSliderPressDragModifier(
                             overSlop.getDistanceSquared() < pointerSlop * pointerSlop
                     )
 
-                    val posX =
-                        if (state.isRtl) state.totalWidth - down.position.x else down.position.x
-                    val compare = rangeSliderLogic.compareOffsets(posX)
-                    val draggingStart =
-                        if (compare != 0) compare < 0 else state.rawOffsetStart > posX
-
-                    // Check if the drag is a vertical or horizontal drag
                     if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
-                        val interaction = DragInteraction.Start()
-                        launch {
-                            rangeSliderLogic.activeInteraction(draggingStart).emit(interaction)
-                        }
+                        // The press is converted to a drag, so we cancel the press interaction
+                        launch { interactionSource.emit(PressInteraction.Cancel(press)) }
 
-                        // Move to the initial touch point and the overSlop distance.
+                        val interaction = DragInteraction.Start()
+                        launch { interactionSource.emit(interaction) }
+
+                        // Apply the slop from the initial drag detection
                         val initialOffset =
                             posX - (if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd)
                         val totalDragOffset =
@@ -2800,22 +2818,20 @@ private fun Modifier.rangeSliderPressDragModifier(
                             }
 
                         state.gestureEndAction(draggingStart)
-                        launch {
-                            rangeSliderLogic
-                                .activeInteraction(draggingStart)
-                                .emit(finishInteraction)
-                        }
-                    } else if (drag?.pressed == false) {
-                        // Tap handling logic remains the same.
-                        val press = PressInteraction.Press(down.position)
-                        rangeSliderTapLogic(
-                            posX,
-                            draggingStart,
-                            state,
-                            rangeSliderLogic,
-                            press,
-                            PressInteraction.Release(press),
-                        )
+                        launch { interactionSource.emit(finishInteraction) }
+                    } else if (drag?.pressed == false) { // Tap detected
+                        // The press is completed, so emit a release.
+                        launch { interactionSource.emit(PressInteraction.Release(press)) }
+
+                        // Perform the tap action to update the slider value
+                        val offset =
+                            posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
+                        state.onDrag(draggingStart, offset)
+                        state.gestureEndAction(draggingStart)
+                    } else { // Gesture is not a horizontal drag and pointer is still down (e.g.,
+                        // vertical scroll)
+                        // Cancel the press to dismiss the ripple and allow scrolling
+                        launch { interactionSource.emit(PressInteraction.Cancel(press)) }
                     }
                 }
             }

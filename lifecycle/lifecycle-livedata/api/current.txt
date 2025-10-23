@@ -7,6 +7,8 @@ package androidx.lifecycle {
     method public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
     method public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
     method public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.lifecycle.LiveData! liveData$default(java.time.Duration!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function2!, int, Object!);
+    method @BytecodeOnly public static androidx.lifecycle.LiveData! liveData$default(kotlin.coroutines.CoroutineContext!, long, kotlin.jvm.functions.Function2!, int, Object!);
   }
 
   public final class FlowLiveDataConversions {
@@ -15,6 +17,8 @@ package androidx.lifecycle {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, java.time.Duration timeout, optional kotlin.coroutines.CoroutineContext context);
     method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context);
     method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.lifecycle.LiveData! asLiveData$default(kotlinx.coroutines.flow.Flow!, java.time.Duration!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @BytecodeOnly public static androidx.lifecycle.LiveData! asLiveData$default(kotlinx.coroutines.flow.Flow!, kotlin.coroutines.CoroutineContext!, long, int, Object!);
   }
 
   public interface LiveDataScope<T> {

@@ -24,6 +24,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.modules.SerializersModule
@@ -36,7 +37,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RememberNavBackStackTest {
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val restorationTester = StateRestorationTester(rule)
 

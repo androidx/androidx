@@ -344,9 +344,8 @@ public fun <T : Any> NavDisplay(
  * @param popTransitionSpec Default [ContentTransform] when popping [NavEntry]s.
  * @param predictivePopTransitionSpec Default [ContentTransform] when popping with predictive back
  *   [NavEntry]s.
- * @sample androidx.navigation3.ui.samples.SceneNav
- * @sample androidx.navigation3.ui.samples.SceneNavSharedEntrySample
- * @sample androidx.navigation3.ui.samples.SceneNavSharedElementSample
+ * @sample androidx.navigation3.scene.samples.SceneStateSample
+ * @see [rememberSceneState]
  */
 @Composable
 public fun <T : Any> NavDisplay(

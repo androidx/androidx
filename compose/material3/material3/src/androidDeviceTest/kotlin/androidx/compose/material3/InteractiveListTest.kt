@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -76,7 +77,7 @@ class InteractiveListTest {
         val contentSize = 200.dp
         rule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.height(IntrinsicSize.Min)) {
-                ClickableListItem(
+                ListItem(
                     modifier = Modifier.fillMaxHeight().testTag(ListTag),
                     content = { Box(Modifier.size(contentSize)) },
                     leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
@@ -98,13 +99,13 @@ class InteractiveListTest {
             Column(Modifier.width(300.dp).height(IntrinsicSize.Min)) {
                 // 2 identical list items. Leading content leaves small space
                 // for content, so it has to wrap.
-                ClickableListItem(
+                ListItem(
                     modifier = Modifier.testTag("ListItem1"),
                     leadingContent = { Box(Modifier.width(240.dp)) },
                     content = { Text("A B C D E F G H") },
                     onClick = {},
                 )
-                ClickableListItem(
+                ListItem(
                     modifier = Modifier.testTag("ListItem2"),
                     leadingContent = { Box(Modifier.width(240.dp)) },
                     content = { Text("A B C D E F G H") },
@@ -125,7 +126,7 @@ class InteractiveListTest {
     fun clickableListItem_verticalAlignmentCenter_positioning() {
         val height = InteractiveListVerticalAlignmentBreakpoint - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
-            ClickableListItem(
+            ListItem(
                 modifier = Modifier.height(height),
                 leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
                 trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
@@ -166,7 +167,7 @@ class InteractiveListTest {
     fun clickableListItem_verticalAlignmentTop_positioning() {
         val height = InteractiveListVerticalAlignmentBreakpoint + 10.dp
         rule.setMaterialContent(lightColorScheme()) {
-            ClickableListItem(
+            ListItem(
                 modifier = Modifier.height(height),
                 leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
                 trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
@@ -206,7 +207,7 @@ class InteractiveListTest {
         val height = InteractiveListVerticalAlignmentBreakpoint - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                ClickableListItem(
+                ListItem(
                     modifier = Modifier.height(height),
                     leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
                     trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
@@ -249,7 +250,7 @@ class InteractiveListTest {
         val height = InteractiveListVerticalAlignmentBreakpoint + 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                ClickableListItem(
+                ListItem(
                     modifier = Modifier.height(height),
                     leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
                     trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
@@ -286,10 +287,48 @@ class InteractiveListTest {
     }
 
     @Test
+    fun clickableListItem_customVerticalAlignment_positioning() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ListItem(
+                modifier = Modifier.height(300.dp),
+                leadingContent = { Box(Modifier.testTag(LeadingTag).size(48.dp)) },
+                trailingContent = { Box(Modifier.testTag(TrailingTag).size(48.dp)) },
+                overlineContent = { Text("Overline", Modifier.testTag(OverlineTag)) },
+                supportingContent = { Text("Supporting", Modifier.testTag(SupportingTag)) },
+                content = { Text("Content", Modifier.testTag(ContentTag)) },
+                onClick = {},
+                verticalAlignment = Alignment.Bottom,
+            )
+        }
+
+        val leadingBounds =
+            rule.onNodeWithTag(LeadingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val overlineBounds =
+            rule.onNodeWithTag(OverlineTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val supportingBounds =
+            rule.onNodeWithTag(SupportingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val contentBounds =
+            rule.onNodeWithTag(ContentTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val trailingNodeBounds =
+            rule.onNodeWithTag(TrailingTag, useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        val bottomWithoutPadding = rule.rootHeight() - InteractiveListBottomPadding
+        leadingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
+
+        supportingBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
+        contentBounds.bottom.assertIsEqualTo(bottomWithoutPadding - supportingBounds.height)
+        overlineBounds.bottom.assertIsEqualTo(
+            bottomWithoutPadding - supportingBounds.height - contentBounds.height
+        )
+
+        trailingNodeBounds.bottom.assertIsEqualTo(bottomWithoutPadding)
+    }
+
+    @Test
     fun clickableListItem_semantics() {
         var clicked by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            ClickableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 onClick = { clicked = true },
@@ -310,7 +349,7 @@ class InteractiveListTest {
         var clicked by mutableStateOf(false)
         var longClicked by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            ClickableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 onClick = { clicked = true },
@@ -335,7 +374,7 @@ class InteractiveListTest {
     fun selectableListItem_semantics() {
         var selected by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            SelectableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 selected = selected,
@@ -357,7 +396,7 @@ class InteractiveListTest {
         var selected by mutableStateOf(false)
         var longClicked by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            SelectableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 selected = selected,
@@ -383,7 +422,7 @@ class InteractiveListTest {
     fun toggleableListItem_semantics() {
         var checked by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            ToggleableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 checked = checked,
@@ -405,7 +444,7 @@ class InteractiveListTest {
         var checked by mutableStateOf(false)
         var longClicked by mutableStateOf(false)
         rule.setMaterialContent(lightColorScheme()) {
-            ToggleableListItem(
+            ListItem(
                 modifier = Modifier.testTag(ListTag),
                 content = { Text("Content") },
                 checked = checked,

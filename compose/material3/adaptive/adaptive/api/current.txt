@@ -31,6 +31,7 @@ package androidx.compose.material3.adaptive {
 
   @androidx.compose.runtime.Immutable public final class Posture {
     ctor public Posture();
+    ctor @BytecodeOnly public Posture(boolean, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.material3.adaptive.HingeInfo> hingeList);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.material3.adaptive.HingeInfo> getHingeList();
     method @InaccessibleFromKotlin public boolean isTabletop();
@@ -64,10 +65,10 @@ package androidx.compose.material3.adaptive {
   public final class WindowAdaptiveInfoKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(optional boolean supportLargeAndXLargeWidth);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(boolean, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.DpSize currentWindowDpSize();
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.IntSize currentWindowSize();
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static long currentWindowSize(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.DpSize currentWindowDpSize();
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.IntSize currentWindowSize();
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static long currentWindowSize(androidx.compose.runtime.Composer?, int);
   }
 
 }

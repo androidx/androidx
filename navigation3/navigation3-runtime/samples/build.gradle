@@ -36,7 +36,6 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(libs.kotlinStdlib)
     implementation(project(":activity:activity-compose"))
     implementation("androidx.compose.animation:animation:1.7.5")
     implementation("androidx.compose.foundation:foundation:1.7.5")
@@ -50,7 +49,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation(libs.kotlinSerializationCore)
-    implementation("androidx.savedstate:savedstate-ktx:1.4.0-alpha03")
+     implementation(project(":savedstate:savedstate-ktx"))
     implementation(project(":navigation3:navigation3-runtime"))
 
 }

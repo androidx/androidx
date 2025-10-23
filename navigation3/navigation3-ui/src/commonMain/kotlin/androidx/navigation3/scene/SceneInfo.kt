@@ -16,6 +16,7 @@
 
 package androidx.navigation3.scene
 
+import androidx.compose.runtime.Immutable
 import androidx.navigationevent.NavigationEventHistory
 import androidx.navigationevent.NavigationEventInfo
 
@@ -27,6 +28,7 @@ import androidx.navigationevent.NavigationEventInfo
  *
  * @property scene The scene whose state is used by the NavigationEvent
  */
+@Immutable
 public class SceneInfo<T : Any>(public val scene: Scene<T>) : NavigationEventInfo() {
 
     override fun equals(other: Any?): Boolean {

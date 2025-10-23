@@ -50,7 +50,10 @@ fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun currentWindowDpSizeDeprecated(): DpSize =
-    with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() }
+    // Workaround (b/358626778): Directly using WindowInfo.containerDpSize breaks tests based on
+    //   DeviceConfigurationOverride.ForcedSize. Those clients need to migrate to
+    //   DeviceConfigurationOverride.WindowSize when its available.
+    with(LocalDensity.current) { LocalWindowInfo.current.containerSize.toSize().toDpSize() }
 
 /**
  * Returns and automatically update the current window size. It's a convenient function of getting

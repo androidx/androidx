@@ -40,7 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -196,7 +197,7 @@ private fun TooltipPopup(
             }
         },
         // TODO(https://youtrack.jetbrains.com/issue/CMP-963) Discuss how to support focusable
-        properties = PopupProperties(focusable = false),
+        properties = PopupProperties(focusable = false, clippingEnabled = false),
     ) {
         Box(
             modifier =
@@ -327,16 +328,18 @@ private fun Modifier.keyboardBehavior(
             .onPreviewKeyEvent {
                 if (!state.isVisible) {
                     forceKeyboardFocusable.value = false
-                }
-                // Make sure that tabbing from the anchor navigates to tooltip.
-                if (
-                    hasAction &&
-                        it.type == KeyEventType.KeyDown &&
-                        it.key == Key.Tab &&
-                        state.isVisible
-                ) {
-                    forceKeyboardFocusable.value = true
-                    return@onPreviewKeyEvent true
+                } else {
+                    // Make sure that tabbing from the anchor navigates to tooltip with action.
+                    if (hasAction && it.isTab) {
+                        forceKeyboardFocusable.value = true
+                        return@onPreviewKeyEvent true
+                    }
+                    // Escape key should dismiss a currently displayed tooltip.
+                    if (it.isEscape) {
+                        receivedKeyboardFocus.value = false
+                        state.dismiss()
+                        return@onPreviewKeyEvent true
+                    }
                 }
                 return@onPreviewKeyEvent false
             }
@@ -478,3 +481,9 @@ private fun rememberTouchExplorationOrSwitchAccessServiceState(): State<Boolean>
         listenToSwitchAccessState = true,
         listenToVoiceAccessState = false,
     )
+
+private val KeyEvent.isTab: Boolean
+    get() = type == KeyDown && key == Key.Tab
+
+private val KeyEvent.isEscape: Boolean
+    get() = type == KeyDown && key == Key.Escape

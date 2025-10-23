@@ -23,6 +23,7 @@ import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlin.test.Test
+import kotlinx.coroutines.test.StandardTestDispatcher
 
 @OptIn(ExperimentalTestApi::class)
 class DropUnlessLifecycleTest {
@@ -54,7 +55,7 @@ class DropUnlessLifecycleTest {
     }
 
     private fun testDropUnlessStarted(currentLifecycleState: State, shouldInvoke: Boolean) =
-        runComposeUiTest {
+        runComposeUiTest(StandardTestDispatcher()) {
             val lifecycleOwner =
                 TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
             var hasBeenInvoked = false
@@ -99,7 +100,7 @@ class DropUnlessLifecycleTest {
     }
 
     private fun testDropUnlessResumed(currentLifecycleState: State, shouldInvoke: Boolean) =
-        runComposeUiTest {
+        runComposeUiTest(StandardTestDispatcher()) {
             val lifecycleOwner =
                 TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
             var hasBeenInvoked = false

@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,8 +34,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume.assumeFalse
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,10 +65,7 @@ class DividerScreenshotTest {
     }
 
     @Test
-    @Ignore("b/272301182")
     fun horizontalDivider_darkTheme() {
-        assumeFalse("See b/272301182", Build.VERSION.SDK_INT == 33)
-
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Column(Modifier.testTag(Tag)) {
                 Spacer(Modifier.size(10.dp))

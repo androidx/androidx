@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-RemovedFromBytecode: androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt#collectFoldingFeaturesAsState():
-    Binary breaking change: method androidx.compose.material3.adaptive.AndroidWindowAdaptiveInfo_androidKt.collectFoldingFeaturesAsState() has been removed from bytecode
-RemovedFromBytecode: androidx.compose.material3.adaptive.WindowAdaptiveInfoKt#currentWindowAdaptiveInfo(boolean):
-    Binary breaking change: method androidx.compose.material3.adaptive.WindowAdaptiveInfoKt.currentWindowAdaptiveInfo(boolean) has been removed from bytecode

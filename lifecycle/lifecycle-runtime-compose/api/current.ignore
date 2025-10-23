@@ -37,10 +37,6 @@ RemovedFromBytecode: androidx.lifecycle.compose.LifecycleExtKt#currentStateAsSta
     Binary breaking change: method androidx.lifecycle.compose.LifecycleExtKt.currentStateAsState(androidx.lifecycle.Lifecycle) has been removed from bytecode
 
 
-RemovedFromKotlin: androidx.lifecycle.compose.LifecycleResumePauseEffectScope#getLifecycle():
-    Source breaking change: method androidx.lifecycle.compose.LifecycleResumePauseEffectScope.getLifecycle() can no longer be resolved from Kotlin source
-RemovedFromKotlin: androidx.lifecycle.compose.LifecycleStartStopEffectScope#getLifecycle():
-    Source breaking change: method androidx.lifecycle.compose.LifecycleStartStopEffectScope.getLifecycle() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.lifecycle.compose.LocalLifecycleOwnerKt#getLocalLifecycleOwner():
     Source breaking change: method androidx.lifecycle.compose.LocalLifecycleOwnerKt.getLocalLifecycleOwner() can no longer be resolved from Kotlin source
 

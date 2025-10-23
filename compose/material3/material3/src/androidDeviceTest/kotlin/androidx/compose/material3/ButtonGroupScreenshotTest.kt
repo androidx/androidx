@@ -36,7 +36,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -308,7 +307,6 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("connectedButtonGroup_allSelected_lightTheme")
     }
 
-    @Ignore
     @Test
     fun buttonGroup_firstPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -337,7 +335,6 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("buttonGroup_firstPressed_lightTheme")
     }
 
-    @Ignore("b/355413615")
     @Test
     fun buttonGroup_secondPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -366,7 +363,6 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("buttonGroup_secondPressed_lightTheme")
     }
 
-    @Ignore("b/355413615")
     @Test
     fun buttonGroup_thirdPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -395,7 +391,6 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("buttonGroup_thirdPressed_lightTheme")
     }
 
-    @Ignore("b/355413615")
     @Test
     fun buttonGroup_fourthPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -424,7 +419,6 @@ class ButtonGroupScreenshotTest {
         assertAgainstGolden("buttonGroup_fourthPressed_lightTheme")
     }
 
-    @Ignore("b/355413615")
     @Test
     fun buttonGroup_fifthPressed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
