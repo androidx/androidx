@@ -46,7 +46,8 @@ import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.IntermediateTextInputUIView
-import androidx.compose.ui.window.UserInputView
+import androidx.compose.ui.window.BackgroundInputView
+import androidx.compose.ui.window.OverlayInputView
 import kotlin.math.absoluteValue
 import kotlin.math.min
 import kotlinx.cinterop.useContents
@@ -429,7 +430,9 @@ internal class UIKitTextInputService(
     private fun hasFocusedNonComposeInputViewInWindowHierarchy(): Boolean {
         fun hasFocusedNonComposeInputView(view: UIView): Boolean {
             if (view.isFirstResponder) {
-                return view !is IntermediateTextInputUIView && view !is UserInputView
+                return view !is IntermediateTextInputUIView &&
+                    view !is OverlayInputView &&
+                    view !is BackgroundInputView
             }
             return view.subviews.any { it is UIView && hasFocusedNonComposeInputView(it) }
         }

@@ -37,7 +37,7 @@ import platform.UIKit.UIEvent
 
 internal class InteropInteractionModeTest {
     @Test
-    fun testUIButtonTapCooperativeDefault() = runUIKitInstrumentedTest {
+    fun testUIButtonTapCooperativeDefault() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -50,7 +50,8 @@ internal class InteropInteractionModeTest {
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
                 properties = UIKitInteropProperties(
-                    UIKitInteropInteractionMode.Cooperative()
+                    UIKitInteropInteractionMode.Cooperative(),
+                    placedAsOverlay = overlay
                 )
             )
         }
@@ -73,7 +74,7 @@ internal class InteropInteractionModeTest {
     }
 
     @Test
-    fun testUIButtonCooperativeTouchUpBeforeDelay() = runUIKitInstrumentedTest {
+    fun testUIButtonCooperativeTouchUpBeforeDelay() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -82,7 +83,8 @@ internal class InteropInteractionModeTest {
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
                 properties = UIKitInteropProperties(
-                    interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 1000)
+                    interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 1000),
+                    placedAsOverlay = overlay
                 )
             )
         }
@@ -102,7 +104,7 @@ internal class InteropInteractionModeTest {
     }
 
     @Test
-    fun testUIButtonCooperativeTouchUpAfterDelay() = runUIKitInstrumentedTest {
+    fun testUIButtonCooperativeTouchUpAfterDelay() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -111,7 +113,8 @@ internal class InteropInteractionModeTest {
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
                 properties = UIKitInteropProperties(
-                    interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 800)
+                    interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 800),
+                    placedAsOverlay = overlay
                 )
             )
         }
@@ -139,7 +142,7 @@ internal class InteropInteractionModeTest {
     }
 
     @Test
-    fun testUIButtonNonInteractive() = runUIKitInstrumentedTest {
+    fun testUIButtonNonInteractive() = runUIKitInstrumentedTest { // overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -147,7 +150,10 @@ internal class InteropInteractionModeTest {
             UIKitView(
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
-                properties = UIKitInteropProperties(null)
+                properties = UIKitInteropProperties(
+                    interactionMode = null,
+                    placedAsOverlay = true
+                )
             )
         }
 
@@ -164,7 +170,7 @@ internal class InteropInteractionModeTest {
     }
 
     @Test
-    fun testUIButtonTapNonCooperative() = runUIKitInstrumentedTest {
+    fun testUIButtonTapNonCooperative() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -172,24 +178,28 @@ internal class InteropInteractionModeTest {
             UIKitView(
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
-                properties = UIKitInteropProperties(UIKitInteropInteractionMode.NonCooperative)
+                properties = UIKitInteropProperties(
+                    UIKitInteropInteractionMode.NonCooperative,
+                    placedAsOverlay = overlay
+                )
             )
         }
 
         val touch = findNodeWithTag("Button")
             .touchDown()
+        waitForIdle()
 
-        assertEquals(1, beganCount)
-        assertEquals(0, endedCount)
+        assertEquals(1, beganCount, "Touch down - beganCount")
+        assertEquals(0, endedCount, "Touch down - endedCount")
 
         touch.up()
 
-        assertEquals(1,beganCount)
-        assertEquals(1, endedCount)
+        assertEquals(1,beganCount, "Touch up - beganCount")
+        assertEquals(1, endedCount, "Touch up - endedCount")
     }
 
     @Test
-    fun testUIButtonLongTapNonCooperative() = runUIKitInstrumentedTest {
+    fun testUIButtonLongTapNonCooperative() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -197,7 +207,10 @@ internal class InteropInteractionModeTest {
             UIKitView(
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
-                properties = UIKitInteropProperties(UIKitInteropInteractionMode.NonCooperative)
+                properties = UIKitInteropProperties(
+                    UIKitInteropInteractionMode.NonCooperative,
+                    placedAsOverlay = overlay
+                )
             )
         }
 
@@ -216,7 +229,7 @@ internal class InteropInteractionModeTest {
     }
 
     @Test
-    fun testUIButtonDoubleTapNonCooperative() = runUIKitInstrumentedTest {
+    fun testUIButtonDoubleTapNonCooperative() = runUIKitInstrumentedTestWithInterop { overlay ->
         var beganCount = 0
         var endedCount = 0
 
@@ -224,7 +237,10 @@ internal class InteropInteractionModeTest {
             UIKitView(
                 factory = { TouchReactingView(onTouchBegin = { beganCount++ }, onTouchEnd = { endedCount++ }) },
                 modifier = Modifier.fillMaxWidth().height(50.dp).testTag("Button"),
-                properties = UIKitInteropProperties(UIKitInteropInteractionMode.NonCooperative)
+                properties = UIKitInteropProperties(
+                    UIKitInteropInteractionMode.NonCooperative,
+                    placedAsOverlay = overlay
+                )
             )
         }
 

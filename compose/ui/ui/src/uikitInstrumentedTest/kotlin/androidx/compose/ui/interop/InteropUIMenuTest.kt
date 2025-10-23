@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.findNodeWithLabel
 import androidx.compose.ui.test.findNodeWithTag
-import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -50,7 +50,7 @@ import platform.UIKit.UIMenu
 internal class InteropUIMenuTest {
 
     @Test
-    fun testUIMenuDismissByTapOnComposeView() = runUIKitInstrumentedTest {
+    fun testUIMenuDismissByTapOnComposeView() = runUIKitInstrumentedTestWithInterop { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -72,6 +72,7 @@ internal class InteropUIMenuTest {
                         .fillMaxWidth()
                         .height(40.dp)
                         .testTag("MenuButton"),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -92,7 +93,7 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuEmbeddedInComposeViewDismissByTapOnOtherComposeView() = runUIKitInstrumentedTest {
+    fun testUIMenuEmbeddedInComposeViewDismissByTapOnOtherComposeView() = runUIKitInstrumentedTestWithInterop { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -120,6 +121,7 @@ internal class InteropUIMenuTest {
                             .fillMaxWidth()
                             .height(40.dp)
                             .testTag("MenuButton"),
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay)
                     )
                 }
             }
@@ -141,7 +143,7 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuDismissByTapOnUIButton() = runUIKitInstrumentedTest {
+    fun testUIMenuDismissByTapOnUIButton() = runUIKitInstrumentedTestWithInterop { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -155,7 +157,8 @@ internal class InteropUIMenuTest {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp)
-                        .testTag("UIButton")
+                        .testTag("UIButton"),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -167,6 +170,7 @@ internal class InteropUIMenuTest {
                         .fillMaxWidth()
                         .height(40.dp)
                         .testTag("MenuButton"),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -187,7 +191,7 @@ internal class InteropUIMenuTest {
     }
 
     @Test
-    fun testUIMenuDismissByTapOnUIAction() = runUIKitInstrumentedTest {
+    fun testUIMenuDismissByTapOnUIAction() = runUIKitInstrumentedTestWithInterop { overlay ->
         var isMenuOpen: () -> Boolean = { false }
 
         setContent {
@@ -198,6 +202,7 @@ internal class InteropUIMenuTest {
                     button
                 },
                 modifier = Modifier.fillMaxWidth().height(400.dp).testTag("MenuButton"),
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 

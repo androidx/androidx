@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.interop.runUIKitInstrumentedTestWithInterop
 import androidx.compose.ui.platform.accessibility.CMPAccessibilityTraitTextView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -626,7 +627,7 @@ class ComponentsAccessibilitySemanticTest {
     }
 
     @Test
-    fun testAccessibilityInterop() = runUIKitInstrumentedTest {
+    fun testAccessibilityInterop() = runUIKitInstrumentedTestWithInterop { overlay ->
         setContent {
             Column(modifier = Modifier.testTag("Container")) {
                 UIKitView(
@@ -636,7 +637,10 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Disabled")
                         view
                     },
-                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = false),
+                    properties = UIKitInteropProperties(
+                        isNativeAccessibilityEnabled = false,
+                        placedAsOverlay = overlay
+                    ),
                     modifier = Modifier.size(10.dp)
                 )
                 UIKitView(
@@ -646,7 +650,10 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Enabled")
                         view
                     },
-                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true),
+                    properties = UIKitInteropProperties(
+                        isNativeAccessibilityEnabled = true,
+                        placedAsOverlay = overlay
+                    ),
                     modifier = Modifier.size(10.dp)
                 )
                 UIKitView(
@@ -656,7 +663,10 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Enabled With Tag")
                         view
                     },
-                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true),
+                    properties = UIKitInteropProperties(
+                        isNativeAccessibilityEnabled = true,
+                        placedAsOverlay = overlay
+                    ),
                     modifier = Modifier.testTag("Container Tag").size(10.dp),
                 )
                 UIKitView(
@@ -666,7 +676,11 @@ class ComponentsAccessibilitySemanticTest {
                         view.setAccessibilityLabel("Non-interactive")
                         view
                     },
-                    properties = UIKitInteropProperties(interactionMode = null, isNativeAccessibilityEnabled = true),
+                    properties = UIKitInteropProperties(
+                        interactionMode = null,
+                        isNativeAccessibilityEnabled = true,
+                        placedAsOverlay = overlay
+                    ),
                     modifier = Modifier.size(10.dp)
                 )
             }

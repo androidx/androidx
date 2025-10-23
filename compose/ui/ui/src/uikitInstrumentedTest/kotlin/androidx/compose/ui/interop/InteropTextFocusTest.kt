@@ -29,8 +29,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -40,7 +40,7 @@ import platform.UIKit.UITextField
 
 class InteropTextFocusTest {
     @Test
-    fun testFocusDropsAfterNativeViewFocused() = runUIKitInstrumentedTest {
+    fun testFocusDropsAfterNativeViewFocused() = runUIKitInstrumentedTestWithInterop { overlay ->
         val nativeTextField = UITextField()
         val requester = FocusRequester()
         val positions = mutableListOf<Rect>()
@@ -60,7 +60,8 @@ class InteropTextFocusTest {
                 )
                 UIKitView(
                     factory = { nativeTextField },
-                    modifier = Modifier.height(40.dp).fillMaxWidth()
+                    modifier = Modifier.height(40.dp).fillMaxWidth(),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }

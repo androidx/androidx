@@ -103,7 +103,7 @@ internal class UIKitComposeSceneLayer(
         navigationEventInput = navigationEventInput,
         interfaceOrientationState = interfaceOrientationState
     ).also {
-        interactionView.embedSubview(it.inputView)
+        interactionView.embedSubview(it.backgroundView)
     }
 
     private fun isInsideInteractionBounds(point: CValue<CGPoint>): Boolean =
@@ -147,7 +147,7 @@ internal class UIKitComposeSceneLayer(
 
     private fun onDidMoveToWindow(window: UIWindow?) {
         if (window != null) {
-            focusedViewsList?.addAndFocus(mediator.inputView)
+            focusedViewsList?.addAndFocus(mediator.backgroundView)
         }
         navigationEventInput.onDidMoveToWindow(window, interactionView)
     }

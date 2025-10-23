@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.UserInputView
+import androidx.compose.ui.window.OverlayInputView
 import kotlin.math.roundToInt
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
@@ -167,7 +167,7 @@ internal class DropSessionContext(
  * context between iOS and Compose.
  */
 internal class UIKitDragAndDropManager(
-    private val view: UserInputView,
+    private val view: OverlayInputView,
     private val getComposeRootDragAndDropNode: () -> ComposeSceneDragAndDropNode
 ) : PlatformDragAndDropManager {
     private val rootNode: ComposeSceneDragAndDropNode

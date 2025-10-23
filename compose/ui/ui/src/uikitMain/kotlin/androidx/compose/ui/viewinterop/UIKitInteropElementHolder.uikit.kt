@@ -67,6 +67,8 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
     private var currentClippedRect: IntRect? = null
     private var currentUserComponentRect: IntRect? = null
 
+    val placedAsOverlay: Boolean get() = properties.placedAsOverlay
+
     var properties = properties
         set(value) {
             if (field != value) {
@@ -180,6 +182,18 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
             CGRectIntersection(cgRect, group.bounds)
         ).not()
 
+    private fun Modifier.clearBackgroundIfNeeded(): Modifier =
+        if (placedAsOverlay) {
+            this
+        } else {
+            drawBehind {
+                drawRect(
+                    color = Color.Transparent,
+                    blendMode = BlendMode.Clear
+                )
+            }
+        }
+
     private fun onPropertiesChanged() {
         interopWrappingView.interactionMode = properties.interactionMode
 
@@ -188,12 +202,7 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
                 isInteractive = properties.isInteractive,
                 this
             )
-            .drawBehind {
-                drawRect(
-                    color = Color.Transparent,
-                    blendMode = BlendMode.Clear
-                )
-            }
+            .clearBackgroundIfNeeded()
             .nativeAccessibility(
                 isEnabled = properties.isNativeAccessibilityEnabled,
                 interopWrappingView

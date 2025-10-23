@@ -5124,9 +5124,6 @@ final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneL
 final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop|#static{}androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop[0]
 
 // Targets: [ios]
-final val androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop|#static{}androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop[0]
-
-// Targets: [ios]
 final val androidx.compose.ui.uikit/LocalUIView // androidx.compose.ui.uikit/LocalUIView|{}LocalUIView[0]
     final fun <get-LocalUIView>(): androidx.compose.runtime/ProvidableCompositionLocal<platform.UIKit/UIView> // androidx.compose.ui.uikit/LocalUIView.<get-LocalUIView>|<get-LocalUIView>(){}[0]
 
@@ -5185,6 +5182,9 @@ final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitI
 final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop|#static{}androidx_compose_ui_viewinterop_UIKitInteropViewMeasurePolicy$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.window/androidx_compose_ui_window_BackgroundInputView$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_BackgroundInputView$stableprop|#static{}androidx_compose_ui_window_BackgroundInputView$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop|#static{}androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop[0]
 
 // Targets: [ios]
@@ -5212,13 +5212,13 @@ final val androidx.compose.ui.window/androidx_compose_ui_window_MetalRedrawer$st
 final val androidx.compose.ui.window/androidx_compose_ui_window_MetalView$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_MetalView$stableprop|#static{}androidx_compose_ui_window_MetalView$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.window/androidx_compose_ui_window_OverlayInputView$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_OverlayInputView$stableprop|#static{}androidx_compose_ui_window_OverlayInputView$stableprop[0]
+
+// Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_SceneActiveStateListener$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_SceneActiveStateListener$stableprop|#static{}androidx_compose_ui_window_SceneActiveStateListener$stableprop[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_SceneForegroundStateListener$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_SceneForegroundStateListener$stableprop|#static{}androidx_compose_ui_window_SceneForegroundStateListener$stableprop[0]
-
-// Targets: [ios]
-final val androidx.compose.ui.window/androidx_compose_ui_window_UserInputView$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_UserInputView$stableprop|#static{}androidx_compose_ui_window_UserInputView$stableprop[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.window/androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop // androidx.compose.ui.window/androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop|#static{}androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop[0]
@@ -5338,9 +5338,6 @@ final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneL
 final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter|androidx_compose_ui_scene_UIKitComposeSceneLayerView$stableprop_getter(){}[0]
 
 // Targets: [ios]
-final fun androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter(): kotlin/Int // androidx.compose.ui.scene/androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter|androidx_compose_ui_scene_UIKitTransparentContainerView$stableprop_getter(){}[0]
-
-// Targets: [ios]
 final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter|androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(){}[0]
 
 // Targets: [ios]
@@ -5389,6 +5386,9 @@ final fun androidx.compose.ui.window/ComposeUIViewController(kotlin/Function1<an
 final fun androidx.compose.ui.window/ComposeUIViewController(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>): platform.UIKit/UIViewController // androidx.compose.ui.window/ComposeUIViewController|ComposeUIViewController(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
 
 // Targets: [ios]
+final fun androidx.compose.ui.window/androidx_compose_ui_window_BackgroundInputView$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_BackgroundInputView$stableprop_getter|androidx_compose_ui_window_BackgroundInputView$stableprop_getter(){}[0]
+
+// Targets: [ios]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop_getter|androidx_compose_ui_window_ComposeSceneKeyboardOffsetManager$stableprop_getter(){}[0]
 
 // Targets: [ios]
@@ -5416,13 +5416,13 @@ final fun androidx.compose.ui.window/androidx_compose_ui_window_MetalRedrawer$st
 final fun androidx.compose.ui.window/androidx_compose_ui_window_MetalView$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_MetalView$stableprop_getter|androidx_compose_ui_window_MetalView$stableprop_getter(){}[0]
 
 // Targets: [ios]
+final fun androidx.compose.ui.window/androidx_compose_ui_window_OverlayInputView$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_OverlayInputView$stableprop_getter|androidx_compose_ui_window_OverlayInputView$stableprop_getter(){}[0]
+
+// Targets: [ios]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_SceneActiveStateListener$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_SceneActiveStateListener$stableprop_getter|androidx_compose_ui_window_SceneActiveStateListener$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_SceneForegroundStateListener$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_SceneForegroundStateListener$stableprop_getter|androidx_compose_ui_window_SceneForegroundStateListener$stableprop_getter(){}[0]
-
-// Targets: [ios]
-final fun androidx.compose.ui.window/androidx_compose_ui_window_UserInputView$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_UserInputView$stableprop_getter|androidx_compose_ui_window_UserInputView$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop_getter|androidx_compose_ui_window_ViewControllerLifecycleDelegate$stableprop_getter(){}[0]

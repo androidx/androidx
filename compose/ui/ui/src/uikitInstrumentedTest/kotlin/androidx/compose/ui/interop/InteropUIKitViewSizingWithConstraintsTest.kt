@@ -24,13 +24,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,7 +39,7 @@ import platform.UIKit.UIView
 
 class InteropUIKitViewSizingWithConstraintsTest {
     @Test
-    fun testFixedSizeConstraints() = runUIKitInstrumentedTest {
+    fun testFixedSizeConstraints() = runUIKitInstrumentedTestWithInterop { overlay ->
         var rect = DpRectZero()
 
         setContent {
@@ -55,7 +55,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                         )
                     }
                 },
-                modifier = Modifier.onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) }
+                modifier = Modifier.onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -63,7 +64,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testFixedSizeConstraintsOverrideByCompose() = runUIKitInstrumentedTest {
+    fun testFixedSizeConstraintsOverrideByCompose() = runUIKitInstrumentedTestWithInterop { overlay ->
         var rect = DpRectZero()
 
         setContent {
@@ -81,7 +82,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                 },
                 modifier = Modifier
                     .size(width = 100.dp, height = 200.dp)
-                    .onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) }
+                    .onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -89,7 +91,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testUnconstrained() = runUIKitInstrumentedTest {
+    fun testUnconstrained() = runUIKitInstrumentedTestWithInterop { overlay ->
         var composeRect = DpRectZero()
         var uiKitRect = DpRectZero()
 
@@ -107,7 +109,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                         UIView()
                     },
                     modifier = Modifier
-                        .onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -121,7 +124,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testUnconstrainedFill() = runUIKitInstrumentedTest {
+    fun testUnconstrainedFill() = runUIKitInstrumentedTestWithInterop { overlay ->
         var composeRect = DpRectZero()
         var uiKitRect = DpRectZero()
 
@@ -141,7 +144,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                     },
                     modifier = Modifier
                         .fillMaxSize()
-                        .onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -155,7 +159,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testUnconstrainedSize() = runUIKitInstrumentedTest {
+    fun testUnconstrainedSize() = runUIKitInstrumentedTestWithInterop { overlay ->
         var rect = DpRectZero()
 
         setContent {
@@ -165,7 +169,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                 },
                 modifier = Modifier
                     .size(100.dp, 200.dp)
-                    .onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) }
+                    .onGloballyPositioned { rect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -173,7 +178,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testUIKitViewHeightLargerThanScreenHeight() = runUIKitInstrumentedTest {
+    fun testUIKitViewHeightLargerThanScreenHeight() = runUIKitInstrumentedTestWithInterop { overlay ->
         var uiKitRect = DpRectZero()
 
         setContent {
@@ -190,7 +195,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                             )
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -199,7 +205,7 @@ class InteropUIKitViewSizingWithConstraintsTest {
     }
 
     @Test
-    fun testUIKitViewWidthLargerThanScreenWidth() = runUIKitInstrumentedTest {
+    fun testUIKitViewWidthLargerThanScreenWidth() = runUIKitInstrumentedTestWithInterop { overlay ->
         var uiKitRect = DpRectZero()
 
         setContent {
@@ -216,7 +222,8 @@ class InteropUIKitViewSizingWithConstraintsTest {
                             )
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }

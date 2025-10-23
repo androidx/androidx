@@ -25,7 +25,6 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
@@ -35,6 +34,7 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.width
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +50,7 @@ class InteropUIKitViewSizingWithUILabelTest {
 
     @Test
     @OptIn(ExperimentalForeignApi::class)
-    fun testUILabelFrameMatchesInteropBoundsShortTextSingleLine() = runUIKitInstrumentedTest {
+    fun testUILabelFrameMatchesInteropBoundsShortTextSingleLine() = runUIKitInstrumentedTestWithInterop { overlay ->
         var interopRect = DpRectZero()
         var uiLabelRect: () -> DpRect = { DpRectZero() }
 
@@ -63,7 +63,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                         uiLabelRect = { frame.useContents { asDpRect() } }
                     }
                 },
-                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) }
+                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -72,7 +73,7 @@ class InteropUIKitViewSizingWithUILabelTest {
 
     @Test
     @OptIn(ExperimentalForeignApi::class)
-    fun testUILabelFrameMatchesInteropBoundsShortTextMultiLine() = runUIKitInstrumentedTest {
+    fun testUILabelFrameMatchesInteropBoundsShortTextMultiLine() = runUIKitInstrumentedTestWithInterop { overlay ->
         var interopRect = DpRectZero()
         var uiLabelRect: () -> DpRect = { DpRectZero() }
 
@@ -85,7 +86,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                         uiLabelRect = { frame.useContents { asDpRect() } }
                     }
                 },
-                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) }
+                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -94,7 +96,7 @@ class InteropUIKitViewSizingWithUILabelTest {
 
     @Test
     @OptIn(ExperimentalForeignApi::class)
-    fun testUILabelFrameMatchesInteropBoundsLongTextSingleLine() = runUIKitInstrumentedTest {
+    fun testUILabelFrameMatchesInteropBoundsLongTextSingleLine() = runUIKitInstrumentedTestWithInterop { overlay ->
         var interopRect = DpRectZero()
         var uiLabelRect: () -> DpRect = { DpRectZero() }
 
@@ -107,7 +109,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                         uiLabelRect = { frame.useContents { asDpRect() } }
                     }
                 },
-                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) }
+                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -116,7 +119,7 @@ class InteropUIKitViewSizingWithUILabelTest {
 
     @Test
     @OptIn(ExperimentalForeignApi::class)
-    fun testUILabelFrameMatchesInteropBoundsLongTextMultiLine() = runUIKitInstrumentedTest {
+    fun testUILabelFrameMatchesInteropBoundsLongTextMultiLine() = runUIKitInstrumentedTestWithInterop { overlay ->
         var interopRect = DpRectZero()
         var uiLabelRect: () -> DpRect = { DpRectZero() }
 
@@ -129,7 +132,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                         uiLabelRect = { frame.useContents { asDpRect() } }
                     }
                 },
-                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) }
+                modifier = Modifier.onGloballyPositioned { interopRect = it.boundsInRoot().toDpRect(density) },
+                properties = UIKitInteropProperties(placedAsOverlay = overlay)
             )
         }
 
@@ -137,7 +141,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelShortText() = runUIKitInstrumentedTest {
+    fun testUILabelShortText() = runUIKitInstrumentedTestWithInterop { overlay ->
         var singleLineLabel = DpRectZero()
         var multiLineLabel = DpRectZero()
 
@@ -150,7 +154,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = SHORT_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { singleLineLabel = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { singleLineLabel = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -159,7 +164,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = SHORT_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { multiLineLabel = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { multiLineLabel = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -173,7 +179,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelLongText() = runUIKitInstrumentedTest {
+    fun testUILabelLongText() = runUIKitInstrumentedTestWithInterop { overlay ->
         var singleLineText = DpRectZero()
         var multiLineText = DpRectZero()
 
@@ -186,7 +192,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { singleLineText = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { singleLineText = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -195,7 +202,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { multiLineText = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { multiLineText = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -206,7 +214,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelSingleLineShortTextFixedWidth() = runUIKitInstrumentedTest {
+    fun testUILabelSingleLineShortTextFixedWidth() = runUIKitInstrumentedTestWithInterop { overlay ->
         var referenceViewRect = DpRectZero()
         var fixedWidthViewRect = DpRectZero()
 
@@ -219,7 +227,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = SHORT_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -230,7 +239,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                     },
                     modifier = Modifier
                         .width(200.dp)
-                        .onGloballyPositioned { fixedWidthViewRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { fixedWidthViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -240,7 +250,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelSingleLineShortTextFixedHeight() = runUIKitInstrumentedTest {
+    fun testUILabelSingleLineShortTextFixedHeight() = runUIKitInstrumentedTestWithInterop { overlay ->
         var referenceViewRect = DpRectZero()
         var fixedWidthViewRect = DpRectZero()
 
@@ -253,7 +263,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = SHORT_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -264,7 +275,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                     },
                     modifier = Modifier
                         .height(200.dp)
-                        .onGloballyPositioned { fixedWidthViewRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { fixedWidthViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -274,7 +286,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelSingleLineShortTextFixedSize() = runUIKitInstrumentedTest {
+    fun testUILabelSingleLineShortTextFixedSize() = runUIKitInstrumentedTestWithInterop { overlay ->
         var referenceViewRect = DpRectZero()
         var fixedSizeViewRect = DpRectZero()
 
@@ -287,7 +299,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = SHORT_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { referenceViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -298,7 +311,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                     },
                     modifier = Modifier
                         .size(width = 200.dp, height = 400.dp)
-                        .onGloballyPositioned { fixedSizeViewRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { fixedSizeViewRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -308,7 +322,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelMultiLineLongTextFixedWidth() = runUIKitInstrumentedTest {
+    fun testUILabelMultiLineLongTextFixedWidth() = runUIKitInstrumentedTestWithInterop { overlay ->
         var unboundedTextRect = DpRectZero()
         var boundedWidthTextRect = DpRectZero()
 
@@ -321,7 +335,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { unboundedTextRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { unboundedTextRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -332,7 +347,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                     },
                     modifier = Modifier
                         .width(width = 200.dp)
-                        .onGloballyPositioned { boundedWidthTextRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { boundedWidthTextRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -343,7 +359,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelMultiLineLongTextFixedHeight() = runUIKitInstrumentedTest {
+    fun testUILabelMultiLineLongTextFixedHeight() = runUIKitInstrumentedTestWithInterop { overlay ->
         var unboundedTextRect = DpRectZero()
         var boundedHeightTextRect = DpRectZero()
 
@@ -356,7 +372,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { unboundedTextRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { unboundedTextRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
                 UIKitView(
                     factory = {
@@ -367,7 +384,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                     },
                     modifier = Modifier
                         .height(100.dp)
-                        .onGloballyPositioned { boundedHeightTextRect = it.boundsInRoot().toDpRect(density) }
+                        .onGloballyPositioned { boundedHeightTextRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -378,7 +396,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelAndTextInRow() = runUIKitInstrumentedTest {
+    fun testUILabelAndTextInRow() = runUIKitInstrumentedTestWithInterop { overlay ->
         var composeRect = DpRectZero()
         var uiKitRect = DpRectZero()
 
@@ -394,7 +412,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -406,7 +425,7 @@ class InteropUIKitViewSizingWithUILabelTest {
     }
 
     @Test
-    fun testUILabelAndTextInColumn() = runUIKitInstrumentedTest {
+    fun testUILabelAndTextInColumn() = runUIKitInstrumentedTestWithInterop { overlay ->
         var composeRect = DpRectZero()
         var uiKitRect = DpRectZero()
 
@@ -422,7 +441,8 @@ class InteropUIKitViewSizingWithUILabelTest {
                             text = LONG_TEXT
                         }
                     },
-                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) }
+                    modifier = Modifier.onGloballyPositioned { uiKitRect = it.boundsInRoot().toDpRect(density) },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }

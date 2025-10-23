@@ -18,8 +18,8 @@ package androidx.compose.ui.interop
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.dpRectInWindow
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.viewinterop.UIKitViewController
 import androidx.compose.ui.window.Dialog
@@ -34,7 +34,7 @@ import platform.UIKit.UIViewController
 
 class InteropInsidePopupsTest {
     @Test
-    fun uiKitViewControllerInsideDialog() = runUIKitInstrumentedTest {
+    fun uiKitViewControllerInsideDialog() = runUIKitInstrumentedTestWithInterop { overlay ->
         val controller = UIViewController()
         controller.view.backgroundColor = UIColor.redColor
         setContent {
@@ -44,7 +44,8 @@ class InteropInsidePopupsTest {
             ) {
                 UIKitViewController(
                     factory = { controller },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -54,7 +55,7 @@ class InteropInsidePopupsTest {
     }
 
     @Test
-    fun uiKitViewControllerInsidePopup() = runUIKitInstrumentedTest {
+    fun uiKitViewControllerInsidePopup() = runUIKitInstrumentedTestWithInterop { overlay ->
         val controller = UIViewController()
         controller.view.backgroundColor = UIColor.redColor
 
@@ -62,7 +63,8 @@ class InteropInsidePopupsTest {
             Popup(onDismissRequest = {}) {
                 UIKitViewController(
                     factory = { controller },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -72,7 +74,7 @@ class InteropInsidePopupsTest {
     }
 
     @Test
-    fun uiKitViewInsideDialog() = runUIKitInstrumentedTest {
+    fun uiKitViewInsideDialog() = runUIKitInstrumentedTestWithInterop { overlay ->
         val view = UIView()
         view.backgroundColor = UIColor.redColor
         setContent {
@@ -82,7 +84,8 @@ class InteropInsidePopupsTest {
             ) {
                 UIKitView(
                     factory = { view },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }
@@ -92,7 +95,7 @@ class InteropInsidePopupsTest {
     }
 
     @Test
-    fun uiKitViewInsidePopup() = runUIKitInstrumentedTest {
+    fun uiKitViewInsidePopup() = runUIKitInstrumentedTestWithInterop { overlay ->
         val view = UIView()
         view.backgroundColor = UIColor.redColor
 
@@ -100,7 +103,8 @@ class InteropInsidePopupsTest {
             Popup(onDismissRequest = {}) {
                 UIKitView(
                     factory = { view },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay)
                 )
             }
         }

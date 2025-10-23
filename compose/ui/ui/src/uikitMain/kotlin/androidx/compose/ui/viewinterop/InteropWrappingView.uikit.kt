@@ -60,12 +60,14 @@ internal class InteropWrappingView(
     var interactionMode: UIKitInteropInteractionMode? = interactionMode
         set(value) {
             field = value
+            userInteractionEnabled = value != null
             updateAccessibilityElements()
         }
 
     init {
         // required to properly clip the content of the wrapping view in case interop unclipped
         // bounds are larger than clipped bounds
+        userInteractionEnabled = interactionMode != null
         clipsToBounds = true
     }
 

@@ -323,7 +323,7 @@ internal class ComposeHostingViewController(
             navigationEventInput = navigationEventInput,
             interfaceOrientationState = interfaceOrientationState,
         ).also { mediator ->
-            rootView.embedSubview(mediator.inputView)
+            rootView.embedSubview(mediator.backgroundView)
             rootView.updateMetalView(metalView, ::onDidMoveToWindow)
             rootView.embedSubview(mediator.overlayView)
 

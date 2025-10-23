@@ -83,9 +83,13 @@ internal interface InteropContainer {
  * Counts the number of interop components before the given native view in the container.
  *
  * @param holder The holder for native view to count interop components before.
+ * @param predicate returns true if the given interop holder should be counted.
  * @return The number of interop components before the given native view.
  */
-internal fun InteropContainer.countInteropComponentsBelow(holder: InteropViewHolder): Int {
+internal fun InteropContainer.countInteropComponentsBelow(
+    holder: InteropViewHolder,
+    predicate: InteropContainer.(InteropViewHolder) -> Boolean = { contains(it) }
+): Int {
     var componentsBefore = 0
     rootModifier?.traverseDescendantsInDrawOrder {
         val currentHolder = it.interopViewHolder
@@ -93,7 +97,7 @@ internal fun InteropContainer.countInteropComponentsBelow(holder: InteropViewHol
             // It might be inside a Compose tree before adding in InteropContainer in case
             // if it was initiated out of scroll visible bounds for example.
 
-            if (contains(currentHolder)) {
+            if (predicate(currentHolder)) {
                 componentsBefore++
             }
             true

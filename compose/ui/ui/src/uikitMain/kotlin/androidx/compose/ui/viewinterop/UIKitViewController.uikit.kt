@@ -17,6 +17,9 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositeKeyHashCode
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.uikit.LocalUIViewController
 import platform.UIKit.UIViewController
@@ -56,24 +59,26 @@ fun <T : UIViewController> UIKitViewController(
     val interopContainer = LocalInteropContainer.current
     val parentViewController = LocalUIViewController.current
 
-    InteropView(
-        factory = { compositeKeyHash ->
-            UIKitInteropViewControllerHolder(
-                factory,
-                interopContainer,
-                parentViewController,
-                properties,
-                compositeKeyHash
-            )
-        },
-        modifier,
-        onReset,
-        onRelease,
-        update = {
-            update(it)
+    key(properties) {
+        InteropView(
+            factory = { compositeKeyHash ->
+                UIKitInteropViewControllerHolder(
+                    factory,
+                    interopContainer,
+                    parentViewController,
+                    properties,
+                    compositeKeyHash
+                )
+            },
+            modifier = modifier,
+            onReset = onReset,
+            onRelease = onRelease,
+            update = {
+                update(it)
 
-            val holder = interopContainer.holderOfView(it) as? UIKitInteropViewHolder<*>
-            holder?.properties = properties
-        }
-    )
+                val holder = interopContainer.holderOfView(it) as? UIKitInteropViewHolder<*>
+                holder?.properties = properties
+            }
+        )
+    }
 }

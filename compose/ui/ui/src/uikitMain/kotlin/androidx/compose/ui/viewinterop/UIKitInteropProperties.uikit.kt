@@ -17,17 +17,26 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 
 /**
  * Properties that are used to configure the behavior of the interop view.
  *
- * @property interactionMode The strategy on how the touches are processed when user interacts with
- * the interop view.
+ * @property interactionMode The strategy on how the touches are processed when the user interacts
+ * with the interop view.
  *
  * @property isNativeAccessibilityEnabled Indicates whether a11y services should traverse the
  * native view itself, instead of parsing Compose semantics properties.
+ *
+ * @property placedAsOverlay determines whether the interop view should be placed above or below the
+ * Metal drawing canvas.
+ * When true, the interop view may have a transparent background and may also overlap other
+ * Composables, including those placed on top of the interop view.
+ * When false, the interop view will be placed below the Metal drawing canvas, with a transparent
+ * cut-out in place of the interop view.
+ * The default value is false.
  *
  * If this Composable is within a modifier chain that merges the semantics of its children (such as
  * `Modifier.clickable`), the merged subtree data will be ignored in favor of the native
@@ -52,15 +61,34 @@ import androidx.compose.ui.semantics.semantics
  * @see Modifier.semantics
  */
 @Immutable
-class UIKitInteropProperties(
+class UIKitInteropProperties @ExperimentalComposeUiApi constructor(
     val interactionMode: UIKitInteropInteractionMode? = UIKitInteropInteractionMode.Cooperative(),
-    val isNativeAccessibilityEnabled: Boolean = false
+    val isNativeAccessibilityEnabled: Boolean = false,
+    @property:ExperimentalComposeUiApi val placedAsOverlay: Boolean = false,
 ) {
     /**
      * Indicates whether the user can interact with the interop component.
      */
     val isInteractive: Boolean
         get() = interactionMode != null
+
+    /**
+     * Properties that are used to configure the behavior of the interop view.
+     *
+     * @param interactionMode The strategy on how the touches are processed when the user
+     * interacts with the interop view.
+     *
+     * @param isNativeAccessibilityEnabled Indicates whether a11y services should traverse the
+     * native view itself, instead of parsing Compose semantics properties.
+     */
+    constructor(
+        interactionMode: UIKitInteropInteractionMode? = UIKitInteropInteractionMode.Cooperative(),
+        isNativeAccessibilityEnabled: Boolean = false,
+    ) : this(
+        interactionMode = interactionMode,
+        isNativeAccessibilityEnabled,
+        placedAsOverlay = false,
+    )
 
     /**
      * @param isInteractive Indicates whether the affected interop component should process touches
@@ -75,7 +103,8 @@ class UIKitInteropProperties(
         isNativeAccessibilityEnabled: Boolean
     ) : this(
         interactionMode = if (isInteractive) UIKitInteropInteractionMode.Cooperative() else null,
-        isNativeAccessibilityEnabled
+        isNativeAccessibilityEnabled,
+        placedAsOverlay = false,
     )
 
     internal companion object {
@@ -93,6 +122,7 @@ class UIKitInteropProperties(
 
         if (interactionMode != other.interactionMode) return false
         if (isNativeAccessibilityEnabled != other.isNativeAccessibilityEnabled) return false
+        if (placedAsOverlay != other.placedAsOverlay) return false
 
         return true
     }
@@ -100,6 +130,7 @@ class UIKitInteropProperties(
     override fun hashCode(): Int {
         var result = interactionMode.hashCode()
         result = 31 * result + isNativeAccessibilityEnabled.hashCode()
+        result = 31 * result + placedAsOverlay.hashCode()
         return result
     }
 }
