@@ -1371,7 +1371,9 @@ internal class AccessibilityMediator(
     ): Pair<AccessibilityElement, AccessibilityElementKey?> {
         val presentIds = mutableSetOf<AccessibilityElementKey>()
 
-        val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(rootNode.id)
+        val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(rootNode.id) {
+            it.config.contains(SemanticsProperties.LinkTestMarker)
+        }
         keyboardFocusedElementKey?.id?.let {
             if (!nodes.contains(it)) {
                 // The keyboard-focused node is removed. It's important to trigger focus reload
