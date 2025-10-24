@@ -201,7 +201,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        firefox: [ '119.0', 'latest' ]
+        # FIXME: Even after installation of '119.0', tests still use latest one. Fix and restore.
+        firefox: [ 'latest' ]
         task: [ 'Js', 'Wasm' ]
     steps:
       - name: Checkout Repository

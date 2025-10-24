@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// "Declaration annotated with '@OptionalExpectation' can only be used in common module sources."
+// because of IgnoreJsTarget. https://youtrack.jetbrains.com/issue/KTIJ-22326
+@file:Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
+
 package androidx.compose.ui.platform.a11y
 
 import androidx.compose.material.Button
@@ -27,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.currentTimeMillis
 import androidx.compose.ui.platform.testTag
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -35,18 +38,20 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.test.IgnoreJsTarget
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
 
+// It's flaky on Firefox JS. After ignoring one test it fails on another.
+// FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
+@IgnoreJsTarget
 class CfWA11YTest : OnCanvasTests {
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun a11yButtonClick() = runApplicationTest {
         var clickCounter = 0
@@ -78,7 +83,6 @@ class CfWA11YTest : OnCanvasTests {
         }
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun changesAreApplied() = runApplicationTest {
         var clickCounter1 = 0
@@ -208,7 +212,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("Button3", buttonsContainer.children[2]!!.innerHTML)
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-8955
     @Test
     fun changesMustBeBatched() = runApplicationTest {
         var show1 by mutableStateOf(true)
@@ -259,7 +262,6 @@ class CfWA11YTest : OnCanvasTests {
         assertTrue(waitedForChangesMs in 50..150, "Changes must be batched, waited for $waitedForChangesMs ms. Allowed tolerance 50ms was exceeded")
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-8955
     @Test
     fun changesMustBeAppliedDespiteConstantDebounceAfter1Second() = runApplicationTest {
         var show1 by mutableStateOf(true)
@@ -326,7 +328,6 @@ class CfWA11YTest : OnCanvasTests {
         )
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-8955
     @Test
     fun noChangesFor1SecondTheDebounceShouldWork() = runApplicationTest {
         var show by mutableStateOf(true)
@@ -447,7 +448,6 @@ class CfWA11YTest : OnCanvasTests {
         assertEquals("DIV", appContainer.children[1]!!.tagName) // interop container
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun modifierTestTagIsSetToId() = runApplicationTest {
         var showButton by mutableStateOf(true)
@@ -481,7 +481,6 @@ class CfWA11YTest : OnCanvasTests {
         assertNull(getShadowRoot().getElementById("buttonTag"))
     }
 
-    @Ignore // Sometimes fails on latest firefox FIXME: https://youtrack.jetbrains.com/issue/CMP-9069
     @Test
     fun textFieldHasTextBoxRole() = runApplicationTest {
         var text by mutableStateOf("Hello, World!")
