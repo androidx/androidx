@@ -26,6 +26,10 @@ import androidx.compose.ui.events.TouchEventInit
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -54,11 +58,11 @@ class GesturesTest : OnCanvasTests {
         }
 
         dispatchEvents(
-            TouchEvent("touchstart", touchEventInit(createTouch(0, getCanvas()))),
+            TouchEvent("touchstart", touchEventWithChangedTouchesInit(createTouch(0, getCanvas()))),
             // first move to exceed the touch slop
-            TouchEvent("touchmove", touchEventInit(createTouch(0, getCanvas(), clientX = 10.0, clientY = 10.0))),
-            TouchEvent("touchmove", touchEventInit(createTouch(0, getCanvas(), clientX = 10.0, clientY = 20.0))),
-            TouchEvent("touchmove", touchEventInit(createTouch(0, getCanvas(), clientX = 20.0, clientY = 20.0))),
+            TouchEvent("touchmove", touchEventWithChangedTouchesInit(createTouch(0, getCanvas(), clientX = 10.0, clientY = 10.0))),
+            TouchEvent("touchmove", touchEventWithChangedTouchesInit(createTouch(0, getCanvas(), clientX = 10.0, clientY = 20.0))),
+            TouchEvent("touchmove", touchEventWithChangedTouchesInit(createTouch(0, getCanvas(), clientX = 20.0, clientY = 20.0))),
         )
 
         val actualPan = 10f * currentDensity.density
@@ -87,7 +91,7 @@ class GesturesTest : OnCanvasTests {
             // Simulate two touch points starting fairly close together
             TouchEvent(
                 "touchstart",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 50.0, clientY = 50.0),
                     createTouch(1, getCanvas(), clientX = 60.0, clientY = 50.0)
                 )
@@ -95,7 +99,7 @@ class GesturesTest : OnCanvasTests {
             // first move to exceed the touch slop
             TouchEvent(
                 "touchmove",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 45.0, clientY = 60.0),
                     createTouch(1, getCanvas(), clientX = 65.0, clientY = 50.0)
                 )
@@ -103,14 +107,14 @@ class GesturesTest : OnCanvasTests {
             // Zoom in, zoom > 1
             TouchEvent(
                 "touchmove",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 40.0, clientY = 50.0),
                     createTouch(1, getCanvas(), clientX = 70.0, clientY = 50.0)
                 )
             ),
             TouchEvent(
                 "touchmove",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 30.0, clientY = 50.0),
                     createTouch(1, getCanvas(), clientX = 80.0, clientY = 50.0)
                 )
@@ -118,14 +122,14 @@ class GesturesTest : OnCanvasTests {
             // and now zoom out, zoom < 1
             TouchEvent(
                 "touchmove",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 35.0, clientY = 50.0),
                     createTouch(1, getCanvas(), clientX = 75.0, clientY = 50.0)
                 )
             ),
             TouchEvent(
                 "touchmove",
-                touchEventInit(
+                touchEventWithChangedTouchesInit(
                     createTouch(0, getCanvas(), clientX = 37.0, clientY = 50.0),
                     createTouch(1, getCanvas(), clientX = 73.0, clientY = 50.0)
                 )
@@ -157,8 +161,8 @@ class GesturesTest : OnCanvasTests {
         assertNull(lastPointerEvent)
 
         dispatchEvents(
-            TouchEvent("touchstart", touchEventInit(createTouch(0, getCanvas(), clientX = 50.0, clientY = 50.0))),
-            TouchEvent("touchmove", touchEventInit(createTouch(0, getCanvas(), clientX = 60.0, clientY = 60.0)))
+            TouchEvent("touchstart", touchEventWithChangedTouchesInit(createTouch(0, getCanvas(), clientX = 50.0, clientY = 50.0))),
+            TouchEvent("touchmove", touchEventWithChangedTouchesInit(createTouch(0, getCanvas(), clientX = 60.0, clientY = 60.0)))
         )
 
         awaitIdle()
@@ -181,6 +185,99 @@ class GesturesTest : OnCanvasTests {
         assertEquals(PointerEventType.Move, lastPointerEvent!!.type)
     }
 
+    @Test
+    fun threeTouchesWithTouchEnd() = runApplicationTest {
+        val pointerEvents = mutableListOf<PointerEvent>()
+
+        createComposeWindow {
+            Box(modifier = Modifier.fillMaxSize().pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (coroutineContext.isActive) {
+                        pointerEvents.add(awaitPointerEvent())
+                    }
+                }
+            })
+        }
+
+        assertTrue(pointerEvents.isEmpty())
+
+        val touch1 = createTouch(1, getCanvas(), clientX = 10.0, clientY = 10.0)
+        val touch2 = createTouch(2, getCanvas(), clientX = 20.0, clientY = 20.0)
+        val touch3 = createTouch(3, getCanvas(), clientX = 30.0, clientY = 30.0)
+
+        dispatchEvents(
+            // +1
+            TouchEvent(
+                "touchstart",
+                touchEventInit(
+                    changedTouches = listOf(touch1),
+                    targetTouches = listOf(touch1),
+                )
+            ),
+            // +2
+            TouchEvent(
+                "touchstart",
+                touchEventInit(
+                    changedTouches = listOf(touch2),
+                    targetTouches = listOf(touch1, touch2),
+                )
+            ),
+            // +3
+            TouchEvent(
+                "touchstart",
+                touchEventInit(
+                    changedTouches = listOf(touch3),
+                    targetTouches = listOf(touch1, touch2, touch3),
+                )
+            ),
+            // -3
+            TouchEvent(
+                "touchend",
+                touchEventInit(
+                    changedTouches = listOf(touch3),
+                    targetTouches = listOf(touch1, touch2),
+                )
+            ),
+            // -2
+            TouchEvent(
+                "touchend",
+                touchEventInit(
+                    changedTouches = listOf(touch2),
+                    targetTouches = listOf(touch1),
+                )
+            ),
+            // -1
+            TouchEvent(
+                "touchend",
+                touchEventInit(
+                    changedTouches = listOf(touch1),
+                    targetTouches = listOf(),
+                )
+            )
+        )
+
+        awaitIdle()
+
+        val expected = """
+            + 1
+            + 1; + 2
+            + 1; + 2; + 3
+            + 1; + 2; - 3
+            + 1; - 2
+            - 1
+        """.trimIndent()
+
+        val actual = pointerEvents.joinToString("\n") { event ->
+            event.changes.sortedBy { it.id.value }.joinToString("; ") {
+                if (it.pressed) {
+                    "+ ${it.id.value}"
+                } else {
+                    "- ${it.id.value}"
+                }
+            }
+        }
+        assertEquals(expected, actual)
+    }
 }
 
 external interface Touch
@@ -206,14 +303,14 @@ private fun createTouch(
     """
 )
 
-private fun touchEventInit(vararg touches: Touch): TouchEventInit = js(
+private fun touchEventWithChangedTouchesInit(vararg touches: Touch): TouchEventInit = js(
     """
     ({
         bubbles: true,
         cancelable: true,
         composed: true,
         changedTouches: touches,
-        targetTouches: [],
+        targetTouches: touches,
         touches: []
     })
     """
@@ -231,4 +328,31 @@ private fun touchEventWithTargetTouchesInit(vararg touches: Touch): TouchEventIn
     })
     """
 )
+
+@OptIn(ExperimentalJsCollectionsApi::class)
+private fun touchEventInit(
+    changedTouchesBeforeIndex: Int,
+    vararg touches: Touch,
+): TouchEventInit = js(
+    """
+    ({
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        changedTouches: touches.slice(0, changedTouchesBeforeIndex),
+        targetTouches: touches.slice(changedTouchesBeforeIndex),
+        touches: []
+    })
+    """
+)
+
+@OptIn(ExperimentalJsCollectionsApi::class, ExperimentalJsExport::class)
+private fun touchEventInit(
+    changedTouches: List<Touch>,
+    targetTouches: List<Touch>,
+): TouchEventInit = touchEventInit(
+    changedTouchesBeforeIndex = changedTouches.size,
+    *arrayOf(*changedTouches.toTypedArray(), *targetTouches.toTypedArray())
+)
+
 

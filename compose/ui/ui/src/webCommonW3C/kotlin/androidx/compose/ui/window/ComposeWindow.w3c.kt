@@ -106,6 +106,7 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
+import org.w3c.dom.pointerevents.PointerEventInit
 
 private val actualDensity
     get() = window.devicePixelRatio
@@ -510,27 +511,23 @@ internal class ComposeWindow(
         }
 
         /**
-         * We use both targetTouches and changedTouches:
-         * - targetTouches is empty when a last pointer is released, but changedTouches won't be empty;
-         * - changedTouches contains only a Touch of a changed pointer, but compose needs all pointers,
-         *   therefore we take targetTouches in this case;
+         * The set of touches needed for compose are:
+         * - targetTouches: contains all pressed touches for the current target element
+         * - changedTouches when the event is 'touchend' or 'touchcancel': contains released touches
          */
-        val touches = if (event.targetTouches.length > event.changedTouches.length) {
-            event.targetTouches.asList()
-        } else {
-            event.changedTouches.asList()
+        val touches = event.targetTouches.asList().fastMap { it to true }.toMutableList()
+        if (eventType == PointerEventType.Release) {
+            touches.addAll(event.changedTouches.asList().fastMap { it to false } )
         }
-        val pointers = touches.fastMap { touch ->
+
+        val pointers = touches.fastMap { (touch, pressed) ->
             ComposeScenePointer(
                 id = PointerId(touch.identifier.toLong()),
                 position = Offset(
                     x = touch.clientX - offset.x,
                     y = touch.clientY - offset.y
                 ) * density.density,
-                pressed = when (eventType) {
-                    PointerEventType.Press, PointerEventType.Move -> true
-                    else -> false
-                },
+                pressed = pressed,
                 type = PointerType.Touch,
                 pressure = touch.unsafeCast<ExtendedTouchEvent>().force.toFloat()
             )
