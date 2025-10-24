@@ -15,6 +15,10 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@types/express": "^5.0.4",
+    "@types/node": "22.9.0",
+    "express": "^5.1.0",
+    "puppeteer": "^23.7.1"
     "@types/express": "^5.0.0",
     "@types/node": "24.9.1",
     "express": "^4.21.2",
