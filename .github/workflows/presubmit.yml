@@ -91,7 +91,12 @@ jobs:
         id: ktfmt-file-args
         run: |
           set -x
-          KTFMT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=../&|g' | grep -v "*.txt"`
+          # Keep only Kotlin sources (.kt, .kts), prefix as --file=../<path>, and join with spaces
+          KTFMT_FILES=$(echo "${{ steps.changed-files.outputs.files }}" \
+            | tr ' ' '\n' \
+            | grep -E '\\.(kt|kts)$' \
+            | sed 's|^|--file=../|g' \
+            | tr '\n' ' ')
           echo "ktfmt-file-args=$KTFMT_FILES" >> $GITHUB_OUTPUT
 
       - name: "Parse changed-files as affected files args"
@@ -119,11 +124,15 @@ jobs:
             caches/jars-9
             caches/transforms-3
 
+          # Use a known Gradle version since we won't rely on a wrapper
+          gradle-version: 9.1
+
       - name: "ktfmt"
+        if: ${{ steps.ktfmt-file-args.outputs.ktfmt-file-args != '' }}
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         working-directory: playground-projects/ktfmt-playground
-        run: ./gradlew -q :ktCheckFile ${{ steps.ktfmt-file-args.outputs.ktfmt-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
+        run: gradle -q :ktCheckFile ${{ steps.ktfmt-file-args.outputs.ktfmt-file-args }} ${{ needs.setup.outputs.gradlew_flags }}
 
   build-modules:
     strategy:
