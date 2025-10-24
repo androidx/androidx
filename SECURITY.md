@@ -2,20 +2,38 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+We provide security fixes for actively supported branches. Older releases may
+not receive backports.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version               | Supported |
+| --------------------- | --------- |
+| main (development)    | yes       |
+| latest stable release | yes       |
+| older releases        | no        |
 
-## Reporting a Vulnerability
+## Private vulnerability reporting (GitHub)
 
-Use this section to tell people how to report a vulnerability.
+We have enabled GitHub Private Vulnerability Reporting for this repository.
+Please use it to report security issues privately to the maintainers.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+- Go to the repository's Security tab and click "Report a vulnerability" to
+  submit a private report.
+- If you are unfamiliar with this flow, follow GitHub's guide on privately
+  reporting a security vulnerability:
+  https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability
+
+When reporting, please include:
+- Affected versions and environment
+- Steps to reproduce or proof of concept
+- Impact assessment and suggested severity (CVSS if available)
+
+Acknowledgement and disclosure process:
+- We acknowledge receipt within 3 business days.
+- We provide progress updates at least every 14 days until resolution.
+- We practice coordinated disclosure and will credit reporters who request it
+  after a fix or mitigation is available.
+
+## Non-security issues
+
+For non-security bugs or feature requests, please use the issue tracker
+instead of the private reporting channel.
