@@ -17,6 +17,8 @@
 package org.jetbrains.androidx.build
 
 import androidx.build.AndroidXComposeMultiplatformExtension
+import androidx.build.PlatformIdentifier
+import androidx.build.configurePinnedKotlinLibraries
 import javax.inject.Inject
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
@@ -89,6 +91,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
 
     override fun js(): Unit = multiplatformExtension.run {
         js(KotlinJsCompilerType.IR) {
+            project.configurePinnedKotlinLibraries(PlatformIdentifier.JS)
             browser {
                 testTask {
                     it.passTestFlagsToEnvironment()
@@ -146,6 +149,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     @OptIn(ExperimentalWasmDsl::class)
     override fun wasm(): Unit = multiplatformExtension.run {
         wasmJs {
+            project.configurePinnedKotlinLibraries(PlatformIdentifier.WASM_JS)
             browser {
                 testTask {
                     it.passTestFlagsToEnvironment()

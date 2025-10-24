@@ -332,7 +332,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 }
 
 
-private fun Project.configurePinnedKotlinLibraries(platform: PlatformIdentifier) {
+internal fun Project.configurePinnedKotlinLibraries(platform: PlatformIdentifier) {
     multiplatformExtension?.let {
         val kotlinLibSuffix =
             when (platform) {
